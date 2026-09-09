@@ -1,0 +1,22 @@
+name: Tests
+
+# Every screen has to draw, and the money has to actually move. This is the
+# check that matters, so it stands on its own: red here means something broke.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: 94 screens draw, 25 interactions really happen
+        run: npm test

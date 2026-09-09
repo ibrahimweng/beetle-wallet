@@ -1,7 +1,10 @@
 name: Publish
 
-# Every push to main republishes the app, so the live link is always what is
-# in the repository. Pages switches itself on the first time this runs.
+# Republishes the live site on every push to main, once the tests have passed.
+#
+# One thing has to be done by hand first, because the workflow token is not
+# allowed to do it: Settings → Pages → Source: GitHub Actions. Until then this
+# workflow fails on the configure step and the Tests workflow stays green.
 
 on:
   push:
@@ -27,8 +30,7 @@ jobs:
           node-version: 22
       - run: npm install --no-audit --no-fund
       - run: npx playwright install --with-deps chromium
-      - name: Every screen draws, and the money really moves
-        run: npm test
+      - run: npm test
 
   publish:
     needs: check
@@ -43,9 +45,6 @@ jobs:
           node-version: 22
       - run: node build.js
       - uses: actions/configure-pages@v5
-        with:
-          # turn Pages on the first time, so there is nothing to click
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .

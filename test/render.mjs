@@ -11,7 +11,16 @@ const errors = [];
 p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
 p.on('pageerror', e => errors.push(e.message));
 await p.setContent(page(), { waitUntil: 'load' });
-await p.waitForSelector('#rail-body');
+/* If the registry check trips, the app never boots — say why rather than
+   timing out on a selector that will never appear. */
+try {
+  await p.waitForSelector('#rail-body', { timeout: 5000 });
+} catch {
+  console.log('render: the app did not boot');
+  errors.forEach(e => console.log('  ✗', e));
+  await b.close();
+  process.exit(1);
+}
 
 const ids = await p.evaluate(() => [...document.querySelectorAll('.rail-link em')].map(n => n.textContent));
 const bad = [];
@@ -19,7 +28,7 @@ for (const id of ids) {
   errors.length = 0;
   await p.evaluate(i => window.beetleGo(i), id);
   await p.waitForTimeout(18);
-  const r = await p.evaluate(() => {
+  const r = await p.evaluate(want => {
     const host = document.getElementById('phone-screen');
     const sc = host.querySelector('.screen-scroll');
     const h = host.getBoundingClientRect();
@@ -30,11 +39,13 @@ for (const id of ids) {
     return {
       failed: (host.innerText || '').includes('This screen did not draw'),
       empty: host.children.length < 2,
+      /* a missing screen used to fall back to the first one and look fine */
+      wrongScreen: location.hash !== '#/' + want,
       hscroll: sc ? sc.scrollWidth - sc.clientWidth : 0,
       over,
     };
-  });
-  if (r.failed || r.empty || r.hscroll > 1 || r.over.length || errors.length)
+  }, id);
+  if (r.failed || r.empty || r.wrongScreen || r.hscroll > 1 || r.over.length || errors.length)
     bad.push({ id, ...r, errors: [...errors] });
 }
 console.log(`render: ${ids.length} screens, ${bad.length} broken`);

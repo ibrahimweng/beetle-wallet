@@ -1336,6 +1336,14 @@ function receive({ from, amount, detail = 'Payment received', icon = '↙' }) {
   return { from, amount, at: stamp(), session: sessionId(), balanceAfter: get().everyday };
 }
 
+/* Borrow. The money arrives now; the schedule is what it costs later, and
+   the screen has already shown the APR. */
+function borrow({ principal, total, instalments, perInstalment }) {
+  update(s => { s.everyday = +(s.everyday + principal).toFixed(2); });
+  addEntry({ icon: '◷', name: 'Borrowed', detail: `${instalments} payments of ₦${perInstalment.toLocaleString('en-NG')}`, amount: principal, to: 'loan', kind: 'loan', tone: 'good' });
+  return { principal, total, instalments, perInstalment, at: stamp(), session: sessionId(), balanceAfter: get().everyday };
+}
+
 /* ---------- savings ---------- */
 
 function saveToGoal(amount) {
@@ -1395,7 +1403,7 @@ function tryPasscode(code) {
 
 const setPasscode = code => update(s => { s.passcode = code; s.wrongTries = 0; });
 
-return { FEE_FLAT, VAT, feeFor, check, send, buy, payBill, receive, saveToGoal, takeFromGoal, pauseGoal, convert, setToggle, setLimit, setStanding, freezeAll, freezeCard, signOutDevice, setFilter, tryPasscode, setPasscode };
+return { FEE_FLAT, VAT, feeFor, check, send, buy, payBill, receive, borrow, saveToGoal, takeFromGoal, pauseGoal, convert, setToggle, setLimit, setStanding, freezeAll, freezeCard, signOutDevice, setFilter, tryPasscode, setPasscode };
 })();
 
 /* src/agent.js */
@@ -2854,6 +2862,9 @@ const PLANS = [
 ];
 
 let plan = PLANS[1];
+/* The services drawer lists the same plans, so it sets this one. */
+const setPlan = price => { plan = PLANS.find(x => x.price === price) || plan; };
+const currentPlan = () => plan;
 
 const buy = {
   title: 'Buy data',
@@ -3200,7 +3211,7 @@ const sharepower = {
     () => go('power')),
 };
 
-return { receiptBody, ask, scan, typed, pay, chat, lastReceipt, donesend, shareSheet, quietReceipt, share, receipt, asksvc, typedbuy, buy, confirmbuy, done, sharebuy, askreq, typedask, request, sent, scanbill, startBill, meter, confirmmeter, billsScreen, powerpay, power, sharepower };
+return { receiptBody, ask, scan, typed, pay, chat, lastReceipt, donesend, shareSheet, quietReceipt, share, receipt, asksvc, typedbuy, setPlan, currentPlan, buy, confirmbuy, done, sharebuy, askreq, typedask, request, sent, scanbill, startBill, meter, confirmmeter, billsScreen, powerpay, power, sharepower };
 })();
 
 /* src/screens/act3b.js */
@@ -3211,7 +3222,7 @@ const {
   el, Screen, Dock, Sheet, PageHead, Head, Body, Meta, Caption, Label,
   Card, Plain, Stack, Row, Divider, Spacer, Glyph, ListRow, ActionRow, Field,
   Button, Ghost, Chip, Bubble, Said, ToolPanel, Banner, Note, Pill, Meter, Timeline,
-  Toggle, ChipRow, AmountPad, Slide, Picker, EditRow, toast,
+  Toggle, ChipRow, AmountPad, TextPad, Slide, Picker, EditRow, toast,
   naira, nairaFull, signed,
 } = M$src_ui_js;
 const {
@@ -3221,11 +3232,15 @@ const {
 const { get, byDay, dollarsInNaira, leftToday, stamp } = M$src_store_js;
 const act = M$src_actions_js;
 const flow = M$src_flow_js;
-const { receiptBody, shareSheet, quietReceipt } = M$src_screens_act3a_js;
+const { receiptBody, shareSheet, quietReceipt, setPlan } = M$src_screens_act3a_js;
 const { setQuestion, entryRow } = M$src_screens_home_js;
 const e = el;
 const go = id => window.beetleGo(id);
 const repaint = () => window.beetleRepaint();
+
+/* the note on the draft screen, which you can actually write */
+let note = 'Rent, second half. Ask about the receipt for the first.';
+let writing = false;
 
 /* ---------------------------------------------------------------- *
  * Be paid
@@ -3358,11 +3373,11 @@ const airtime = {
     Head('Plans'),
     Card(...[
       ['5GB for 30 days', 'What you usually buy', 2500, true],
-      ['10GB for 30 days', 'Better value per gigabyte', 4500, false],
-      ['1.5GB for 7 days', 'If it is a short week', 1000, false],
+      ['10GB for 30 days', 'Better value per gigabyte', 4000, false],
+      ['1.5GB for 30 days', 'If it is a short month', 1000, false],
     ].map(([t, s, v, on], i) => e('div', null,
       i ? Divider() : null,
-      e('div', { class: 'listrow', onClick: () => go('confirmbuy') },
+      e('div', { class: 'listrow press', role: 'button', onClick: () => { setPlan(v); go('buy'); } },
         Glyph(on ? '✓' : '≋', on ? 'good' : ''),
         e('div', { class: 'grow stack gap-1' },
           e('div', { class: 'listrow-title' }, t),
@@ -3404,7 +3419,11 @@ const loanScreen = {
       Caption('If you are late', 'c-2'),
       e('div', { class: 't-body' }, loan.lateFee)),
     Bubble('You do not have to borrow this. Your salary lands on the 26th, and waiting nine days costs you nothing at all.'),
-    Button('Slide to take ' + naira(loan.principal), { onClick: () => go('confirm') }),
+    Slide('Slide to take ' + naira(loan.principal), () => {
+      act.borrow(loan);
+      toast(`${naira(loan.principal)} is in Everyday. First payment on the 26th.`);
+      repaint();
+    }),
     Ghost('Not now', () => go('services')),
   ], Dock({ placeholder: 'Ask what this really costs', back: () => go('services') })),
 };
@@ -3566,21 +3585,30 @@ const actions = {
 
 const draft = {
   title: 'Draft',
-  render: () => Screen([
-    PageHead('Before it goes', 'A note only you will see'),
-    Card(
-      Field('What', 'Send ₦20,000 to Sarah Adeyemi'),
-      Divider(),
-      Field('Note to yourself', 'Rent, second half. Ask about the receipt for the first.')),
-    Bubble('I keep this against the payment in your history. Nobody receiving the money ever sees it.'),
-    Button('Save and send', { onClick: () => go('confirm') }),
-    Ghost('Just send it', () => go('confirm')),
-  ], Dock({ placeholder: 'Ask about notes', back: () => go('actions') })),
-};
+  render: () => {
+    const base = Screen([
+      PageHead('Before it goes', 'A note only you will see'),
+      Card(
+        Field('What', `Send ${naira(flow.draft.amount)} to ${flow.draft.to.name}`),
+        Divider(),
+        EditRow('Note to yourself', note, null, () => { writing = true; repaint(); })),
+      Bubble('I keep this against the payment in your history. Nobody receiving the money ever sees it.'),
+      Button('Save and send', { onClick: () => { toast('Kept against this payment.'); go('confirm'); } }),
+      Ghost('Just send it', () => go('confirm')),
+    ], Dock({ placeholder: 'Ask about notes', back: () => go('actions') }));
 
-/* ---------------------------------------------------------------- *
- * How the habits add up
- * ---------------------------------------------------------------- */
+    if (!writing) return base;
+    const pad = TextPad({
+      value: note, placeholder: 'What is this one really for?',
+      onSend: t => { note = t || note; writing = false; repaint(); }, sendLabel: 'done',
+    });
+    return e('div', { class: 'screen-scroll' },
+      e('div', { class: 'pad top-pad stack gap-3' },
+        Caption('Note to yourself', 'c-2'), pad.line,
+        Meta('Only you ever see this.', 'c-3')),
+      pad.kb);
+  },
+};
 
 const health = {
   title: 'Money health',
@@ -4535,6 +4563,20 @@ const ACTS = [
   },
 ];
 
+/* The rail is built from ACTS and the screens come from SCREENS, so the two
+   have to agree. If a screen is ever deleted or renamed without the registry
+   being updated, say so here rather than quietly showing a different one. */
+const listed = ACTS.flatMap(a => a.sections.flatMap(s => s.screens));
+const missing = listed.filter(id => !SCREENS[id] || typeof SCREENS[id].render !== 'function');
+const stray = Object.keys(SCREENS).filter(id => !listed.includes(id));
+const dupes = listed.filter((id, i) => listed.indexOf(id) !== i);
+if (missing.length || stray.length || dupes.length) {
+  throw new Error('The screen registry does not add up. '
+    + (missing.length ? `Listed but not built: ${missing.join(', ')}. ` : '')
+    + (stray.length ? `Built but not listed: ${stray.join(', ')}. ` : '')
+    + (dupes.length ? `Listed twice: ${dupes.join(', ')}.` : ''));
+}
+
 return { SCREENS, ACTS };
 })();
 
@@ -4555,7 +4597,11 @@ let trail = [];
 let direction = 'forward';
 
 function go(id, push = true) {
-  if (!SCREENS[id]) id = flat()[0];
+  if (!SCREENS[id]) {
+    /* only ever a mistyped address: the registry checks itself at load */
+    if (id) console.warn(`No screen called "${id}". Showing the first one.`);
+    id = flat()[0];
+  }
 
   /* going back to where you just came from should feel like going back */
   if (trail[trail.length - 2] === id) { trail.pop(); direction = 'back'; }

@@ -14,7 +14,11 @@ let trail = [];
 let direction = 'forward';
 
 function go(id, push = true) {
-  if (!SCREENS[id]) id = flat()[0];
+  if (!SCREENS[id]) {
+    /* only ever a mistyped address: the registry checks itself at load */
+    if (id) console.warn(`No screen called "${id}". Showing the first one.`);
+    id = flat()[0];
+  }
 
   /* going back to where you just came from should feel like going back */
   if (trail[trail.length - 2] === id) { trail.pop(); direction = 'back'; }

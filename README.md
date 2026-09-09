@@ -5,7 +5,7 @@ Figma file. Ninety-four screens across four acts, every route in every flow,
 and money that really moves: send ₦7,500 and the balance drops, a row appears
 in the feed, and the receipt shows what you actually sent.
 
-**Live:** https://ibrahimweng.github.io/beetle-wallet/ — every push republishes it.
+**Live:** https://ibrahimweng.github.io/beetle-wallet/ once Pages is switched on (see Publishing).
 **Locally:** `npm start` and open http://localhost:8080
 
 The harness puts the phone in the middle, an index of every screen down the
@@ -56,10 +56,16 @@ or debug wordplay anywhere: in a money app that reads as *something is broken*.
 
 ## Publishing
 
-Nothing to set up. Every push to `main` runs the tests and, if they pass,
-republishes the site; the first run switches Pages on by itself. The address
-is `https://ibrahimweng.github.io/beetle-wallet/` — open it on your phone and
-add it to the home screen.
+**One switch, once, by hand:** in this repository, **Settings → Pages →
+Source: GitHub Actions**. The workflow token is not allowed to turn Pages on
+by itself, so until you flip it the Publish workflow fails on its first step.
+
+After that, every push to `main` runs the tests and republishes the site at
+`https://ibrahimweng.github.io/beetle-wallet/`. Open it on your phone and add
+it to the home screen.
+
+The **Tests** workflow is separate and runs on every push regardless, so a red
+mark there always means something actually broke.
 
 ## Layout
 
@@ -83,6 +89,10 @@ add it to the home screen.
 | `build.js` | Rolls it into one self-contained HTML file for publishing as an artifact |
 | `test/render.mjs` | Every screen draws, no console errors, no sideways scroll |
 | `test/interact.mjs` | Twenty-five things a slideshow cannot do |
+
+The registry checks itself when the app loads: if a screen is listed but not
+built, or built but not listed, it says so instead of quietly showing a
+different screen.
 
 No framework and no dependencies in the app itself. Plain modules and plain
 CSS, because the point is the design and the reasoning, not the stack.

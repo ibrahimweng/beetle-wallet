@@ -134,3 +134,17 @@ export const ACTS = [
     ],
   },
 ];
+
+/* The rail is built from ACTS and the screens come from SCREENS, so the two
+   have to agree. If a screen is ever deleted or renamed without the registry
+   being updated, say so here rather than quietly showing a different one. */
+const listed = ACTS.flatMap(a => a.sections.flatMap(s => s.screens));
+const missing = listed.filter(id => !SCREENS[id] || typeof SCREENS[id].render !== 'function');
+const stray = Object.keys(SCREENS).filter(id => !listed.includes(id));
+const dupes = listed.filter((id, i) => listed.indexOf(id) !== i);
+if (missing.length || stray.length || dupes.length) {
+  throw new Error('The screen registry does not add up. '
+    + (missing.length ? `Listed but not built: ${missing.join(', ')}. ` : '')
+    + (stray.length ? `Built but not listed: ${stray.join(', ')}. ` : '')
+    + (dupes.length ? `Listed twice: ${dupes.join(', ')}.` : ''));
+}

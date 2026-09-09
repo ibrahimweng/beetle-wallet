@@ -384,6 +384,9 @@ const PLANS = [
 ];
 
 let plan = PLANS[1];
+/* The services drawer lists the same plans, so it sets this one. */
+export const setPlan = price => { plan = PLANS.find(x => x.price === price) || plan; };
+export const currentPlan = () => plan;
 
 export const buy = {
   title: 'Buy data',

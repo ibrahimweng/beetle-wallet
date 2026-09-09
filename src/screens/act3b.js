@@ -4,7 +4,7 @@ import {
   el, Screen, Dock, Sheet, PageHead, Head, Body, Meta, Caption, Label,
   Card, Plain, Stack, Row, Divider, Spacer, Glyph, ListRow, ActionRow, Field,
   Button, Ghost, Chip, Bubble, Said, ToolPanel, Banner, Note, Pill, Meter, Timeline,
-  Toggle, ChipRow, AmountPad, Slide, Picker, EditRow, toast,
+  Toggle, ChipRow, AmountPad, TextPad, Slide, Picker, EditRow, toast,
   naira, nairaFull, signed,
 } from '../ui.js';
 import {
@@ -14,12 +14,16 @@ import {
 import { get, byDay, dollarsInNaira, leftToday, stamp } from '../store.js';
 import * as act from '../actions.js';
 import * as flow from '../flow.js';
-import { receiptBody, shareSheet, quietReceipt } from './act3a.js';
+import { receiptBody, shareSheet, quietReceipt, setPlan } from './act3a.js';
 import { setQuestion, entryRow } from './home.js';
 
 const e = el;
 const go = id => window.beetleGo(id);
 const repaint = () => window.beetleRepaint();
+
+/* the note on the draft screen, which you can actually write */
+let note = 'Rent, second half. Ask about the receipt for the first.';
+let writing = false;
 
 /* ---------------------------------------------------------------- *
  * Be paid
@@ -152,11 +156,11 @@ export const airtime = {
     Head('Plans'),
     Card(...[
       ['5GB for 30 days', 'What you usually buy', 2500, true],
-      ['10GB for 30 days', 'Better value per gigabyte', 4500, false],
-      ['1.5GB for 7 days', 'If it is a short week', 1000, false],
+      ['10GB for 30 days', 'Better value per gigabyte', 4000, false],
+      ['1.5GB for 30 days', 'If it is a short month', 1000, false],
     ].map(([t, s, v, on], i) => e('div', null,
       i ? Divider() : null,
-      e('div', { class: 'listrow', onClick: () => go('confirmbuy') },
+      e('div', { class: 'listrow press', role: 'button', onClick: () => { setPlan(v); go('buy'); } },
         Glyph(on ? '✓' : '≋', on ? 'good' : ''),
         e('div', { class: 'grow stack gap-1' },
           e('div', { class: 'listrow-title' }, t),
@@ -198,7 +202,11 @@ export const loanScreen = {
       Caption('If you are late', 'c-2'),
       e('div', { class: 't-body' }, loan.lateFee)),
     Bubble('You do not have to borrow this. Your salary lands on the 26th, and waiting nine days costs you nothing at all.'),
-    Button('Slide to take ' + naira(loan.principal), { onClick: () => go('confirm') }),
+    Slide('Slide to take ' + naira(loan.principal), () => {
+      act.borrow(loan);
+      toast(`${naira(loan.principal)} is in Everyday. First payment on the 26th.`);
+      repaint();
+    }),
     Ghost('Not now', () => go('services')),
   ], Dock({ placeholder: 'Ask what this really costs', back: () => go('services') })),
 };
@@ -360,21 +368,30 @@ export const actions = {
 
 export const draft = {
   title: 'Draft',
-  render: () => Screen([
-    PageHead('Before it goes', 'A note only you will see'),
-    Card(
-      Field('What', 'Send ₦20,000 to Sarah Adeyemi'),
-      Divider(),
-      Field('Note to yourself', 'Rent, second half. Ask about the receipt for the first.')),
-    Bubble('I keep this against the payment in your history. Nobody receiving the money ever sees it.'),
-    Button('Save and send', { onClick: () => go('confirm') }),
-    Ghost('Just send it', () => go('confirm')),
-  ], Dock({ placeholder: 'Ask about notes', back: () => go('actions') })),
-};
+  render: () => {
+    const base = Screen([
+      PageHead('Before it goes', 'A note only you will see'),
+      Card(
+        Field('What', `Send ${naira(flow.draft.amount)} to ${flow.draft.to.name}`),
+        Divider(),
+        EditRow('Note to yourself', note, null, () => { writing = true; repaint(); })),
+      Bubble('I keep this against the payment in your history. Nobody receiving the money ever sees it.'),
+      Button('Save and send', { onClick: () => { toast('Kept against this payment.'); go('confirm'); } }),
+      Ghost('Just send it', () => go('confirm')),
+    ], Dock({ placeholder: 'Ask about notes', back: () => go('actions') }));
 
-/* ---------------------------------------------------------------- *
- * How the habits add up
- * ---------------------------------------------------------------- */
+    if (!writing) return base;
+    const pad = TextPad({
+      value: note, placeholder: 'What is this one really for?',
+      onSend: t => { note = t || note; writing = false; repaint(); }, sendLabel: 'done',
+    });
+    return e('div', { class: 'screen-scroll' },
+      e('div', { class: 'pad top-pad stack gap-3' },
+        Caption('Note to yourself', 'c-2'), pad.line,
+        Meta('Only you ever see this.', 'c-3')),
+      pad.kb);
+  },
+};
 
 export const health = {
   title: 'Money health',

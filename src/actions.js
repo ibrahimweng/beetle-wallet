@@ -77,6 +77,14 @@ export function receive({ from, amount, detail = 'Payment received', icon = '↙
   return { from, amount, at: stamp(), session: sessionId(), balanceAfter: get().everyday };
 }
 
+/* Borrow. The money arrives now; the schedule is what it costs later, and
+   the screen has already shown the APR. */
+export function borrow({ principal, total, instalments, perInstalment }) {
+  update(s => { s.everyday = +(s.everyday + principal).toFixed(2); });
+  addEntry({ icon: '◷', name: 'Borrowed', detail: `${instalments} payments of ₦${perInstalment.toLocaleString('en-NG')}`, amount: principal, to: 'loan', kind: 'loan', tone: 'good' });
+  return { principal, total, instalments, perInstalment, at: stamp(), session: sessionId(), balanceAfter: get().everyday };
+}
+
 /* ---------- savings ---------- */
 
 export function saveToGoal(amount) {

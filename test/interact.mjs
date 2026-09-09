@@ -15,11 +15,11 @@ const p = await b.newPage({ viewport: { width: 1440, height: 1100 } });
 const errors = [];
 p.on('pageerror', e => errors.push(e.message));
 await p.goto(url, { waitUntil: 'load' });
-await p.waitForSelector('#rail-body');
+await p.waitForSelector('#phone-screen');
 
 const go = id => p.evaluate(i => window.beetleGo(i), id);
 const state = () => p.evaluate(() => window.beetleState());
-const wipe = async () => { await p.evaluate(() => localStorage.removeItem('beetle.state.v2')); await p.reload(); await p.waitForSelector('#rail-body'); };
+const wipe = async () => { await p.evaluate(() => localStorage.removeItem('beetle.state.v2')); await p.reload(); await p.waitForSelector('#phone-screen'); };
 /* Everything is scoped to the phone: the index down the left has buttons
    with the same words on them, and an unscoped selector will find those. */
 const IN = '#phone-screen ';
@@ -89,7 +89,7 @@ await tap('.chip >> text="All"');
 await go('lock');
 await tap('.toggle', 1);                          // Hide my balance
 await p.waitForTimeout(150);
-await p.reload(); await p.waitForSelector('#rail-body');
+await p.reload(); await p.waitForSelector('#phone-screen');
 check('a switch is remembered', (await state()).toggles.hideBalance === true, JSON.stringify((await state()).toggles));
 
 /* ---- 7. hiding the balance actually hides it ---- */
@@ -184,13 +184,12 @@ check('a no-destination button says something happened', await p.locator(IN + '.
 
 /* ---- 19. the registry refuses to hide a missing screen ---- */
 const routed = await p.evaluate(() => { window.beetleGo('nosuchscreen'); return location.hash; });
-check('an unknown address falls back visibly', routed === '#/checking', routed);
+check('an unknown address falls back home', routed === '#/home', routed);
 
-/* ---- 20. the reset puts it back ---- */
-await go('home');
-await p.evaluate(() => { window.confirm = () => true; });
-await p.locator('.rail-foot .stage-btn').click(); await p.waitForTimeout(120);
-check('reset restores the design figures', (await state()).everyday === 595320.75, String((await state()).everyday));
+/* ---- 20. clearing the browser puts the account back to the design ---- */
+await p.evaluate(() => localStorage.removeItem('beetle.state.v2'));
+await p.reload(); await p.waitForSelector('#phone-screen');
+check('a cleared browser restores the design figures', (await state()).everyday === 595320.75, String((await state()).everyday));
 
 console.log(`\ninteraction: ${results.filter(r => r.ok).length}/${results.length} passed`);
 if (errors.length) console.log('page errors:', errors.slice(0, 5));

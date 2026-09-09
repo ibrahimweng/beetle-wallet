@@ -10,7 +10,7 @@ const { base, close } = await serve();
 const b = await chromium.launch();
 const p = await b.newPage({ viewport: { width: 1440, height: 1000 } });
 await p.goto(base + '/public/index.html');
-await p.waitForSelector('#rail-body');
+await p.waitForSelector('#phone-screen');
 
 let missing = 0, checked = 0;
 for (const [id, wants] of Object.entries(EXPECT)) {

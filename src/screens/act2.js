@@ -10,6 +10,7 @@ import {
 } from '../ui.js';
 import { limits as seedLimits, meterBill, me } from '../data.js';
 import { get, leftToday } from '../store.js';
+import { set } from '../flow.js';
 import * as act from '../actions.js';
 
 const e = el;
@@ -202,7 +203,7 @@ export const limitstop = {
         Divider(),
         e('div', { class: 'stack gap-2', style: { padding: '8px 0' } },
           e('div', { class: 'row', style: { gap: '10px' } },
-            e('div', { class: 'tick tick-wait' }, null),
+            Icon('step-todo', { size: 18, cls: 'step' }),
             e('div', { class: 't-row' }, 'Now type the words in full')),
           e('div', { class: 'card-plain row', style: { gap: '2px' } },
             e('span', { class: 't-row' }, 'Confirm this transa'),

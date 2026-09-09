@@ -48,8 +48,8 @@ export const checking = {
       Label('How I decided'),
       Stack(2,
         Row(Glyph('check'), Body('Three of the four I am sure about.')),
-        Row(Glyph('alert', 'warn'), Body('The amount is the one I get wrong, so I flag it.')),
-        Row(Glyph('clock'), Body('You only have to check the part I marked.'))),
+        Row(Glyph('lock'), Body('The amount is the one I get wrong, so I flag it.')),
+        Row(Glyph('lock'), Body('You only have to check the part I marked.'))),
       Caption('If I were sure of all four I would not stop you here at all.')),
     ActionRow({ icon: 'chat', title: 'It is ₦20,000', sub: 'Rent, the usual amount', onClick: () => go('confirm') }),
     ActionRow({ icon: 'list', title: 'Let me type it', sub: 'I would rather you set this one', onClick: () => go('typed') }),
@@ -259,12 +259,10 @@ export const wrong = {
   title: 'What went wrong?',
   render: () => Screen([
     PageHead('What went wrong?', `${naira(seedTransfer.amount)} to ${contacts.sarah.name}, 14:22`),
-    Bubble('Tell me which one it is and I will start the right thing. Some of these I can do in a minute, and one of them I cannot do at all.'),
+    Bubble('Some of this I can do in minutes. Some of it only a bank can do, and that takes days. I will tell you which one you are in before you start, not after.'),
     ActionRow({ icon: 'person', title: 'It went to the wrong person', sub: 'I ask their bank to send it back', onClick: () => go('recall') }),
-    ActionRow({ icon: '#', title: 'The amount was wrong', sub: 'I can send the difference, or ask for it back', onClick: () => go('amend') }),
-    ActionRow({ icon: 'wait-filled', title: 'It never arrived', sub: 'It may still be on its way', onClick: () => go('pending') }),
-    ActionRow({ icon: 'alert', tone: 'warn', title: 'I did not make this payment', sub: 'A dispute, and we freeze the account first', onClick: () => go('disputeopen') }),
-    Note('Nothing you tap here moves money on its own.'),
+    ActionRow({ icon: 'search', title: 'They say it never arrived', sub: 'I make GTBank trace it', onClick: () => go('pending') }),
+    ActionRow({ icon: 'shield', title: 'I did not make this payment', sub: 'I freeze the account first, then we look', onClick: () => go('disputeopen') }),
   ], Dock({ placeholder: 'Ask what you can do', back: () => go('donesend') })),
 };
 
@@ -279,13 +277,13 @@ export const recall = {
     Head('What this is and is not'),
     Plain(
       Stack(2,
-        Row(Glyph('check', 'good'), Body('I have asked GTBank. That part is done.')),
-        Row(Glyph('alert', 'warn'), Body('I cannot take it back. It is her money until she agrees.')),
-        Row(Glyph('alert', 'warn'), Body('If she says no, no bank can force her.'))),
+        Row(Glyph('check'), Body('I have asked GTBank. That part is done.')),
+        Row(Glyph('lock'), Body('I cannot take it back. It is her money until she agrees.')),
+        Row(Glyph('lock'), Body('If she says no, no bank can force her.'))),
       Caption('After that it is a formal dispute, then a police report. I walk you through either.')),
     ActionRow({ icon: 'chat', title: 'Message Sarah', sub: 'Most of these end here, in an hour',
       onClick: () => toast('Message written and sent. Most of these come back within the hour.') }),
-    ActionRow({ icon: 'receipt', title: 'Open a dispute', sub: 'If she has not answered by Friday', onClick: () => go('disputeopen') }),
+    ActionRow({ icon: 'list', title: 'Open a dispute', sub: 'If she has not answered by Friday', onClick: () => go('disputeopen') }),
   ], Dock({ placeholder: 'Ask what happens next', back: () => go('wrong') })),
 };
 
@@ -339,12 +337,12 @@ export const disputeopen = {
     Plain(
       Label('Where this actually is'),
       Stack(2,
-        Row(Glyph('check', 'good'), Body('GTBank has it and the clock is running. Nothing more is needed from you.')),
-        Row(Glyph('clock'), Body('I check every morning and tell you the day it moves.')),
-        Row(Glyph('alert', 'warn'), Body('If they miss 4 September it escalates on its own.'))),
+        Row(Glyph('check'), Body('GTBank has it and the clock is running. Nothing more is needed from you.')),
+        Row(Glyph('lock'), Body('I check every morning and tell you the day it moves.')),
+        Row(Glyph('lock'), Body('If they miss 4 September it escalates on its own.'))),
       Caption('You do not have to call anybody, and you do not have to watch this screen.')),
-    ActionRow({ icon: 'receipt', title: 'See what was filed', sub: 'The exact wording, and what was attached', onClick: () => go('disputeopen') }),
-    ActionRow({ icon: '＋', title: 'Add something to it', sub: 'A screenshot or a message that helps', onClick: () => go('disputeopen') }),
+    ActionRow({ icon: 'chat', title: 'See what was filed', sub: 'The exact wording, and what was attached', onClick: () => go('disputeopen') }),
+    ActionRow({ icon: 'list', title: 'Add something to it', sub: 'A screenshot or a message that helps', onClick: () => go('disputeopen') }),
   ], Dock({ placeholder: 'Ask where this stands', back: () => go('recall') })),
 };
 

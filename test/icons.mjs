@@ -5,6 +5,7 @@ import { chromium } from 'playwright';
 import { readFileSync, readdirSync } from 'fs';
 import { serve } from './serve.mjs';
 import { ICONS } from '../src/icons.js';
+import { SCREENS } from '../src/screens/index.js';
 
 let failures = 0;
 const fail = (msg, detail = '') => { failures++; console.log('  ✗ ' + msg, detail); };
@@ -32,9 +33,9 @@ const p = await b.newPage({ viewport: { width: 1440, height: 1000 } });
 const warned = new Set();
 p.on('console', m => { if (m.text().startsWith('No icon called')) warned.add(m.text()); });
 await p.goto(base + '/public/index.html');
-await p.waitForSelector('#rail-body');
+await p.waitForSelector('#phone-screen');
 
-const ids = await p.evaluate(() => [...document.querySelectorAll('.rail-link em')].map(n => n.textContent));
+const ids = Object.keys(SCREENS);
 const names = Object.keys(ICONS);
 const leaks = new Map();
 for (const id of ids) {

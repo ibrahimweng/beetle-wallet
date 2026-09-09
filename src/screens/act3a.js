@@ -375,7 +375,8 @@ export const asksvc = {
     Meta('Or try one of these', 'c-3'),
     Stack(2, ...['Buy me airtime', 'Top up my light', 'What data plan is cheapest?'].map(t =>
       e('button', { class: 'btn btn-quiet', onClick: () => { setQuestion(t); go('agentchat'); } }, t))),
-    e('button', { class: 'btn btn-accent press', onClick: () => go('buy') }, 'Release to send')),
+    e('button', { class: 'btn btn-accent press', onClick: () => go('buy') }, 'Release to send'),
+    Ghost('Not what I said', () => go('typedbuy'))),
 };
 
 export const typedbuy = {
@@ -504,9 +505,10 @@ export const askreq = {
     e('div', { class: 't-title' }, e('span', null, 'Ask Musa for '), e('span', { class: 'c-3' }, '20k')),
     Waveform(30, 41),
     Meta('Or try one of these', 'c-3'),
-    Stack(2, ...['Ask Sarah for the rent', 'Remind John about last week', 'Who owes me money?'].map(t =>
+    Stack(2, ...['Who owes me money?', 'Show my code', 'Remind Musa again'].map(t =>
       e('button', { class: 'btn btn-quiet', onClick: () => { setQuestion(t); go('agentchat'); } }, t))),
-    e('button', { class: 'btn btn-accent', onClick: () => go('request') }, 'Release to send')),
+    e('button', { class: 'btn btn-accent', onClick: () => go('request') }, 'Release to send'),
+    Ghost('Not what I said', () => go('typedask'))),
 };
 
 export const typedask = {

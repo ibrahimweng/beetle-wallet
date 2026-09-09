@@ -1,13 +1,28 @@
-/* Beetle — the harness. Phone frame, routing, and the index down the left. */
+/* Beetle — the app. One phone on the page and nothing beside it.
+
+   There is no screen picker and no index. You get around the way you would
+   get around a bank app: you tap things, you press back, you type into the
+   ask bar. The states nobody can cause on purpose — the bank declining, a
+   phone going missing, a dispute reaching day three — are reachable by
+   asking for them, because asking is what this product is. */
 
 import { el } from './ui.js';
 import { SCREENS, ACTS } from './screens/index.js';
+import { setQuestion } from './screens/home.js';
 import { initAgent } from './agent.js';
-import { get, reset as resetStore } from './store.js';
-import { clear as clearDraft } from './flow.js';
+import { get } from './store.js';
 
 const e = el;
-const flat = () => ACTS.flatMap(a => a.sections.flatMap(s => s.screens));
+
+/* Signed out you start at the front door. Once you are in you land at home
+   and stay there across reloads, the way an app you have already opened does. */
+const SESSION = 'beetle.session';
+const FRONT = 'start';
+const HOME = 'home';
+const INSIDE = ['home', 'firsthome'];
+
+const signedIn = () => { try { return localStorage.getItem(SESSION) === '1'; } catch { return false; } };
+const remember = () => { try { localStorage.setItem(SESSION, '1'); } catch { /* private window */ } };
 
 let current = null;
 let trail = [];
@@ -16,9 +31,10 @@ let direction = 'forward';
 function go(id, push = true) {
   if (!SCREENS[id]) {
     /* only ever a mistyped address: the registry checks itself at load */
-    if (id) console.warn(`No screen called "${id}". Showing the first one.`);
-    id = flat()[0];
+    if (id) console.warn(`No screen called "${id}". Going home.`);
+    id = signedIn() ? HOME : FRONT;
   }
+  if (INSIDE.includes(id)) remember();
 
   /* going back to where you just came from should feel like going back */
   if (trail[trail.length - 2] === id) { trail.pop(); direction = 'back'; }
@@ -29,66 +45,77 @@ function go(id, push = true) {
   if (push && location.hash !== '#/' + id) location.hash = '#/' + id;
   paint();
 }
+
+/* ---------------------------------------------------------------- *
+ * The ask bar
+ * ---------------------------------------------------------------- */
+
+/* Asking to be shown something is a different act from asking a question, and
+   only the first one moves you. "Show me what happens when it fails" goes to
+   that screen; "how much did I spend" goes to the agent, which is also how
+   "send 20k to Sarah" keeps working. */
+const SHOW = /^\s*(show|take|go|open|jump|let me see|see|what happens|what does it look|i want to see)\b/i;
+const words = s => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').split(' ').filter(Boolean);
+const SKIP = new Set(['show','take','give','let','see','look','like','what','when','where','how','the','a','an','me','to','it','is','does','do','on','of','my','you','your','i','want','happens','screen','page','if','and','for','that','this','there','was','not','but','goes','go','open']);
+
+/* A screen answers to its own name, its title, and the words of the section it
+   belongs to. The section is what carries the plain language — "When the
+   network is not there" is how a person would ask for the screen whose id is
+   nonetwork and whose title is "You are offline". */
+const VOCAB = (() => {
+  const v = {};
+  for (const a of ACTS) for (const sec of a.sections) for (const id of sec.screens) {
+    v[id] = words(`${id} ${(SCREENS[id] || {}).title || ''} ${sec.name} ${sec.aim || ''}`);
+  }
+  return v;
+})();
+
+function findScreen(q) {
+  const asked = words(q).filter(w => !SKIP.has(w));
+  if (!asked.length) return null;
+  const stem = w => w.slice(0, 4);
+  let best = null, bestScore = 0;
+  for (const id of Object.keys(VOCAB)) {
+    const hay = VOCAB[id];
+    let hits = 0;
+    for (const w of asked) if (hay.some(h => stem(h) === stem(w))) hits++;
+    const score = hits / asked.length;
+    if (score > bestScore) { bestScore = score; best = id; }
+  }
+  return bestScore >= 0.5 ? best : null;
+}
+
+/* Asking to be shown something moves you, and says so by returning true.
+   It runs ahead of whatever the screen itself does with the ask bar. */
+function showBeetle(q) {
+  const text = String(q || '').trim();
+  if (!text || !SHOW.test(text)) return false;
+  const id = findScreen(text);
+  if (!id || id === current) return false;
+  go(id);
+  return true;
+}
+
+function askBeetle(q) {
+  const text = String(q || '').trim();
+  if (!text) return;
+  if (showBeetle(text)) return;
+  setQuestion(text);
+  go('agentchat');
+}
+
 window.beetleGo = go;                    // screens move between each other with this
 window.beetleRepaint = () => paint();    // and redraw in place after changing something
-window.beetleState = get;                // handy in the console, and what the tests read
+window.beetleAsk = askBeetle;            // an ask bar with nothing of its own ends up here
+window.beetleShow = showBeetle;          // and every ask bar checks this one first
+window.beetleState = get;                // what the tests read the account through
 
-function meta(id) {
-  for (const a of ACTS) for (const s of a.sections) if (s.screens.includes(id)) return { act: a.name, section: s.name, aim: s.aim };
-  return { act: '', section: '', aim: '' };
-}
-
-function paintRail(filter = '') {
-  const rail = document.getElementById('rail-body');
-  rail.innerHTML = '';
-  const q = filter.trim().toLowerCase();
-  for (const a of ACTS) {
-    const secs = a.sections
-      .map(s => ({ ...s, screens: s.screens.filter(id => !q || id.includes(q) || (SCREENS[id]?.title || '').toLowerCase().includes(q) || s.name.toLowerCase().includes(q)) }))
-      .filter(s => s.screens.length);
-    if (!secs.length) continue;
-    rail.appendChild(e('div', { class: 'rail-act' }, a.name));
-    for (const s of secs) {
-      rail.appendChild(e('div', { class: 'rail-sec' }, s.name));
-      for (const id of s.screens) {
-        rail.appendChild(e('button', {
-          class: 'rail-link',
-          'aria-current': id === current ? 'true' : 'false',
-          onClick: () => go(id),
-        }, e('span', null, SCREENS[id]?.title || id), e('em', null, id)));
-      }
-    }
-  }
-  if (!q) {
-    const s = get();
-    rail.appendChild(e('div', { class: 'rail-foot' },
-      e('button', {
-        class: 'stage-btn', style: { width: '100%' },
-        onClick: () => {
-          if (!confirm('Put the money back to the figures in the design?')) return;
-          resetStore(); clearDraft(); paint();
-        },
-      }, 'Reset the account'),
-      e('p', null, `Everyday ₦${s.everyday.toLocaleString('en-NG', { minimumFractionDigits: 2 })} · $${s.dollars.toFixed(2)} · ${s.ledger.length} entries. Anything you do here is kept in this browser and nowhere else.`)));
-  }
-}
+/* ---------------------------------------------------------------- *
+ * Drawing
+ * ---------------------------------------------------------------- */
 
 function paint() {
-  const m = meta(current);
   const screen = SCREENS[current];
-  document.getElementById('stage-title').textContent = `${m.section} — ${screen?.title || current}`;
-  document.getElementById('stage-sub').textContent = m.aim || '';
-
-  const list = flat();
-  const i = list.indexOf(current);
-  document.getElementById('nav-count').textContent = `${i + 1} of ${list.length}`;
-  const prev = document.getElementById('nav-prev');
-  const next = document.getElementById('nav-next');
-  prev.disabled = i <= 0;
-  next.disabled = i >= list.length - 1;
-  prev.onclick = () => go(list[i - 1]);
-  next.onclick = () => go(list[i + 1]);
-
   const host = document.getElementById('phone-screen');
   host.classList.toggle('back', direction === 'back');
   host.innerHTML = '';
@@ -101,53 +128,31 @@ function paint() {
       e('div', { class: 't-meta c-3' }, String(err && err.message || err))));
     console.error(current, err);
   }
-  paintRail(document.getElementById('rail-search').value);
+  document.title = (screen && screen.title) ? `Beetle — ${screen.title}` : 'Beetle';
 }
 
 function boot() {
   document.body.appendChild(
-    e('div', { class: 'harness' },
-      e('div', { class: 'rail' },
-        e('div', { class: 'rail-brand' }, e('b', null, 'Beetle'), e('span', null, 'concept build')),
-        e('input', { class: 'rail-search', id: 'rail-search', placeholder: 'Find a screen', oninput: ev => paintRail(ev.target.value) }),
-        e('div', { id: 'rail-body' })),
-      e('div', { class: 'stage' },
-        e('div', { class: 'stage-head' },
-          e('div', null,
-            e('h1', { class: 'stage-title', id: 'stage-title' }, ''),
-            e('p', { class: 'stage-sub', id: 'stage-sub' }, '')),
-          e('div', { class: 'stage-nav' },
-            e('button', { class: 'stage-btn', id: 'nav-prev' }, '‹ Prev'),
-            e('span', { class: 'stage-count', id: 'nav-count' }, ''),
-            e('button', { class: 'stage-btn', id: 'nav-next' }, 'Next ›'),
-            e('button', { class: 'stage-btn', id: 'agent-badge', title: 'How the agent is answering' }, 'Agent: …'))),
-        e('div', { class: 'phone' }, e('div', { class: 'phone-screen', id: 'phone-screen' })))));
+    e('div', { class: 'app' },
+      e('div', { class: 'phone' }, e('div', { class: 'phone-screen', id: 'phone-screen' }))));
 
-  window.addEventListener('hashchange', () => go(location.hash.replace('#/', ''), false));
-  document.addEventListener('keydown', ev => {
-    if (ev.target.tagName === 'INPUT') return;
-    const list = flat(); const i = list.indexOf(current);
-    if (ev.key === 'ArrowRight' && i < list.length - 1) go(list[i + 1]);
-    if (ev.key === 'ArrowLeft' && i > 0) go(list[i - 1]);
+  /* Every hash is a history entry, so the browser's own back button is the
+     app's back button and nothing extra has to be wired for it.
+
+     Going somewhere sets the hash, which fires this, which would draw the
+     screen a second time. Anything a screen consumes as it renders — the
+     question you just typed, for one — would be eaten by the first draw and
+     gone by the second, so the echo is ignored. */
+  window.addEventListener('hashchange', () => {
+    const id = location.hash.replace('#/', '');
+    if (id === current) return;
+    go(id, false);
   });
 
-  go(location.hash.replace('#/', '') || flat()[0], false);
+  const asked = location.hash.replace('#/', '');
+  go(asked || (signedIn() ? HOME : FRONT), false);
 
-  initAgent().then(m => {
-    const badge = document.getElementById('agent-badge');
-    badge.textContent = { sample: 'Agent: live', key: 'Agent: live (your key)', offline: 'Agent: written answers' }[m] || 'Agent: written answers';
-    badge.title = m === 'offline'
-      ? 'No model reachable, so the agent answers from the wording in the design. Press to add a key and make it think.'
-      : 'The agent is answering with a real model.';
-    badge.onclick = () => {
-      const key = prompt('Anthropic API key. It is kept in this browser only and never leaves it except to Anthropic.',
-        localStorage.getItem('beetle.anthropicKey') || '');
-      if (key === null) return;
-      if (key.trim()) localStorage.setItem('beetle.anthropicKey', key.trim());
-      else localStorage.removeItem('beetle.anthropicKey');
-      location.reload();
-    };
-  });
+  initAgent();
 }
 
 document.addEventListener('DOMContentLoaded', boot);

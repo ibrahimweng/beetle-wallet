@@ -4,9 +4,9 @@ import { chromium } from 'playwright';
 import { serve } from './serve.mjs';
 import { SCREENS } from '../src/screens/index.js';
 
-/* The rail is built from the registry, so the registry is what the count is
-   checked against — a number typed here would just drift. */
-const EXPECTED = Object.keys(SCREENS).length;
+/* There is no index in the app any more, so the registry is the list. */
+const IDS = Object.keys(SCREENS);
+const EXPECTED = IDS.length;
 
 const WAYS = [
   { name: 'public/ (the exact directory Vercel serves)', path: '/public/index.html' },
@@ -28,14 +28,14 @@ for (const way of WAYS) {
   /* If the registry check trips, the app never boots — say why rather than
      timing out on a selector that will never appear. */
   try {
-    await p.waitForSelector('#rail-body', { timeout: 8000 });
+    await p.waitForSelector('#phone-screen', { timeout: 8000 });
   } catch {
     console.log(`render [${way.name}]: the app did not boot`);
     errors.forEach(e => console.log('  ✗', e));
     failures++; await p.close(); continue;
   }
 
-  const ids = await p.evaluate(() => [...document.querySelectorAll('.rail-link em')].map(n => n.textContent));
+  const ids = IDS;
   const bad = [];
   for (const id of ids) {
     errors.length = 0;
@@ -64,8 +64,7 @@ for (const way of WAYS) {
 
   console.log(`render [${way.name}]: ${ids.length} screens, ${bad.length} broken`);
   bad.forEach(x => console.log('  ✗', x.id, JSON.stringify(x).slice(0, 200)));
-  failures += bad.length + (ids.length === EXPECTED ? 0 : 1);
-  if (ids.length !== EXPECTED) console.log(`  ✗ registry has ${EXPECTED} screens, the rail shows ${ids.length}`);
+  failures += bad.length;
   await p.close();
 }
 

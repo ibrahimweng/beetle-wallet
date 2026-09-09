@@ -75,7 +75,7 @@ export const Icon = (name, { size = 24, cls = '' } = {}) => {
     return e('span', { class: 'icon-missing', title: name }, '?');
   }
   return e('svg', {
-    class: 'icon ' + cls, width: String(size), height: String(size),
+    class: 'icon ' + cls, 'data-icon': name, width: String(size), height: String(size),
     viewBox: '0 0 24 24', fill: 'none', 'aria-hidden': 'true', html: d,
   });
 };
@@ -157,7 +157,9 @@ export const ToolPanel = (title, state, rows) =>
       Icon('send', { size: 16 }), e('b', null, title),
       e('span', { class: 'tool-state' }, e('i', { class: 'dot' }), state)),
     ...rows.map(r => e('div', { class: 'tool-row' },
-      e('div', { class: 'tick ' + (r.done === false ? 'tick-wait' : '') }, r.done === false ? null : Icon('check', { size: 13 })),
+      /* the design ships these three as finished glyphs, so draw them rather
+         than faking a circle in CSS */
+      Icon(r.done === false ? 'step-todo' : r.done === 'work' ? 'step-work' : 'step-done', { size: 18, cls: 'step' }),
       e('div', { class: 'k' }, r.k),
       e('div', { class: 'v ' + (r.tone || '') }, r.v))));
 
@@ -216,8 +218,18 @@ export const Waveform = (bars = 26, seed = 7) => {
 
 /* ---------- dock ---------- */
 export const Dock = ({ placeholder = 'Ask, or just say what you need', back, onAsk, fab = 'fab-plus', onFab } = {}) => {
+  /* Every ask bar answers, on every screen. A screen that wants to do
+     something particular with what you typed passes its own onAsk; the rest
+     hand it to the agent. */
+  onAsk = onAsk || (q => window.beetleAsk(q));
   const input = e('input', { placeholder, 'aria-label': 'Ask Beetle' });
-  const fire = () => { const v = input.value.trim(); if (!v) return; input.value = ''; onAsk && onAsk(v); };
+  const fire = () => {
+    const v = input.value.trim(); if (!v) return; input.value = '';
+    /* "show me what happens when it fails" is a request to be taken somewhere,
+       and it works from any screen. Anything else is the screen's own to answer. */
+    if (window.beetleShow && window.beetleShow(v)) return;
+    onAsk && onAsk(v);
+  };
   input.addEventListener('keydown', ev => { if (ev.key === 'Enter') fire(); });
   return e('div', { class: 'dock' },
     back && e('button', { class: 'backbtn', 'aria-label': 'Back', onClick: back }, Icon('back', { size: 20 })),

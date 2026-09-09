@@ -181,6 +181,34 @@ Seventy-nine screens have not been read against their frame yet. Until they
 have, the pinned fixture is a guard against drift rather than proof of
 fidelity, and this list is the honest state of it.
 
+### The layout, measured
+
+`node test/geometry.mjs out.json` records where every line of text sits on
+every screen, with its size and weight. Comparing that against the same
+measurements taken from the frames in `figma-map.json` is how layout gets
+checked, because judging it by eye is what let the type run loose and the
+onboarding trail get drawn as headings.
+
+All ninety-one screens have been measured against their frames once. What
+that found and fixed: page heads set their second line at 14 where the design
+sets 16, and 4 below the title where the design leaves 8, which was wrong on
+about thirty-five screens; and the onboarding trail drew every step already
+behind you as a 32 point heading where the design draws a quiet 16 point line,
+which was wrong on ten.
+
+What it found and has not fixed yet, with the measurement:
+
+- **Sheets drawn as whole screens.** The design draws Services, Bills, Loan,
+  Card, Dollars, Airtime, PowerPay, Scan, ScanBill, Meter, PayFrom and others
+  as a sheet over the home screen, so their content starts 50 to 200 lower
+  than the app puts it and their first line is a 16 point label rather than a
+  32 point title. Services reads 16 at y 147 in the design and 32 at y 72 in
+  the app.
+- **Title weights.** Settings is 32 bold in the design and 32 semibold in the
+  app. Others differ the same way.
+- **Bills** is not the same screen: its "3 of 5 covered" is a 12 point label
+  inside the design, and a 32 point page title in the app.
+
 One deliberate difference, recorded here so it is not mistaken for drift:
 
 - **The APR box on the loan screen.** The design does not have it. It was

@@ -20,9 +20,11 @@ const repaint = () => window.beetleRepaint();
 
 /* The design carries the steps you have already done above the heading, as
    plain grey words, rather than a progress bar. */
+/* The steps already behind you. The design draws these small and indented,
+   not as headings the size of the one you are on. */
 const Trail = (...done) =>
-  done.length ? e('div', { class: 'stack gap-1' },
-    ...done.map(s => e('div', { class: 't-title c-3' }, s))) : null;
+  done.length ? e('div', { class: 'stack', style: { gap: '20px' } },
+    ...done.map(s => e('div', { class: 't-body c-3', style: { paddingLeft: '36px' } }, s))) : null;
 
 /* A field the person is filling in, drawn as a box with a caret. */
 const Entry = (label, value, { note } = {}) =>

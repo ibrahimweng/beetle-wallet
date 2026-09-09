@@ -50,9 +50,11 @@ export const Label   = (t, cls = '') => e('div', { class: 't-label ' + cls }, t)
 /* Page head — the title plus its one line of explanation.
    `big` is a destination you navigate to and stay on; the default is a moment. */
 export const PageHead = (title, sub, { big = false } = {}) =>
-  e('div', { class: 'stack gap-1', style: { marginBottom: '18px' } },
+  /* The design sets a page head as a title with an 8 gap under it, and the
+     line below it is body size, not meta. */
+  e('div', { class: 'stack gap-2', style: { marginBottom: '18px' } },
     e('div', { class: big ? 't-title' : 't-head' }, title),
-    sub && Meta(sub, 'c-3'));
+    sub && e('div', { class: 't-body c-3' }, sub));
 
 /* ---------- containers ---------- */
 export const Card = (...kids) => e('div', { class: 'card stack gap-3' }, ...kids);

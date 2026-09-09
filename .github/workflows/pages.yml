@@ -1,7 +1,7 @@
 name: Publish
 
 # Every push to main republishes the app, so the live link is always what is
-# in the repository. Enable it once under Settings → Pages → Source: GitHub Actions.
+# in the repository. Pages switches itself on the first time this runs.
 
 on:
   push:
@@ -43,6 +43,9 @@ jobs:
           node-version: 22
       - run: node build.js
       - uses: actions/configure-pages@v5
+        with:
+          # turn Pages on the first time, so there is nothing to click
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .

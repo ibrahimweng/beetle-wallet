@@ -5,7 +5,7 @@ Figma file. Ninety-four screens across four acts, every route in every flow,
 and money that really moves: send ₦7,500 and the balance drops, a row appears
 in the feed, and the receipt shows what you actually sent.
 
-**Live:** enable Pages once (below) and every push republishes it.
+**Live:** https://ibrahimweng.github.io/beetle-wallet/ — every push republishes it.
 **Locally:** `npm start` and open http://localhost:8080
 
 The harness puts the phone in the middle, an index of every screen down the
@@ -56,9 +56,10 @@ or debug wordplay anywhere: in a money app that reads as *something is broken*.
 
 ## Publishing
 
-Once, in the repository: **Settings → Pages → Source: GitHub Actions**. After
-that every push to `main` runs the tests and, if they pass, republishes the
-site. Open it on your phone and add it to the home screen.
+Nothing to set up. Every push to `main` runs the tests and, if they pass,
+republishes the site; the first run switches Pages on by itself. The address
+is `https://ibrahimweng.github.io/beetle-wallet/` — open it on your phone and
+add it to the home screen.
 
 ## Layout
 

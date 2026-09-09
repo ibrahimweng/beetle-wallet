@@ -133,14 +133,14 @@ Every screen was checked against the Figma file rather than against memory.
 `test/figma-copy.json` holds 204 strings read out of the file, and
 `npm test` fails if a screen stops saying what the design says it says.
 
-Two deliberate differences, both recorded here so they are not mistaken for
-drift:
+One deliberate difference, recorded here so it is not mistaken for drift:
 
-- **The name.** The file still says Indigo in nine places. The product is
-  Beetle, so the code says Beetle and the file is what needs updating.
 - **The APR box on the loan screen.** The design does not have it. It was
   added when the pricing was made honest, and removing it would put back a
   4% a month that reads as small and is not.
+
+The name used to be a second difference. The file said Indigo and the code
+said Beetle. The file has been renamed, so the two now agree.
 
 One inconsistency in the file itself: `Pay` says the fee on ₦50,000 is free,
 while `DoneFlat` charges ₦26.88 on the same amount. The code works the fee

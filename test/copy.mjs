@@ -1,6 +1,6 @@
 /* Every screen must still say what the Figma file says. The expected strings
-   are the ones read out of the design, with the product name corrected from
-   Indigo to Beetle — the file is stale there, the code is not. */
+   are the ones read out of the design. The product name in them is Beetle,
+   which is what the file says now that it has been renamed from Indigo. */
 import { chromium } from 'playwright';
 import { readFileSync } from 'fs';
 import { serve } from './serve.mjs';

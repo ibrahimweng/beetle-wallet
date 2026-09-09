@@ -5,13 +5,14 @@
    There is no tab bar and no menu: you get around the app the way the design
    intends, by tapping through it and using the dock. */
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Route, routeList } from './routes';
 import { ToBuild } from './screens/ToBuild';
 import { Start } from './screens/Start';
 import { Actions } from './screens/Actions';
 import { Number, Code, Nin, Who, Face, Passcode, Ready, Signin, Signcode } from './screens/way-in';
+import { Ask, Chat, Confirm, DoneSend, Share } from './screens/send';
 
 export type Stack = { [K in Route]: undefined };
 const Nav = createNativeStackNavigator<Stack>();
@@ -29,6 +30,13 @@ const BUILT: Partial<Record<Route, React.ComponentType<{ nav: Nav }>>> = {
   ready: ({ nav }) => <Ready nav={as(nav)} />,
   signin: ({ nav }) => <Signin nav={as(nav)} />,
   signcode: ({ nav }) => <Signcode nav={as(nav)} />,
+
+  ask: ({ nav }) => <Ask nav={as(nav)} />,
+  chat: ({ nav }) => <Chat nav={as(nav)} />,
+  confirm: ({ nav }) => <Confirm nav={as(nav)} />,
+  noface: ({ nav }) => <Confirm nav={as(nav)} faceMissed />,
+  donesend: ({ nav }) => <DoneSend nav={as(nav)} />,
+  share: ({ nav }) => <Share nav={as(nav)} />,
 };
 
 /* the screens take { go, back }; the stack hands over { navigate, goBack } */
@@ -36,9 +44,16 @@ const as = (n: Nav) => ({ go: n.navigate, back: n.goBack });
 
 type Nav = { navigate: (r: Route) => void; goBack: () => void };
 
+/* Every route has a path of its own, so a screen can be opened directly while
+   working on it and a link into the app lands where it says it will. */
+const linking: LinkingOptions<Stack> = {
+  prefixes: ['beetle://', 'https://beetle.app'],
+  config: { screens: Object.fromEntries(routeList.map(r => [r, r])) as never },
+};
+
 export function App() {
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Nav.Navigator initialRouteName="start" screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
         {routeList.map(id => (
           <Nav.Screen key={id} name={id}>

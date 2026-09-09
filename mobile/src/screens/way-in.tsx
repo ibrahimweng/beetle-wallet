@@ -31,14 +31,21 @@ function DigitScreen({
     let i = 0;
     return groups.map(g => digits.slice(i, (i += g))).filter(Boolean).join(' ');
   })();
+  /* The updater stays pure: React may run it more than once, and a navigation
+     fired from inside it would happen twice. Finishing is watched instead. */
+  /* A number that arrives already filled in must not send you onward before
+     you have touched it, which is what happens if completion is judged on
+     length alone. */
+  const [touched, setTouched] = useState(false);
   const key = (k: string) => {
-    if (k === 'del') return setDigits(d => d.slice(0, -1));
-    setDigits(d => {
-      const next = (d + k).slice(0, max);
-      if (next.length === max) setTimeout(() => done(next), 120);
-      return next;
-    });
+    setTouched(true);
+    setDigits(d => (k === 'del' ? d.slice(0, -1) : (d + k).slice(0, max)));
   };
+  React.useEffect(() => {
+    if (!touched || digits.length < max) return;
+    const t = setTimeout(() => done(digits), 140);
+    return () => clearTimeout(t);
+  }, [digits, max, touched]);
   /* These frames do not scroll and carry no dock. The content sits at the top
      and the keypad is pinned near the bottom, its first row at 554 of 852. */
   return (

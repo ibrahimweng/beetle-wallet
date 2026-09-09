@@ -87,10 +87,23 @@ it at 16. They are two different heads and both are correct in their place.
 ## Where it has got to
 
 Built: the design system above, all 97 icons, the shared state layer,
-navigation across all 100 routes, and eleven screens — Start, the button's
-menu, and the whole way in: Number, Code, Nin, Who, Face, Passcode, Ready,
-Signin and Signcode. Opening an account works end to end, from the front door
-to "Take me in", and so does signing in.
+navigation across all 100 routes with a path each, and sixteen screens.
 
-Not built: the other 89. They route, they name their frame, and the system
+- The way in: Start, Number, Code, Nin, Who, Face, Passcode, Ready, Signin,
+  Signcode. Opening an account runs from the front door to "Take me in", and
+  signing in runs to home.
+- The send flow: Ask, Chat, Confirm, NoFace, DoneSend, Share. It runs end to
+  end and the money really moves: Confirm calls the shared state layer, so the
+  balance on the receipt is the balance after, not a figure typed in.
+- The button's menu.
+
+Not built: the other 84. They route, they name their frame, and the system
 above is what they are made of.
+
+## One thing the file leaves open
+
+The Chat frame's agent bubble still carries the Bubble component's default
+text, about topping up Ikeja Electric, rather than anything about the transfer
+being put together. It reads like an instance nobody overrode. The screen here
+uses the line the flow needs instead of copying that through. Worth a look
+next time the file is open.

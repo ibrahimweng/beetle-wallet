@@ -4,3 +4,4 @@ beetle.config.js
 .DS_Store
 *.log
 test-results/
+shot.mjs

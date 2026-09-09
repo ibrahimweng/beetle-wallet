@@ -3,7 +3,7 @@
    the first day with nothing in it, and coming back. */
 
 import {
-  el, Screen, Dock, Sheet, PageHead, Display, Title, Head, Body, Meta, Caption, Label,
+  el, Icon, AgentMark, Screen, Dock, Sheet, PageHead, Display, Title, Head, Body, Meta, Caption, Label,
   Card, Plain, Stack, Row, Between, Divider, Spacer, Glyph, ListRow, ActionRow, TxRow,
   Button, Ghost, Chip, Bubble, Said, Typing, ToolPanel, Banner, Note, Pill,
   Timeline, Meter, Pips, Keypad, Keyboard, Waveform, PassPad, toast, naira,
@@ -70,8 +70,8 @@ const Viewfinder = (caption, { round = false, tone = 'var(--accent)' } = {}) =>
       width: round ? '190px' : '100%', height: round ? '190px' : '190px',
       borderRadius: round ? '999px' : 'var(--r-md)',
       background: 'var(--surface-2)', border: `2px dashed ${tone}`,
-      display: 'grid', placeItems: 'center', fontSize: '46px', color: 'var(--text-tertiary)',
-    } }, round ? '☺' : '🪪'),
+      display: 'grid', placeItems: 'center', color: 'var(--text-tertiary)',
+    } }, Icon(round ? 'faceid' : 'id', { size: 52 })),
     Caption(caption, 'c-3'));
 
 /* ---------------------------------------------------------------- *
@@ -83,7 +83,7 @@ export const start = {
   render: () => e('div', { class: 'screen-scroll' },
     e('div', { class: 'pad top-pad bottom-pad stack gap-5', style: { minHeight: '100%', justifyContent: 'space-between' } },
       e('div', { class: 'stack gap-4' },
-        e('div', { class: 'row' }, Glyph('◉', 'accent', { lg: true, circle: true })),
+        e('div', { class: 'row' }, Glyph('mark', 'accent', { lg: true, circle: true })),
         Display('Beetle'),
         e('div', { class: 't-title c-2' }, onboarding.tagline),
         Body(onboarding.blurb, 'c-2')),
@@ -91,13 +91,13 @@ export const start = {
         Plain(
           Label('What it will ask you for'),
           Stack(2,
-            Row(Glyph('📱'), Body('Your phone number, to send one code')),
+            Row(Glyph('airtime'), Body('Your phone number, to send one code')),
             Row(Glyph('#'), Body('Your NIN, because the law asks for it')),
-            Row(Glyph('☺'), Body('Your face once, to prove you are you'))),
+            Row(Glyph('faceid'), Body('Your face once, to prove you are you'))),
           Caption('Nothing else. No address, no utility bill, no branch.')),
         Button('Open an account', { onClick: () => go('number') }),
         Button('I already have one', { kind: 'quiet', onClick: () => go('signin') }),
-        Note('Deposits are held by a partner bank and insured to ₦5,000,000 by the NDIC.', '🔒'))),
+        Note('Deposits are held by a partner bank and insured to ₦5,000,000 by the NDIC.', 'lock'))),
   ),
 };
 
@@ -143,9 +143,9 @@ export const nin = {
     Plain(
       Label('What happens with it'),
       Stack(2,
-        Row(Glyph('✓'), Body('Checked once against NIMC, right now')),
-        Row(Glyph('🔒'), Body('Stored encrypted, never shown back in full')),
-        Row(Glyph('⌫'), Body('Deleted with your account if you close it'))),
+        Row(Glyph('check'), Body('Checked once against NIMC, right now')),
+        Row(Glyph('lock'), Body('Stored encrypted, never shown back in full')),
+        Row(Glyph('del'), Body('Deleted with your account if you close it'))),
       Caption('The one NIMC has on file is 4471 883 2019. Anything else takes you to the screen that tells the three reasons apart.')),
   ], Dock({ placeholder: 'Ask why my NIN is needed', back: () => go('code') })),
 };
@@ -222,8 +222,8 @@ export const passcode = {
       Plain(
         Label('Why two things'),
         Stack(2,
-          Row(Glyph('☺'), Body('Your face opens the app')),
-          Row(Glyph('🔑'), Body('Your passcode moves money'))),
+          Row(Glyph('faceid'), Body('Your face opens the app')),
+          Row(Glyph('key'), Body('Your passcode moves money'))),
         Caption('A face can be held up to a phone by somebody else. Four digits in your head cannot.')),
     ], Dock({ placeholder: 'Ask about the passcode', back: () => go('face') }));
   },
@@ -232,14 +232,14 @@ export const passcode = {
 export const ready = {
   title: 'It is open',
   render: () => Screen([
-    e('div', { class: 'row' }, Glyph('✓', 'good', { lg: true })),
+    e('div', { class: 'row' }, Glyph('check', 'good', { lg: true })),
     PageHead('Your account is open', 'It took fifty-one seconds'),
     Card(
       e('div', { class: 'row between' },
         e('div', { class: 'stack gap-1' },
           Caption('Your account number', 'c-2'),
           e('div', { class: 't-title' }, me.account)),
-        Glyph('⧉', 'accent', { circle: true })),
+        Glyph('copy', 'accent', { circle: true })),
       Divider(),
       e('div', { class: 'row between' }, Caption('Name', 'c-2'), e('div', { class: 't-row' }, me.name)),
       e('div', { class: 'row between' }, Caption('Bank', 'c-2'), e('div', { class: 't-row' }, 'Beetle'))),
@@ -247,7 +247,7 @@ export const ready = {
     Card(...onboarding.ready.map((r, i) => e('div', null,
       i ? Divider() : null,
       e('div', { class: 'row', style: { padding: '8px 0' } },
-        e('div', { class: 'tick ' + (r.on ? '' : 'tick-wait') }, r.on ? '✓' : ''),
+        e('div', { class: 'tick ' + (r.on ? '' : 'tick-wait') }, r.on ? Icon('check', { size: 13 }) : null),
         e('div', { class: 'grow t-body ' + (r.on ? '' : 'c-3') }, r.t),
         r.on ? null : e('div', { class: 't-caption c-3' }, 'Needs ID'))))),
     Bubble('You can use it now. The two greyed lines open when you add a photo of your ID, which takes another minute whenever you have one to hand.'),
@@ -264,7 +264,7 @@ export const nomatch = {
   title: 'That did not match',
   render: () => Screen([
     PageHead('That did not match', 'Nothing has been opened'),
-    e('div', { class: 'row' }, Glyph('⚠', 'warn', { lg: true })),
+    e('div', { class: 'row' }, Glyph('alert', 'warn', { lg: true })),
     Card(
       e('div', { class: 'row between', style: { padding: '6px 0' } },
         Body('You typed', 'c-2'), e('div', { class: 't-row' }, '4471 883 2019')),
@@ -275,9 +275,9 @@ export const nomatch = {
       e('div', { class: 'row between', style: { padding: '6px 0' } },
         Body('Checked at', 'c-2'), e('div', { class: 't-row' }, '7:52 AM'))),
     Bubble('This is one of three things, and I can tell them apart. It is not a judgement about you.'),
-    ActionRow({ icon: '⌨', title: 'A digit is off', sub: 'Type the eleven again', onClick: () => go('nin') }),
-    ActionRow({ icon: '👤', title: 'Your name changed', sub: 'Marriage, spelling, a correction at NIMC', onClick: () => go('who') }),
-    ActionRow({ icon: '🏛', tone: 'warn', title: 'NIMC is down', sub: 'Their side, not yours. Try in an hour.', onClick: () => toast('I will keep checking and tell you the moment they are back. Nothing is lost.') }),
+    ActionRow({ icon: 'list', title: 'A digit is off', sub: 'Type the eleven again', onClick: () => go('nin') }),
+    ActionRow({ icon: 'person', title: 'Your name changed', sub: 'Marriage, spelling, a correction at NIMC', onClick: () => go('who') }),
+    ActionRow({ icon: 'bank', tone: 'warn', title: 'NIMC is down', sub: 'Their side, not yours. Try in an hour.', onClick: () => toast('I will keep checking and tell you the moment they are back. Nothing is lost.') }),
     Note('Three failed checks in a day pauses the check, not your ability to open one later.'),
   ], Dock({ placeholder: 'Ask what went wrong', back: () => go('nin') })),
 };
@@ -306,7 +306,7 @@ export const finish = {
         e('div', { class: 'stack gap-1 grow' },
           e('div', { class: 't-row' }, 'Send up to ₦1,000,000 a day'),
           e('div', { class: 't-caption c-3' }, `Today you can send ${naira(limits.day)}`)),
-        Glyph('↗')),
+        Glyph('send')),
       Divider(),
       e('div', { class: 'row between', style: { padding: '8px 0' } },
         e('div', { class: 'stack gap-1 grow' },
@@ -352,7 +352,7 @@ export const income = {
       },
         e('div', { class: 'row between' },
           e('div', { class: 't-row' }, t),
-          e('div', { class: 'tick ' + (on ? '' : 'tick-wait') }, on ? '✓' : ''))))),
+          e('div', { class: 'tick ' + (on ? '' : 'tick-wait') }, on ? Icon('check', { size: 13 }) : null))))),
     Bubble('This sets the ceiling the regulator allows on your account. It is not a credit check, and it does not change what I charge you.'),
     Button('That is right', { onClick: () => go('full') }),
     Note('You can change this later in Settings without redoing anything else.'),
@@ -362,12 +362,12 @@ export const income = {
 export const full = {
   title: 'Fully open',
   render: () => Screen([
-    e('div', { class: 'row' }, Glyph('✓', 'good', { lg: true })),
+    e('div', { class: 'row' }, Glyph('check', 'good', { lg: true })),
     PageHead('Everything is open', 'Your limits went up just now'),
     Card(...onboarding.ready.map((r, i) => e('div', null,
       i ? Divider() : null,
       e('div', { class: 'row', style: { padding: '8px 0' } },
-        e('div', { class: 'tick' }, '✓'),
+        e('div', { class: 'tick' }, Icon('check', { size: 13 })),
         e('div', { class: 'grow t-body' }, r.t),
         r.on ? null : Pill('New', 'good'))))),
     Card(
@@ -392,20 +392,20 @@ export const firsthome = {
   title: 'The first home',
   render: () => Screen([
     e('div', { class: 'row between' },
-      Glyph('◉', 'accent', { circle: true }),
+      Glyph('mark', 'accent', { circle: true }),
       Label('Wallet'),
-      e('div', { style: { fontSize: '18px' } }, '🔔')),
+      Icon('bell', { size: 22 })),
     e('div', { class: 'stack gap-2 center', style: { padding: '10px 0 4px' } },
       Caption('Total balance', 'c-2'),
       Display('₦0.00'),
-      Button('⤓  Receive', { onClick: () => go('receive') })),
+      Button('Receive', { icon: Icon('receive-filled', { size: 18 }), onClick: () => go('receive') })),
     Bubble('Nothing has moved yet, so there is nothing for me to tell you. Put something in and I will start noticing things.'),
-    ActionRow({ icon: '⧉', tone: 'accent', title: 'Copy your account number', sub: me.account + ' · Beetle', onClick: () => toast(`${me.account} copied.`) }),
-    ActionRow({ icon: '🏛', title: 'Move money from another bank', sub: 'Takes a few seconds', onClick: () => go('ways') }),
-    ActionRow({ icon: '≋', title: 'Buy airtime with a card', sub: 'You do not need a balance for this', onClick: () => go('airtime') }),
+    ActionRow({ icon: 'copy', tone: 'accent', title: 'Copy your account number', sub: me.account + ' · Beetle', onClick: () => toast(`${me.account} copied.`) }),
+    ActionRow({ icon: 'bank', title: 'Move money from another bank', sub: 'Takes a few seconds', onClick: () => go('ways') }),
+    ActionRow({ icon: 'data', title: 'Buy airtime with a card', sub: 'You do not need a balance for this', onClick: () => go('airtime') }),
     Head('Activities'),
     e('div', { class: 'card-plain stack gap-2 center', style: { padding: '28px 16px' } },
-      e('div', { style: { fontSize: '26px' } }, '◌'),
+      Icon('wait-filled', { size: 30 }),
       Body('Beetle has nothing to carry yet', 'c-2'),
       Caption('Every naira in and out will show up here, in the order it moved.', 'c-3')),
   ], Dock({ onAsk: q => { window.beetleAskFirst = q; go('firstask'); }, onFab: () => go('actions') })),
@@ -421,10 +421,10 @@ export const firstask = {
       thread.appendChild(holder);
       ask(q, {
         context: 'a brand new account with a ₦0.00 balance, opened this morning, no transactions yet',
-        onText: t => { holder.innerHTML = ''; holder.appendChild(e('div', { class: 'agent-mark' }, '◉')); holder.appendChild(e('div', { class: 'bubble' }, t)); },
+        onText: t => { holder.innerHTML = ''; holder.appendChild(AgentMark()); holder.appendChild(e('div', { class: 'bubble' }, t)); },
       }).then(t => {
         holder.innerHTML = '';
-        holder.appendChild(e('div', { class: 'agent-mark' }, '◉'));
+        holder.appendChild(AgentMark());
         holder.appendChild(e('div', { class: 'bubble' }, t));
         const scroll = thread.closest('.screen-scroll');
         scroll && scroll.scrollTo({ top: 1e6, behavior: 'smooth' });
@@ -450,15 +450,15 @@ export const emptyactivity = {
     e('div', { class: 'row', style: { gap: '8px' } },
       Chip('All', true), Chip('Insights', false), Chip('In', false), Chip('Out', false)),
     e('div', { class: 'card-plain stack gap-3 center', style: { padding: '34px 18px' } },
-      e('div', { style: { fontSize: '30px' } }, '◌'),
+      Icon('wait-filled', { size: 30 }),
       Head('Nothing to carry yet'),
       Body('When money moves, it lands here with the reason, the time, and what I made of it.', 'c-2')),
     Plain(
       Label('What will show here'),
       Stack(2,
-        Row(Glyph('↗'), Body('Every payment, with who and why')),
-        Row(Glyph('◉'), Body('What I noticed, in the same feed')),
-        Row(Glyph('↩'), Body('Anything that failed, and what I did about it'))),
+        Row(Glyph('send'), Body('Every payment, with who and why')),
+        Row(Glyph('mark'), Body('What I noticed, in the same feed')),
+        Row(Glyph('undo-filled'), Body('Anything that failed, and what I did about it'))),
       Caption('I do not fill this with adverts. If there is nothing to say, it stays empty.')),
     Button('Put money in', { onClick: () => go('receive') }),
   ], Dock({ placeholder: 'Ask what goes here', back: () => go('firsthome') })),
@@ -469,13 +469,13 @@ export const emptygoal = {
   render: () => Screen([
     PageHead('Savings', 'You have not set one yet', { big: true }),
     e('div', { class: 'card-plain stack gap-3 center', style: { padding: '30px 18px' } },
-      e('div', { style: { fontSize: '30px' } }, '🏺'),
+      Icon('pot', { size: 30 }),
       Head('Nothing put away'),
       Body('A beetle will shift many times its own weight, given something to push. A goal is a name and a number, and I work out the rest.', 'c-2')),
     Head('Ones people start with'),
-    ActionRow({ icon: '✈', title: goal.name, sub: `${naira(goal.target)} by ${goal.by}`, onClick: () => go('goal') }),
-    ActionRow({ icon: '🛡', title: 'Rainy day', sub: 'Three months of your outgoings', onClick: () => go('goal') }),
-    ActionRow({ icon: '🏠', title: 'Rent', sub: 'Put a twelfth aside each month', onClick: () => go('goal') }),
+    ActionRow({ icon: 'gift', title: goal.name, sub: `${naira(goal.target)} by ${goal.by}`, onClick: () => go('goal') }),
+    ActionRow({ icon: 'shield', title: 'Rainy day', sub: 'Three months of your outgoings', onClick: () => go('goal') }),
+    ActionRow({ icon: 'home-filled', title: 'Rent', sub: 'Put a twelfth aside each month', onClick: () => go('goal') }),
     Bubble('Nothing here is ever locked. If you need it back on a bad Tuesday, you take it back on that Tuesday.'),
     Button('Set my own', { onClick: () => go('saverule') }),
   ], Dock({ placeholder: 'Ask me to start one', back: () => go('firsthome') })),
@@ -490,14 +490,14 @@ export const signin = {
   render: () => e('div', { class: 'screen-scroll' },
     e('div', { class: 'pad top-pad bottom-pad stack gap-5', style: { minHeight: '100%', justifyContent: 'space-between' } },
       e('div', { class: 'stack gap-4' },
-        e('div', { class: 'row' }, Glyph('◉', 'accent', { lg: true, circle: true })),
+        e('div', { class: 'row' }, Glyph('mark', 'accent', { lg: true, circle: true })),
         Display('Welcome back'),
         Body(`Signing in as ${me.name}`, 'c-2')),
       e('div', { class: 'stack gap-4 center' },
         e('div', { style: {
           width: '92px', height: '92px', borderRadius: '999px', background: 'var(--accent-wash)',
-          display: 'grid', placeItems: 'center', fontSize: '40px', color: 'var(--accent)',
-        } }, '☺'),
+          display: 'grid', placeItems: 'center', color: 'var(--accent)',
+        } }, Icon('faceid', { size: 44 })),
         Caption('Look at the phone to open it', 'c-2'),
         Button('Use Face ID', { onClick: () => go('home') }),
         Button('Use my passcode instead', { kind: 'quiet', onClick: () => go('signcode') }),

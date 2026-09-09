@@ -27,7 +27,7 @@ export const contacts = {
   sarah:  { name: 'Sarah Adeyemi', bank: 'GTBank', account: '0234 5678 90', initials: 'SA', note: 'The only Sarah you have paid before' },
   musa:   { name: 'Musa Danjuma',  bank: 'GTBank', account: '0234 5678 90', initials: 'MD' },
   chidi:  { name: 'Chidi Okafor',  bank: 'Access', account: '0119 8842 03', initials: 'CO' },
-  john:   { name: 'John Doe',      bank: 'Zenith', account: '0221 7745 19', initials: 'JD' },
+  john:   { name: 'John Doe',      bank: 'Access Bank', account: '0044 8821', initials: 'JD' },
   mum:    { name: 'Mum',           bank: 'MTN',    account: '0803 214 4471', initials: 'M' },
 };
 
@@ -35,18 +35,18 @@ export const contacts = {
    the history screen, the filters — is derived from this single list, so a
    payment that happens shows up everywhere at once and nowhere twice. */
 export const seedLedger = [
-  { id: 'l01', day: 'today',     time: '14:22', icon: '◌', name: 'Sarah Adeyemi', detail: 'Still on its way', amount: -20000, status: 'pending',  to: 'pending',  kind: 'transfer' },
-  { id: 'l02', day: 'today',     time: '13:40', icon: '⚠', name: 'Chidi Okafor',  detail: 'Did not go',       amount: -12000, status: 'failed',   to: 'failed',   kind: 'transfer', tone: 'bad' },
-  { id: 'l03', day: 'today',     time: '11:15', icon: '↩', name: 'Musa Danjuma',  detail: 'Came back',        amount:  20000, status: 'reversed', to: 'reversed', kind: 'transfer' },
-  { id: 'l04', day: 'today',     time: '12:00', icon: '≋', name: 'Netflix',       detail: 'Monthly Subscription', amount: -3500, status: 'done', to: 'receipt',  kind: 'service' },
-  { id: 'l05', day: 'today',     time: '10:45', icon: '↗', name: 'John Doe',      detail: 'Grocery Shopping', amount:  -8000, status: 'done',     to: 'receipt',  kind: 'transfer' },
-  { id: 'l06', day: 'today',     time: '09:14', icon: '↗', name: 'Sarah Adeyemi', detail: 'Flat deposit',     amount: -50000, status: 'done',     to: 'receipt',  kind: 'transfer' },
-  { id: 'l07', day: 'today',     time: '08:02', icon: '≋', name: 'MTN',           detail: '5GB for Mum',      amount:  -2500, status: 'done',     to: 'receipt',  kind: 'airtime' },
-  { id: 'l08', day: 'today',     time: '07:55', icon: '↗', name: 'Sarah Adeyemi', detail: 'Rent part payment', amount: -20000, status: 'done',    to: 'donesend', kind: 'transfer' },
-  { id: 'l09', day: 'today',     time: '07:30', icon: '🏺', name: 'Holiday goal',  detail: 'Round ups',        amount:   -280, status: 'done',     to: 'goal',     kind: 'saving' },
-  { id: 'l10', day: 'yesterday', time: '16:40', icon: '🏛', name: 'Pagrin Limited', detail: 'August salary',   amount: 640000, status: 'done',     to: 'donein',   kind: 'in', tone: 'good' },
-  { id: 'l11', day: 'yesterday', time: '11:22', icon: '⚡', name: 'Ikeja Electric', detail: 'Meter 4457 8891', amount:  -8000, status: 'done',     to: 'power',    kind: 'bill' },
-  { id: 'l12', day: 'yesterday', time: '09:00', icon: '≋', name: 'Netflix',        detail: 'Virtual card',    amount:  -5200, status: 'done',     to: 'donecard', kind: 'card' },
+  { id: 'l01', day: 'today',     time: '14:22', icon: 'wait-filled', name: 'Sarah Adeyemi', detail: 'Still on its way', amount: -20000, status: 'pending',  to: 'pending',  kind: 'transfer' },
+  { id: 'l02', day: 'today',     time: '13:40', icon: 'alert', name: 'Chidi Okafor',  detail: 'Did not go',       amount: -12000, status: 'failed',   to: 'failed',   kind: 'transfer', tone: 'bad' },
+  { id: 'l03', day: 'today',     time: '11:15', icon: 'undo-filled', name: 'Musa Danjuma',  detail: 'Came back',        amount:  20000, status: 'reversed', to: 'reversed', kind: 'transfer' },
+  { id: 'l04', day: 'today',     time: '12:00', icon: 'data', name: 'Netflix',       detail: 'Monthly Subscription', amount: -3500, status: 'done', to: 'donesub',  kind: 'service' },
+  { id: 'l05', day: 'today',     time: '10:45', icon: 'send', name: 'John Doe',      detail: 'Grocery Shopping', amount:  -8000, status: 'done',     to: 'doneshop', kind: 'transfer' },
+  { id: 'l06', day: 'today',     time: '09:14', icon: 'send', name: 'Sarah Adeyemi', detail: 'Flat deposit',     amount: -50000, status: 'done',     to: 'doneflat', kind: 'transfer' },
+  { id: 'l07', day: 'today',     time: '08:02', icon: 'data', name: 'MTN',           detail: '5GB for Mum',      amount:  -2500, status: 'done',     to: 'done',     kind: 'airtime' },
+  { id: 'l08', day: 'today',     time: '07:55', icon: 'send', name: 'Sarah Adeyemi', detail: 'Rent part payment', amount: -20000, status: 'done',    to: 'donesend', kind: 'transfer' },
+  { id: 'l09', day: 'today',     time: '07:30', icon: 'pot', name: 'Holiday goal',  detail: 'Round ups',        amount:   -280, status: 'done',     to: 'goal',     kind: 'saving' },
+  { id: 'l10', day: 'yesterday', time: '16:40', icon: 'bank', name: 'Pagrin Limited', detail: 'August salary',   amount: 640000, status: 'done',     to: 'donein',   kind: 'in', tone: 'good' },
+  { id: 'l11', day: 'yesterday', time: '11:22', icon: 'power', name: 'Ikeja Electric', detail: 'Meter 4457 8891', amount:  -8000, status: 'done',     to: 'power',    kind: 'bill' },
+  { id: 'l12', day: 'yesterday', time: '09:00', icon: 'data', name: 'Netflix',        detail: 'Virtual card',    amount:  -5200, status: 'done',     to: 'donecard', kind: 'card' },
 ];
 
 export const ledgerFooter = 'Your spending is ₦41,000 above this point last month.';
@@ -130,10 +130,10 @@ export const goal = {
 };
 
 export const bills = [
-  { name: 'Ikeja Electric', sub: 'Prepaid · 4457 8891', icon: '⚡', last: 8000 },
-  { name: 'DStv Compact',   sub: 'Monthly · 4457 8891', icon: '📺', last: 12500 },
-  { name: 'Spectranet',     sub: 'Internet · 4457 88',  icon: '🌐', last: 21000 },
-  { name: 'LAWMA waste',    sub: 'Waste · Ikeja',       icon: '🗑', last: 3000 },
+  { name: 'Ikeja Electric', sub: 'Prepaid · 4457 8891', icon: 'power', last: 8000 },
+  { name: 'DStv Compact',   sub: 'Monthly · 4457 8891', icon: 'tv', last: 12500 },
+  { name: 'Spectranet',     sub: 'Internet · 4457 88',  icon: 'globe', last: 21000 },
+  { name: 'LAWMA waste',    sub: 'Waste · Ikeja',       icon: 'waste', last: 3000 },
 ];
 
 export const meterBill = {
@@ -183,13 +183,13 @@ export const standing = [
 ];
 
 export const services = [
-  { name: 'Airtime and data', sub: 'Any network, any line', icon: '≋', to: 'airtime' },
-  { name: 'Bills',            sub: 'Power, TV, internet, waste', icon: '⚡', to: 'bills' },
-  { name: 'Borrow',           sub: 'Up to ₦150,000 over 90 days', icon: '◷', to: 'loan' },
-  { name: 'Virtual card',     sub: 'Spend online anywhere', icon: '▭', to: 'card' },
-  { name: 'Savings pot',      sub: 'Put money away, take it back any time', icon: '🏺', to: 'goal' },
-  { name: 'Dollars',          sub: 'Hold it steady, or convert', icon: '$', to: 'dollars' },
-  { name: 'Request money',    sub: 'Ask, and they pay in one tap', icon: '↙', to: 'askreq' },
+  { name: 'Airtime and data', sub: 'Any network, any line', icon: 'data', to: 'airtime' },
+  { name: 'Bills',            sub: 'Power, TV, internet, waste', icon: 'power', to: 'bills' },
+  { name: 'Borrow',           sub: 'Up to ₦150,000 over 90 days', icon: 'clock', to: 'loan' },
+  { name: 'Virtual card',     sub: 'Spend online anywhere', icon: 'card', to: 'card' },
+  { name: 'Savings pot',      sub: 'Put money away, take it back any time', icon: 'pot', to: 'goal' },
+  { name: 'Dollars',          sub: 'Hold it steady, or convert', icon: 'dollar', to: 'dollars' },
+  { name: 'Request money',    sub: 'Ask, and they pay in one tap', icon: 'request', to: 'askreq' },
 ];
 
 export const onboarding = {

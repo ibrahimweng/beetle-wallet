@@ -1,9 +1,9 @@
 # Beetle
 
 A Nigerian bank app with an agent that actually thinks, built in code from the
-Figma file. Ninety-four screens across four acts, every route in every flow,
-and money that really moves: send ₦7,500 and the balance drops, a row appears
-in the feed, and the receipt shows what you actually sent.
+Figma file. A hundred screens across four acts, every route in every flow, the design
+system's own icons, and money that really moves: send ₦7,500 and the balance
+drops, a row appears in the feed, and the receipt shows what you actually sent.
 
 **Live:** deploy it on Vercel in two clicks (see Publishing) — every push redeploys.
 **Locally:** `npm start` and open http://localhost:8080
@@ -85,6 +85,7 @@ red there means something actually broke.
 | File | What it is |
 | --- | --- |
 | `src/tokens.css` | Colours, type scale, radii, spacing — read off the Figma file, not guessed |
+| `src/icons.js` | All 97 glyph components, exported from Figma as SVG. No emoji anywhere. |
 | `src/app.css` | The harness, the phone, every in-app component class |
 | `src/ui.js` | The kit: one function per recurring pattern, plus the controls that operate |
 | `src/data.js` | The seed world — the figures the design is written around |
@@ -96,14 +97,15 @@ red there means something actually broke.
 | `src/screens/act1.js` | It goes wrong — 16 screens |
 | `src/screens/act2.js` | It decides — 9 screens |
 | `src/screens/home.js` | Home and the live chat — 2 screens |
-| `src/screens/act3a.js` `act3b.js` | It works — 48 screens |
+| `src/screens/act3a.js` `act3b.js` | It works — 54 screens |
 | `src/screens/act4.js` | Getting in — 19 screens |
 | `src/screens/index.js` | The registry: every id, act, section, and what the section is for |
 | `vercel.json` | Points Vercel at `public/`, which `build.js` assembles |
 | `build.js` | Rolls it into one self-contained HTML file for publishing as an artifact |
 | `dist/beetle.html` | That bundle, committed. CI fails if it drifts from the source. |
 | `test/render.mjs` | Every screen draws, no console errors, no sideways scroll |
-| `test/interact.mjs` | Twenty-five things a slideshow cannot do |
+| `test/icons.mjs` | No emoji, every icon name real, none rendered as text |
+| `test/interact.mjs` | Thirty things a slideshow cannot do |
 
 The registry checks itself when the app loads: if a screen is listed but not
 built, or built but not listed, it says so instead of quietly showing a
@@ -121,5 +123,13 @@ place. The loan costs ₦19,500 on ₦150,000 over 90 days — 76% nominal APR,
 ## Tests
 
 ```sh
-npm test        # builds, then checks 94 renders and 25 interactions
+npm test        # builds, then checks the icons, 100 renders and 30 interactions
 ```
+
+## Icons
+
+Every icon is one of the 97 `glyph=` components in the Figma file, exported as
+SVG into `src/icons.js` and coloured by CSS. There are no emoji in the app, and
+`npm test` fails if one appears, if an icon name does not exist, or if a name
+is ever printed as text instead of drawn — all three of which happened while
+this was being built.

@@ -47,12 +47,12 @@ export const checking = {
     Plain(
       Label('How I decided'),
       Stack(2,
-        Row(Glyph('✓'), Body('Three of the four I am sure about.')),
-        Row(Glyph('⚑', 'warn'), Body('The amount is the one I get wrong, so I flag it.')),
-        Row(Glyph('◷'), Body('You only have to check the part I marked.'))),
+        Row(Glyph('check'), Body('Three of the four I am sure about.')),
+        Row(Glyph('alert', 'warn'), Body('The amount is the one I get wrong, so I flag it.')),
+        Row(Glyph('clock'), Body('You only have to check the part I marked.'))),
       Caption('If I were sure of all four I would not stop you here at all.')),
-    ActionRow({ icon: '💬', title: 'It is ₦20,000', sub: 'Rent, the usual amount', onClick: () => go('confirm') }),
-    ActionRow({ icon: '⌨', title: 'Let me type it', sub: 'I would rather you set this one', onClick: () => go('typed') }),
+    ActionRow({ icon: 'chat', title: 'It is ₦20,000', sub: 'Rent, the usual amount', onClick: () => go('confirm') }),
+    ActionRow({ icon: 'list', title: 'Let me type it', sub: 'I would rather you set this one', onClick: () => go('typed') }),
   ], Dock({ placeholder: 'Ask how I decide', back: () => go('chat') })),
 };
 
@@ -60,7 +60,7 @@ export const iwillnot = {
   title: 'I will not do this one',
   render: () => Screen([
     PageHead('I will not do this one', 'Nothing has been sent'),
-    e('div', { class: 'row' }, Glyph('⚠', 'bad', { lg: true })),
+    e('div', { class: 'row' }, Glyph('alert', 'bad', { lg: true })),
     BigAmount(naira(get().everyday), 'to an account I have never seen'),
     Compare([
       { k: 'You said', v: 'send everything' },
@@ -68,11 +68,11 @@ export const iwillnot = {
       { k: 'Paid before', v: 'Never', tone: 'c-bad' },
     ]),
     Bubble('Your whole balance, to an account four minutes old.'),
-    ActionRow({ icon: '↗', title: 'Send ₦20,000 instead', sub: 'Enough to check it arrives', onClick: () => go('confirm') }),
-    ActionRow({ icon: '◷', title: 'Wait until tomorrow', sub: 'I will ask you again then', onClick: () => go('home') }),
-    ActionRow({ icon: '☺', title: 'It really is me', sub: 'Face ID, then a call from us', onClick: () => go('noface') }),
-    Note('Nothing has left your account', '🔒'),
-    Note('I can be overruled. It takes two minutes.', '🔓'),
+    ActionRow({ icon: 'send', title: 'Send ₦20,000 instead', sub: 'Enough to check it arrives', onClick: () => go('confirm') }),
+    ActionRow({ icon: 'clock', title: 'Wait until tomorrow', sub: 'I will ask you again then', onClick: () => go('home') }),
+    ActionRow({ icon: 'faceid', title: 'It really is me', sub: 'Face ID, then a call from us', onClick: () => go('noface') }),
+    Note('Nothing has left your account', 'lock'),
+    Note('I can be overruled. It takes two minutes.', 'lock'),
   ], Dock({ placeholder: 'Ask why I stopped this', back: () => go('chat') })),
 };
 
@@ -84,7 +84,7 @@ export const misheard = {
   title: 'Check this number',
   render: () => Screen([
     PageHead('Check this number', 'Nothing has been sent'),
-    e('div', { class: 'row' }, Glyph('⚠', 'warn', { lg: true })),
+    e('div', { class: 'row' }, Glyph('alert', 'warn', { lg: true })),
     BigAmount(naira(200000), 'and I am not sure I heard it right'),
     Compare([
       { k: 'You said', v: 'two hundred' },
@@ -92,11 +92,11 @@ export const misheard = {
       { k: 'Or maybe', v: naira(200) },
     ]),
     Bubble('Spoken round numbers are where I slip most. I will not choose between these two on my own.'),
-    ActionRow({ icon: '↗', title: 'It is ₦200,000', sub: 'Rent money, to Sarah', onClick: () => go('confirm') }),
-    ActionRow({ icon: '↗', title: 'It is ₦200', sub: 'Small change, to Sarah', onClick: () => go('confirm') }),
-    ActionRow({ icon: '⌨', title: 'Let me type it', sub: 'Neither one is right', onClick: () => go('typed') }),
-    Note('Nothing has left your account', '🔒'),
-    Note('I stop whenever an amount reads two ways.', '⚑'),
+    ActionRow({ icon: 'send', title: 'It is ₦200,000', sub: 'Rent money, to Sarah', onClick: () => go('confirm') }),
+    ActionRow({ icon: 'send', title: 'It is ₦200', sub: 'Small change, to Sarah', onClick: () => go('confirm') }),
+    ActionRow({ icon: 'list', title: 'Let me type it', sub: 'Neither one is right', onClick: () => go('typed') }),
+    Note('Nothing has left your account', 'lock'),
+    Note('I stop whenever an amount reads two ways.', 'alert'),
   ], Dock({ placeholder: 'Ask me about this', back: () => go('ask') })),
 };
 
@@ -104,12 +104,12 @@ export const alreadygone = {
   title: 'I sent it wrong',
   render: () => Screen([
     PageHead('I sent it wrong', '₦200,000 left at 14:22'),
-    e('div', { class: 'row' }, Glyph('⚠', 'bad', { lg: true })),
+    e('div', { class: 'row' }, Glyph('alert', 'bad', { lg: true })),
     BigAmount(naira(200000), 'left your account'),
     Banner('This one is mine. You are covered.', 'good'),
     Bubble('You said two hundred. I sent two hundred thousand. That is my error, so you get the difference back today, whether or not Sarah returns it.'),
-    ActionRow({ icon: '↩', tone: 'good', title: 'Take ₦199,800 back', sub: 'Paid by us today, not in days', onClick: () => go('donesend') }),
-    ActionRow({ icon: '🏛', title: 'Ask Sarah to return it', sub: 'We do this to recover our side', onClick: () => go('recall') }),
+    ActionRow({ icon: 'undo-filled', tone: 'good', title: 'Take ₦199,800 back', sub: 'Paid by us today, not in days', onClick: () => go('donesend') }),
+    ActionRow({ icon: 'bank', title: 'Ask Sarah to return it', sub: 'We do this to recover our side', onClick: () => go('recall') }),
     Plain(Bubble('Want to know how I stop this?'), Button('Tell me', { kind: 'quiet', onClick: () => go('checking') })),
   ], Dock({ placeholder: 'Ask about the cover', back: () => go('donesend') })),
 };
@@ -180,7 +180,7 @@ export const short = {
     const gap = Math.max(0, +(need - s.everyday).toFixed(2));
     return Screen([
       PageHead('Not enough in Everyday', 'Nothing has been sent'),
-      e('div', { class: 'row' }, Glyph('⚠', 'warn', { lg: true })),
+      e('div', { class: 'row' }, Glyph('alert', 'warn', { lg: true })),
       BigAmount(naira(gap), `short of the ${naira(draft.amount)} you asked for`),
       Compare([
         { k: 'You asked for', v: nairaFull(draft.amount) },
@@ -188,11 +188,11 @@ export const short = {
         { k: 'Short by', v: nairaFull(gap), tone: 'c-bad' },
       ]),
       Bubble('Three ways to close it. None of them costs you anything.'),
-      ActionRow({ icon: '🏺', title: `Move it from ${s.goal.name}`, sub: `${naira(s.goal.saved)} is sitting there`, onClick: () => go('goal') }),
-      ActionRow({ icon: '↗', title: `Send ${naira(Math.max(0, Math.floor(s.everyday - fee)))} now`, sub: 'The rest when your salary lands',
+      ActionRow({ icon: 'pot', title: `Move it from ${s.goal.name}`, sub: `${naira(s.goal.saved)} is sitting there`, onClick: () => go('goal') }),
+      ActionRow({ icon: 'send', title: `Send ${naira(Math.max(0, Math.floor(s.everyday - fee)))} now`, sub: 'The rest when your salary lands',
         onClick: () => { set({ amount: Math.max(0, Math.floor(s.everyday - fee)) }); go('pay'); } }),
-      ActionRow({ icon: '↙', title: `Ask Musa for ${naira(Math.ceil(gap))}`, sub: 'He owes you from the rent', onClick: () => go('askreq') }),
-      Note('Nothing has left your account', '🔒'),
+      ActionRow({ icon: 'request', title: `Ask Musa for ${naira(Math.ceil(gap))}`, sub: 'He owes you from the rent', onClick: () => go('askreq') }),
+      Note('Nothing has left your account', 'lock'),
       Note('No fee and no attempt. This is a sum I did before trying.'),
     ], Dock({ placeholder: 'Ask me about this', back: () => go('pay') }));
   },
@@ -218,12 +218,12 @@ export const failed = {
   title: 'It did not go',
   render: () => Screen([
     PageHead('It did not go', 'GTBank turned it down at 14:22'),
-    e('div', { class: 'row' }, Glyph('⚠', 'bad', { lg: true })),
+    e('div', { class: 'row' }, Glyph('alert', 'bad', { lg: true })),
     BigAmount(naira(seedTransfer.amount), 'still in your account'),
     Banner('Your balance is exactly what it was.', 'good'),
     Bubble('Nothing was taken and nothing was charged. GTBank has been failing since 13:40, so this is their afternoon, not your account.'),
-    ActionRow({ icon: '↗', title: 'Try again now', sub: 'It may have cleared already', onClick: () => go('confirm') }),
-    ActionRow({ icon: '🏛', title: 'Send it another way', sub: 'Through your Zenith account', onClick: () => go('payfrom') }),
+    ActionRow({ icon: 'send', title: 'Try again now', sub: 'It may have cleared already', onClick: () => go('confirm') }),
+    ActionRow({ icon: 'bank', title: 'Send it another way', sub: 'Through your Zenith account', onClick: () => go('payfrom') }),
     Plain(Bubble('Keep trying until GTBank is back?'), Button('Do that', { kind: 'quiet', onClick: () => go('pending') })),
   ], Dock({ placeholder: 'Ask why this failed', back: () => go('history') })),
 };
@@ -240,8 +240,8 @@ export const reversed = {
       { k: 'Returned to you', v: '16:22', done: true },
     ])),
     Bubble('Two hours, and no fee either way. GTBank could not reach Sarah’s account, so it came back on its own, exactly as I said it would.'),
-    ActionRow({ icon: '↗', title: 'Send it again', sub: 'GTBank has been clear since 15:40', onClick: () => go('confirm') }),
-    ActionRow({ icon: '🏛', title: 'Check the account with Sarah', sub: 'I write the message, you check it', onClick: () => go('recall') }),
+    ActionRow({ icon: 'send', title: 'Send it again', sub: 'GTBank has been clear since 15:40', onClick: () => go('confirm') }),
+    ActionRow({ icon: 'bank', title: 'Check the account with Sarah', sub: 'I write the message, you check it', onClick: () => go('recall') }),
   ], Dock({ placeholder: 'Ask why it came back', back: () => go('history') })),
 };
 
@@ -254,10 +254,10 @@ export const wrong = {
   render: () => Screen([
     PageHead('What went wrong?', `${naira(seedTransfer.amount)} to ${contacts.sarah.name}, 14:22`),
     Bubble('Tell me which one it is and I will start the right thing. Some of these I can do in a minute, and one of them I cannot do at all.'),
-    ActionRow({ icon: '👤', title: 'It went to the wrong person', sub: 'I ask their bank to send it back', onClick: () => go('recall') }),
+    ActionRow({ icon: 'person', title: 'It went to the wrong person', sub: 'I ask their bank to send it back', onClick: () => go('recall') }),
     ActionRow({ icon: '#', title: 'The amount was wrong', sub: 'I can send the difference, or ask for it back', onClick: () => go('amend') }),
-    ActionRow({ icon: '◌', title: 'It never arrived', sub: 'It may still be on its way', onClick: () => go('pending') }),
-    ActionRow({ icon: '⚠', tone: 'warn', title: 'I did not make this payment', sub: 'A dispute, and we freeze the account first', onClick: () => go('disputeopen') }),
+    ActionRow({ icon: 'wait-filled', title: 'It never arrived', sub: 'It may still be on its way', onClick: () => go('pending') }),
+    ActionRow({ icon: 'alert', tone: 'warn', title: 'I did not make this payment', sub: 'A dispute, and we freeze the account first', onClick: () => go('disputeopen') }),
     Note('Nothing you tap here moves money on its own.'),
   ], Dock({ placeholder: 'Ask what you can do', back: () => go('donesend') })),
 };
@@ -275,12 +275,12 @@ export const recall = {
     Plain(
       Label('What this is and is not'),
       Stack(2,
-        Row(Glyph('✓', 'good'), Body('I have asked GTBank. That part is done.')),
-        Row(Glyph('🔒'), Body('I cannot take it back. It is her money until she agrees.')),
-        Row(Glyph('🔒'), Body('If she says no, no bank can force her.'))),
+        Row(Glyph('check', 'good'), Body('I have asked GTBank. That part is done.')),
+        Row(Glyph('lock'), Body('I cannot take it back. It is her money until she agrees.')),
+        Row(Glyph('lock'), Body('If she says no, no bank can force her.'))),
       Caption('After that it is a formal dispute, then a police report. I walk you through either.')),
-    ActionRow({ icon: '💬', title: 'Message Sarah', sub: 'Most of these end here, in an hour', onClick: () => toast('Message written and sent. Most of these come back within the hour.') }),
-    ActionRow({ icon: '⚖', title: 'Open a dispute', sub: 'If she has not answered by Friday', onClick: () => go('disputeopen') }),
+    ActionRow({ icon: 'chat', title: 'Message Sarah', sub: 'Most of these end here, in an hour', onClick: () => toast('Message written and sent. Most of these come back within the hour.') }),
+    ActionRow({ icon: 'chart', title: 'Open a dispute', sub: 'If she has not answered by Friday', onClick: () => go('disputeopen') }),
   ], Dock({ placeholder: 'Ask what happens next', back: () => go('wrong') })),
 };
 
@@ -294,8 +294,8 @@ export const amend = {
       { k: 'You meant', v: naira(15000) },
       { k: 'Difference', v: naira(5000), tone: 'c-bad' },
     ]),
-    ActionRow({ icon: '↙', title: 'Ask Sarah for ₦5,000 back', sub: 'She approves it in her own app', onClick: () => go('recall') }),
-    ActionRow({ icon: '↗', title: 'Send another ₦5,000', sub: 'If you meant to send more, not less', onClick: () => go('confirm') }),
+    ActionRow({ icon: 'request', title: 'Ask Sarah for ₦5,000 back', sub: 'She approves it in her own app', onClick: () => go('recall') }),
+    ActionRow({ icon: 'send', title: 'Send another ₦5,000', sub: 'If you meant to send more, not less', onClick: () => go('confirm') }),
     Note('Both of these are new payments, and both need your passcode.'),
   ], Dock({ placeholder: 'Ask about the difference', back: () => go('wrong') })),
 };
@@ -317,11 +317,11 @@ export const disputeopen = {
     Plain(
       Label('Where this actually is'),
       Stack(2,
-        Row(Glyph('✓', 'good'), Body('GTBank has it and the clock is running. Nothing more is needed from you.')),
-        Row(Glyph('◷'), Body('I check every morning and tell you the day it moves.')),
-        Row(Glyph('⚑', 'warn'), Body('If they miss 4 September it escalates on its own.'))),
+        Row(Glyph('check', 'good'), Body('GTBank has it and the clock is running. Nothing more is needed from you.')),
+        Row(Glyph('clock'), Body('I check every morning and tell you the day it moves.')),
+        Row(Glyph('alert', 'warn'), Body('If they miss 4 September it escalates on its own.'))),
       Caption('You do not have to call anybody, and you do not have to watch this screen.')),
-    ActionRow({ icon: '📄', title: 'See what was filed', sub: 'The exact wording, and what was attached', onClick: () => go('disputeopen') }),
+    ActionRow({ icon: 'receipt', title: 'See what was filed', sub: 'The exact wording, and what was attached', onClick: () => go('disputeopen') }),
     ActionRow({ icon: '＋', title: 'Add something to it', sub: 'A screenshot or a message that helps', onClick: () => go('disputeopen') }),
   ], Dock({ placeholder: 'Ask where this stands', back: () => go('recall') })),
 };
@@ -338,7 +338,7 @@ export const disputeend = {
       { k: 'Money returned', v: '11:40', done: true },
     ])),
     Bubble('Six days, and you did not chase it once. Most disputes that get this far end the same way.'),
-    Plain(Bubble('Want the closing letter for your records?'), Button('Save it', { kind: 'quiet', onClick: () => go('receipt') })),
+    Plain(Bubble('Want the closing letter for your records?'), Button('Save it', { kind: 'quiet', onClick: () => toast('Saved to your files. It has the claim number on it.') })),
   ], Dock({ placeholder: 'Ask about this dispute', back: () => go('history') })),
 };
 
@@ -350,12 +350,12 @@ export const nonetwork = {
   title: 'You are offline',
   render: () => Screen([
     PageHead('You are offline', 'Last checked 12 minutes ago'),
-    e('div', { class: 'row' }, Glyph('⚠', 'warn', { lg: true })),
+    e('div', { class: 'row' }, Glyph('alert', 'warn', { lg: true })),
     BigAmount(naira(get().everyday), 'as of 14:10, not live'),
     Banner('Beetle keeps working underground. Nothing you do here gets lost.', 'good'),
     Bubble('I will not send money against a balance I cannot check. Tell me what you want, I hold it, and it goes the second the network is back.'),
-    ActionRow({ icon: '◷', title: 'Queue it for later', sub: 'Waits here until I can check', onClick: () => go('pending') }),
-    ActionRow({ icon: '☎', title: 'Pay by USSD instead', sub: 'Works with no data at all', onClick: () => toast('Dial *737*1*Amount*Account# on this line. It works with no data at all.') }),
+    ActionRow({ icon: 'clock', title: 'Queue it for later', sub: 'Waits here until I can check', onClick: () => go('pending') }),
+    ActionRow({ icon: 'dial', title: 'Pay by USSD instead', sub: 'Works with no data at all', onClick: () => toast('Dial *737*1*Amount*Account# on this line. It works with no data at all.') }),
     Plain(Bubble('Turn on lite mode while data is short?'), Button('Turn it on', { kind: 'quiet', onClick: () => go('settings') })),
   ], Dock({ placeholder: 'Ask what works offline', back: () => go('home') })),
 };

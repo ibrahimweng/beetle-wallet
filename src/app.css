@@ -127,12 +127,24 @@ body {
 .card-plain { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-md); padding: var(--s-4); }
 .divider { height: 1px; background: var(--rule); }
 
+.icon {
+  display: block; flex: none;
+  stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8;
+}
+.icon-missing {
+  display: inline-grid; place-items: center; width: 20px; height: 20px;
+  border-radius: 4px; background: var(--bad-bright); color: #fff;
+  font: 700 12px var(--font);
+}
+
 .glyph {
   width: 36px; height: 36px; flex: none; border-radius: 10px;
   background: var(--surface-2); display: grid; place-items: center;
-  font-size: 17px; line-height: 1;
+  color: var(--ink); line-height: 1;
 }
-.glyph-lg { width: 56px; height: 56px; border-radius: var(--r-md); font-size: 24px; }
+.glyph-text { font: 600 14px var(--font); letter-spacing: .02em; }
+.glyph-lg { width: 56px; height: 56px; border-radius: var(--r-md); }
+.glyph-lg .glyph-text { font-size: 20px; }
 .glyph-accent { background: var(--accent); color: #fff; }
 .glyph-good { background: var(--good); color: #fff; }
 .glyph-bad { background: var(--bad-bright); color: #fff; }
@@ -143,7 +155,7 @@ body {
 .listrow:hover .listrow-title { color: var(--accent-deep); }
 .listrow-title { font: var(--t-row); }
 .listrow-sub { font: var(--t-meta); color: var(--text-tertiary); }
-.chev { color: var(--rule-strong); font-size: 18px; flex: none; }
+.chev { display: grid; place-items: center; flex: none; }
 
 .btn {
   border: 0; border-radius: var(--r-pill); padding: 15px 22px; width: 100%;
@@ -168,8 +180,7 @@ body {
 }
 .bubble-me { background: var(--ink); color: #fff; border-radius: var(--r-pill); padding: 12px 18px; }
 .agent-mark {
-  width: 28px; height: 28px; flex: none; border-radius: 9px; background: var(--accent);
-  display: grid; place-items: center; color: #fff; font-size: 13px;
+  width: 26px; height: 26px; flex: none; display: grid; place-items: center;
 }
 
 .banner { border-radius: var(--r-sm); padding: 12px var(--s-4); font: 600 16px var(--font); }
@@ -350,3 +361,41 @@ body {
 .stage-btn.warn { color: #ffb4ad; border-color: #6a3a35; }
 .rail-foot { padding: 16px 18px 0; border-top: 1px solid #2a2e37; margin-top: 18px; }
 .rail-foot p { color: #6c7280; font: 400 11px/1.5 var(--font); margin: 8px 0 0; }
+
+
+/* ---------- icons inside the pieces that hold them ---------- */
+.tick { display: grid; place-items: center; }
+.note .icon { color: var(--text-tertiary); margin-top: 1px; }
+.tool-head .icon { color: var(--text-secondary); }
+.tool-state .dot {
+  width: 7px; height: 7px; border-radius: 999px; background: currentColor; display: block;
+}
+.bubble-spoken { display: inline-flex; align-items: center; gap: 7px; }
+.key .icon, .kbd-key .icon { color: currentColor; }
+.slide-thumb .icon { color: #fff; }
+.fab .icon, .backbtn .icon { color: currentColor; }
+.askbar-btn {
+  width: 28px; height: 28px; flex: none; border: 0; background: none;
+  color: var(--text-secondary); display: grid; place-items: center; cursor: pointer;
+}
+.askbar-btn:hover { color: var(--ink); }
+.btn .icon { color: currentColor; }
+
+
+/* ---------- receipt ---------- */
+/* Two columns with dashed rules between the groups, as the design draws it. */
+.receipt {
+  display: grid; grid-template-columns: 1fr 1fr;
+  column-gap: var(--s-4); row-gap: var(--s-4);
+}
+.receipt-cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.receipt-cell.wide { grid-column: 1 / -1; }
+.receipt-rule {
+  grid-column: 1 / -1; height: 0;
+  border-top: 1px dashed var(--rule-strong);
+}
+.copy-btn {
+  width: 32px; height: 32px; flex: none; border: 0; border-radius: 999px;
+  background: var(--surface-2); color: var(--text-secondary);
+  display: grid; place-items: center; cursor: pointer;
+}

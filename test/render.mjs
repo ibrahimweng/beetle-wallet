@@ -2,6 +2,11 @@
    in both the way it is deployed and the way it is published. */
 import { chromium } from 'playwright';
 import { serve } from './serve.mjs';
+import { SCREENS } from '../src/screens/index.js';
+
+/* The rail is built from the registry, so the registry is what the count is
+   checked against — a number typed here would just drift. */
+const EXPECTED = Object.keys(SCREENS).length;
 
 const WAYS = [
   { name: 'public/ (the exact directory Vercel serves)', path: '/public/index.html' },
@@ -59,8 +64,8 @@ for (const way of WAYS) {
 
   console.log(`render [${way.name}]: ${ids.length} screens, ${bad.length} broken`);
   bad.forEach(x => console.log('  ✗', x.id, JSON.stringify(x).slice(0, 200)));
-  failures += bad.length + (ids.length === 94 ? 0 : 1);
-  if (ids.length !== 94) console.log(`  ✗ expected 94 screens, found ${ids.length}`);
+  failures += bad.length + (ids.length === EXPECTED ? 0 : 1);
+  if (ids.length !== EXPECTED) console.log(`  ✗ registry has ${EXPECTED} screens, the rail shows ${ids.length}`);
   await p.close();
 }
 

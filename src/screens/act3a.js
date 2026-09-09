@@ -2,7 +2,7 @@
    Four ways in, one path through. */
 
 import {
-  el, Screen, Dock, Sheet, PageHead, Head, Body, Meta, Caption, Label,
+  el, Icon, AgentMark, Screen, Dock, Sheet, PageHead, Head, Body, Meta, Caption, Label,
   Card, Plain, Stack, Row, Divider, Spacer, Glyph, ListRow, ActionRow, Field,
   Button, Ghost, Chip, Bubble, Said, ToolPanel, Banner, Note, Pill, Waveform,
   Keyboard, AmountPad, TextPad, Picker, EditRow, Slide, PassPad, toast,
@@ -25,25 +25,39 @@ const edit = what => { editing = what; repaint(); };
 const stopEditing = () => { editing = null; repaint(); };
 
 /* A receipt, used by every "it is done" screen. */
-export const receiptBody = ({ head, sub, amount, line, fields, session, tone = 'good', icon = '✓' }) => [
-  PageHead(head, sub),
-  e('div', { class: 'row', style: { gap: '12px', alignItems: 'center' } },
-    Glyph(icon, tone, { lg: true, circle: true }),
-    e('div', { class: 'stack gap-1 grow' },
-      e('div', { class: 't-display' }, amount),
-      Meta(line, 'c-3')),
-    Pill('Successful', 'good')),
-  Card(...fields.map((f, i) => e('div', null,
-    i ? Divider() : null,
-    e('div', { class: 'row between', style: { padding: '10px 0', alignItems: 'flex-start' } },
-      e('div', { class: 'stack gap-1' },
-        e('div', { class: 't-caption c-2' }, f[0]),
-        e('div', { class: 't-row' }, f[1]),
-        f[2] && e('div', { class: 't-caption c-3' }, f[2])))))),
-  session && Plain(
-    e('div', { class: 't-caption c-2' }, 'Session ID'),
-    e('div', { class: 't-meta', style: { wordBreak: 'break-all' } }, session)),
-];
+/* A receipt, laid out the way the design draws one: two columns, with a
+   dashed rule between the identity, the money, and the totals. A narration
+   runs the full width. Used by every "it is done" screen. */
+export const receiptBody = ({ head, sub, amount, line, fields, session, sessionLabel = 'Session ID', tone = 'good', icon = 'check' }) => {
+  const WIDE = ['Narration', 'What', 'For'];
+  const RULE_BEFORE = ['Amount', 'Total charged'];
+
+  const cells = [];
+  fields.forEach(f => {
+    if (RULE_BEFORE.includes(f[0])) cells.push(e('div', { class: 'receipt-rule' }));
+    cells.push(e('div', { class: 'receipt-cell' + (WIDE.includes(f[0]) ? ' wide' : '') },
+      e('div', { class: 't-caption c-2' }, f[0]),
+      e('div', { class: 't-row' }, f[1]),
+      f[2] ? e('div', { class: 't-caption c-3' }, f[2]) : null));
+  });
+
+  return [
+    PageHead(head, sub),
+    e('div', { class: 'row', style: { gap: '12px', alignItems: 'center' } },
+      Glyph(icon, tone, { lg: true, circle: true }),
+      e('div', { class: 'stack gap-1 grow' },
+        e('div', { class: 't-display' }, amount),
+        Meta(line, 'c-3')),
+      Pill('Successful', 'good')),
+    e('div', { class: 'card receipt' }, ...cells),
+    session && e('div', { class: 'card-plain row between' },
+      e('div', { class: 'stack gap-1 grow' },
+        e('div', { class: 't-caption c-2' }, sessionLabel),
+        e('div', { class: 't-meta', style: { wordBreak: 'break-all' } }, session)),
+      e('button', { class: 'copy-btn press', 'aria-label': 'Copy', onClick: () => toast(sessionLabel + ' copied.') },
+        Icon('copy', { size: 18 }))),
+  ];
+};
 
 /* ---------------------------------------------------------------- *
  * Sending money — the four ways in
@@ -51,17 +65,18 @@ export const receiptBody = ({ head, sub, amount, line, fields, session, tone = '
 
 const blurredHome = () => e('div', { class: 'screen-scroll', style: { filter: 'blur(4px)', opacity: .6 } },
   e('div', { class: 'pad top-pad stack gap-4' },
-    e('div', { class: 'row between' }, Glyph('◉', 'accent', { circle: true }), Label('Wallet'), e('div', null, '🔔')),
+    e('div', { class: 'row between' }, Glyph('mark', 'accent', { circle: true }), Label('Wallet'), Icon('bell', { size: 22 })),
     e('div', { class: 'stack gap-2 center' },
       Caption('Total balance', 'c-2'),
       e('div', { class: 't-display' }, naira(get().everyday)),
-      e('button', { class: 'btn btn-primary', style: { width: 'auto', padding: '13px 26px' } }, '⤓  Receive')),
-    e('div', { class: 'row' }, ...['📱', '⚡', '🔒', '⠿'].map(i => e('div', { style: { flex: 1, textAlign: 'center', fontSize: '22px' } }, i)))));
+      e('button', { class: 'btn btn-primary', style: { width: 'auto', padding: '13px 26px' } }, Icon('receive-filled', { size: 18 }), 'Receive')),
+    e('div', { class: 'row' }, ...['airtime-tone', 'power-tone', 'pot-tone', 'grid-tone'].map(i =>
+      e('div', { class: 'center', style: { flex: 1 } }, Icon(i, { size: 24 }))))));
 
 export const ask = {
   title: 'Ask (voice)',
   render: () => Sheet(blurredHome(),
-    e('div', { class: 'row', style: { gap: '8px' } }, e('div', { class: 'agent-mark' }, '◉'), e('div', { class: 't-label c-accent' }, 'Listening')),
+    e('div', { class: 'row', style: { gap: '8px' } }, AgentMark(), e('div', { class: 't-label c-accent' }, 'Listening')),
     e('div', { class: 't-title' }, e('span', null, 'Send 20k to '), e('span', { class: 'c-3' }, 'Sarah')),
     Waveform(30, 11),
     Meta('Or try one of these', 'c-3'),
@@ -71,7 +86,7 @@ export const ask = {
     Ghost('Not what I said', () => go('misheard')),
     e('div', { class: 'row', style: { gap: '10px' } },
       e('button', { class: 'btn btn-accent grow press', onClick: () => { start({ to: contacts.sarah, amount: 20000, narration: seedTransfer.narration, spoken: seedTransfer.spoken }); go('chat'); } }, 'Release to send'),
-      e('button', { class: 'key', style: { width: '56px', height: '56px', flex: 'none' }, onClick: () => go('home') }, '■'))),
+      e('button', { class: 'key', style: { width: '56px', height: '56px', flex: 'none' }, 'aria-label': 'Stop', onClick: () => go('home') }, Icon('close', { size: 22 })))),
 };
 
 export const scan = {
@@ -87,12 +102,13 @@ export const scan = {
         e('div', { class: 'stack gap-2' },
           ...[naira(20000), contacts.sarah.bank, contacts.sarah.account, 'Sarah A.'].map(t =>
             e('span', { style: { background: 'var(--accent-wash)', color: 'var(--accent-deep)', borderRadius: '6px', padding: '4px 8px', font: '600 14px var(--font)', alignSelf: 'flex-start' } }, t)))),
-      e('div', { style: { background: 'var(--good)', color: '#fff', borderRadius: '999px', padding: '8px 16px', font: '600 14px var(--font)' } }, '◉  ' + contacts.sarah.account),
+      e('div', { class: 'row', style: { background: 'var(--good)', color: '#fff', borderRadius: '999px', padding: '8px 16px', font: '600 14px var(--font)', gap: '6px' } },
+        Icon('check', { size: 16 }), contacts.sarah.account),
       Spacer(10),
       e('div', { class: 'row center', style: { gap: '30px' } },
-        e('div', { style: { fontSize: '22px', opacity: .7 } }, '⌸'),
+        e('div', { style: { opacity: .7 } }, Icon('grid', { size: 24 })),
         e('button', { class: 'press', style: { width: '68px', height: '68px', borderRadius: '999px', background: '#fff', border: '5px solid #4b5160', cursor: 'pointer' }, onClick: () => { start({ to: contacts.sarah, amount: 20000, narration: 'Flat deposit', spoken: 'the account in the photo' }); go('chat'); } }),
-        e('div', { style: { fontSize: '22px', opacity: .7 } }, '⚡')),
+        e('div', { style: { opacity: .7 } }, Icon('power', { size: 24 }))),
       Caption('Or send a screenshot straight to Beetle from WhatsApp.', 'c-3'))),
 };
 
@@ -238,7 +254,7 @@ export const chat = {
     const fee = act.feeFor(draft.amount);
     return Screen([
       PageHead('Beetle', ''),
-      Said('🎤  ' + (draft.spoken || `Send ${Math.round(draft.amount / 1000)}k to ${draft.to.name.split(' ')[0]}`)),
+      Said(draft.spoken || `Send ${Math.round(draft.amount / 1000)}k to ${draft.to.name.split(' ')[0]}`, { spoken: true }),
       Bubble(`${draft.to.name} at ${draft.to.bank}, the same account the flat deposit went to. I am putting it together now.`),
       ToolPanel('Beetle Transfers', 'Running', [
         { k: 'Recipient', v: draft.to.name },
@@ -286,7 +302,7 @@ export const donesend = {
         ],
         session: r.session,
       }),
-      Button('Share receipt', { onClick: () => go('share') }),
+      Button('Share receipt', { icon: 'share', onClick: () => go('share') }),
       Ghost('Something is wrong with this', () => go('wrong')),
     ], Dock({ placeholder: 'Ask about this transfer', back: () => go('home'), onAsk: q => { setQuestion(q); go('agentchat'); } }));
   },
@@ -294,15 +310,15 @@ export const donesend = {
 
 export const shareSheet = (base, line, back) => Sheet(base,
   e('div', { class: 'stack gap-3 center' },
-    Glyph('⤴', '', { lg: true }),
+    Glyph('share', '', { lg: true }),
     e('div', { class: 't-head' }, 'Share this receipt'),
     Meta(line, 'c-3')),
   Card(
     ...[
-      ['💬', 'WhatsApp', 'The picture, ready to send'],
-      ['📷', 'Save to photos', 'It stays on this phone'],
-      ['📄', 'Save as PDF', 'The full record, for an office'],
-      ['⠿', 'Somewhere else', 'Messages, mail, anywhere you share'],
+      ['chat', 'WhatsApp', 'The picture, ready to send'],
+      ['camera', 'Save to photos', 'It stays on this phone'],
+      ['receipt', 'Save as PDF', 'The full record, for an office'],
+      ['grid', 'Somewhere else', 'Messages, mail, anywhere you share'],
     ].map(([i, t, s], n) => e('div', null,
       n ? Divider() : null,
       e('div', { class: 'listrow' }, Glyph(i),
@@ -310,7 +326,7 @@ export const shareSheet = (base, line, back) => Sheet(base,
           e('div', { class: 'listrow-title' }, t),
           e('div', { class: 'listrow-sub' }, s)),
         e('div', { class: 'chev' }, '›'))))),
-  Note('Your balance and the full account numbers are left off every copy that leaves the phone.', '👁'),
+  Note('Your balance and the full account numbers are left off every copy that leaves the phone.', 'eye'),
   Button('Done', { kind: 'quiet', onClick: back }));
 
 export const quietReceipt = fields => e('div', { class: 'screen-scroll', style: { filter: 'blur(3px)', opacity: .55 } },
@@ -327,29 +343,6 @@ export const share = {
   },
 };
 
-export const receipt = {
-  title: 'Receipt',
-  render: () => {
-    const r = lastReceipt();
-    return Screen([
-      ...receiptBody({
-        head: 'Receipt', sub: r.at,
-        amount: naira(r.amount), line: `Sent to ${r.to.name}`,
-        fields: [
-          ['To', r.to.name, `${r.to.bank} · ${r.to.account}`],
-          ['From', me.name, `${me.bank} · ${me.account}`],
-          ['Narration', r.narration || 'None'],
-          ['Amount', nairaFull(r.amount)],
-          ['Fee', r.fee ? nairaFull(r.fee) : 'Free'],
-          ['Total charged', nairaFull(r.total)],
-        ],
-        session: r.session,
-      }),
-      Button('Share receipt', { onClick: () => go('share') }),
-    ], Dock({ placeholder: 'Ask about this receipt', back: () => go('history') }));
-  },
-};
-
 /* ---------------------------------------------------------------- *
  * Buying something
  * ---------------------------------------------------------------- */
@@ -357,7 +350,7 @@ export const receipt = {
 export const asksvc = {
   title: 'Ask (voice)',
   render: () => Sheet(blurredHome(),
-    e('div', { class: 'row', style: { gap: '8px' } }, e('div', { class: 'agent-mark' }, '◉'), e('div', { class: 't-label c-accent' }, 'Listening')),
+    e('div', { class: 'row', style: { gap: '8px' } }, AgentMark(), e('div', { class: 't-label c-accent' }, 'Listening')),
     e('div', { class: 't-title' }, e('span', null, 'Buy 5GB for '), e('span', { class: 'c-3' }, 'Mum')),
     Waveform(30, 23),
     Meta('Or try one of these', 'c-3'),
@@ -453,7 +446,7 @@ export const done = {
         ],
         session: r.session,
       }),
-      Button('Share receipt', { onClick: () => go('sharebuy') }),
+      Button('Share receipt', { icon: 'share', onClick: () => go('sharebuy') }),
     ], Dock({ placeholder: 'Ask about this purchase', back: () => go('home'), onAsk: q => { setQuestion(q); go('agentchat'); } }));
   },
 };
@@ -473,7 +466,7 @@ export const sharebuy = {
 export const askreq = {
   title: 'Ask (voice)',
   render: () => Sheet(blurredHome(),
-    e('div', { class: 'row', style: { gap: '8px' } }, e('div', { class: 'agent-mark' }, '◉'), e('div', { class: 't-label c-accent' }, 'Listening')),
+    e('div', { class: 'row', style: { gap: '8px' } }, AgentMark(), e('div', { class: 't-label c-accent' }, 'Listening')),
     e('div', { class: 't-title' }, e('span', null, 'Ask Musa for '), e('span', { class: 'c-3' }, '20k')),
     Waveform(30, 41),
     Meta('Or try one of these', 'c-3'),
@@ -545,7 +538,7 @@ export const sent = {
   render: () => Screen([
     PageHead('Request sent', `To ${req.who.name}, just now`),
     e('div', { class: 'row', style: { gap: '12px' } },
-      Glyph('↙', 'good', { lg: true, circle: true }),
+      Glyph('request', 'good', { lg: true, circle: true }),
       e('div', { class: 'stack gap-1' },
         e('div', { class: 't-display' }, naira(req.amount)),
         Meta('Asked ' + req.who.name, 'c-3'))),
@@ -589,7 +582,7 @@ export const scanbill = {
 };
 
 /* The bill being paid, whichever way you came in. */
-let bill = { biller: meterBill.disco, meter: meterBill.meter, amount: meterBill.amount, icon: '⚡', receipt: null, editing: false };
+let bill = { biller: meterBill.disco, meter: meterBill.meter, amount: meterBill.amount, icon: 'power', receipt: null, editing: false };
 export const startBill = (b, amount) => { bill = { biller: b.name, meter: b.sub.split('· ')[1] || meterBill.meter, amount, icon: b.icon, receipt: null, editing: false }; };
 
 export const meter = {
@@ -606,12 +599,12 @@ export const meter = {
           e('span', { style: { background: 'var(--accent-wash)', color: 'var(--accent-deep)', borderRadius: '6px', padding: '4px 8px', font: '600 14px var(--font)', alignSelf: 'flex-start' } }, t)),
         Caption(meterBill.slip, 'c-3'))),
     Plain(
-      Row(Glyph('⚠', 'warn'), e('div', { class: 't-row' }, 'Is this your meter?')),
+      Row(Glyph('alert', 'warn'), e('div', { class: 't-row' }, 'Is this your meter?')),
       Card(
         e('div', { class: 'row between' }, Caption('On the bill', 'c-2'), e('div', { class: 't-label' }, 'Meter ' + meterBill.meter)),
         e('div', { class: 'row between' }, Caption('Ikeja Electric says', 'c-2'), e('div', { class: 't-label' }, meterBill.address))),
       e('div', { class: 'row', style: { gap: '10px' } },
-        e('button', { class: 'btn btn-primary grow press', onClick: () => { bill = { biller: meterBill.disco, meter: meterBill.meter, amount: meterBill.amount, icon: '⚡', receipt: null, editing: false }; go('confirmmeter'); } }, 'Yes, that is mine'),
+        e('button', { class: 'btn btn-primary grow press', onClick: () => { bill = { biller: meterBill.disco, meter: meterBill.meter, amount: meterBill.amount, icon: 'power', receipt: null, editing: false }; go('confirmmeter'); } }, 'Yes, that is mine'),
         e('button', { class: 'btn btn-quiet', style: { width: 'auto', padding: '15px 24px' }, onClick: () => go('bills') }, 'No'))),
     ToolPanel('Read from the photo', 'Checked', [
       { k: 'Amount', v: naira(meterBill.amount) },
@@ -720,7 +713,7 @@ export const power = {
         Label('Your token'),
         e('div', { class: 't-title', style: { letterSpacing: '.04em' } }, r.token || meterBill.token),
         Caption('Type this into the meter. I keep a copy in your history.', 'c-2')),
-      Button('Share receipt', { onClick: () => go('sharepower') }),
+      Button('Share receipt', { icon: 'share', onClick: () => go('sharepower') }),
     ], Dock({ placeholder: 'Ask about this bill', back: () => go('home'), onAsk: q => { setQuestion(q); go('agentchat'); } }));
   },
 };

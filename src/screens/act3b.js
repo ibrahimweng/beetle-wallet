@@ -1,7 +1,7 @@
 /* Act Three, part two — being paid, services, the record, habits, saving, dollars. */
 
 import {
-  el, Screen, Dock, Sheet, PageHead, Head, Body, Meta, Caption, Label,
+  el, Icon, Screen, Dock, Sheet, PageHead, Head, Body, Meta, Caption, Label,
   Card, Plain, Stack, Row, Divider, Spacer, Glyph, ListRow, ActionRow, Field,
   Button, Ghost, Chip, Bubble, Said, ToolPanel, Banner, Note, Pill, Meter, Timeline,
   Toggle, ChipRow, AmountPad, TextPad, Slide, Picker, EditRow, toast,
@@ -33,12 +33,12 @@ export const receive = {
   title: 'Receive',
   render: () => Sheet(
     quietReceipt([e('div', { class: 't-display' }, naira(get().everyday))]),
-    e('div', { class: 'stack gap-2 center' }, Glyph('⤓', 'accent', { lg: true, circle: true }), Head('How money reaches you')),
+    e('div', { class: 'stack gap-2 center' }, Glyph('receive-filled', 'accent', { lg: true, circle: true }), Head('How money reaches you')),
     Card(...[
-      ['🏛', 'Bank transfer', `Your number, ${me.account}`, 'ways'],
-      ['▭', 'From a card', 'Any Nigerian debit card', 'ways'],
-      ['↙', 'Ask someone', 'Send a request they pay in one tap', 'askreq'],
-      ['$', 'In dollars', 'Hold it steady, or convert it now', 'dollars'],
+      ['bank', 'Bank transfer', `Your number, ${me.account}`, 'ways'],
+      ['card', 'From a card', 'Any Nigerian debit card', 'ways'],
+      ['request', 'Ask someone', 'Send a request they pay in one tap', 'askreq'],
+      ['dollar', 'In dollars', 'Hold it steady, or convert it now', 'dollars'],
     ].map(([i, t, s, to], n) => e('div', null,
       n ? Divider() : null,
       e('div', { class: 'listrow', onClick: () => go(to) }, Glyph(i),
@@ -161,7 +161,7 @@ export const airtime = {
     ].map(([t, s, v, on], i) => e('div', null,
       i ? Divider() : null,
       e('div', { class: 'listrow press', role: 'button', onClick: () => { setPlan(v); go('buy'); } },
-        Glyph(on ? '✓' : '≋', on ? 'good' : ''),
+        Glyph(on ? 'check' : 'data', on ? 'good' : ''),
         e('div', { class: 'grow stack gap-1' },
           e('div', { class: 'listrow-title' }, t),
           e('div', { class: 'listrow-sub' }, s)),
@@ -218,7 +218,7 @@ export const cardScreen = {
     e('div', { style: { background: 'linear-gradient(150deg,#213aca,#101a5c)', borderRadius: '20px', padding: '22px', color: '#fff' } },
       e('div', { class: 'row between', style: { marginBottom: '30px' } },
         e('div', { style: { font: '600 15px var(--font)' } }, 'Beetle'),
-        e('div', null, '▭')),
+        Icon('card', { size: 22 })),
       e('div', { style: { font: '500 19px/1.3 var(--font)', letterSpacing: '.06em', marginBottom: '16px' } }, seedCard.number),
       e('div', { class: 'row between' },
         e('div', { style: { font: '400 13px var(--font)', opacity: .85 } }, seedCard.name),
@@ -261,7 +261,7 @@ export const historyScreen = {
     if (yesterday.length) { body.push(Meta('Yesterday', 'c-3')); body.push(...yesterday.map(entryRow)); }
     if (!today.length && !yesterday.length)
       body.push(e('div', { class: 'card-plain stack gap-2 center', style: { padding: '30px 16px' } },
-        e('div', { style: { fontSize: '26px' } }, '◌'),
+        Icon('wait-filled', { size: 30 }),
         Body('Nothing here under that filter', 'c-2')));
 
     body.push(Card(Bubble(ledgerFooter)));
@@ -287,8 +287,8 @@ export const answer = {
           e('div', { class: 'row between' }, Caption(m, 'c-2'), e('div', { class: 't-label' }, naira(v))),
           Meter(pct, m === 'August' ? 'var(--bad-bright)' : 'var(--accent)')))),
     Bubble('That is your highest month this year. Three of the four top ups were the same 5GB plan bought separately. The 10GB plan covers the same use for ₦2,000 less a month.'),
-    ActionRow({ icon: '≋', title: 'Move to the 10GB plan', sub: 'Saves about ₦2,000 a month', onClick: () => go('airtime') }),
-    ActionRow({ icon: '⚡', title: 'Let me top up automatically', sub: 'Only when the data actually runs out', onClick: () => go('rule') }),
+    ActionRow({ icon: 'data', title: 'Move to the 10GB plan', sub: 'Saves about ₦2,000 a month', onClick: () => go('airtime') }),
+    ActionRow({ icon: 'power', title: 'Let me top up automatically', sub: 'Only when the data actually runs out', onClick: () => go('rule') }),
   ], Dock({ placeholder: 'Ask about your spending', back: () => go('history'), onAsk: q => { setQuestion(q); go('agentchat'); } })),
 };
 
@@ -297,7 +297,7 @@ export const donein = {
   render: () => Screen([
     ...receiptBody({
       head: 'Money in', sub: '27 August 2026 at 4:40 PM',
-      amount: naira(640000), line: 'From Pagrin Limited', tone: 'good', icon: '⤓',
+      amount: naira(640000), line: 'From Pagrin Limited', tone: 'good', icon: 'receive-filled',
       fields: [
         ['From', 'Pagrin Limited', 'GTBank · 0119 8842 03'],
         ['To', 'Everyday', me.account],
@@ -309,7 +309,7 @@ export const donein = {
       session: '000014 260827 164003 118402 774301',
     }),
     Bubble('Your salary landed on the same day it has for six months. I moved ₦20,000 into Holiday, as your standing instruction says.'),
-    Button('Share receipt', { onClick: () => go('sharein') }),
+    Button('Share receipt', { icon: 'share', onClick: () => go('sharein') }),
   ], Dock({ placeholder: 'Ask about this payment', back: () => go('history') })),
 };
 
@@ -321,26 +321,98 @@ export const sharein = {
     () => go('donein')),
 };
 
-export const donecard = {
-  title: 'Card payment',
+/* The four receipts the design draws for a line in the feed, word for word.
+   Each one is a past payment, so the figures are the design's and do not move
+   with the live balance. */
+const pastReceipt = ({ head, at, amount, line, fields, session, sessionLabel = 'Session ID', nudge, nudgeAction, nudgeTo, wrong, wrongTo, share, back }) => ({
   render: () => Screen([
-    ...receiptBody({
-      head: 'Card payment', sub: '27 August 2026 at 9:00 AM',
-      amount: naira(5200), line: 'Netflix, on your virtual card',
-      fields: [
-        ['To', 'Netflix', 'Virtual card ···6640'],
-        ['From', 'Everyday', me.account],
-        ['Amount', nairaFull(5200)],
-        ['Fee', 'Free'],
-      ],
-      session: 'VC 4471 8823 0195',
-    }),
-    Bubble('This is the third month at ₦5,200. It was ₦4,400 in June, so Netflix has raised it twice since you subscribed.'),
-    ActionRow({ icon: '✂', title: 'Cancel this subscription', sub: 'I do it and confirm when it is done',
-      onClick: () => { act.freezeCard(true); toast('Card frozen, so nothing more can be charged. I will confirm the cancellation.'); repaint(); } }),
-    Button('Share receipt', { onClick: () => go('sharein') }),
-  ], Dock({ placeholder: 'Ask about this payment', back: () => go('history') })),
-};
+    ...receiptBody({ head, sub: at, amount, line, fields, session, sessionLabel }),
+    Button('Share receipt', { icon: 'share', onClick: () => go(share) }),
+    Plain(Bubble(nudge), Button(nudgeAction, { kind: 'quiet', onClick: () => go(nudgeTo) })),
+    Ghost(wrong, () => go(wrongTo)),
+  ], Dock({ placeholder: back, back: () => go('history'), onAsk: q => { setQuestion(q); go('agentchat'); } })),
+});
+
+export const doneflat = Object.assign({ title: 'Flat deposit' }, pastReceipt({
+  head: 'All done', at: '28 August 2026 at 9:14 AM', amount: naira(50000), line: 'Sent to Sarah Adeyemi',
+  fields: [
+    ['To', 'Sarah Adeyemi', 'GTBank · 0234 5678 90'],
+    ['From', 'Everyday', me.account],
+    ['Narration', 'Flat deposit'],
+    ['Amount', nairaFull(50000)],
+    ['Fee', nairaFull(26.88), 'Transfers under ₦10,000 carry none'],
+    ['Total charged', nairaFull(50026.88)],
+    ['Balance after', nairaFull(606820.75)],
+  ],
+  session: '000016 260828 091402 338291 774022',
+  nudge: 'She has it. The same on the first of every month?', nudgeAction: 'Set it up', nudgeTo: 'rule',
+  wrong: 'Something wrong with this?', wrongTo: 'wrong',
+  share: 'shareflat', back: 'Ask about this transfer',
+}));
+
+export const doneshop = Object.assign({ title: 'Grocery shopping' }, pastReceipt({
+  head: 'All done', at: '28 August 2026 at 10:45 AM', amount: naira(8000), line: 'Sent to John Doe',
+  fields: [
+    ['To', 'John Doe', 'Access Bank · 0044 8821'],
+    ['From', 'Everyday', me.account],
+    ['Narration', 'Grocery shopping'],
+    ['Amount', nairaFull(8000)],
+    ['Fee', 'Free', 'Because it is under ₦10,000'],
+    ['Total charged', nairaFull(8000)],
+    ['Balance after', nairaFull(598820.75)],
+  ],
+  session: '000016 260828 104511 902744 118635',
+  nudge: 'Grocery money every Friday?', nudgeAction: 'Set it up', nudgeTo: 'rule',
+  wrong: 'Something wrong with this?', wrongTo: 'wrong',
+  share: 'shareshop', back: 'Ask about this transfer',
+}));
+
+export const donesub = Object.assign({ title: 'Netflix subscription' }, pastReceipt({
+  head: 'All done', at: '28 August 2026 at 12:00 PM', amount: naira(3500), line: 'Netflix',
+  fields: [
+    ['To', 'Netflix', 'netflix.com'],
+    ['From', 'Virtual card', '•••• 4471'],
+    ['What', 'Monthly subscription', 'Renews 28 September'],
+    ['Amount', nairaFull(3500)],
+    ['Fee', 'Free'],
+    ['Total charged', nairaFull(3500)],
+    ['Balance after', nairaFull(595320.75)],
+  ],
+  session: 'NFX 4471 8823 1104', sessionLabel: 'Card reference',
+  nudge: 'Netflix takes this every month. Stop it?', nudgeAction: 'Open the card', nudgeTo: 'card',
+  wrong: 'You did not make this payment?', wrongTo: 'wrong',
+  share: 'sharesub', back: 'Ask about this payment',
+}));
+
+export const donecard = Object.assign({ title: 'Card payment' }, pastReceipt({
+  head: 'All done', at: '27 August 2026 at 9:00 AM', amount: naira(5200), line: 'Netflix',
+  fields: [
+    ['To', 'Netflix', 'netflix.com'],
+    ['From', 'Virtual card', '•••• 4471'],
+    ['What', 'Monthly subscription', 'Renews 27 September'],
+    ['Amount', nairaFull(5200)],
+    ['Fee', 'Free'],
+    ['Total charged', nairaFull(5200)],
+    ['Balance after', nairaFull(47654.51)],
+  ],
+  session: 'NFX 4471 8823 0195', sessionLabel: 'Card reference',
+  nudge: 'Freeze this card, or see what else it pays?', nudgeAction: 'Open the card', nudgeTo: 'card',
+  wrong: 'You did not make this payment?', wrongTo: 'wrong',
+  share: 'sharecard', back: 'Ask about this payment',
+}));
+
+/* Their share sheets, which differ only in the line at the top. */
+const pastShare = (title, amount, line, back) => ({
+  title,
+  render: () => shareSheet(
+    quietReceipt([PageHead('All done', ''), e('div', { class: 't-display' }, amount)]),
+    line, () => go(back)),
+});
+
+export const shareflat = pastShare('Share', naira(50000), '₦50,000 to Sarah Adeyemi, 9:14 AM', 'doneflat');
+export const shareshop = pastShare('Share', naira(8000), '₦8,000 to John Doe, 10:45 AM', 'doneshop');
+export const sharesub  = pastShare('Share', naira(3500), '₦3,500 to Netflix, 12:00 PM', 'donesub');
+export const sharecard = pastShare('Share', naira(5200), '₦5,200 to Netflix, 9:00 AM', 'donecard');
 
 /* ---------------------------------------------------------------- *
  * The button
@@ -352,11 +424,11 @@ export const actions = {
     quietReceipt([e('div', { class: 't-display' }, naira(get().everyday))]),
     Head('What do you want to do?'),
     Card(...[
-      ['🎤', 'Voice', 'Say it and I fill it in', 'ask'],
-      ['↗', 'Send money', 'The ordinary form', 'pay'],
-      ['⤓', 'Receive', 'Your number and your code', 'ways'],
-      ['◷', 'History', 'Everything that moved', 'history'],
-      ['⚙', 'Settings', 'Limits, devices, privacy', 'settings'],
+      ['mic', 'Voice', 'Say it and I fill it in', 'ask'],
+      ['send', 'Send money', 'The ordinary form', 'pay'],
+      ['receive-filled', 'Receive', 'Your number and your code', 'ways'],
+      ['clock', 'History', 'Everything that moved', 'history'],
+      ['gear', 'Settings', 'Limits, devices, privacy', 'settings'],
     ].map(([i, t, s, to], n) => e('div', null,
       n ? Divider() : null,
       e('div', { class: 'listrow', onClick: () => go(to) }, Glyph(i),
@@ -409,10 +481,10 @@ export const health = {
     Bubble('Steadier than you were. The one thing holding it down is spending, which is up 18% on last month. Everything else is going the right way.'),
     Head('What moves it'),
     Card(...[
-      ['✓', 'You check before you send', 'Every transfer read before it left', '9 of 9', 'good'],
-      ['🔒', 'You save on payday', 'Before it can go anywhere else', '3 months', ''],
-      ['⚠', 'Spending is up', '18% more than last month', 'Watch', 'warn'],
-      ['◷', 'Nothing borrowed', 'No credit taken this year', 'Clear', 'good'],
+      ['check', 'You check before you send', 'Every transfer read before it left', '9 of 9', 'good'],
+      ['lock', 'You save on payday', 'Before it can go anywhere else', '3 months', ''],
+      ['alert', 'Spending is up', '18% more than last month', 'Watch', 'warn'],
+      ['clock', 'Nothing borrowed', 'No credit taken this year', 'Clear', 'good'],
     ].map(([i, t, s, r, tone], n) => e('div', null,
       n ? Divider() : null,
       e('div', { class: 'listrow' }, Glyph(i, tone),
@@ -625,21 +697,21 @@ export const payfrom = {
   title: 'Pay from',
   render: () => Sheet(
     quietReceipt([PageHead('Send money', `To ${flow.draft.to.name}`), e('div', { class: 't-display' }, naira(flow.draft.amount))]),
-    e('div', { class: 'stack gap-2' }, Glyph('↗', '', { lg: false }), Head('Pay from'), Meta('Two places the money can leave', 'c-3')),
+    e('div', { class: 'stack gap-2' }, Glyph('send', '', { lg: false }), Head('Pay from'), Meta('Two places the money can leave', 'c-3')),
     Card(
       e('div', { class: 'listrow press', role: 'button', onClick: () => { flow.set({ from: 'everyday' }); go('pay'); } },
-        Glyph('🏛'),
+        Glyph('bank'),
         e('div', { class: 'grow stack gap-1' },
           e('div', { class: 'listrow-title' }, 'Everyday'),
           e('div', { class: 'listrow-sub' }, `${naira(get().everyday)} in naira`)),
-        e('div', { class: 'tick ' + (flow.draft.from === 'everyday' ? '' : 'tick-wait') }, flow.draft.from === 'everyday' ? '✓' : '')),
+        e('div', { class: 'tick ' + (flow.draft.from === 'everyday' ? '' : 'tick-wait') }, flow.draft.from === 'everyday' ? Icon('check', { size: 13 }) : null)),
       Divider(),
       e('div', { class: 'listrow press', role: 'button', onClick: () => { flow.set({ from: 'dollars' }); go('paydollars'); } },
         Glyph('$'),
         e('div', { class: 'grow stack gap-1' },
           e('div', { class: 'listrow-title' }, 'Dollars'),
           e('div', { class: 'listrow-sub' }, `$${get().dollars.toFixed(2)}, about ${naira(dollarsInNaira())} today`)),
-        e('div', { class: 'tick ' + (flow.draft.from === 'dollars' ? '' : 'tick-wait') }, flow.draft.from === 'dollars' ? '✓' : ''))),
+        e('div', { class: 'tick ' + (flow.draft.from === 'dollars' ? '' : 'tick-wait') }, flow.draft.from === 'dollars' ? Icon('check', { size: 13 }) : null))),
     Bubble('Sarah is paid in naira either way. From dollars I convert at the rate on the next screen, and you see it before anything moves.'),
     Button('Done', { kind: 'quiet', onClick: () => go('pay') })),
 };

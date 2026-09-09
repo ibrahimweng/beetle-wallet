@@ -14,6 +14,7 @@ const src = p => readFileSync(resolve(here, p), 'utf8');
 
 /* dependency order, hand-kept: a module may only import ones above it */
 const ORDER = [
+  'src/icons.js',
   'src/ui.js',
   'src/data.js',
   'src/store.js',

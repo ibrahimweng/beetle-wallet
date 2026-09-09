@@ -27,7 +27,7 @@ export function check({ amount, from = 'everyday' }) {
 }
 
 /** Send money. Returns the receipt the done screen renders. */
-export function send({ to, amount, from = 'everyday', narration = '', icon = '↗', kind = 'transfer' }) {
+export function send({ to, amount, from = 'everyday', narration = '', icon = 'send', kind = 'transfer' }) {
   const fee = feeFor(amount);
   const inDollars = from === 'dollars' ? +(amount / get().rate).toFixed(2) : null;
 
@@ -52,14 +52,14 @@ export function send({ to, amount, from = 'everyday', narration = '', icon = '�
 }
 
 /** Buy airtime or data. */
-export function buy({ network, line, amount, label, icon = '≋' }) {
+export function buy({ network, line, amount, label, icon = 'data' }) {
   update(s => { s.everyday = +(s.everyday - amount).toFixed(2); s.outToday += amount; });
   addEntry({ icon, name: network, detail: label, amount: -amount, to: 'done', kind: 'airtime' });
   return { network, line, amount, label, at: stamp(), session: sessionId(), balanceAfter: get().everyday };
 }
 
 /** Pay a bill. Prepaid power hands back a token. */
-export function payBill({ biller, meter, amount, icon = '⚡', token = true }) {
+export function payBill({ biller, meter, amount, icon = 'power', token = true }) {
   update(s => { s.everyday = +(s.everyday - amount).toFixed(2); s.outToday += amount; });
   addEntry({ icon, name: biller, detail: meter ? `Meter ${meter}` : 'Bill', amount: -amount, to: 'power', kind: 'bill' });
   const units = +(amount / 62.5).toFixed(1);
@@ -71,7 +71,7 @@ export function payBill({ biller, meter, amount, icon = '⚡', token = true }) {
 }
 
 /** Money received — used by the request flow and by Add money. */
-export function receive({ from, amount, detail = 'Payment received', icon = '↙' }) {
+export function receive({ from, amount, detail = 'Payment received', icon = 'request' }) {
   update(s => { s.everyday = +(s.everyday + amount).toFixed(2); });
   addEntry({ icon, name: from, detail, amount, to: 'donein', kind: 'in', tone: 'good' });
   return { from, amount, at: stamp(), session: sessionId(), balanceAfter: get().everyday };
@@ -81,7 +81,7 @@ export function receive({ from, amount, detail = 'Payment received', icon = '↙
    the screen has already shown the APR. */
 export function borrow({ principal, total, instalments, perInstalment }) {
   update(s => { s.everyday = +(s.everyday + principal).toFixed(2); });
-  addEntry({ icon: '◷', name: 'Borrowed', detail: `${instalments} payments of ₦${perInstalment.toLocaleString('en-NG')}`, amount: principal, to: 'loan', kind: 'loan', tone: 'good' });
+  addEntry({ icon: 'clock', name: 'Borrowed', detail: `${instalments} payments of ₦${perInstalment.toLocaleString('en-NG')}`, amount: principal, to: 'loan', kind: 'loan', tone: 'good' });
   return { principal, total, instalments, perInstalment, at: stamp(), session: sessionId(), balanceAfter: get().everyday };
 }
 
@@ -92,14 +92,14 @@ export function saveToGoal(amount) {
     s.everyday = +(s.everyday - amount).toFixed(2);
     s.goal.saved += amount;
   });
-  addEntry({ icon: '🏺', name: get().goal.name + ' goal', detail: 'Put away', amount: -amount, to: 'goal', kind: 'saving' });
+  addEntry({ icon: 'pot', name: get().goal.name + ' goal', detail: 'Put away', amount: -amount, to: 'goal', kind: 'saving' });
   return get().goal;
 }
 
 export function takeFromGoal(amount) {
   const take = Math.min(amount, get().goal.saved);
   update(s => { s.goal.saved -= take; s.everyday = +(s.everyday + take).toFixed(2); });
-  addEntry({ icon: '🏺', name: get().goal.name + ' goal', detail: 'Taken back', amount: take, to: 'goal', kind: 'saving', tone: 'good' });
+  addEntry({ icon: 'pot', name: get().goal.name + ' goal', detail: 'Taken back', amount: take, to: 'goal', kind: 'saving', tone: 'good' });
   return get().goal;
 }
 
@@ -113,12 +113,12 @@ export function convert({ direction, amount }) {
   if (direction === 'to-dollars') {
     const got = +(amount / rate).toFixed(2);
     update(s => { s.everyday = +(s.everyday - amount).toFixed(2); s.dollars = +(s.dollars + got).toFixed(2); });
-    addEntry({ icon: '$', name: 'Converted to dollars', detail: `At ₦${rate} to $1`, amount: -amount, to: 'converted', kind: 'fx' });
+    addEntry({ icon: 'dollar', name: 'Converted to dollars', detail: `At ₦${rate} to $1`, amount: -amount, to: 'converted', kind: 'fx' });
     return { gave: amount, got, rate, unit: '$' };
   }
   const got = Math.round(amount * rate);
   update(s => { s.dollars = +(s.dollars - amount).toFixed(2); s.everyday = +(s.everyday + got).toFixed(2); });
-  addEntry({ icon: '$', name: 'Converted to naira', detail: `At ₦${rate} to $1`, amount: got, to: 'converted', kind: 'fx', tone: 'good' });
+  addEntry({ icon: 'dollar', name: 'Converted to naira', detail: `At ₦${rate} to $1`, amount: got, to: 'converted', kind: 'fx', tone: 'good' });
   return { gave: amount, got, rate, unit: '₦' };
 }
 

@@ -2,7 +2,7 @@
    Home reads the store, so anything you do anywhere shows up here. */
 
 import {
-  el, Screen, Dock, PageHead, Head, Body, Meta, Caption, Label,
+  el, Icon, AgentMark, Screen, Dock, PageHead, Head, Body, Meta, Caption, Label,
   Card, Plain, Stack, Row, Between, Divider, Spacer, Glyph, TxRow, ListRow,
   Button, Chip, ChipRow, Bubble, Said, Typing, Meter, Note, Toggle, toast,
   naira, nairaFull, signed,
@@ -20,15 +20,17 @@ const repaint = () => window.beetleRepaint();
 let pendingQuestion = null;
 export const setQuestion = q => { pendingQuestion = q; };
 
+/* The four shortcuts under the balance. These use the tone variants of the
+   glyphs, the only icons in the set that carry their own colour. */
 const shortcut = (icon, label, to) =>
   e('button', { class: 'stack gap-2 center press', style: { border: 0, background: 'none', cursor: 'pointer', flex: 1 }, onClick: () => go(to) },
-    e('div', { style: { fontSize: '22px' } }, icon),
+    Icon(icon, { size: 26 }),
     e('div', { class: 't-caption c-2' }, label));
 
 const insightCard = ({ kicker, body, action, onAction, extra }) => {
   const card = Card(
     e('div', { class: 'row', style: { alignItems: 'flex-start', gap: '10px' } },
-      e('div', { class: 'agent-mark' }, '◉'),
+      AgentMark(),
       e('div', { class: 't-row grow' }, kicker)),
     e('div', { class: 'bubble', style: { maxWidth: 'none' } }, body),
     extra || null,
@@ -53,7 +55,7 @@ export const entryRow = r => TxRow({
   detail: `${r.detail} · ${r.time}`,
   amount: signed(r.amount),
   amountClass: r.amount > 0 ? 'c-good' : r.tone === 'bad' ? 'c-bad' : '',
-  onClick: () => go(r.to || 'receipt'),
+  onClick: () => go(r.to || 'donesend'),
 });
 
 const FILTERS = [
@@ -79,9 +81,9 @@ export const home = {
     const body = [
       /* wallet header */
       e('div', { class: 'row between' },
-        Glyph('◉', 'accent', { circle: true }),
+        Glyph('mark', 'accent', { circle: true }),
         Label('Wallet'),
-        e('button', { class: 'chip press', style: { background: 'none', fontSize: '18px', padding: '4px' }, title: 'Notifications', onClick: () => go('history') }, '🔔')),
+        e('button', { class: 'chip press', style: { background: 'none', padding: '4px' }, 'aria-label': 'Notifications', onClick: () => go('history') }, Icon('bell', { size: 22 }))),
 
       /* balance */
       e('div', { class: 'stack gap-2 center', style: { padding: '10px 0 4px' } },
@@ -97,14 +99,14 @@ export const home = {
             ? e('span', { class: 't-display c-3' }, '₦ • • • • • •')
             : e('span', { class: 't-display' }, '₦' + whole.toLocaleString('en-NG')),
           hidden ? null : e('span', { class: 't-head c-3' }, cents)),
-        e('button', { class: 'btn btn-primary press', style: { width: 'auto', padding: '13px 26px' }, onClick: () => go('receive') }, '⤓  Receive')),
+        e('button', { class: 'btn btn-primary press', style: { width: 'auto', padding: '13px 26px' }, onClick: () => go('receive') }, Icon('receive-filled', { size: 18 }), 'Receive')),
 
       /* shortcuts */
       e('div', { class: 'row', style: { padding: '6px 0 2px' } },
-        shortcut('📱', 'Airtime', 'airtime'),
-        shortcut('⚡', 'Bills', 'bills'),
-        shortcut('🔒', 'Savings', 'goal'),
-        shortcut('⠿', 'Services', 'services')),
+        shortcut('airtime-tone', 'Airtime', 'airtime'),
+        shortcut('power-tone', 'Bills', 'bills'),
+        shortcut('pot-tone', 'Savings', 'goal'),
+        shortcut('grid-tone', 'Services', 'services')),
 
       /* dollars */
       e('div', { class: 'card press', style: { padding: '10px 14px', cursor: 'pointer' }, role: 'button', onClick: () => go('dollars') },
@@ -143,7 +145,7 @@ export const home = {
       ...insights.data,
       onAction: () => go('airtime'),
       extra: e('div', { class: 'card-plain' }, e('div', { class: 'listrow' },
-        Glyph('≋'),
+        Glyph('data'),
         e('div', { class: 'grow stack gap-1' },
           e('div', { class: 'listrow-title' }, insights.data.offer.title),
           e('div', { class: 'listrow-sub' }, insights.data.offer.sub)),
@@ -156,7 +158,7 @@ export const home = {
     if (showInsights) body.push(
       e('div', { class: 'card press', style: { padding: '10px 14px', cursor: 'pointer' }, role: 'button', onClick: () => go('card') },
         e('div', { class: 'listrow' },
-          Glyph('▭'),
+          Glyph('card'),
           e('div', { class: 'grow stack gap-1' },
             e('div', { class: 'listrow-title' }, insights.card.kicker),
             e('div', { class: 'listrow-sub' }, insights.card.sub)),
@@ -166,7 +168,7 @@ export const home = {
 
     if (!today.length && !yesterday.length && showRows && !showInsights)
       body.push(e('div', { class: 'card-plain stack gap-2 center', style: { padding: '26px 16px' } },
-        e('div', { style: { fontSize: '24px' } }, '◌'),
+        e('div', { style: { fontSize: '24px' } }, 'wait-filled'),
         Body('Nothing under that filter', 'c-2')));
 
     return Screen(body, Dock({
@@ -201,7 +203,7 @@ export const agentchat = {
       scroll();
       const put = text => {
         holder.innerHTML = '';
-        holder.appendChild(e('div', { class: 'agent-mark' }, '◉'));
+        holder.appendChild(AgentMark());
         holder.appendChild(e('div', { class: 'bubble' }, text));
       };
       ask(q, { context: accountLine(), onText: put }).then(text => { put(text); scroll(); });

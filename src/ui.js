@@ -1,6 +1,8 @@
 /* Beetle — component kit.
    Every recurring pattern in the Figma file, once. Screens compose these. */
 
+import { ICONS } from './icons.js';
+
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const SVG_TAGS = new Set(['svg', 'circle', 'path', 'rect', 'g', 'line', 'text', 'polyline', 'polygon']);
 
@@ -61,9 +63,29 @@ export const Between = (...kids) => e('div', { class: 'row between' }, ...kids);
 export const Divider = () => e('div', { class: 'divider' });
 export const Spacer = h => e('div', { style: { height: h + 'px', flex: 'none' } });
 
+/* ---------- icons ---------- */
+/* One of the ninety-seven glyphs from the Figma file, drawn as SVG and taking
+   its colour from the text around it. Two or three characters of initials are
+   allowed instead, for the round avatars the design uses. */
+export const Icon = (name, { size = 24, cls = '' } = {}) => {
+  const d = ICONS[name];
+  if (!d) {
+    /* a name that is not in the set is a mistake worth seeing, not hiding */
+    console.warn(`No icon called "${name}".`);
+    return e('span', { class: 'icon-missing', title: name }, '?');
+  }
+  return e('svg', {
+    class: 'icon ' + cls, width: String(size), height: String(size),
+    viewBox: '0 0 24 24', fill: 'none', 'aria-hidden': 'true', html: d,
+  });
+};
+
 /* ---------- glyph ---------- */
+/* The rounded tile an icon sits in. Pass an icon name, or a short string for
+   the initials the design shows on a person. */
 export const Glyph = (icon, tone = '', { lg = false, circle = false } = {}) =>
-  e('div', { class: `glyph ${lg ? 'glyph-lg' : ''} ${circle ? 'glyph-circle' : ''} ${tone ? 'glyph-' + tone : ''}` }, icon);
+  e('div', { class: `glyph ${lg ? 'glyph-lg' : ''} ${circle ? 'glyph-circle' : ''} ${tone ? 'glyph-' + tone : ''}` },
+    ICONS[icon] ? Icon(icon, { size: lg ? 28 : 20 }) : e('span', { class: 'glyph-text' }, icon));
 
 /* ---------- list row ---------- */
 export const ListRow = ({ icon, tone, title, sub, right, rightSub, chev = true, onClick }) =>
@@ -75,7 +97,7 @@ export const ListRow = ({ icon, tone, title, sub, right, rightSub, chev = true, 
     right !== undefined && e('div', { class: 'stack gap-1', style: { textAlign: 'right' } },
       e('div', { class: 't-label' }, right),
       rightSub && e('div', { class: 't-caption c-3' }, rightSub)),
-    chev && e('div', { class: 'chev' }, '›'));
+    chev && e('div', { class: 'chev' }, Icon('chevron', { size: 20 })));
 
 /* A ledger line: name, what it was, and the amount. */
 export const TxRow = ({ icon, tone, name, detail, amount, amountClass = '', onClick }) =>
@@ -95,7 +117,8 @@ export const Field = (k, v, note) =>
 
 /* ---------- buttons ---------- */
 export const Button = (label, { kind = 'primary', onClick, icon } = {}) =>
-  e('button', { class: `btn btn-${kind}`, onClick }, icon && e('span', null, icon), label);
+  e('button', { class: `btn btn-${kind} press`, onClick },
+    icon ? (icon.nodeType ? icon : Icon(icon, { size: 18 })) : null, label);
 export const Ghost = (label, onClick) => e('button', { class: 'btn btn-ghost', onClick }, label);
 export const Chip = (label, pressed, onClick) =>
   e('button', { class: 'chip', 'aria-pressed': pressed ? 'true' : 'false', onClick }, label);
@@ -108,17 +131,18 @@ export const ActionRow = ({ icon, tone, title, sub, onClick }) =>
       e('div', { class: 'grow stack gap-1' },
         e('div', { class: 'listrow-title' }, title),
         sub && e('div', { class: 'listrow-sub' }, sub)),
-      e('div', { class: 'chev' }, '›')));
+      e('div', { class: 'chev' }, Icon('chevron', { size: 20 }))));
 
 /* ---------- the agent ---------- */
-export const AgentMark = () => e('div', { class: 'agent-mark' }, '◉');
+export const AgentMark = () => e('div', { class: 'agent-mark' }, Icon('mark', { size: 26 }));
 export const Bubble = text =>
   e('div', { class: 'row', style: { alignItems: 'flex-start', gap: '10px' } },
     AgentMark(),
     e('div', { class: 'bubble' }, text));
-export const Said = text =>
+export const Said = (text, { spoken = false } = {}) =>
   e('div', { class: 'row', style: { justifyContent: 'flex-end' } },
-    e('div', { class: 'bubble-me' }, text));
+    e('div', { class: 'bubble-me' + (spoken ? ' bubble-spoken' : '') },
+      spoken ? Icon('mic', { size: 16 }) : null, e('span', null, text)));
 export const Typing = () =>
   e('div', { class: 'row', style: { alignItems: 'flex-start', gap: '10px' } },
     AgentMark(),
@@ -130,23 +154,23 @@ export const Typing = () =>
 export const ToolPanel = (title, state, rows) =>
   e('div', { class: 'tool' },
     e('div', { class: 'tool-head' },
-      e('span', null, '↗'), e('b', null, title),
-      e('span', { class: 'tool-state' }, e('span', { style: { fontSize: '9px' } }, '●'), state)),
+      Icon('send', { size: 16 }), e('b', null, title),
+      e('span', { class: 'tool-state' }, e('i', { class: 'dot' }), state)),
     ...rows.map(r => e('div', { class: 'tool-row' },
-      e('div', { class: 'tick ' + (r.done === false ? 'tick-wait' : '') }, r.done === false ? '' : '✓'),
+      e('div', { class: 'tick ' + (r.done === false ? 'tick-wait' : '') }, r.done === false ? null : Icon('check', { size: 13 })),
       e('div', { class: 'k' }, r.k),
       e('div', { class: 'v ' + (r.tone || '') }, r.v))));
 
 /* ---------- banners and notes ---------- */
 export const Banner = (text, tone = 'good') => e('div', { class: `banner banner-${tone}` }, text);
-export const Note = (text, icon = '🔒') => e('div', { class: 'note' }, e('span', null, icon), e('span', null, text));
+export const Note = (text, icon = 'lock') => e('div', { class: 'note' }, Icon(icon, { size: 16 }), e('span', null, text));
 export const Pill = (text, tone = 'accent') => e('span', { class: `pill pill-${tone}` }, text);
 
 /* ---------- timeline ---------- */
 export const Timeline = rows =>
   e('div', { class: 'stack' }, ...rows.map((r, i) =>
     e('div', { class: 'timeline-row', style: i ? { borderTop: '1px solid var(--rule)' } : {} },
-      e('div', { class: 'tick ' + (r.done ? '' : 'tick-wait') }, r.done ? '✓' : ''),
+      e('div', { class: 'tick ' + (r.done ? '' : 'tick-wait') }, r.done ? Icon('check', { size: 13 }) : null),
       e('div', { class: 'grow t-meta', style: { color: r.done ? 'var(--text-secondary)' : 'var(--text-tertiary)' } }, r.k),
       e('div', { class: 't-label' }, r.v))));
 
@@ -161,18 +185,18 @@ export const Pips = (filled, total = 4) =>
 export const Keypad = (onKey) =>
   e('div', { class: 'keypad' },
     ...['1','2','3','4','5','6','7','8','9'].map(d => e('button', { class: 'key', onClick: () => onKey(d) }, d)),
-    e('button', { class: 'key key-blank', onClick: () => onKey('face') }, '☺'),
+    e('button', { class: 'key key-blank', 'aria-label': 'Face ID', onClick: () => onKey('face') }, Icon('faceid', { size: 26 })),
     e('button', { class: 'key', onClick: () => onKey('0') }, '0'),
-    e('button', { class: 'key key-blank', onClick: () => onKey('del') }, '⌫'));
+    e('button', { class: 'key key-blank', 'aria-label': 'Delete', onClick: () => onKey('del') }, Icon('del', { size: 26 })));
 
 /* ---------- phone keyboard (for typed flows) ---------- */
 const KB = [['q','w','e','r','t','y','u','i','o','p'], ['a','s','d','f','g','h','j','k','l'], ['z','x','c','v','b','n','m']];
 export const Keyboard = (onKey, sendLabel = 'send') =>
   e('div', { class: 'kbd' },
     ...KB.map((rowKeys, i) => e('div', { class: 'kbd-row' },
-      i === 2 ? e('button', { class: 'kbd-key wide dark', onClick: () => onKey('shift') }, '⇧') : null,
+      i === 2 ? e('button', { class: 'kbd-key wide dark', 'aria-label': 'Shift', onClick: () => onKey('shift') }, Icon('up', { size: 18 })) : null,
       ...rowKeys.map(k => e('button', { class: 'kbd-key', onClick: () => onKey(k) }, k)),
-      i === 2 ? e('button', { class: 'kbd-key wide dark', onClick: () => onKey('back') }, '⌫') : null)),
+      i === 2 ? e('button', { class: 'kbd-key wide dark', 'aria-label': 'Backspace', onClick: () => onKey('back') }, Icon('del', { size: 18 })) : null)),
     e('div', { class: 'kbd-row' },
       e('button', { class: 'kbd-key wide dark', onClick: () => onKey('123') }, '123'),
       e('button', { class: 'kbd-key', style: { flex: 4 }, onClick: () => onKey(' ') }, ' '),
@@ -191,15 +215,18 @@ export const Waveform = (bars = 26, seed = 7) => {
 };
 
 /* ---------- dock ---------- */
-export const Dock = ({ placeholder = 'Ask, or just say what you need', back, onAsk, fab = '+', onFab } = {}) => {
+export const Dock = ({ placeholder = 'Ask, or just say what you need', back, onAsk, fab = 'fab-plus', onFab } = {}) => {
   const input = e('input', { placeholder, 'aria-label': 'Ask Beetle' });
   const fire = () => { const v = input.value.trim(); if (!v) return; input.value = ''; onAsk && onAsk(v); };
   input.addEventListener('keydown', ev => { if (ev.key === 'Enter') fire(); });
   return e('div', { class: 'dock' },
-    back && e('button', { class: 'backbtn', onClick: back }, '‹'),
+    back && e('button', { class: 'backbtn', 'aria-label': 'Back', onClick: back }, Icon('back', { size: 20 })),
+    /* the design ends the ask bar with a camera and a microphone, not a send
+       arrow: you point it at something, or you talk to it */
     e('div', { class: 'askbar' }, AgentMark(), input,
-      e('button', { class: 'backbtn', style: { width: '26px', fontSize: '15px' }, onClick: fire }, '↑')),
-    onFab !== undefined && e('button', { class: 'fab', onClick: onFab }, fab));
+      e('button', { class: 'askbar-btn press', 'aria-label': 'Scan something', onClick: () => window.beetleGo('scan') }, Icon('camera', { size: 19 })),
+      e('button', { class: 'askbar-btn press', 'aria-label': 'Speak', onClick: fire }, Icon('mic', { size: 19 }))),
+    onFab !== undefined && e('button', { class: 'fab', 'aria-label': 'What can I do', onClick: onFab }, Icon(fab, { size: 22 })));
 };
 
 /* ---------- sheet over a screen ---------- */
@@ -309,7 +336,7 @@ export const PassPad = ({ length = 4, onDone, hint, allowFace = true, onFace }) 
 export const Slide = (label, onDone) => {
   const fill = e('div', { class: 'slide-fill' });
   const text = e('div', { class: 'slide-label' }, label);
-  const thumb = e('button', { class: 'slide-thumb', 'aria-label': label }, '›');
+  const thumb = e('button', { class: 'slide-thumb', 'aria-label': label }, Icon('slide-arrow', { size: 22 }));
   const track = e('div', { class: 'slide' }, fill, text, thumb);
 
   let dragging = false, done = false;
@@ -325,7 +352,7 @@ export const Slide = (label, onDone) => {
   const finish = () => {
     done = true; dragging = false;
     track.classList.add('armed');
-    thumb.textContent = '✓';
+    thumb.innerHTML = ''; thumb.appendChild(Icon('check', { size: 22 }));
     thumb.style.left = (span() + 4) + 'px';
     fill.style.width = '100%';
     setTimeout(onDone, 180);
@@ -428,4 +455,4 @@ export const Picker = (options, current, onPick) =>
         e('div', { class: 'stack gap-1' },
           e('div', { class: 't-row' }, o.label),
           o.sub && e('div', { class: 't-caption c-3' }, o.sub)),
-        e('div', { class: 'tick ' + (o.id === current ? '' : 'tick-wait') }, o.id === current ? '✓' : '')))));
+        e('div', { class: 'tick ' + (o.id === current ? '' : 'tick-wait') }, o.id === current ? Icon('check', { size: 13 }) : null)))));

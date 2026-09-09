@@ -105,6 +105,7 @@ red there means something actually broke.
 | `dist/beetle.html` | That bundle, committed. CI fails if it drifts from the source. |
 | `test/render.mjs` | Every screen draws, no console errors, no sideways scroll |
 | `test/icons.mjs` | No emoji, every icon name real, none rendered as text |
+| `test/copy.mjs` | 204 strings read out of the Figma file, checked on the screen that should say them |
 | `test/interact.mjs` | Thirty things a slideshow cannot do |
 
 The registry checks itself when the app loads: if a screen is listed but not
@@ -123,8 +124,27 @@ place. The loan costs ₦19,500 on ₦150,000 over 90 days — 76% nominal APR,
 ## Tests
 
 ```sh
-npm test        # builds, then checks the icons, 100 renders and 30 interactions
+npm test        # icons, copy, 100 renders across three entry points, 30 interactions
 ```
+
+## Against the design
+
+Every screen was checked against the Figma file rather than against memory.
+`test/figma-copy.json` holds 204 strings read out of the file, and
+`npm test` fails if a screen stops saying what the design says it says.
+
+Two deliberate differences, both recorded here so they are not mistaken for
+drift:
+
+- **The name.** The file still says Indigo in nine places. The product is
+  Beetle, so the code says Beetle and the file is what needs updating.
+- **The APR box on the loan screen.** The design does not have it. It was
+  added when the pricing was made honest, and removing it would put back a
+  4% a month that reads as small and is not.
+
+One inconsistency in the file itself: `Pay` says the fee on ₦50,000 is free,
+while `DoneFlat` charges ₦26.88 on the same amount. The code works the fee
+out, so it agrees with the receipt.
 
 ## Icons
 

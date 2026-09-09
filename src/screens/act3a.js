@@ -63,11 +63,13 @@ export const receiptBody = ({ head, sub, amount, line, fields, session, sessionL
  * Sending money — the four ways in
  * ---------------------------------------------------------------- */
 
-const blurredHome = () => e('div', { class: 'screen-scroll', style: { filter: 'blur(4px)', opacity: .6 } },
+export const blurredHome = () => e('div', { class: 'screen-scroll', style: { filter: 'blur(4px)', opacity: .6 } },
   e('div', { class: 'pad top-pad stack gap-4' },
     e('div', { class: 'row between' }, Glyph('mark', 'accent', { circle: true }), Label('Wallet'), Icon('bell', { size: 22 })),
     e('div', { class: 'stack gap-2 center' },
-      Caption('Total balance', 'c-2'),
+      e('div', { class: 'row center', style: { gap: '8px' } },
+        Caption('Total balance', 'c-2'),
+        e('span', { class: 'pill pill-good' }, '+9% this month')),
       e('div', { class: 't-display' }, naira(get().everyday)),
       e('button', { class: 'btn btn-primary', style: { width: 'auto', padding: '13px 26px' } }, Icon('receive-filled', { size: 18 }), 'Receive')),
     e('div', { class: 'row' }, ...['airtime-tone', 'power-tone', 'pot-tone', 'grid-tone'].map(i =>
@@ -368,7 +370,7 @@ export const asksvc = {
   title: 'Ask (voice)',
   render: () => Sheet(blurredHome(),
     e('div', { class: 'row', style: { gap: '8px' } }, AgentMark(), e('div', { class: 't-label c-accent' }, 'Listening')),
-    e('div', { class: 't-title' }, e('span', null, 'Buy 5GB for '), e('span', { class: 'c-3' }, 'Mum')),
+    e('div', { class: 't-title' }, e('span', null, '2k data for '), e('span', { class: 'c-3' }, 'mum')),
     Waveform(30, 23),
     Meta('Or try one of these', 'c-3'),
     Stack(2, ...['Buy me airtime', 'Top up my light', 'What data plan is cheapest?'].map(t =>
@@ -426,14 +428,26 @@ let buyReceipt = null;
 export const confirmbuy = {
   title: 'Confirm',
   render: () => Sheet(
-    quietReceipt([PageHead('Buy data', ''), e('div', { class: 't-display' }, naira(plan.price))]),
+    quietReceipt([
+      Caption('You said', 'c-2'),
+      Said('2k data for mum'),
+      e('div', { class: 't-display' }, naira(plan.price)),
+      Bubble('Mum’s MTN line, the one ending 4471. She ran dry eleven days early last month, so I have priced the bigger bundle too.'),
+      ToolPanel('Beetle Airtime', 'Running', [
+        { k: 'Line', v: `MTN · ${contacts.mum.account}` },
+        { k: 'Whose', v: 'Mum' },
+        { k: 'Plan', v: plan.label },
+        { k: 'Price', v: naira(plan.price) },
+        { k: 'Cheaper?', v: 'Checking MTN plans', done: false, tone: 'c-2' },
+      ]),
+    ]),
     e('div', { class: 'stack gap-3 center' },
       e('div', { class: 't-display' }, naira(plan.price)),
       e('div', { class: 't-row' }, 'MTN · ' + plan.label.split(' for ')[0]),
       Meta('Mum · ' + contacts.mum.account, 'c-3'),
       Head('Enter your passcode'),
       PassPad({
-        hint: 'Nothing moves until the fourth number lands.',
+        hint: 'Face ID first. Nothing leaves your account until then.',
         onFace: () => { buyReceipt = act.buy({ network: 'MTN', line: contacts.mum.account, amount: plan.price, label: plan.label }); go('done'); },
         onDone: code => {
           const res = act.tryPasscode(code);
@@ -447,7 +461,7 @@ export const confirmbuy = {
 export const done = {
   title: 'All done',
   render: () => {
-    const r = buyReceipt || { amount: plan.price, label: plan.label, at: '28 August 2026 at 8:02 AM', session: 'MTN 88231 4471 0395', balanceAfter: get().everyday };
+    const r = buyReceipt || { amount: plan.price, label: plan.label, at: '28 August 2026 at 8:02 AM', session: 'MTN 88231 4471 0392', balanceAfter: get().everyday };
     return Screen([
       ...receiptBody({
         head: 'All done', sub: r.at,
@@ -455,15 +469,18 @@ export const done = {
         fields: [
           ['To', 'Mum', `${contacts.mum.account} · MTN`],
           ['From', 'Everyday', me.account],
-          ['What', r.label, 'Valid for 30 days'],
+          ['What', r.label, 'Valid until 27 September'],
           ['Amount', nairaFull(r.amount)],
           ['Fee', 'Free'],
           ['Total charged', nairaFull(r.amount)],
           ['Balance after', nairaFull(r.balanceAfter)],
         ],
-        session: r.session,
+        session: r.session, sessionLabel: 'MTN reference',
       }),
       Button('Share receipt', { icon: 'share', onClick: () => go('sharebuy') }),
+      Plain(
+        Bubble('Mum has it. Every month, without asking?'),
+        Button('Set it up', { kind: 'quiet', onClick: () => { act.setStanding('Round ups', true); toast('Set. The same bundle, the day her data runs out.'); go('rules'); } })),
     ], Dock({ placeholder: 'Ask about this purchase', back: () => go('home'), onAsk: q => { setQuestion(q); go('agentchat'); } }));
   },
 };
@@ -647,7 +664,14 @@ export const meter = {
 export const confirmmeter = {
   title: 'Confirm',
   render: () => Sheet(
-    quietReceipt([PageHead('What I found', meterBill.readAt), e('div', { class: 't-display' }, naira(bill.amount))]),
+    quietReceipt([
+      e('div', { class: 'row between' },
+        e('div', { class: 'row', style: { gap: '8px' } }, Glyph('IE', 'warn'), Label('Bill photo')),
+        Caption('4:02 PM', 'c-3')),
+      e('div', { class: 't-display' }, naira(bill.amount)),
+      Caption(meterBill.kind, 'c-2'),
+      Caption('Meter ' + bill.meter, 'c-3'),
+    ]),
     e('div', { class: 'stack gap-3 center' },
       e('div', { class: 't-display' }, naira(bill.amount)),
       e('div', { class: 't-row' }, bill.biller),

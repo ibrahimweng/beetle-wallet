@@ -124,7 +124,7 @@ export const lock = {
     PageHead('Lock and privacy', 'What it takes to open this, and what shows', { big: true }),
     Group('Opening the app',
       SettingRow({ icon: 'faceid', tone: 'accent', title: 'Face ID', toggleKey: 'faceId' }),
-      SettingRow({ icon: 'list', title: 'Passcode', right: 'Six digits', to: 'newcode' }),
+      SettingRow({ icon: 'list', title: 'Passcode', right: '6 digits', to: 'newcode' }),
       SettingRow({ icon: 'clock', title: 'Ask again after', right: '2 minutes', to: 'lock' })),
     Group('What other people can see',
       SettingRow({ icon: 'eye', title: 'Hide my balance', toggleKey: 'hideBalance', onToggle: on => toast(on ? 'Hidden. Tap the balance on home to peek.' : 'Showing again.') }),

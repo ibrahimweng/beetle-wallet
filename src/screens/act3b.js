@@ -14,7 +14,7 @@ import {
 import { get, byDay, dollarsInNaira, leftToday, stamp } from '../store.js';
 import * as act from '../actions.js';
 import * as flow from '../flow.js';
-import { receiptBody, shareSheet, quietReceipt, setPlan } from './act3a.js';
+import { receiptBody, shareSheet, quietReceipt, setPlan, blurredHome } from './act3a.js';
 import { setQuestion, entryRow } from './home.js';
 
 const e = el;
@@ -32,8 +32,10 @@ let writing = false;
 export const receive = {
   title: 'Receive',
   render: () => Sheet(
-    quietReceipt([e('div', { class: 't-display' }, naira(get().everyday))]),
-    e('div', { class: 'stack gap-2 center' }, Glyph('receive-filled', 'accent', { lg: true, circle: true }), Head('How money reaches you')),
+    blurredHome(),
+    e('div', { class: 'stack gap-1 center' },
+      Glyph('receive-filled', 'accent', { lg: true, circle: true }),
+      Head('How money reaches you')),
     Card(...[
       ['bank', 'Bank transfer', `Your number, ${me.account}`, 'ways'],
       ['card', 'From a card', 'Any Nigerian debit card', 'ways'],
@@ -41,11 +43,12 @@ export const receive = {
       ['dollar', 'In dollars', 'Hold it steady, or convert it now', 'dollars'],
     ].map(([i, t, s, to], n) => e('div', null,
       n ? Divider() : null,
-      e('div', { class: 'listrow', onClick: () => go(to) }, Glyph(i),
+      e('div', { class: 'listrow press', role: 'button', onClick: () => go(to) },
+        Glyph(i),
         e('div', { class: 'grow stack gap-1' },
           e('div', { class: 'listrow-title' }, t),
           e('div', { class: 'listrow-sub' }, s)),
-        e('div', { class: 'chev' }, '›'))))),
+        e('div', { class: 'chev' }, Icon('chevron', { size: 20 })))))),
     Button('Done', { kind: 'quiet', onClick: () => go('home') })),
 };
 
@@ -821,25 +824,52 @@ export const converted = {
 
 export const payfrom = {
   title: 'Pay from',
-  render: () => Sheet(
-    quietReceipt([PageHead('Send money', `To ${flow.draft.to.name}`), e('div', { class: 't-display' }, naira(flow.draft.amount))]),
-    e('div', { class: 'stack gap-2' }, Glyph('send', '', { lg: false }), Head('Pay from'), Meta('Two places the money can leave', 'c-3')),
-    Card(
-      e('div', { class: 'listrow press', role: 'button', onClick: () => { flow.set({ from: 'everyday' }); go('pay'); } },
-        Glyph('bank'),
-        e('div', { class: 'grow stack gap-1' },
-          e('div', { class: 'listrow-title' }, 'Everyday'),
-          e('div', { class: 'listrow-sub' }, `${naira(get().everyday)} in naira`)),
-        e('div', { class: 'tick ' + (flow.draft.from === 'everyday' ? '' : 'tick-wait') }, flow.draft.from === 'everyday' ? Icon('check', { size: 13 }) : null)),
-      Divider(),
-      e('div', { class: 'listrow press', role: 'button', onClick: () => { flow.set({ from: 'dollars' }); go('paydollars'); } },
-        Glyph('$'),
-        e('div', { class: 'grow stack gap-1' },
-          e('div', { class: 'listrow-title' }, 'Dollars'),
-          e('div', { class: 'listrow-sub' }, `$${get().dollars.toFixed(2)}, about ${naira(dollarsInNaira())} today`)),
-        e('div', { class: 'tick ' + (flow.draft.from === 'dollars' ? '' : 'tick-wait') }, flow.draft.from === 'dollars' ? Icon('check', { size: 13 }) : null))),
-    Bubble('Sarah is paid in naira either way. From dollars I convert at the rate on the next screen, and you see it before anything moves.'),
-    Button('Done', { kind: 'quiet', onClick: () => go('pay') })),
+  render: () => {
+    const st = get();
+    const d = flow.draft;
+    return Screen([
+      Caption('You said', 'c-2'),
+      Said(dollarSend.spoken),
+      e('div', { class: 'stack gap-1' },
+        e('div', { class: 't-display' }, naira(d.amount)),
+        Caption('I took this from your message', 'c-3')),
+      Card(
+        e('div', { class: 'listrow' },
+          Glyph(d.to.initials, 'accent', { circle: true }),
+          e('div', { class: 'grow stack gap-1' },
+            e('div', { class: 'listrow-title' }, d.to.name),
+            e('div', { class: 'listrow-sub' }, `${d.to.bank} · ${d.to.account}`))),
+        d.to.note ? Caption(d.to.note, 'c-3') : null),
+      Head('Pay from'),
+      Caption('Two places the money can leave', 'c-3'),
+      Card(
+        e('div', { class: 'listrow press', role: 'button', onClick: () => { flow.set({ from: 'everyday' }); repaint(); } },
+          Glyph('bank'),
+          e('div', { class: 'grow stack gap-1' },
+            e('div', { class: 'listrow-title' }, 'Everyday'),
+            e('div', { class: 'listrow-sub' }, `${naira(st.everyday)} in naira`)),
+          e('div', { class: 'tick ' + (d.from === 'everyday' ? '' : 'tick-wait') }, d.from === 'everyday' ? Icon('check', { size: 13 }) : null)),
+        Divider(),
+        e('div', { class: 'listrow press', role: 'button', onClick: () => { flow.set({ from: 'dollars' }); go('paydollars'); } },
+          Glyph('dollar'),
+          e('div', { class: 'grow stack gap-1' },
+            e('div', { class: 'listrow-title' }, 'Dollars'),
+            e('div', { class: 'listrow-sub' }, `$${st.dollars.toFixed(2)}, about ${naira(dollarsInNaira())} today`)),
+          e('div', { class: 'tick ' + (d.from === 'dollars' ? '' : 'tick-wait') }, d.from === 'dollars' ? Icon('check', { size: 13 }) : null))),
+      Card(
+        Field('Reference', d.narration || dollarSend.reference, 'I took this from your message'),
+        Divider(),
+        e('div', { class: 'row between', style: { padding: '4px 0' } },
+          Caption('From', 'c-2'),
+          Label(d.from === 'dollars' ? `Dollars · $${st.dollars.toFixed(2)}` : `Everyday · ${naira(st.everyday)}`)),
+        Divider(),
+        e('div', { class: 'row between', style: { padding: '4px 0' } }, Caption('Arrives', 'c-2'), Label('In a few seconds')),
+        Divider(),
+        e('div', { class: 'row between', style: { padding: '4px 0' } }, Caption('Fee', 'c-2'), e('div', { class: 't-label c-good' }, 'Free'))),
+      Note('Nothing moves until you slide.'),
+      Slide('Slide to send ' + naira(d.amount), () => go(d.from === 'dollars' ? 'paydollars' : 'confirm')),
+    ], Dock({ placeholder: 'Ask where it should come from', back: () => go('pay'), onAsk: q => { setQuestion(q); go('agentchat'); } }));
+  },
 };
 
 export const paydollars = {
@@ -851,6 +881,7 @@ export const paydollars = {
     const enough = st.dollars >= inDollars;
     return Screen([
       PageHead('Send money', `To ${d.to.name}`, { big: true }),
+      Caption('You said', 'c-2'),
       Said(dollarSend.spoken),
       Bubble('Here it is, ready to go. Check the three parts I filled in.'),
       e('div', { class: 'stack gap-1' },

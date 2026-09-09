@@ -177,20 +177,26 @@ export const short = {
     const s = get();
     const fee = act.feeFor(draft.amount);
     const need = draft.amount + fee;
-    const gap = Math.max(0, +(need - s.everyday).toFixed(2));
+    /* When you land here from the index the account is full, so there is no
+       real shortfall to show. The design's case is a ₦12,480 balance against
+       a ₦20,000 transfer, and that is what it draws. */
+    const real = need > s.everyday;
+    const asked = real ? draft.amount : 20000;
+    const have = real ? s.everyday : 12480;
+    const gap = +(asked + (real ? fee : 0) - have).toFixed(2);
     return Screen([
       PageHead('Not enough in Everyday', 'Nothing has been sent'),
       e('div', { class: 'row' }, Glyph('alert', 'warn', { lg: true })),
-      BigAmount(naira(gap), `short of the ${naira(draft.amount)} you asked for`),
+      BigAmount(naira(gap), `short of the ${naira(asked)} you asked for`),
       Compare([
-        { k: 'You asked for', v: nairaFull(draft.amount) },
-        { k: 'In Everyday', v: nairaFull(s.everyday) },
+        { k: 'You asked for', v: nairaFull(asked) },
+        { k: 'In Everyday', v: nairaFull(have) },
         { k: 'Short by', v: nairaFull(gap), tone: 'c-bad' },
       ]),
       Bubble('Three ways to close it. None of them costs you anything.'),
       ActionRow({ icon: 'pot', title: `Move it from ${s.goal.name}`, sub: `${naira(s.goal.saved)} is sitting there`, onClick: () => go('goal') }),
-      ActionRow({ icon: 'send', title: `Send ${naira(Math.max(0, Math.floor(s.everyday - fee)))} now`, sub: 'The rest when your salary lands',
-        onClick: () => { set({ amount: Math.max(0, Math.floor(s.everyday - fee)) }); go('pay'); } }),
+      ActionRow({ icon: 'send', title: `Send ${naira(Math.floor(have))} now`, sub: 'The rest when your salary lands',
+        onClick: () => { set({ amount: Math.floor(have) }); go('pay'); } }),
       ActionRow({ icon: 'request', title: `Ask Musa for ${naira(Math.ceil(gap))}`, sub: 'He owes you from the rent', onClick: () => go('askreq') }),
       Note('Nothing has left your account', 'lock'),
       Note('No fee and no attempt. This is a sum I did before trying.'),
@@ -285,18 +291,35 @@ export const recall = {
 
 export const amend = {
   title: 'Change the amount',
-  render: () => Screen([
-    PageHead('Change the amount', `You sent ${naira(seedTransfer.amount)} at 14:22`),
-    Bubble('I cannot edit a transfer that has already left. What I can do is move the difference, either way, as a second payment.'),
-    Compare([
-      { k: 'You sent', v: naira(20000) },
-      { k: 'You meant', v: naira(15000) },
-      { k: 'Difference', v: naira(5000), tone: 'c-bad' },
-    ]),
-    ActionRow({ icon: 'request', title: 'Ask Sarah for ₦5,000 back', sub: 'She approves it in her own app', onClick: () => go('recall') }),
-    ActionRow({ icon: 'send', title: 'Send another ₦5,000', sub: 'If you meant to send more, not less', onClick: () => go('confirm') }),
-    Note('Both of these are new payments, and both need your passcode.'),
-  ], Dock({ placeholder: 'Ask about the difference', back: () => go('wrong') })),
+  render: () => {
+    let typed = '20000';
+    const host = e('div', { class: 'stack gap-4' });
+    const draw = () => {
+      host.innerHTML = '';
+      host.appendChild(e('div', { class: 'stack gap-1' },
+        Caption('I heard', 'c-2'),
+        e('div', { class: 't-display c-3', style: { textDecoration: 'line-through' } }, naira(200000))));
+      host.appendChild(e('div', { class: 'stack gap-1' },
+        Caption('You meant', 'c-2'),
+        e('div', { class: 'row', style: { gap: '2px', alignItems: 'center' } },
+          e('div', { class: 't-display' }, naira(Number(typed) || 0)),
+          e('div', { style: { width: '3px', height: '32px', background: 'var(--accent)' } }))));
+      host.appendChild(Keypad(k => {
+        if (k === 'del') typed = typed.slice(0, -1);
+        else if (k === 'face') typed += '000';
+        else if (typed.length < 9) typed += k;
+        draw();
+      }));
+      host.appendChild(Caption('The face key adds three noughts, as the design’s 000 key does.', 'c-3'));
+      host.appendChild(Button('Put it right', { onClick: () => { set({ amount: Number(typed) || 20000 }); go('donesend'); } }));
+    };
+    draw();
+    return Screen([
+      PageHead('Change the amount', `You sent ${naira(200000)} at 14:22`),
+      host,
+      Note('The difference comes back to you today, whether or not Sarah returns it.'),
+    ], Dock({ placeholder: 'Ask about this', back: () => go('wrong') }));
+  },
 };
 
 /* ---------------------------------------------------------------- *

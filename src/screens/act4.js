@@ -354,7 +354,7 @@ export const firstask = {
     const first = window.beetleAskFirst; window.beetleAskFirst = null;
     if (first) setTimeout(() => say(first), 60);
     else {
-      thread.appendChild(Bubble('I only tell you things I have seen in your own money, and I have not seen any yet. Ask me how something works and I will answer that honestly.'));
+      thread.appendChild(Bubble('I only tell you things I have seen in your own money. I have not seen any yet, so ask me how something works and I will answer that honestly.'));
       thread.appendChild(e('div', { class: 'stack gap-2' },
         ...['How do I get money in?', 'What can I do before I add my ID?', 'What does a transfer cost?', 'What do you do with my NIN?']
           .map(s => e('button', { class: 'btn btn-quiet press', style: { justifyContent: 'flex-start' }, onClick: () => say(s) }, s))));

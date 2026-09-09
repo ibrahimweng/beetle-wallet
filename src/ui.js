@@ -298,7 +298,7 @@ export const AmountPad = ({ value = 0, onChange, prefix = '₦', max = 100000000
 /* ---------- typing a passcode ---------- */
 /* Four real digits, checked against the one that is set. Wrong shakes the
    pips and says how many tries are left. */
-export const PassPad = ({ length = 4, onDone, hint, allowFace = true, onFace }) => {
+export const PassPad = ({ length = 6, onDone, hint, allowFace = true, onFace }) => {
   let code = '';
   let error = null;
   const host = e('div', { class: 'stack gap-3 center' });

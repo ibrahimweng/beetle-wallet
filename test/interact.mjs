@@ -48,7 +48,7 @@ const shown = await p.locator('.edit-row').nth(1).innerText();
 check('amount pad types a real figure', shown.includes('7,500.00'), shown);
 await tap('.slide-thumb');                        // slide to send -> confirm
 await p.waitForTimeout(300);
-await key('4471');                                // the real passcode
+await key('447188');                                // the real passcode
 await p.waitForTimeout(500);
 const afterSend = await state();
 check('the money actually left', Math.round(before - afterSend.everyday) === 7500, `${before} -> ${afterSend.everyday}`);
@@ -61,7 +61,7 @@ await wipe();
 const b2 = (await state()).everyday;
 await go('pay');
 await tap('.edit-row', 1); await key('20000'); await tap('button:has-text("Use this amount")');
-await tap('.slide-thumb'); await p.waitForTimeout(300); await key('4471'); await p.waitForTimeout(500);
+await tap('.slide-thumb'); await p.waitForTimeout(300); await key('447188'); await p.waitForTimeout(500);
 const a2 = (await state()).everyday;
 check('fee of ₦26.88 charged over ₦10,000', Math.abs((b2 - a2) - 20026.88) < 0.01, `${b2} -> ${a2}`);
 
@@ -69,7 +69,7 @@ check('fee of ₦26.88 charged over ₦10,000', Math.abs((b2 - a2) - 20026.88) <
 await wipe();
 const b3 = (await state()).everyday;
 await go('confirm');
-await key('9999'); await p.waitForTimeout(400);
+await key('999999'); await p.waitForTimeout(400);
 const a3 = await state();
 check('wrong passcode moves nothing', a3.everyday === b3, `${b3} -> ${a3.everyday}`);
 check('wrong passcode is counted', a3.wrongTries === 1, String(a3.wrongTries));
@@ -127,14 +127,14 @@ await wipe();
 const b11 = (await state()).everyday;
 await go('buy');
 await tap('button:has-text("Confirm")');
-await key('4471'); await p.waitForTimeout(500);
+await key('447188'); await p.waitForTimeout(500);
 check('data purchase charged', Math.round(b11 - (await state()).everyday) === 2500, `${b11} -> ${(await state()).everyday}`);
 
 /* ---- 12. paying a bill hands back a token ---- */
 await wipe();
 await go('powerpay');
 await tap('.slide-thumb'); await p.waitForTimeout(300);
-await key('4471'); await p.waitForTimeout(500);
+await key('447188'); await p.waitForTimeout(500);
 const powerText = await p.locator('#phone-screen').innerText();
 check('a token comes back', /\d{4} \d{4} \d{4} \d{4}/.test(powerText), powerText.slice(0, 80));
 

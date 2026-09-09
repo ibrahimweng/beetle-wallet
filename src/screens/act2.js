@@ -35,47 +35,54 @@ const Group = (label, ...rows) =>
 export const rule = {
   title: 'Set this up?',
   render: () => Screen([
-    PageHead('Set this up?', 'Nothing is saved until you say yes'),
+    PageHead('Top up Ikeja Electric', 'A standing instruction, in one sentence'),
     Card(
-      ...[
-        ['What', 'Top up Ikeja Electric'],
-        ['Meter', meterBill.meter],
-        ['When', 'The day units run low'],
-        ['Up to', naira(10000)],
-        ['Stops if', 'Everyday is under ₦15,000'],
-      ].map(([k, v], i) => e('div', null,
-        i ? Divider() : null,
-        e('div', { class: 'row between', style: { padding: '10px 0' } },
-          e('div', { class: 't-body c-2' }, k),
-          e('div', { class: 't-row' }, v))))),
-    Bubble('Over ₦10,000 and I stop and ask you, every time. I never raise this on my own.'),
-    e('div', { class: 'card', style: { background: 'var(--accent-wash)' } },
-      e('div', { class: 't-label c-accent', style: { marginBottom: '4px' } }, 'You can stop it any time'),
-      e('div', { class: 't-caption c-accent' }, 'It sits in Standing instructions with a switch beside it. Or just tell me to stop and it stops.')),
-    Button('Set it up', { onClick: () => go('rules') }),
+      e('div', { class: 'row between', style: { padding: '6px 0' } }, Caption('What', 'c-2'), e('div', { class: 't-row' }, 'Top up Ikeja Electric')),
+      Divider(),
+      e('div', { class: 'row between', style: { padding: '6px 0' } }, Caption('Meter', 'c-2'), e('div', { class: 't-row' }, meterBill.meter)),
+      Divider(),
+      e('div', { class: 'row between', style: { padding: '6px 0' } }, Caption('When', 'c-2'), e('div', { class: 't-row' }, 'The day units run low')),
+      Divider(),
+      e('div', { class: 'row between', style: { padding: '6px 0' } }, Caption('Up to', 'c-2'), e('div', { class: 't-row' }, naira(10000))),
+      Divider(),
+      e('div', { class: 'row between', style: { padding: '6px 0' } }, Caption('Stops if', 'c-2'), e('div', { class: 't-row' }, 'Everyday is under ' + naira(15000)))),
+    Bubble('I will tell you each time it runs, with a tap to undo it. It never goes past the ceiling above, and it stops itself if your balance drops.'),
+    Button('Set it up', { onClick: () => { act.setStanding('Top up Ikeja Electric', true); toast('Set. It runs the day your units run low.'); go('rules'); } }),
     Ghost('Not now', () => go('home')),
-  ]),
+  ], Dock({ placeholder: 'Ask about this rule', back: () => go('home') })),
 };
 
 export const rules = {
   title: 'Standing instructions',
-  render: () => Screen([
-    PageHead('Standing instructions', 'What runs without asking you first', { big: true }),
-    e('div', { class: 'stack' }, ...get().standing.map(r =>
-      e('div', { class: 'listrow' },
-        Glyph(r.on ? 'power' : 'clock', r.on ? 'accent' : ''),
-        e('div', { class: 'grow stack gap-1' },
-          e('div', { class: 'listrow-title' }, r.name),
-          e('div', { class: 'listrow-sub' }, r.sub)),
-        Toggle(r.on, on => { act.setStanding(r.name, on); toast(on ? `${r.name} is running again.` : `${r.name} is off. Nothing of yours moves for it.`); repaint(); })))),
-    Plain(
-      Label('What I will never do'),
-      Stack(2,
-        Row(Glyph('lock'), Body('Raise a limit you set. Ever.')),
-        Row(Glyph('lock'), Body('Run one of these while your balance is under ₦15,000.')),
-        Row(Glyph('check', 'good'), Body('Tell you the moment one runs, with a tap to undo it.')))),
-    Note('Every one of these can be stopped by saying stop.'),
-  ], Dock({ placeholder: 'Ask me to stop one', back: () => go('settings') })),
+  render: () => {
+    const RAN = {
+      'Payday transfer': 'Moved 4 times · ₦80,000 put aside',
+      'Top up Ikeja Electric': 'Paid 3 times · ₦22,400',
+      'Round ups': 'Bought twice · ₦5,000',
+      'Money is tight': null,
+    };
+    return Screen([
+      PageHead('Money is tight this month', null, { big: true }),
+      Plain(
+        Body('Turn this on and I stop moving money into savings, and I stop asking you to. Your goals wait where they are. Nothing is lost and nothing is charged.', 'c-2'),
+        e('div', { class: 'row between' },
+          Caption('You can also just tell me, any time.', 'c-3'),
+          Toggle(!get().standing.find(r => r.name === 'Money is tight').on === false && get().standing.find(r => r.name === 'Money is tight').on,
+            on => { act.setStanding('Money is tight', on); toast(on ? 'On. Nothing moves into savings while this is set.' : 'Off. Your goals start filling again.'); repaint(); }))),
+      Head('What runs on its own'),
+      e('div', { class: 'stack' }, ...get().standing.filter(r => r.name !== 'Money is tight').map(r =>
+        e('div', { class: 'card', style: { padding: '12px 14px', marginBottom: '8px' } },
+          e('div', { class: 'row between' },
+            e('div', { class: 'stack gap-1 grow' },
+              e('div', { class: 'listrow-title' }, r.name),
+              e('div', { class: 'listrow-sub' }, r.sub)),
+            Toggle(r.on, on => { act.setStanding(r.name, on); toast(on ? `${r.name} is running again.` : `${r.name} is off. Nothing of yours moves for it.`); repaint(); })),
+          e('div', { class: 'row between', style: { marginTop: '8px' } },
+            Caption(RAN[r.name] || 'Not run yet', 'c-3'),
+            e('button', { class: 'btn btn-ghost press', style: { width: 'auto', padding: 0 }, onClick: () => go('history') }, 'See log'))))),
+      Note('I will always ask first'),
+    ], Dock({ placeholder: 'Ask me to stop one', back: () => go('settings') }));
+  },
 };
 
 /* ---------------------------------------------------------------- *
@@ -117,7 +124,7 @@ export const lock = {
     PageHead('Lock and privacy', 'What it takes to open this, and what shows', { big: true }),
     Group('Opening the app',
       SettingRow({ icon: 'faceid', tone: 'accent', title: 'Face ID', toggleKey: 'faceId' }),
-      SettingRow({ icon: 'list', title: 'Passcode', right: 'Four digits', to: 'newcode' }),
+      SettingRow({ icon: 'list', title: 'Passcode', right: 'Six digits', to: 'newcode' }),
       SettingRow({ icon: 'clock', title: 'Ask again after', right: '5 minutes', to: 'lock' })),
     Group('What other people can see',
       SettingRow({ icon: 'eye', title: 'Hide my balance', toggleKey: 'hideBalance', onToggle: on => toast(on ? 'Hidden. Tap the balance on home to peek.' : 'Showing again.') }),
@@ -276,13 +283,13 @@ export const newcode = {
             e('div', { class: 't-body c-3' }, t)))));
       host.appendChild(e('div', { class: 'stack gap-1' },
         e('div', { class: 't-title' }, first ? 'Type it once more' : 'A new passcode'),
-        Meta(first ? 'The same four, so I know it was not a slip.' : 'Four digits, and not the old ones. Sending stays locked for twelve hours.', 'c-3')));
+        Meta(first ? 'The same six, so I know it was not a slip.' : 'Six digits, and not the old ones. Sending stays locked for twelve hours.', 'c-3')));
       host.appendChild(PassPad({
         allowFace: false,
         hint: first ? 'Nothing is saved until both match.' : 'Not 1234, and not your year of birth.',
         onDone: code => {
           if (!first) {
-            if (code === '1234' || code === '0000') return { error: 'Not that one. Pick four somebody could not guess.' };
+            if (['123456', '000000', '111111'].includes(code)) return { error: 'Not that one. Pick six somebody could not guess.' };
             first = code; draw(); return;
           }
           if (code !== first) { first = null; draw(); return { error: 'Those two did not match. Start again.' }; }

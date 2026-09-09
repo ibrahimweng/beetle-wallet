@@ -94,20 +94,26 @@ export const scan = {
   render: () => e('div', { class: 'screen-scroll', style: { background: '#101216' } },
     e('div', { class: 'pad top-pad stack gap-4 center', style: { color: '#fff' } },
       e('div', { class: 't-head c-inv' }, 'Point at an account number'),
-      Meta('Or a QR code, or a screenshot. So does a conversation.', 'c-3'),
+      Meta('A QR code works too. So does a screenshot.', 'c-3'),
       e('div', { style: { background: '#fff', borderRadius: '16px', padding: '14px', width: '100%', textAlign: 'left' } },
         e('div', { class: 'row between', style: { marginBottom: '8px' } },
-          e('div', { class: 't-caption c-2' }, 'Musa · Agent'), e('div', { class: 't-caption c-3' }, '4:02 PM')),
-        e('div', { class: 't-body', style: { marginBottom: '10px' } }, 'Good afternoon sir. Sarah account for the flat deposit:'),
+          e('div', { class: 'row', style: { gap: '8px' } }, Glyph('MA'), e('div', { class: 't-caption c-2' }, 'Musa · Agent')),
+          e('div', { class: 't-caption c-3' }, '2:14 PM')),
+        e('div', { class: 't-body', style: { marginBottom: '10px' } }, 'Good afternoon sir. Rent part payment:'),
         e('div', { class: 'stack gap-2' },
-          ...[naira(20000), contacts.sarah.bank, contacts.sarah.account, 'Sarah A.'].map(t =>
-            e('span', { style: { background: 'var(--accent-wash)', color: 'var(--accent-deep)', borderRadius: '6px', padding: '4px 8px', font: '600 14px var(--font)', alignSelf: 'flex-start' } }, t)))),
+          ...[naira(20000), contacts.sarah.bank, contacts.sarah.account].map(t =>
+            e('span', { style: { background: 'var(--accent-wash)', color: 'var(--accent-deep)', borderRadius: '6px', padding: '4px 8px', font: '600 14px var(--font)', alignSelf: 'flex-start' } }, t)),
+          /* the design flags the one it is not certain of */
+          e('div', { class: 'row', style: { gap: '6px' } },
+            e('span', { style: { background: '#fdf2dd', color: '#7a5b12', borderRadius: '6px', padding: '4px 8px', font: '600 14px var(--font)' } }, 'Sarah A.'),
+            e('span', { class: 't-caption', style: { color: '#7a5b12' } }, 'not sure')))),
       e('div', { class: 'row', style: { background: 'var(--good)', color: '#fff', borderRadius: '999px', padding: '8px 16px', font: '600 14px var(--font)', gap: '6px' } },
         Icon('check', { size: 16 }), contacts.sarah.account),
       Spacer(10),
       e('div', { class: 'row center', style: { gap: '30px' } },
         e('div', { style: { opacity: .7 } }, Icon('grid', { size: 24 })),
-        e('button', { class: 'press', style: { width: '68px', height: '68px', borderRadius: '999px', background: '#fff', border: '5px solid #4b5160', cursor: 'pointer' }, onClick: () => { start({ to: contacts.sarah, amount: 20000, narration: 'Flat deposit', spoken: 'the account in the photo' }); go('chat'); } }),
+        e('button', { class: 'press', style: { width: '68px', height: '68px', borderRadius: '999px', background: '#fff', border: '5px solid #4b5160', cursor: 'pointer' }, 'aria-label': 'Take the photo',
+          onClick: () => { start({ to: contacts.sarah, amount: 20000, narration: 'Rent part payment', spoken: 'the account in the photo' }); go('chat'); } }),
         e('div', { style: { opacity: .7 } }, Icon('power', { size: 24 }))),
       Caption('Or send a screenshot straight to Beetle from WhatsApp.', 'c-3'))),
 };
@@ -536,7 +542,7 @@ export const request = {
 export const sent = {
   title: 'Request sent',
   render: () => Screen([
-    PageHead('Request sent', `To ${req.who.name}, just now`),
+    PageHead('Request sent', `${req.who.name.split(' ')[0]} has it on WhatsApp and in a text`),
     e('div', { class: 'row', style: { gap: '12px' } },
       Glyph('request', 'good', { lg: true, circle: true }),
       e('div', { class: 'stack gap-1' },
@@ -545,10 +551,13 @@ export const sent = {
     Card(
       Field('For', req.why),
       Divider(),
-      Field('Expires', 'In seven days', 'After that I ask you before asking again'),
+      Field('Expires', 'In 7 days'),
       Divider(),
-      Field('Reference', req.ref || 'REQ 4457 8891 0204')),
-    Bubble('I will tell you the moment they pay, and I will not ask them twice unless you say so.'),
+      Field('Reference', req.ref || 'REQ-40112-8873')),
+    Bubble('I will tell you the moment it lands. You do not have to watch for it.'),
+    Plain(
+      Bubble('Want me to remind him if nothing comes by Friday?'),
+      Button('Set that up', { kind: 'quiet', onClick: () => { toast('I will nudge him on Friday morning.'); } })),
     Button('Pretend they just paid', {
       kind: 'quiet',
       onClick: () => {
@@ -557,7 +566,7 @@ export const sent = {
         setTimeout(() => go('donein'), 900);
       },
     }),
-    Note('That button is here so you can see what happens next. In the real thing it is them, not you.'),
+    Note('That last button is here so you can see what happens next. In the real thing it is them, not you.'),
   ], Dock({ placeholder: 'Ask about this request', back: () => go('home'), onAsk: q => { setQuestion(q); go('agentchat'); } })),
 };
 
@@ -569,49 +578,59 @@ export const scanbill = {
   title: 'Scan a bill',
   render: () => e('div', { class: 'screen-scroll', style: { background: '#101216' } },
     e('div', { class: 'pad top-pad stack gap-4 center', style: { color: '#fff' } },
-      e('div', { class: 't-head c-inv' }, 'Point at the bill'),
-      Meta('The meter number is the part I need', 'c-3'),
+      e('div', { class: 't-head c-inv' }, 'Point at a bill or a meter'),
+      Meta('The number on the card works too.', 'c-3'),
       e('div', { style: { background: '#fff', borderRadius: '16px', padding: '14px', width: '100%', textAlign: 'left' } },
+        e('div', { class: 'row between', style: { marginBottom: '8px' } },
+          e('div', { class: 'row', style: { gap: '8px' } }, Glyph('IE', 'warn'), e('div', { class: 't-caption c-2' }, 'Bill photo')),
+          e('div', { class: 't-caption c-3' }, '4:02 PM')),
         e('div', { class: 't-caption c-2', style: { marginBottom: '8px' } }, meterBill.kind),
         e('div', { class: 'stack gap-2' },
           ...[`Meter ${meterBill.meter}`, naira(meterBill.amount), meterBill.address].map(t =>
             e('span', { style: { background: 'var(--accent-wash)', color: 'var(--accent-deep)', borderRadius: '6px', padding: '4px 8px', font: '600 14px var(--font)', alignSelf: 'flex-start' } }, t))),
         e('div', { class: 't-caption c-3', style: { marginTop: '8px' } }, meterBill.slip)),
       Spacer(10),
-      e('button', { style: { width: '68px', height: '68px', borderRadius: '999px', background: '#fff', border: '5px solid #4b5160', cursor: 'pointer' }, onClick: () => go('meter') }))),
+      e('div', { class: 'row center', style: { gap: '30px' } },
+        e('div', { style: { opacity: .7 } }, Icon('grid', { size: 24 })),
+        e('button', { class: 'press', style: { width: '68px', height: '68px', borderRadius: '999px', background: '#fff', border: '5px solid #4b5160', cursor: 'pointer' }, 'aria-label': 'Take the photo', onClick: () => go('meter') }),
+        e('div', { style: { opacity: .7 } }, Icon('power', { size: 24 }))))),
 };
+
+export const startBill = (b, amount) => { bill = { biller: b.name, meter: b.sub.split('· ')[1] || meterBill.meter, amount, icon: b.icon, receipt: null, editing: false }; };
 
 /* The bill being paid, whichever way you came in. */
 let bill = { biller: meterBill.disco, meter: meterBill.meter, amount: meterBill.amount, icon: 'power', receipt: null, editing: false };
-export const startBill = (b, amount) => { bill = { biller: b.name, meter: b.sub.split('· ')[1] || meterBill.meter, amount, icon: b.icon, receipt: null, editing: false }; };
 
 export const meter = {
-  title: 'What I found',
+  title: 'What I read',
   render: () => Screen([
-    PageHead('What I found', meterBill.readAt),
     Card(
       e('div', { class: 'row between' },
-        e('div', { class: 'row', style: { gap: '8px' } }, Glyph('IE', 'warn'), e('div', { class: 't-label' }, 'Bill photo')),
-        Caption('4:02 PM', 'c-3')),
+        e('div', { class: 'row', style: { gap: '8px' } }, Glyph('IE', 'warn'), Label('Bill photo')),
+        Caption(meterBill.readAt.split(', ')[1] || '4:02 PM', 'c-3')),
       Plain(
         Caption(meterBill.kind, 'c-2'),
         ...[`Meter ${meterBill.meter}`, naira(meterBill.amount), meterBill.address].map(t =>
           e('span', { style: { background: 'var(--accent-wash)', color: 'var(--accent-deep)', borderRadius: '6px', padding: '4px 8px', font: '600 14px var(--font)', alignSelf: 'flex-start' } }, t)),
         Caption(meterBill.slip, 'c-3'))),
+    Head('What I read'),
+    Card(
+      e('div', { class: 'row between', style: { padding: '6px 0' } },
+        e('div', { class: 'stack gap-1' }, Caption('Amount', 'c-2'), Caption('from the photo', 'c-3')),
+        e('div', { class: 't-row' }, naira(meterBill.amount))),
+      Divider(),
+      e('div', { class: 'row between', style: { padding: '6px 0' } }, Caption('Meter', 'c-2'), e('div', { class: 't-row' }, meterBill.meter)),
+      Divider(),
+      e('div', { class: 'row between', style: { padding: '6px 0' } }, Caption('Disco', 'c-2'), e('div', { class: 't-row' }, meterBill.disco))),
     Plain(
       Row(Glyph('alert', 'warn'), e('div', { class: 't-row' }, 'Is this your meter?')),
       Card(
-        e('div', { class: 'row between' }, Caption('On the bill', 'c-2'), e('div', { class: 't-label' }, 'Meter ' + meterBill.meter)),
-        e('div', { class: 'row between' }, Caption('Ikeja Electric says', 'c-2'), e('div', { class: 't-label' }, meterBill.address))),
+        e('div', { class: 'row between' }, Caption('On the bill', 'c-2'), Label('Meter ' + meterBill.meter)),
+        e('div', { class: 'row between' }, Caption('Ikeja Electric says', 'c-2'), Label(meterBill.address))),
       e('div', { class: 'row', style: { gap: '10px' } },
         e('button', { class: 'btn btn-primary grow press', onClick: () => { bill = { biller: meterBill.disco, meter: meterBill.meter, amount: meterBill.amount, icon: 'power', receipt: null, editing: false }; go('confirmmeter'); } }, 'Yes, that is mine'),
-        e('button', { class: 'btn btn-quiet', style: { width: 'auto', padding: '15px 24px' }, onClick: () => go('bills') }, 'No'))),
-    ToolPanel('Read from the photo', 'Checked', [
-      { k: 'Amount', v: naira(meterBill.amount) },
-      { k: 'Meter', v: meterBill.meter },
-      { k: 'Disco', v: meterBill.disco },
-    ]),
-  ], Dock({ placeholder: 'Ask about this bill', back: () => go('scanbill') })),
+        e('button', { class: 'btn btn-quiet press', style: { width: 'auto', padding: '15px 24px' }, onClick: () => go('bills') }, 'No'))),
+  ], Dock({ placeholder: 'Ask about this bill', back: () => go('scanbill'), onAsk: q => { setQuestion(q); go('agentchat'); } })),
 };
 
 export const confirmmeter = {
@@ -658,24 +677,35 @@ export const powerpay = {
   render: () => {
     const s = get();
     const enough = s.everyday >= bill.amount;
+    const kwh = a => `About ${Math.round(a / 62.5)} kWh`;
     const base = Screen([
-      PageHead('Pay a bill', bill.biller, { big: true }),
+      Caption('You said', 'c-2'),
+      Said('pay my light bill'),
       Card(
-        Field('Meter', bill.meter, meterBill.address),
-        Divider(),
-        EditRow('Amount', nairaFull(bill.amount), 'The same as your last three', () => { bill.editing = true; repaint(); }),
-        Divider(),
-        Field('From', 'Everyday', naira(s.everyday) + ' in naira')),
-      e('div', { class: 'row', style: { gap: '8px', flexWrap: 'wrap' } },
-        ...[2000, 5000, 8000, 10000].map(v =>
-          e('button', { class: 'chip press', 'aria-pressed': v === bill.amount ? 'true' : 'false', onClick: () => { bill.amount = v; repaint(); } }, naira(v)))),
+        e('div', { class: 'listrow' },
+          Glyph('power'),
+          e('div', { class: 'grow stack gap-1' },
+            e('div', { class: 'listrow-title' }, bill.biller),
+            e('div', { class: 'listrow-sub' }, `Prepaid · ${bill.meter}`))),
+        Caption('The meter you paid last month', 'c-3')),
+      e('div', { class: 'stack gap-1' },
+        e('div', { class: 't-display' }, naira(bill.amount)),
+        Meta('About what you used last month', 'c-3')),
       Card(
-        e('div', { class: 'row between' }, Caption('Fee', 'c-2'), e('div', { class: 't-label c-good' }, 'Free')),
-        e('div', { class: 'row between' }, Caption('Units', 'c-2'), Label((bill.amount / 62.5).toFixed(1) + ' kWh')),
+        e('div', { class: 'row between' }, Caption('From', 'c-2'), Label(`Everyday · ${me.account}`)),
         e('div', { class: 'row between' }, Caption('Token arrives', 'c-2'), Label('In a few seconds'))),
+      Head('Or pick an amount'),
+      e('div', { class: 'row', style: { gap: '8px' } },
+        ...[8000, 15000, 3000].map(v =>
+          e('button', {
+            class: 'card press', style: { flex: 1, padding: '12px', cursor: 'pointer', textAlign: 'left', border: v === bill.amount ? '2px solid var(--accent)' : '2px solid transparent' },
+            onClick: () => { bill.amount = v; repaint(); },
+          },
+            e('div', { class: 't-row' }, naira(v)),
+            e('div', { class: 't-caption c-3' }, kwh(v))))),
+      Caption('The token appears here and in your messages.', 'c-3'),
       enough ? Slide('Slide to pay ' + naira(bill.amount), () => go('confirmmeter'))
              : Banner('Not enough in Everyday for that.', 'warn'),
-      enough ? Note('Nothing moves until you slide.') : null,
     ], Dock({ placeholder: 'Ask about this bill', back: () => go('bills'), onAsk: q => { setQuestion(q); go('agentchat'); } }));
 
     if (!bill.editing) return base;

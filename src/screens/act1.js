@@ -158,7 +158,7 @@ const passcodeSheet = (base, { error } = {}) => {
     },
   }));
 
-  host.appendChild(Note('The passcode starts as 4471. Reset in the left panel puts it back.'));
+  host.appendChild(Note('The passcode starts as 447188. Reset in the left panel puts it back.'));
   return Sheet(base, host);
 };
 

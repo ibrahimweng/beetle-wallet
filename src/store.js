@@ -24,7 +24,7 @@ export const seed = () => ({
   devices: devices.map(d => ({ ...d })),
   card: { spent: card.spent, frozen: false },
   frozen: false,
-  passcode: '4471',
+  passcode: '447188',   // six digits, as the design says
   wrongTries: 0,
   toggles: {
     faceId: true,

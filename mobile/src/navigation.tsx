@@ -11,12 +11,15 @@ import { Route, routeList } from './routes';
 import { ToBuild } from './screens/ToBuild';
 import { Start } from './screens/Start';
 import { Actions } from './screens/Actions';
-import { Number, Code, Nin, Who, Face, Passcode, Ready, Signin, Signcode } from './screens/way-in';
+import { Number, Code, Nin, Who, Face, Passcode, Ready, Signin, Signcode, NewCode, NoMatch } from './screens/way-in';
 import { Ask, Chat, Confirm, DoneSend, Share } from './screens/send';
 import {
   Checking, IWillNot, Misheard, AlreadyGone, Short, Pending, Failed, Reversed,
   Wrong, Recall, DisputeOpen, DisputeEnd, NoNetwork, Amend,
 } from './screens/act-one';
+import {
+  Rule, Rules, Settings, Lock, Limits, LimitStop, Devices, LostPhone,
+} from './screens/act-two';
 
 export type Stack = { [K in Route]: undefined };
 const Nav = createNativeStackNavigator<Stack>();
@@ -56,6 +59,17 @@ const BUILT: Partial<Record<Route, React.ComponentType<{ nav: Nav }>>> = {
   disputeopen: ({ nav }) => <DisputeOpen nav={as(nav)} />,
   disputeend: ({ nav }) => <DisputeEnd nav={as(nav)} />,
   nonetwork: ({ nav }) => <NoNetwork nav={as(nav)} />,
+
+  rule: ({ nav }) => <Rule nav={as(nav)} />,
+  rules: ({ nav }) => <Rules nav={as(nav)} />,
+  settings: ({ nav }) => <Settings nav={as(nav)} />,
+  lock: ({ nav }) => <Lock nav={as(nav)} />,
+  limits: ({ nav }) => <Limits nav={as(nav)} />,
+  limitstop: ({ nav }) => <LimitStop nav={as(nav)} />,
+  devices: ({ nav }) => <Devices nav={as(nav)} />,
+  lostphone: ({ nav }) => <LostPhone nav={as(nav)} />,
+  newcode: ({ nav }) => <NewCode nav={as(nav)} />,
+  nomatch: ({ nav }) => <NoMatch nav={as(nav)} />,
 };
 
 /* the screens take { go, back }; the stack hands over { navigate, goBack } */

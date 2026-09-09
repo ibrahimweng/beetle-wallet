@@ -19,3 +19,4 @@ export * from './Sheet';
 export * from './Receipt';
 export * from './Outcome';
 export * from './AmountPad';
+export * from './Rows';

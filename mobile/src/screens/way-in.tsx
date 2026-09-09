@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import {
-  Button, Card, Dock, Field, Icon, Keypad, Screen, StepHead, StepTrail, TrailStep,
+  BottomBar, Button, Card, Dock, Field, Icon, Keypad, Screen, StepHead, StepTrail, TrailStep,
   Body, Caption, Head, Label, Meta, Row, colour, space,
 } from '../design';
 import { Route } from '../routes';
@@ -236,3 +236,51 @@ export const Ready = ({ nav }: { nav: Nav }) => {
     </Screen>
   );
 };
+
+/* Setting a new passcode after a freeze. Same shape as the first one, with the
+   trail the frame shows. */
+export const NewCode = ({ nav }: { nav: Nav }) => (
+  <DigitScreen
+    nav={nav}
+    trail={[{ icon: 'phone-filled', label: 'Frozen' }, { icon: 'id-filled', label: 'Your number' }, { icon: 'faceid-filled', label: 'Your face' }]}
+    icon="lock-filled" title="A new passcode"
+    sub="Six digits, and not the old ones. Sending stays locked until this is set."
+    start="" groups={[6]} max={6}
+    footer={
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+        <Icon name="lock" size={16} colour={colour.textTertiary} />
+        <Meta tone="secondary" style={{ flex: 1 }}>Money can still reach you. Only sending waits.</Meta>
+      </View>
+    }
+    done={() => nav.go('home')}
+  />
+);
+
+/* The record did not match. Nothing is wrong with the person, usually. */
+export const NoMatch = ({ nav }: { nav: Nav }) => (
+  <View style={{ flex: 1, backgroundColor: colour.surface, paddingHorizontal: 20, paddingTop: 72 }}>
+    <View style={{ gap: 20 }}>
+      <StepTrail done={[NUMBER]} />
+      <StepHead icon="id-filled" title="Who you are"
+        sub="Eleven digits from your NIN or your BVN. These ones did not match." />
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s5 }}>
+        <Icon name="warn-filled" size={28} colour={colour.warn} />
+        <Row>Nothing came back</Row>
+      </View>
+      <Meta tone="secondary">No record matches 1234 5678 90. One wrong digit is the usual reason.</Meta>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s5 }}>
+        <Icon name="mark" size={32} colour={colour.accent} />
+        <Body style={{ flex: 1 }}>
+          If the digits are right and it still says this, your record may be under a different name. Somebody here can sort that out.
+        </Body>
+      </View>
+      <Pressable accessibilityRole="button" onPress={() => nav.go('agentchat')}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <Label>Talk to someone</Label>
+        <Icon name="chevron" size={12} />
+      </Pressable>
+    </View>
+    <View style={{ flex: 1 }} />
+    <BottomBar onBack={nav.back}><Button label="Try again" onPress={() => nav.go('nin')} /></BottomBar>
+  </View>
+);

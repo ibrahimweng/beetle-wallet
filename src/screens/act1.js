@@ -279,7 +279,7 @@ export const recall = {
         Row(Glyph('🔒'), Body('I cannot take it back. It is her money until she agrees.')),
         Row(Glyph('🔒'), Body('If she says no, no bank can force her.'))),
       Caption('After that it is a formal dispute, then a police report. I walk you through either.')),
-    ActionRow({ icon: '💬', title: 'Message Sarah', sub: 'Most of these end here, in an hour', onClick: () => go('recall') }),
+    ActionRow({ icon: '💬', title: 'Message Sarah', sub: 'Most of these end here, in an hour', onClick: () => toast('Message written and sent. Most of these come back within the hour.') }),
     ActionRow({ icon: '⚖', title: 'Open a dispute', sub: 'If she has not answered by Friday', onClick: () => go('disputeopen') }),
   ], Dock({ placeholder: 'Ask what happens next', back: () => go('wrong') })),
 };
@@ -355,7 +355,7 @@ export const nonetwork = {
     Banner('Beetle keeps working underground. Nothing you do here gets lost.', 'good'),
     Bubble('I will not send money against a balance I cannot check. Tell me what you want, I hold it, and it goes the second the network is back.'),
     ActionRow({ icon: '◷', title: 'Queue it for later', sub: 'Waits here until I can check', onClick: () => go('pending') }),
-    ActionRow({ icon: '☎', title: 'Pay by USSD instead', sub: 'Works with no data at all', onClick: () => go('nonetwork') }),
+    ActionRow({ icon: '☎', title: 'Pay by USSD instead', sub: 'Works with no data at all', onClick: () => toast('Dial *737*1*Amount*Account# on this line. It works with no data at all.') }),
     Plain(Bubble('Turn on lite mode while data is short?'), Button('Turn it on', { kind: 'quiet', onClick: () => go('settings') })),
   ], Dock({ placeholder: 'Ask what works offline', back: () => go('home') })),
 };

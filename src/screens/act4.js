@@ -277,7 +277,7 @@ export const nomatch = {
     Bubble('This is one of three things, and I can tell them apart. It is not a judgement about you.'),
     ActionRow({ icon: '⌨', title: 'A digit is off', sub: 'Type the eleven again', onClick: () => go('nin') }),
     ActionRow({ icon: '👤', title: 'Your name changed', sub: 'Marriage, spelling, a correction at NIMC', onClick: () => go('who') }),
-    ActionRow({ icon: '🏛', tone: 'warn', title: 'NIMC is down', sub: 'Their side, not yours. Try in an hour.', onClick: () => go('nomatch') }),
+    ActionRow({ icon: '🏛', tone: 'warn', title: 'NIMC is down', sub: 'Their side, not yours. Try in an hour.', onClick: () => toast('I will keep checking and tell you the moment they are back. Nothing is lost.') }),
     Note('Three failed checks in a day pauses the check, not your ability to open one later.'),
   ], Dock({ placeholder: 'Ask what went wrong', back: () => go('nin') })),
 };
@@ -332,7 +332,7 @@ export const idcard = {
     ]),
     Bubble('I read it here on your phone and send only the numbers. The photo does not leave the device.'),
     Button('Use this photo', { onClick: () => go('income') }),
-    Button('Take it again', { kind: 'quiet', onClick: () => go('idcard') }),
+    Button('Take it again', { kind: 'quiet', onClick: () => toast('Camera again. Lay it flat, all four corners in frame.') }),
   ], Dock({ placeholder: 'Ask what happens to the photo', back: () => go('finish') })),
 };
 
@@ -400,7 +400,7 @@ export const firsthome = {
       Display('₦0.00'),
       Button('⤓  Receive', { onClick: () => go('receive') })),
     Bubble('Nothing has moved yet, so there is nothing for me to tell you. Put something in and I will start noticing things.'),
-    ActionRow({ icon: '⧉', tone: 'accent', title: 'Copy your account number', sub: me.account + ' · Beetle', onClick: () => go('ways') }),
+    ActionRow({ icon: '⧉', tone: 'accent', title: 'Copy your account number', sub: me.account + ' · Beetle', onClick: () => toast(`${me.account} copied.`) }),
     ActionRow({ icon: '🏛', title: 'Move money from another bank', sub: 'Takes a few seconds', onClick: () => go('ways') }),
     ActionRow({ icon: '≋', title: 'Buy airtime with a card', sub: 'You do not need a balance for this', onClick: () => go('airtime') }),
     Head('Activities'),

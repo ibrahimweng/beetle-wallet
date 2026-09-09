@@ -58,7 +58,7 @@ export const ways = {
       Caption('Your account number', 'c-2'),
       e('div', { class: 't-row' }, `${me.bank} · ${me.name}`),
       e('div', { class: 't-title' }, me.account),
-      Button('Copy it', { kind: 'quiet', onClick: () => go('ways') })),
+      Button('Copy it', { kind: 'quiet', onClick: () => toast(`${me.account} copied. Paste it anywhere.`) })),
     Card(
       Caption('Your code', 'c-2'),
       e('div', { class: 't-row' }, 'Works with any bank app'),
@@ -120,8 +120,8 @@ export const mycode = {
         e('div', { class: 't-row' }, me.name),
         Meta(`${me.bank} · ${me.account}`, 'c-3'))),
     e('div', { class: 'row', style: { gap: '10px' } },
-      e('button', { class: 'btn btn-primary grow', onClick: () => go('mycode') }, 'Share it'),
-      e('button', { class: 'btn btn-quiet grow', onClick: () => go('mycode') }, 'Save it')),
+      e('button', { class: 'btn btn-primary grow press', onClick: () => toast('Ready to send, wherever you share things.') }, 'Share it'),
+      e('button', { class: 'btn btn-quiet grow press', onClick: () => toast('Saved to your photos.') }, 'Save it')),
     Note('Anyone can pay you with this. Nobody can take anything with it, and it does not carry your balance.'),
   ], Dock({ placeholder: 'Ask about your code', back: () => go('ways') })),
 };
@@ -336,7 +336,8 @@ export const donecard = {
       session: 'VC 4471 8823 0195',
     }),
     Bubble('This is the third month at ₦5,200. It was ₦4,400 in June, so Netflix has raised it twice since you subscribed.'),
-    ActionRow({ icon: '✂', title: 'Cancel this subscription', sub: 'I do it and confirm when it is done', onClick: () => go('donecard') }),
+    ActionRow({ icon: '✂', title: 'Cancel this subscription', sub: 'I do it and confirm when it is done',
+      onClick: () => { act.freezeCard(true); toast('Card frozen, so nothing more can be charged. I will confirm the cancellation.'); repaint(); } }),
     Button('Share receipt', { onClick: () => go('sharein') }),
   ], Dock({ placeholder: 'Ask about this payment', back: () => go('history') })),
 };

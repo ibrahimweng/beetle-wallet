@@ -1856,7 +1856,7 @@ const recall = {
         Row(Glyph('🔒'), Body('I cannot take it back. It is her money until she agrees.')),
         Row(Glyph('🔒'), Body('If she says no, no bank can force her.'))),
       Caption('After that it is a formal dispute, then a police report. I walk you through either.')),
-    ActionRow({ icon: '💬', title: 'Message Sarah', sub: 'Most of these end here, in an hour', onClick: () => go('recall') }),
+    ActionRow({ icon: '💬', title: 'Message Sarah', sub: 'Most of these end here, in an hour', onClick: () => toast('Message written and sent. Most of these come back within the hour.') }),
     ActionRow({ icon: '⚖', title: 'Open a dispute', sub: 'If she has not answered by Friday', onClick: () => go('disputeopen') }),
   ], Dock({ placeholder: 'Ask what happens next', back: () => go('wrong') })),
 };
@@ -1932,7 +1932,7 @@ const nonetwork = {
     Banner('Beetle keeps working underground. Nothing you do here gets lost.', 'good'),
     Bubble('I will not send money against a balance I cannot check. Tell me what you want, I hold it, and it goes the second the network is back.'),
     ActionRow({ icon: '◷', title: 'Queue it for later', sub: 'Waits here until I can check', onClick: () => go('pending') }),
-    ActionRow({ icon: '☎', title: 'Pay by USSD instead', sub: 'Works with no data at all', onClick: () => go('nonetwork') }),
+    ActionRow({ icon: '☎', title: 'Pay by USSD instead', sub: 'Works with no data at all', onClick: () => toast('Dial *737*1*Amount*Account# on this line. It works with no data at all.') }),
     Plain(Bubble('Turn on lite mode while data is short?'), Button('Turn it on', { kind: 'quiet', onClick: () => go('settings') })),
   ], Dock({ placeholder: 'Ask what works offline', back: () => go('home') })),
 };
@@ -3275,7 +3275,7 @@ const ways = {
       Caption('Your account number', 'c-2'),
       e('div', { class: 't-row' }, `${me.bank} · ${me.name}`),
       e('div', { class: 't-title' }, me.account),
-      Button('Copy it', { kind: 'quiet', onClick: () => go('ways') })),
+      Button('Copy it', { kind: 'quiet', onClick: () => toast(`${me.account} copied. Paste it anywhere.`) })),
     Card(
       Caption('Your code', 'c-2'),
       e('div', { class: 't-row' }, 'Works with any bank app'),
@@ -3337,8 +3337,8 @@ const mycode = {
         e('div', { class: 't-row' }, me.name),
         Meta(`${me.bank} · ${me.account}`, 'c-3'))),
     e('div', { class: 'row', style: { gap: '10px' } },
-      e('button', { class: 'btn btn-primary grow', onClick: () => go('mycode') }, 'Share it'),
-      e('button', { class: 'btn btn-quiet grow', onClick: () => go('mycode') }, 'Save it')),
+      e('button', { class: 'btn btn-primary grow press', onClick: () => toast('Ready to send, wherever you share things.') }, 'Share it'),
+      e('button', { class: 'btn btn-quiet grow press', onClick: () => toast('Saved to your photos.') }, 'Save it')),
     Note('Anyone can pay you with this. Nobody can take anything with it, and it does not carry your balance.'),
   ], Dock({ placeholder: 'Ask about your code', back: () => go('ways') })),
 };
@@ -3553,7 +3553,8 @@ const donecard = {
       session: 'VC 4471 8823 0195',
     }),
     Bubble('This is the third month at ₦5,200. It was ₦4,400 in June, so Netflix has raised it twice since you subscribed.'),
-    ActionRow({ icon: '✂', title: 'Cancel this subscription', sub: 'I do it and confirm when it is done', onClick: () => go('donecard') }),
+    ActionRow({ icon: '✂', title: 'Cancel this subscription', sub: 'I do it and confirm when it is done',
+      onClick: () => { act.freezeCard(true); toast('Card frozen, so nothing more can be charged. I will confirm the cancellation.'); repaint(); } }),
     Button('Share receipt', { onClick: () => go('sharein') }),
   ], Dock({ placeholder: 'Ask about this payment', back: () => go('history') })),
 };
@@ -4175,7 +4176,7 @@ const nomatch = {
     Bubble('This is one of three things, and I can tell them apart. It is not a judgement about you.'),
     ActionRow({ icon: '⌨', title: 'A digit is off', sub: 'Type the eleven again', onClick: () => go('nin') }),
     ActionRow({ icon: '👤', title: 'Your name changed', sub: 'Marriage, spelling, a correction at NIMC', onClick: () => go('who') }),
-    ActionRow({ icon: '🏛', tone: 'warn', title: 'NIMC is down', sub: 'Their side, not yours. Try in an hour.', onClick: () => go('nomatch') }),
+    ActionRow({ icon: '🏛', tone: 'warn', title: 'NIMC is down', sub: 'Their side, not yours. Try in an hour.', onClick: () => toast('I will keep checking and tell you the moment they are back. Nothing is lost.') }),
     Note('Three failed checks in a day pauses the check, not your ability to open one later.'),
   ], Dock({ placeholder: 'Ask what went wrong', back: () => go('nin') })),
 };
@@ -4230,7 +4231,7 @@ const idcard = {
     ]),
     Bubble('I read it here on your phone and send only the numbers. The photo does not leave the device.'),
     Button('Use this photo', { onClick: () => go('income') }),
-    Button('Take it again', { kind: 'quiet', onClick: () => go('idcard') }),
+    Button('Take it again', { kind: 'quiet', onClick: () => toast('Camera again. Lay it flat, all four corners in frame.') }),
   ], Dock({ placeholder: 'Ask what happens to the photo', back: () => go('finish') })),
 };
 
@@ -4298,7 +4299,7 @@ const firsthome = {
       Display('₦0.00'),
       Button('⤓  Receive', { onClick: () => go('receive') })),
     Bubble('Nothing has moved yet, so there is nothing for me to tell you. Put something in and I will start noticing things.'),
-    ActionRow({ icon: '⧉', tone: 'accent', title: 'Copy your account number', sub: me.account + ' · Beetle', onClick: () => go('ways') }),
+    ActionRow({ icon: '⧉', tone: 'accent', title: 'Copy your account number', sub: me.account + ' · Beetle', onClick: () => toast(`${me.account} copied.`) }),
     ActionRow({ icon: '🏛', title: 'Move money from another bank', sub: 'Takes a few seconds', onClick: () => go('ways') }),
     ActionRow({ icon: '≋', title: 'Buy airtime with a card', sub: 'You do not need a balance for this', onClick: () => go('airtime') }),
     Head('Activities'),

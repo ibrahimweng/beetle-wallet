@@ -163,7 +163,32 @@ const stopped = await p.locator('#phone-screen').innerText();
 check('past the transfer limit is refused', stopped.includes('past the most you allow'), stopped.slice(0, 160));
 check('and no slider is offered', await p.locator('.slide-thumb').count() === 0);
 
-/* ---- 16. the reset puts it back ---- */
+/* ---- 16. borrowing credits the account ---- */
+await wipe();
+const b16 = (await state()).everyday;
+await go('loan');
+await tap('.slide-thumb'); await p.waitForTimeout(400);
+const a16 = await state();
+check('borrowing lands the money', a16.everyday - b16 === 150000, `${b16} -> ${a16.everyday}`);
+check('and leaves a row saying what it costs', a16.ledger[0].detail.includes('56,500'), a16.ledger[0].detail);
+
+/* ---- 17. the plan list in the drawer picks the plan ---- */
+await wipe();
+await go('airtime');
+await tap('.listrow >> text="10GB for 30 days"');
+const buyText = await p.locator('#phone-screen').innerText();
+check('the drawer picks the plan you tapped', buyText.includes('10GB') && buyText.includes('₦4,000'), buyText.slice(0, 140));
+
+/* ---- 18. a button with nowhere to go still answers ---- */
+await go('mycode');
+await tap('button >> text="Save it"');
+check('a no-destination button says something happened', await p.locator(IN + '.toast').count() === 1);
+
+/* ---- 19. the registry refuses to hide a missing screen ---- */
+const routed = await p.evaluate(() => { window.beetleGo('nosuchscreen'); return location.hash; });
+check('an unknown address falls back visibly', routed === '#/checking', routed);
+
+/* ---- 20. the reset puts it back ---- */
 await go('home');
 await p.evaluate(() => { window.confirm = () => true; });
 await p.locator('.rail-foot .stage-btn').click(); await p.waitForTimeout(120);

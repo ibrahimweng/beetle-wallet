@@ -1262,6 +1262,21 @@ const onboarding = {
 return { me, balances, contacts, seedLedger, ledgerFooter, insights, transfer, dollarSend, limits, goal, bills, meterBill, loan, card, devices, standing, services, onboarding };
 })();
 
+/* src/storage.js */
+const M$src_storage_js = (function () {
+/* Where the account is kept between visits. The state layer is shared with the
+   React Native app, which has no localStorage, so the two calls it needs live
+   behind this and each platform supplies its own. */
+const read = () => {
+  try { return localStorage.getItem('beetle.state.v2'); } catch (e) { return null; }
+};
+const write = (s) => {
+  try { localStorage.setItem('beetle.state.v2', s); } catch (e) { /* private window */ }
+};
+
+return { read, write };
+})();
+
 /* src/store.js */
 const M$src_store_js = (function () {
 /* Beetle — the live state.
@@ -1273,6 +1288,7 @@ const M$src_store_js = (function () {
    has a Reset that puts it back to the figures in the design. */
 
 const { balances, seedLedger, limits, goal, standing, devices, card, me } = M$src_data_js;
+const { read, write } = M$src_storage_js;
 const KEY = 'beetle.state.v2';
 
 const seed = () => ({
@@ -1309,7 +1325,7 @@ const listeners = new Set();
 
 function load() {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = read();
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && parsed.version === 2) return parsed;
@@ -1319,7 +1335,7 @@ function load() {
 }
 
 function save() {
-  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* nothing we can do */ }
+  try { write(JSON.stringify(state)); } catch (e) { /* nothing we can do */ }
 }
 
 const get = () => state;

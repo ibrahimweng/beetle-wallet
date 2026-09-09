@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Beetle",
+    "slug": "beetle",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "beetle",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": { "supportsTablet": false, "bundleIdentifier": "com.beetle.wallet" },
+    "android": { "package": "com.beetle.wallet", "edgeToEdgeEnabled": true },
+    "web": { "bundler": "metro" }
+  }
+}

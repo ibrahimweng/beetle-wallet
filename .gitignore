@@ -5,3 +5,6 @@ beetle.config.js
 *.log
 test-results/
 shot.mjs
+mobile/node_modules/
+mobile/.expo/
+mobile/dist/

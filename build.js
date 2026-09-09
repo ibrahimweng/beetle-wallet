@@ -17,7 +17,7 @@ const ORDER = [
   'src/icons.js',
   'src/ui.js',
   'src/data.js',
-  'src/store.js',
+  'src/storage.js', 'src/store.js',
   'src/flow.js',
   'src/actions.js',
   'src/agent.js',

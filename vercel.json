@@ -3,7 +3,7 @@
   "framework": null,
   "installCommand": "echo 'the app has no runtime dependencies'",
   "buildCommand": "node build.js",
-  "outputDirectory": ".",
+  "outputDirectory": "public",
   "cleanUrls": true,
   "headers": [
     {

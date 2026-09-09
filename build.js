@@ -5,7 +5,7 @@
    Each module becomes an IIFE returning its exports; imports become
    destructuring from the module already built. No dependencies. */
 
-import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync } from 'fs';
 import { dirname, resolve, relative } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -81,3 +81,14 @@ ${js}
 mkdirSync(resolve(here, 'dist'), { recursive: true });
 writeFileSync(resolve(here, 'dist/beetle.html'), page);
 console.log('dist/beetle.html', (page.length / 1024).toFixed(1) + ' kB');
+
+/* Assemble what a host should serve into one directory. Vercel is pointed at
+   this rather than at the repository root, so there is no guessing about what
+   ends up on the deployment — and the tests can check the exact thing. */
+const out = resolve(here, 'public');
+rmSync(out, { recursive: true, force: true });
+mkdirSync(out, { recursive: true });
+for (const item of ['index.html', 'src', 'dist']) {
+  cpSync(resolve(here, item), resolve(out, item), { recursive: true });
+}
+console.log('public/ ready to serve');

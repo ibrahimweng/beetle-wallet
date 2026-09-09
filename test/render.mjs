@@ -4,8 +4,9 @@ import { chromium } from 'playwright';
 import { serve } from './serve.mjs';
 
 const WAYS = [
-  { name: 'module entry (index.html + src/, what Vercel serves)', path: '/index.html' },
-  { name: 'single file bundle (what the artifact serves)', path: '/dist/beetle.html' },
+  { name: 'public/ (the exact directory Vercel serves)', path: '/public/index.html' },
+  { name: 'the repository as it sits (npm start, Pages from the branch)', path: '/index.html' },
+  { name: 'the single file bundle (what the artifact serves)', path: '/dist/beetle.html' },
 ];
 
 const { base, close } = await serve();

@@ -3,11 +3,12 @@
 import { chromium } from 'playwright';
 import { serve } from './serve.mjs';
 
-/* Driven against the module entry, because that is what is deployed. Both
-   entries are checked for rendering in render.mjs. localStorage needs a real
-   origin, which is why this is served rather than pushed in with setContent. */
+/* Driven against public/, because that is the directory Vercel serves. Every
+   other entry is checked for rendering in render.mjs. localStorage needs a
+   real origin, which is why this is served rather than pushed in with
+   setContent. */
 const { base, close: closeServer } = await serve();
-const url = base + '/index.html';
+const url = base + '/public/index.html';
 
 const b = await chromium.launch();
 const p = await b.newPage({ viewport: { width: 1440, height: 1100 } });

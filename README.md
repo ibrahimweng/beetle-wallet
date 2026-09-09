@@ -63,8 +63,9 @@ No bundler, no framework, nothing to compile before it can be served.
 
 1. **https://vercel.com/new** → Import Git Repository → `ibrahimweng/beetle-wallet`
 2. Leave every setting alone. `vercel.json` already says what to do: skip the
-   install (there are no runtime dependencies), run `node build.js`, serve the
-   repository root.
+   install (there are no runtime dependencies), run `node build.js`, serve
+   `public/`. The build assembles that directory, and the tests drive it, so
+   what is checked here is exactly what is deployed.
 3. Deploy.
 
 After that, every push to `main` redeploys, and every pull request gets its own
@@ -98,7 +99,7 @@ red there means something actually broke.
 | `src/screens/act3a.js` `act3b.js` | It works — 48 screens |
 | `src/screens/act4.js` | Getting in — 19 screens |
 | `src/screens/index.js` | The registry: every id, act, section, and what the section is for |
-| `vercel.json` | Tells Vercel there is nothing to install and nothing to bundle |
+| `vercel.json` | Points Vercel at `public/`, which `build.js` assembles |
 | `build.js` | Rolls it into one self-contained HTML file for publishing as an artifact |
 | `dist/beetle.html` | That bundle, committed. CI fails if it drifts from the source. |
 | `test/render.mjs` | Every screen draws, no console errors, no sideways scroll |

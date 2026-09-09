@@ -1,4 +1,5 @@
 node_modules/
+public/
 beetle.config.js
 .DS_Store
 *.log

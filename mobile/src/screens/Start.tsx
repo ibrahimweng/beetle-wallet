@@ -1,11 +1,8 @@
 /* Opening an account. Taken from the Start frame: the four words stacked at
    the top with only the last in ink, the wordmark and the pitch low down. */
 import React from 'react';
+import { Body, Button, Display, Icon, Row, colour, frame, space } from '../design';
 import { View } from 'react-native';
-import { Button } from '../components/kit';
-import { Body, Display, Row } from '../components/text';
-import { Icon } from '../components/Icon';
-import { colour, frame, space } from '../theme';
 import { Pressable } from 'react-native';
 
 export function Start({ go }: { go: (r: 'number' | 'signin') => void }) {
@@ -27,7 +24,7 @@ export function Start({ go }: { go: (r: 'number' | 'signin') => void }) {
           A bank that answers when you ask it something. Opening one takes about a minute, and all it needs is your number and your NIN.
         </Body>
       </View>
-      <Button title="Open an account" onPress={() => go('number')} />
+      <Button label="Open an account" onPress={() => go('number')} />
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: space.s4 }}>
         <Body tone="tertiary">Already have one?</Body>
         <Pressable onPress={() => go('signin')} accessibilityRole="button">

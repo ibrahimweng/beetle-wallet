@@ -4,12 +4,10 @@
    black button stays where it is so it closes what it opened. Anywhere that
    is not an action closes it too. */
 import React from 'react';
+import { Head, Icon, colour } from '../design';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { Icon } from '../components/Icon';
-import { Head } from '../components/text';
 import { IconName } from '../icons';
 import { Route } from '../routes';
-import { colour } from '../theme';
 
 const ITEMS: { icon: IconName; label: string; to: Route; colour: string }[] = [
   { icon: 'voice-filled', label: 'Voice', to: 'ask', colour: colour.warn },

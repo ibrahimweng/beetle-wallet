@@ -4,7 +4,7 @@
 import React from 'react';
 import { SvgXml } from 'react-native-svg';
 import { ICONS, IconName } from '../icons';
-import { colour as palette } from '../theme';
+import { colour as palette } from './tokens';
 
 export type IconProps = { name: IconName; size?: number; colour?: string };
 

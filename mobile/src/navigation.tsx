@@ -11,6 +11,7 @@ import { Route, routeList } from './routes';
 import { ToBuild } from './screens/ToBuild';
 import { Start } from './screens/Start';
 import { Actions } from './screens/Actions';
+import { Number, Code, Nin, Who, Face, Passcode, Ready, Signin, Signcode } from './screens/way-in';
 
 export type Stack = { [K in Route]: undefined };
 const Nav = createNativeStackNavigator<Stack>();
@@ -19,7 +20,19 @@ const Nav = createNativeStackNavigator<Stack>();
 const BUILT: Partial<Record<Route, React.ComponentType<{ nav: Nav }>>> = {
   start: ({ nav }) => <Start go={r => nav.navigate(r)} />,
   actions: ({ nav }) => <Actions go={r => nav.navigate(r)} close={() => nav.goBack()} />,
+  number: ({ nav }) => <Number nav={as(nav)} />,
+  code: ({ nav }) => <Code nav={as(nav)} />,
+  nin: ({ nav }) => <Nin nav={as(nav)} />,
+  who: ({ nav }) => <Who nav={as(nav)} />,
+  face: ({ nav }) => <Face nav={as(nav)} />,
+  passcode: ({ nav }) => <Passcode nav={as(nav)} />,
+  ready: ({ nav }) => <Ready nav={as(nav)} />,
+  signin: ({ nav }) => <Signin nav={as(nav)} />,
+  signcode: ({ nav }) => <Signcode nav={as(nav)} />,
 };
+
+/* the screens take { go, back }; the stack hands over { navigate, goBack } */
+const as = (n: Nav) => ({ go: n.navigate, back: n.goBack });
 
 type Nav = { navigate: (r: Route) => void; goBack: () => void };
 

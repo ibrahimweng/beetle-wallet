@@ -2,7 +2,7 @@
    sizes and line heights stay the ones the design sets. */
 import React from 'react';
 import { Text, TextProps } from 'react-native';
-import { type as t, colour } from '../theme';
+import { type as t, colour } from './tokens';
 
 type Props = TextProps & { tone?: 'ink' | 'secondary' | 'tertiary' | 'accent' | 'good' | 'bad' | 'inverse' };
 

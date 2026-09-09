@@ -58,13 +58,39 @@ Any route with no component falls to `ToBuild`, which names its frame on
 screen. Nothing is stranded, and what is still owed is visible while using the
 app rather than hidden in a list.
 
+## The design system
+
+`src/design/` is the Figma file's component set written out in code, named the
+same way so the two can be read side by side. A component's props are its
+variant properties:
+
+| In Figma | In code | Variants |
+|---|---|---|
+| Button | `<Button>` | `tone` black, grey, white, blue · `size` 44, 48, 56 |
+| Bubble | `<Bubble>` | `who` You, You · typed, Beetle, Beetle · with a title |
+| Page head | `<PageHead>` | `lead` no, yes |
+| Tool panel | `<ToolPanel>` | `tool` Transfers, Requests, Airtime |
+| Tool row | `<ToolRow>` | `go` no, yes |
+| Icon | `<Icon>` | all 97 glyphs |
+| Status pill | `<StatusPill>` | |
+| Passcode keypad | `<Keypad>` `<Pips>` | |
+| Field · typing | `<Field>` | |
+| Dock, Action button | `<Dock>` `<ActionButton>` | |
+
+Sizes come from the set, not from judgement: a 44 button is 22 radius with 20
+of side padding, a 56 is 28 radius with 24, and the label is semibold.
+
+`StepTrail` and `StepHead` are the way-in pattern. Note that the onboarding
+frames set their second line at 14 regular, while the Page head component sets
+it at 16. They are two different heads and both are correct in their place.
+
 ## Where it has got to
 
-Built: the design tokens, all 97 icons, the component kit (screen, page head,
-card, button, list row, action row, tool panel, pill, dock), the shared state
-layer, navigation across all 100 routes, and the Start and Actions screens.
+Built: the design system above, all 97 icons, the shared state layer,
+navigation across all 100 routes, and eleven screens — Start, the button's
+menu, and the whole way in: Number, Code, Nin, Who, Face, Passcode, Ready,
+Signin and Signcode. Opening an account works end to end, from the front door
+to "Take me in", and so does signing in.
 
-Not built: the other 98 screens. They route, they name their frame, and they
-are drawn by following the three steps above. The kit is what most of them
-need; the ones that will want new pieces are the receipts, the keypad screens
-and the chat thread.
+Not built: the other 89. They route, they name their frame, and the system
+above is what they are made of.

@@ -1,0 +1,62 @@
+/* The page itself, and the pieces every page is made of. A screen column is
+   spaced 20, starts 72 down and leaves 124 clear at the bottom for the dock.
+   A card is 24 radius with 20 and 21 of padding. */
+import React, { ReactNode } from 'react';
+import { Pressable, ScrollView, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { Icon } from './Icon';
+import { Meta, Row } from './text';
+import { IconName } from '../icons';
+import { colour, frame, radius, space } from './tokens';
+
+export function Screen({ children, dock }: { children: ReactNode; dock?: ReactNode }) {
+  return (
+    <View style={s.screen}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={s.body} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        {children}
+      </ScrollView>
+      {dock}
+    </View>
+  );
+}
+
+export function Card({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
+  return <View style={[s.card, style]}>{children}</View>;
+}
+
+export function Divider() {
+  return <View style={{ height: 1, backgroundColor: colour.rule }} />;
+}
+
+export function ListRow({ icon, title, sub, right, onPress }: {
+  icon?: IconName; title: string; sub?: string; right?: ReactNode; onPress?: () => void;
+}) {
+  return (
+    <Pressable accessibilityRole={onPress ? 'button' : undefined} onPress={onPress}
+      style={({ pressed }) => [s.row, { opacity: pressed && onPress ? 0.6 : 1 }]}>
+      {icon ? <Icon name={icon} size={20} /> : null}
+      <View style={{ flex: 1, gap: 2 }}>
+        <Row>{title}</Row>
+        {sub ? <Meta tone="secondary">{sub}</Meta> : null}
+      </View>
+      {right ?? (onPress ? <Icon name="chevron" size={18} colour={colour.textTertiary} /> : null)}
+    </Pressable>
+  );
+}
+
+export function ActionRow(p: Parameters<typeof ListRow>[0]) {
+  return <Card style={{ paddingVertical: space.s3 }}><ListRow {...p} /></Card>;
+}
+
+const s = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: colour.surface },
+  body: {
+    paddingHorizontal: frame.sidePad, paddingTop: frame.topPad,
+    paddingBottom: frame.bottomPad, gap: frame.columnGap,
+  },
+  card: {
+    backgroundColor: colour.surface2, borderRadius: radius.card,
+    paddingVertical: frame.cardPad.vertical, paddingHorizontal: frame.cardPad.horizontal,
+    gap: space.s5,
+  },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.s3 },
+});

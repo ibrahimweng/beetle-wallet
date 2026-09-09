@@ -3,11 +3,9 @@
    go looking for it. This is deliberately loud: it should be obvious in the
    running app which screens are still owed. */
 import React from 'react';
+import { Caption, Card, Dock, Head, Meta, Screen, colour } from '../design';
 import { View } from 'react-native';
-import { Screen, Dock, Card } from '../components/kit';
-import { Caption, Head, Meta } from '../components/text';
 import { ROUTES, Route } from '../routes';
-import { colour } from '../theme';
 
 export function ToBuild({ route, onBack }: { route: Route; onBack: () => void }) {
   const info = ROUTES[route];

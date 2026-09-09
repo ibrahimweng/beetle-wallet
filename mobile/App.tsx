@@ -6,7 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { hydrate } from './src/state/storage';
 import { App as Routes } from './src/navigation';
-import { colour } from './src/theme';
+import { colour } from './src/design';
 
 export default function Root() {
   const [ready, setReady] = useState(false);

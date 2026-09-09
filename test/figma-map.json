@@ -1,0 +1,457 @@
+{
+ "home": {
+  "node": "225:3",
+  "section": "Sending money",
+  "design": "Home screen"
+ },
+ "ask": {
+  "node": "205:2",
+  "section": "Sending money",
+  "design": "Ask"
+ },
+ "chat": {
+  "node": "205:57",
+  "section": "Sending money",
+  "design": "Chat"
+ },
+ "confirm": {
+  "node": "239:7762",
+  "section": "Sending money",
+  "design": "Confirm"
+ },
+ "donesend": {
+  "node": "239:7829",
+  "section": "Sending money",
+  "design": "DoneSend"
+ },
+ "share": {
+  "node": "472:10886",
+  "section": "Sending money",
+  "design": "Share"
+ },
+ "scan": {
+  "node": "209:2",
+  "section": "Sending money",
+  "design": "Scan"
+ },
+ "typed": {
+  "node": "209:209",
+  "section": "Sending money",
+  "design": "Typed"
+ },
+ "pay": {
+  "node": "332:9851",
+  "section": "Sending money",
+  "design": "Pay"
+ },
+ "askreq": {
+  "node": "225:1551",
+  "section": "Asking to be paid",
+  "design": "AskReq"
+ },
+ "request": {
+  "node": "225:1606",
+  "section": "Asking to be paid",
+  "design": "Request"
+ },
+ "sent": {
+  "node": "239:8294",
+  "section": "Asking to be paid",
+  "design": "Sent"
+ },
+ "typedask": {
+  "node": "225:1928",
+  "section": "Asking to be paid",
+  "design": "TypedAsk"
+ },
+ "receive": {
+  "node": "332:9555",
+  "section": "Be paid, from home",
+  "design": "Receive"
+ },
+ "ways": {
+  "node": "222:199",
+  "section": "Be paid, from home",
+  "design": "Ways"
+ },
+ "mycode": {
+  "node": "221:2",
+  "section": "Be paid, from home",
+  "design": "MyCode"
+ },
+ "asksvc": {
+  "node": "225:2620",
+  "section": "Buying something",
+  "design": "AskSvc"
+ },
+ "buy": {
+  "node": "221:165",
+  "section": "Buying something",
+  "design": "Buy"
+ },
+ "confirmbuy": {
+  "node": "239:8474",
+  "section": "Buying something",
+  "design": "ConfirmBuy"
+ },
+ "done": {
+  "node": "239:8418",
+  "section": "Buying something",
+  "design": "Done"
+ },
+ "sharebuy": {
+  "node": "472:11590",
+  "section": "Buying something",
+  "design": "ShareBuy"
+ },
+ "typedbuy": {
+  "node": "225:2973",
+  "section": "Buying something",
+  "design": "TypedBuy"
+ },
+ "scanbill": {
+  "node": "222:97",
+  "section": "Pay a bill from a photo",
+  "design": "ScanBill"
+ },
+ "meter": {
+  "node": "210:2",
+  "section": "Pay a bill from a photo",
+  "design": "Meter"
+ },
+ "confirmmeter": {
+  "node": "210:71",
+  "section": "Pay a bill from a photo",
+  "design": "ConfirmMeter"
+ },
+ "power": {
+  "node": "490:13497",
+  "section": "Pay a bill from a photo",
+  "design": "Power"
+ },
+ "sharepower": {
+  "node": "490:13595",
+  "section": "Pay a bill from a photo",
+  "design": "SharePower"
+ },
+ "bills": {
+  "node": "217:67",
+  "section": "Pay a bill, the ordinary way",
+  "design": "Bills"
+ },
+ "powerpay": {
+  "node": "217:2",
+  "section": "Pay a bill, the ordinary way",
+  "design": "PowerPay"
+ },
+ "services": {
+  "node": "215:2",
+  "section": "The services drawer",
+  "design": "Services"
+ },
+ "airtime": {
+  "node": "215:170",
+  "section": "The services drawer",
+  "design": "Airtime"
+ },
+ "loan": {
+  "node": "217:181",
+  "section": "The services drawer",
+  "design": "Loan"
+ },
+ "card": {
+  "node": "218:2",
+  "section": "The services drawer",
+  "design": "Card"
+ },
+ "history": {
+  "node": "501:14267",
+  "section": "Look at what happened",
+  "design": "History"
+ },
+ "answer": {
+  "node": "218:84",
+  "section": "Look at what happened",
+  "design": "Answer"
+ },
+ "donein": {
+  "node": "490:12465",
+  "section": "Look at what happened",
+  "design": "DoneIn"
+ },
+ "sharein": {
+  "node": "490:12558",
+  "section": "Look at what happened",
+  "design": "ShareIn"
+ },
+ "noface": {
+  "node": "331:9488",
+  "section": "When it does not go",
+  "design": "NoFace"
+ },
+ "short": {
+  "node": "208:88",
+  "section": "When it does not go",
+  "design": "Short"
+ },
+ "pending": {
+  "node": "206:2",
+  "section": "When it does not go",
+  "design": "Pending"
+ },
+ "failed": {
+  "node": "206:77",
+  "section": "When it does not go",
+  "design": "Failed"
+ },
+ "reversed": {
+  "node": "206:153",
+  "section": "When it does not go",
+  "design": "Reversed"
+ },
+ "wrong": {
+  "node": "206:225",
+  "section": "When it was wrong",
+  "design": "Wrong"
+ },
+ "recall": {
+  "node": "207:2",
+  "section": "When it was wrong",
+  "design": "Recall"
+ },
+ "amend": {
+  "node": "222:148",
+  "section": "When it was wrong",
+  "design": "Amend"
+ },
+ "rule": {
+  "node": "207:101",
+  "section": "What runs on its own",
+  "design": "Rule"
+ },
+ "rules": {
+  "node": "207:136",
+  "section": "What runs on its own",
+  "design": "Rules"
+ },
+ "actions": {
+  "node": "204:85",
+  "section": "The button",
+  "design": "Actions"
+ },
+ "draft": {
+  "node": "222:2",
+  "section": "The button",
+  "design": "Draft"
+ },
+ "health": {
+  "node": "223:2",
+  "section": "How the habits add up",
+  "design": "Health"
+ },
+ "settings": {
+  "node": "272:8208",
+  "section": "What you set",
+  "design": "Settings"
+ },
+ "lock": {
+  "node": "271:8211",
+  "section": "What you set",
+  "design": "Lock"
+ },
+ "limits": {
+  "node": "223:206",
+  "section": "What you set",
+  "design": "Limits"
+ },
+ "limitstop": {
+  "node": "224:2",
+  "section": "What you set",
+  "design": "LimitStop"
+ },
+ "devices": {
+  "node": "224:53",
+  "section": "What you set",
+  "design": "Devices"
+ },
+ "goal": {
+  "node": "219:2",
+  "section": "Putting money away",
+  "design": "Goal"
+ },
+ "saverule": {
+  "node": "224:122",
+  "section": "Putting money away",
+  "design": "SaveRule"
+ },
+ "paused": {
+  "node": "204:2",
+  "section": "Putting money away",
+  "design": "Paused"
+ },
+ "start": {
+  "node": "307:9497",
+  "section": "Opening an account",
+  "design": "Start"
+ },
+ "number": {
+  "node": "307:9523",
+  "section": "Opening an account",
+  "design": "Number"
+ },
+ "code": {
+  "node": "307:9566",
+  "section": "Opening an account",
+  "design": "Code"
+ },
+ "nin": {
+  "node": "332:9915",
+  "section": "Opening an account",
+  "design": "Nin"
+ },
+ "who": {
+  "node": "332:9966",
+  "section": "Opening an account",
+  "design": "Who"
+ },
+ "face": {
+  "node": "309:9491",
+  "section": "Opening an account",
+  "design": "Face"
+ },
+ "passcode": {
+  "node": "309:9532",
+  "section": "Opening an account",
+  "design": "Passcode"
+ },
+ "ready": {
+  "node": "306:9534",
+  "section": "Opening an account",
+  "design": "Ready"
+ },
+ "dollars": {
+  "node": "279:8211",
+  "section": "Keep some in dollars",
+  "design": "Dollars"
+ },
+ "convert": {
+  "node": "279:8299",
+  "section": "Keep some in dollars",
+  "design": "Convert"
+ },
+ "converted": {
+  "node": "296:8850",
+  "section": "Keep some in dollars",
+  "design": "Converted"
+ },
+ "payfrom": {
+  "node": "301:9464",
+  "section": "Pay from your dollars",
+  "design": "PayFrom"
+ },
+ "paydollars": {
+  "node": "301:9565",
+  "section": "Pay from your dollars",
+  "design": "PayDollars"
+ },
+ "finish": {
+  "node": "316:9491",
+  "section": "Finishing setting up",
+  "design": "Finish"
+ },
+ "idcard": {
+  "node": "316:9538",
+  "section": "Finishing setting up",
+  "design": "Idcard"
+ },
+ "income": {
+  "node": "317:9488",
+  "section": "Finishing setting up",
+  "design": "Income"
+ },
+ "full": {
+  "node": "317:9528",
+  "section": "Finishing setting up",
+  "design": "Full"
+ },
+ "signin": {
+  "node": "333:10437",
+  "section": "Signing in again",
+  "design": "Signin"
+ },
+ "signcode": {
+  "node": "333:10479",
+  "section": "Signing in again",
+  "design": "Signcode"
+ },
+ "nomatch": {
+  "node": "333:10529",
+  "section": "When the digits do not match",
+  "design": "Nomatch"
+ },
+ "misheard": {
+  "node": "957:20338",
+  "section": "When it heard you wrong",
+  "design": "Misheard"
+ },
+ "alreadygone": {
+  "node": "957:20392",
+  "section": "When it heard you wrong",
+  "design": "AlreadyGone"
+ },
+ "lostphone": {
+  "node": "957:20438",
+  "section": "When the phone is gone",
+  "design": "LostPhone"
+ },
+ "newcode": {
+  "node": "957:20481",
+  "section": "When the phone is gone",
+  "design": "NewCode"
+ },
+ "disputeopen": {
+  "node": "959:20338",
+  "section": "Following a dispute",
+  "design": "DisputeOpen"
+ },
+ "disputeend": {
+  "node": "959:20393",
+  "section": "Following a dispute",
+  "design": "DisputeEnd"
+ },
+ "nonetwork": {
+  "node": "959:20420",
+  "section": "When the network is not there",
+  "design": "NoNetwork"
+ },
+ "firsthome": {
+  "node": "964:20807",
+  "section": "The first day",
+  "design": "FirstHome"
+ },
+ "firstask": {
+  "node": "964:21033",
+  "section": "The first day",
+  "design": "FirstAsk"
+ },
+ "emptyactivity": {
+  "node": "964:21113",
+  "section": "The first day",
+  "design": "EmptyActivity"
+ },
+ "emptygoal": {
+  "node": "964:21229",
+  "section": "The first day",
+  "design": "EmptyGoal"
+ },
+ "checking": {
+  "node": "973:20644",
+  "section": "When it is not sure",
+  "design": "Checking"
+ },
+ "iwillnot": {
+  "node": "973:20699",
+  "section": "When it is not sure",
+  "design": "IWillNot"
+ }
+}

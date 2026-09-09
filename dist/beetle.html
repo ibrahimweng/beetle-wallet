@@ -1539,12 +1539,12 @@ function convert({ direction, amount }) {
     const got = +(amount / rate).toFixed(2);
     update(s => { s.everyday = +(s.everyday - amount).toFixed(2); s.dollars = +(s.dollars + got).toFixed(2); });
     addEntry({ icon: 'dollar', name: 'Converted to dollars', detail: `At ₦${rate} to $1`, amount: -amount, to: 'converted', kind: 'fx' });
-    return { gave: amount, got, rate, unit: '$' };
+    return { gave: amount, got, rate, unit: '$', at: stamp() };
   }
   const got = Math.round(amount * rate);
   update(s => { s.dollars = +(s.dollars - amount).toFixed(2); s.everyday = +(s.everyday + got).toFixed(2); });
   addEntry({ icon: 'dollar', name: 'Converted to naira', detail: `At ₦${rate} to $1`, amount: got, to: 'converted', kind: 'fx', tone: 'good' });
-  return { gave: amount, got, rate, unit: '₦' };
+  return { gave: amount, got, rate, unit: '₦', at: stamp() };
 }
 
 /* ---------- switches and lines ---------- */
@@ -1901,7 +1901,6 @@ const passcodeSheet = (base, { error } = {}) => {
     },
   }));
 
-  host.appendChild(Note('The passcode starts as 447188. Reset in the left panel puts it back.'));
   return Sheet(base, host);
 };
 
@@ -2165,7 +2164,7 @@ const insightCard = ({ kicker, body, action, onAction, extra }) => {
     extra || null,
     action && e('div', { class: 'row', style: { gap: '8px' } },
       e('button', { class: 'btn btn-primary grow press', onClick: onAction }, action),
-      e('button', { class: 'chip press', title: 'Not now', onClick: () => { card.remove(); toast('Put away. Beetle will not raise it again today.'); } }, '×')));
+      e('button', { class: 'chip press', title: 'Not now', onClick: () => { card.remove(); toast('Put away. Beetle will not raise it again today.'); } }, Icon('close-small', { size: 14 }))));
   return card;
 };
 
@@ -2245,7 +2244,7 @@ const home = {
             e('div', { class: 'listrow-title' }, 'Dollars'),
             e('div', { class: 'listrow-sub' }, `${naira(dollarsInNaira())} today`)),
           Label('$' + s.dollars.toFixed(2)),
-          e('div', { class: 'chev' }, '›'))),
+          Icon('chevron', { size: 18, cls: 'chev' }))),
 
       /* money health */
       e('div', { class: 'card press', style: { padding: '10px 14px', cursor: 'pointer' }, role: 'button', onClick: () => go('health') },
@@ -2254,12 +2253,12 @@ const home = {
           e('div', { class: 'grow stack gap-1' },
             e('div', { class: 'listrow-title' }, 'Money health'),
             e('div', { class: 'listrow-sub c-good' }, 'Up 4 since July')),
-          e('div', { class: 'chev' }, '›'))),
+          Icon('chevron', { size: 18, cls: 'chev' }))),
 
       /* activities */
       e('div', { class: 'row between', style: { paddingTop: '8px' } },
         Head('Activities'),
-        e('button', { class: 'btn btn-ghost press', style: { width: 'auto', padding: 0 }, onClick: () => go('history') }, 'See all ›')),
+        e('button', { class: 'btn btn-ghost press', style: { width: 'auto', padding: 0 }, onClick: () => go('history') }, 'See all', Icon('chevron', { size: 15 }))),
       Meta('What I noticed, and every naira that moved.', 'c-3'),
       ChipRow(FILTERS, f, id => { setFilter(id); repaint(); }),
     ];
@@ -2291,7 +2290,7 @@ const home = {
           e('div', { class: 'grow stack gap-1' },
             e('div', { class: 'listrow-title' }, insights.card.kicker),
             e('div', { class: 'listrow-sub' }, insights.card.sub)),
-          e('div', { class: 'fab', style: { width: '34px', height: '34px', fontSize: '15px' } }, '›'))));
+          e('div', { class: 'fab', style: { width: '34px', height: '34px' } }, Icon('chevron', { size: 16 })))));
     if (showRows) body.push(...yesterday.map(entryRow));
     if (showInsights) body.push(insightCard({ ...insights.spend, onAction: () => go('answer') }));
 
@@ -2384,7 +2383,7 @@ const SettingRow = ({ icon, tone, title, right, to, toggleKey, onToggle }) =>
     toggleKey
       ? Toggle(get().toggles[toggleKey], on => { act.setToggle(toggleKey, on); onToggle && onToggle(on); })
       : e('div', { class: 't-meta c-3' }, right || ''),
-    !toggleKey && e('div', { class: 'chev' }, '›'));
+    !toggleKey && Icon('chevron', { size: 18, cls: 'chev' }));
 
 const Group = (label, ...rows) =>
   e('div', { class: 'stack gap-1' }, Meta(label, 'c-2'), e('div', { class: 'stack' }, ...rows));
@@ -2460,7 +2459,7 @@ const settings = {
         e('div', { class: 'grow stack gap-1' },
           e('div', { class: 'listrow-title' }, 'Get Beetle Plus'),
           e('div', { class: 'listrow-sub' }, 'Higher daily limits and a human when you need one')),
-        e('div', { class: 'fab', style: { width: '32px', height: '32px', fontSize: '15px' } }, '›'))),
+        e('div', { class: 'fab', style: { width: '32px', height: '32px' } }, Icon('chevron', { size: 16 })))),
     Group('What keeps the money yours',
       SettingRow({ icon: 'faceid', tone: 'accent', title: 'Lock and privacy', right: get().toggles.faceId ? 'Face ID' : 'Passcode only', to: 'lock' }),
       SettingRow({ icon: 'check', tone: 'good', title: 'Spending limits', right: naira(get().limits.day) + ' a day', to: 'limits' }),
@@ -3028,7 +3027,7 @@ const shareSheet = (base, line, back) => Sheet(base,
         e('div', { class: 'grow stack gap-1' },
           e('div', { class: 'listrow-title' }, t),
           e('div', { class: 'listrow-sub' }, s)),
-        e('div', { class: 'chev' }, '›'))))),
+        Icon('chevron', { size: 18, cls: 'chev' }))))),
   Note('Your balance and the full account numbers are left off every copy that leaves the phone.', 'eye'),
   Button('Done', { kind: 'quiet', onClick: back }));
 
@@ -4289,11 +4288,12 @@ const converted = {
   title: 'Converted',
   render: () => {
     const st = get();
-    const r = fx.receipt || { gave: 155200, got: 100, rate: st.rate, unit: '$' };
+    /* the figures the design shows, for when this screen is opened on its own */
+    const r = fx.receipt || { gave: 155200, got: 100, rate: st.rate, unit: '$', at: '9 September 2026 at 4:23 PM' };
     const toDollars = r.unit === '$';
     return Screen([
       ...receiptBody({
-        head: 'Converted', sub: stamp(),
+        head: 'Converted', sub: r.at,
         amount: toDollars ? '$' + r.got.toFixed(2) : nairaFull(r.got),
         line: toDollars ? 'Converted from naira' : 'Converted from dollars', tone: 'good',
         fields: [
@@ -4302,7 +4302,10 @@ const converted = {
           ['Rate', `₦${r.rate} to $1`],
           ['Our margin', naira(Math.round((toDollars ? r.gave : r.got) * 0.01)), '1.0%, shown before you slid'],
         ],
-        session: 'FX ' + Math.floor(1e11 + Math.random() * 8e11).toString().replace(/(\d{4})(?=\d)/g, '$1 ').trim(),
+        /* a receipt reference is fixed once the conversion is done, so work it
+           out from the conversion rather than rolling a new one each draw */
+        session: 'FX ' + String(41000000000 + Math.round(r.gave * 100) + Math.round(r.rate))
+          .replace(/(\d{4})(?=\d)/g, '$1 ').trim(),
       }),
       Bubble(`You now hold $${st.dollars.toFixed(2)}, and ${naira(st.everyday)} in Everyday. Nothing else moved.`),
       Button('Done', { kind: 'quiet', onClick: () => go('dollars') }),

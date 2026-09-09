@@ -24,7 +24,7 @@ const SettingRow = ({ icon, tone, title, right, to, toggleKey, onToggle }) =>
     toggleKey
       ? Toggle(get().toggles[toggleKey], on => { act.setToggle(toggleKey, on); onToggle && onToggle(on); })
       : e('div', { class: 't-meta c-3' }, right || ''),
-    !toggleKey && e('div', { class: 'chev' }, '›'));
+    !toggleKey && Icon('chevron', { size: 18, cls: 'chev' }));
 
 const Group = (label, ...rows) =>
   e('div', { class: 'stack gap-1' }, Meta(label, 'c-2'), e('div', { class: 'stack' }, ...rows));
@@ -100,7 +100,7 @@ export const settings = {
         e('div', { class: 'grow stack gap-1' },
           e('div', { class: 'listrow-title' }, 'Get Beetle Plus'),
           e('div', { class: 'listrow-sub' }, 'Higher daily limits and a human when you need one')),
-        e('div', { class: 'fab', style: { width: '32px', height: '32px', fontSize: '15px' } }, '›'))),
+        e('div', { class: 'fab', style: { width: '32px', height: '32px' } }, Icon('chevron', { size: 16 })))),
     Group('What keeps the money yours',
       SettingRow({ icon: 'faceid', tone: 'accent', title: 'Lock and privacy', right: get().toggles.faceId ? 'Face ID' : 'Passcode only', to: 'lock' }),
       SettingRow({ icon: 'check', tone: 'good', title: 'Spending limits', right: naira(get().limits.day) + ' a day', to: 'limits' }),

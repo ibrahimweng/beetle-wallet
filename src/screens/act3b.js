@@ -801,11 +801,12 @@ export const converted = {
   title: 'Converted',
   render: () => {
     const st = get();
-    const r = fx.receipt || { gave: 155200, got: 100, rate: st.rate, unit: '$' };
+    /* the figures the design shows, for when this screen is opened on its own */
+    const r = fx.receipt || { gave: 155200, got: 100, rate: st.rate, unit: '$', at: '9 September 2026 at 4:23 PM' };
     const toDollars = r.unit === '$';
     return Screen([
       ...receiptBody({
-        head: 'Converted', sub: stamp(),
+        head: 'Converted', sub: r.at,
         amount: toDollars ? '$' + r.got.toFixed(2) : nairaFull(r.got),
         line: toDollars ? 'Converted from naira' : 'Converted from dollars', tone: 'good',
         fields: [
@@ -814,7 +815,10 @@ export const converted = {
           ['Rate', `₦${r.rate} to $1`],
           ['Our margin', naira(Math.round((toDollars ? r.gave : r.got) * 0.01)), '1.0%, shown before you slid'],
         ],
-        session: 'FX ' + Math.floor(1e11 + Math.random() * 8e11).toString().replace(/(\d{4})(?=\d)/g, '$1 ').trim(),
+        /* a receipt reference is fixed once the conversion is done, so work it
+           out from the conversion rather than rolling a new one each draw */
+        session: 'FX ' + String(41000000000 + Math.round(r.gave * 100) + Math.round(r.rate))
+          .replace(/(\d{4})(?=\d)/g, '$1 ').trim(),
       }),
       Bubble(`You now hold $${st.dollars.toFixed(2)}, and ${naira(st.everyday)} in Everyday. Nothing else moved.`),
       Button('Done', { kind: 'quiet', onClick: () => go('dollars') }),

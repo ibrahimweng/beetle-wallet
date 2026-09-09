@@ -344,7 +344,7 @@ export const shareSheet = (base, line, back) => Sheet(base,
         e('div', { class: 'grow stack gap-1' },
           e('div', { class: 'listrow-title' }, t),
           e('div', { class: 'listrow-sub' }, s)),
-        e('div', { class: 'chev' }, '›'))))),
+        Icon('chevron', { size: 18, cls: 'chev' }))))),
   Note('Your balance and the full account numbers are left off every copy that leaves the phone.', 'eye'),
   Button('Done', { kind: 'quiet', onClick: back }));
 

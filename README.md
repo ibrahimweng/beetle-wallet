@@ -133,6 +133,54 @@ Every screen was checked against the Figma file rather than against memory.
 `test/figma-copy.json` holds 204 strings read out of the file, and
 `npm test` fails if a screen stops saying what the design says it says.
 
+### What is pinned, and what is still adrift
+
+`test/figma-map.json` records which frame in the Figma file each screen was
+built from. Eighty-nine of the hundred screens trace to one, and every screen
+the design has is built. `test/design.json` pins what each screen says and
+draws, and `npm test` fails if either moves. Rebuild it with `npm run
+design:write`, and only after checking the change against the frame the map
+names.
+
+Twelve screens have been read against their frame line by line so far. These
+are the differences that pass still owes, each against the frame named:
+
+- **home** (`225:3`). The design lists four things under Today: the flat
+  deposit, the data for Mum, the groceries and the subscription. The code
+  lists seven, adding the pending, failed and returned rows the later flows
+  need. The design also puts "Where your money went" after the virtual card
+  row, not before it.
+- **chat** and **confirm** (`205:57`, `239:7762`). The design's fee row on
+  ₦20,000 reads Free. The code works the fee out and shows ₦26.88. The file
+  disagrees with itself here, because DoneSend charges ₦26.88 on the same
+  transfer, so this one needs a decision rather than a patch.
+- **donesend** (`239:7829`). The design's note under the fee is "Transfers
+  under ₦10,000 carry none"; the code says "₦25 to NIP plus 7.5% VAT". The
+  design offers "She has it. Rent again next month?" with "Set it up", which
+  the code does not. The design asks "Something wrong with this?"; the code
+  says "Something is wrong with this".
+- **share** (`472:10886`). The design's subtitle carries the time, "₦20,000 to
+  Sarah Adeyemi, 7:55 AM". The code leaves it off.
+- **pay** (`332:9851`). The design frame shows the ₦50,000 flat deposit with
+  the fee free. The code shows the ₦20,000 rent transfer with ₦26.88.
+- **request** (`225:1606`). The design is a chat with a Beetle Requests panel.
+  The code is a form headed "Ask to be paid". These are not the same screen.
+- **sent** (`239:8294`). The design says "For · Rent balance"; the code says
+  "Rent, the part you owe from August". The code adds a "Pretend they just
+  paid" button and a note about it that the design does not have.
+- **asksvc** (`225:2620`). The design suggests "Pay my light bill", "How much
+  did I spend on data?" and "Top up my own line". The code suggests three
+  other things.
+- **receive** (`332:9555`) and **ways** (`222:199`). Several rows are worded
+  differently from the design.
+- The sheets that sit over home (ask, askreq, asksvc, typed, typedask,
+  receive) show the whole home screen behind them in the design. The code
+  shows a shorter one.
+
+Seventy-nine screens have not been read against their frame yet. Until they
+have, the pinned fixture is a guard against drift rather than proof of
+fidelity, and this list is the honest state of it.
+
 One deliberate difference, recorded here so it is not mistaken for drift:
 
 - **The APR box on the loan screen.** The design does not have it. It was

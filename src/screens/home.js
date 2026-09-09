@@ -36,7 +36,7 @@ const insightCard = ({ kicker, body, action, onAction, extra }) => {
     extra || null,
     action && e('div', { class: 'row', style: { gap: '8px' } },
       e('button', { class: 'btn btn-primary grow press', onClick: onAction }, action),
-      e('button', { class: 'chip press', title: 'Not now', onClick: () => { card.remove(); toast('Put away. Beetle will not raise it again today.'); } }, '×')));
+      e('button', { class: 'chip press', title: 'Not now', onClick: () => { card.remove(); toast('Put away. Beetle will not raise it again today.'); } }, Icon('close-small', { size: 14 }))));
   return card;
 };
 
@@ -116,7 +116,7 @@ export const home = {
             e('div', { class: 'listrow-title' }, 'Dollars'),
             e('div', { class: 'listrow-sub' }, `${naira(dollarsInNaira())} today`)),
           Label('$' + s.dollars.toFixed(2)),
-          e('div', { class: 'chev' }, '›'))),
+          Icon('chevron', { size: 18, cls: 'chev' }))),
 
       /* money health */
       e('div', { class: 'card press', style: { padding: '10px 14px', cursor: 'pointer' }, role: 'button', onClick: () => go('health') },
@@ -125,12 +125,12 @@ export const home = {
           e('div', { class: 'grow stack gap-1' },
             e('div', { class: 'listrow-title' }, 'Money health'),
             e('div', { class: 'listrow-sub c-good' }, 'Up 4 since July')),
-          e('div', { class: 'chev' }, '›'))),
+          Icon('chevron', { size: 18, cls: 'chev' }))),
 
       /* activities */
       e('div', { class: 'row between', style: { paddingTop: '8px' } },
         Head('Activities'),
-        e('button', { class: 'btn btn-ghost press', style: { width: 'auto', padding: 0 }, onClick: () => go('history') }, 'See all ›')),
+        e('button', { class: 'btn btn-ghost press', style: { width: 'auto', padding: 0 }, onClick: () => go('history') }, 'See all', Icon('chevron', { size: 15 }))),
       Meta('What I noticed, and every naira that moved.', 'c-3'),
       ChipRow(FILTERS, f, id => { setFilter(id); repaint(); }),
     ];
@@ -162,7 +162,7 @@ export const home = {
           e('div', { class: 'grow stack gap-1' },
             e('div', { class: 'listrow-title' }, insights.card.kicker),
             e('div', { class: 'listrow-sub' }, insights.card.sub)),
-          e('div', { class: 'fab', style: { width: '34px', height: '34px', fontSize: '15px' } }, '›'))));
+          e('div', { class: 'fab', style: { width: '34px', height: '34px' } }, Icon('chevron', { size: 16 })))));
     if (showRows) body.push(...yesterday.map(entryRow));
     if (showInsights) body.push(insightCard({ ...insights.spend, onAction: () => go('answer') }));
 

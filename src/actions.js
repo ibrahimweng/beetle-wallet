@@ -114,12 +114,12 @@ export function convert({ direction, amount }) {
     const got = +(amount / rate).toFixed(2);
     update(s => { s.everyday = +(s.everyday - amount).toFixed(2); s.dollars = +(s.dollars + got).toFixed(2); });
     addEntry({ icon: 'dollar', name: 'Converted to dollars', detail: `At ₦${rate} to $1`, amount: -amount, to: 'converted', kind: 'fx' });
-    return { gave: amount, got, rate, unit: '$' };
+    return { gave: amount, got, rate, unit: '$', at: stamp() };
   }
   const got = Math.round(amount * rate);
   update(s => { s.dollars = +(s.dollars - amount).toFixed(2); s.everyday = +(s.everyday + got).toFixed(2); });
   addEntry({ icon: 'dollar', name: 'Converted to naira', detail: `At ₦${rate} to $1`, amount: got, to: 'converted', kind: 'fx', tone: 'good' });
-  return { gave: amount, got, rate, unit: '₦' };
+  return { gave: amount, got, rate, unit: '₦', at: stamp() };
 }
 
 /* ---------- switches and lines ---------- */

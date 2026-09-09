@@ -17,3 +17,5 @@ export * from './StepTrail';
 export * from './TopBar';
 export * from './Sheet';
 export * from './Receipt';
+export * from './Outcome';
+export * from './AmountPad';

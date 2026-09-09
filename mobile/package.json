@@ -10,9 +10,10 @@
     "web": "expo start --web",
     "icons": "node scripts/generate-icons.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "npm run typecheck",
+    "test": "tsc --noEmit && npm run verify",
     "state": "node scripts/sync-state.mjs",
-    "sync": "npm run icons && npm run state"
+    "sync": "npm run icons && npm run state",
+    "verify": "expo export --platform web --output-dir dist && node test/screens.mjs dist"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

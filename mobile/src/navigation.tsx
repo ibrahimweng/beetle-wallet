@@ -13,6 +13,10 @@ import { Start } from './screens/Start';
 import { Actions } from './screens/Actions';
 import { Number, Code, Nin, Who, Face, Passcode, Ready, Signin, Signcode } from './screens/way-in';
 import { Ask, Chat, Confirm, DoneSend, Share } from './screens/send';
+import {
+  Checking, IWillNot, Misheard, AlreadyGone, Short, Pending, Failed, Reversed,
+  Wrong, Recall, DisputeOpen, DisputeEnd, NoNetwork, Amend,
+} from './screens/act-one';
 
 export type Stack = { [K in Route]: undefined };
 const Nav = createNativeStackNavigator<Stack>();
@@ -37,6 +41,21 @@ const BUILT: Partial<Record<Route, React.ComponentType<{ nav: Nav }>>> = {
   noface: ({ nav }) => <Confirm nav={as(nav)} faceMissed />,
   donesend: ({ nav }) => <DoneSend nav={as(nav)} />,
   share: ({ nav }) => <Share nav={as(nav)} />,
+
+  checking: ({ nav }) => <Checking nav={as(nav)} />,
+  iwillnot: ({ nav }) => <IWillNot nav={as(nav)} />,
+  misheard: ({ nav }) => <Misheard nav={as(nav)} />,
+  alreadygone: ({ nav }) => <AlreadyGone nav={as(nav)} />,
+  short: ({ nav }) => <Short nav={as(nav)} />,
+  pending: ({ nav }) => <Pending nav={as(nav)} />,
+  failed: ({ nav }) => <Failed nav={as(nav)} />,
+  reversed: ({ nav }) => <Reversed nav={as(nav)} />,
+  wrong: ({ nav }) => <Wrong nav={as(nav)} />,
+  recall: ({ nav }) => <Recall nav={as(nav)} />,
+  amend: ({ nav }) => <Amend nav={as(nav)} />,
+  disputeopen: ({ nav }) => <DisputeOpen nav={as(nav)} />,
+  disputeend: ({ nav }) => <DisputeEnd nav={as(nav)} />,
+  nonetwork: ({ nav }) => <NoNetwork nav={as(nav)} />,
 };
 
 /* the screens take { go, back }; the stack hands over { navigate, goBack } */

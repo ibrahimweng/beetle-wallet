@@ -1,0 +1,10 @@
+/* Copy this to beetle.config.js to make the agent think while you run the app
+   from the repo. The file is gitignored, and the key only ever travels from
+   your browser to Anthropic.
+
+   You do not need this on the published page: there the page asks the
+   viewer's own Claude through the artifact `sample` capability, and no key
+   is involved. On GitHub Pages, press the agent badge at the top right and
+   paste a key instead — it is kept in that browser and nowhere else. */
+
+export const anthropicKey = 'sk-ant-...';

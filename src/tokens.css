@@ -1,0 +1,69 @@
+/* Beetle — design tokens, taken from the Figma file
+   Colours, type scale, radii and spacing are the values actually used in the
+   design, not approximations. Extracted 2026-09. */
+
+:root {
+  /* ink and surface */
+  --ink:            #000000;
+  --surface:        #ffffff;
+  --surface-2:      #f5f5f7;   /* card grey, the most used fill after black/white */
+  --surface-3:      #efeff1;
+  --surface-4:      #fafafa;
+
+  /* text */
+  --text:           #000000;
+  --text-secondary: #8e8e93;
+  --text-tertiary:  #a9a9ae;
+  --text-inverse:   #ffffff;
+
+  /* accent */
+  --accent:         #213aca;
+  --accent-deep:    #1d33b2;
+  --accent-wash:    #eff1fb;
+
+  /* semantic */
+  --good:           #34c759;
+  --good-text:      #11823b;
+  --warn:           #f5a524;
+  --bad:            #cc2a20;
+  --bad-bright:     #ff3b30;
+  --violet:         #8b5cf6;
+  --cyan:           #22b8e8;
+
+  /* lines */
+  --rule:           #dedee3;
+  --rule-strong:    #c4c4c9;
+  --scrim:          rgba(120, 120, 124, 0.42);
+
+  /* type */
+  --font: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --t-display: 700 32px/1.15 var(--font);
+  --t-title:   600 32px/1.2  var(--font);
+  --t-head:    600 20px/1.3  var(--font);
+  --t-row:     600 16px/1.5  var(--font);
+  --t-body:    400 16px/1.5  var(--font);
+  --t-label:   600 14px/1.45 var(--font);
+  --t-meta:    400 14px/1.45 var(--font);
+  --t-caption: 400 12px/1.4  var(--font);
+  --t-key:     400 22px/1    var(--font);
+
+  /* radii */
+  --r-xs: 6px;
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 20px;
+  --r-xl: 24px;
+  --r-pill: 999px;
+
+  /* spacing */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+
+  /* device */
+  --screen-w: 393px;
+  --screen-h: 852px;
+}

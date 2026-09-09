@@ -362,3 +362,19 @@ body {
   background: var(--ink); cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.25);
 }
 .slider::-moz-range-thumb { width: 28px; height: 28px; border: 0; border-radius: 999px; background: var(--ink); cursor: pointer; }
+
+/* ---------- the button's menu ---------- */
+/* Measured off the Actions frame: glyphs 40 square with their right edge 26
+   from the side, rows 68 apart, the button 56 square sitting 56 from the
+   bottom. Everything but the items closes it. */
+.fab-menu { position: absolute; inset: 0; z-index: 70; cursor: default; }
+.fab-menu-veil { position: absolute; inset: 0; background: rgba(255,255,255,.88); }
+.fab-menu-items {
+  position: absolute; right: 26px; bottom: 138px;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 28px;
+}
+.fab-item {
+  display: flex; align-items: center; gap: 32px; background: none; border: 0;
+  padding: 0; cursor: pointer; color: var(--ink);
+}
+.fab-close { position: absolute; right: 20px; bottom: 56px; }

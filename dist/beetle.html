@@ -436,6 +436,22 @@ body {
 }
 .slider::-moz-range-thumb { width: 28px; height: 28px; border: 0; border-radius: 999px; background: var(--ink); cursor: pointer; }
 
+/* ---------- the button's menu ---------- */
+/* Measured off the Actions frame: glyphs 40 square with their right edge 26
+   from the side, rows 68 apart, the button 56 square sitting 56 from the
+   bottom. Everything but the items closes it. */
+.fab-menu { position: absolute; inset: 0; z-index: 70; cursor: default; }
+.fab-menu-veil { position: absolute; inset: 0; background: rgba(255,255,255,.88); }
+.fab-menu-items {
+  position: absolute; right: 26px; bottom: 138px;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 28px;
+}
+.fab-item {
+  display: flex; align-items: center; gap: 32px; background: none; border: 0;
+  padding: 0; cursor: pointer; color: var(--ink);
+}
+.fab-close { position: absolute; right: 20px; bottom: 56px; }
+
 </style>
 
 <script type="module">
@@ -3986,21 +4002,33 @@ const sharecard = pastShare('Share', naira(5200), '₦5,200 to Netflix, 9:00 AM'
 
 const actions = {
   title: 'The button',
-  render: () => Sheet(
-    quietReceipt([e('div', { class: 't-display' }, naira(get().everyday))]),
-    Card(...[
-      ['mic', 'Voice', 'ask'],
-      ['send', 'Send money', 'pay'],
-      ['receive-filled', 'Receive', 'ways'],
-      ['clock', 'History', 'history'],
-      ['gear', 'Settings', 'settings'],
-    ].map(([i, t, to], n) => e('div', null,
-      n ? Divider() : null,
-      e('div', { class: 'listrow press', role: 'button', onClick: () => go(to) },
-        Glyph(i),
-        e('div', { class: 'grow listrow-title' }, t),
-        e('div', { class: 'chev' }, Icon('chevron', { size: 20 })))))),
-    Button('Write a note first', { kind: 'quiet', onClick: () => go('draft') })),
+  /* The design has no sheet here. The home screen fades out, the five actions
+     stand right aligned against it with their own coloured glyph, and the
+     button you pressed stays where it is so it can close what it opened.
+     Tapping anywhere else closes it too. */
+  render: () => {
+    const close = () => go('home');
+    /* each action carries its own colour in the design, the way the tone
+       glyphs on the home screen do */
+    const item = (icon, label, to, colour) =>
+      e('button', {
+        class: 'fab-item press',
+        onClick: ev => { ev.stopPropagation(); go(to); },
+      }, e('span', { class: 't-head' }, label),
+        e('span', { style: { color: colour, display: 'flex' } }, Icon(icon, { size: 40 })));
+
+    return e('div', { class: 'fab-menu', role: 'button', 'aria-label': 'Close', onClick: close },
+      blurredHome(),
+      e('div', { class: 'fab-menu-veil' }),
+      e('div', { class: 'fab-menu-items' },
+        item('voice-filled', 'Voice', 'ask', 'var(--warn)'),
+        item('send-filled', 'Send money', 'pay', 'var(--accent)'),
+        item('receive-filled', 'Receive', 'ways', 'var(--good)'),
+        item('history-filled', 'History', 'history', '#AF52DE'),
+        item('settings-filled', 'Settings', 'settings', 'var(--ink)')),
+      e('button', { class: 'fab fab-close press', 'aria-label': 'Close',
+        onClick: ev => { ev.stopPropagation(); close(); } }, Icon('fab-plus', { size: 24 })));
+  },
 };
 
 const draft = {

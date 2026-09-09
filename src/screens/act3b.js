@@ -490,21 +490,33 @@ export const sharecard = pastShare('Share', naira(5200), '₦5,200 to Netflix, 9
 
 export const actions = {
   title: 'The button',
-  render: () => Sheet(
-    quietReceipt([e('div', { class: 't-display' }, naira(get().everyday))]),
-    Card(...[
-      ['mic', 'Voice', 'ask'],
-      ['send', 'Send money', 'pay'],
-      ['receive-filled', 'Receive', 'ways'],
-      ['clock', 'History', 'history'],
-      ['gear', 'Settings', 'settings'],
-    ].map(([i, t, to], n) => e('div', null,
-      n ? Divider() : null,
-      e('div', { class: 'listrow press', role: 'button', onClick: () => go(to) },
-        Glyph(i),
-        e('div', { class: 'grow listrow-title' }, t),
-        e('div', { class: 'chev' }, Icon('chevron', { size: 20 })))))),
-    Button('Write a note first', { kind: 'quiet', onClick: () => go('draft') })),
+  /* The design has no sheet here. The home screen fades out, the five actions
+     stand right aligned against it with their own coloured glyph, and the
+     button you pressed stays where it is so it can close what it opened.
+     Tapping anywhere else closes it too. */
+  render: () => {
+    const close = () => go('home');
+    /* each action carries its own colour in the design, the way the tone
+       glyphs on the home screen do */
+    const item = (icon, label, to, colour) =>
+      e('button', {
+        class: 'fab-item press',
+        onClick: ev => { ev.stopPropagation(); go(to); },
+      }, e('span', { class: 't-head' }, label),
+        e('span', { style: { color: colour, display: 'flex' } }, Icon(icon, { size: 40 })));
+
+    return e('div', { class: 'fab-menu', role: 'button', 'aria-label': 'Close', onClick: close },
+      blurredHome(),
+      e('div', { class: 'fab-menu-veil' }),
+      e('div', { class: 'fab-menu-items' },
+        item('voice-filled', 'Voice', 'ask', 'var(--warn)'),
+        item('send-filled', 'Send money', 'pay', 'var(--accent)'),
+        item('receive-filled', 'Receive', 'ways', 'var(--good)'),
+        item('history-filled', 'History', 'history', '#AF52DE'),
+        item('settings-filled', 'Settings', 'settings', 'var(--ink)')),
+      e('button', { class: 'fab fab-close press', 'aria-label': 'Close',
+        onClick: ev => { ev.stopPropagation(); close(); } }, Icon('fab-plus', { size: 24 })));
+  },
 };
 
 export const draft = {

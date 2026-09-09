@@ -12,17 +12,20 @@ body {
 }
 
 /* ---------- the page ---------- */
-/* The app is the only thing on the page. It sits in a device frame at a fixed
-   size, so it reads as a phone whatever you open it on. */
+/* The app is the only thing on the page, in a device frame, at the largest
+   size that fits the window whole. The scale is worked out in app.js rather
+   than guessed at a breakpoint, because a guess is how it ended up rendering
+   at 72% on a phone: a shrunken app with dead space around it. */
 .app {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  padding: 28px 16px;
+  padding: 0; overflow: hidden;
 }
-/* On a narrow window the frame is wider than the glass, so scale it down as a
-   whole rather than let the page scroll sideways. */
-@media (max-width: 470px) { .app { padding: 10px 0; } .phone { transform: scale(.84); } }
-@media (max-width: 400px) { .phone { transform: scale(.72); } }
-@media (max-height: 900px) { .app { align-items: flex-start; } }
+.phone-fit {
+  width: calc(421px * var(--fit, 1));
+  height: calc(880px * var(--fit, 1));
+  flex: none;
+}
+.phone-fit > .phone { transform: scale(var(--fit, 1)); transform-origin: top left; }
 
 /* ---------- phone ---------- */
 .phone {
@@ -53,7 +56,7 @@ body {
 .pad { padding: 0 var(--s-5); }
 .stack { display: flex; flex-direction: column; }
 .gap-1 { gap: var(--s-1); } .gap-2 { gap: var(--s-2); }
-.gap-3 { gap: var(--s-3); } .gap-4 { gap: var(--s-4); }
+.gap-3 { gap: var(--s-3); } .gap-4 { gap: var(--s-4); } .gap-5 { gap: var(--s-5); }
 .gap-5 { gap: var(--s-5); } .gap-6 { gap: var(--s-6); }
 .row { display: flex; align-items: center; gap: var(--s-3); }
 .between { justify-content: space-between; }
@@ -77,8 +80,8 @@ body {
 .c-bad { color: var(--bad); }
 .c-inv { color: var(--text-inverse); }
 
-.card { background: var(--surface-2); border-radius: var(--r-md); padding: var(--s-4); }
-.card-plain { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-md); padding: var(--s-4); }
+.card { background: var(--surface-2); border-radius: var(--r-card); padding: 20px 21px; }
+.card-plain { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-card); padding: 20px 21px; }
 .divider { height: 1px; background: var(--rule); }
 
 .icon {
@@ -112,8 +115,8 @@ body {
 .chev { display: grid; place-items: center; flex: none; }
 
 .btn {
-  border: 0; border-radius: var(--r-pill); padding: 15px 22px; width: 100%;
-  font: 600 16px var(--font); cursor: pointer; display: flex;
+  border: 0; border-radius: var(--r-pill); padding: 0 22px; width: 100%;
+  min-height: 56px; font: 600 16px var(--font); cursor: pointer; display: flex;
   align-items: center; justify-content: center; gap: 8px;
 }
 .btn-primary { background: var(--ink); color: #fff; }
@@ -146,7 +149,7 @@ body {
 /* dock */
 .dock {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 60;
-  display: flex; align-items: center; gap: 10px; padding: 10px 16px 22px;
+  display: flex; align-items: center; gap: 8px; padding: 24px 16px;
   background: linear-gradient(to top, var(--surface) 62%, rgba(255,255,255,0));
   /* only the controls take taps: the gradient above them must not swallow a
      press meant for the screen underneath */
@@ -156,7 +159,7 @@ body {
 
 .askbar {
   flex: 1; height: 48px; border-radius: var(--r-pill); background: var(--surface-2);
-  display: flex; align-items: center; gap: 10px; padding: 0 14px; min-width: 0;
+  display: flex; align-items: center; gap: 8px; padding: 0 12px 0 8px; min-width: 0;
 }
 .askbar input {
   flex: 1; border: 0; background: none; font: var(--t-body); color: var(--ink);

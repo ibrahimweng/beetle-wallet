@@ -134,7 +134,18 @@ function paint() {
 function boot() {
   document.body.appendChild(
     e('div', { class: 'app' },
-      e('div', { class: 'phone' }, e('div', { class: 'phone-screen', id: 'phone-screen' }))));
+      e('div', { class: 'phone-fit' },
+        e('div', { class: 'phone' }, e('div', { class: 'phone-screen', id: 'phone-screen' })))));
+
+  /* The frame is 421 by 880 with its bezel. Show it as large as the window
+     allows and never larger, so the screen inside is always the 393 by 852
+     the design is drawn at, or the nearest the window can give. */
+  const fit = () => {
+    const s = Math.min(1, innerWidth / 421, innerHeight / 880);
+    document.documentElement.style.setProperty('--fit', String(s));
+  };
+  fit();
+  addEventListener('resize', fit);
 
   /* Every hash is a history entry, so the browser's own back button is the
      app's back button and nothing extra has to be wired for it.

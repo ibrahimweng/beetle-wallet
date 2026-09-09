@@ -49,13 +49,16 @@ export const receiptBody = ({ head, sub, amount, line, fields, session, sessionL
         e('div', { class: 't-display' }, amount),
         Meta(line, 'c-3')),
       Pill('Successful', 'good')),
-    e('div', { class: 'card receipt' }, ...cells),
-    session && e('div', { class: 'card-plain row between' },
-      e('div', { class: 'stack gap-1 grow' },
-        e('div', { class: 't-caption c-2' }, sessionLabel),
-        e('div', { class: 't-meta', style: { wordBreak: 'break-all' } }, session)),
-      e('button', { class: 'copy-btn press', 'aria-label': 'Copy', onClick: () => toast(sessionLabel + ' copied.') },
-        Icon('copy', { size: 18 }))),
+    /* The session line sits inside the receipt in the design, below a rule,
+       not in a second box of its own. */
+    e('div', { class: 'card receipt' }, ...cells,
+      session ? e('div', { class: 'receipt-rule' }) : null,
+      session ? e('div', { class: 'receipt-cell wide', style: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '12px' } },
+        e('div', { class: 'stack gap-1 grow' },
+          e('div', { class: 't-caption c-2' }, sessionLabel),
+          e('div', { class: 't-row', style: { wordBreak: 'break-all' } }, session)),
+        e('button', { class: 'copy-btn press', 'aria-label': 'Copy', onClick: () => toast(sessionLabel + ' copied.') },
+          Icon('copy', { size: 18 }))) : null),
   ];
 };
 

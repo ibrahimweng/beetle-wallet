@@ -252,7 +252,7 @@ export const Sheet = (base, ...kids) =>
 export const Screen = (body, dock) =>
   frag(
     e('div', { class: 'screen-scroll' },
-      e('div', { class: 'pad top-pad bottom-pad stack gap-4' }, body)),
+      e('div', { class: 'pad top-pad bottom-pad stack gap-5' }, body)),
     dock || null);
 
 /* ================================================================ *

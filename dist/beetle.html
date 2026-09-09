@@ -39,20 +39,21 @@
 
   /* type */
   --font: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --t-display: 700 32px/1.15 var(--font);
-  --t-title:   600 32px/1.2  var(--font);
-  --t-head:    600 20px/1.3  var(--font);
-  --t-row:     600 16px/1.5  var(--font);
-  --t-body:    400 16px/1.5  var(--font);
-  --t-label:   600 14px/1.45 var(--font);
-  --t-meta:    400 14px/1.45 var(--font);
-  --t-caption: 400 12px/1.4  var(--font);
-  --t-key:     400 22px/1    var(--font);
+  --t-display: 700 32px/40px var(--font);
+  --t-title: 600 32px/40px var(--font);
+  --t-head: 600 20px/24px var(--font);
+  --t-row: 600 16px/24px var(--font);
+  --t-body: 400 16px/24px var(--font);
+  --t-label: 600 14px/20px var(--font);
+  --t-meta: 400 14px/20px var(--font);
+  --t-caption: 400 12px/16px var(--font);
+  --t-key: 400 22px/28px var(--font);
 
   /* radii */
   --r-xs: 6px;
   --r-sm: 12px;
   --r-md: 16px;
+  --r-card: 24px;   /* the design draws every card at 24 */
   --r-lg: 20px;
   --r-xl: 24px;
   --r-pill: 999px;
@@ -84,17 +85,20 @@ body {
 }
 
 /* ---------- the page ---------- */
-/* The app is the only thing on the page. It sits in a device frame at a fixed
-   size, so it reads as a phone whatever you open it on. */
+/* The app is the only thing on the page, in a device frame, at the largest
+   size that fits the window whole. The scale is worked out in app.js rather
+   than guessed at a breakpoint, because a guess is how it ended up rendering
+   at 72% on a phone: a shrunken app with dead space around it. */
 .app {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  padding: 28px 16px;
+  padding: 0; overflow: hidden;
 }
-/* On a narrow window the frame is wider than the glass, so scale it down as a
-   whole rather than let the page scroll sideways. */
-@media (max-width: 470px) { .app { padding: 10px 0; } .phone { transform: scale(.84); } }
-@media (max-width: 400px) { .phone { transform: scale(.72); } }
-@media (max-height: 900px) { .app { align-items: flex-start; } }
+.phone-fit {
+  width: calc(421px * var(--fit, 1));
+  height: calc(880px * var(--fit, 1));
+  flex: none;
+}
+.phone-fit > .phone { transform: scale(var(--fit, 1)); transform-origin: top left; }
 
 /* ---------- phone ---------- */
 .phone {
@@ -125,7 +129,7 @@ body {
 .pad { padding: 0 var(--s-5); }
 .stack { display: flex; flex-direction: column; }
 .gap-1 { gap: var(--s-1); } .gap-2 { gap: var(--s-2); }
-.gap-3 { gap: var(--s-3); } .gap-4 { gap: var(--s-4); }
+.gap-3 { gap: var(--s-3); } .gap-4 { gap: var(--s-4); } .gap-5 { gap: var(--s-5); }
 .gap-5 { gap: var(--s-5); } .gap-6 { gap: var(--s-6); }
 .row { display: flex; align-items: center; gap: var(--s-3); }
 .between { justify-content: space-between; }
@@ -149,8 +153,8 @@ body {
 .c-bad { color: var(--bad); }
 .c-inv { color: var(--text-inverse); }
 
-.card { background: var(--surface-2); border-radius: var(--r-md); padding: var(--s-4); }
-.card-plain { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-md); padding: var(--s-4); }
+.card { background: var(--surface-2); border-radius: var(--r-card); padding: 20px 21px; }
+.card-plain { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-card); padding: 20px 21px; }
 .divider { height: 1px; background: var(--rule); }
 
 .icon {
@@ -184,8 +188,8 @@ body {
 .chev { display: grid; place-items: center; flex: none; }
 
 .btn {
-  border: 0; border-radius: var(--r-pill); padding: 15px 22px; width: 100%;
-  font: 600 16px var(--font); cursor: pointer; display: flex;
+  border: 0; border-radius: var(--r-pill); padding: 0 22px; width: 100%;
+  min-height: 56px; font: 600 16px var(--font); cursor: pointer; display: flex;
   align-items: center; justify-content: center; gap: 8px;
 }
 .btn-primary { background: var(--ink); color: #fff; }
@@ -218,7 +222,7 @@ body {
 /* dock */
 .dock {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 60;
-  display: flex; align-items: center; gap: 10px; padding: 10px 16px 22px;
+  display: flex; align-items: center; gap: 8px; padding: 24px 16px;
   background: linear-gradient(to top, var(--surface) 62%, rgba(255,255,255,0));
   /* only the controls take taps: the gradient above them must not swallow a
      press meant for the screen underneath */
@@ -228,7 +232,7 @@ body {
 
 .askbar {
   flex: 1; height: 48px; border-radius: var(--r-pill); background: var(--surface-2);
-  display: flex; align-items: center; gap: 10px; padding: 0 14px; min-width: 0;
+  display: flex; align-items: center; gap: 8px; padding: 0 12px 0 8px; min-width: 0;
 }
 .askbar input {
   flex: 1; border: 0; background: none; font: var(--t-body); color: var(--ink);
@@ -804,7 +808,7 @@ const Sheet = (base, ...kids) =>
 const Screen = (body, dock) =>
   frag(
     e('div', { class: 'screen-scroll' },
-      e('div', { class: 'pad top-pad bottom-pad stack gap-4' }, body)),
+      e('div', { class: 'pad top-pad bottom-pad stack gap-5' }, body)),
     dock || null);
 
 /* ================================================================ *
@@ -2732,13 +2736,16 @@ const receiptBody = ({ head, sub, amount, line, fields, session, sessionLabel = 
         e('div', { class: 't-display' }, amount),
         Meta(line, 'c-3')),
       Pill('Successful', 'good')),
-    e('div', { class: 'card receipt' }, ...cells),
-    session && e('div', { class: 'card-plain row between' },
-      e('div', { class: 'stack gap-1 grow' },
-        e('div', { class: 't-caption c-2' }, sessionLabel),
-        e('div', { class: 't-meta', style: { wordBreak: 'break-all' } }, session)),
-      e('button', { class: 'copy-btn press', 'aria-label': 'Copy', onClick: () => toast(sessionLabel + ' copied.') },
-        Icon('copy', { size: 18 }))),
+    /* The session line sits inside the receipt in the design, below a rule,
+       not in a second box of its own. */
+    e('div', { class: 'card receipt' }, ...cells,
+      session ? e('div', { class: 'receipt-rule' }) : null,
+      session ? e('div', { class: 'receipt-cell wide', style: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: '12px' } },
+        e('div', { class: 'stack gap-1 grow' },
+          e('div', { class: 't-caption c-2' }, sessionLabel),
+          e('div', { class: 't-row', style: { wordBreak: 'break-all' } }, session)),
+        e('button', { class: 'copy-btn press', 'aria-label': 'Copy', onClick: () => toast(sessionLabel + ' copied.') },
+          Icon('copy', { size: 18 }))) : null),
   ];
 };
 
@@ -5129,7 +5136,18 @@ function paint() {
 function boot() {
   document.body.appendChild(
     e('div', { class: 'app' },
-      e('div', { class: 'phone' }, e('div', { class: 'phone-screen', id: 'phone-screen' }))));
+      e('div', { class: 'phone-fit' },
+        e('div', { class: 'phone' }, e('div', { class: 'phone-screen', id: 'phone-screen' })))));
+
+  /* The frame is 421 by 880 with its bezel. Show it as large as the window
+     allows and never larger, so the screen inside is always the 393 by 852
+     the design is drawn at, or the nearest the window can give. */
+  const fit = () => {
+    const s = Math.min(1, innerWidth / 421, innerHeight / 880);
+    document.documentElement.style.setProperty('--fit', String(s));
+  };
+  fit();
+  addEventListener('resize', fit);
 
   /* Every hash is a history entry, so the browser's own back button is the
      app's back button and nothing extra has to be wired for it.

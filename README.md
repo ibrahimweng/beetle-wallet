@@ -5,7 +5,7 @@ Figma file. Ninety-four screens across four acts, every route in every flow,
 and money that really moves: send ₦7,500 and the balance drops, a row appears
 in the feed, and the receipt shows what you actually sent.
 
-**Live:** https://ibrahimweng.github.io/beetle-wallet/ once Pages is switched on (see Publishing).
+**Live:** deploy it on Vercel in two clicks (see Publishing) — every push redeploys.
 **Locally:** `npm start` and open http://localhost:8080
 
 The harness puts the phone in the middle, an index of every screen down the
@@ -56,16 +56,28 @@ or debug wordplay anywhere: in a money app that reads as *something is broken*.
 
 ## Publishing
 
-**One switch, once, by hand:** in this repository, **Settings → Pages →
-Source: GitHub Actions**. The workflow token is not allowed to turn Pages on
-by itself, so until you flip it the Publish workflow fails on its first step.
+The app is plain static files: `index.html` at the root and `src/` beside it.
+No bundler, no framework, nothing to compile before it can be served.
 
-After that, every push to `main` runs the tests and republishes the site at
-`https://ibrahimweng.github.io/beetle-wallet/`. Open it on your phone and add
-it to the home screen.
+### Vercel
 
-The **Tests** workflow is separate and runs on every push regardless, so a red
-mark there always means something actually broke.
+1. **https://vercel.com/new** → Import Git Repository → `ibrahimweng/beetle-wallet`
+2. Leave every setting alone. `vercel.json` already says what to do: skip the
+   install (there are no runtime dependencies), run `node build.js`, serve the
+   repository root.
+3. Deploy.
+
+After that, every push to `main` redeploys, and every pull request gets its own
+preview URL. Open the deployment on your phone and add it to the home screen.
+
+### GitHub Pages, if you ever want it as well
+
+Settings → Pages → Source: **Deploy from a branch**, branch **main**, folder
+**/ (root)**. It serves the same files with no workflow involved. `.nojekyll`
+is already there so Pages leaves the directory alone.
+
+The **Tests** workflow runs on every push and is the only signal that matters:
+red there means something actually broke.
 
 ## Layout
 
@@ -86,7 +98,9 @@ mark there always means something actually broke.
 | `src/screens/act3a.js` `act3b.js` | It works — 48 screens |
 | `src/screens/act4.js` | Getting in — 19 screens |
 | `src/screens/index.js` | The registry: every id, act, section, and what the section is for |
+| `vercel.json` | Tells Vercel there is nothing to install and nothing to bundle |
 | `build.js` | Rolls it into one self-contained HTML file for publishing as an artifact |
+| `dist/beetle.html` | That bundle, committed. CI fails if it drifts from the source. |
 | `test/render.mjs` | Every screen draws, no console errors, no sideways scroll |
 | `test/interact.mjs` | Twenty-five things a slideshow cannot do |
 

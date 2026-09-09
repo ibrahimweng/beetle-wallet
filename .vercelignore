@@ -1,0 +1,6 @@
+# Nothing here is served: it is how the app is checked, not what it is.
+test/
+.github/
+node_modules/
+README.md
+beetle.config.js.example

@@ -18,5 +18,7 @@ jobs:
           node-version: 22
       - run: npm install --no-audit --no-fund
       - run: npx playwright install --with-deps chromium
-      - name: 94 screens draw, 25 interactions really happen
+      - name: Every screen draws, and the money really moves
         run: npm test
+      - name: The committed bundle matches the source
+        run: git diff --exit-code dist/ || (echo 'dist/beetle.html is stale — run `npm run build` and commit it'; exit 1)

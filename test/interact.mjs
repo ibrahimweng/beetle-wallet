@@ -1,16 +1,13 @@
 /* The things a slideshow cannot do. Each case drives the real UI and then
    checks the store, so a screen that only looks right still fails. */
 import { chromium } from 'playwright';
-import { readFileSync } from 'fs';
-import { createServer } from 'http';
+import { serve } from './serve.mjs';
 
-/* localStorage needs a real origin, so the built page is served rather than
-   pushed in with setContent. */
-const html = '<!doctype html><html><head><meta charset="utf-8"></head><body>'
-  + readFileSync(new URL('../dist/beetle.html', import.meta.url), 'utf8') + '</body></html>';
-const server = createServer((_, res) => { res.writeHead(200, { 'content-type': 'text/html' }); res.end(html); });
-await new Promise(r => server.listen(0, r));
-const url = 'http://127.0.0.1:' + server.address().port + '/';
+/* Driven against the module entry, because that is what is deployed. Both
+   entries are checked for rendering in render.mjs. localStorage needs a real
+   origin, which is why this is served rather than pushed in with setContent. */
+const { base, close: closeServer } = await serve();
+const url = base + '/index.html';
 
 const b = await chromium.launch();
 const p = await b.newPage({ viewport: { width: 1440, height: 1100 } });
@@ -197,5 +194,5 @@ check('reset restores the design figures', (await state()).everyday === 595320.7
 console.log(`\ninteraction: ${results.filter(r => r.ok).length}/${results.length} passed`);
 if (errors.length) console.log('page errors:', errors.slice(0, 5));
 await b.close();
-server.close();
+closeServer();
 process.exit(results.some(r => !r.ok) || errors.length ? 1 : 0);

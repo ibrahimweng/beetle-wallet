@@ -265,22 +265,21 @@ export const wrong = {
 export const recall = {
   title: 'Asking for it back',
   render: () => Screen([
-    PageHead('Asking for it back', `${naira(seedTransfer.amount)}, sent at 14:22`),
     ToolPanel('Beetle Recall', 'Running', [
-      { k: 'You reported it', v: '16:24' },
-      { k: 'Sent to GTBank', v: '16:24' },
-      { k: 'Sarah asked to approve', v: '16:25' },
-      { k: 'Her answer', v: 'Up to 5 working days', done: false },
+      { k: 'Asked GTBank', v: 'Done' },
+      { k: 'Sarah told', v: 'Done' },
+      { k: 'Her answer', v: 'Waiting', done: false, tone: 'c-2' },
     ]),
+    Head('What this is and is not'),
     Plain(
-      Label('What this is and is not'),
       Stack(2,
         Row(Glyph('check', 'good'), Body('I have asked GTBank. That part is done.')),
-        Row(Glyph('lock'), Body('I cannot take it back. It is her money until she agrees.')),
-        Row(Glyph('lock'), Body('If she says no, no bank can force her.'))),
+        Row(Glyph('alert', 'warn'), Body('I cannot take it back. It is her money until she agrees.')),
+        Row(Glyph('alert', 'warn'), Body('If she says no, no bank can force her.'))),
       Caption('After that it is a formal dispute, then a police report. I walk you through either.')),
-    ActionRow({ icon: 'chat', title: 'Message Sarah', sub: 'Most of these end here, in an hour', onClick: () => toast('Message written and sent. Most of these come back within the hour.') }),
-    ActionRow({ icon: 'chart', title: 'Open a dispute', sub: 'If she has not answered by Friday', onClick: () => go('disputeopen') }),
+    ActionRow({ icon: 'chat', title: 'Message Sarah', sub: 'Most of these end here, in an hour',
+      onClick: () => toast('Message written and sent. Most of these come back within the hour.') }),
+    ActionRow({ icon: 'receipt', title: 'Open a dispute', sub: 'If she has not answered by Friday', onClick: () => go('disputeopen') }),
   ], Dock({ placeholder: 'Ask what happens next', back: () => go('wrong') })),
 };
 

@@ -41,11 +41,11 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
 await wipe();
 const before = (await state()).everyday;
 await go('pay');
-await tap('.edit-row', 1);                        // Amount
+await tap('.amount-edit');                        // the amount, which the design shows large
 await key('7500');
 await tap('button:has-text("Use this amount")');
-const shown = await p.locator('.edit-row').nth(1).innerText();
-check('amount pad types a real figure', shown.includes('7,500.00'), shown);
+const shown = await p.locator(IN + '.amount-edit').innerText();
+check('amount pad types a real figure', shown.includes('7,500'), shown);
 await tap('.slide-thumb');                        // slide to send -> confirm
 await p.waitForTimeout(300);
 await key('447188');                                // the real passcode
@@ -60,7 +60,7 @@ check('under ₦10,000 carries no fee', afterSend.ledger[0].amount === -7500 && 
 await wipe();
 const b2 = (await state()).everyday;
 await go('pay');
-await tap('.edit-row', 1); await key('20000'); await tap('button:has-text("Use this amount")');
+await tap('.amount-edit'); await key('20000'); await tap('button:has-text("Use this amount")');
 await tap('.slide-thumb'); await p.waitForTimeout(300); await key('447188'); await p.waitForTimeout(500);
 const a2 = (await state()).everyday;
 check('fee of ₦26.88 charged over ₦10,000', Math.abs((b2 - a2) - 20026.88) < 0.01, `${b2} -> ${a2}`);
@@ -156,7 +156,7 @@ check('typing picks the person out', chipText.includes('Chidi Okafor'), chipText
 /* ---- 15. limits stop a payment ---- */
 await wipe();
 await go('pay');
-await tap('.edit-row', 1); await key('90000'); await tap('button:has-text("Use this amount")');
+await tap('.amount-edit'); await key('90000'); await tap('button:has-text("Use this amount")');
 const stopped = await p.locator('#phone-screen').innerText();
 check('past the transfer limit is refused', stopped.includes('past the most you allow'), stopped.slice(0, 160));
 check('and no slider is offered', await p.locator('.slide-thumb').count() === 0);
@@ -173,9 +173,9 @@ check('and leaves a row saying what it costs', a16.ledger[0].detail.includes('56
 /* ---- 17. the plan list in the drawer picks the plan ---- */
 await wipe();
 await go('airtime');
-await tap('.listrow >> text="10GB for 30 days"');
+await tap('.card >> text="10GB"');
 const buyText = await p.locator('#phone-screen').innerText();
-check('the drawer picks the plan you tapped', buyText.includes('10GB') && buyText.includes('₦4,000'), buyText.slice(0, 140));
+check('the drawer picks the bundle you tapped', buyText.includes('10GB') && buyText.includes('₦4,000'), buyText.slice(0, 140));
 
 /* ---- 18. a button with nowhere to go still answers ---- */
 await go('mycode');

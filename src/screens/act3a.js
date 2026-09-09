@@ -219,28 +219,39 @@ export const pay = {
 
     const base = Screen([
       PageHead('Send money', `To ${draft.to.name}`, { big: true }),
+      Caption('You said', 'c-2'),
+      Said(draft.spoken || `send ${draft.to.name.split(' ')[0].toLowerCase()} ${Math.round(draft.amount / 1000)}k`),
+      Bubble('Here it is, ready to go. Check the three parts I filled in.'),
+
+      e('div', { class: 'stack gap-1' },
+        e('button', { class: 'row press amount-edit', style: { border: 0, background: 'none', cursor: 'pointer', gap: '8px', padding: 0 },
+          'aria-label': 'Change the amount', onClick: () => edit('amount') },
+          e('div', { class: 't-display' }, naira(draft.amount)),
+          e('div', { class: 'edit-hint' }, 'Change')),
+        Caption('I took this from your message', 'c-3')),
+
+      e('div', { class: 'card press', role: 'button', style: { cursor: 'pointer' }, onClick: () => edit('to') },
+        e('div', { class: 'listrow' },
+          Glyph(draft.to.initials, 'accent', { circle: true }),
+          e('div', { class: 'grow stack gap-1' },
+            e('div', { class: 'listrow-title' }, draft.to.name),
+            e('div', { class: 'listrow-sub' }, `${draft.to.bank} · ${draft.to.account}`)),
+          e('div', { class: 'edit-hint' }, 'Change')),
+        draft.to.note ? Caption(draft.to.note, 'c-3') : null),
+
       Card(
-        EditRow('To', draft.to.name, `${draft.to.bank} · ${draft.to.account}`, () => edit('to')),
-        Divider(),
-        EditRow('Amount', nairaFull(draft.amount), null, () => edit('amount')),
+        EditRow('Reference', draft.narration || 'None', 'I took this from your message', () => edit('why')),
         Divider(),
         EditRow('From', draft.from === 'dollars' ? 'Dollars' : 'Everyday',
-          draft.from === 'dollars' ? `$${s.dollars.toFixed(2)} held` : `${naira(s.everyday)} in naira`, () => edit('from')),
+          draft.from === 'dollars' ? `$${s.dollars.toFixed(2)} held` : `Everyday · ${naira(s.everyday)}`, () => edit('from')),
         Divider(),
-        EditRow('Reference', draft.narration || 'None', null, () => edit('why'))),
-      Card(
-        e('div', { class: 'row between' },
+        e('div', { class: 'row between', style: { padding: '4px 0' } }, Caption('Arrives', 'c-2'), Label('In a few seconds')),
+        Divider(),
+        e('div', { class: 'row between', style: { padding: '4px 0' } },
           Caption('Fee', 'c-2'),
-          e('div', { class: 't-label ' + (fee ? '' : 'c-good') }, fee ? nairaFull(fee) : 'Free')),
-        e('div', { class: 'row between' },
-          Caption('Total leaving', 'c-2'), Label(nairaFull(draft.amount + fee))),
-        e('div', { class: 'row between' },
-          Caption('Arrives', 'c-2'), Label('In a few seconds')),
-        fee ? Caption('₦25 to NIP plus 7.5% VAT. Under ₦10,000 carries none.', 'c-3') : null),
+          e('div', { class: 't-label ' + (fee ? '' : 'c-good') }, fee ? nairaFull(fee) : 'Free'))),
 
-      verdict.ok
-        ? Note('Nothing moves until you slide.')
-        : Banner(verdict.why, 'warn'),
+      verdict.ok ? Note('Nothing moves until you slide.') : Banner(verdict.why, 'warn'),
 
       verdict.ok
         ? Slide('Slide to send ' + naira(draft.amount), () => go('confirm'))
@@ -656,20 +667,25 @@ export const confirmmeter = {
 
 export const billsScreen = {
   title: 'Bills',
-  render: () => Screen([
-    PageHead('Bills', 'The four you pay, and what each one cost last', { big: true }),
-    Card(...bills.map((b, i) => e('div', null,
-      i ? Divider() : null,
-      e('div', { class: 'listrow press', role: 'button', onClick: () => { startBill(b, b.last); go('powerpay'); } },
-        Glyph(b.icon),
-        e('div', { class: 'grow stack gap-1' },
-          e('div', { class: 'listrow-title' }, b.name),
-          e('div', { class: 'listrow-sub' }, b.sub)),
-        e('div', { class: 't-label' }, naira(b.last)),
-        e('div', { class: 'chev' }, '›'))))),
-    Bubble('I keep the meter and account numbers, so you never type them again. If a bill jumps by more than a third I tell you before I pay it.'),
-    Button('Add another bill', { kind: 'quiet', onClick: () => go('bills') }),
-  ], Dock({ placeholder: 'Ask me to pay one', back: () => go('services') })),
+  render: () => {
+    const covered = bills.filter(b => b.covered).length;
+    return Screen([
+      PageHead(`${covered} of ${bills.length} covered`, `${bills.length - covered} still to sort`, { big: true }),
+      Meta('This month', 'c-3'),
+      Card(...bills.map((b, i) => e('div', null,
+        i ? Divider() : null,
+        e('div', { class: 'listrow press', role: 'button', onClick: () => { startBill(b, b.last); go('powerpay'); } },
+          Glyph(b.icon),
+          e('div', { class: 'grow stack gap-1' },
+            e('div', { class: 'listrow-title' }, b.name),
+            e('div', { class: 'listrow-sub' },
+              b.when + (b.covered && b.when.startsWith('Due') ? ' · I pay it' : b.covered ? '' : ' · Not covered'))),
+          Label(naira(b.last)),
+          e('div', { class: 'chev' }, Icon('chevron', { size: 20 })))))),
+      Bubble('I keep the meter and account numbers, so you never type them again. If a bill jumps by more than a third I tell you before I pay it.'),
+      Button('Add a bill', { kind: 'quiet', icon: 'plus', onClick: () => toast('Point the camera at it, or type the number.') }),
+    ], Dock({ placeholder: 'Ask me to pay one', back: () => go('services'), onAsk: q => { setQuestion(q); go('agentchat'); } }));
+  },
 };
 
 export const powerpay = {

@@ -130,10 +130,11 @@ export const goal = {
 };
 
 export const bills = [
-  { name: 'Ikeja Electric', sub: 'Prepaid · 4457 8891', icon: 'power', last: 8000 },
-  { name: 'DStv Compact',   sub: 'Monthly · 4457 8891', icon: 'tv', last: 12500 },
-  { name: 'Spectranet',     sub: 'Internet · 4457 88',  icon: 'globe', last: 21000 },
-  { name: 'LAWMA waste',    sub: 'Waste · Ikeja',       icon: 'waste', last: 3000 },
+  { name: 'Ikeja Electric', sub: 'Prepaid · 4457 8891', icon: 'power',  last: 8000,  when: 'Due Thursday',  covered: true },
+  { name: 'DStv Compact',   sub: 'Monthly · 4457 8891', icon: 'tv',     last: 12500, when: 'Due 24 August', covered: false },
+  { name: 'Spectranet',     sub: 'Internet · 4457 88',  icon: 'globe',  last: 15000, when: 'Due 27 August', covered: false },
+  { name: 'LAWMA waste',    sub: 'Waste · Ikeja',       icon: 'waste',  last: 2000,  when: 'Paid 2 August', covered: true },
+  { name: 'MTN 5GB',        sub: 'Data · Mum',          icon: 'data',   last: 2500,  when: 'Paid 4 August', covered: true },
 ];
 
 export const meterBill = {
@@ -159,14 +160,18 @@ export const loan = {
   perInstalment: 56500,
   nominalApr: 76,
   effectiveApr: 110,
-  lateFee: '₦2,500 plus 1% of the overdue amount, each week it is late',
+  lateFee: 'Pay late and it costs ₦2,000 a day. Late loans are reported to the credit bureau.',
+  firstPayment: '19 September',
+  ceiling: 250000,
 };
 
 export const card = {
-  number: '4471 8823 0195 6640 32',
-  name: 'Ibrahim Musa',
-  expiry: '09/29',
-  spent: 5200,
+  number: '5399 •••• •••• 4471',
+  name: 'IBRAHIM WENG',
+  expiry: '09/28',
+  spent: 21000,
+  ceiling: 50000,
+  only: 'NETFLIX ONLY',
 };
 
 export const devices = [

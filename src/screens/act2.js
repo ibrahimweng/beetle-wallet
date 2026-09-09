@@ -125,12 +125,12 @@ export const lock = {
     Group('Opening the app',
       SettingRow({ icon: 'faceid', tone: 'accent', title: 'Face ID', toggleKey: 'faceId' }),
       SettingRow({ icon: 'list', title: 'Passcode', right: 'Six digits', to: 'newcode' }),
-      SettingRow({ icon: 'clock', title: 'Ask again after', right: '5 minutes', to: 'lock' })),
+      SettingRow({ icon: 'clock', title: 'Ask again after', right: '2 minutes', to: 'lock' })),
     Group('What other people can see',
       SettingRow({ icon: 'eye', title: 'Hide my balance', toggleKey: 'hideBalance', onToggle: on => toast(on ? 'Hidden. Tap the balance on home to peek.' : 'Showing again.') }),
       SettingRow({ icon: 'camera', title: 'Hide it in screenshots', toggleKey: 'hideScreenshots' }),
       SettingRow({ icon: 'bell', title: 'Amounts in notifications', toggleKey: 'notifAmounts' })),
-    Bubble('Face opens the app. Only your passcode sends money, because a face can be held up to a phone by somebody else.'),
+    Bubble('With this on, your balance is dots until you look at the phone. Nobody standing behind you in a queue reads it over your shoulder.'),
   ], Dock({ placeholder: 'Ask about locking this', back: () => go('settings') })),
 };
 
@@ -187,22 +187,32 @@ export const limitsScreen = {
 
 export const limitstop = {
   title: 'Past your own limit',
-  render: () => Screen([
-    PageHead('Past your own limit', 'Nothing has been sent'),
-    e('div', { class: 'row' }, Glyph('lock', 'warn', { lg: true })),
-    e('div', { class: 'stack gap-1' },
-      e('div', { class: 't-display' }, naira(get().limits.day + 20000)),
-      Meta(`is ${naira(20000)} past the ${naira(get().limits.day)} you set for a day`, 'c-3')),
-    Bubble('You drew this line yourself, on a calmer day than this one. I am not going to move it for you in the moment.'),
-    Card(
-      e('div', { class: 't-label', style: { marginBottom: '6px' } }, 'To go past it'),
-      e('div', { class: 'stack gap-2' },
-        Row(Glyph('key'), Body('Your passcode, not your face')),
-        Row(Glyph('list'), Body('Then type Confirm this transaction in full')))),
-    Button(`Send ${naira(leftToday())} instead`, { onClick: () => go('pay') }),
-    Button('Raise the limit from tomorrow', { kind: 'quiet', onClick: () => go('limits') }),
-    Note('Raising a limit never applies to the payment in front of you.'),
-  ], Dock({ placeholder: 'Ask about this limit', back: () => go('limits') })),
+  render: () => {
+    const s = get();
+    const over = 120000 - s.limits.transfer;
+    return Screen([
+      e('div', { class: 'stack gap-1' },
+        e('div', { class: 't-display' }, naira(120000)),
+        Meta(`${naira(over)} over the ${naira(s.limits.transfer)} you set for one transfer`, 'c-3')),
+      Bubble('This is your limit, not the bank’s. Two things and it goes.'),
+      Card(
+        e('div', { class: 'row between', style: { padding: '6px 0' } },
+          e('div', { class: 'row', style: { gap: '10px' } }, Icon('check', { size: 18 }), e('div', { class: 't-row' }, 'Your passcode')),
+          Pill('Done', 'good')),
+        Divider(),
+        e('div', { class: 'stack gap-2', style: { padding: '8px 0' } },
+          e('div', { class: 'row', style: { gap: '10px' } },
+            e('div', { class: 'tick tick-wait' }, null),
+            e('div', { class: 't-row' }, 'Now type the words in full')),
+          e('div', { class: 'card-plain row', style: { gap: '2px' } },
+            e('span', { class: 't-row' }, 'Confirm this transa'),
+            e('span', { class: 't-row c-3' }, 'ction'),
+            e('span', { style: { width: '2px', height: '20px', background: 'var(--accent)' } })),
+          Caption('Five letters to go. Exactly those three words, nothing shorter.', 'c-3'))),
+      Button(`Send ${naira(s.limits.transfer)} instead`, { onClick: () => { set({ amount: s.limits.transfer }); go('pay'); } }),
+      Caption('The rest tomorrow, no typing', 'c-3'),
+    ], Dock({ placeholder: 'Ask about this limit', back: () => go('limits') }));
+  },
 };
 
 export const devicesScreen = {

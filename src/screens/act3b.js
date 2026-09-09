@@ -176,95 +176,133 @@ export const servicesScreen = {
 
 export const airtime = {
   title: 'Buy data',
-  render: () => Screen([
-    PageHead('Buy data', 'Any network, any line', { big: true }),
-    Card(
-      Field('Line', contacts.mum.account, 'Mum · MTN'),
-      Divider(),
-      Field('Network', 'MTN', 'Picked from the number')),
-    Head('Plans'),
-    Card(...[
-      ['5GB for 30 days', 'What you usually buy', 2500, true],
-      ['10GB for 30 days', 'Better value per gigabyte', 4000, false],
-      ['1.5GB for 30 days', 'If it is a short month', 1000, false],
-    ].map(([t, s, v, on], i) => e('div', null,
-      i ? Divider() : null,
-      e('div', { class: 'listrow press', role: 'button', onClick: () => { setPlan(v); go('buy'); } },
-        Glyph(on ? 'check' : 'data', on ? 'good' : ''),
-        e('div', { class: 'grow stack gap-1' },
-          e('div', { class: 'listrow-title' }, t),
-          e('div', { class: 'listrow-sub' }, s)),
-        e('div', { class: 't-label' }, naira(v)))))),
-    Bubble('You spent ₦18,900 on airtime and data last month. The 10GB plan would have covered the same use for ₦2,000 less.'),
-  ], Dock({ placeholder: 'Ask for a plan', back: () => go('services') })),
+  render: () => {
+    const BUNDLES = [['1GB', 800], ['2GB', 2000], ['10GB', 4000]];
+    return Screen([
+      Caption('You said', 'c-2'),
+      Said('2k data for mum'),
+      Card(
+        e('div', { class: 'listrow' },
+          Glyph(contacts.mum.initials, 'accent', { circle: true }),
+          e('div', { class: 'grow stack gap-1' },
+            e('div', { class: 'listrow-title' }, 'Mum'),
+            e('div', { class: 'listrow-sub' }, `${contacts.mum.account} · MTN`))),
+        Caption('The number you top up most', 'c-3')),
+      Card(
+        e('div', { class: 'row between' },
+          e('div', { class: 'stack gap-1' },
+            e('div', { class: 't-row' }, '5GB for 30 days'),
+            e('div', { class: 't-caption c-3' }, 'It will not renew on its own')),
+          Label(naira(2500))),
+        Caption('The bundle you bought last month', 'c-3')),
+      Card(
+        e('div', { class: 'row between' }, Caption('From', 'c-2'), Label(`Everyday · ${me.account}`)),
+        e('div', { class: 'row between' }, Caption('Goes to your Holiday goal', 'c-2'), Label(naira(25)))),
+      Head('Other bundles'),
+      e('div', { class: 'row', style: { gap: '8px' } },
+        ...BUNDLES.map(([t, v]) =>
+          e('button', { class: 'card press', style: { flex: 1, padding: '12px', cursor: 'pointer', textAlign: 'left' },
+            onClick: () => { setPlan(v === 800 ? 1000 : v === 2000 ? 2500 : 4000); go('buy'); } },
+            e('div', { class: 't-row' }, t),
+            e('div', { class: 't-caption c-3' }, naira(v))))),
+      Caption('You also top up', 'c-3'),
+      Slide('Slide to buy ' + naira(2500), () => { setPlan(2500); go('confirmbuy'); }),
+    ], Dock({ placeholder: 'Ask for a plan', back: () => go('services'), onAsk: q => { setQuestion(q); go('agentchat'); } }));
+  },
 };
+
+let borrow = loan.principal;
 
 export const loanScreen = {
   title: 'Borrow',
-  render: () => Screen([
-    PageHead('Borrow', 'The whole cost, before you decide', { big: true }),
-    e('div', { class: 'stack gap-2' },
-      e('div', { class: 't-display' }, naira(loan.principal)),
-      Meta(`over ${loan.days} days, in ${loan.instalments} payments`, 'c-3')),
-    Card(
-      ...[
-        ['You get', naira(loan.principal)],
-        ['Interest', naira(loan.interest), `${loan.monthlyRate}% a month on the full amount`],
-        ['One off fee', naira(loan.fee)],
-        ['You repay', naira(loan.total), `${loan.instalments} payments of ${naira(loan.perInstalment)}`],
-      ].map(([k, v, s], i) => e('div', null,
-        i ? Divider() : null,
-        e('div', { class: 'row between', style: { padding: '10px 0', alignItems: 'flex-start' } },
-          e('div', { class: 'stack gap-1' }, e('div', { class: 't-body c-2' }, k), s && e('div', { class: 't-caption c-3' }, s)),
-          e('div', { class: 't-row' }, v))))),
-    e('div', { class: 'card', style: { background: '#fdf2dd' } },
-      e('div', { class: 't-label', style: { color: '#7a5b12', marginBottom: '4px' } }, 'What that is, as a rate'),
-      e('div', { class: 'row between' },
-        e('div', { class: 't-body', style: { color: '#7a5b12' } }, 'Nominal APR'),
-        e('div', { class: 't-row', style: { color: '#7a5b12' } }, loan.nominalApr + '%')),
-      e('div', { class: 'row between' },
-        e('div', { class: 't-body', style: { color: '#7a5b12' } }, 'Compounded'),
-        e('div', { class: 't-row', style: { color: '#7a5b12' } }, loan.effectiveApr + '%')),
-      e('div', { class: 't-caption', style: { color: '#7a5b12', marginTop: '6px' } },
-        'Four per cent a month sounds small. Because you repay in three parts while interest is charged on the whole amount, the real rate is the one above.')),
-    Card(
-      Caption('If you are late', 'c-2'),
-      e('div', { class: 't-body' }, loan.lateFee)),
-    Bubble('You do not have to borrow this. Your salary lands on the 26th, and waiting nine days costs you nothing at all.'),
-    Slide('Slide to take ' + naira(loan.principal), () => {
-      act.borrow(loan);
-      toast(`${naira(loan.principal)} is in Everyday. First payment on the 26th.`);
-      repaint();
-    }),
-    Ghost('Not now', () => go('services')),
-  ], Dock({ placeholder: 'Ask what this really costs', back: () => go('services') })),
+  render: () => {
+    const interest = Math.round(borrow * 0.04 * 3);
+    const fee = 1500;
+    const total = borrow + interest + fee;
+    const per = Math.round(total / 3);
+    return Screen([
+      PageHead('How much you want', null, { big: true }),
+      e('div', { class: 'stack gap-2' },
+        e('div', { class: 't-display' }, naira(borrow)),
+        e('input', {
+          type: 'range', class: 'slider', min: '10000', max: String(loan.ceiling), step: '10000',
+          value: String(borrow), 'aria-label': 'How much you want',
+          oninput: ev => { borrow = Number(ev.target.value); repaint(); },
+        }),
+        e('div', { class: 'row between' },
+          Caption(naira(10000), 'c-3'),
+          Caption(naira(loan.ceiling) + ' is your limit', 'c-3'))),
+      Card(
+        ...[
+          ['You get today', naira(borrow)],
+          ['Interest, 4% a month', naira(interest)],
+          ['One off fee', naira(fee)],
+          ['You pay back in all', naira(total)],
+          ['Three payments of', naira(per)],
+          ['First payment', loan.firstPayment],
+        ].map(([k, v], i) => e('div', null,
+          i ? Divider() : null,
+          e('div', { class: 'row between', style: { padding: '9px 0' } },
+            e('div', { class: 't-body c-2' }, k),
+            e('div', { class: 't-row' }, v))))),
+      /* Four per cent a month is not the rate people hear. The design does not
+         say this; it was added when the pricing was made honest. */
+      e('div', { class: 'card', style: { background: '#fdf2dd' } },
+        e('div', { class: 't-label', style: { color: '#7a5b12', marginBottom: '4px' } }, 'What that is, as a rate'),
+        e('div', { class: 'row between' },
+          e('div', { class: 't-body', style: { color: '#7a5b12' } }, 'Nominal APR'),
+          e('div', { class: 't-row', style: { color: '#7a5b12' } }, loan.nominalApr + '%')),
+        e('div', { class: 'row between' },
+          e('div', { class: 't-body', style: { color: '#7a5b12' } }, 'Compounded'),
+          e('div', { class: 't-row', style: { color: '#7a5b12' } }, loan.effectiveApr + '%')),
+        e('div', { class: 't-caption', style: { color: '#7a5b12', marginTop: '6px' } },
+          'Four per cent a month sounds small. Because you repay in three parts while interest is charged on the whole amount, the real rate is the one above.')),
+      Slide('Slide to take ' + naira(borrow), () => {
+        act.borrow({ principal: borrow, total, instalments: 3, perInstalment: per });
+        toast(`${naira(borrow)} is in Everyday. First payment on ${loan.firstPayment}.`);
+        repaint();
+      }),
+      Note(loan.lateFee, 'alert'),
+    ], Dock({ placeholder: 'Ask what this really costs', back: () => go('services'), onAsk: q => { setQuestion(q); go('agentchat'); } }));
+  },
 };
 
 export const cardScreen = {
   title: 'Virtual card',
-  render: () => Screen([
-    PageHead('Virtual card', 'Spend online anywhere', { big: true }),
-    e('div', { style: { background: 'linear-gradient(150deg,#213aca,#101a5c)', borderRadius: '20px', padding: '22px', color: '#fff' } },
-      e('div', { class: 'row between', style: { marginBottom: '30px' } },
-        e('div', { style: { font: '600 15px var(--font)' } }, 'Beetle'),
-        Icon('card', { size: 22 })),
-      e('div', { style: { font: '500 19px/1.3 var(--font)', letterSpacing: '.06em', marginBottom: '16px' } }, seedCard.number),
-      e('div', { class: 'row between' },
-        e('div', { style: { font: '400 13px var(--font)', opacity: .85 } }, seedCard.name),
-        e('div', { style: { font: '400 13px var(--font)', opacity: .85 } }, seedCard.expiry))),
-    e('div', { class: 'row', style: { gap: '10px' } },
-      e('button', { class: 'btn btn-quiet grow press', onClick: () => toast('Card number copied.') }, 'Copy number'),
-      e('button', { class: 'btn btn-quiet grow press', onClick: () => {
-        const now = !get().card.frozen; act.freezeCard(now);
-        toast(now ? 'Card frozen. Nothing can be charged to it.' : 'Card is live again.'); repaint();
-      } }, get().card.frozen ? 'Unfreeze' : 'Freeze')),
-    get().card.frozen ? Banner('This card is frozen. Nothing can be charged to it.', 'warn') : null,
-    Card(
-      e('div', { class: 'row between' }, Caption('Spent this month', 'c-2'), Label(naira(get().card.spent))),
-      Meter(get().card.spent / 50000 * 100),
-      Caption('Of the ₦50,000 you set for online spending', 'c-3')),
-    Bubble('This card only ever holds what you move onto it. If somebody takes the number, the most they can reach is that.'),
-  ], Dock({ placeholder: 'Ask about the card', back: () => go('services') })),
+  render: () => {
+    const c = get().card;
+    const left = seedCard.ceiling - c.spent;
+    return Screen([
+      e('div', { style: { background: 'linear-gradient(150deg,#213aca,#101a5c)', borderRadius: '20px', padding: '22px', color: '#fff' } },
+        e('div', { class: 'row between', style: { marginBottom: '30px' } },
+          e('div', { style: { font: '600 12px var(--font)', letterSpacing: '.08em' } }, seedCard.only),
+          Icon('card', { size: 22 })),
+        e('div', { style: { font: '500 19px/1.3 var(--font)', letterSpacing: '.06em', marginBottom: '16px' } }, seedCard.number),
+        e('div', { class: 'row between' },
+          e('div', { class: 'stack gap-1' },
+            e('div', { style: { font: '400 10px var(--font)', opacity: .7, letterSpacing: '.08em' } }, 'CARD HOLDER'),
+            e('div', { style: { font: '400 13px var(--font)' } }, seedCard.name)),
+          e('div', { class: 'stack gap-1' },
+            e('div', { style: { font: '400 10px var(--font)', opacity: .7, letterSpacing: '.08em' } }, 'EXPIRES'),
+            e('div', { style: { font: '400 13px var(--font)' } }, seedCard.expiry)))),
+      e('div', { class: 'row', style: { gap: '8px' } },
+        ...[
+          ['eye', 'Reveal', () => toast('Held down to show. It hides again in ten seconds.')],
+          ['freeze', c.frozen ? 'Unfreeze' : 'Freeze', () => { const now = !c.frozen; act.freezeCard(now); toast(now ? 'Card frozen. Nothing can be charged to it.' : 'Card is live again.'); repaint(); }],
+          ['plus', 'Fund', () => toast('Moved from Everyday. It only ever holds what you put on it.')],
+          ['list', 'Rules', () => go('rules')],
+        ].map(([i, t, fn]) =>
+          e('button', { class: 'stack gap-2 center press', style: { flex: 1, border: 0, background: 'none', cursor: 'pointer' }, onClick: fn },
+            Glyph(i), Caption(t, 'c-2')))),
+      c.frozen ? Banner('This card is frozen. Nothing can be charged to it.', 'warn') : null,
+      Card(
+        e('div', { class: 'row between' }, Caption('Spent this month', 'c-2'), Label(`${naira(c.spent)} of ${naira(seedCard.ceiling)}`)),
+        Meter(c.spent / seedCard.ceiling * 100),
+        Caption(`${naira(left)} left before it stops working`, 'c-3')),
+      Bubble('This card only ever holds what you move onto it. If somebody takes the number, the most they can reach is that.'),
+      Button('Make another card', { kind: 'quiet', icon: 'plus', onClick: () => toast('A second card, with its own ceiling and its own rules.') }),
+    ], Dock({ placeholder: 'Ask about the card', back: () => go('services'), onAsk: q => { setQuestion(q); go('agentchat'); } }));
+  },
 };
 
 /* ---------------------------------------------------------------- *
@@ -495,31 +533,36 @@ export const draft = {
 
 export const health = {
   title: 'Money health',
-  render: () => Screen([
-    PageHead('Money health', 'One number for how you are handling it', { big: true }),
-    Card(e('div', { class: 'stack gap-2 center' },
-      e('svg', { width: '150', height: '150', viewBox: '0 0 36 36', html:
-        `<circle cx="18" cy="18" r="15.5" fill="none" stroke="#dedee3" stroke-width="3.4"/>
-         <circle cx="18" cy="18" r="15.5" fill="none" stroke="#213aca" stroke-width="3.4"
-                 stroke-linecap="round" stroke-dasharray="${get().health / 100 * 97.4} 97.4" transform="rotate(-90 18 18)"/>
-         <text x="18" y="18.5" text-anchor="middle" font-size="8" font-weight="700" fill="#000">${get().health}</text>
-         <text x="18" y="23.5" text-anchor="middle" font-size="2.6" fill="#8e8e93">out of 100</text>` }),
-      e('div', { class: 't-label c-good' }, '↑ ' + balances.healthMove))),
-    Bubble('Steadier than you were. The one thing holding it down is spending, which is up 18% on last month. Everything else is going the right way.'),
-    Head('What moves it'),
-    Card(...[
+  render: () => {
+    const st = get();
+    const MOVES = [
       ['check', 'You check before you send', 'Every transfer read before it left', '9 of 9', 'good'],
-      ['lock', 'You save on payday', 'Before it can go anywhere else', '3 months', ''],
-      ['alert', 'Spending is up', '18% more than last month', 'Watch', 'warn'],
-      ['clock', 'Nothing borrowed', 'No credit taken this year', 'Clear', 'good'],
-    ].map(([i, t, s, r, tone], n) => e('div', null,
-      n ? Divider() : null,
-      e('div', { class: 'listrow' }, Glyph(i, tone),
-        e('div', { class: 'grow stack gap-1' },
-          e('div', { class: 'listrow-title' }, t),
-          e('div', { class: 'listrow-sub' }, s)),
-        e('div', { class: 't-meta c-3' }, r))))),
-  ], Dock({ placeholder: 'Ask me how to move it', back: () => go('home'), onAsk: q => { setQuestion(q); go('agentchat'); } })),
+      ['pot', 'You save on payday', 'Before it can go anywhere else', '3 months', ''],
+      ['shield', 'Your balance stays covered', 'Never under what your bills need', 'On', 'good'],
+    ];
+    return Screen([
+      PageHead('Money health', 'One number for how you are handling it', { big: true }),
+      Card(e('div', { class: 'stack gap-2 center' },
+        e('svg', { width: '150', height: '150', viewBox: '0 0 36 36', html:
+          `<circle cx="18" cy="18" r="15.5" fill="none" stroke="#dedee3" stroke-width="3.4"/>
+           <circle cx="18" cy="18" r="15.5" fill="none" stroke="#213aca" stroke-width="3.4"
+                   stroke-linecap="round" stroke-dasharray="${st.health / 100 * 97.4} 97.4" transform="rotate(-90 18 18)"/>
+           <text x="18" y="18.5" text-anchor="middle" font-size="8" font-weight="700" fill="#000">${st.health}</text>
+           <text x="18" y="23" text-anchor="middle" font-size="2.6" fill="#8e8e93">out of 100</text>` }),
+        e('div', { class: 't-label c-good' }, 'Up 4 since July'))),
+      Head('What moves it'),
+      Card(...MOVES.map(([i, t, s, right, tone], n) => e('div', null,
+        n ? Divider() : null,
+        e('div', { class: 'listrow' },
+          Glyph(i, tone),
+          e('div', { class: 'grow stack gap-1' },
+            e('div', { class: 'listrow-title' }, t),
+            e('div', { class: 'listrow-sub' }, s)),
+          e('div', { class: 't-label ' + (tone === 'good' ? 'c-good' : '') }, right))))),
+      Bubble('Steadier than you were. The one thing holding it down is spending, which is up 18% on last month. Everything else is going the right way.'),
+      ActionRow({ icon: 'chart', title: 'Where the money went', sub: 'Last month, by category', onClick: () => go('answer') }),
+    ], Dock({ placeholder: 'Ask me how to move it', back: () => go('home'), onAsk: q => { setQuestion(q); go('agentchat'); } }));
+  },
 };
 
 /* ---------------------------------------------------------------- *
@@ -594,36 +637,73 @@ export const goalScreen = {
 
 export const saverule = {
   title: 'The rule that feeds it',
-  render: () => Screen([
-    PageHead('Feed it automatically', 'And stop it whenever you like'),
-    Card(
-      Field('What', 'Move ₦20,000 into Holiday'),
-      Divider(),
-      Field('When', 'The day your salary lands'),
-      Divider(),
-      Field('Stops if', 'Everyday would drop under ₦50,000')),
-    Bubble('I move it before anything else can go out, which is the only reason it works. If your salary is late I wait, I do not overdraw you.'),
-    Button('Set it up', { onClick: () => { act.setStanding('Payday transfer', true); toast('Set. It runs the day your salary lands.'); go('goal'); } }),
-    Ghost('Not now', () => go('goal')),
-  ], Dock({ placeholder: 'Ask about this rule', back: () => go('goal') })),
+  render: () => {
+    const g = get().goal;
+    const pct = Math.min(100, Math.round(g.saved / g.target * 100));
+    const FEEDERS = [
+      ['A slice of payday', '10% the day your salary lands', '₦20,000 a month', 'Payday transfer'],
+      ['Round ups', 'The change from every card payment', '₦2,280 a month', 'Round ups'],
+      ['Money back on top ups', 'Cash back comes here instead of out', '₦120 a month', 'Money back on top ups'],
+    ];
+    return Screen([
+      Card(e('div', { class: 'stack gap-2 center' },
+        e('div', { class: 't-display' }, pct + '%'),
+        Caption('of the way', 'c-3'),
+        e('div', { class: 't-head' }, naira(g.saved)),
+        Meta(`of ${naira(g.target)} put aside`, 'c-3'))),
+      PageHead(`Feed the ${g.name} goal`, 'Pick something that runs without you thinking about it'),
+      e('div', { class: 'stack gap-2' },
+        ...FEEDERS.map(([t, s, amt, rule]) =>
+          e('button', { class: 'card press', style: { padding: '14px', cursor: 'pointer', textAlign: 'left' },
+            onClick: () => { act.setStanding(rule, true); toast(`${t} is feeding ${g.name}.`); go('goal'); } },
+            e('div', { class: 'row between' },
+              e('div', { class: 'stack gap-1 grow' },
+                e('div', { class: 't-row' }, t),
+                e('div', { class: 't-caption c-3' }, s)),
+              Label(amt))))),
+      e('button', { class: 'card press', style: { padding: '14px', cursor: 'pointer', textAlign: 'left' }, onClick: () => go('goal') },
+        e('div', { class: 'row between' },
+          e('div', { class: 'stack gap-1 grow' },
+            e('div', { class: 't-row' }, 'A fixed amount'),
+            e('div', { class: 't-caption c-3' }, 'You pick the day and the sum')),
+          e('div', { class: 'edit-hint' }, 'Set it'))),
+      Head('What is feeding it'),
+      Card(...seedGoal.feeders.map((f, i) => e('div', null,
+        i ? Divider() : null,
+        e('div', { class: 'listrow' },
+          e('div', { class: 'grow stack gap-1' },
+            e('div', { class: 'listrow-title' }, f.name),
+            e('div', { class: 'listrow-sub' }, f.sub)),
+          Label(naira(f.amount)))))),
+    ], Dock({ placeholder: 'Ask about this rule', back: () => go('goal'), onAsk: q => { setQuestion(q); go('agentchat'); } }));
+  },
 };
 
 export const paused = {
   title: 'Paused',
-  render: () => Screen([
-    PageHead(get().goal.name + ' is paused', 'Nothing has been taken out of it'),
-    Card(e('div', { class: 'stack gap-2 center' },
-      e('div', { class: 't-display' }, naira(get().goal.saved)),
-      Meta('still put aside', 'c-3'),
-      Pill('Paused', 'warn'))),
-    Bubble('Money is tight this month, so I stopped feeding it rather than let it overdraw you. The goal is intact and the date moves, not the money.'),
-    Card(
-      e('div', { class: 'row between' }, Caption('Was due', 'c-2'), Label(get().goal.by)),
-      e('div', { class: 'row between' }, Caption('Now due', 'c-2'), e('div', { class: 't-label' }, '29 April'))),
-    Button('Start it again', { onClick: () => { act.pauseGoal(false); toast('Feeding it again.'); go('goal'); } }),
-    Ghost('Take the money back out', () => { goalSheet = 'take'; go('goal'); }),
-    Note('Pausing never touches what is already saved.'),
-  ], Dock({ placeholder: 'Ask about pausing', back: () => go('goal') })),
+  render: () => {
+    const g = get().goal;
+    const pct = Math.min(100, Math.round(g.saved / g.target * 100));
+    return Screen([
+      Card(e('div', { class: 'stack gap-2 center' },
+        e('div', { class: 't-display' }, pct + '%'),
+        Caption('of the way', 'c-3'),
+        e('div', { class: 't-head' }, naira(g.saved)),
+        Meta(`of ${naira(g.target)}, holding steady`, 'c-3'))),
+      Head('Waiting for you'),
+      Card(...['Payday transfer', 'Round ups'].map((t, i) => e('div', null,
+        i ? Divider() : null,
+        e('div', { class: 'listrow' },
+          e('div', { class: 'grow stack gap-1' },
+            e('div', { class: 'listrow-title' }, t),
+            e('div', { class: 'listrow-sub' }, 'Paused since 3 August')),
+          Pill('Paused', 'warn'))))),
+      Bubble('Money is tight this month, so I stopped feeding it rather than let it overdraw you. The goal is intact and the date moves, not the money.'),
+      Button('Start it again', { onClick: () => { act.pauseGoal(false); toast('Feeding it again.'); go('goal'); } }),
+      Ghost('Take the money back out', () => { goalSheet = 'take'; go('goal'); }),
+      Note('Pausing never touches what is already saved.'),
+    ], Dock({ placeholder: 'Ask about pausing', back: () => go('goal'), onAsk: q => { setQuestion(q); go('agentchat'); } }));
+  },
 };
 
 /* ---------------------------------------------------------------- *
@@ -634,15 +714,27 @@ export const dollars = {
   title: 'Dollars',
   render: () => {
     const st = get();
+    const CAME = [
+      ['Converted from naira', '+$180.00', '12 August · at ₦1,534'],
+      ['From Musa Danjuma', '+$120.00', '28 July · for the generator'],
+      ['Converted from naira', '+$112.60', '3 March · at ₦1,410'],
+    ];
     return Screen([
-      PageHead('Dollars', 'What you hold, and what it is worth today', { big: true }),
-      Card(e('div', { class: 'stack gap-2 center' },
+      e('div', { class: 'stack gap-1' },
         e('div', { class: 't-display' }, '$' + st.dollars.toFixed(2)),
-        Meta(`about ${naira(dollarsInNaira())} today`, 'c-3'),
-        Pill(`₦${st.rate} to $1`, 'accent'))),
+        Meta(`${naira(dollarsInNaira())} at today’s rate`, 'c-3')),
       e('div', { class: 'row', style: { gap: '10px' } },
         e('button', { class: 'btn btn-primary grow press', onClick: () => go('convert') }, 'Convert'),
         e('button', { class: 'btn btn-quiet grow press', onClick: () => go('paydollars') }, 'Spend it')),
+      Head('Where they came from'),
+      Card(...CAME.map(([t, amt, when], i) => e('div', null,
+        i ? Divider() : null,
+        e('div', { class: 'listrow' },
+          Glyph('dollar'),
+          e('div', { class: 'grow stack gap-1' },
+            e('div', { class: 'listrow-title' }, t),
+            e('div', { class: 'listrow-sub' }, when)),
+          e('div', { class: 't-label c-good' }, amt))))),
       Bubble('The rate moved ₦18 in your favour this week. I am telling you because you asked me to, not because I think you should act on it.'),
       Plain(
         Label('Where these actually sit'),
@@ -659,30 +751,37 @@ export const convert = {
     const st = get();
     const toDollars = fx.direction === 'to-dollars';
     const gets = toDollars ? (fx.amount / st.rate) : Math.round(fx.amount * st.rate);
-    const margin = Math.round((toDollars ? fx.amount : fx.amount * st.rate) * 0.01);
     const enough = toDollars ? st.everyday >= fx.amount : st.dollars >= fx.amount;
 
     const base = Screen([
-      PageHead('Convert', toDollars ? 'Naira into dollars, at today’s rate' : 'Dollars into naira, at today’s rate', { big: true }),
-      Picker([
-        { id: 'to-dollars', label: 'Naira into dollars', sub: `${naira(st.everyday)} available` },
-        { id: 'to-naira', label: 'Dollars into naira', sub: `$${st.dollars.toFixed(2)} available` },
-      ], fx.direction, id => { fx.direction = id; fx.amount = id === 'to-dollars' ? 155200 : 100; repaint(); }),
       Card(
-        EditRow(toDollars ? 'From Everyday' : 'From Dollars',
-          toDollars ? nairaFull(fx.amount) : '$' + fx.amount.toFixed(2), null,
-          () => { fx.editing = true; repaint(); }),
-        Divider(),
-        Field('You get', toDollars ? '$' + gets.toFixed(2) : nairaFull(gets), `at ₦${st.rate} to $1`)),
+        e('div', { class: 'row between', style: { padding: '4px 0' } },
+          e('div', { class: 'stack gap-1' }, Caption('From', 'c-2'), e('div', { class: 't-row' }, toDollars ? 'Everyday' : 'Dollars')),
+          Caption(toDollars ? `${naira(st.everyday)} there` : `$${st.dollars.toFixed(2)} there`, 'c-3')),
+        e('div', { class: 'row center' },
+          e('button', { class: 'chip press', 'aria-label': 'Swap',
+            onClick: () => { fx.direction = toDollars ? 'to-naira' : 'to-dollars'; fx.amount = toDollars ? 100 : 155200; repaint(); } },
+            Icon('swap', { size: 18 }))),
+        e('div', { class: 'row between', style: { padding: '4px 0' } },
+          e('div', { class: 'stack gap-1' }, Caption('To', 'c-2'), e('div', { class: 't-row' }, toDollars ? 'Dollars' : 'Everyday')),
+          Caption(toDollars ? `$${st.dollars.toFixed(2)} there` : `${naira(st.everyday)} there`, 'c-3'))),
+      e('div', { class: 'stack gap-1' },
+        Caption('You are converting', 'c-2'),
+        e('button', { class: 'row press', style: { border: 0, background: 'none', cursor: 'pointer', gap: '8px', padding: 0 },
+          onClick: () => { fx.editing = true; repaint(); } },
+          e('div', { class: 't-display' }, toDollars ? naira(fx.amount) : '$' + fx.amount.toFixed(2)),
+          e('div', { class: 'edit-hint' }, 'Change')),
+        Meta(`You get about ${toDollars ? '$' + gets.toFixed(2) : naira(gets)}`, 'c-3')),
       Card(
         e('div', { class: 'row between' }, Caption('Rate', 'c-2'), Label(`₦${st.rate} to $1`)),
-        e('div', { class: 'row between' }, Caption('Our margin', 'c-2'), Label(`1.0%, or ${naira(margin)}`)),
-        e('div', { class: 'row between' }, Caption('Mid market rate', 'c-2'), e('div', { class: 't-label c-2' }, '₦1,536 to $1'))),
-      Bubble('There is no separate fee. We make the one per cent above, and I would rather show it than call this free.'),
+        e('div', { class: 'row between' }, Caption('Our fee', 'c-2'), e('div', { class: 't-label c-good' }, 'Free under $500')),
+        Divider(),
+        e('div', { class: 'row between' }, Caption('You get', 'c-2'),
+          e('div', { class: 't-row' }, toDollars ? '$' + gets.toFixed(2) : nairaFull(gets)))),
+      Note('The rate is held for sixty seconds once you slide.'),
       enough
         ? Slide('Slide to convert', () => { fx.receipt = act.convert({ direction: fx.direction, amount: fx.amount }); go('converted'); })
         : Banner(toDollars ? 'Not enough in Everyday for that.' : 'You do not hold that many dollars.', 'warn'),
-      Note('The rate is held for sixty seconds once you slide.'),
     ], Dock({ placeholder: 'Ask about the rate', back: () => go('dollars'), onAsk: q => { setQuestion(q); go('agentchat'); } }));
 
     if (!fx.editing) return base;

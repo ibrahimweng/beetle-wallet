@@ -6,7 +6,7 @@ import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { Animated, PanResponder, Pressable, ScrollView, StyleProp, View, ViewStyle } from 'react-native';
 import Svg, { Circle, Rect } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Icon } from './Icon';
+import { Icon, Mark } from './Icon';
 import { Body, Caption, Display, Head, Label, Meta, Row, Title } from './text';
 import { Card, Divider } from './Screen';
 import { Sheet } from './Sheet';
@@ -1155,6 +1155,7 @@ export function VoiceSheet({
   onStop,
   behind,
   onClose,
+  veil = false,
 }: {
   said: string;
   tail: string;
@@ -1166,9 +1167,11 @@ export function VoiceSheet({
   onStop: () => void;
   behind?: ReactNode;
   onClose: () => void;
+  /* the ask bar's own voice sheet only veils the home behind it */
+  veil?: boolean;
 }) {
   return (
-    <Sheet onClose={onClose} behind={behind}>
+    <Sheet onClose={onClose} behind={behind} veil={veil}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <Icon name="mark" size={20} colour={colour.accent} />
         <Label tone="accent">Listening</Label>
@@ -1249,41 +1252,48 @@ export function ShareSheet({
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: space.s5,
+        gap: 13,
       }}
     >
-      <Icon name={glyph} size={20} />
-      <View style={{ flex: 1, gap: 2 }}>
+      <Mark glyph={glyph} />
+      <View style={{ flex: 1, gap: 4 }}>
         <Row>{title}</Row>
-        <Meta tone="secondary">{sub}</Meta>
+        <Meta tone="tertiary">{sub}</Meta>
       </View>
       <Icon name="chevron" size={16} colour={colour.textTertiary} />
     </Tap>
   );
   return (
     <Sheet onClose={onClose} behind={behind}>
-      <View style={{ alignItems: 'center' }}>
-        <Icon name="share" size={28} />
-      </View>
-      <View style={{ gap: 8 }}>
-        <Head>Share this receipt</Head>
-        <Meta tone="tertiary" style={{ fontSize: 16, lineHeight: 24 }}>
+      {/* the frame opens the sheet on its own mark, with the two lines under
+          it set centred rather than to the column */}
+      <View style={{ alignItems: 'center', marginTop: -5 }}>
+        <Mark glyph="share" big />
+        <Head style={{ marginTop: 14 }}>Share this receipt</Head>
+        <Meta tone="tertiary" style={{ marginTop: 19, fontSize: 16, lineHeight: 24 }}>
           {line}
         </Meta>
       </View>
-      <View style={{ gap: 28 }}>
+      <View style={{ gap: 24 }}>
         {way('chat', 'WhatsApp', 'The picture, ready to send')}
         {way('camera', 'Save to photos', 'It stays on this phone')}
         {way('receipt', 'Save as PDF', 'The full record, for an office')}
         {way('grid', 'Somewhere else', 'Messages, mail, anywhere you share')}
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 13 }}>
         <Icon name="eye" size={16} colour={colour.textTertiary} />
         <Meta tone="secondary" style={{ flex: 1 }}>
           Your balance and the full account numbers are left off every copy that leaves the phone.
         </Meta>
       </View>
-      <Button label="Done" tone="grey" onPress={onClose} />
+      <Button
+        label="Done"
+        tone="grey"
+        size={48}
+        full={false}
+        style={{ alignSelf: 'center', paddingHorizontal: 40 }}
+        onPress={onClose}
+      />
     </Sheet>
   );
 }
@@ -1294,8 +1304,10 @@ export function PassSheet({
   amount,
   title,
   sub,
+  initials,
   hint,
   onDone,
+  onFace,
   onClose,
   behind,
   error,
@@ -1303,34 +1315,53 @@ export function PassSheet({
   amount: string;
   title: string;
   sub?: string;
+  /* whoever it is going to, on the disc the frames put beside their name */
+  initials?: string;
   hint: string;
   onDone: () => void;
+  /* where the face takes you when it is offered and does not catch you */
+  onFace?: () => void;
   onClose: () => void;
   behind?: ReactNode;
   error?: string;
 }) {
+  /* Four here, not six. The sheet frames draw four dots and say so in as many
+     words — "nothing moves until the fourth number lands" — where the passcode
+     you set on the way in is six. */
   const [digits, setDigits] = useState('');
-  const key = (k: string) => setDigits(d => (k === 'del' ? d.slice(0, -1) : (d + k).slice(0, 6)));
+  const key = (k: string) => setDigits(d => (k === 'del' ? d.slice(0, -1) : (d + k).slice(0, 4)));
   useEffect(() => {
-    if (digits.length < 6) return;
+    if (digits.length < 4) return;
     const t = setTimeout(onDone, 150);
     return () => clearTimeout(t);
-    /* the sixth digit is what finishes it */
+    /* the fourth digit is what finishes it */
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [digits]);
   return (
     <Sheet onClose={onClose} behind={behind}>
       <View style={{ alignItems: 'center', gap: space.s3 }}>
         <Display>{amount}</Display>
-        <Row>{title}</Row>
-        {sub ? <Meta tone="tertiary">{sub}</Meta> : null}
+        {initials ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
+            <Avatar initials={initials} size={36} tone={colour.surface3} text={colour.ink} />
+            <View>
+              <Row>{title}</Row>
+              {sub ? <Meta tone="secondary">{sub}</Meta> : null}
+            </View>
+          </View>
+        ) : (
+          <>
+            <Row>{title}</Row>
+            {sub ? <Meta tone="tertiary">{sub}</Meta> : null}
+          </>
+        )}
       </View>
       <View style={{ alignItems: 'center', gap: 4 }}>
         <Head>Enter your passcode</Head>
         <Meta tone={error ? 'bad' : 'secondary'}>{error ?? 'Or tap the face to use Face ID.'}</Meta>
       </View>
-      <Pips filled={digits.length} />
-      <Keypad onKey={key} onFace={onDone} />
+      <Pips of={4} filled={digits.length} />
+      <Keypad big onKey={key} onFace={onFace ?? onDone} />
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
         <Icon name="lock" size={16} colour={colour.textTertiary} />
         <Meta tone="secondary">{hint}</Meta>

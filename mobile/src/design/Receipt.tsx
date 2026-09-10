@@ -17,7 +17,9 @@ import { Tap } from './motion';
 export type ReceiptField = [label: string, value: string, note?: string];
 
 const WIDE = ['Narration', 'What', 'For'];
-const RULE_BEFORE = ['Amount', 'Total charged'];
+/* the frames perforate a receipt once, above the money — the totals under it
+   are part of the same block, not a third one */
+const RULE_BEFORE = ['Amount'];
 const BIG = ['To', 'From', 'Narration', 'What', 'For'];
 
 /* The frames rule a receipt with a dashed line, not a solid one — it is the
@@ -29,7 +31,7 @@ function Rule() {
         width: '100%',
         borderTopWidth: 1,
         borderStyle: 'dashed',
-        borderColor: colour.ruleStrong,
+        borderColor: colour.rule,
         marginBottom: space.s3,
       }}
     />
@@ -45,6 +47,7 @@ export function Receipt({
   status = 'Successful',
   icon = 'check',
   good = false,
+  tail = 0,
   onCopy,
 }: {
   amount: string;
@@ -56,6 +59,9 @@ export function Receipt({
   icon?: IconName;
   /* money in: the frames set the figure itself in the green */
   good?: boolean;
+  /* some frames leave room under the reference — the airtime slip leaves two
+     lines of it — where others end the card straight after */
+  tail?: number;
   onCopy?: () => void;
 }) {
   const cells: React.ReactNode[] = [];
@@ -121,10 +127,20 @@ export function Receipt({
         {session ? (
           <>
             <Rule />
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s4, paddingTop: space.s3 }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: space.s4,
+                paddingTop: space.s3,
+                paddingBottom: tail,
+              }}
+            >
               <View style={{ flex: 1, gap: 2 }}>
                 <Caption tone="secondary">{sessionLabel}</Caption>
-                <Label>{session}</Label>
+                {/* the frames set the reference itself a size up from the money
+                    values, which is what makes it break where theirs breaks */}
+                <Label style={{ fontSize: 16 }}>{session}</Label>
               </View>
               {/* the frames give it a button, not a bare glyph, which is also
                   what holds the reference to the width it wraps at */}

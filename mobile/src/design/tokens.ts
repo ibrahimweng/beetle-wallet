@@ -30,13 +30,24 @@ export const colour = {
   cyan: '#22b8e8',
 
   rule: '#dedee3',
+  /* the track a switch sits in when it is off */
+  rail: '#e4e4e8',
   ruleStrong: '#c4c4c9',
   scrim: 'rgba(120, 120, 124, 0.42)',
 } as const;
 
-/* San Francisco on iOS, Roboto on Android, whatever the browser has on web.
-   The file is drawn in SF Pro Text. */
-const family = Platform.select({ ios: undefined, android: 'sans-serif', default: undefined });
+/* The file is drawn in SF Pro Text. iOS has it, so it asks for nothing and
+   gets it; Android has Roboto. On the web "whatever the browser has" is not
+   good enough — the default on a bare Linux is DejaVu Sans, which runs about
+   four per cent wider than SF Pro and wraps lines the design does not — so the
+   web asks for SF Pro first and falls back through the faces that are near it
+   in width, ending at Arial, which Liberation Sans matches metric for metric. */
+const family = Platform.select({
+  ios: undefined,
+  android: 'sans-serif',
+  default:
+    '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+});
 
 const face = (size: number, height: number, weight: TextStyle['fontWeight']): TextStyle => ({
   fontSize: size,

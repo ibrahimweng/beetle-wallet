@@ -6,9 +6,9 @@
    title over a 12 regular line, and a 12 semibold pill. A cap row puts the
    value in 16 semibold above its 12 regular explanation. */
 import React, { ReactNode } from 'react';
-import { Pressable, Switch, View } from 'react-native';
-import { Icon } from './Icon';
-import { Body, Caption, Head, Meta, Row } from './text';
+import { Pressable, View } from 'react-native';
+import { Icon, Mark } from './Icon';
+import { Body, Caption, Head, Label, Meta, Row } from './text';
 import { IconName } from '../icons';
 import { colour, space } from './tokens';
 import { Tap } from './motion';
@@ -66,13 +66,87 @@ export function ToggleRow({
         <Row>{title}</Row>
         {sub ? <Meta tone="secondary">{sub}</Meta> : null}
       </View>
-      <Switch
-        value={value}
-        onValueChange={onChange}
-        accessibilityLabel={title}
-        trackColor={{ true: colour.good, false: colour.rule }}
-      />
+      <Toggle value={value} onChange={onChange} label={title} />
     </View>
+  );
+}
+
+/* The switch, drawn rather than borrowed. React Native's own is a different
+   shape on every platform and none of them is the file's: a 52 by 32 track
+   with a 26 knob three in from the end, blue when it is on and the pale rail
+   grey when it is not. */
+export function Toggle({
+  value,
+  onChange,
+  label,
+}: {
+  value: boolean;
+  onChange?: (v: boolean) => void;
+  label?: string;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="switch"
+      accessibilityState={{ checked: value }}
+      accessibilityLabel={label}
+      onPress={() => onChange?.(!value)}
+      style={{
+        width: 52,
+        height: 32,
+        borderRadius: 16,
+        padding: 3,
+        flexShrink: 0,
+        backgroundColor: value ? colour.accent : colour.rail,
+        alignItems: value ? 'flex-end' : 'flex-start',
+      }}
+    >
+      <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: colour.surface }} />
+    </Pressable>
+  );
+}
+
+/* The rule rows on the goal sheet. The frames do not box these: a 40 badge, a
+   title over its explanation over what it comes to a month, a switch on the
+   right, and a hairline between one and the next. */
+export function FeedRow({
+  glyph,
+  title,
+  sub,
+  note,
+  quiet = false,
+  right,
+  onPress,
+}: {
+  glyph: IconName;
+  title: string;
+  sub: string;
+  note: string;
+  /* the last row has no amount yet, so its third line is grey and regular
+     where the others are the green the money is set in */
+  quiet?: boolean;
+  right?: ReactNode;
+  onPress?: () => void;
+}) {
+  return (
+    <Tap
+      accessibilityRole="button"
+      onPress={onPress}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 13,
+        paddingTop: 6,
+        paddingBottom: 1,
+      }}
+    >
+      <Mark glyph={glyph} />
+      <View style={{ flex: 1, gap: 4 }}>
+        <Row>{title}</Row>
+        <Caption tone="tertiary">{sub}</Caption>
+        {quiet ? <Meta tone="tertiary">{note}</Meta> : <Label tone="good">{note}</Label>}
+      </View>
+      {right}
+    </Tap>
   );
 }
 

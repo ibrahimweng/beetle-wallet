@@ -1,8 +1,13 @@
-/* Passcode keypad — 252 by 296 in the file, centred. The grid is three by four,
-   cells 84 across and 76 down, and each key is a 68 circle of the pale grey
-   sitting in the middle of its cell. Digits are 20 semibold, and the delete
-   glyph takes the last cell. Measured off the Sign in frame: the first row of
-   circles runs 79 to 145 across and 532 to 599 down. */
+/* Passcode keypad, at the two sizes the file draws it.
+
+   On the way in it is 252 by 296: cells 84 across and 76 down, each key a 68
+   circle of the pale grey. Measured off the Sign in frame, where the first row
+   of circles runs 79 to 145 across and 532 to 599 down.
+
+   On the sheet that takes your passcode before money moves it is bigger — 300
+   by 352, cells 100 by 92 and keys of 77 — because that is the one you use
+   with the phone in one hand. Measured off the Face ID did not catch you
+   frame: discs at 68 to 144 across and 424 to 499 down. */
 import React from 'react';
 import { View } from 'react-native';
 import { Icon } from './Icon';
@@ -14,9 +19,18 @@ const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'face', '0', 'del'] a
 
 /* The face key sits in the bottom left where the frame leaves a gap, and is
    only drawn when the screen has something for it to do. */
-export function Keypad({ onKey, onFace }: { onKey: (k: string) => void; onFace?: () => void }) {
+export function Keypad({
+  onKey,
+  onFace,
+  big = false,
+}: {
+  onKey: (k: string) => void;
+  onFace?: () => void;
+  big?: boolean;
+}) {
+  const cell = big ? { w: 100, h: 92, key: 77 } : { w: 84, h: 76, key: 68 };
   return (
-    <View style={{ width: 252, alignSelf: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
+    <View style={{ width: cell.w * 3, alignSelf: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
       {KEYS.map((k, i) => {
         const live = k === 'face' ? !!onFace : !!k;
         return (
@@ -30,17 +44,17 @@ export function Keypad({ onKey, onFace }: { onKey: (k: string) => void; onFace?:
               else if (k) onKey(k);
             }}
             style={{
-              width: 84,
-              height: 76,
+              width: cell.w,
+              height: cell.h,
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
             <View
               style={{
-                width: 68,
-                height: 68,
-                borderRadius: 34,
+                width: cell.key,
+                height: cell.key,
+                borderRadius: cell.key / 2,
                 alignItems: 'center',
                 justifyContent: 'center',
                 /* the two glyph keys sit on the page itself; only digits get the disc */
@@ -64,17 +78,18 @@ export function Keypad({ onKey, onFace }: { onKey: (k: string) => void; onFace?:
   );
 }
 
-/* The dots above a passcode as it is typed. */
+/* The dots above a passcode as it is typed — 14 across, 20 apart, as the sheet
+   frames draw them. */
 export function Pips({ of = 6, filled }: { of?: number; filled: number }) {
   return (
-    <View style={{ flexDirection: 'row', gap: 14, alignSelf: 'center' }}>
+    <View style={{ flexDirection: 'row', gap: 20, alignSelf: 'center' }}>
       {Array.from({ length: of }).map((_, i) => (
         <View
           key={i}
           style={{
-            width: 12,
-            height: 12,
-            borderRadius: 6,
+            width: 14,
+            height: 14,
+            borderRadius: 7,
             backgroundColor: i < filled ? colour.ink : 'transparent',
             borderWidth: i < filled ? 0 : 2,
             borderColor: colour.ruleStrong,

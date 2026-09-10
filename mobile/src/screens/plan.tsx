@@ -11,6 +11,7 @@ import {
   AgentSay,
   Aside,
   Banner,
+  Body,
   Bubble,
   BottomBar,
   Button,
@@ -19,10 +20,13 @@ import {
   Between,
   Display,
   Divider,
+  FeedRow,
+  FootNote,
   Ghost,
   Head,
   Icon,
   Label,
+  Mark,
   Meta,
   PageHead,
   Ring,
@@ -31,13 +35,14 @@ import {
   Sheet,
   SlideToSend,
   StatusPill,
+  Toggle,
   colour,
   naira,
   nairaFull,
-  radius,
   space,
   toast,
 } from '../design';
+import { IconName } from '../icons';
 import { Nav, dock } from './nav';
 import { still } from './send';
 import { useStore } from '../state/live';
@@ -244,76 +249,88 @@ export const Goal = ({ nav }: { nav: Nav }) => {
 
 /* ---- the rule that feeds it ---- */
 
-const FEEDERS: [string, string, string, string][] = [
-  ['A slice of payday', '10% the day your salary lands', '₦20,000 a month', 'Payday transfer'],
-  ['Round ups', 'The change from every card payment', '₦2,280 a month', 'Round ups'],
-  ['Money back on top ups', 'Cash back comes here instead of out', '₦120 a month', 'Money back on top ups'],
+const FEEDERS: [IconName, string, string, string, string][] = [
+  ['lock', 'A slice of payday', '10% the day your salary lands', '₦20,000 a month', 'Payday transfer'],
+  ['swap', 'Round ups', 'The change from every card payment', '₦2,280 a month', 'Round ups'],
+  [
+    'airtime',
+    'Money back on top ups',
+    'Cash back comes here instead of out',
+    '₦120 a month',
+    'Money back on top ups',
+  ],
 ];
+
+const Rule = () => <View style={{ height: 1, backgroundColor: colour.surface3 }} />;
 
 export const SaveRule = ({ nav }: { nav: Nav }) => {
   const s = useStore();
   const g = s.goal;
   return (
     <Sheet onClose={() => nav.go('goal')} behind={<Goal nav={still} />}>
-      <PageHead
-        title={`Feed the ${g.name} goal`}
-        sub="Pick something that runs without you thinking about it"
-      />
-      <View style={{ gap: space.s2 }}>
-        {FEEDERS.map(([title, sub, amt, rule]) => (
-          <Pressable
-            key={title}
-            accessibilityRole="button"
-            onPress={() => {
-              act.setStanding(rule, true);
-              toast(`${title} is feeding ${g.name}.`);
-              nav.go('goal');
-            }}
-            style={({ pressed }) => ({
-              backgroundColor: colour.surface2,
-              borderRadius: radius.card,
-              padding: 14,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: space.s3,
-              opacity: pressed ? 0.6 : 1,
-            })}
-          >
-            <View style={{ flex: 1, gap: 2 }}>
-              <Row>{title}</Row>
-              <Caption tone="tertiary">{sub}</Caption>
-            </View>
-            <Label>{amt}</Label>
-          </Pressable>
-        ))}
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => nav.go('goal')}
-          style={({ pressed }) => ({
-            backgroundColor: colour.surface2,
-            borderRadius: radius.card,
-            padding: 14,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: space.s3,
-            opacity: pressed ? 0.6 : 1,
-          })}
-        >
-          <View style={{ flex: 1, gap: 2 }}>
-            <Row>A fixed amount</Row>
-            <Caption tone="tertiary">You pick the day and the sum</Caption>
-          </View>
-          <View style={{ alignItems: 'flex-end', gap: 2 }}>
-            <Label>You choose</Label>
-            <Caption tone="accent">Set it</Caption>
-          </View>
-        </Pressable>
+      {/* the sheet opens on its own mark, and the line under the title is set
+          centred where the title is not — that is how the frame draws it */}
+      <View style={{ marginTop: -6, marginBottom: -4, paddingHorizontal: 29, gap: 8 }}>
+        <Mark glyph="lock" big />
+        <Head>{`Feed the ${g.name} goal`}</Head>
+        <Body tone="tertiary" style={{ textAlign: 'center', marginTop: 4 }}>
+          Pick something that runs without you thinking about it
+        </Body>
       </View>
-      <Head>None of this is locked away</Head>
-      <Meta tone="secondary">
-        Take any of it back the same day. No fee, no notice, and no question from me about why.
-      </Meta>
-      <Button label="Done" tone="grey" onPress={() => nav.go('goal')} />
+      <View style={{ marginBottom: -7 }}>
+        {FEEDERS.map(([glyph, title, sub, amt, rule], i) => (
+          <React.Fragment key={title}>
+            {i ? <Rule /> : null}
+            <FeedRow
+              glyph={glyph}
+              title={title}
+              sub={sub}
+              note={amt}
+              right={<Toggle value label={title} onChange={() => {}} />}
+              onPress={() => {
+                act.setStanding(rule, true);
+                toast(`${title} is feeding ${g.name}.`);
+                nav.go('goal');
+              }}
+            />
+          </React.Fragment>
+        ))}
+        <Rule />
+        <FeedRow
+          glyph="plus"
+          title="A fixed amount"
+          sub="You pick the day and the sum"
+          note="You choose"
+          quiet
+          right={
+            <View
+              style={{
+                height: 34,
+                borderRadius: 17,
+                paddingHorizontal: 10,
+                backgroundColor: colour.surface2,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Caption style={{ fontWeight: '600' }}>Set it</Caption>
+            </View>
+          }
+          onPress={() => nav.go('goal')}
+        />
+      </View>
+      <FootNote
+        title="None of this is locked away"
+        sub="Take any of it back the same day. No fee, no notice, and no question from me about why."
+      />
+      <Button
+        label="Done"
+        tone="grey"
+        size={48}
+        full={false}
+        style={{ alignSelf: 'center', marginTop: -4, paddingHorizontal: 40 }}
+        onPress={() => nav.go('goal')}
+      />
     </Sheet>
   );
 };

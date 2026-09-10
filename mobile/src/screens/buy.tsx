@@ -190,6 +190,7 @@ export const Done = ({ nav }: { nav: Nav }) => {
           ['Balance after', nairaFull(r.balanceAfter ?? s.everyday)],
         ]}
         session={r.session}
+        tail={24}
         sessionLabel="MTN reference"
       />
       <Button label="Share receipt" leading="share" badge onPress={() => nav.go('sharebuy')} />

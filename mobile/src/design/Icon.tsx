@@ -25,3 +25,23 @@ export function Icon({ name, size = 24, colour = palette.ink }: IconProps) {
     </View>
   );
 }
+
+/* A glyph on the pale square the frames set it on: 40 across with a 20 mark in
+   a row, 63 with a 32 mark where a sheet opens on one. */
+export function Mark({ glyph, big = false }: { glyph: IconName; big?: boolean }) {
+  const box = big ? 63 : 40;
+  return (
+    <View
+      style={{
+        width: box,
+        height: box,
+        borderRadius: big ? 20 : 13,
+        backgroundColor: palette.surface2,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Icon name={glyph} size={big ? 32 : 20} />
+    </View>
+  );
+}

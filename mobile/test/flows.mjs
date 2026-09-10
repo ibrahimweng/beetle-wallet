@@ -57,7 +57,8 @@ const balance = () =>
     return raw ? JSON.parse(raw).everyday : null;
   });
 const passcode = async () => {
-  for (const k of ['1', '2', '3', '4', '5', '6']) await tapLabel(k);
+  /* four, which is what the sheet frames draw and say */
+  for (const k of ['1', '2', '3', '4']) await tapLabel(k);
   await page.waitForTimeout(500);
 };
 const slide = async label => {

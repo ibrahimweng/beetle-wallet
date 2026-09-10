@@ -6,27 +6,25 @@
    still working. Confirm is the same screen with the passcode over it. The
    money only moves when the passcode lands, and it moves through the shared
    state layer, so the balance on every other screen changes with it. */
-import React, { useState } from 'react';
+import React from 'react';
 import { Pressable, View } from 'react-native';
 import {
   Bubble,
   Button,
   Dock,
   Icon,
-  Keypad,
   Receipt,
   Said,
+  PassSheet,
   Screen,
   SendButton,
   ShareSheet,
-  Sheet,
   ToolPanel,
   TopBar,
   VoiceSheet,
   Head,
   Label,
   Meta,
-  Row,
   colour,
   space,
 } from '../design';
@@ -121,64 +119,26 @@ export const Chat = ({ nav }: { nav: Nav }) => {
    actually moves the money, so the receipt reads the real balance after. */
 export const Confirm = ({ nav, faceMissed = false }: { nav: Nav; faceMissed?: boolean }) => {
   const [d] = useDraft();
-  const [digits, setDigits] = useState('');
-  /* Pure updater, and the send is watched rather than fired from inside it, so
-     the money cannot move twice. */
-  const key = (k: string) => setDigits(d => (k === 'del' ? d.slice(0, -1) : (d + k).slice(0, 6)));
-  React.useEffect(() => {
-    if (digits.length < 6) return;
-    const t = setTimeout(() => {
-      act.send({ to: d.to, amount: d.amount, from: d.from, narration: d.narration });
-      nav.go('donesend');
-    }, 150);
-    return () => clearTimeout(t);
-    /* only the sixth digit sends it; watching the transfer as well would send
-       it again the moment anything about it changed */
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [digits]);
   return (
-    <Sheet onClose={nav.back} behind={<Chat nav={still} />}>
-      <View style={{ alignItems: 'center', gap: space.s3 }}>
-        <Head style={{ fontSize: 32, lineHeight: 40, fontWeight: '700' }}>{naira(d.amount)}</Head>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
-          <View
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 18,
-              backgroundColor: colour.surface3,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Label>{d.to.initials}</Label>
-          </View>
-          <View>
-            <Row>{d.to.name}</Row>
-            <Meta tone="secondary">
-              {d.to.bank} · {d.to.account}
-            </Meta>
-          </View>
-        </View>
-      </View>
-      <View style={{ alignItems: 'center', gap: 4 }}>
-        <Head>Enter your passcode</Head>
-        <Meta tone={faceMissed ? 'bad' : 'secondary'}>
-          {faceMissed
-            ? 'Face ID did not catch you. Tap the face to try again.'
-            : 'Or tap the face to use Face ID.'}
-        </Meta>
-      </View>
-      <Keypad onKey={key} onFace={() => nav.go('noface')} />
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
-        <Icon name="lock" size={16} colour={colour.textTertiary} />
-        <Meta tone="secondary">
-          {faceMissed
-            ? 'Three wrong tries locks the passcode for an hour.'
-            : 'Nothing moves until the fourth number lands.'}
-        </Meta>
-      </View>
-    </Sheet>
+    <PassSheet
+      amount={naira(d.amount)}
+      title={d.to.name}
+      sub={`${d.to.bank} · ${d.to.account}`}
+      initials={d.to.initials}
+      error={faceMissed ? 'Face ID did not catch you. Tap the face to try again.' : undefined}
+      hint={
+        faceMissed
+          ? 'Three wrong tries locks the passcode for an hour.'
+          : 'Nothing moves until the fourth number lands.'
+      }
+      onClose={nav.back}
+      onFace={() => nav.go('noface')}
+      onDone={() => {
+        act.send({ to: d.to, amount: d.amount, from: d.from, narration: d.narration });
+        nav.go('donesend');
+      }}
+      behind={<Chat nav={still} />}
+    />
   );
 };
 
@@ -286,6 +246,7 @@ export const Share = ({ nav }: { nav: Nav }) => {
    frame offers, and "Not what I said" is what opens the typed version. */
 export const Ask = ({ nav }: { nav: Nav }) => (
   <VoiceSheet
+    veil
     said="Send 20k to "
     tail="Sarah"
     seed={11}

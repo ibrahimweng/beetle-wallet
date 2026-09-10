@@ -21,20 +21,28 @@ const s = StyleSheet.create({
     right: 0,
     bottom: 0,
     left: 0,
-    /* read off the frames: the blurred screen behind a sheet sits around
-       #c5c5c7, dark enough that nothing on it competes with the sheet */
-    backgroundColor: 'rgba(174,174,178,0.58)',
+    /* Read off the frames: white behind a sheet comes out at #c5c5c7 and the
+       black Receive button at #515153, which is not a grey laid over the top —
+       a grey wash flattens both to the same middle — but the screen itself
+       turned down. A quarter of black keeps what contrast the blur leaves. */
+    backgroundColor: 'rgba(0,0,0,0.25)',
   },
+  veil: { backgroundColor: 'rgba(255,255,255,0.28)' },
 });
 
 export function Sheet({
   children,
   onClose,
   behind,
+  veil = false,
 }: {
   children: ReactNode;
   onClose?: () => void;
   behind?: ReactNode;
+  /* Thirteen of the fourteen sheet frames turn the screen behind them down to
+     about #c5c5c7. One — the voice sheet you open from the ask bar — only
+     veils it, leaving white white. Pass this for that one. */
+  veil?: boolean;
 }) {
   return (
     <View style={{ flex: 1, backgroundColor: colour.surface }}>
@@ -46,7 +54,7 @@ export function Sheet({
                 than merely dim, which is what keeps the sheet the only thing
                 you can read */}
             <BlurView intensity={52} tint="light" style={s.soften} />
-            <View style={s.wash} />
+            <View style={[s.wash, veil && s.veil]} />
           </View>
         </Scrim>
       ) : null}

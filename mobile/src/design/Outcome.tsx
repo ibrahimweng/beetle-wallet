@@ -24,7 +24,8 @@ export function BigStatus({
   tone?: string;
 }) {
   return (
-    <View style={{ gap: space.s5 }}>
+    /* the frames set the glyph 14 above the figure, not the column's 20 */
+    <View style={{ gap: 14 }}>
       <Icon name={glyph} size={56} colour={tone} />
       <View style={{ gap: 4 }}>
         <Display>{amount}</Display>
@@ -74,11 +75,16 @@ export function Banner({
         gap: space.s3,
         backgroundColor: tone,
         borderRadius: radius.card,
-        paddingVertical: space.s4,
-        paddingHorizontal: space.s4,
+        paddingVertical: 10,
+        paddingLeft: space.s4,
+        paddingRight: 56,
       }}
     >
-      {glyph ? <Icon name={glyph} size={24} colour={ink ?? colour.textInverse} /> : null}
+      {/* the mark's slot is kept whether or not there is one in it, and the
+          words stop short of the far edge, which is how the frames set them */}
+      <View style={{ width: 24, height: 24 }}>
+        {glyph ? <Icon name={glyph} size={24} colour={ink ?? colour.textInverse} /> : null}
+      </View>
       <Row tone="inverse" style={{ flex: 1 }}>
         {text}
       </Row>
@@ -194,13 +200,13 @@ export function ChoiceRow({
 }
 
 /* The two or three ways out of a screen that went wrong. The frames box them
-   together in the pale grey, one under another with a rule between. */
+   together in the pale grey, one under another, 71 apart badge to badge. */
 export function Choices({ children }: { children: ReactNode }) {
   const rows = React.Children.toArray(children);
   return (
-    <View style={{ backgroundColor: colour.surface2, borderRadius: radius.card, padding: space.s3 }}>
+    <View style={{ backgroundColor: colour.surface2, borderRadius: radius.card, padding: 4 }}>
       {rows.map((child, i) => (
-        <View key={i} style={{ paddingHorizontal: space.s2, paddingVertical: space.s2 }}>
+        <View key={i} style={{ paddingHorizontal: space.s3, paddingVertical: space.s4 }}>
           {child}
         </View>
       ))}
@@ -215,10 +221,10 @@ export function FootNote({ title, sub }: { title: string; sub: string }) {
     <View
       style={{
         alignItems: 'center',
-        gap: 6,
+        gap: 4,
         backgroundColor: colour.accentWash,
         borderRadius: radius.md,
-        paddingVertical: space.s4,
+        paddingVertical: 12,
         paddingHorizontal: space.s4,
       }}
     >

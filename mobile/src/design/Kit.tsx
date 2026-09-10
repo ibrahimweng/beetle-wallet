@@ -615,14 +615,16 @@ export function CameraScreen({
       </View>
       {/* the column fills the width so the viewfinder can; what sits on it is
           centred one line at a time instead */}
-      <View style={{ paddingHorizontal: 20, paddingTop: 26, gap: space.s5 }}>
+      <View style={{ paddingHorizontal: 20, paddingTop: 21, gap: 22 }}>
         <RevealAll>
-          <Row tone="inverse" style={{ textAlign: 'center' }}>
-            {title}
-          </Row>
-          <Meta tone="tertiary" style={{ textAlign: 'center' }}>
-            {sub}
-          </Meta>
+          <View style={{ gap: 8 }}>
+            <Row tone="inverse" style={{ textAlign: 'center' }}>
+              {title}
+            </Row>
+            <Meta tone="tertiary" style={{ textAlign: 'center' }}>
+              {sub}
+            </Meta>
+          </View>
           {read ? (
             <View
               style={{
@@ -713,6 +715,7 @@ export function CameraScreen({
 /* What the camera read, as the white card the frames draw over the feed. */
 export function ReadCard({
   who,
+  initials,
   glyph,
   tone,
   when,
@@ -720,8 +723,11 @@ export function ReadCard({
   lines,
   unsure,
   slip,
+  foot,
 }: {
   who: string;
+  /* whose mark it is, where that is not the first letters of the name */
+  initials?: string;
   glyph?: IconName;
   tone?: string;
   when: string;
@@ -729,6 +735,9 @@ export function ReadCard({
   lines: string[];
   unsure?: string;
   slip?: string;
+  /* the bill frames close the grey card with one more line under the white
+     one, where the message frames end at the white card */
+  foot?: ReactNode;
 }) {
   /* Two cards, the way the frames draw a message it has read: a grey one
      carrying who sent it and when, and a white one inside that holding what
@@ -739,7 +748,7 @@ export function ReadCard({
     <View
       key={text}
       style={{
-        height: 22,
+        height: 25,
         justifyContent: 'center',
         backgroundColor: fill,
         borderWidth: 1,
@@ -761,14 +770,17 @@ export function ReadCard({
             /* the frames give whoever sent it a filled green circle with their
                initials in white, and set the name in ink beside it */
             <Avatar
-              initials={who
-                .split(/[\s·]+/)
-                .map(w => w[0])
-                .join('')
-                .slice(0, 2)
-                .toUpperCase()}
+              initials={
+                initials ??
+                who
+                  .split(/[\s·]+/)
+                  .map(w => w[0])
+                  .join('')
+                  .slice(0, 2)
+                  .toUpperCase()
+              }
               size={28}
-              tone={colour.good}
+              tone={tone ?? colour.good}
               text={colour.textInverse}
             />
           )}
@@ -781,12 +793,12 @@ export function ReadCard({
           backgroundColor: colour.surface,
           borderRadius: 12,
           paddingHorizontal: 12,
-          paddingVertical: 14,
-          gap: 8,
+          paddingVertical: 8,
+          gap: 6,
         }}
       >
         {kind ? <Caption tone="secondary">{kind}</Caption> : null}
-        <View style={{ gap: 6, alignItems: 'flex-start' }}>
+        <View style={{ gap: 7, alignItems: 'flex-start' }}>
           {lines.map(t => chip(t, colour.accentWash, '#dce0f6'))}
           {unsure ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -797,6 +809,7 @@ export function ReadCard({
         </View>
         {slip ? <Caption tone="tertiary">{slip}</Caption> : null}
       </View>
+      {foot}
     </View>
   );
 }
@@ -906,7 +919,7 @@ export function CardFace({
       colors={['#1e3a8a', '#0a0f24']}
       start={{ x: 0.1, y: 0 }}
       end={{ x: 0.9, y: 1 }}
-      style={{ borderRadius: radius.lg, padding: 22, gap: 22 }}
+      style={{ borderRadius: radius.lg, padding: 17, gap: 18 }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
         <View style={{ flex: 1 }}>
@@ -916,16 +929,21 @@ export function CardFace({
           {only}
         </Caption>
       </View>
-      {/* the chip the frame draws under the mark */}
+      {/* the chip the frame draws under the mark, with its two contacts */}
       <View
         style={{
-          width: 34,
-          height: 24,
+          width: 56,
+          height: 22,
           borderRadius: 5,
           backgroundColor: 'rgba(255,255,255,0.22)',
+          justifyContent: 'space-evenly',
+          paddingHorizontal: 6,
         }}
-      />
-      <Head tone="inverse" style={{ fontWeight: '500', letterSpacing: 1.6 }}>
+      >
+        <View style={{ height: 1, backgroundColor: 'rgba(255,255,255,0.4)' }} />
+        <View style={{ height: 1, backgroundColor: 'rgba(255,255,255,0.4)' }} />
+      </View>
+      <Head tone="inverse" style={{ fontWeight: '500', letterSpacing: 4 }}>
         {number}
       </Head>
       <View style={{ flexDirection: 'row' }}>

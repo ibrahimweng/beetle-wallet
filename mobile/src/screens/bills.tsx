@@ -7,7 +7,6 @@ import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import {
   Aside,
-  Badge,
   Banner,
   AgentAsk,
   Bubble,
@@ -113,121 +112,114 @@ export const ScanBill = ({ nav }: { nav: Nav }) => (
 
 /* ---- what it read off the photo ---- */
 
-export const MeterRead = ({ nav }: { nav: Nav }) => (
-  <Screen dock={dock('Ask about this bill', nav, 'scanbill')}>
-    <PageHead
-      lead
-      title="What I found"
-      sub={`Read from your photo, ${meterBill.readAt.split(', ')[1] ?? '4:02 PM'}`}
-    />
-    <Card style={{ gap: space.s3 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
-          <Badge glyph="power" size={28} tone={colour.warn} ink={colour.textInverse} />
-          <Label>Bill photo</Label>
-        </View>
-        <Caption tone="tertiary">{meterBill.readAt.split(', ')[1] ?? '4:02 PM'}</Caption>
-      </View>
-      <Caption tone="secondary">{meterBill.kind}</Caption>
-      <View style={{ gap: space.s2, alignItems: 'flex-start' }}>
-        {[`Meter ${meterBill.meter}`, naira(meterBill.amount), meterBill.address].map(t => (
-          <View
-            key={t}
-            style={{
-              backgroundColor: colour.accentWash,
-              borderRadius: 6,
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-            }}
-          >
-            <Label tone="accent">{t}</Label>
-          </View>
-        ))}
-      </View>
-      <Caption tone="tertiary">{meterBill.slip}</Caption>
-    </Card>
-
-    <Head>What I read</Head>
-    <Card style={{ gap: space.s3 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <View style={{ flex: 1, gap: 2 }}>
-          <Caption tone="secondary">Amount</Caption>
-          <Caption tone="tertiary">from the photo</Caption>
-        </View>
-        <Row>{naira(meterBill.amount)}</Row>
-      </View>
-      <Divider />
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Caption tone="secondary" style={{ flex: 1 }}>
-          Meter
-        </Caption>
-        <Row>{meterBill.meter}</Row>
-      </View>
-      <Divider />
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Caption tone="secondary" style={{ flex: 1 }}>
-          Disco
-        </Caption>
-        <Row>{meterBill.disco}</Row>
-      </View>
-    </Card>
-
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
-      <Icon name="alert" size={20} colour={colour.warn} />
-      <Row>Is this your meter?</Row>
-    </View>
-    <Card style={{ gap: space.s3 }}>
-      <Between label="On the bill" value={`Meter ${meterBill.meter}`} />
-      <Between label="Ikeja Electric says" value={meterBill.address} />
-    </Card>
-    <View style={{ flexDirection: 'row', gap: space.s2 }}>
-      <View style={{ flex: 1 }}>
-        <Button
-          label="Yes, that is mine"
-          onPress={() => {
-            bill = {
-              biller: meterBill.disco,
-              meter: meterBill.meter,
-              amount: meterBill.amount,
-              icon: 'power',
-            };
-            slip = null;
-            nav.go('confirmmeter');
-          }}
+export const MeterRead = ({ nav }: { nav: Nav }) => {
+  const take = () => {
+    bill = {
+      biller: meterBill.disco,
+      meter: meterBill.meter,
+      amount: meterBill.amount,
+      icon: 'power',
+    };
+    slip = null;
+    nav.go('confirmmeter');
+  };
+  const at = meterBill.readAt.split(', ')[1] ?? '4:02 PM';
+  /* the frame runs these 48 apart with a tick against each, and puts where the
+     amount came from beside the figure rather than under the word */
+  const read: [string, string, string?][] = [
+    ['Amount', naira(meterBill.amount), 'from the photo'],
+    ['Meter', meterBill.meter],
+    ['Disco', meterBill.disco],
+  ];
+  return (
+    <Screen
+      dock={
+        <BottomBar onBack={() => nav.go('scanbill')}>
+          <Button label="Continue" tone="grey" onPress={take} />
+        </BottomBar>
+      }
+    >
+      <PageHead title="What I found" sub={`Read from your photo, ${at}`} />
+      {/* the frame runs the three cards together, two apart, rather than down
+          the column's own gap */}
+      <View style={{ gap: 2 }}>
+        <ReadCard
+          who="Bill photo"
+          initials="IE"
+          tone={colour.warn}
+          when={at}
+          kind={meterBill.kind}
+          lines={[`Meter ${meterBill.meter}`, naira(meterBill.amount), meterBill.address]}
+          slip={meterBill.slip}
+          foot={
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: space.s2,
+                height: 28,
+                paddingLeft: 2,
+              }}
+            >
+              <View
+                style={{
+                  width: 16,
+                  height: 16,
+                  borderRadius: 5,
+                  borderWidth: 1,
+                  borderColor: colour.rule,
+                  backgroundColor: colour.surface,
+                }}
+              />
+              <Caption tone="secondary">What I read</Caption>
+            </View>
+          }
         />
+        {/* the frame boxes the question, what it is against and the answer in
+          one white card, not as three things down the column */}
+        <Card
+          style={{
+            gap: 15,
+            paddingVertical: 24,
+            backgroundColor: colour.surface,
+            borderWidth: 1,
+            borderColor: colour.rule,
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
+            <Icon name="alert" size={20} colour={colour.warn} />
+            <Row>Is this your meter?</Row>
+          </View>
+          <View style={{ gap: space.s2, backgroundColor: colour.surface2, borderRadius: 16, padding: 11 }}>
+            <Between label="On the bill" value={`Meter ${meterBill.meter}`} />
+            <Between label="Ikeja Electric says" value={meterBill.address} />
+          </View>
+          <View style={{ flexDirection: 'row', gap: space.s2 }}>
+            <View style={{ flex: 1 }}>
+              <Button label="Yes, that is mine" size={48} onPress={take} />
+            </View>
+            <Button label="No" tone="grey" size={48} full={false} onPress={() => nav.go('bills')} />
+          </View>
+        </Card>
+        <Card style={{ gap: 0, paddingVertical: 0 }}>
+          {read.map(([k, v, note], i) => (
+            <React.Fragment key={k}>
+              {i ? <Divider /> : null}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3, height: 48 }}>
+                <Icon name="step-done" size={20} />
+                <Meta tone="secondary" style={{ flex: 1 }}>
+                  {k}
+                </Meta>
+                <Row>{v}</Row>
+                {note ? <Caption tone="tertiary">{note}</Caption> : null}
+              </View>
+            </React.Fragment>
+          ))}
+        </Card>
       </View>
-      <Button label="No" tone="grey" onPress={() => nav.go('bills')} />
-    </View>
-    <Card style={{ gap: space.s3 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <View style={{ flex: 1, gap: 2 }}>
-          <Meta tone="secondary">Amount</Meta>
-          <Caption tone="tertiary">from the photo</Caption>
-        </View>
-        <Row>{naira(meterBill.amount)}</Row>
-      </View>
-      <Divider />
-      <Between label="Meter" value={meterBill.meter} />
-      <Divider />
-      <Between label="Disco" value={meterBill.disco} />
-    </Card>
-    <Button
-      label="Continue"
-      onPress={() => {
-        bill = {
-          biller: meterBill.disco,
-          meter: meterBill.meter,
-          amount: meterBill.amount,
-          icon: 'power',
-        };
-        slip = null;
-        nav.go('confirmmeter');
-      }}
-    />
-  </Screen>
-);
-
-/* ---- the passcode over it ---- */
+    </Screen>
+  );
+};
 
 export const ConfirmMeter = ({ nav }: { nav: Nav }) => (
   <PassSheet

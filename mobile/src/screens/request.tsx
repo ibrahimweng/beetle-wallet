@@ -23,6 +23,8 @@ import {
   PageHead,
   Picker,
   Said,
+  Dock,
+  SendButton,
   Screen,
   TypeOver,
   Sheet,
@@ -91,7 +93,15 @@ export const Request = ({ nav }: { nav: Nav }) => {
   const first = req.who.name.split(' ')[0] ?? req.who.name;
 
   const base = (
-    <Screen dock={dock('Reply, or just keep talking', nav, 'home')}>
+    <Screen
+      dock={
+        <Dock
+          placeholder="Reply, or just keep talking"
+          onAsk={q => asked(nav, q)}
+          action={<SendButton onPress={() => nav.go('sent')} />}
+        />
+      }
+    >
       <TopBar title="Beetle" onBack={nav.back} />
       <Said>{`Ask ${first} for ${Math.round(req.amount / 1000)}k`}</Said>
       <View style={{ flexDirection: 'row', gap: space.s2 }}>
@@ -112,19 +122,22 @@ export const Request = ({ nav }: { nav: Nav }) => {
           { k: 'For', v: req.why, go: () => setEditing('why') },
           { k: 'Expires', v: 'Picking a date', done: 'work' as const },
         ]}
-      />
-      <Button
-        label="Send the request"
-        onPress={() => {
-          req.ref =
-            'REQ ' +
-            Math.floor(1e12 + Math.random() * 8e12)
-              .toString()
-              .replace(/(\d{4})(?=\d)/g, '$1 ')
-              .trim();
-          nav.go('sent');
-        }}
-      />
+      >
+        <View style={{ padding: 12 }}>
+          <Button
+            label="Send the request"
+            onPress={() => {
+              req.ref =
+                'REQ ' +
+                Math.floor(1e12 + Math.random() * 8e12)
+                  .toString()
+                  .replace(/(\d{4})(?=\d)/g, '$1 ')
+                  .trim();
+              nav.go('sent');
+            }}
+          />
+        </View>
+      </ToolPanel>
       <Aside>
         Asking cannot move money. Nothing can leave your account because somebody was asked to pay into it.
       </Aside>

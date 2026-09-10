@@ -50,19 +50,39 @@ export function ToolPanel({
   children?: ReactNode;
 }) {
   return (
-    <View style={{ backgroundColor: colour.surface2, borderRadius: radius.md, overflow: 'hidden' }}>
+    <View
+      style={{
+        /* the frames draw the panel as a white card with a hairline round it,
+           its name centred between the tool's badge and what it is doing */
+        backgroundColor: colour.surface,
+        borderWidth: 1,
+        borderColor: colour.rule,
+        borderRadius: radius.md,
+        overflow: 'hidden',
+      }}
+    >
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
           gap: space.s2,
-          paddingHorizontal: space.s4,
-          paddingVertical: space.s3,
-          backgroundColor: colour.surface3,
+          paddingHorizontal: 12,
+          paddingVertical: 12,
         }}
       >
-        <Icon name="send" size={16} colour={colour.textSecondary} />
-        <Label style={{ flex: 1 }}>{tool}</Label>
+        <View
+          style={{
+            width: 26,
+            height: 26,
+            borderRadius: 8,
+            backgroundColor: colour.surface2,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Icon name="send" size={14} colour={colour.textSecondary} />
+        </View>
+        <Label style={{ flex: 1, textAlign: 'center' }}>{tool}</Label>
         <StatusPill label={state} />
       </View>
       {rows.map((r, i) => (

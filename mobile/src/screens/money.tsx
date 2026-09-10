@@ -6,7 +6,7 @@
    dollars). The form opens a sheet to change one part at a time, which is
    what the file draws; it never sends you to a screen that is not in it. */
 import React, { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import {
   AmountPad,
   Aside,
@@ -31,7 +31,8 @@ import {
   Picker,
   ReadCard,
   Row,
-  Said,
+  Slip,
+  BottomBar,
   Screen,
   TypeOver,
   Sheet,
@@ -46,7 +47,7 @@ import {
   Badge,
   Tap,
 } from '../design';
-import { Nav, asked, dock } from './nav';
+import { Nav, asked } from './nav';
 import { still } from './send';
 import { check, useDraft, useForm, useStore, Person } from '../state/live';
 import { contacts, me, transfer, dollarSend } from '../state/data.js';
@@ -142,7 +143,9 @@ export const Typed = ({ nav }: { nav: Nav }) => {
         return;
       }
       start({ to: who, amount, narration: transfer.narration, spoken: text });
-      nav.go('chat');
+      /* the Draft frame is this same screen a moment later, with the three
+         things it has made of the line sitting over the keyboard */
+      nav.go('draft');
       return;
     }
     if (k === 'del') return setText(t => t.slice(0, -1));
@@ -172,24 +175,42 @@ export const Pay = ({ nav }: { nav: Nav }) => {
   const canSend = verdict.ok || past;
   const close = () => setEditing(null);
 
+  /* The frame stacks the three things it filled in as white cards inside one
+     grey block, each with a chevron, and hangs the slide off the dock rather
+     than putting it at the end of the column. */
   const form = (
-    <Screen dock={dock('Ask about this transfer', nav, 'home')}>
+    <Screen
+      dock={
+        <BottomBar onBack={() => nav.go('home')}>
+          {canSend ? (
+            <SlideToSend
+              label={`Slide to send ${naira(d.amount)}`}
+              onDone={() => nav.go(past ? 'limitstop' : 'confirm')}
+            />
+          ) : verdict.code === 'short' ? (
+            <Button label="See how to close it" tone="grey" onPress={() => nav.go('short')} />
+          ) : (
+            <Button label="Put an amount in" tone="grey" onPress={() => setEditing('amount')} />
+          )}
+        </BottomBar>
+      }
+    >
       <PageHead lead title="Send money" sub={`To ${d.to.name}`} />
-      <Caption tone="secondary">You said</Caption>
-      <Said onPress={() => nav.go('ask')}>
-        {d.spoken || `send ${d.to.name.split(' ')[0]} ${Math.round(d.amount / 1000)}k`}
-      </Said>
+      <View style={{ gap: 4 }}>
+        <Caption tone="secondary">You said</Caption>
+        <Tap accessibilityRole="button" onPress={() => nav.go('ask')}>
+          <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
+            {d.spoken || `send ${d.to.name.split(' ')[0]} ${Math.round(d.amount / 1000)}k`}
+          </Meta>
+        </Tap>
+      </View>
       <Bubble>Here it is, ready to go. Check the three parts I filled in.</Bubble>
 
-      <BigMoney
-        amount={naira(d.amount)}
-        change="Change"
-        note="I took this from your message"
-        onPress={() => setEditing('amount')}
-      />
-
-      <Pressable accessibilityRole="button" onPress={() => setEditing('to')}>
-        <Card style={{ gap: space.s3 }}>
+      <Card style={{ gap: space.s2, paddingVertical: space.s3, paddingHorizontal: space.s3 }}>
+        <Slip onPress={() => setEditing('amount')}>
+          <BigMoney amount={naira(d.amount)} note="I took this from your message" />
+        </Slip>
+        <Slip onPress={() => setEditing('to')}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
             <Avatar initials={d.to.initials} />
             <View style={{ flex: 1, gap: 2 }}>
@@ -198,49 +219,34 @@ export const Pay = ({ nav }: { nav: Nav }) => {
                 {d.to.bank} · {d.to.account}
               </Meta>
             </View>
-            <Label tone="accent">Change</Label>
+            <Icon name="chevron" size={18} colour={colour.textTertiary} />
           </View>
           {d.to.note ? <Caption tone="tertiary">{d.to.note}</Caption> : null}
-        </Card>
-      </Pressable>
-
-      <Card style={{ gap: space.s3 }}>
-        <EditRow
-          label="Reference"
-          value={d.narration || 'None'}
-          sub="I took this from your message"
-          onPress={() => setEditing('why')}
-        />
-        <Divider />
-        <EditRow
-          label="From"
-          value={d.from === 'dollars' ? 'Dollars' : 'Everyday'}
-          sub={d.from === 'dollars' ? `$${s.dollars.toFixed(2)} held` : `Everyday · ${naira(s.everyday)}`}
-          onPress={() => setEditing('from')}
-        />
-        <Divider />
-        <EditRow label="Note to yourself" value="Only you will see it" onPress={() => nav.go('draft')} />
-        <Divider />
-        <Between label="Arrives" value="In a few seconds" />
-        <Divider />
-        <Between label="Fee" value={fee ? nairaFull(fee) : 'Free'} tone={fee ? 'ink' : 'good'} />
+        </Slip>
+        <Slip onPress={() => setEditing('why')}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Meta tone="secondary" style={{ flex: 1, fontSize: 16, lineHeight: 24 }}>
+              Reference
+            </Meta>
+            <Row>{d.narration || 'None'}</Row>
+          </View>
+          <Caption tone="tertiary">I took this from your message</Caption>
+        </Slip>
+        <View style={{ paddingHorizontal: space.s3, gap: space.s3, paddingVertical: space.s3 }}>
+          <EditRow
+            label="From"
+            value={d.from === 'dollars' ? 'Dollars' : `Everyday · ${naira(s.everyday).replace('.00', '')}`}
+            onPress={() => setEditing('from')}
+          />
+          <Between label="Arrives" value="In a few seconds" />
+          <Between label="Fee" value={fee ? nairaFull(fee) : 'Free'} tone={fee ? 'ink' : 'good'} />
+        </View>
       </Card>
 
       {canSend ? <Aside>Nothing moves until you slide.</Aside> : <Banner text={verdict.why} />}
       {past ? <Aside glyph="key">This is your limit, not the bank’s. Two things and it goes.</Aside> : null}
 
       <Ghost label="How I decided" onPress={() => nav.go('checking')} />
-
-      {canSend ? (
-        <SlideToSend
-          label={`Slide to send ${naira(d.amount)}`}
-          onDone={() => nav.go(past ? 'limitstop' : 'confirm')}
-        />
-      ) : verdict.code === 'short' ? (
-        <Button label="See how to close it" tone="grey" onPress={() => nav.go('short')} />
-      ) : (
-        <Button label="Put an amount in" tone="grey" onPress={() => setEditing('amount')} />
-      )}
     </Screen>
   );
 
@@ -389,54 +395,66 @@ export const PayDollars = ({ nav }: { nav: Nav }) => {
   const inDollars = +(d.amount / s.rate).toFixed(2);
   const enough = s.dollars >= inDollars;
   return (
-    <Screen dock={dock('Ask about the rate', nav, 'payfrom')}>
+    <Screen
+      dock={
+        <BottomBar onBack={() => nav.go('payfrom')}>
+          {enough ? (
+            <SlideToSend
+              label={`Slide to send ${naira(d.amount)}`}
+              onDone={() => {
+                setDraft({ from: 'dollars' });
+                nav.go('confirm');
+              }}
+            />
+          ) : (
+            <Banner text={`You hold $${s.dollars.toFixed(2)}, and this needs $${inDollars.toFixed(2)}.`} />
+          )}
+        </BottomBar>
+      }
+    >
       <PageHead lead title="Send money" sub={`To ${d.to.name}`} />
-      <Caption tone="secondary">You said</Caption>
-      <Said>{dollarSend.spoken}</Said>
+      <View style={{ gap: 4 }}>
+        <Caption tone="secondary">You said</Caption>
+        <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
+          {dollarSend.spoken}
+        </Meta>
+      </View>
       <Bubble>Here it is, ready to go. Check the three parts I filled in.</Bubble>
-      <Card style={{ gap: space.s3 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
-          <Avatar initials={d.to.initials} />
-          <View style={{ flex: 1, gap: 2 }}>
-            <Row>{d.to.name}</Row>
-            <Meta tone="secondary">
-              {d.to.bank} · {d.to.account}
-            </Meta>
+      <Card style={{ gap: space.s2, paddingVertical: space.s3, paddingHorizontal: space.s3 }}>
+        <Slip>
+          <BigMoney
+            amount={naira(d.amount)}
+            note={`About $${inDollars.toFixed(2)} from your dollars, at ₦${s.rate.toLocaleString('en-NG')} to $1`}
+          />
+        </Slip>
+        <Slip>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
+            <Avatar initials={d.to.initials} />
+            <View style={{ flex: 1, gap: 2 }}>
+              <Row>{d.to.name}</Row>
+              <Meta tone="secondary">
+                {d.to.bank} · {d.to.account}
+              </Meta>
+            </View>
           </View>
+          {d.to.note ? <Caption tone="tertiary">{d.to.note}</Caption> : null}
+        </Slip>
+        <Slip>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Meta tone="secondary" style={{ flex: 1, fontSize: 16, lineHeight: 24 }}>
+              Reference
+            </Meta>
+            <Row>{d.narration || dollarSend.reference}</Row>
+          </View>
+          <Caption tone="tertiary">I took this from your message</Caption>
+        </Slip>
+        <View style={{ paddingHorizontal: space.s3, gap: space.s3, paddingVertical: space.s3 }}>
+          <Between label="From" value={`Dollars · $${s.dollars.toFixed(2)}`} />
+          <Between label="Arrives" value="In a few seconds" />
+          <Between label="Fee" value="Free" tone="good" />
         </View>
-        {d.to.note ? <Caption tone="tertiary">{d.to.note}</Caption> : null}
-      </Card>
-      <BigMoney
-        amount={naira(d.amount)}
-        note={`About $${inDollars.toFixed(2)} from your dollars, at ₦${s.rate.toLocaleString('en-NG')} to $1`}
-      />
-      <Card style={{ gap: space.s3 }}>
-        <EditRow label="To" value={d.to.name} sub={`${d.to.bank} · ${d.to.account}`} />
-        <Divider />
-        <EditRow
-          label="Reference"
-          value={d.narration || dollarSend.reference}
-          sub="I took this from your message"
-        />
-        <Divider />
-        <EditRow label="From" value={`Dollars · $${s.dollars.toFixed(2)}`} />
-        <Divider />
-        <Between label="Arrives" value="In a few seconds" />
-        <Divider />
-        <Between label="Fee" value="Free" tone="good" />
       </Card>
       <Aside glyph="clock">{dollarSend.holdNote}</Aside>
-      {enough ? (
-        <SlideToSend
-          label={`Slide to send ${naira(d.amount)}`}
-          onDone={() => {
-            setDraft({ from: 'dollars' });
-            nav.go('confirm');
-          }}
-        />
-      ) : (
-        <Banner text={`You hold $${s.dollars.toFixed(2)}, and this needs $${inDollars.toFixed(2)}.`} />
-      )}
     </Screen>
   );
 };
@@ -450,7 +468,7 @@ export const DraftNote = ({ nav }: { nav: Nav }) => {
   const [d] = useDraft();
   const [text, setText] = useState('send sarah 20k');
   const key = (k: string) => {
-    if (k === 'send') return nav.go('pay');
+    if (k === 'send') return nav.go('chat');
     if (k === 'del') return setText(t => t.slice(0, -1));
     if (k === 'shift' || k === '123') return;
     setText(t => t + k);

@@ -19,8 +19,20 @@ const WIDE = ['Narration', 'What', 'For'];
 const RULE_BEFORE = ['Amount', 'Total charged'];
 const BIG = ['To', 'From', 'Narration', 'What', 'For'];
 
+/* The frames rule a receipt with a dashed line, not a solid one — it is the
+   perforation on a paper slip. */
 function Rule() {
-  return <View style={{ height: 1, backgroundColor: colour.rule, opacity: 0.9, width: '100%' }} />;
+  return (
+    <View
+      style={{
+        width: '100%',
+        borderTopWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: colour.ruleStrong,
+        marginBottom: space.s3,
+      }}
+    />
+  );
 }
 
 export function Receipt({
@@ -46,7 +58,7 @@ export function Receipt({
   fields.forEach((f, i) => {
     if (RULE_BEFORE.includes(f[0])) cells.push(<Rule key={'r' + i} />);
     cells.push(
-      <View key={i} style={{ width: WIDE.includes(f[0]) ? '100%' : '50%', gap: 2, paddingBottom: space.s3 }}>
+      <View key={i} style={{ width: WIDE.includes(f[0]) ? '100%' : '50%', gap: 4, paddingBottom: 20 }}>
         <Caption tone="secondary">{f[0]}</Caption>
         {BIG.includes(f[0]) ? <Row>{f[1]}</Row> : <Label>{f[1]}</Label>}
         {f[2] ? <Caption tone="tertiary">{f[2]}</Caption> : null}
@@ -73,10 +85,18 @@ export function Receipt({
           <Display>{amount}</Display>
           <Meta tone="secondary">{line}</Meta>
         </View>
-        <StatusPill label={status} tone={colour.good} />
+        <StatusPill label={status} tone={colour.good} ink={colour.goodText} />
       </View>
 
-      <Card style={{ gap: 0 }}>
+      {/* a receipt is a white slip with a hairline round it, not a grey block */}
+      <Card
+        style={{
+          gap: 0,
+          backgroundColor: colour.surface,
+          borderWidth: 1,
+          borderColor: colour.rule,
+        }}
+      >
         <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>{cells}</View>
         {session ? (
           <>

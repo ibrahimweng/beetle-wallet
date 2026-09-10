@@ -21,7 +21,9 @@ const s = StyleSheet.create({
     right: 0,
     bottom: 0,
     left: 0,
-    backgroundColor: 'rgba(236,236,239,0.5)',
+    /* read off the frames: the blurred screen behind a sheet sits around
+       #c5c5c7, dark enough that nothing on it competes with the sheet */
+    backgroundColor: 'rgba(174,174,178,0.58)',
   },
 });
 
@@ -57,14 +59,16 @@ export function Sheet({
       <Rise
         style={{
           /* the frames never let a sheet swallow the whole screen: what it is
-             over stays visible above it */
-          maxHeight: '78%',
+             over stays visible above it. It is a panel, not an edge — inset 10
+             each side and 11 off the bottom, with all four corners round. */
+          maxHeight: '82%',
+          marginHorizontal: 10,
+          marginBottom: 11,
           backgroundColor: colour.surface,
-          borderTopLeftRadius: 28,
-          borderTopRightRadius: 28,
+          borderRadius: 28,
           paddingHorizontal: 20,
           paddingTop: space.s4,
-          paddingBottom: 32,
+          paddingBottom: 24,
           gap: space.s5,
         }}
       >

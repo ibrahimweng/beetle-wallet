@@ -2,6 +2,7 @@
    here is the same shape as the icon in the file. `colour` maps onto
    currentColor inside the SVG, which is how the set is drawn. */
 import React from 'react';
+import { View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { ICONS, IconName } from '../icons';
 import { colour as palette } from './tokens';
@@ -15,5 +16,12 @@ export function Icon({ name, size = 24, colour = palette.ink }: IconProps) {
     return null;
   }
   const xml = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}" fill="none">${body}</svg>`;
-  return <SvgXml xml={xml} width={size} height={size} color={colour} />;
+  /* A glyph is a fixed size, not a share of what is left. Without the box
+     around it a row that runs tight — the dock with a back arrow and a button
+     either side of the bar — squeezes the mark down to a dot. */
+  return (
+    <View style={{ width: size, height: size, flexShrink: 0 }}>
+      <SvgXml xml={xml} width={size} height={size} color={colour} />
+    </View>
+  );
 }

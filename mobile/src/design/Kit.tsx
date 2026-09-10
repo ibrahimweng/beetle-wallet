@@ -43,16 +43,22 @@ export function Said({
         gap: 8,
       }}
     >
-      {mic ? <Icon name="mic" size={16} colour={colour.textTertiary} /> : null}
       <View
         style={{
+          /* the frames put the microphone inside the pill, at its left, and
+             let the pill run as wide as it needs rather than wrap early */
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 10,
           backgroundColor: colour.ink,
-          borderRadius: 20,
-          paddingHorizontal: 16,
-          paddingVertical: 10,
-          maxWidth: 280,
+          borderRadius: 23,
+          paddingLeft: mic ? 18 : 20,
+          paddingRight: 20,
+          paddingVertical: 12,
+          maxWidth: 340,
         }}
       >
+        {mic ? <Icon name="mic" size={16} colour={colour.textInverse} /> : null}
         <Body tone="inverse">{children}</Body>
       </View>
     </Tap>
@@ -988,6 +994,27 @@ export function Empty({
 }
 
 /* The big figure a screen is about, with its line under it. */
+/* One white card inside a grey block — the shape the send and buy frames use
+   for each part they filled in, so a part reads as its own thing to check. */
+export function Slip({ children, onPress }: { children: ReactNode; onPress?: () => void }) {
+  return (
+    <Tap
+      accessibilityRole={onPress ? 'button' : undefined}
+      onPress={onPress}
+      disabled={!onPress}
+      style={{
+        backgroundColor: colour.surface,
+        borderRadius: radius.md,
+        paddingVertical: 14,
+        paddingHorizontal: 14,
+        gap: 4,
+      }}
+    >
+      {children}
+    </Tap>
+  );
+}
+
 export function BigMoney({
   amount,
   note,

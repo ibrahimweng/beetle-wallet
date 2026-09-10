@@ -60,6 +60,16 @@ export function Dock({
   );
 }
 
+/* Send button — the round black one the chat frames put beside the bar,
+   where the home frames put the plus. */
+export function SendButton({ onPress }: { onPress?: () => void }) {
+  return (
+    <Tap accessibilityRole="button" accessibilityLabel="Send" onPress={onPress} style={s.fab}>
+      <Icon name="up" size={22} colour={colour.textInverse} />
+    </Tap>
+  );
+}
+
 /* Action button — 56 square, black, the one the menu opens from.
 
    The turn into a cross starts here, under the finger, and the menu carries it

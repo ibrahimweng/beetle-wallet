@@ -15,7 +15,9 @@ import {
   Icon,
   Keypad,
   Receipt,
+  Said,
   Screen,
+  SendButton,
   ShareSheet,
   Sheet,
   ToolPanel,
@@ -59,13 +61,16 @@ export const Chat = ({ nav }: { nav: Nav }) => {
   const canSend = verdict.ok || past;
   return (
     <Screen
-      dock={<Dock placeholder="Reply, or just keep talking" onBack={nav.back} onAsk={q => asked(nav, q)} />}
+      dock={
+        <Dock
+          placeholder="Reply, or just keep talking"
+          onAsk={q => asked(nav, q)}
+          action={<SendButton onPress={() => nav.go(past ? 'limitstop' : 'confirm')} />}
+        />
+      }
     >
       <TopBar title="Beetle" onBack={nav.back} />
-      <View style={{ alignSelf: 'flex-end', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        <Icon name="mic" size={16} colour={colour.textTertiary} />
-        <Bubble who="You">{`Send ${Math.round(d.amount / 1000)}k to ${d.to.name.split(' ')[0]}`}</Bubble>
-      </View>
+      <Said>{`Send ${Math.round(d.amount / 1000)}k to ${d.to.name.split(' ')[0]}`}</Said>
       <View style={{ flexDirection: 'row', gap: space.s2 }}>
         <Icon name="mark" size={32} colour={colour.accent} />
         <View style={{ flex: 1 }}>
@@ -84,12 +89,19 @@ export const Chat = ({ nav }: { nav: Nav }) => {
           { k: 'Fee', v: fee ? nairaFull(fee) : 'Free' },
           { k: 'Arrives', v: `Checking with ${d.to.bank}`, done: 'work' as const },
         ]}
-      />
-      {canSend ? (
-        <Button label={`Confirm ${naira(d.amount)}`} onPress={() => nav.go(past ? 'limitstop' : 'confirm')} />
-      ) : (
-        <Button label="Change it" tone="grey" onPress={() => nav.go('pay')} />
-      )}
+      >
+        {/* the frame keeps the button inside the panel it belongs to */}
+        <View style={{ padding: 12 }}>
+          {canSend ? (
+            <Button
+              label={`Confirm ${naira(d.amount)}`}
+              onPress={() => nav.go(past ? 'limitstop' : 'confirm')}
+            />
+          ) : (
+            <Button label="Change it" tone="grey" onPress={() => nav.go('pay')} />
+          )}
+        </View>
+      </ToolPanel>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
         <Icon name="lock" size={16} colour={colour.textTertiary} />
         <Meta tone="secondary" style={{ flex: 1 }}>

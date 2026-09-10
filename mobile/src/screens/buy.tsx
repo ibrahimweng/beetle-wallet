@@ -17,6 +17,8 @@ import {
   Picker,
   Receipt,
   Said,
+  Dock,
+  SendButton,
   Screen,
   TypeOver,
   ShareSheet,
@@ -92,7 +94,15 @@ export const Buy = ({ nav }: { nav: Nav }) => {
   const [, tick] = useState(0);
   const enough = s.everyday >= plan.price;
   return (
-    <Screen dock={dock('Reply, or just keep talking', nav, 'home')}>
+    <Screen
+      dock={
+        <Dock
+          placeholder="Reply, or just keep talking"
+          onAsk={q => asked(nav, q)}
+          action={<SendButton onPress={() => nav.go('confirmbuy')} />}
+        />
+      }
+    >
       <TopBar title="Beetle" onBack={nav.back} />
       <Said>2k data for mum</Said>
       <View style={{ flexDirection: 'row', gap: space.s2 }}>
@@ -114,7 +124,15 @@ export const Buy = ({ nav }: { nav: Nav }) => {
           { k: 'Price', v: naira(plan.price) },
           { k: 'Cheaper?', v: 'Checking MTN plans', done: 'work' as const },
         ]}
-      />
+      >
+        <View style={{ padding: 12 }}>
+          {enough ? (
+            <Button label={`Confirm ${naira(plan.price)}`} onPress={() => nav.go('confirmbuy')} />
+          ) : (
+            <Banner text="Not enough in Everyday for that plan." />
+          )}
+        </View>
+      </ToolPanel>
       <Head>Change the plan</Head>
       <Picker
         value={plan.id}
@@ -124,11 +142,6 @@ export const Buy = ({ nav }: { nav: Nav }) => {
           tick(n => n + 1);
         }}
       />
-      {enough ? (
-        <Button label={`Confirm ${naira(plan.price)}`} onPress={() => nav.go('confirmbuy')} />
-      ) : (
-        <Banner text="Not enough in Everyday for that plan." />
-      )}
       <Aside>Face ID first. Nothing leaves your account until then.</Aside>
     </Screen>
   );

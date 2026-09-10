@@ -26,6 +26,7 @@ import {
   Head,
   Icon,
   Label,
+  Mark,
   LedgerRow,
   Meta,
   Meter,
@@ -46,6 +47,7 @@ import {
   space,
   toast,
 } from '../design';
+import { IconName } from '../icons';
 import { Nav, asked, dock } from './nav';
 import { Ledger, useStore } from '../state/live';
 import { Route } from '../routes';
@@ -467,30 +469,44 @@ const MONTHS: [string, number][] = [
   ['Jul', 100],
 ];
 
-const WENT: [string, string, number][] = [
-  ['MTN data', '5 top ups', 12500],
-  ['MTN airtime', '7 top ups', 4400],
-  ['Glo airtime', '2 top ups', 2000],
+const WENT: [IconName, string, string, number][] = [
+  ['data', 'MTN data', '5 top ups', 12500],
+  ['airtime', 'MTN airtime', '7 top ups', 4400],
+  ['airtime', 'Glo airtime', '2 top ups', 2000],
 ];
 
 export const Answer = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about this', nav, 'history')}>
-    <PageHead lead title="Airtime and data" sub="You asked how much you spend on staying connected" />
-    <AgentSay>₦18,900 on airtime and data last month. That is your highest month this year.</AgentSay>
-    <View style={{ gap: 4 }}>
-      <Display>{naira(18900)}</Display>
-      <Meta tone="secondary">Airtime and data</Meta>
-      <Meta tone="secondary">Last month</Meta>
-      <Meta tone="tertiary">Added up from 14 top ups, 1 to 31 July</Meta>
+    <PageHead title="Airtime and data" sub="You asked how much you spend on staying connected" />
+    {/* the frame runs what the agent says straight under the line, and the
+        card straight under that */}
+    <View style={{ marginTop: -23 }}>
+      <AgentSay>₦18,900 on airtime and data last month. That is your highest month this year.</AgentSay>
     </View>
-    <Card style={{ gap: space.s3 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-end', height: 120, gap: space.s2 }}>
+    {/* the figure, the year behind it, what it is counting and where the
+        number came from all sit on one card */}
+    <Card style={{ gap: 0, paddingVertical: 18, marginTop: -18 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Display style={{ flex: 1 }}>{naira(18900)}</Display>
+        <View
+          style={{
+            height: 24,
+            justifyContent: 'center',
+            paddingHorizontal: 10,
+            borderRadius: 12,
+            backgroundColor: '#eee3e4',
+          }}
+        >
+          <Caption tone="bad" style={{ fontWeight: '600' }}>{`↑ ${naira(4200)}`}</Caption>
+        </View>
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: space.s2, marginTop: 18 }}>
         {MONTHS.map(([m, pct]) => (
           <View key={m} style={{ flex: 1, alignItems: 'center', gap: 6 }}>
             <View
               style={{
                 width: '100%',
-                height: Math.max(6, pct),
+                height: Math.max(6, Math.round(pct * 0.57)),
                 borderRadius: 6,
                 backgroundColor: pct === 100 ? colour.accent : colour.rule,
               }}
@@ -499,32 +515,52 @@ export const Answer = ({ nav }: { nav: Nav }) => (
           </View>
         ))}
       </View>
-      <View style={{ flexDirection: 'row' }}>
-        <Caption tone="tertiary" style={{ flex: 1 }}>
-          {naira(4200)}
-        </Caption>
-        <Caption tone="tertiary">{naira(18900)}</Caption>
+      <View style={{ flexDirection: 'row', gap: space.s2, marginTop: 19 }}>
+        {['Airtime and data', 'Last month'].map(t => (
+          <View
+            key={t}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+              height: 36,
+              paddingHorizontal: 14,
+              borderRadius: 18,
+              backgroundColor: colour.surface,
+              borderWidth: 1,
+              borderColor: colour.rule,
+            }}
+          >
+            <Label>{t}</Label>
+            <Icon name="down" size={14} colour={colour.textTertiary} />
+          </View>
+        ))}
+      </View>
+      <View style={{ marginTop: 20 }}>
+        <Divider />
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3, marginTop: 13 }}>
+        <Icon name="list" size={18} colour={colour.textTertiary} />
+        <Meta tone="secondary" style={{ flex: 1 }}>
+          Added up from 14 top ups, 1 to 31 July
+        </Meta>
+        <Icon name="chevron" size={16} colour={colour.textTertiary} />
       </View>
     </Card>
     <Head>Where it went</Head>
-    <Card style={{ gap: space.s3 }}>
-      {WENT.map(([what, howMany, amount], i) => (
-        <View key={what}>
-          {i ? (
-            <View style={{ paddingBottom: space.s3 }}>
-              <Divider />
-            </View>
-          ) : null}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
-            <View style={{ flex: 1, gap: 2 }}>
-              <Row>{what}</Row>
-              <Meta tone="secondary">{howMany}</Meta>
-            </View>
-            <Label>{naira(amount)}</Label>
+    {/* the frames set these on the page, 78 apart, not in a box */}
+    <View style={{ gap: 29 }}>
+      {WENT.map(([glyph, what, howMany, amount]) => (
+        <View key={what} style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
+          <Mark glyph={glyph} />
+          <View style={{ flex: 1, gap: 5 }}>
+            <Row>{what}</Row>
+            <Meta tone="tertiary">{howMany}</Meta>
           </View>
+          <Label>{naira(amount)}</Label>
         </View>
       ))}
-    </Card>
+    </View>
     <Bubble>
       That is your highest month this year. Three of the four top ups were the same 5GB plan bought
       separately. The 10GB plan covers the same use for ₦2,000 less a month.

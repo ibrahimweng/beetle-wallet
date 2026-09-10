@@ -1191,22 +1191,27 @@ export function VoiceSheet({
   return (
     <Sheet onClose={onClose} behind={behind} veil={veil}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        <Icon name="mark" size={20} colour={colour.accent} />
+        <Icon name="mark" size={24} colour={colour.accent} />
         <Label tone="accent">Listening</Label>
       </View>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+      {/* the frame does not space these on the column's own gap: what it heard
+          sits close under Listening, and the way out and the send close under
+          the three offers */}
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: -12 }}>
         <Head style={{ fontSize: 32, lineHeight: 40 }}>{said}</Head>
         <Head style={{ fontSize: 32, lineHeight: 40, color: colour.textTertiary }}>{tail}</Head>
       </View>
       <Waveform seed={seed} />
       <Meta tone="tertiary">Or try one of these</Meta>
-      <View style={{ gap: space.s2 }}>
+      <View style={{ gap: space.s2, marginTop: -2 }}>
         {offers.map(t => (
           <Button key={t} label={t} tone="grey" size={48} onPress={() => onOffer(t)} />
         ))}
       </View>
-      <Ghost label="Not what I said" onPress={onNotThis} />
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s2 }}>
+      <View style={{ marginTop: -9 }}>
+        <Ghost label="Not what I said" onPress={onNotThis} />
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s2, marginTop: -7 }}>
         <View style={{ flex: 1 }}>
           <Button label="Release to send" tone="blue" onPress={onSend} />
         </View>
@@ -1230,18 +1235,19 @@ export function VoiceSheet({
   );
 }
 
-/* The listening indicator: thirty bars, three wide, three apart. */
+/* The listening indicator: twenty-two bars, three wide, four apart, in a band
+   44 tall — measured off the ask frames. */
 export function Waveform({ seed = 11 }: { seed?: number }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, height: 28 }}>
-      {Array.from({ length: 30 }).map((_, i) => (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, height: 44 }}>
+      {Array.from({ length: 22 }).map((_, i) => (
         <View
           key={i}
           style={{
             width: 3,
             borderRadius: 2,
             backgroundColor: colour.accent,
-            height: 6 + Math.abs(Math.sin((i + seed) * 1.7)) * 20,
+            height: 8 + Math.abs(Math.sin((i + seed) * 1.7)) * 36,
           }}
         />
       ))}

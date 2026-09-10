@@ -145,7 +145,7 @@ export const meterBill = {
   address: '14 Bode Thomas',
   readAt: 'Read from your photo, 4:02 PM',
   slip: 'Keep this slip for your records',
-  token: '0293 8471 5502 1946',
+  token: '4471 8823 0195 6640 3277',
 };
 
 /* Borrow, priced honestly: the screen shows the APR the design omitted. */

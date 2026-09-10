@@ -7,26 +7,45 @@ import { Icon } from './Icon';
 import { Head } from './text';
 import { colour } from './tokens';
 
-const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'] as const;
+const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'face', '0', 'del'] as const;
 
-export function Keypad({ onKey }: { onKey: (k: string) => void }) {
+/* The face key sits in the bottom left where the frame leaves a gap, and is
+   only drawn when the screen has something for it to do. */
+export function Keypad({ onKey, onFace }: { onKey: (k: string) => void; onFace?: () => void }) {
   return (
     <View style={{ width: 353, alignSelf: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
-      {KEYS.map((k, i) => (
-        <Pressable
-          key={i}
-          accessibilityRole={k ? 'button' : undefined}
-          accessibilityLabel={k === 'del' ? 'Delete' : k || undefined}
-          disabled={!k}
-          onPress={() => k && onKey(k)}
-          style={({ pressed }) => ({
-            width: 353 / 3, height: 76, alignItems: 'center', justifyContent: 'center',
-            opacity: pressed && k ? 0.4 : 1,
-          })}
-        >
-          {k === 'del' ? <Icon name="del" size={28} colour={colour.ink} /> : k ? <Head>{k}</Head> : null}
-        </Pressable>
-      ))}
+      {KEYS.map((k, i) => {
+        const live = k === 'face' ? !!onFace : !!k;
+        return (
+          <Pressable
+            key={i}
+            accessibilityRole={live ? 'button' : undefined}
+            accessibilityLabel={!live ? undefined : k === 'del' ? 'Delete' : k === 'face' ? 'Use Face ID' : k}
+            disabled={!live}
+            onPress={() => {
+              if (k === 'face') onFace?.();
+              else if (k) onKey(k);
+            }}
+            style={({ pressed }) => ({
+              width: 353 / 3,
+              height: 76,
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: pressed && live ? 0.4 : 1,
+            })}
+          >
+            {k === 'del' ? (
+              <Icon name="del" size={28} colour={colour.ink} />
+            ) : k === 'face' ? (
+              onFace ? (
+                <Icon name="faceid" size={28} colour={colour.ink} />
+              ) : null
+            ) : (
+              <Head>{k}</Head>
+            )}
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
@@ -36,11 +55,17 @@ export function Pips({ of = 6, filled }: { of?: number; filled: number }) {
   return (
     <View style={{ flexDirection: 'row', gap: 14, alignSelf: 'center' }}>
       {Array.from({ length: of }).map((_, i) => (
-        <View key={i} style={{
-          width: 12, height: 12, borderRadius: 6,
-          backgroundColor: i < filled ? colour.ink : 'transparent',
-          borderWidth: i < filled ? 0 : 2, borderColor: colour.ruleStrong,
-        }} />
+        <View
+          key={i}
+          style={{
+            width: 12,
+            height: 12,
+            borderRadius: 6,
+            backgroundColor: i < filled ? colour.ink : 'transparent',
+            borderWidth: i < filled ? 0 : 2,
+            borderColor: colour.ruleStrong,
+          }}
+        />
       ))}
     </View>
   );

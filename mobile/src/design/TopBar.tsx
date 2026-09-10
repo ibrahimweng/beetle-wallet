@@ -6,7 +6,15 @@ import { Icon } from './Icon';
 import { Row } from './text';
 import { colour } from './tokens';
 
-export function TopBar({ title, mark = true, onBack }: { title: string; mark?: boolean; onBack?: () => void }) {
+export function TopBar({
+  title,
+  mark = true,
+  onBack,
+}: {
+  title: string;
+  mark?: boolean;
+  onBack?: () => void;
+}) {
   return (
     <View style={{ height: 44, justifyContent: 'center' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
@@ -14,8 +22,19 @@ export function TopBar({ title, mark = true, onBack }: { title: string; mark?: b
         <Row>{title}</Row>
       </View>
       {onBack ? (
-        <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={onBack}
-          style={{ position: 'absolute', left: 0, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          onPress={onBack}
+          style={{
+            position: 'absolute',
+            left: 0,
+            width: 44,
+            height: 44,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <Icon name="back" size={22} />
         </Pressable>
       ) : null}

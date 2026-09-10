@@ -20,3 +20,6 @@ export * from './Receipt';
 export * from './Outcome';
 export * from './AmountPad';
 export * from './Rows';
+export * from './Home';
+export * from './Money';
+export * from './Kit';

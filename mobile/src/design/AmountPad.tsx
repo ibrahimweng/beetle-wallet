@@ -7,18 +7,27 @@ import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { Icon } from './Icon';
 import { Caption, Display, Head, Body } from './text';
-import { colour, space } from './tokens';
+import { space } from './tokens';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '000', '0', 'del'] as const;
 
 export function AmountPad({
-  value, onChange, heard, heardLabel = 'I heard',
+  value,
+  onChange,
+  heard,
+  heardLabel = 'I heard',
 }: {
-  value: number; onChange: (n: number) => void; heard?: string; heardLabel?: string;
+  value: number;
+  onChange: (n: number) => void;
+  heard?: string;
+  heardLabel?: string;
 }) {
   const [fresh, setFresh] = useState(true);
   const press = (k: string) => {
-    if (k === 'del') { setFresh(false); return onChange(Math.floor(value / 10)); }
+    if (k === 'del') {
+      setFresh(false);
+      return onChange(Math.floor(value / 10));
+    }
     const add = k === '000' ? '000' : k;
     const next = fresh ? Number(add) : Number(String(value) + add);
     setFresh(false);
@@ -33,9 +42,19 @@ export function AmountPad({
       </View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignSelf: 'center', width: 353 }}>
         {KEYS.map(k => (
-          <Pressable key={k} accessibilityRole="button" accessibilityLabel={k === 'del' ? 'Delete' : k}
+          <Pressable
+            key={k}
+            accessibilityRole="button"
+            accessibilityLabel={k === 'del' ? 'Delete' : k}
             onPress={() => press(k)}
-            style={({ pressed }) => ({ width: 353 / 3, height: 90, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.4 : 1 })}>
+            style={({ pressed }) => ({
+              width: 353 / 3,
+              height: 90,
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: pressed ? 0.4 : 1,
+            })}
+          >
             {k === 'del' ? <Icon name="del" size={32} /> : <Head>{k}</Head>}
           </Pressable>
         ))}

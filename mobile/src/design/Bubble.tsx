@@ -14,13 +14,32 @@ export function Bubble({ who = 'Beetle', title, children }: { who?: Who; title?:
   const mine = who !== 'Beetle';
   if (mine) {
     return (
-      <View style={{ alignSelf: 'flex-end', maxWidth: '82%', backgroundColor: colour.ink, borderRadius: radius.lg, paddingVertical: 12, paddingHorizontal: 16 }}>
+      <View
+        style={{
+          alignSelf: 'flex-end',
+          maxWidth: '82%',
+          backgroundColor: colour.ink,
+          borderRadius: radius.lg,
+          paddingVertical: 12,
+          paddingHorizontal: 16,
+        }}
+      >
         <Row tone="inverse">{children}</Row>
       </View>
     );
   }
   return (
-    <View style={{ alignSelf: 'flex-start', maxWidth: '92%', backgroundColor: colour.accentWash, borderRadius: radius.md, paddingVertical: title ? 12 : 16, paddingHorizontal: 16, gap: title ? 4 : 0 }}>
+    <View
+      style={{
+        alignSelf: 'flex-start',
+        maxWidth: '92%',
+        backgroundColor: colour.accentWash,
+        borderRadius: radius.md,
+        paddingVertical: title ? 12 : 16,
+        paddingHorizontal: 16,
+        gap: title ? 4 : 0,
+      }}
+    >
       {title ? <Label>{title}</Label> : null}
       {title ? <Caption tone="secondary">{children}</Caption> : <Body>{children}</Body>}
     </View>

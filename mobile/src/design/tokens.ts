@@ -37,7 +37,11 @@ export const colour = {
 const family = Platform.select({ ios: undefined, android: 'sans-serif', default: undefined });
 
 const face = (size: number, height: number, weight: TextStyle['fontWeight']): TextStyle => ({
-  fontSize: size, lineHeight: height, fontWeight: weight, fontFamily: family, color: colour.text,
+  fontSize: size,
+  lineHeight: height,
+  fontWeight: weight,
+  fontFamily: family,
+  color: colour.text,
 });
 
 export const type = {

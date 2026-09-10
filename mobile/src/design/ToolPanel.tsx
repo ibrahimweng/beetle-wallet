@@ -12,20 +12,55 @@ export type Step = { k: string; v: string; done?: boolean | 'work'; go?: () => v
 
 export function ToolRow({ k, v, done, go }: Step) {
   const body = (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3, paddingHorizontal: space.s4, paddingVertical: space.s3 }}>
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space.s3,
+        paddingHorizontal: space.s4,
+        paddingVertical: space.s3,
+      }}
+    >
       <Icon name={done === false ? 'step-todo' : done === 'work' ? 'step-work' : 'step-done'} size={18} />
-      <Meta tone="secondary" style={{ flex: 1 }}>{k}</Meta>
+      <Meta tone="secondary" style={{ flex: 1 }}>
+        {k}
+      </Meta>
       <Label>{v}</Label>
       {go ? <Icon name="chevron" size={14} colour={colour.textTertiary} /> : null}
     </View>
   );
-  return go ? <Pressable accessibilityRole="button" onPress={go}>{body}</Pressable> : body;
+  return go ? (
+    <Pressable accessibilityRole="button" onPress={go}>
+      {body}
+    </Pressable>
+  ) : (
+    body
+  );
 }
 
-export function ToolPanel({ tool, state, rows, children }: { tool: string; state: string; rows: Step[]; children?: ReactNode }) {
+export function ToolPanel({
+  tool,
+  state,
+  rows,
+  children,
+}: {
+  tool: string;
+  state: string;
+  rows: Step[];
+  children?: ReactNode;
+}) {
   return (
     <View style={{ backgroundColor: colour.surface2, borderRadius: radius.md, overflow: 'hidden' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s2, paddingHorizontal: space.s4, paddingVertical: space.s3, backgroundColor: colour.surface3 }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: space.s2,
+          paddingHorizontal: space.s4,
+          paddingVertical: space.s3,
+          backgroundColor: colour.surface3,
+        }}
+      >
         <Icon name="send" size={16} colour={colour.textSecondary} />
         <Label style={{ flex: 1 }}>{tool}</Label>
         <StatusPill label={state} />

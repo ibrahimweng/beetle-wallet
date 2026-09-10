@@ -7,6 +7,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Icon } from './Icon';
+import { IconName } from '../icons';
 import { Caption, Display, Label, Meta, Row } from './text';
 import { StatusPill } from './StatusPill';
 import { Card } from './Screen';
@@ -23,11 +24,23 @@ function Rule() {
 }
 
 export function Receipt({
-  amount, line, fields, session, sessionLabel = 'Session ID', status = 'Successful', icon = 'check',
+  amount,
+  line,
+  fields,
+  session,
+  sessionLabel = 'Session ID',
+  status = 'Successful',
+  icon = 'check',
   onCopy,
 }: {
-  amount: string; line: string; fields: ReceiptField[]; session?: string; sessionLabel?: string;
-  status?: string; icon?: 'check' | 'undo-filled' | 'warn-filled'; onCopy?: () => void;
+  amount: string;
+  line: string;
+  fields: ReceiptField[];
+  session?: string;
+  sessionLabel?: string;
+  status?: string;
+  icon?: IconName;
+  onCopy?: () => void;
 }) {
   const cells: React.ReactNode[] = [];
   fields.forEach((f, i) => {
@@ -44,7 +57,16 @@ export function Receipt({
   return (
     <View style={{ gap: space.s5 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s4 }}>
-        <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: colour.good, alignItems: 'center', justifyContent: 'center' }}>
+        <View
+          style={{
+            width: 52,
+            height: 52,
+            borderRadius: 26,
+            backgroundColor: colour.good,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <Icon name={icon} size={24} colour={colour.textInverse} />
         </View>
         <View style={{ flex: 1, gap: 4 }}>

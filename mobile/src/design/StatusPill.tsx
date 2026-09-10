@@ -7,9 +7,21 @@ import { colour, radius } from './tokens';
 
 export function StatusPill({ label, tone = colour.accent }: { label: string; tone?: string }) {
   return (
-    <View style={{ height: 24, borderRadius: radius.sm, backgroundColor: colour.surface, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 8 }}>
+    <View
+      style={{
+        height: 24,
+        borderRadius: radius.sm,
+        backgroundColor: colour.surface,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        paddingHorizontal: 8,
+      }}
+    >
       <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: tone }} />
-      <Caption tone="secondary" style={{ fontWeight: '600' }}>{label}</Caption>
+      <Caption tone="secondary" style={{ fontWeight: '600' }}>
+        {label}
+      </Caption>
     </View>
   );
 }

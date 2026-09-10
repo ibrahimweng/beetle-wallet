@@ -7,12 +7,18 @@ import { Icon } from './Icon';
 import { colour, frame, radius, space } from './tokens';
 
 export function Dock({
-  placeholder = 'Ask, or just say what you need', onBack, onAsk, onScan,
+  placeholder = 'Ask, or just say what you need',
+  onBack,
+  onAsk,
+  onScan,
+  action,
 }: {
   placeholder?: string;
   onBack?: () => void;
   onAsk?: (q: string) => void;
   onScan?: () => void;
+  /* the round button sits in the row beside the bar, not over it */
+  action?: React.ReactNode;
 }) {
   const [value, setValue] = useState('');
   const fire = () => {
@@ -47,6 +53,7 @@ export function Dock({
           <Icon name="mic" size={18} colour={colour.textSecondary} />
         </Pressable>
       </View>
+      {action}
     </View>
   );
 }
@@ -62,20 +69,36 @@ export function ActionButton({ onPress, label = 'What can I do' }: { onPress?: (
 
 const s = StyleSheet.create({
   dock: {
-    position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row',
-    alignItems: 'center', gap: space.s2,
-    paddingHorizontal: frame.sidePad, paddingVertical: frame.dockPad,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.s2,
+    paddingHorizontal: frame.sidePad,
+    paddingVertical: frame.dockPad,
     backgroundColor: colour.surface,
   },
   back: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   bar: {
-    flex: 1, height: frame.askBarHeight, borderRadius: radius.pill,
-    backgroundColor: colour.surface2, flexDirection: 'row', alignItems: 'center',
-    gap: space.s2, paddingLeft: 8, paddingRight: 12,
+    flex: 1,
+    height: frame.askBarHeight,
+    borderRadius: radius.pill,
+    backgroundColor: colour.surface2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.s2,
+    paddingLeft: 8,
+    paddingRight: 12,
   },
   input: { flex: 1, fontSize: 16, color: colour.ink, padding: 0 },
   fab: {
-    width: 56, height: 56, borderRadius: 28, backgroundColor: colour.ink,
-    alignItems: 'center', justifyContent: 'center',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colour.ink,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

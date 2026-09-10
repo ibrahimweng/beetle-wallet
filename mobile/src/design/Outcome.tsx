@@ -10,8 +10,16 @@ import { Body, Caption, Display, Label, Meta, Row } from './text';
 import { IconName } from '../icons';
 import { colour, space } from './tokens';
 
-export function BigStatus({ glyph, amount, line, tone }: {
-  glyph: IconName; amount: string; line: string; tone?: string;
+export function BigStatus({
+  glyph,
+  amount,
+  line,
+  tone,
+}: {
+  glyph: IconName;
+  amount: string;
+  line: string;
+  tone?: string;
 }) {
   return (
     <View style={{ gap: space.s5 }}>
@@ -29,7 +37,9 @@ export function Facts({ rows }: { rows: [string, string][] }) {
     <View style={{ gap: 32 }}>
       {rows.map(([k, v]) => (
         <View key={k} style={{ flexDirection: 'row', alignItems: 'center', gap: space.s4 }}>
-          <Body tone="secondary" style={{ flex: 1 }}>{k}</Body>
+          <Body tone="secondary" style={{ flex: 1 }}>
+            {k}
+          </Body>
           <Row style={{ textAlign: 'right' }}>{v}</Row>
         </View>
       ))}
@@ -37,8 +47,14 @@ export function Facts({ rows }: { rows: [string, string][] }) {
   );
 }
 
-export function Banner({ text, glyph = 'warn-filled', tone = colour.warn }: {
-  text: string; glyph?: IconName; tone?: string;
+export function Banner({
+  text,
+  glyph = 'warn-filled',
+  tone = colour.warn,
+}: {
+  text: string;
+  glyph?: IconName;
+  tone?: string;
 }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s4 }}>
@@ -58,8 +74,14 @@ export function AgentSay({ children }: { children: ReactNode }) {
 }
 
 /* The agent asking something, with the one thing you can answer. */
-export function AgentAsk({ question, answer, onAnswer }: {
-  question: string; answer: string; onAnswer?: () => void;
+export function AgentAsk({
+  question,
+  answer,
+  onAnswer,
+}: {
+  question: string;
+  answer: string;
+  onAnswer?: () => void;
 }) {
   return (
     <View style={{ gap: space.s5, backgroundColor: colour.surface2, borderRadius: 20, padding: space.s4 }}>
@@ -67,8 +89,11 @@ export function AgentAsk({ question, answer, onAnswer }: {
         <Icon name="mark" size={32} colour={colour.accent} />
         <Body style={{ flex: 1 }}>{question}</Body>
       </View>
-      <Pressable accessibilityRole="button" onPress={onAnswer}
-        style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+      <Pressable
+        accessibilityRole="button"
+        onPress={onAnswer}
+        style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+      >
         <Row>{answer}</Row>
         <Icon name="chevron" size={20} />
       </Pressable>
@@ -76,12 +101,30 @@ export function AgentAsk({ question, answer, onAnswer }: {
   );
 }
 
-export function ChoiceRow({ glyph, title, sub, onPress, tone }: {
-  glyph: IconName; title: string; sub: string; onPress?: () => void; tone?: string;
+export function ChoiceRow({
+  glyph,
+  title,
+  sub,
+  onPress,
+  tone,
+}: {
+  glyph: IconName;
+  title: string;
+  sub: string;
+  onPress?: () => void;
+  tone?: string;
 }) {
   return (
-    <Pressable accessibilityRole="button" onPress={onPress}
-      style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: space.s5, opacity: pressed ? 0.6 : 1 })}>
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space.s5,
+        opacity: pressed ? 0.6 : 1,
+      })}
+    >
       <Icon name={glyph} size={20} colour={tone} />
       <View style={{ flex: 1, gap: 2 }}>
         <Row>{title}</Row>
@@ -100,7 +143,9 @@ export function FootNote({ title, sub }: { title: string; sub: string }) {
   return (
     <View style={{ alignItems: 'center', gap: 6 }}>
       <Label>{title}</Label>
-      <Caption tone="secondary" style={{ textAlign: 'center' }}>{sub}</Caption>
+      <Caption tone="secondary" style={{ textAlign: 'center' }}>
+        {sub}
+      </Caption>
     </View>
   );
 }
@@ -108,8 +153,14 @@ export function FootNote({ title, sub }: { title: string; sub: string }) {
 /* The "how I decided" card: a heading, then reasons behind a 16 glyph. The
    design uses check for the settled part and lock for the parts it cannot
    move, never a warning triangle. */
-export function ReasonList({ title, rows, note }: {
-  title: string; rows: [IconName, string][]; note?: string;
+export function ReasonList({
+  title,
+  rows,
+  note,
+}: {
+  title: string;
+  rows: [IconName, string][];
+  note?: string;
 }) {
   return (
     <View style={{ backgroundColor: colour.surface2, borderRadius: 20, padding: space.s4, gap: space.s4 }}>

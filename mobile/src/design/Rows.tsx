@@ -8,7 +8,7 @@
 import React, { ReactNode } from 'react';
 import { Pressable, Switch, View } from 'react-native';
 import { Icon } from './Icon';
-import { Body, Caption, Head, Label, Meta, Row } from './text';
+import { Body, Caption, Head, Meta, Row } from './text';
 import { IconName } from '../icons';
 import { colour, space } from './tokens';
 
@@ -16,12 +16,28 @@ export function SectionLabel({ children }: { children: string }) {
   return <Body tone="secondary">{children}</Body>;
 }
 
-export function SettingRow({ glyph, title, value, onPress }: {
-  glyph?: IconName; title: string; value?: string; onPress?: () => void;
+export function SettingRow({
+  glyph,
+  title,
+  value,
+  onPress,
+}: {
+  glyph?: IconName;
+  title: string;
+  value?: string;
+  onPress?: () => void;
 }) {
   return (
-    <Pressable accessibilityRole="button" onPress={onPress}
-      style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: space.s5, opacity: pressed ? 0.6 : 1 })}>
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space.s5,
+        opacity: pressed ? 0.6 : 1,
+      })}
+    >
       {glyph ? <Icon name={glyph} size={28} /> : <View style={{ width: 28 }} />}
       <Row style={{ flex: 1 }}>{title}</Row>
       {value ? <Meta tone="secondary">{value}</Meta> : null}
@@ -30,8 +46,18 @@ export function SettingRow({ glyph, title, value, onPress }: {
   );
 }
 
-export function ToggleRow({ glyph, title, sub, value, onChange }: {
-  glyph?: IconName; title: string; sub?: string; value: boolean; onChange: (v: boolean) => void;
+export function ToggleRow({
+  glyph,
+  title,
+  sub,
+  value,
+  onChange,
+}: {
+  glyph?: IconName;
+  title: string;
+  sub?: string;
+  value: boolean;
+  onChange: (v: boolean) => void;
 }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s5 }}>
@@ -50,19 +76,44 @@ export function ToggleRow({ glyph, title, sub, value, onChange }: {
   );
 }
 
-export function DeviceRow({ glyph, title, where, tag, onPress }: {
-  glyph: IconName; title: string; where: string; tag?: string; onPress?: () => void;
+export function DeviceRow({
+  glyph,
+  title,
+  where,
+  tag,
+  onPress,
+}: {
+  glyph: IconName;
+  title: string;
+  where: string;
+  tag?: string;
+  onPress?: () => void;
 }) {
   return (
-    <Pressable accessibilityRole={onPress ? 'button' : undefined} onPress={onPress}
-      style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: space.s5, opacity: pressed && onPress ? 0.6 : 1 })}>
+    <Pressable
+      accessibilityRole={onPress ? 'button' : undefined}
+      onPress={onPress}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space.s5,
+        opacity: pressed && onPress ? 0.6 : 1,
+      })}
+    >
       <Icon name={glyph} size={20} />
       <View style={{ flex: 1, gap: 2 }}>
         <Row>{title}</Row>
         <Caption tone="secondary">{where}</Caption>
       </View>
       {tag ? (
-        <View style={{ backgroundColor: colour.surface2, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 }}>
+        <View
+          style={{
+            backgroundColor: colour.surface2,
+            borderRadius: 12,
+            paddingHorizontal: 10,
+            paddingVertical: 4,
+          }}
+        >
           <Caption style={{ fontWeight: '600' }}>{tag}</Caption>
         </View>
       ) : null}
@@ -70,12 +121,28 @@ export function DeviceRow({ glyph, title, where, tag, onPress }: {
   );
 }
 
-export function CapRow({ title, sub, value, onPress }: {
-  title: string; sub: string; value: string; onPress?: () => void;
+export function CapRow({
+  title,
+  sub,
+  value,
+  onPress,
+}: {
+  title: string;
+  sub: string;
+  value: string;
+  onPress?: () => void;
 }) {
   return (
-    <Pressable accessibilityRole="button" onPress={onPress}
-      style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: space.s4, opacity: pressed ? 0.6 : 1 })}>
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space.s4,
+        opacity: pressed ? 0.6 : 1,
+      })}
+    >
       <View style={{ flex: 1, gap: 2 }}>
         <Row>{title}</Row>
         <Caption tone="secondary">{sub}</Caption>
@@ -105,7 +172,9 @@ export function Aside({ glyph = 'lock', children }: { glyph?: IconName; children
   return (
     <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s3 }}>
       <Icon name={glyph} size={16} colour={colour.textTertiary} />
-      <Meta tone="secondary" style={{ flex: 1 }}>{children}</Meta>
+      <Meta tone="secondary" style={{ flex: 1 }}>
+        {children}
+      </Meta>
     </View>
   );
 }
@@ -113,14 +182,27 @@ export function Aside({ glyph = 'lock', children }: { glyph?: IconName; children
 /* Back beside one action, the way the frames end a screen that is not a dock. */
 export function BottomBar({ onBack, children }: { onBack?: () => void; children: ReactNode }) {
   return (
-    <View style={{
-      position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row',
-      alignItems: 'center', gap: space.s2, paddingHorizontal: 20, paddingVertical: 24,
-      backgroundColor: colour.surface,
-    }}>
+    <View
+      style={{
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space.s2,
+        paddingHorizontal: 20,
+        paddingVertical: 24,
+        backgroundColor: colour.surface,
+      }}
+    >
       {onBack ? (
-        <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={onBack}
-          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          onPress={onBack}
+          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+        >
           <Icon name="back" size={22} />
         </Pressable>
       ) : null}
@@ -128,4 +210,3 @@ export function BottomBar({ onBack, children }: { onBack?: () => void; children:
     </View>
   );
 }
-

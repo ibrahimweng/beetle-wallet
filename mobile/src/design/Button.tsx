@@ -4,11 +4,10 @@
    Height, radius and side padding are the set's own numbers. A leading or
    trailing glyph sits 8 from the label, as the set spaces them. */
 import React from 'react';
-import { Pressable, StyleSheet, View, ViewStyle, StyleProp } from 'react-native';
+import { Pressable, StyleSheet, Text, ViewStyle, StyleProp } from 'react-native';
 import { Icon } from './Icon';
 import { IconName } from '../icons';
 import { colour } from './tokens';
-import { Text } from 'react-native';
 
 export type ButtonTone = 'black' | 'grey' | 'white' | 'blue';
 export type ButtonSize = 44 | 48 | 56;
@@ -27,7 +26,15 @@ const TONES = {
 } as const;
 
 export function Button({
-  label, onPress, tone = 'black', size = 56, leading, trailing, full = true, style, disabled,
+  label,
+  onPress,
+  tone = 'black',
+  size = 56,
+  leading,
+  trailing,
+  full = true,
+  style,
+  disabled,
 }: {
   label: string;
   onPress?: () => void;

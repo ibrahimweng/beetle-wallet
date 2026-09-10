@@ -10,7 +10,9 @@ import { colour } from './src/design';
 
 export default function Root() {
   const [ready, setReady] = useState(false);
-  useEffect(() => { hydrate().finally(() => setReady(true)); }, []);
+  useEffect(() => {
+    hydrate().finally(() => setReady(true));
+  }, []);
   if (!ready) return <View style={{ flex: 1, backgroundColor: colour.surface }} />;
   return (
     <SafeAreaProvider>

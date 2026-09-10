@@ -20,9 +20,9 @@
     "verify": "npm run bundle && npm run screens && npm run copy && npm run geometry && npm run flows",
     "test": "npm run typecheck && npm run lint && npm run format:check && npm run reach && npm run verify",
     "lint": "eslint .",
-    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"test/*.mjs\"",
+    "format": "prettier --write \"*.{ts,tsx}\" \"src/**/*.{ts,tsx}\" \"test/*.mjs\"",
     "geometry": "node test/geometry.mjs dist",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"test/*.mjs\""
+    "format:check": "prettier --check \"*.{ts,tsx}\" \"src/**/*.{ts,tsx}\" \"test/*.mjs\""
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

@@ -15,8 +15,8 @@ npm run web
 ```
 
 `npm test` runs everything: the type check, the reachability check, then the
-web bundle and the four checks that run against it. It takes a couple of
-minutes and needs a Chromium (`npx playwright install chromium`).
+web bundle and the six checks that run against it. It takes a few minutes
+and needs a Chromium (`npx playwright install chromium`).
 
 | Command | What it proves |
 |---|---|
@@ -24,6 +24,8 @@ minutes and needs a Chromium (`npx playwright install chromium`).
 | `npm run reach` | every one of the 100 screens can be reached by tapping, from the first screen the app opens on |
 | `npm run screens` | every screen draws, with no error and nothing blank |
 | `npm run copy` | every line of text in the Figma frames is on the screen that should say it |
+| `npm run geometry` | the phone, the column, the card, the button and the dock measure what the file sets |
+| `npm run visual` | every screen still looks like its frame — it renders each one at the frame's own size and counts the pixels that differ |
 | `npm run motion` | screens assemble after the tap rather than appearing, sheets come up, and the menu blurs what is behind it |
 | `npm run flows` | the way in, sending, buying, a bill, a request, the ask bar and the button all work, and the money really moves |
 
@@ -132,9 +134,16 @@ on a phone there are no DOM nodes to animate.
 `test/frames.json` is every line of text in all 91 Figma frames, read straight
 out of the file and keyed the way `src/routes.ts` keys them. `npm run copy`
 opens each screen in the exported bundle and checks the frame's lines are on
-it. That is 1,304 lines across 91 frames.
+it. That is 2,210 lines across 91 frames.
 
-Fourteen lines are recorded in `test/copy.json` as deliberate differences, each
+Reading them out is less obvious than it looks. `findAllWithCriteria` and
+`findAll` do not return text that lives inside a component **instance**, and
+most of the words in this file do: an earlier version of `frames.json` held
+1,304 lines where there are 2,501, and the check passed on screens that were
+missing their headline. It is built with a recursive walk that goes through
+instances, and rebuilding it that way turned up 347 real differences.
+
+Nineteen lines are recorded in `test/copy.json` as deliberate differences, each
 with the reason. They fall into three kinds:
 
 - **A balance that moves.** The frame prints the balance the design had that
@@ -149,6 +158,28 @@ with the reason. They fall into three kinds:
   ₦10,000 — which is the receipt's.
 
 All three are worth a look next time the file is open.
+
+### Looking at it, not only reading it
+
+`npm run visual` renders every screen at its frame's own size and counts the
+pixels that differ, worst first. The number is never zero and is not meant to
+be — a live balance, a caret, an anti-aliased edge and a font that is not the
+file's own all move pixels. What it is for is finding the screens that are
+*wrong*, which stand out from that noise by an order of magnitude.
+
+It found a great deal. Sixteen frames open with a soft blob of colour bleeding
+down from the top edge and there was none of it anywhere. The way-in screens
+hang their column off the dock and every one of them had it at the top of the
+page. The four keyboard frames are the home with the keyboard up, not pages of
+their own. The mark in the dock was squeezing to a two-pixel dot on any screen
+whose dock also carries a back arrow and a button. None of that shows up in a
+check that reads text.
+
+`test/visual.json` records where each screen stands. A screen that drifts more
+than a point and a half past its own number fails, which catches a change that
+moves something without saying so. Rewrite it with `npm run visual -- --write`
+once you have looked at the diff in `test/shots` and know the new number is
+right.
 
 ### A cap is not a wall
 

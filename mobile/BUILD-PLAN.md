@@ -188,7 +188,8 @@ row the design does not have.
 
 - [x] README current: how to run, what is generated, how to add a screen
 - [x] `npm test` runs the type check, lint, format, reachability, the bundle,
-      and the five checks against it
+      and the six checks against it, including the pixel comparison against
+      every frame
 - [x] Lint and format config — `eslint.config.js`, `.prettierrc`, both clean
 - [x] No placeholder screens left in the running app
 - [x] BUILD-PLAN.md fully checked off, or honest about what is not
@@ -199,6 +200,24 @@ row the design does not have.
 - [x] Final report saying what was built, what was found, what is left
 
 ---
+
+## Checked by looking, not only by reading
+
+`npm run visual` renders each screen at its frame's own size and counts the
+pixels that differ. Against the frames the app now averages 5.2%, with no
+screen worse than 10%; it started that pass at 13.4% with a worst screen of
+51.8%. `test/visual.json` holds where each screen stands and the check fails
+one that drifts past it.
+
+Two things made that possible and are worth knowing before touching this
+again:
+
+- `findAllWithCriteria` and `findAll` do not see text inside a component
+  instance. `test/frames.json` was built with a recursive walk instead, and
+  went from 1,304 lines to 2,501 — the copy check had been passing on screens
+  that were missing their own headline.
+- The number is never zero. A live balance, a caret and a font that is not the
+  file's own all move pixels. Read the ranking, not the absolute figure.
 
 ## What is left, honestly
 
@@ -217,10 +236,13 @@ file says two things and the app had to pick one.
    ₦50,000. Its figures are the frame's, so they do not follow the transfer
    that took you there.
 
-Two more, about the app rather than the file:
+Three more, about the app rather than the file:
 
 - Nothing here reaches a network. The agent answers from the store, which is
   what makes its answers true; a real one would answer from a model with the
   same figures in front of it.
 - The camera screens draw what a camera would have read rather than opening
   one. The frames draw the same thing.
+- Your code draws a real QR grid where the frame draws an abstract placeholder,
+  so that screen will never match the frame closely. A real code is the right
+  thing to ship.

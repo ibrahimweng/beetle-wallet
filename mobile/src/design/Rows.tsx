@@ -173,7 +173,7 @@ export function DeviceRow({
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: space.s3,
+        gap: space.s2,
       }}
     >
       {/* the frames set the glyph on a white square, so a row of devices reads

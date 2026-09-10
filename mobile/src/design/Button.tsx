@@ -11,12 +11,15 @@ import { colour } from './tokens';
 import { AnimatedPressable, useTap } from './motion';
 
 export type ButtonTone = 'black' | 'grey' | 'white' | 'blue';
-export type ButtonSize = 44 | 48 | 56;
+export type ButtonSize = 40 | 44 | 48 | 56;
 
+/* `disc` is the white circle a leading glyph sits on where the frames give it
+   one: it comes down with the button rather than staying 32 at every size. */
 const SIZES = {
-  44: { height: 44, radius: 22, padding: 20, text: 14 },
-  48: { height: 48, radius: 24, padding: 24, text: 16 },
-  56: { height: 56, radius: 28, padding: 24, text: 16 },
+  40: { height: 40, radius: 20, padding: 34, text: 16, disc: 26 },
+  44: { height: 44, radius: 22, padding: 20, text: 14, disc: 28 },
+  48: { height: 48, radius: 24, padding: 24, text: 16, disc: 32 },
+  56: { height: 56, radius: 28, padding: 24, text: 16, disc: 32 },
 } as const;
 
 const TONES = {
@@ -83,15 +86,15 @@ export function Button({
       {leading && badge ? (
         <View
           style={{
-            width: 32,
-            height: 32,
-            borderRadius: 16,
+            width: s.disc,
+            height: s.disc,
+            borderRadius: s.disc / 2,
             backgroundColor: t.ink,
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Icon name={leading} size={18} colour={t.fill} />
+          <Icon name={leading} size={Math.round(s.disc * 0.56)} colour={t.fill} />
         </View>
       ) : leading ? (
         <Icon name={leading} size={20} colour={t.ink} />

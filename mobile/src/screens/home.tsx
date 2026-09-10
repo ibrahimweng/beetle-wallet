@@ -100,7 +100,8 @@ export const Home = ({ nav }: { nav: Nav }) => {
         <Button
           label="Receive"
           leading="receive-filled"
-          size={44}
+          badge
+          size={40}
           full={false}
           onPress={() => nav.go('receive')}
         />
@@ -118,15 +119,15 @@ export const Home = ({ nav }: { nav: Nav }) => {
         lead={
           <View
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: 18,
-              backgroundColor: colour.surface3,
+              width: 48,
+              height: 48,
+              borderRadius: 24,
+              backgroundColor: colour.ink,
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <Head>$</Head>
+            <Head tone="inverse">$</Head>
           </View>
         }
         title="Dollars"

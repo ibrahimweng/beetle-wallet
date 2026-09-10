@@ -11,8 +11,8 @@ import {
   Badge,
   Aside,
   BottomBar,
-  Avatar,
   Bubble,
+  Balance,
   Button,
   Card,
   Caption,
@@ -32,7 +32,6 @@ import {
   Row,
   Screen,
   Shortcuts,
-  StatusPill,
   StepHead,
   StepTrail,
   StepsAhead,
@@ -44,6 +43,7 @@ import {
   space,
   toast,
   washes,
+  WalletHeader,
 } from '../design';
 import { Nav, dock } from './nav';
 import { answer } from '../state/agent';
@@ -240,18 +240,20 @@ export const FirstHome = ({ nav }: { nav: Nav }) => (
       />
     }
   >
-    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <Avatar initials="B" />
-      <Label style={{ flex: 1, textAlign: 'center' }}>Wallet</Label>
-      <StatusPill label="New account" />
-    </View>
-    <View style={{ alignItems: 'center', gap: space.s2, paddingTop: 10 }}>
-      <Caption tone="secondary">Total balance</Caption>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-        <Display>₦0</Display>
-        <Head tone="tertiary">.00</Head>
-      </View>
-      <Button label="Receive" leading="receive-filled" full={false} onPress={() => nav.go('receive')} />
+    {/* the first home is the home screen with nothing in it yet, so it is the
+        same head and the same balance block — the account's age is the pill
+        beside the words, not something in the bar */}
+    <WalletHeader onSettings={() => nav.go('settings')} onAlerts={() => nav.go('history')} />
+    <Balance whole="₦0" kobo=".00" change="New account" />
+    <View style={{ alignSelf: 'center' }}>
+      <Button
+        label="Receive"
+        leading="receive-filled"
+        badge
+        size={40}
+        full={false}
+        onPress={() => nav.go('receive')}
+      />
     </View>
     <Shortcuts
       items={[

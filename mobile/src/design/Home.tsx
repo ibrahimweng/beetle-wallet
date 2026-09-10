@@ -14,17 +14,33 @@ import { IconName } from '../icons';
 import { colour, radius, space } from './tokens';
 import { Tap } from './motion';
 
+/* The wallet bar sits under the status bar rather than at the top of the
+   column the rest of the screen keeps to — the frames put it twenty above
+   where everything else begins. The bell is on the pale disc; the mark is
+   not. */
 export function WalletHeader({ onSettings, onAlerts }: { onSettings?: () => void; onAlerts?: () => void }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: -20 }}>
       <Pressable accessibilityRole="button" accessibilityLabel="Settings" onPress={onSettings}>
-        <Icon name="mark" size={32} colour={colour.accent} />
+        <Icon name="mark" size={28} />
       </Pressable>
       <View style={{ flex: 1, alignItems: 'center' }}>
         <Label>Wallet</Label>
       </View>
-      <Pressable accessibilityRole="button" accessibilityLabel="Alerts" onPress={onAlerts}>
-        <Icon name="bell" size={22} />
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Alerts"
+        onPress={onAlerts}
+        style={{
+          width: 34,
+          height: 34,
+          borderRadius: 17,
+          backgroundColor: colour.surface2,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Icon name="bell" size={18} />
       </Pressable>
     </View>
   );
@@ -34,16 +50,16 @@ export function Balance({ whole, kobo, change }: { whole: string; kobo: string; 
   return (
     <View style={{ alignItems: 'center', gap: space.s2 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s2 }}>
-        <Caption tone="secondary">Total balance</Caption>
+        <Meta tone="secondary">Total balance</Meta>
         <View
           style={{
             backgroundColor: colour.surface2,
             borderRadius: radius.pill,
-            paddingHorizontal: 8,
-            paddingVertical: 2,
+            paddingHorizontal: 10,
+            paddingVertical: 3,
           }}
         >
-          <Caption style={{ fontWeight: '600' }}>{change}</Caption>
+          <Label>{change}</Label>
         </View>
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
@@ -54,9 +70,11 @@ export function Balance({ whole, kobo, change }: { whole: string; kobo: string; 
   );
 }
 
+/* The frames leave more room above the four than the column's own gap — the
+   balance and what it can do read as one block, and these are the next one. */
 export function Shortcuts({ items }: { items: { glyph: IconName; label: string; onPress?: () => void }[] }) {
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 22 }}>
       {items.map(i => (
         <Tap
           key={i.label}
@@ -64,11 +82,11 @@ export function Shortcuts({ items }: { items: { glyph: IconName; label: string; 
           onPress={i.onPress}
           style={{
             alignItems: 'center',
-            gap: space.s2,
+            gap: 10,
             flex: 1,
           }}
         >
-          <Icon name={i.glyph} size={32} />
+          <Icon name={i.glyph} size={28} />
           <Caption tone="secondary">{i.label}</Caption>
         </Tap>
       ))}

@@ -378,7 +378,7 @@ export const LimitStop = ({ nav }: { nav: Nav }) => {
 export const Devices = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about a device', nav)}>
     <PageHead lead title="Devices" sub="Everywhere this account is open" />
-    <Card style={{ gap: 34, paddingVertical: 12 }}>
+    <Card style={{ gap: 32, paddingVertical: 17 }}>
       <DeviceRow glyph="airtime" title="iPhone 13" where="Lagos · open now" tag="This one" />
       <DeviceRow glyph="airtime" title="Tecno Spark 10" where="Lagos · 3 days ago" />
       <DeviceRow glyph="laptop" title="Chrome on Windows" where="Abuja · 12 August" tag="Odd one" odd />
@@ -387,10 +387,12 @@ export const Devices = ({ nav }: { nav: Nav }) => (
       The Windows one signed in from Abuja on 12 August and has not been back. If that was not you, sign it
       out and change your passcode. I will not do either without you.
     </AgentSay>
+    {/* the frame sets this one close under what the agent says, not a column
+        gap away from it */}
     <Button
       label="Sign out everywhere else"
       full={false}
-      style={{ alignSelf: 'center' }}
+      style={{ alignSelf: 'center', marginTop: -20 }}
       onPress={() => nav.go('settings')}
     />
     <Aside>
@@ -406,7 +408,7 @@ export const LostPhone = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask what freezing does', nav)}>
     <PageHead title="Not your phone" sub="Signed in on a device I do not know" />
     {/* the frame sets these 74 apart, badge top to badge top */}
-    <Card style={{ gap: 34, paddingVertical: 12 }}>
+    <Card style={{ gap: 32, paddingVertical: 17, marginTop: 5 }}>
       <DeviceRow
         glyph="airtime"
         title="Freeze the money"
@@ -429,7 +431,7 @@ export const LostPhone = ({ nav }: { nav: Nav }) => (
     <Button
       label="Freeze it, then prove it is me"
       full={false}
-      style={{ alignSelf: 'center' }}
+      style={{ alignSelf: 'center', marginTop: 6 }}
       onPress={() => nav.go('newcode')}
     />
     <Aside>

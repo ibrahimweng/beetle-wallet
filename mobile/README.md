@@ -14,7 +14,17 @@ npm run android
 npm run web
 ```
 
-`npm test` runs the type check. `npx tsc --noEmit` is the same thing.
+`npm test` runs everything: the type check, the reachability check, then the
+web bundle and the four checks that run against it. It takes a couple of
+minutes and needs a Chromium (`npx playwright install chromium`).
+
+| Command | What it proves |
+|---|---|
+| `npm run typecheck` | it compiles |
+| `npm run reach` | every one of the 100 screens can be reached by tapping, from the first screen the app opens on |
+| `npm run screens` | every screen draws, with no error and nothing blank |
+| `npm run copy` | every line of text in the Figma frames is on the screen that should say it |
+| `npm run flows` | the way in, sending, buying, a bill, a request, the ask bar and the button all work, and the money really moves |
 
 ## What comes from where
 
@@ -36,7 +46,7 @@ draws, because the state layer reads synchronously.
 
 ## The design is the source
 
-`src/theme.ts` holds the tokens read out of the Figma file, not approximations:
+`src/design/tokens.ts` holds the tokens read out of the Figma file, not approximations:
 the type scale is 32/40, 20/24, 16/24, 14/20 and 12/16, cards are 24 radius
 with 20 and 21 of padding, buttons are 56 tall, the dock leaves 24 above and
 below its row, a screen column is spaced 20 and starts 72 down. Those numbers
@@ -50,9 +60,12 @@ drawn from. `../test/figma-map.json` is where that mapping lives and
 ## Adding a screen
 
 1. Look up the frame in `src/routes.ts`. Open that node in Figma.
-2. Write the component in `src/screens/`, using `src/components/kit.tsx`. Do
-   not invent spacing: take it off the frame.
-3. Register it in `BUILT` in `src/navigation.tsx`.
+2. Write the component in `src/screens/`, using `src/design/`. Do not invent
+   spacing: take it off the frame.
+3. Add its lines to `test/frames.json` if the frame is new, so `npm run copy`
+   checks them.
+4. Register it in `BUILT` in `src/navigation.tsx`, and make sure something
+   already on screen can reach it, or `npm run reach` will say so.
 
 Any route with no component falls to `ToBuild`, which names its frame on
 screen. Nothing is stranded, and what is still owed is visible while using the
@@ -84,26 +97,48 @@ of side padding, a 56 is 28 radius with 24, and the label is semibold.
 frames set their second line at 14 regular, while the Page head component sets
 it at 16. They are two different heads and both are correct in their place.
 
+## Checked against the frames, not against memory
+
+`test/frames.json` is every line of text in all 91 Figma frames, read straight
+out of the file and keyed the way `src/routes.ts` keys them. `npm run copy`
+opens each screen in the exported bundle and checks the frame's lines are on
+it. That is 1,304 lines across 91 frames.
+
+Sixteen lines are recorded in `test/copy.json` as deliberate differences, each
+with the reason. They fall into three kinds:
+
+- **A balance that moves.** The frame prints the balance the design had that
+  day; the app prints the one the store actually holds after the payment.
+- **A component's placeholder.** The Chat and Confirm frames carry the Bubble
+  component's unoverridden default text, about topping up Ikeja Electric,
+  rather than anything about the transfer. It reads like an instance nobody
+  overrode, so the screen uses the line the flow needs.
+- **Where the file disagrees with itself.** The Chat and Send money frames
+  price a transfer as Free while the receipt for the same transfer charges
+  ₦26.88. The app follows one rule everywhere — ₦25 to NIP plus 7.5% VAT above
+  ₦10,000 — which is the receipt's. And the Send money frame draws the slide
+  on a ₦50,000 transfer, while the Spending limits frame says ₦64,000 of the
+  ₦100,000 day cap has already gone; the app enforces the cap, so that screen
+  shows why it stopped and offers the way through, which is a frame of its own.
+
+All three are worth a look next time the file is open.
+
 ## Where it has got to
 
-Built: the design system above, all 97 icons, the shared state layer,
-navigation across all 100 routes with a path each, and sixteen screens.
+All 100 screens are built, every route has a path, and every screen can be
+reached by tapping. Money moves through the shared state layer, so a transfer
+made anywhere shows up in the balance, the feed and the history at once.
 
-- The way in: Start, Number, Code, Nin, Who, Face, Passcode, Ready, Signin,
-  Signcode. Opening an account runs from the front door to "Take me in", and
-  signing in runs to home.
-- The send flow: Ask, Chat, Confirm, NoFace, DoneSend, Share. It runs end to
-  end and the money really moves: Confirm calls the shared state layer, so the
-  balance on the receipt is the balance after, not a figure typed in.
-- The button's menu.
+- **Act One, when it goes wrong** — sixteen screens, from the reasoning panel
+  to the dispute that closed.
+- **Act Two, what it decides** — standing instructions, the caps, what opens
+  the app, and the phone in the wrong hands.
+- **Act Three, what it does** — sending four ways, buying, asking to be paid,
+  bills from a photo and from the list, being paid, the services drawer,
+  borrowing, the card, the record, the pot, and dollars.
+- **Act Four, getting in** — opening an account, finishing the checks, the
+  first day, and coming back.
 
-Not built: the other 84. They route, they name their frame, and the system
-above is what they are made of.
-
-## One thing the file leaves open
-
-The Chat frame's agent bubble still carries the Bubble component's default
-text, about topping up Ikeja Electric, rather than anything about the transfer
-being put together. It reads like an instance nobody overrode. The screen here
-uses the line the flow needs instead of copying that through. Worth a look
-next time the file is open.
+The ask bar is on almost every screen. A question either takes you to the
+screen that answers it or goes to the chat, which answers from what is really
+in the store — see `src/state/agent.ts`. Nothing here reaches a network.

@@ -4,3 +4,7 @@ test/
 node_modules/
 README.md
 beetle.config.js.example
+
+# The phone app is its own build. The web app is index.html, src and dist, so
+# shipping it here only bought seven megabytes of deployment storage a push.
+mobile/

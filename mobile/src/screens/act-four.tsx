@@ -30,7 +30,9 @@ import {
   PageHead,
   Picker,
   Row,
+  Said,
   Screen,
+  SendButton,
   Shortcuts,
   StepHead,
   StepTrail,
@@ -323,13 +325,6 @@ export const FirstHome = ({ nav }: { nav: Nav }) => (
 /* the question typed on the first home, picked up by the first chat */
 let first: string | null = null;
 
-const STARTERS = [
-  'How do I get money in?',
-  'What can I do before I add my ID?',
-  'What does a transfer cost?',
-  'What do you do with my NIN?',
-];
-
 export const FirstAsk = ({ nav }: { nav: Nav }) => {
   const [thread, setThread] = useState<{ me: boolean; text: string }[]>(() => {
     const q = first;
@@ -343,13 +338,21 @@ export const FirstAsk = ({ nav }: { nav: Nav }) => {
   });
   const say = (q: string) => setThread(t => [...t, { me: true, text: q }, { me: false, text: reply(q) }]);
   return (
-    <Screen dock={<Dock placeholder="Ask me anything" onBack={() => nav.go('firsthome')} onAsk={say} />}>
-      <TopBar mark title="Beetle" />
+    <Screen
+      dock={
+        <Dock
+          placeholder="Ask me anything"
+          onAsk={say}
+          action={<SendButton onPress={() => nav.go('firsthome')} />}
+        />
+      }
+    >
+      <TopBar mark title="Beetle" onBack={() => nav.go('firsthome')} />
       {thread.length === 0 ? (
         <>
-          <View style={{ alignSelf: 'flex-end' }}>
-            <Bubble who="You">What can you do?</Bubble>
-          </View>
+          {/* the frame opens this one on a spoken question, and offers nothing
+              under the answer: a new account has nothing to suggest from */}
+          <Said>What can you do?</Said>
           <View style={{ flexDirection: 'row', gap: space.s2 }}>
             <Icon name="mark" size={32} colour={colour.accent} />
             <View style={{ flex: 1 }}>
@@ -357,11 +360,6 @@ export const FirstAsk = ({ nav }: { nav: Nav }) => {
             </View>
           </View>
           <Aside>I only tell you things I have seen in your own money.</Aside>
-          <View style={{ gap: space.s2 }}>
-            {STARTERS.map(s => (
-              <Button key={s} label={s} tone="grey" size={48} onPress={() => say(s)} />
-            ))}
-          </View>
         </>
       ) : null}
       {thread.map((m, i) => (

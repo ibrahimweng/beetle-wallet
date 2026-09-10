@@ -65,13 +65,17 @@ export const Health = ({ nav }: { nav: Nav }) => {
   return (
     <Screen dock={dock('Ask me how to move it', nav, 'home')}>
       <PageHead lead title="Money health" sub="One number for how you are handling it" />
-      <Card>
-        <View style={{ alignItems: 'center', gap: space.s2 }}>
-          <Ring pct={s.health} size={150}>
-            <Head style={{ fontSize: 32, lineHeight: 40, fontWeight: '700' }}>{String(s.health)}</Head>
-            <Caption tone="secondary">out of 100</Caption>
+      <Card style={{ marginTop: 8, paddingVertical: 25 }}>
+        <View style={{ alignItems: 'center' }}>
+          <Ring pct={s.health} size={166}>
+            <Display>{String(s.health)}</Display>
+            <Meta tone="secondary" style={{ marginTop: 8 }}>
+              out of 100
+            </Meta>
           </Ring>
-          <Label tone="good">Up 4 since July</Label>
+          <Label tone="good" style={{ marginTop: 21 }}>
+            Up 4 since July
+          </Label>
         </View>
       </Card>
       <Head>What moves it</Head>
@@ -131,14 +135,18 @@ export const Goal = ({ nav }: { nav: Nav }) => {
   const base = (
     <Screen dock={dock('Ask about this goal', nav, 'home', true)}>
       <PageHead lead title={g.name} sub={`${naira(g.target)} by ${g.by}`} />
-      <Card>
-        <View style={{ alignItems: 'center', gap: space.s3 }}>
-          <Ring pct={pct} size={132} tone={g.paused ? colour.warn : colour.accent}>
-            <Head>{`${pct}%`}</Head>
-            <Caption tone="secondary">of the way</Caption>
+      {/* the frame draws the ring at 166 with the share inside it, the figure
+          under it at 32, and 25 of card either side */}
+      <Card style={{ marginTop: 8, paddingVertical: 25 }}>
+        <View style={{ alignItems: 'center' }}>
+          <Ring pct={pct} size={166} tone={g.paused ? colour.warn : colour.accent}>
+            <Display>{`${pct}%`}</Display>
+            <Meta tone="secondary" style={{ marginTop: 8 }}>
+              of the way
+            </Meta>
           </Ring>
-          <Head>{naira(g.saved)}</Head>
-          <Meta tone="tertiary">{`of ${naira(g.target)} put aside`}</Meta>
+          <Display style={{ marginTop: 21 }}>{naira(g.saved)}</Display>
+          <Meta tone="tertiary" style={{ marginTop: 10 }}>{`of ${naira(g.target)} put aside`}</Meta>
           {g.paused ? <StatusPill label="Paused" tone={colour.warn} /> : null}
         </View>
       </Card>
@@ -344,23 +352,34 @@ export const Paused = ({ nav }: { nav: Nav }) => {
   return (
     <Screen dock={dock('Ask about this goal', nav, 'goal', true)}>
       <PageHead lead title={g.name} sub="Paused while things are tight" />
-      <Card>
-        <View style={{ alignItems: 'center', gap: space.s2 }}>
-          <Display>{`${pct}%`}</Display>
-          <Caption tone="tertiary">of the way</Caption>
-          <Head>{naira(g.saved)}</Head>
-          <Meta tone="tertiary">{`of ${naira(g.target)}, holding steady`}</Meta>
+      <Card style={{ marginTop: 8, paddingVertical: 25 }}>
+        <View style={{ alignItems: 'center' }}>
+          <Ring pct={pct} size={166}>
+            <Display>{`${pct}%`}</Display>
+            <Meta tone="secondary" style={{ marginTop: 8 }}>
+              of the way
+            </Meta>
+          </Ring>
+          <Display style={{ marginTop: 21 }}>{naira(g.saved)}</Display>
+          <Meta tone="tertiary" style={{ marginTop: 10 }}>
+            {`of ${naira(g.target)}, holding steady`}
+          </Meta>
         </View>
       </Card>
+      {/* the frame says why before it lists what is waiting */}
+      <AgentSay>
+        You told me money is tight, so I have stopped moving it. Your date moves from 12 March to 9 April.
+        Nothing has been taken and nothing has been charged.
+      </AgentSay>
       <Head>Waiting for you</Head>
       <Card style={{ gap: space.s3 }}>
         {(
           [
-            ['Payday transfer', 'Paused since 3 August', null],
-            ['Round ups', 'Paused since 3 August', null],
-            ['Money back on top ups', 'Still going in', '₦120'],
-          ] as [string, string, string | null][]
-        ).map(([t, when, amount], i) => (
+            ['lock', 'Payday transfer', 'Paused since 3 August', null],
+            ['swap', 'Round ups', 'Paused since 3 August', null],
+            ['airtime', 'Money back on top ups', 'Still going in', '₦120'],
+          ] as [IconName, string, string, string | null][]
+        ).map(([glyph, t, when, amount], i) => (
           <View key={t}>
             {i ? (
               <View style={{ paddingBottom: space.s3 }}>
@@ -368,6 +387,7 @@ export const Paused = ({ nav }: { nav: Nav }) => {
               </View>
             ) : null}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
+              <Mark glyph={glyph} />
               <View style={{ flex: 1, gap: 2 }}>
                 <Row>{t}</Row>
                 <Meta tone="secondary">{when}</Meta>
@@ -377,10 +397,6 @@ export const Paused = ({ nav }: { nav: Nav }) => {
           </View>
         ))}
       </Card>
-      <AgentSay>
-        You told me money is tight, so I have stopped moving it. Your date moves from 12 March to 9 April.
-        Nothing has been taken and nothing has been charged.
-      </AgentSay>
       <Button label="Add money anyway" tone="grey" onPress={() => nav.go('goal')} />
       <Button
         label="Start again"

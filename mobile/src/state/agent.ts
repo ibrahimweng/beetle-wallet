@@ -37,6 +37,7 @@ const PLACES: [RegExp, Route][] = [
   [/\b(send|transfer|pay)\b/i, 'pay'],
   [/\b(health|score)\b/i, 'health'],
   [/\b(standing|instruction|rule)\b/i, 'rules'],
+  [/\b(offline|network|no data|connection)\b/i, 'nonetwork'],
 ];
 
 /** Where a question should take you, or null to let the chat answer it. */

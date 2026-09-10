@@ -1,13 +1,13 @@
-/* The big-number pad. Three columns 94 apart and four rows 90 apart on the
-   frame, with 000 in the bottom left and delete on the right. The first key
-   pressed replaces what is there rather than appending to it, because a
-   figure that arrives filled in is a suggestion, not something you are
-   halfway through typing. */
+/* The big-number pad — 282 by 342, centred. Three columns 94 apart and four
+   rows 90 apart, each digit on a 72 disc of the pale grey; delete sits on the
+   page itself. The first key pressed replaces what is there rather than
+   appending to it, because a figure that arrives filled in is a suggestion,
+   not something you are halfway through typing. */
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import { Icon } from './Icon';
 import { Caption, Display, Head, Body } from './text';
-import { space } from './tokens';
+import { colour, space } from './tokens';
 import { Tap } from './motion';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '000', '0', 'del'] as const;
@@ -41,7 +41,7 @@ export function AmountPad({
         {heard ? <Body tone="secondary">{heard}</Body> : null}
         <Display>{'₦' + value.toLocaleString('en-NG')}</Display>
       </View>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignSelf: 'center', width: 353 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignSelf: 'center', width: 282 }}>
         {KEYS.map(k => (
           <Tap
             key={k}
@@ -49,13 +49,24 @@ export function AmountPad({
             accessibilityLabel={k === 'del' ? 'Delete' : k}
             onPress={() => press(k)}
             style={{
-              width: 353 / 3,
+              width: 94,
               height: 90,
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            {k === 'del' ? <Icon name="del" size={32} /> : <Head>{k}</Head>}
+            <View
+              style={{
+                width: 72,
+                height: 72,
+                borderRadius: 36,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: k === 'del' ? 'transparent' : colour.surface2,
+              }}
+            >
+              {k === 'del' ? <Icon name="del" size={32} /> : <Head>{k}</Head>}
+            </View>
           </Tap>
         ))}
       </View>

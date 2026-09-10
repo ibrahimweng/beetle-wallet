@@ -2,7 +2,7 @@
    the Flows page, and they share one shape, which is why the pieces they are
    made of live in the design system rather than in this file. */
 import React from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, View } from 'react-native';
 import {
   AgentAsk,
   AgentSay,
@@ -10,6 +10,7 @@ import {
   Banner,
   BigStatus,
   Button,
+  Card,
   ChoiceRow,
   Choices,
   Dock,
@@ -21,6 +22,7 @@ import {
   Screen,
   SectionLabel,
   ToolPanel,
+  ToolRow,
   colour,
 } from '../design';
 import { Route } from '../routes';
@@ -237,28 +239,26 @@ export const Pending = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about this transfer', nav)}>
     <PageHead title="Still on its way" sub="Sent at 14:22, not confirmed yet" />
     <BigStatus glyph="wait-filled" tone={colour.warn} amount="₦20,000" line="to Sarah Adeyemi · GTBank" />
-    <Banner text="Do not send it again. This one is still live." />
-    <ToolPanel
-      tool="Beetle Transfers"
-      state="Waiting"
-      rows={[
-        { k: 'Left your account', v: '14:22' },
-        { k: 'GTBank has it', v: '14:22' },
-        { k: 'Reaching Sarah', v: 'Waiting', done: false },
-      ]}
-    />
+    <Banner text="Do not send it again. This one is still live." glyph="warn-filled" ink={colour.good} />
+    {/* the frame draws these three as a plain grey block, with no tool over
+        them: the transfer is already out, so there is nothing running */}
+    <Card style={{ gap: 0, paddingHorizontal: 0, paddingVertical: 0 }}>
+      {(
+        [
+          ['Left your account', '14:22', true],
+          ['GTBank has it', '14:22', true],
+          ['Reaching Sarah', 'Waiting', false],
+        ] as [string, string, boolean][]
+      ).map(([k, v, done], i) => (
+        <View key={k} style={i ? { borderTopWidth: 1, borderTopColor: colour.rule } : undefined}>
+          <ToolRow k={k} v={v} done={done} />
+        </View>
+      ))}
+    </Card>
     <AgentSay>
       Slow, not lost. If GTBank has not confirmed by 16:22 it comes back on its own, and I will tell you
       either way.
     </AgentSay>
-    <Choices>
-      <ChoiceRow
-        glyph="alert"
-        title="You are offline"
-        sub="Last checked 12 minutes ago"
-        onPress={() => nav.go('nonetwork')}
-      />
-    </Choices>
     <AgentAsk
       question="Want a message the moment it lands?"
       answer="Yes, tell me"
@@ -455,16 +455,22 @@ export const DisputeEnd = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about this dispute', nav)}>
     <PageHead title="The dispute is closed" sub="GTBank decided on 3 September" />
     <BigStatus glyph="wait-filled" tone={colour.good} amount="₦20,000" line="back in Everyday at 11:40" />
-    <Banner text="It is already in your balance. Nothing to do." tone={colour.good} />
-    <ToolPanel
-      tool="Beetle Dispute"
-      state="Closed"
-      rows={[
-        { k: 'You reported it', v: '28 Aug' },
-        { k: 'GTBank decided', v: '3 Sep' },
-        { k: 'Money returned', v: '11:40', done: false },
-      ]}
-    />
+    <Banner text="It is already in your balance. Nothing to do." glyph="warn-filled" ink={colour.good} />
+    {/* closed, so nothing is running over it — the frame draws the three as a
+        plain grey block */}
+    <Card style={{ gap: 0, paddingHorizontal: 0, paddingVertical: 0 }}>
+      {(
+        [
+          ['You reported it', '28 Aug', true],
+          ['GTBank decided', '3 Sep', true],
+          ['Money returned', '11:40', false],
+        ] as [string, string, boolean][]
+      ).map(([k, v, done], i) => (
+        <View key={k} style={i ? { borderTopWidth: 1, borderTopColor: colour.rule } : undefined}>
+          <ToolRow k={k} v={v} done={done} />
+        </View>
+      ))}
+    </Card>
     <AgentSay>
       Six days, and you did not chase it once. Most disputes that get this far end the same way.
     </AgentSay>
@@ -518,7 +524,12 @@ export const Amend = ({ nav }: { nav: Nav }) => {
       <AgentSay>
         Change it as many times as you like. It moves after your face and your passcode, not before.
       </AgentSay>
-      <Button label={`Use ₦${amount.toLocaleString('en-NG')}`} onPress={() => nav.go('confirm')} />
+      <Button
+        label={`Use ₦${amount.toLocaleString('en-NG')}`}
+        full={false}
+        style={{ alignSelf: 'center' }}
+        onPress={() => nav.go('confirm')}
+      />
       <Pressable accessibilityRole="button" onPress={() => nav.go('short')} style={{ alignSelf: 'center' }}>
         <Label tone="accent">What if it is more than I have?</Label>
       </Pressable>

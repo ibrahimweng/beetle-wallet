@@ -77,7 +77,35 @@ export const ScanBill = ({ nav }: { nav: Nav }) => (
         slip={meterBill.slip}
       />
     }
-  />
+  >
+    {/* what it took the meter number to be, on the same dark pill as the scan */}
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        backgroundColor: '#2d2d2f',
+        borderRadius: 999,
+        paddingLeft: 8,
+        paddingRight: 18,
+        paddingVertical: 7,
+      }}
+    >
+      <View
+        style={{
+          width: 22,
+          height: 22,
+          borderRadius: 11,
+          backgroundColor: colour.good,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Icon name="check" size={13} colour={colour.textInverse} />
+      </View>
+      <Label tone="inverse">{meterBill.meter}</Label>
+    </View>
+  </CameraScreen>
 );
 
 /* ---- what it read off the photo ---- */

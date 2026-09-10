@@ -613,14 +613,19 @@ export function CameraScreen({
         {round('close', 'Close', onClose)}
         {round('power', 'Flash')}
       </View>
-      <View style={{ paddingHorizontal: 20, paddingTop: 26, gap: space.s5, alignItems: 'center' }}>
+      {/* the column fills the width so the viewfinder can; what sits on it is
+          centred one line at a time instead */}
+      <View style={{ paddingHorizontal: 20, paddingTop: 26, gap: space.s5 }}>
         <RevealAll>
-          <Row tone="inverse">{title}</Row>
-          <Meta tone="tertiary">{sub}</Meta>
+          <Row tone="inverse" style={{ textAlign: 'center' }}>
+            {title}
+          </Row>
+          <Meta tone="tertiary" style={{ textAlign: 'center' }}>
+            {sub}
+          </Meta>
           {read ? (
             <View
               style={{
-                alignSelf: 'stretch',
                 borderWidth: 2,
                 borderColor: 'rgba(255,255,255,0.32)',
                 borderRadius: 20,
@@ -630,7 +635,7 @@ export function CameraScreen({
               {read}
             </View>
           ) : null}
-          {children}
+          {children ? <View style={{ alignItems: 'center' }}>{children}</View> : null}
         </RevealAll>
       </View>
       <View style={{ flex: 1 }} />
@@ -652,9 +657,8 @@ export function CameraScreen({
             width: 72,
             height: 72,
             borderRadius: 36,
-            backgroundColor: colour.surface,
-            borderWidth: 4,
-            borderColor: '#08080a',
+            borderWidth: 5,
+            borderColor: colour.surface,
           }}
         />
         <Tap
@@ -994,6 +998,28 @@ export function Empty({
 }
 
 /* The big figure a screen is about, with its line under it. */
+/* The round button either side of a figure you can nudge, the way the Borrow
+   frame draws its amount. */
+export function Nudge({ glyph, onPress }: { glyph: IconName; onPress?: () => void }) {
+  return (
+    <Tap
+      accessibilityRole="button"
+      accessibilityLabel={glyph === 'plus' ? 'More' : 'Less'}
+      onPress={onPress}
+      style={{
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: colour.surface,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Icon name={glyph} size={20} />
+    </Tap>
+  );
+}
+
 /* One white card inside a grey block — the shape the send and buy frames use
    for each part they filled in, so a part reads as its own thing to check. */
 export function Slip({ children, onPress }: { children: ReactNode; onPress?: () => void }) {

@@ -81,12 +81,15 @@ export function DeviceRow({
   title,
   where,
   tag,
+  odd = false,
   onPress,
 }: {
   glyph: IconName;
   title: string;
   where: string;
   tag?: string;
+  /* the one the frame marks in amber, because it does not belong */
+  odd?: boolean;
   onPress?: () => void;
 }) {
   return (
@@ -96,10 +99,23 @@ export function DeviceRow({
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: space.s5,
+        gap: space.s3,
       }}
     >
-      <Icon name={glyph} size={20} />
+      {/* the frames set the glyph on a white square, so a row of devices reads
+          as a list of things rather than a list of lines */}
+      <View
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: 12,
+          backgroundColor: colour.surface,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Icon name={glyph} size={20} />
+      </View>
       <View style={{ flex: 1, gap: 2 }}>
         <Row>{title}</Row>
         <Caption tone="secondary">{where}</Caption>
@@ -107,7 +123,7 @@ export function DeviceRow({
       {tag ? (
         <View
           style={{
-            backgroundColor: colour.surface2,
+            backgroundColor: odd ? colour.warn : colour.surface2,
             borderRadius: 12,
             paddingHorizontal: 10,
             paddingVertical: 4,

@@ -6,9 +6,10 @@
 import React, { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 import { Icon } from './Icon';
+import { Bubble } from './Bubble';
 import { Body, Caption, Display, Label, Meta, Row } from './text';
 import { IconName } from '../icons';
-import { colour, space } from './tokens';
+import { colour, radius, space } from './tokens';
 import { Tap } from './motion';
 
 export function BigStatus({
@@ -48,28 +49,52 @@ export function Facts({ rows }: { rows: [string, string][] }) {
   );
 }
 
+/* The one line that says where the money stands. The frames fill it in the
+   tone rather than leaving it on the page: amber where something is waiting,
+   green where nothing was lost, with the words in white over it. */
 export function Banner({
   text,
-  glyph = 'warn-filled',
+  glyph,
   tone = colour.warn,
+  ink,
 }: {
   text: string;
+  /* only some of the frames put a mark on it; the green ones are words alone */
   glyph?: IconName;
   tone?: string;
+  /* the glyph's own colour, where the frame gives it one — the amber banner
+     carries a green mark, not a white one */
+  ink?: string;
 }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s4 }}>
-      <Icon name={glyph} size={24} colour={tone} />
-      <Row style={{ flex: 1 }}>{text}</Row>
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space.s3,
+        backgroundColor: tone,
+        borderRadius: radius.card,
+        paddingVertical: space.s4,
+        paddingHorizontal: space.s4,
+      }}
+    >
+      {glyph ? <Icon name={glyph} size={24} colour={ink ?? colour.textInverse} /> : null}
+      <Row tone="inverse" style={{ flex: 1 }}>
+        {text}
+      </Row>
     </View>
   );
 }
 
+/* What the agent says about the screen. The frames always put it in the pale
+   blue bubble with the mark beside it, never as bare text on the page. */
 export function AgentSay({ children }: { children: ReactNode }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s5 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s2 }}>
       <Icon name="mark" size={32} colour={colour.accent} />
-      <Body style={{ flex: 1 }}>{children}</Body>
+      <View style={{ flex: 1 }}>
+        <Bubble>{children}</Bubble>
+      </View>
     </View>
   );
 }
@@ -122,10 +147,22 @@ export function ChoiceRow({
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: space.s5,
+        gap: space.s3,
       }}
     >
-      <Icon name={glyph} size={20} colour={tone} />
+      {/* the glyph sits on a white square, the way the frames set it */}
+      <View
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: 12,
+          backgroundColor: colour.surface,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Icon name={glyph} size={20} colour={tone} />
+      </View>
       <View style={{ flex: 1, gap: 2 }}>
         <Row>{title}</Row>
         <Meta tone="secondary">{sub}</Meta>
@@ -135,8 +172,19 @@ export function ChoiceRow({
   );
 }
 
+/* The two or three ways out of a screen that went wrong. The frames box them
+   together in the pale grey, one under another with a rule between. */
 export function Choices({ children }: { children: ReactNode }) {
-  return <View style={{ gap: 32 }}>{children}</View>;
+  const rows = React.Children.toArray(children);
+  return (
+    <View style={{ backgroundColor: colour.surface2, borderRadius: radius.card, padding: space.s3 }}>
+      {rows.map((child, i) => (
+        <View key={i} style={{ paddingHorizontal: space.s2, paddingVertical: space.s2 }}>
+          {child}
+        </View>
+      ))}
+    </View>
+  );
 }
 
 export function FootNote({ title, sub }: { title: string; sub: string }) {

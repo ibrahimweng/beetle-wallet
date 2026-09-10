@@ -16,8 +16,6 @@ import {
   Card,
   CardFace,
   Caption,
-  Chip,
-  ChipRow,
   Between,
   Display,
   Divider,
@@ -34,9 +32,11 @@ import {
   PageHead,
   Row,
   Said,
+  AgentSay,
+  BottomBar,
+  Nudge,
   Screen,
   SlideToSend,
-  Slider,
   colour,
   naira,
   radius,
@@ -235,42 +235,86 @@ export const Loan = ({ nav }: { nav: Nav }) => {
     ['First payment', loan.firstPayment],
   ];
   return (
-    <Screen dock={dock('Ask what this really costs', nav, 'services')}>
+    <Screen
+      dock={
+        <BottomBar onBack={() => nav.go('services')}>
+          <SlideToSend
+            label={`Slide to take ${naira(want)}`}
+            onDone={() => {
+              act.borrow({ principal: want, total, instalments: 3, perInstalment: per });
+              toast(`${naira(want)} is in Everyday. First payment on ${loan.firstPayment}.`);
+            }}
+          />
+        </BottomBar>
+      }
+    >
       <PageHead lead title="Borrow" sub="The whole cost, before you decide" />
-      <AgentCard>You asked what you could borrow. Here is the whole cost.</AgentCard>
+      <AgentSay>You asked what you could borrow. Here is the whole cost.</AgentSay>
       <Card style={{ gap: space.s3 }}>
         <Meta tone="secondary">How much you want</Meta>
-        <Display>{naira(want)}</Display>
-        <Slider value={want} min={10000} max={loan.ceiling} step={10000} onChange={setWant} />
+        {/* the frame puts a step either side of the figure and runs the bar
+            under it without a handle */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
+          <Nudge glyph="minus" onPress={() => setWant(w => Math.max(10000, w - 10000))} />
+          <Display style={{ flex: 1, textAlign: 'center' }}>{naira(want)}</Display>
+          <Nudge glyph="plus" onPress={() => setWant(w => Math.min(loan.ceiling, w + 10000))} />
+        </View>
+        <View style={{ height: 4, borderRadius: 2, backgroundColor: colour.surface3 }}>
+          <View
+            style={{
+              width: `${((want - 10000) / (loan.ceiling - 10000)) * 100}%`,
+              height: 4,
+              borderRadius: 2,
+              backgroundColor: colour.accent,
+            }}
+          />
+        </View>
         <View style={{ flexDirection: 'row' }}>
           <Caption tone="tertiary" style={{ flex: 1 }}>
             {naira(10000)}
           </Caption>
           <Caption tone="tertiary">{`${naira(loan.ceiling)} is your limit`}</Caption>
         </View>
-        <ChipRow>
+        <View style={{ flexDirection: 'row', gap: space.s2 }}>
           {['30 days', '60 days', '90 days'].map(t => (
-            <Chip key={t} label={t} on={t === term} onPress={() => setTerm(t)} />
+            <Pressable
+              key={t}
+              accessibilityRole="button"
+              accessibilityState={{ selected: t === term }}
+              onPress={() => setTerm(t)}
+              style={{
+                paddingHorizontal: 18,
+                height: 44,
+                borderRadius: 22,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: t === term ? colour.ink : colour.surface,
+                borderWidth: t === term ? 0 : 1,
+                borderColor: colour.rule,
+              }}
+            >
+              <Label tone={t === term ? 'inverse' : 'ink'}>{t}</Label>
+            </Pressable>
           ))}
-        </ChipRow>
+        </View>
       </Card>
-      <Card style={{ gap: space.s3 }}>
+      {/* the costs sit on the page itself, ruled rather than boxed */}
+      <View style={{ gap: space.s4 }}>
         {facts.map(([k, v], i) => (
-          <View key={k}>
-            {i ? (
-              <View style={{ paddingBottom: space.s3 }}>
-                <Divider />
-              </View>
-            ) : null}
+          <View key={k} style={{ gap: space.s4 }}>
+            {i ? <Divider /> : null}
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Meta tone="secondary" style={{ flex: 1, fontSize: 16, lineHeight: 24 }}>
+              <Meta
+                tone={k === 'You pay back in all' ? 'ink' : 'secondary'}
+                style={{ flex: 1, fontSize: 16, lineHeight: 24 }}
+              >
                 {k}
               </Meta>
               <Row>{v}</Row>
             </View>
           </View>
         ))}
-      </Card>
+      </View>
       {/* Four per cent a month is not the rate people hear. The frames do not
           say this; it was added when the pricing was made honest. */}
       <View style={{ backgroundColor: '#fdf2dd', borderRadius: radius.card, padding: space.s5, gap: 4 }}>
@@ -288,13 +332,6 @@ export const Loan = ({ nav }: { nav: Nav }) => {
           the whole amount, the real rate is the one above.
         </Caption>
       </View>
-      <SlideToSend
-        label={`Slide to take ${naira(want)}`}
-        onDone={() => {
-          act.borrow({ principal: want, total, instalments: 3, perInstalment: per });
-          toast(`${naira(want)} is in Everyday. First payment on ${loan.firstPayment}.`);
-        }}
-      />
       <Aside glyph="alert">{loan.lateFee}</Aside>
     </Screen>
   );

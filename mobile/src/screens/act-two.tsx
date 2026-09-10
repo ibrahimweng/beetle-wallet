@@ -320,7 +320,11 @@ export const LimitStop = ({ nav }: { nav: Nav }) => {
         amount="₦120,000"
         line="₦20,000 over the ₦100,000 you set for one transfer"
       />
-      <Banner text="This is your limit, not the bank’s. Two things and it goes." />
+      <Banner
+        text="This is your limit, not the bank’s. Two things and it goes."
+        glyph="warn-filled"
+        ink={colour.good}
+      />
       <Card style={{ gap: space.s5 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
           <Icon name="check" size={16} colour={colour.good} />
@@ -365,16 +369,21 @@ export const LimitStop = ({ nav }: { nav: Nav }) => {
 export const Devices = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about a device', nav)}>
     <PageHead lead title="Devices" sub="Everywhere this account is open" />
-    <View style={{ gap: 32 }}>
+    <Card style={{ gap: space.s4 }}>
       <DeviceRow glyph="airtime" title="iPhone 13" where="Lagos · open now" tag="This one" />
       <DeviceRow glyph="airtime" title="Tecno Spark 10" where="Lagos · 3 days ago" />
-      <DeviceRow glyph="laptop" title="Chrome on Windows" where="Abuja · 12 August" tag="Odd one" />
-    </View>
+      <DeviceRow glyph="laptop" title="Chrome on Windows" where="Abuja · 12 August" tag="Odd one" odd />
+    </Card>
     <AgentSay>
       The Windows one signed in from Abuja on 12 August and has not been back. If that was not you, sign it
       out and change your passcode. I will not do either without you.
     </AgentSay>
-    <Button label="Sign out everywhere else" tone="grey" onPress={() => nav.go('settings')} />
+    <Button
+      label="Sign out everywhere else"
+      full={false}
+      style={{ alignSelf: 'center' }}
+      onPress={() => nav.go('settings')}
+    />
     <Aside>
       Signing a device out never touches your money. It only means that device has to ask for your passcode
       again.
@@ -387,7 +396,7 @@ export const Devices = ({ nav }: { nav: Nav }) => (
 export const LostPhone = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask what freezing does', nav)}>
     <PageHead title="Not your phone" sub="Signed in on a device I do not know" />
-    <View style={{ gap: 32 }}>
+    <Card style={{ gap: space.s4 }}>
       <DeviceRow
         glyph="airtime"
         title="Freeze the money"
@@ -402,12 +411,17 @@ export const LostPhone = ({ nav }: { nav: Nav }) => (
       />
       <DeviceRow glyph="airtime" title="Infinix Hot 40" where="Ikeja · signing in now" />
       <DeviceRow glyph="laptop" title="iPhone 13" where="Lagos · seen 09:14" tag="Yours" />
-    </View>
+    </Card>
     <AgentSay>
       You are on a device this account has never seen. I will not open the money here until you prove it is
       you. Freezing costs nothing and lifts in a minute.
     </AgentSay>
-    <Button label="Freeze it, then prove it is me" onPress={() => nav.go('newcode')} />
+    <Button
+      label="Freeze it, then prove it is me"
+      full={false}
+      style={{ alignSelf: 'center' }}
+      onPress={() => nav.go('newcode')}
+    />
     <Aside>
       Freezing stops money leaving. It does not stop money arriving, and it never touches what you already
       have.

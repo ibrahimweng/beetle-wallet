@@ -7,7 +7,6 @@ import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import {
   ActionRow,
-  AgentAsk,
   Aside,
   BottomBar,
   Avatar,
@@ -40,14 +39,13 @@ import {
   TopBar,
   TrailStep,
   colour,
-  naira,
   space,
   toast,
   washes,
 } from '../design';
 import { Nav, dock } from './nav';
 import { answer } from '../state/agent';
-import { goal, me, onboarding } from '../state/data.js';
+import { me } from '../state/data.js';
 
 const WHERE: TrailStep = { icon: 'home-filled', label: 'Where you live' };
 const ID: TrailStep = { icon: 'id-filled', label: 'A photo of an ID' };
@@ -190,11 +188,26 @@ export const Income = ({ nav }: { nav: Nav }) => {
 };
 
 export const Full = ({ nav }: { nav: Nav }) => (
-  <Screen dock={dock('Ask about my limits', nav, 'income')}>
+  <Screen
+    sink
+    dock={
+      <BottomBar onBack={nav.back}>
+        <Button label="Take me in" onPress={() => nav.go('firsthome')} />
+      </BottomBar>
+    }
+  >
     <StepTrail done={[WHERE, ID, INCOME]} />
-    <PageHead title="Everything is on" sub="You can send a million naira a day and hold dollars now." />
+    {/* the head is a row here, with the tick against it, because this is the
+        end of the trail rather than the start of a page */}
+    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s3 }}>
+      <Icon name="check" size={24} colour={colour.good} />
+      <View style={{ flex: 1, gap: 8 }}>
+        <Head>Everything is on</Head>
+        <Meta tone="secondary">You can send a million naira a day and hold dollars now.</Meta>
+      </View>
+    </View>
     <Card style={{ gap: space.s3 }}>
-      {OPENS.map((t, i) => (
+      {[...OPENS, 'Everything you could already do'].map((t, i) => (
         <View key={t}>
           {i ? (
             <View style={{ paddingBottom: space.s3 }}>
@@ -204,30 +217,10 @@ export const Full = ({ nav }: { nav: Nav }) => (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
             <Tick on />
             <Meta style={{ flex: 1, fontSize: 16, lineHeight: 24 }}>{t}</Meta>
-            <StatusPill label="New" tone={colour.good} />
           </View>
         </View>
       ))}
     </Card>
-    <Head>Everything you could already do</Head>
-    <Card style={{ gap: space.s3 }}>
-      {(onboarding.ready as { t: string; on: boolean }[])
-        .filter(r => r.on)
-        .map((r, i) => (
-          <View key={r.t}>
-            {i ? (
-              <View style={{ paddingBottom: space.s3 }}>
-                <Divider />
-              </View>
-            ) : null}
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
-              <Tick on />
-              <Meta style={{ flex: 1, fontSize: 16, lineHeight: 24 }}>{r.t}</Meta>
-            </View>
-          </View>
-        ))}
-    </Card>
-    <Button label="Take me in" onPress={() => nav.go('firsthome')} />
   </Screen>
 );
 
@@ -455,32 +448,21 @@ export const EmptyActivity = ({ nav }: { nav: Nav }) => {
 export const EmptyGoal = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about saving', nav, 'firsthome')}>
     <PageHead lead title="Goals" sub="Nothing put aside yet" />
-    <AgentAsk
-      question="A goal works best when a rule feeds it. Tell me what you are saving for."
-      answer="Set it up"
-      onAnswer={() => nav.go('agentchat')}
-    />
-    <Button label="Start a goal" onPress={() => nav.go('goal')} />
-    <Head>Ones people start with</Head>
-    <ActionRow
-      icon="gift"
-      title={goal.name}
-      sub={`${naira(goal.target)} by ${goal.by}`}
-      onPress={() => nav.go('goal')}
-    />
-    <ActionRow
-      icon="shield"
-      title="Rainy day"
-      sub="Three months of your outgoings"
-      onPress={() => nav.go('goal')}
-    />
-    <ActionRow
-      icon="home-filled"
-      title="Rent"
-      sub="Put a twelfth aside each month"
-      onPress={() => nav.go('goal')}
-    />
-    <Bubble>Nothing here is locked. Take it back whenever you need it.</Bubble>
+    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s2 }}>
+      <Icon name="mark" size={32} colour={colour.accent} />
+      <View style={{ flex: 1 }}>
+        <Bubble>A goal works best when a rule feeds it. Tell me what you are saving for.</Bubble>
+      </View>
+    </View>
+    <View style={{ flexDirection: 'row', gap: space.s2 }}>
+      <View style={{ flex: 1 }}>
+        <Button label="Start a goal" onPress={() => nav.go('goal')} />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Button label="Set it up" tone="grey" onPress={() => nav.go('rule')} />
+      </View>
+    </View>
+    <Aside>Nothing here is locked. Take it back whenever you need it.</Aside>
     <Ghost label="What should I be saving for?" onPress={() => nav.go('agentchat')} />
   </Screen>
 );

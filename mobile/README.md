@@ -104,7 +104,7 @@ out of the file and keyed the way `src/routes.ts` keys them. `npm run copy`
 opens each screen in the exported bundle and checks the frame's lines are on
 it. That is 1,304 lines across 91 frames.
 
-Sixteen lines are recorded in `test/copy.json` as deliberate differences, each
+Fourteen lines are recorded in `test/copy.json` as deliberate differences, each
 with the reason. They fall into three kinds:
 
 - **A balance that moves.** The frame prints the balance the design had that
@@ -116,12 +116,22 @@ with the reason. They fall into three kinds:
 - **Where the file disagrees with itself.** The Chat and Send money frames
   price a transfer as Free while the receipt for the same transfer charges
   ₦26.88. The app follows one rule everywhere — ₦25 to NIP plus 7.5% VAT above
-  ₦10,000 — which is the receipt's. And the Send money frame draws the slide
-  on a ₦50,000 transfer, while the Spending limits frame says ₦64,000 of the
-  ₦100,000 day cap has already gone; the app enforces the cap, so that screen
-  shows why it stopped and offers the way through, which is a frame of its own.
+  ₦10,000 — which is the receipt's.
 
 All three are worth a look next time the file is open.
+
+### A cap is not a wall
+
+The Spending limits frame says ₦36,000 is left "before I stop and ask you
+twice", and asking twice is exactly what the Past your own limit frame is:
+your passcode, then the three words typed out in full. So a transfer past a
+cap is not blocked on the form. The slide is there, and it leads through that
+screen instead of straight to the passcode. Only money that is not in the
+account stops the slide.
+
+That is why Send money opens on a ₦50,000 flat deposit with the slide, as its
+frame draws it, even though ₦64,000 of the ₦100,000 day cap has already gone.
+`npm run flows` walks that path and fails if the slide stops going.
 
 ## Where it has got to
 

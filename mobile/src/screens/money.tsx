@@ -163,6 +163,13 @@ export const Pay = ({ nav }: { nav: Nav }) => {
   const [why, setWhy] = useState(d.narration);
   const verdict = check({ amount: d.amount, from: d.from });
   const fee = act.feeFor(d.amount);
+  /* A cap is not a wall. The Spending limits frame says ₦36,000 is left
+     "before I stop and ask you twice", and asking twice is what limitstop is:
+     your passcode, then the words typed out in full. So past a cap the slide
+     is still there and leads through that screen. Only money that is not in
+     the account stops it. */
+  const past = !verdict.ok && (verdict.code === 'day-limit' || verdict.code === 'transfer-limit');
+  const canSend = verdict.ok || past;
   const close = () => setEditing(null);
 
   const form = (
@@ -219,16 +226,18 @@ export const Pay = ({ nav }: { nav: Nav }) => {
         <Between label="Fee" value={fee ? nairaFull(fee) : 'Free'} tone={fee ? 'ink' : 'good'} />
       </Card>
 
-      {verdict.ok ? <Aside>Nothing moves until you slide.</Aside> : <Banner text={verdict.why} />}
+      {canSend ? <Aside>Nothing moves until you slide.</Aside> : <Banner text={verdict.why} />}
+      {past ? <Aside glyph="key">This is your limit, not the bank’s. Two things and it goes.</Aside> : null}
 
       <Ghost label="How I decided" onPress={() => nav.go('checking')} />
 
-      {verdict.ok ? (
-        <SlideToSend label={`Slide to send ${naira(d.amount)}`} onDone={() => nav.go('confirm')} />
+      {canSend ? (
+        <SlideToSend
+          label={`Slide to send ${naira(d.amount)}`}
+          onDone={() => nav.go(past ? 'limitstop' : 'confirm')}
+        />
       ) : verdict.code === 'short' ? (
         <Button label="See how to close it" tone="grey" onPress={() => nav.go('short')} />
-      ) : verdict.code === 'day-limit' || verdict.code === 'transfer-limit' ? (
-        <Button label="Why I stopped" tone="grey" onPress={() => nav.go('limitstop')} />
       ) : (
         <Button label="Put an amount in" tone="grey" onPress={() => setEditing('amount')} />
       )}

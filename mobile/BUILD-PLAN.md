@@ -166,7 +166,7 @@ row the design does not have.
 - [x] Every screen renders with no console error — `npm run screens`
 - [x] The money flows walked end to end in the bundle — `npm run flows`
 - [x] Copy checked against the frames, one pass over all of them —
-      `npm run copy`, 1,304 lines from 91 frames, 16 recorded differences
+      `npm run copy`, 1,304 lines from 91 frames, 14 recorded differences
 - [x] Geometry checked against the frames for the shared components —
       `npm run geometry`
 
@@ -198,10 +198,10 @@ file says two things and the app had to pick one.
 2. The Chat and Send money frames price a transfer as Free while the receipt
    for the same transfer charges ₦26.88. The app charges the receipt's rule
    everywhere: ₦25 to NIP plus 7.5% VAT above ₦10,000.
-3. The Send money frame draws the slide on a ₦50,000 transfer, while the
-   Spending limits frame says ₦64,000 of the ₦100,000 day cap has already
-   gone. The app enforces the cap, so that screen shows why it stopped and
-   offers the way through, which is a frame of its own.
+3. The Past your own limit frame is written around a ₦120,000 transfer over a
+   ₦100,000 one-transfer cap, while the Spending limits frame sets that cap at
+   ₦50,000. Its figures are the frame's, so they do not follow the transfer
+   that took you there.
 
 Two more, about the app rather than the file:
 

@@ -52,6 +52,9 @@ export const Chat = ({ nav }: { nav: Nav }) => {
   const [d] = useDraft();
   const verdict = check({ amount: d.amount, from: d.from });
   const fee = act.feeFor(d.amount);
+  /* Past a cap it can still go; it goes through limitstop. See money.tsx. */
+  const past = !verdict.ok && (verdict.code === 'day-limit' || verdict.code === 'transfer-limit');
+  const canSend = verdict.ok || past;
   return (
     <Screen
       dock={<Dock placeholder="Reply, or just keep talking" onBack={nav.back} onAsk={q => asked(nav, q)} />}
@@ -80,8 +83,8 @@ export const Chat = ({ nav }: { nav: Nav }) => {
           { k: 'Arrives', v: `Checking with ${d.to.bank}`, done: 'work' as const },
         ]}
       />
-      {verdict.ok ? (
-        <Button label={`Confirm ${naira(d.amount)}`} onPress={() => nav.go('confirm')} />
+      {canSend ? (
+        <Button label={`Confirm ${naira(d.amount)}`} onPress={() => nav.go(past ? 'limitstop' : 'confirm')} />
       ) : (
         <Button label="Change it" tone="grey" onPress={() => nav.go('pay')} />
       )}

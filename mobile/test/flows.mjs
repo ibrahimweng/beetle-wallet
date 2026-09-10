@@ -118,7 +118,16 @@ await flow('send', async () => {
   else if (!(after < before)) fails.push(`send: balance did not fall (${before} → ${after})`);
 });
 
-/* ---- 3. buying data ---- */
+/* ---- 3. past a cap, the slide still goes, through the second ask ---- */
+await flow('past the cap', async () => {
+  await at('pay');
+  await sees('Slide to send', 'pay');
+  await slide(/^Slide to send/);
+  await sees('Past your own limit', 'limitstop');
+  await sees('Now type the words in full', 'limitstop');
+});
+
+/* ---- 4. buying data ---- */
 await flow('buy', async () => {
   await at('home');
   const before = await balance();
@@ -132,7 +141,7 @@ await flow('buy', async () => {
   if (!(after < before)) fails.push(`buy: balance did not fall (${before} → ${after})`);
 });
 
-/* ---- 4. paying a bill ---- */
+/* ---- 5. paying a bill ---- */
 await flow('bill', async () => {
   await at('home');
   const before = await balance();
@@ -148,7 +157,7 @@ await flow('bill', async () => {
   if (!(after < before)) fails.push(`bill: balance did not fall (${before} → ${after})`);
 });
 
-/* ---- 5. asking to be paid ---- */
+/* ---- 6. asking to be paid ---- */
 await flow('request', async () => {
   await at('ways');
   await tap('Ask for money');
@@ -164,7 +173,7 @@ await flow('request', async () => {
   if (!(after > before)) fails.push(`request: balance did not rise (${before} → ${after})`);
 });
 
-/* ---- 6. the ask bar answers, and takes you places ---- */
+/* ---- 7. the ask bar answers, and takes you places ---- */
 await flow('ask bar', async () => {
   await at('home');
   await page.getByLabel('Ask Beetle').fill('what is my limit today?');
@@ -177,7 +186,7 @@ await flow('ask bar', async () => {
   await sees('airtime and data last month', 'agentchat');
 });
 
-/* ---- 7. the button opens and closes ---- */
+/* ---- 8. the button opens and closes ---- */
 await flow('the button', async () => {
   await at('home');
   await tapLabel('What can I do');
@@ -195,4 +204,6 @@ if (fails.length) {
   fails.forEach(f => console.log('  ✗', f));
   process.exit(1);
 }
-console.log('flows: the way in, sending, buying, a bill, a request, the ask bar and the button all work');
+console.log(
+  'flows: the way in, sending, going past a cap, buying, a bill, a request, the ask bar and the button all work',
+);

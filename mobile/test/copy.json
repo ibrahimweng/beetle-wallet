@@ -2,7 +2,7 @@
  "_why": {
   "confirm": "the bubble is the Bubble component's unoverridden placeholder, and the frame prices a ₦20,000 transfer as Free while its own receipt charges ₦26.88; the app follows one fee rule, ₦25 to NIP plus VAT above ₦10,000",
   "noface": "same as confirm",
-  "pay": "the frame draws the slide on a ₦50,000 transfer priced Free; the app charges the same fee rule as the receipt, and ₦64,000 of the ₦100,000 day cap has already gone, so it shows why it stopped instead of the slide",
+  "pay": "the frame prices a ₦50,000 transfer as Free while the receipt for the same kind of transfer charges ₦26.88; the app follows the receipt's rule",
   "donesend": "the balance after is the live one, not the frame's",
   "share": "same as donesend",
   "confirmbuy": "the frame writes Mum's line as 0803 4457 881 here and as 0803 214 4471 on its own receipt; the app uses the receipt's",
@@ -20,9 +20,7 @@
   "Free"
  ],
  "pay": [
-  "Free",
-  "Nothing moves until you slide.",
-  "Slide to send ₦50,000"
+  "Free"
  ],
  "donesend": [
   "₦659,320.75"

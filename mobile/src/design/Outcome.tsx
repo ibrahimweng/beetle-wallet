@@ -24,10 +24,11 @@ export function BigStatus({
   tone?: string;
 }) {
   return (
-    /* the frames set the glyph 14 above the figure, not the column's 20 */
-    <View style={{ gap: 14 }}>
+    /* the frames set the glyph 14 above the figure, not the column's 20, and
+       bring what follows up close under the line rather than a gap away */
+    <View style={{ gap: 14, marginBottom: -10 }}>
       <Icon name={glyph} size={56} colour={tone} />
-      <View style={{ gap: 4 }}>
+      <View style={{ gap: 13 }}>
         <Display>{amount}</Display>
         <Meta tone="secondary">{line}</Meta>
       </View>
@@ -75,7 +76,12 @@ export function Banner({
         gap: space.s3,
         backgroundColor: tone,
         borderRadius: radius.card,
-        paddingVertical: 10,
+        /* the frames draw it at a set height and centre the words in it —
+           55 for the green one, 77 for the amber — rather than letting the
+           words decide, so a line more or less does not move the screen */
+        minHeight: tone === colour.good ? 55 : 77,
+        justifyContent: 'center',
+        paddingVertical: 4,
         paddingLeft: space.s4,
         paddingRight: 56,
       }}

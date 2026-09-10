@@ -238,11 +238,13 @@ export const Short = ({ nav }: { nav: Nav }) => (
 export const Pending = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about this transfer', nav)}>
     <PageHead title="Still on its way" sub="Sent at 14:22, not confirmed yet" />
-    <BigStatus glyph="wait-filled" tone={colour.warn} amount="₦20,000" line="to Sarah Adeyemi · GTBank" />
+    {/* the frame turns the ring in the accent while it waits, not in the amber
+        the words beneath it carry */}
+    <BigStatus glyph="wait-filled" tone={colour.accent} amount="₦20,000" line="to Sarah Adeyemi · GTBank" />
     <Banner text="Do not send it again. This one is still live." glyph="warn-filled" ink={colour.good} />
     {/* the frame draws these three as a plain grey block, with no tool over
         them: the transfer is already out, so there is nothing running */}
-    <Card style={{ gap: 0, paddingHorizontal: 0, paddingVertical: 0 }}>
+    <Card style={{ gap: 0, paddingHorizontal: 0, paddingVertical: 12 }}>
       {(
         [
           ['Left your account', '14:22', true],
@@ -250,7 +252,15 @@ export const Pending = ({ nav }: { nav: Nav }) => (
           ['Reaching Sarah', 'Waiting', false],
         ] as [string, string, boolean][]
       ).map(([k, v, done], i) => (
-        <View key={k} style={i ? { borderTopWidth: 1, borderTopColor: colour.rule } : undefined}>
+        /* the frame runs these 48 apart and stops the value short of the
+           card's own edge, where a panel's rows go right to it */
+        <View
+          key={k}
+          style={[
+            { paddingVertical: 2, paddingRight: 64 },
+            i ? { borderTopWidth: 1, borderTopColor: colour.rule } : null,
+          ]}
+        >
           <ToolRow k={k} v={v} done={done} />
         </View>
       ))}
@@ -458,7 +468,7 @@ export const DisputeEnd = ({ nav }: { nav: Nav }) => (
     <Banner text="It is already in your balance. Nothing to do." glyph="warn-filled" ink={colour.good} />
     {/* closed, so nothing is running over it — the frame draws the three as a
         plain grey block */}
-    <Card style={{ gap: 0, paddingHorizontal: 0, paddingVertical: 0 }}>
+    <Card style={{ gap: 0, paddingHorizontal: 0, paddingVertical: 12 }}>
       {(
         [
           ['You reported it', '28 Aug', true],
@@ -466,7 +476,15 @@ export const DisputeEnd = ({ nav }: { nav: Nav }) => (
           ['Money returned', '11:40', false],
         ] as [string, string, boolean][]
       ).map(([k, v, done], i) => (
-        <View key={k} style={i ? { borderTopWidth: 1, borderTopColor: colour.rule } : undefined}>
+        /* the frame runs these 48 apart and stops the value short of the
+           card's own edge, where a panel's rows go right to it */
+        <View
+          key={k}
+          style={[
+            { paddingVertical: 2, paddingRight: 64 },
+            i ? { borderTopWidth: 1, borderTopColor: colour.rule } : null,
+          ]}
+        >
           <ToolRow k={k} v={v} done={done} />
         </View>
       ))}

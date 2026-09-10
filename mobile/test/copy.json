@@ -1,0 +1,50 @@
+{
+ "_why": {
+  "confirm": "the bubble is the Bubble component's unoverridden placeholder, and the frame prices a ₦20,000 transfer as Free while its own receipt charges ₦26.88; the app follows one fee rule, ₦25 to NIP plus VAT above ₦10,000",
+  "noface": "same as confirm",
+  "pay": "the frame draws the slide on a ₦50,000 transfer priced Free; the app charges the same fee rule as the receipt, and ₦64,000 of the ₦100,000 day cap has already gone, so it shows why it stopped instead of the slide",
+  "donesend": "the balance after is the live one, not the frame's",
+  "share": "same as donesend",
+  "confirmbuy": "the frame writes Mum's line as 0803 4457 881 here and as 0803 214 4471 on its own receipt; the app uses the receipt's",
+  "done": "the balance after is the live one",
+  "sharebuy": "the balance after is the live one",
+  "power": "the balance after is the live one",
+  "sharepower": "the balance after is the live one"
+ },
+ "confirm": [
+  "You top up Ikeja Electric about every three weeks. The last one was ₦8,000.",
+  "Free"
+ ],
+ "noface": [
+  "You top up Ikeja Electric about every three weeks. The last one was ₦8,000.",
+  "Free"
+ ],
+ "pay": [
+  "Free",
+  "Nothing moves until you slide.",
+  "Slide to send ₦50,000"
+ ],
+ "donesend": [
+  "₦659,320.75"
+ ],
+ "share": [
+  "₦659,320.75"
+ ],
+ "confirmbuy": [
+  "Mum’s MTN line, the one ending 881. She ran dry eleven days early last month, so I have priced the bigger bundle too.",
+  "MTN · 0803 4457 881",
+  "Mum · 0803 4457 881"
+ ],
+ "done": [
+  "₦656,847.63"
+ ],
+ "sharebuy": [
+  "₦656,847.63"
+ ],
+ "power": [
+  "₦39,654.51"
+ ],
+ "sharepower": [
+  "₦39,654.51"
+ ]
+}

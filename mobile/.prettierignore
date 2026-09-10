@@ -1,0 +1,6 @@
+dist
+src/icons.ts
+src/routes.ts
+src/state/*.js
+test/frames.json
+test/copy.json

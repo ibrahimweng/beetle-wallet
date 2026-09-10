@@ -9,11 +9,20 @@
     "android": "expo start --android",
     "web": "expo start --web",
     "icons": "node scripts/generate-icons.mjs",
-    "typecheck": "tsc --noEmit",
-    "test": "tsc --noEmit && npm run verify",
     "state": "node scripts/sync-state.mjs",
     "sync": "npm run icons && npm run state",
-    "verify": "expo export --platform web --output-dir dist && node test/screens.mjs dist"
+    "typecheck": "tsc --noEmit",
+    "bundle": "expo export --platform web --output-dir dist",
+    "screens": "node test/screens.mjs dist",
+    "reach": "node test/reach.mjs",
+    "copy": "node test/copy.mjs dist",
+    "flows": "node test/flows.mjs dist",
+    "verify": "npm run bundle && npm run screens && npm run copy && npm run geometry && npm run flows",
+    "test": "npm run typecheck && npm run lint && npm run format:check && npm run reach && npm run verify",
+    "lint": "eslint .",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"test/*.mjs\"",
+    "geometry": "node test/geometry.mjs dist",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"test/*.mjs\""
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -31,6 +40,10 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.0",
+    "eslint": "^9.39.5",
+    "eslint-config-expo": "^10.0.0",
+    "playwright": "^1.56.1",
+    "prettier": "^3.9.6",
     "typescript": "~5.9.2"
   }
 }

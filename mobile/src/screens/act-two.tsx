@@ -206,40 +206,53 @@ export const Lock = ({ nav }: { nav: Nav }) => {
         title="Lock and privacy"
         sub="What it takes to open this, and what shows once it is open"
       />
-      <View style={{ gap: 32 }}>
-        <ToggleRow
-          glyph="faceid-filled"
-          title="Face ID"
-          value={on('faceId')}
-          onChange={v => act.setToggle('faceId', v)}
-        />
-        <SettingRow glyph="key-filled" title="Passcode" value="6 digits" onPress={() => nav.go('newcode')} />
-        <SettingRow
-          glyph="clock-filled"
-          title="Ask again after"
-          value="2 minutes"
-          onPress={() => nav.go('settings')}
-        />
-      </View>
-      <Head>What other people can see</Head>
-      <View style={{ gap: 32 }}>
-        <ToggleRow
-          glyph="eye-filled"
-          title="Hide my balance"
-          value={on('hideBalance')}
-          onChange={v => act.setToggle('hideBalance', v)}
-        />
-        <ToggleRow
-          glyph="camera-filled"
-          title="Hide it in screenshots"
-          value={on('hideScreenshots')}
-          onChange={v => act.setToggle('hideScreenshots', v)}
-        />
-        <ToggleRow
-          title="Amounts in notifications"
-          value={on('notifAmounts')}
-          onChange={v => act.setToggle('notifAmounts', v)}
-        />
+      {/* the frame boxes each group on the pale card, 35 apart inside it, and
+          runs the two cards and the line between them tight under the head */}
+      <View style={{ gap: 14, marginTop: -23 }}>
+        <Card style={{ gap: 35 }}>
+          <ToggleRow
+            glyph="faceid-filled"
+            ink={colour.accent}
+            title="Face ID"
+            value={on('faceId')}
+            onChange={v => act.setToggle('faceId', v)}
+          />
+          <SettingRow
+            glyph="key-filled"
+            title="Passcode"
+            value="6 digits"
+            onPress={() => nav.go('newcode')}
+          />
+          <SettingRow
+            glyph="clock-filled"
+            title="Ask again after"
+            value="2 minutes"
+            onPress={() => nav.go('settings')}
+          />
+        </Card>
+        <Head>What other people can see</Head>
+        <Card style={{ gap: 35 }}>
+          <ToggleRow
+            glyph="eye-filled"
+            title="Hide my balance"
+            value={on('hideBalance')}
+            onChange={v => act.setToggle('hideBalance', v)}
+          />
+          <ToggleRow
+            glyph="camera-filled"
+            ink={colour.violet}
+            title="Hide it in screenshots"
+            value={on('hideScreenshots')}
+            onChange={v => act.setToggle('hideScreenshots', v)}
+          />
+          <ToggleRow
+            glyph="bell-filled"
+            ink={colour.warn}
+            title="Amounts in notifications"
+            value={on('notifAmounts')}
+            onChange={v => act.setToggle('notifAmounts', v)}
+          />
+        </Card>
       </View>
       <Aside glyph="eye">
         With this on, your balance is dots until you look at the phone. Nobody standing behind you in a queue
@@ -378,7 +391,7 @@ export const LimitStop = ({ nav }: { nav: Nav }) => {
 export const Devices = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about a device', nav)}>
     <PageHead lead title="Devices" sub="Everywhere this account is open" />
-    <Card style={{ gap: 32, paddingVertical: 17 }}>
+    <Card style={{ gap: 32, paddingVertical: 17, marginTop: 6 }}>
       <DeviceRow glyph="airtime" title="iPhone 13" where="Lagos · open now" tag="This one" />
       <DeviceRow glyph="airtime" title="Tecno Spark 10" where="Lagos · 3 days ago" />
       <DeviceRow glyph="laptop" title="Chrome on Windows" where="Abuja · 12 August" tag="Odd one" odd />

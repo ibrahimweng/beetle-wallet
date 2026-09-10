@@ -235,7 +235,8 @@ export function FootNote({ title, sub }: { title: string; sub: string }) {
       }}
     >
       <Label tone="accent">{title}</Label>
-      <Caption tone="accent" style={{ textAlign: 'center' }}>
+      {/* the line above is centred, the sentence under it is not */}
+      <Caption tone="accent" style={{ alignSelf: 'stretch' }}>
         {sub}
       </Caption>
     </View>

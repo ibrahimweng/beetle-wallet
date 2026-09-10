@@ -19,11 +19,15 @@ export function SectionLabel({ children }: { children: string }) {
 
 export function SettingRow({
   glyph,
+  ink,
   title,
   value,
   onPress,
 }: {
   glyph?: IconName;
+  /* the frames colour some of these marks — the face is the accent, the
+     camera the violet, the bell the amber — and leave the rest in ink */
+  ink?: string;
   title: string;
   value?: string;
   onPress?: () => void;
@@ -38,7 +42,7 @@ export function SettingRow({
         gap: space.s5,
       }}
     >
-      {glyph ? <Icon name={glyph} size={28} /> : <View style={{ width: 28 }} />}
+      {glyph ? <Icon name={glyph} size={28} colour={ink} /> : <View style={{ width: 28 }} />}
       <Row style={{ flex: 1 }}>{title}</Row>
       {value ? <Meta tone="secondary">{value}</Meta> : null}
       <Icon name="chevron" size={16} colour={colour.textTertiary} />
@@ -48,12 +52,14 @@ export function SettingRow({
 
 export function ToggleRow({
   glyph,
+  ink,
   title,
   sub,
   value,
   onChange,
 }: {
   glyph?: IconName;
+  ink?: string;
   title: string;
   sub?: string;
   value: boolean;
@@ -61,7 +67,7 @@ export function ToggleRow({
 }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s5 }}>
-      {glyph ? <Icon name={glyph} size={28} /> : null}
+      {glyph ? <Icon name={glyph} size={28} colour={ink} /> : null}
       <View style={{ flex: 1, gap: 2 }}>
         <Row>{title}</Row>
         {sub ? <Meta tone="secondary">{sub}</Meta> : null}

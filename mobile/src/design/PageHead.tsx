@@ -15,7 +15,9 @@ import { Body, Head, Title } from './text';
 export function PageHead({ title, sub, lead = false }: { title: string; sub?: string; lead?: boolean }) {
   const T = lead ? Title : Head;
   return (
-    <View style={{ gap: 8, marginTop: lead ? -9 : 0, marginBottom: -5 }}>
+    /* the big one sets its line two under the title where the small one
+       leaves eight: at 32 the box already carries the room */
+    <View style={{ gap: lead ? 2 : 8, marginTop: lead ? -9 : 0, marginBottom: -5 }}>
       <T>{title}</T>
       {sub ? <Body tone="tertiary">{sub}</Body> : null}
     </View>

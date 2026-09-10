@@ -262,7 +262,8 @@ export const Loan = ({ nav }: { nav: Nav }) => {
     >
       <PageHead lead title="Borrow" sub="The whole cost, before you decide" />
       <AgentSay>You asked what you could borrow. Here is the whole cost.</AgentSay>
-      <Card style={{ gap: space.s3 }}>
+      {/* the frame tucks it under what the agent said, with 14 of its own */}
+      <Card style={{ gap: space.s3, paddingVertical: 14, marginTop: -11 }}>
         <Meta tone="secondary">How much you want</Meta>
         {/* the frame puts a step either side of the figure and runs the bar
             under it without a handle */}
@@ -310,11 +311,10 @@ export const Loan = ({ nav }: { nav: Nav }) => {
           ))}
         </View>
       </Card>
-      {/* the costs sit on the page itself, ruled rather than boxed */}
-      <View style={{ gap: space.s4 }}>
-        {facts.map(([k, v], i) => (
-          <View key={k} style={{ gap: space.s4 }}>
-            {i ? <Divider /> : null}
+      {/* the costs sit on the page itself, 54 apart and not ruled */}
+      <View style={{ gap: 34 }}>
+        {facts.map(([k, v]) => (
+          <View key={k}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Meta
                 tone={k === 'You pay back in all' ? 'ink' : 'secondary'}

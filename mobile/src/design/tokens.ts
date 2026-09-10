@@ -23,6 +23,8 @@ export const colour = {
   goodText: '#11823b',
   warn: '#f5a524',
   bad: '#cc2a20',
+  /* the brighter red the frames put on a status glyph, where nothing has to be read */
+  alert: '#ff3b30',
   badBright: '#ff3b30',
   violet: '#8b5cf6',
   cyan: '#22b8e8',

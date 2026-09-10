@@ -121,7 +121,7 @@ export const Misheard = ({ nav }: { nav: Nav }) => (
     <PageHead title="Check this number" sub="Nothing has been sent" />
     <BigStatus
       glyph="warn-filled"
-      tone={colour.warn}
+      tone={colour.good}
       amount="₦200,000"
       line="and I am not sure I heard it right"
     />
@@ -132,7 +132,9 @@ export const Misheard = ({ nav }: { nav: Nav }) => (
         ['Or maybe', '₦200'],
       ]}
     />
-    <AgentSay>Spoken round numbers are where I slip most. I will not choose for you.</AgentSay>
+    <AgentSay>
+      Spoken round numbers are where I slip most. I will not choose between these two on my own.
+    </AgentSay>
     <Choices>
       <ChoiceRow
         glyph="pot"
@@ -161,10 +163,11 @@ export const Misheard = ({ nav }: { nav: Nav }) => (
 export const AlreadyGone = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about the cover', nav)}>
     <PageHead title="I sent it wrong" sub="₦200,000 left at 14:22" />
-    <BigStatus glyph="warn-filled" tone={colour.bad} amount="₦200,000" line="left your account" />
+    <BigStatus glyph="warn-filled" tone={colour.alert} amount="₦200,000" line="left your account" />
     <Banner text="This one is mine. You are covered." tone={colour.good} />
     <AgentSay>
-      You said two hundred. I sent two hundred thousand. That is mine to put right, not yours.
+      You said two hundred. I sent two hundred thousand. That is my error, so you get the difference back
+      today, whether or not Sarah returns it.
     </AgentSay>
     <Choices>
       <ChoiceRow
@@ -191,7 +194,7 @@ export const Short = ({ nav }: { nav: Nav }) => (
     <PageHead title="Not enough in Everyday" sub="Nothing has been sent" />
     <BigStatus
       glyph="warn-filled"
-      tone={colour.warn}
+      tone={colour.good}
       amount="₦7,520"
       line="short of the ₦20,000 you asked for"
     />
@@ -267,7 +270,7 @@ export const Pending = ({ nav }: { nav: Nav }) => (
 export const Failed = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask why this failed', nav)}>
     <PageHead title="It did not go" sub="GTBank turned it down at 14:22" />
-    <BigStatus glyph="warn-filled" tone={colour.bad} amount="₦20,000" line="still in your account" />
+    <BigStatus glyph="warn-filled" tone={colour.alert} amount="₦20,000" line="still in your account" />
     <Banner text="Your balance is exactly what it was." tone={colour.good} />
     <AgentSay>
       Nothing was taken and nothing was charged. GTBank has been failing since 13:40, so this is their
@@ -304,7 +307,8 @@ export const Reversed = ({ nav }: { nav: Nav }) => (
       ]}
     />
     <AgentSay>
-      Sarah never got it, so GTBank sent it back and I put it where it came from. Nothing was charged.
+      Sarah never got it, so GTBank sent it back and I put it where it came from. Nothing was charged, and
+      your balance is whole.
     </AgentSay>
     <Choices>
       <ChoiceRow
@@ -327,7 +331,7 @@ export const Reversed = ({ nav }: { nav: Nav }) => (
 
 export const Wrong = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Tell me what happened', nav)}>
-    <PageHead title="What went wrong?" sub="₦20,000 to Sarah Adeyemi, 14:22" />
+    <PageHead title="What went wrong?" sub="Tell me which and I start it now" />
     <AgentSay>
       Some of this I can do in minutes. Some of it only a bank can do, and that takes days. I will tell you
       which one you are in before you start, not after.
@@ -475,11 +479,11 @@ export const DisputeEnd = ({ nav }: { nav: Nav }) => (
 export const NoNetwork = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask what works offline', nav)}>
     <PageHead title="You are offline" sub="Last checked 12 minutes ago" />
-    <BigStatus glyph="warn-filled" tone={colour.warn} amount="₦595,320" line="as of 14:10, not live" />
+    <BigStatus glyph="warn-filled" tone={colour.alert} amount="₦595,320" line="as of 14:10, not live" />
     <Banner text="Nothing you do here gets lost." tone={colour.good} />
     <AgentSay>
-      I will not send money against a balance I cannot check. Tell me what you want and it goes the moment you
-      are back.
+      I will not send money against a balance I cannot check. Tell me what you want, I hold it, and it goes
+      the second the network is back.
     </AgentSay>
     <Choices>
       <ChoiceRow

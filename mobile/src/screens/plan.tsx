@@ -7,6 +7,8 @@ import { Pressable, View } from 'react-native';
 import {
   ActionRow,
   AmountPad,
+  AgentAsk,
+  AgentCard,
   Aside,
   Banner,
   Bubble,
@@ -91,6 +93,16 @@ export const Health = ({ nav }: { nav: Nav }) => {
         Steadier than you were. The one thing holding it down is spending, which is up 18% on last month.
         Everything else is going the right way.
       </Bubble>
+      <AgentAsk
+        question="Holding ₦5,000 back on payday would take this to 76 by October. Want me to set it up?"
+        answer="Set it up"
+        onAnswer={() => nav.go('rule')}
+      />
+      <Head>This is not a credit score</Head>
+      <Meta tone="secondary">
+        It never leaves this phone. No lender sees it, no bank is sent it, and it changes nothing about what
+        you can borrow. It is here so you can watch your own habits, and for no other reason.
+      </Meta>
       <ActionRow
         icon="chart"
         title="Where the money went"
@@ -169,14 +181,7 @@ export const Goal = ({ nav }: { nav: Nav }) => {
           />
         </View>
         <View style={{ flex: 1 }}>
-          <Button
-            label="Take some back"
-            tone="grey"
-            onPress={() => {
-              setAmount(5000);
-              setSheet('take');
-            }}
-          />
+          <Button label="Feed it more" tone="grey" onPress={() => nav.go('saverule')} />
         </View>
       </View>
       <Button
@@ -304,25 +309,11 @@ export const SaveRule = ({ nav }: { nav: Nav }) => {
           </View>
         </Pressable>
       </View>
-      <Head>What is feeding it</Head>
-      <Card style={{ gap: space.s3 }}>
-        {(seedGoal.feeders as { name: string; sub: string; amount: number }[]).map((f, i) => (
-          <View key={f.name}>
-            {i ? (
-              <View style={{ paddingBottom: space.s3 }}>
-                <Divider />
-              </View>
-            ) : null}
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
-              <View style={{ flex: 1, gap: 2 }}>
-                <Row>{f.name}</Row>
-                <Meta tone="secondary">{f.sub}</Meta>
-              </View>
-              <Label>{naira(f.amount)}</Label>
-            </View>
-          </View>
-        ))}
-      </Card>
+      <Head>None of this is locked away</Head>
+      <Meta tone="secondary">
+        Take any of it back the same day. No fee, no notice, and no question from me about why.
+      </Meta>
+      <Button label="Done" tone="grey" onPress={() => nav.go('goal')} />
     </Sheet>
   );
 };
@@ -335,6 +326,7 @@ export const Paused = ({ nav }: { nav: Nav }) => {
   const pct = Math.min(100, Math.round((g.saved / g.target) * 100));
   return (
     <Screen dock={dock('Ask about this goal', nav, 'goal')}>
+      <PageHead lead title={g.name} sub="Paused while things are tight" />
       <Card>
         <View style={{ alignItems: 'center', gap: space.s2 }}>
           <Display>{`${pct}%`}</Display>
@@ -368,19 +360,19 @@ export const Paused = ({ nav }: { nav: Nav }) => {
           </View>
         ))}
       </Card>
-      <Bubble>
-        Money is tight this month, so I stopped feeding it rather than let it overdraw you. The goal is intact
-        and the date moves, not the money.
-      </Bubble>
+      <AgentCard>
+        You told me money is tight, so I have stopped moving it. Your date moves from 12 March to 9 April.
+        Nothing has been taken and nothing has been charged.
+      </AgentCard>
+      <Button label="Add money anyway" tone="grey" onPress={() => nav.go('goal')} />
       <Button
-        label="Start it again"
+        label="Start again"
         onPress={() => {
           act.pauseGoal(false);
           toast('Feeding it again.');
           nav.go('goal');
         }}
       />
-      <Ghost label="Take the money back out" onPress={() => nav.go('goal')} />
       <Aside>I will not ask you about this again until you tell me to.</Aside>
     </Screen>
   );
@@ -398,6 +390,7 @@ export const Dollars = ({ nav }: { nav: Nav }) => {
   const s = useStore();
   return (
     <Screen dock={dock('Ask me about your dollars', nav, 'home')}>
+      <PageHead lead title="Dollars" sub="Steady when the naira is not, and yours to turn back any day" />
       <View style={{ gap: 4 }}>
         <Display>{`$${s.dollars.toFixed(2)}`}</Display>
         <Meta tone="tertiary">{`${naira(dollarsInNaira())} at today’s rate`}</Meta>
@@ -407,9 +400,17 @@ export const Dollars = ({ nav }: { nav: Nav }) => {
           <Button label="Convert" onPress={() => nav.go('convert')} />
         </View>
         <View style={{ flex: 1 }}>
-          <Button label="Spend it" tone="grey" onPress={() => nav.go('paydollars')} />
+          <Button label="Send" tone="grey" onPress={() => nav.go('paydollars')} />
         </View>
       </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
+        <Meta tone="secondary" style={{ flex: 1 }}>{`${naira(s.rate)} to the dollar today`}</Meta>
+        <Label tone="good">Up ₦18</Label>
+      </View>
+      <AgentCard>
+        You put these away in March at ₦1,410. Held in naira that same money would be worth ₦58,200 less than
+        it is now.
+      </AgentCard>
       <Head>Where they came from</Head>
       <Card style={{ gap: space.s3 }}>
         {CAME.map(([title, amt, when], i) => (
@@ -430,10 +431,11 @@ export const Dollars = ({ nav }: { nav: Nav }) => {
           </View>
         ))}
       </Card>
-      <Bubble>
-        The rate moved ₦18 in your favour this week. I am telling you because you asked me to, not because I
-        think you should act on it.
-      </Bubble>
+      <Head>Nobody here holds a key</Head>
+      <Meta tone="secondary">
+        Your dollars sit in a domiciliary account at our partner bank, under CBN rules. Beetle moves them when
+        you say so and cannot move them when you do not.
+      </Meta>
       <Aside glyph="clock">Turn any of it back to naira the same day. There is no notice and no lock.</Aside>
       <View style={{ gap: space.s2 }}>
         <Label>Where these actually sit</Label>
@@ -468,6 +470,7 @@ export const Convert = ({ nav }: { nav: Nav }) => {
 
   const base = (
     <Screen dock={dock('Ask about the rate', nav, 'dollars')}>
+      <PageHead lead title="Convert" sub="Naira into dollars, at the rate on this screen" />
       <Card style={{ gap: space.s3 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <View style={{ flex: 1, gap: 2 }}>
@@ -536,6 +539,9 @@ export const Convert = ({ nav }: { nav: Nav }) => {
           <Row>{toDollars ? `$${gets.toFixed(2)}` : nairaFull(gets)}</Row>
         </View>
       </Card>
+      <AgentCard>
+        The rate moved ₦18 your way this week. If you were waiting for a better day, this is one of them.
+      </AgentCard>
       <Aside glyph="clock">The rate is held for sixty seconds once you slide.</Aside>
       {enough ? (
         <SlideToSend
@@ -586,6 +592,9 @@ export const Converted = ({ nav }: { nav: Nav }) => {
       <View style={{ gap: 8 }}>
         <Head>Converted</Head>
         <Meta tone="tertiary" style={{ fontSize: 16, lineHeight: 24 }}>
+          It is in your dollars already
+        </Meta>
+        <Meta tone="tertiary" style={{ fontSize: 16, lineHeight: 24 }}>
           {r.at}
         </Meta>
       </View>
@@ -611,7 +620,11 @@ export const Converted = ({ nav }: { nav: Nav }) => {
             .trim()
         }
       />
-      <Bubble>{`You now hold $${s.dollars.toFixed(2)}, and ${naira(s.everyday)} in Everyday. Nothing else moved.`}</Bubble>
+      <AgentAsk
+        question="Dollars sitting still do nothing. Move ₦20,000 across on payday and you never have to think about it again."
+        answer="Set it up"
+        onAnswer={() => nav.go('rule')}
+      />
       <Button label="See your dollars" onPress={() => nav.go('dollars')} />
       <Ghost label="Something wrong with this?" onPress={() => nav.go('wrong')} />
     </Screen>

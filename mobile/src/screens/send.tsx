@@ -20,6 +20,7 @@ import {
   Sheet,
   ToolPanel,
   TopBar,
+  VoiceSheet,
   Head,
   Label,
   Meta,
@@ -30,6 +31,7 @@ import {
 import { Route } from '../routes';
 import { check, useDraft, useStore } from '../state/live';
 import { asked } from './nav';
+import { Home } from './home';
 import * as act from '../state/actions.js';
 import { transfer, contacts, me } from '../state/data.js';
 import { start } from '../state/flow.js';
@@ -266,44 +268,19 @@ export const Share = ({ nav }: { nav: Nav }) => {
 /* The voice sheet the flow starts from. Its three suggestions are the ones the
    frame offers, and "Not what I said" is what opens the typed version. */
 export const Ask = ({ nav }: { nav: Nav }) => (
-  <Sheet onClose={nav.back}>
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-      <Icon name="mark" size={20} colour={colour.accent} />
-      <Label tone="accent">Listening</Label>
-    </View>
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-      <Head style={{ fontSize: 32, lineHeight: 40 }}>Send 20k to </Head>
-      <Head style={{ fontSize: 32, lineHeight: 40, color: colour.textTertiary }}>Sarah</Head>
-    </View>
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, height: 28 }}>
-      {Array.from({ length: 30 }).map((_, i) => (
-        <View
-          key={i}
-          style={{
-            width: 3,
-            borderRadius: 2,
-            backgroundColor: colour.accent,
-            height: 6 + Math.abs(Math.sin(i * 1.7)) * 20,
-          }}
-        />
-      ))}
-    </View>
-    <Meta tone="tertiary">Or try one of these</Meta>
-    <View style={{ gap: space.s2 }}>
-      {['Pay my light bill', 'How much did I spend on data?', 'What can I borrow?'].map(t => (
-        <Button key={t} label={t} tone="grey" size={48} onPress={() => asked(nav, t)} />
-      ))}
-    </View>
-    <Pressable accessibilityRole="button" onPress={() => nav.go('misheard')} style={{ alignSelf: 'center' }}>
-      <Label tone="accent">Not what I said</Label>
-    </Pressable>
-    <Button
-      label="Release to send"
-      tone="blue"
-      onPress={() => {
-        start({ to: contacts.sarah, amount: 20000, narration: transfer.narration, spoken: transfer.spoken });
-        nav.go('chat');
-      }}
-    />
-  </Sheet>
+  <VoiceSheet
+    said="Send 20k to "
+    tail="Sarah"
+    seed={11}
+    offers={['Pay my light bill', 'How much did I spend on data?', 'What can I borrow?']}
+    onOffer={(t: string) => asked(nav, t)}
+    onNotThis={() => nav.go('misheard')}
+    onStop={() => nav.go('home')}
+    onSend={() => {
+      start({ to: contacts.sarah, amount: 20000, narration: transfer.narration, spoken: transfer.spoken });
+      nav.go('chat');
+    }}
+    onClose={nav.back}
+    behind={<Home nav={still} />}
+  />
 );

@@ -8,6 +8,7 @@ import { Meta, Row } from './text';
 import { IconName } from '../icons';
 import { colour, frame, radius, space } from './tokens';
 import { Reveal, RevealAll, Tap } from './motion';
+import { Wash } from './Wash';
 
 /* The column arrives a piece at a time rather than all at once, so you can see
    the screen being put together after the tap that asked for it. The dock is
@@ -17,17 +18,24 @@ export function Screen({
   children,
   dock,
   still = false,
+  wash,
+  sink = false,
 }: {
   children: ReactNode;
   dock?: ReactNode;
   /* for a screen drawn behind a sheet, which should already be there */
   still?: boolean;
+  /* the blob of colour some frames open with */
+  wash?: { tone: string; height?: number };
+  /* the way-in frames hang their column off the dock rather than the status bar */
+  sink?: boolean;
 }) {
   return (
     <View style={s.screen}>
+      {wash ? <Wash tone={wash.tone} height={wash.height} /> : null}
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={s.body}
+        contentContainerStyle={[s.body, sink && s.sunk]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -87,6 +95,7 @@ export function ActionRow(p: Parameters<typeof ListRow>[0]) {
 
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colour.surface },
+  sunk: { flexGrow: 1, justifyContent: 'flex-end' },
   body: {
     paddingHorizontal: frame.sidePad,
     paddingTop: frame.topPad,

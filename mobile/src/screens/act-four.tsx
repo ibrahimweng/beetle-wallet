@@ -7,7 +7,9 @@ import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import {
   ActionRow,
+  AgentAsk,
   Aside,
+  BottomBar,
   Avatar,
   Bubble,
   Button,
@@ -30,14 +32,18 @@ import {
   Screen,
   Shortcuts,
   StatusPill,
+  StepHead,
   StepTrail,
+  StepsAhead,
   Tick,
   Tile,
+  TopBar,
   TrailStep,
   colour,
   naira,
   space,
   toast,
+  washes,
 } from '../design';
 import { Nav, dock } from './nav';
 import { answer } from '../state/agent';
@@ -45,15 +51,25 @@ import { goal, me, onboarding } from '../state/data.js';
 
 const WHERE: TrailStep = { icon: 'home-filled', label: 'Where you live' };
 const ID: TrailStep = { icon: 'id-filled', label: 'A photo of an ID' };
-const INCOME: TrailStep = { icon: 'chart', label: 'Where your money comes from' };
+const INCOME: TrailStep = { icon: 'down', label: 'Where your money comes from' };
 
 const OPENS = ['Send up to ₦1,000,000 a day', 'Hold dollars', 'Borrow against your history'];
 
 /* ---- finishing the checks ---- */
 
 export const Finish = ({ nav }: { nav: Nav }) => (
-  <Screen dock={dock('Ask what this unlocks', nav, 'ready')}>
-    <PageHead
+  <Screen
+    sink
+    wash={washes.finish}
+    dock={
+      <BottomBar onBack={nav.back}>
+        <Button label="Continue" onPress={() => nav.go('idcard')} />
+      </BottomBar>
+    }
+  >
+    <StepHead
+      icon="home-filled"
+      tint={washes.finish.tone}
       title="Where you live"
       sub="Street, town and state. No utility bill, and nothing arrives in the post."
     />
@@ -61,12 +77,7 @@ export const Finish = ({ nav }: { nav: Nav }) => (
       <Row>12 Bode Thomas Street</Row>
       <Row tone="tertiary">Surulere, Lagos State</Row>
     </Card>
-    <View style={{ gap: 4 }}>
-      <Head style={{ fontSize: 32, lineHeight: 40, color: colour.textTertiary }}>A photo of an ID</Head>
-      <Head style={{ fontSize: 32, lineHeight: 40, color: colour.textTertiary }}>
-        Where your money comes from
-      </Head>
-    </View>
+    <StepsAhead done={[ID, INCOME]} />
     <Head>What it opens</Head>
     <Card style={{ gap: space.s3 }}>
       {OPENS.map((t, i) => (
@@ -77,62 +88,94 @@ export const Finish = ({ nav }: { nav: Nav }) => (
             </View>
           ) : null}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
-            <Icon name="check" size={18} />
-            <Meta style={{ flex: 1, fontSize: 16, lineHeight: 24 }}>{t}</Meta>
+            {/* nothing is unlocked until the last step, so these are empty rings */}
+            <View
+              style={{
+                width: 18,
+                height: 18,
+                borderRadius: 9,
+                borderWidth: 1,
+                borderStyle: 'dashed',
+                borderColor: colour.ruleStrong,
+              }}
+            />
+            <Meta tone="secondary" style={{ flex: 1, fontSize: 16, lineHeight: 24 }}>
+              {t}
+            </Meta>
           </View>
         </View>
       ))}
     </Card>
-    <Button label="Next" onPress={() => nav.go('idcard')} />
     <Aside>This is the same check every Nigerian bank runs. We ask once, and we do not sell it.</Aside>
   </Screen>
 );
 
 export const IdCard = ({ nav }: { nav: Nav }) => (
-  <Screen dock={dock('Ask what happens to the photo', nav, 'finish')}>
+  <Screen
+    sink
+    wash={washes.idcard}
+    dock={
+      <BottomBar onBack={nav.back}>
+        <Button label="Take it" onPress={() => nav.go('income')} />
+      </BottomBar>
+    }
+  >
     <StepTrail done={[WHERE]} />
-    <PageHead
+    <StepHead
+      icon="camera-filled"
+      tint={washes.idcard.tone}
       title="A photo of an ID"
       sub="A driver’s licence, a passport or a voter’s card. Any of the three will do."
     />
-    <View style={{ alignItems: 'center', gap: space.s3 }}>
+    {/* a grey plate with the shape of the card cut into it, the way the frame draws it */}
+    <View
+      style={{
+        alignItems: 'center',
+        gap: space.s3,
+        backgroundColor: colour.surface2,
+        borderRadius: 16,
+        paddingVertical: 24,
+      }}
+    >
       <View
         style={{
-          width: '100%',
-          height: 190,
-          borderRadius: 16,
-          backgroundColor: colour.surface2,
+          width: 248,
+          height: 148,
+          borderRadius: 12,
           borderWidth: 2,
-          borderStyle: 'dashed',
           borderColor: colour.accent,
-          alignItems: 'center',
-          justifyContent: 'center',
         }}
-      >
-        <Icon name="id" size={52} colour={colour.textTertiary} />
-      </View>
+      />
       <Caption tone="secondary">Lay it flat and fill the frame</Caption>
     </View>
-    <Button label="Use this photo" onPress={() => nav.go('income')} />
     <Aside>
       I read the name and the number off it and keep nothing else. The photo does not leave your phone.
     </Aside>
-    <Head style={{ fontSize: 32, lineHeight: 40, color: colour.textTertiary }}>
-      Where your money comes from
-    </Head>
+    <StepsAhead done={[INCOME]} />
   </Screen>
 );
 
 export const Income = ({ nav }: { nav: Nav }) => {
   const [pick, setPick] = useState('salary');
   return (
-    <Screen dock={dock('Ask why this is asked', nav, 'idcard')}>
+    <Screen
+      sink
+      wash={washes.income}
+      dock={
+        <BottomBar onBack={nav.back}>
+          <Button label="Continue" onPress={() => nav.go('full')} />
+        </BottomBar>
+      }
+    >
       <StepTrail done={[WHERE, ID]} />
-      <PageHead
+      <StepHead
+        icon="down"
+        tint={washes.income.tone}
         title="Where your money comes from"
         sub="One tap. It is the last question, and every bank has to ask it."
       />
       <Picker
+        plain
         value={pick}
         options={[
           { id: 'salary', label: 'A salary' },
@@ -140,10 +183,7 @@ export const Income = ({ nav }: { nav: Nav }) => {
           { id: 'family', label: 'Family or friends' },
           { id: 'other', label: 'Something else' },
         ]}
-        onChange={id => {
-          setPick(id);
-          nav.go('full');
-        }}
+        onChange={setPick}
       />
     </Screen>
   );
@@ -187,7 +227,7 @@ export const Full = ({ nav }: { nav: Nav }) => (
           </View>
         ))}
     </Card>
-    <Button label="Go to my account" onPress={() => nav.go('firsthome')} />
+    <Button label="Take me in" onPress={() => nav.go('firsthome')} />
   </Screen>
 );
 
@@ -307,13 +347,19 @@ export const FirstAsk = ({ nav }: { nav: Nav }) => {
   const say = (q: string) => setThread(t => [...t, { me: true, text: q }, { me: false, text: reply(q) }]);
   return (
     <Screen dock={<Dock placeholder="Ask me anything" onBack={() => nav.go('firsthome')} onAsk={say} />}>
-      <PageHead title="Beetle" sub="Your first question" />
+      <TopBar mark title="Beetle" />
       {thread.length === 0 ? (
         <>
-          <Bubble>
-            I only tell you things I have seen in your own money. I have not seen any yet, so ask me how
-            something works and I will answer that honestly.
-          </Bubble>
+          <View style={{ alignSelf: 'flex-end' }}>
+            <Bubble who="You">What can you do?</Bubble>
+          </View>
+          <View style={{ flexDirection: 'row', gap: space.s2 }}>
+            <Icon name="mark" size={32} colour={colour.accent} />
+            <View style={{ flex: 1 }}>
+              <Bubble>Very little yet, and I would rather say so. I have no history to read.</Bubble>
+            </View>
+          </View>
+          <Aside>I only tell you things I have seen in your own money.</Aside>
           <View style={{ gap: space.s2 }}>
             {STARTERS.map(s => (
               <Button key={s} label={s} tone="grey" size={48} onPress={() => say(s)} />
@@ -370,7 +416,7 @@ export const EmptyActivity = ({ nav }: { nav: Nav }) => {
   const [filter, setFilter] = useState('All');
   return (
     <Screen dock={dock('Ask what shows up here', nav, 'firsthome')}>
-      <PageHead lead title="Activities" sub="Nothing has moved yet" />
+      <PageHead lead title="History" sub="Nothing has moved yet" />
       <ChipRow>
         {['All', 'In', 'Out'].map(f => (
           <Chip key={f} label={f} on={f === filter} onPress={() => setFilter(f)} />
@@ -379,7 +425,7 @@ export const EmptyActivity = ({ nav }: { nav: Nav }) => {
       <Empty
         glyph="wait-filled"
         title="Nothing to carry yet"
-        body="When money moves, it lands here with the reason, the time, and what I made of it."
+        body="Every line here will open a receipt you can keep, send on, or dispute."
       />
       <View style={{ gap: space.s2 }}>
         <Label>What will show here</Label>
@@ -408,12 +454,13 @@ export const EmptyActivity = ({ nav }: { nav: Nav }) => {
 
 export const EmptyGoal = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about saving', nav, 'firsthome')}>
-    <PageHead lead title="Savings" sub="You have not set one yet" />
-    <Empty
-      glyph="pot"
-      title="Nothing put away"
-      body="A beetle will shift many times its own weight, given something to push. A goal is a name and a number, and I work out the rest."
+    <PageHead lead title="Goals" sub="Nothing put aside yet" />
+    <AgentAsk
+      question="A goal works best when a rule feeds it. Tell me what you are saving for."
+      answer="Set it up"
+      onAnswer={() => nav.go('agentchat')}
     />
+    <Button label="Start a goal" onPress={() => nav.go('goal')} />
     <Head>Ones people start with</Head>
     <ActionRow
       icon="gift"

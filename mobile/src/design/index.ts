@@ -14,6 +14,7 @@ export * from './Field';
 export * from './Screen';
 export * from './Dock';
 export * from './StepTrail';
+export * from './Wash';
 export * from './TopBar';
 export * from './Sheet';
 export * from './Receipt';

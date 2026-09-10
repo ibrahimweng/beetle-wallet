@@ -163,7 +163,7 @@ await flow('request', async () => {
   await tap('Ask for money');
   await sees('Listening', 'askreq');
   await tap('Release to send');
-  await sees('Ask to be paid', 'request');
+  await sees('Beetle Requests', 'request');
   await tap('Send the request');
   await sees('Request sent', 'sent');
   const before = await balance();

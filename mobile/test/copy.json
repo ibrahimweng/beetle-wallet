@@ -9,7 +9,10 @@
   "done": "the balance after is the live one",
   "sharebuy": "the balance after is the live one",
   "power": "the balance after is the live one",
-  "sharepower": "the balance after is the live one"
+  "sharepower": "the balance after is the live one",
+  "chat": "the bubble is the Bubble component's unoverridden placeholder — it repeats the home feed's line about Ikeja Electric in a thread about paying Sarah — and the frame prices a ₦20,000 transfer as Free while its own receipt charges ₦26.88; the app follows one fee rule",
+  "payfrom": "same fee rule as pay",
+  "buy": "the frame writes Mum's line as 0803 4457 881 here and as 0803 214 4471 on its own receipt; the app uses the receipt's, so the line the agent says differs by those four digits"
  },
  "confirm": [
   "You top up Ikeja Electric about every three weeks. The last one was ₦8,000.",
@@ -44,5 +47,16 @@
  ],
  "sharepower": [
   "₦39,654.51"
+ ],
+ "chat": [
+  "You top up Ikeja Electric about every three weeks. The last one was ₦8,000.",
+  "Free"
+ ],
+ "payfrom": [
+  "Free"
+ ],
+ "buy": [
+  "Mum’s MTN line, the one ending 881. She ran dry eleven days early last month, so I have priced the bigger bundle too.",
+  "MTN · 0803 4457 881"
  ]
 }

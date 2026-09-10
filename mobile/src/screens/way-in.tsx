@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import {
   BottomBar,
+  Bubble,
   Button,
   Card,
   Field,
@@ -21,8 +22,10 @@ import {
   Label,
   Meta,
   Row,
+  Wash,
   colour,
   space,
+  washes,
 } from '../design';
 import { Rise, RevealAll, keys } from '../design/motion';
 import { Route } from '../routes';
@@ -48,6 +51,7 @@ function DigitScreen({
   footer,
   nav,
   placeholder,
+  wash,
 }: {
   trail: TrailStep[];
   icon: Parameters<typeof StepHead>[0]['icon'];
@@ -60,6 +64,7 @@ function DigitScreen({
   footer?: React.ReactNode;
   nav: Nav;
   placeholder?: string;
+  wash?: { tone: string; height?: number };
 }) {
   const [digits, setDigits] = useState(start);
   const grouped = (() => {
@@ -86,24 +91,27 @@ function DigitScreen({
     /* what was typed is what finishes the step, not which screen asked for it */
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [digits, max, touched]);
-  /* These frames do not scroll and carry no dock. The content sits at the top
-     and the keypad is pinned near the bottom, its first row at 554 of 852. */
+  /* These frames do not scroll and carry no dock. The pad is what is pinned:
+     it clears the bottom edge by 24, which puts its top row at 532 of 852, and
+     the step hangs off the top of it rather than off the status bar. */
   return (
-    <View style={{ flex: 1, backgroundColor: colour.surface, paddingHorizontal: 20, paddingTop: 72 }}>
-      <View style={{ gap: 20 }}>
-        <RevealAll>
-          <StepTrail done={trail} />
-          <StepHead icon={icon} title={title} sub={sub} />
-          <Field value={grouped} />
-          {footer}
-        </RevealAll>
+    <View style={{ flex: 1, backgroundColor: colour.surface }}>
+      {wash ? <Wash tone={wash.tone} height={wash.height} /> : null}
+      <View style={{ flex: 1, paddingHorizontal: 20 }}>
+        <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: 28, gap: 20 }}>
+          <RevealAll>
+            <StepTrail done={trail} />
+            <StepHead icon={icon} title={title} sub={sub} tint={icon === 'mark' ? undefined : wash?.tone} />
+            <Field value={grouped} />
+            {footer}
+          </RevealAll>
+        </View>
+        {/* the pad comes up under the step, the way a keyboard would */}
+        <Rise spring={keys} from={120} delay={60}>
+          <Keypad onKey={key} />
+        </Rise>
+        <View style={{ height: 24 }} />
       </View>
-      <View style={{ flex: 1 }} />
-      {/* the pad comes up under the step, the way a keyboard would */}
-      <Rise spring={keys} from={120} delay={60}>
-        <Keypad onKey={key} />
-      </Rise>
-      <View style={{ height: 32 }} />
     </View>
   );
 }
@@ -111,6 +119,7 @@ function DigitScreen({
 export const Number = ({ nav }: { nav: Nav }) => (
   <DigitScreen
     nav={nav}
+    wash={washes.number}
     trail={[]}
     icon="phone-filled"
     title="Your number"
@@ -137,6 +146,7 @@ const didNotGet = (onPress: () => void) => (
 export const Code = ({ nav }: { nav: Nav }) => (
   <DigitScreen
     nav={nav}
+    wash={washes.code}
     trail={[]}
     icon="phone-filled"
     title="Your number"
@@ -153,6 +163,7 @@ export const Code = ({ nav }: { nav: Nav }) => (
 export const Nin = ({ nav }: { nav: Nav }) => (
   <DigitScreen
     nav={nav}
+    wash={washes.nin}
     trail={[NUMBER]}
     icon="id-filled"
     title="Who you are"
@@ -168,6 +179,7 @@ export const Nin = ({ nav }: { nav: Nav }) => (
 export const Signin = ({ nav }: { nav: Nav }) => (
   <DigitScreen
     nav={nav}
+    wash={washes.signin}
     trail={[]}
     icon="mark"
     title="Welcome back"
@@ -183,6 +195,7 @@ export const Signin = ({ nav }: { nav: Nav }) => (
 export const Signcode = ({ nav }: { nav: Nav }) => (
   <DigitScreen
     nav={nav}
+    wash={washes.signcode}
     trail={[]}
     icon="mark"
     title="Six digits"
@@ -199,6 +212,7 @@ export const Signcode = ({ nav }: { nav: Nav }) => (
 export const Passcode = ({ nav }: { nav: Nav }) => (
   <DigitScreen
     nav={nav}
+    wash={washes.passcode}
     trail={[NUMBER, WHO, FACE]}
     icon="lock-filled"
     title="A passcode"
@@ -222,31 +236,12 @@ export const Passcode = ({ nav }: { nav: Nav }) => (
 /* Is this you. The record comes back and you say yes or that it is wrong. */
 export const Who = ({ nav }: { nav: Nav }) => (
   <Screen
+    sink
+    wash={washes.who}
     dock={
-      <View
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: 0,
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 8,
-          paddingHorizontal: 20,
-          paddingVertical: 24,
-          backgroundColor: colour.surface,
-        }}
-      >
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-          onPress={nav.back}
-          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
-        >
-          <Icon name="back" size={22} />
-        </Pressable>
-        <Button label="Yes, that is me" onPress={() => nav.go('face')} style={{ flex: 1 }} />
-      </View>
+      <BottomBar onBack={nav.back}>
+        <Button label="Yes, that is me" onPress={() => nav.go('face')} />
+      </BottomBar>
     }
   >
     <StepTrail done={[NUMBER]} />
@@ -254,6 +249,7 @@ export const Who = ({ nav }: { nav: Nav }) => (
       icon="id-filled"
       title="Who you are"
       sub="This came back from the record against those digits. I did not type it."
+      tint={washes.who.tone}
     />
     <Card style={{ gap: space.s4 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
@@ -293,31 +289,12 @@ export const Who = ({ nav }: { nav: Nav }) => (
 /* One photo, and what happens to it. */
 export const Face = ({ nav }: { nav: Nav }) => (
   <Screen
+    sink
+    wash={washes.face}
     dock={
-      <View
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: 0,
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 8,
-          paddingHorizontal: 20,
-          paddingVertical: 24,
-          backgroundColor: colour.surface,
-        }}
-      >
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-          onPress={nav.back}
-          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
-        >
-          <Icon name="back" size={22} />
-        </Pressable>
-        <Button label="Take it" onPress={() => nav.go('passcode')} style={{ flex: 1 }} />
-      </View>
+      <BottomBar onBack={nav.back}>
+        <Button label="Take it" onPress={() => nav.go('passcode')} />
+      </BottomBar>
     }
   >
     <StepTrail done={[NUMBER, WHO]} />
@@ -325,6 +302,7 @@ export const Face = ({ nav }: { nav: Nav }) => (
       icon="faceid-filled"
       title="Your face"
       sub="One photo, checked against the same record, so that only you can open this again."
+      tint={washes.face.tone}
     />
     <View style={{ alignItems: 'center', gap: space.s5, paddingVertical: space.s6 }}>
       <Icon name="person" size={56} colour={colour.textTertiary} />
@@ -352,19 +330,9 @@ export const Ready = ({ nav }: { nav: Nav }) => {
   return (
     <Screen
       dock={
-        <View
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 0,
-            paddingHorizontal: 20,
-            paddingVertical: 24,
-            backgroundColor: colour.surface,
-          }}
-        >
+        <BottomBar>
           <Button label="Take me in" onPress={() => nav.go('firsthome')} />
-        </View>
+        </BottomBar>
       }
     >
       <StepTrail done={[NUMBER, WHO, FACE, PASS]} />
@@ -403,6 +371,7 @@ export const Ready = ({ nav }: { nav: Nav }) => {
 export const NewCode = ({ nav }: { nav: Nav }) => (
   <DigitScreen
     nav={nav}
+    wash={washes.newcode}
     trail={[
       { icon: 'phone-filled', label: 'Frozen' },
       { icon: 'id-filled', label: 'Your number' },
@@ -428,39 +397,46 @@ export const NewCode = ({ nav }: { nav: Nav }) => (
 
 /* The record did not match. Nothing is wrong with the person, usually. */
 export const NoMatch = ({ nav }: { nav: Nav }) => (
-  <View style={{ flex: 1, backgroundColor: colour.surface, paddingHorizontal: 20, paddingTop: 72 }}>
-    <View style={{ gap: 20 }}>
-      <StepTrail done={[NUMBER]} />
-      <StepHead
-        icon="id-filled"
-        title="Who you are"
-        sub="Eleven digits from your NIN or your BVN. These ones did not match anything."
-      />
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s5 }}>
-        <Icon name="warn-filled" size={28} colour={colour.warn} />
-        <Row>Nothing came back</Row>
+  <View style={{ flex: 1, backgroundColor: colour.surface }}>
+    <Wash tone={washes.nomatch.tone} height={washes.nomatch.height} />
+    <View style={{ flex: 1, paddingHorizontal: 20, paddingBottom: 116, justifyContent: 'flex-end' }}>
+      <View style={{ gap: 20 }}>
+        <StepTrail done={[NUMBER]} />
+        <StepHead
+          icon="id-filled"
+          title="Who you are"
+          sub="Eleven digits from your NIN or your BVN. These ones did not match anything."
+          tint={washes.nomatch.tone}
+        />
+        <Card style={{ gap: space.s4 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s4 }}>
+            <Icon name="warn-filled" size={28} colour={colour.good} />
+            <Row>Nothing came back</Row>
+          </View>
+          <Meta tone="secondary">
+            No record matches 1234 5678 90. One wrong digit is the usual reason, so it is worth reading them
+            again.
+          </Meta>
+        </Card>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s2 }}>
+          <Icon name="mark" size={32} colour={colour.accent} />
+          <View style={{ flex: 1 }}>
+            <Bubble>
+              If the digits are right and it still says this, your BVN will work instead. It is the same
+              eleven digits from a different register.
+            </Bubble>
+          </View>
+        </View>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => nav.go('agentchat')}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+        >
+          <Label>Talk to someone</Label>
+          <Icon name="chevron" size={12} />
+        </Pressable>
       </View>
-      <Meta tone="secondary">
-        No record matches 1234 5678 90. One wrong digit is the usual reason, so it is worth reading them
-        again.
-      </Meta>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s5 }}>
-        <Icon name="mark" size={32} colour={colour.accent} />
-        <Body style={{ flex: 1 }}>
-          If the digits are right and it still says this, your record may be under a different name. Somebody
-          here can sort that out.
-        </Body>
-      </View>
-      <Pressable
-        accessibilityRole="button"
-        onPress={() => nav.go('agentchat')}
-        style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
-      >
-        <Label>Talk to someone</Label>
-        <Icon name="chevron" size={12} />
-      </Pressable>
     </View>
-    <View style={{ flex: 1 }} />
     <BottomBar onBack={nav.back}>
       <Button label="Try again" onPress={() => nav.go('nin')} />
     </BottomBar>

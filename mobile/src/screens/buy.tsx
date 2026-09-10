@@ -9,32 +9,29 @@ import {
   Banner,
   Bubble,
   Button,
-  Chip,
-  ChipRow,
   Ghost,
   Head,
   Icon,
-  Keyboard,
-  Label,
   Meta,
   PassSheet,
   Picker,
   Receipt,
   Said,
   Screen,
-  Sheet,
+  TypeOver,
   ShareSheet,
   ToolPanel,
   TopBar,
-  TypedLine,
   colour,
   naira,
   nairaFull,
   space,
   toast,
+  VoiceSheet,
 } from '../design';
-import { Nav, dock } from './nav';
+import { Nav, asked, dock } from './nav';
 import { still } from './send';
+import { Home } from './home';
 import { useStore, Receipt as Slip } from '../state/live';
 import { contacts, me } from '../state/data.js';
 import * as act from '../state/actions.js';
@@ -61,72 +58,31 @@ let slip: Slip | null = null;
 /* ---- asking for it out loud ---- */
 
 export const AskSvc = ({ nav }: { nav: Nav }) => (
-  <Sheet onClose={nav.back}>
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-      <Icon name="mark" size={20} colour={colour.accent} />
-      <Label tone="accent">Listening</Label>
-    </View>
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-      <Head style={{ fontSize: 32, lineHeight: 40 }}>2k data for </Head>
-      <Head style={{ fontSize: 32, lineHeight: 40, color: colour.textTertiary }}>mum</Head>
-    </View>
-    <Wave seed={23} />
-    <Meta tone="tertiary">Or try one of these</Meta>
-    <View style={{ gap: space.s2 }}>
-      {['Buy me airtime', 'Top up my light', 'What data plan is cheapest?'].map(t => (
-        <Button key={t} label={t} tone="grey" size={48} onPress={() => nav.go('buy')} />
-      ))}
-    </View>
-    <Button label="Release to send" tone="blue" onPress={() => nav.go('buy')} />
-    <Button label="Not what I said" tone="white" onPress={() => nav.go('typedbuy')} />
-  </Sheet>
+  <VoiceSheet
+    said="2k data for "
+    tail="mum"
+    seed={23}
+    offers={['Pay my light bill', 'How much did I spend on data?', 'Top up my own line']}
+    onOffer={(t: string) => asked(nav, t)}
+    onNotThis={() => nav.go('typedbuy')}
+    onStop={() => nav.go('home')}
+    onSend={() => nav.go('buy')}
+    onClose={nav.back}
+    behind={<Home nav={still} />}
+  />
 );
-
-/* The listening indicator, drawn from the same figures on every voice frame:
-   thirty bars, three wide, three apart. */
-export function Wave({ seed = 11 }: { seed?: number }) {
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, height: 28 }}>
-      {Array.from({ length: 30 }).map((_, i) => (
-        <View
-          key={i}
-          style={{
-            width: 3,
-            borderRadius: 2,
-            backgroundColor: colour.accent,
-            height: 6 + Math.abs(Math.sin((i + seed) * 1.7)) * 20,
-          }}
-        />
-      ))}
-    </View>
-  );
-}
 
 /* ---- typing it ---- */
 
 export const TypedBuy = ({ nav }: { nav: Nav }) => {
-  const [text, setText] = useState('5gb for mum');
-  return (
-    <View style={{ flex: 1, backgroundColor: colour.surface }}>
-      <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 72, gap: space.s3 }}>
-        <Said>5gb for mum</Said>
-        <TypedLine value={text} placeholder="5gb for mum" />
-        <ChipRow>
-          <Chip label="5GB" on />
-          <Chip label="MTN" on />
-          <Chip label="Mum" on />
-        </ChipRow>
-      </View>
-      <Keyboard
-        onKey={k => {
-          if (k === 'send') return nav.go('buy');
-          if (k === 'del') return setText(t => t.slice(0, -1));
-          if (k === 'shift' || k === '123') return;
-          setText(t => t + k);
-        }}
-      />
-    </View>
-  );
+  const [text, setText] = useState('2k data for mum');
+  const key = (k: string) => {
+    if (k === 'send') return nav.go('buy');
+    if (k === 'del') return setText(t => t.slice(0, -1));
+    if (k === 'shift' || k === '123') return;
+    setText(t => t + k);
+  };
+  return <TypeOver behind={<Home nav={still} />} value={text} onKey={key} onSend={() => key('send')} />;
 };
 
 /* ---- what it put together ---- */

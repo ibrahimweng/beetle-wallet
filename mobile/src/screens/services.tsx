@@ -5,7 +5,9 @@
 import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import {
+  ActionButton,
   ActionRow,
+  AgentCard,
   Aside,
   Avatar,
   Banner,
@@ -14,9 +16,12 @@ import {
   Card,
   CardFace,
   Caption,
+  Chip,
+  ChipRow,
   Between,
   Display,
   Divider,
+  Dock,
   Empty,
   Filters,
   Grid,
@@ -39,7 +44,7 @@ import {
   space,
   toast,
 } from '../design';
-import { Nav, dock } from './nav';
+import { Nav, asked, dock } from './nav';
 import { Ledger, useStore } from '../state/live';
 import { Route } from '../routes';
 import { setPlan } from './buy';
@@ -96,7 +101,8 @@ function Rows({ rows, nav }: { rows: [string, string, string, Route][]; nav: Nav
 
 export const Services = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Search, or say what you need', nav, 'home')}>
-    <PageHead lead title="You use these most" />
+    <PageHead lead title="All services" sub="Everything you can pay for from here" />
+    <Head>You use these most</Head>
     <Grid
       items={[
         { glyph: 'airtime', label: 'Airtime', onPress: () => nav.go('airtime') },
@@ -148,8 +154,10 @@ const BUNDLES: [string, number][] = [
 
 export const Airtime = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask for a plan', nav, 'services')}>
+    <PageHead lead title="Buy data" sub="Check the parts I filled in before it goes" />
     <Caption tone="secondary">You said</Caption>
     <Said onPress={() => nav.go('asksvc')}>2k data for mum</Said>
+    <AgentCard>5GB for 30 days, on Mum’s MTN line.</AgentCard>
     <Card style={{ gap: space.s3 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
         <Avatar initials={contacts.mum.initials} />
@@ -213,6 +221,7 @@ export const Airtime = ({ nav }: { nav: Nav }) => (
 
 export const Loan = ({ nav }: { nav: Nav }) => {
   const [want, setWant] = useState(loan.principal as number);
+  const [term, setTerm] = useState('90 days');
   const interest = Math.round(want * 0.04 * 3);
   const fee = 1500;
   const total = want + interest + fee;
@@ -227,8 +236,10 @@ export const Loan = ({ nav }: { nav: Nav }) => {
   ];
   return (
     <Screen dock={dock('Ask what this really costs', nav, 'services')}>
-      <PageHead lead title="How much you want" />
-      <View style={{ gap: space.s2 }}>
+      <PageHead lead title="Borrow" sub="The whole cost, before you decide" />
+      <AgentCard>You asked what you could borrow. Here is the whole cost.</AgentCard>
+      <Card style={{ gap: space.s3 }}>
+        <Meta tone="secondary">How much you want</Meta>
         <Display>{naira(want)}</Display>
         <Slider value={want} min={10000} max={loan.ceiling} step={10000} onChange={setWant} />
         <View style={{ flexDirection: 'row' }}>
@@ -237,7 +248,12 @@ export const Loan = ({ nav }: { nav: Nav }) => {
           </Caption>
           <Caption tone="tertiary">{`${naira(loan.ceiling)} is your limit`}</Caption>
         </View>
-      </View>
+        <ChipRow>
+          {['30 days', '60 days', '90 days'].map(t => (
+            <Chip key={t} label={t} on={t === term} onPress={() => setTerm(t)} />
+          ))}
+        </ChipRow>
+      </Card>
       <Card style={{ gap: space.s3 }}>
         {facts.map(([k, v], i) => (
           <View key={k}>
@@ -290,40 +306,54 @@ export const CardScreen = ({ nav }: { nav: Nav }) => {
   const s = useStore();
   const c = s.card;
   const left = seedCard.ceiling - c.spent;
-  const tool = (glyph: string, label: string, onPress: () => void) => (
+  /* Reveal and Rules are ink; freezing is the cold blue and funding the green,
+     which is how the frame tells the four apart. */
+  const tool = (glyph: string, label: string, tint: string, onPress: () => void) => (
     <Pressable
       key={label}
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => ({ flex: 1, alignItems: 'center', gap: space.s2, opacity: pressed ? 0.6 : 1 })}
+      style={({ pressed }) => ({ flex: 1, alignItems: 'center', gap: 6, opacity: pressed ? 0.6 : 1 })}
     >
-      <Icon name={glyph as 'eye'} size={22} />
+      <Icon name={glyph as 'eye'} size={22} colour={tint} />
       <Caption tone="secondary">{label}</Caption>
     </Pressable>
   );
   return (
-    <Screen dock={dock('Ask about this card', nav, 'services')}>
+    <Screen
+      dock={
+        <Dock
+          placeholder="Ask about this card"
+          onBack={() => nav.go('services')}
+          onAsk={q => asked(nav, q)}
+          onScan={() => nav.go('scan')}
+          action={<ActionButton onPress={() => nav.go('actions')} />}
+        />
+      }
+    >
+      <PageHead title="Virtual card" sub="Made for one merchant, with its own limit" />
       <CardFace only={seedCard.only} number={seedCard.number} name={seedCard.name} expiry={seedCard.expiry} />
-      <View style={{ flexDirection: 'row', gap: space.s2 }}>
-        {tool('eye', 'Reveal', () => toast('Held down to show. It hides again in ten seconds.'))}
-        {tool('freeze', c.frozen ? 'Unfreeze' : 'Freeze', () => {
+      <Card style={{ flexDirection: 'row', gap: space.s2, paddingVertical: 12 }}>
+        {tool('search', 'Reveal', colour.ink, () =>
+          toast('Held down to show. It hides again in ten seconds.'),
+        )}
+        {tool('freeze', c.frozen ? 'Unfreeze' : 'Freeze', '#22b8e8', () => {
           const now = !c.frozen;
           act.freezeCard(now);
           toast(now ? 'Card frozen. Nothing can be charged to it.' : 'Card is live again.');
         })}
-        {tool('plus', 'Fund', () => toast('Moved from Everyday. It only ever holds what you put on it.'))}
-        {tool('list', 'Rules', () => nav.go('rules'))}
-      </View>
+        {tool('plus', 'Fund', colour.good, () =>
+          toast('Moved from Everyday. It only ever holds what you put on it.'),
+        )}
+        {tool('list', 'Rules', colour.ink, () => nav.go('rules'))}
+      </Card>
       {c.frozen ? <Banner text="This card is frozen. Nothing can be charged to it." /> : null}
+      <AgentCard>This card has paid Netflix four times, ₦21,000 in all.</AgentCard>
       <Card style={{ gap: space.s3 }}>
         <Between label="Spent this month" value={`${naira(c.spent)} of ${naira(seedCard.ceiling)}`} />
         <Meter pct={(c.spent / seedCard.ceiling) * 100} />
         <Caption tone="tertiary">{`${naira(left)} left before it stops working`}</Caption>
       </Card>
-      <Bubble>
-        This card only ever holds what you move onto it. If somebody takes the number, the most they can reach
-        is that.
-      </Bubble>
       <Button
         label="Make another card"
         tone="grey"
@@ -395,10 +425,13 @@ const WENT: [string, string, number][] = [
 ];
 
 export const Answer = ({ nav }: { nav: Nav }) => (
-  <Screen dock={dock('Ask about your spending', nav, 'history')}>
-    <PageHead lead title="Airtime and data" sub="Last month" />
+  <Screen dock={dock('Ask about this', nav, 'history')}>
+    <PageHead lead title="Airtime and data" sub="You asked how much you spend on staying connected" />
+    <AgentCard>₦18,900 on airtime and data last month. That is your highest month this year.</AgentCard>
     <View style={{ gap: 4 }}>
       <Display>{naira(18900)}</Display>
+      <Meta tone="secondary">Airtime and data</Meta>
+      <Meta tone="secondary">Last month</Meta>
       <Meta tone="tertiary">Added up from 14 top ups, 1 to 31 July</Meta>
     </View>
     <Card style={{ gap: space.s3 }}>
@@ -459,5 +492,6 @@ export const Answer = ({ nav }: { nav: Nav }) => (
       sub="Only when the data actually runs out"
       onPress={() => nav.go('rule')}
     />
+    <AgentCard>A 10GB monthly plan is ₦4,000 and would save about ₦1,800.</AgentCard>
   </Screen>
 );

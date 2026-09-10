@@ -9,6 +9,8 @@ import {
   Aside,
   Badge,
   Banner,
+  AgentAsk,
+  AgentCard,
   Bubble,
   Button,
   Card,
@@ -62,24 +64,31 @@ export const ScanBill = ({ nav }: { nav: Nav }) => (
     title="Point at a bill or a meter"
     sub="The number on the card works too."
     foot="Or the meter number, typed, if the light is bad."
+    onClose={nav.back}
     onShutter={() => nav.go('meter')}
-  >
-    <ReadCard
-      who="Bill photo"
-      glyph="power"
-      tone={colour.warn}
-      when="4:02 PM"
-      kind={meterBill.kind}
-      lines={[`Meter ${meterBill.meter}`, naira(meterBill.amount), meterBill.address]}
-      slip={meterBill.slip}
-    />
-  </CameraScreen>
+    read={
+      <ReadCard
+        who="Bill photo"
+        glyph="power"
+        tone={colour.warn}
+        when="4:02 PM"
+        kind={meterBill.kind}
+        lines={[`Meter ${meterBill.meter}`, naira(meterBill.amount), meterBill.address]}
+        slip={meterBill.slip}
+      />
+    }
+  />
 );
 
 /* ---- what it read off the photo ---- */
 
 export const MeterRead = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about this bill', nav, 'scanbill')}>
+    <PageHead
+      lead
+      title="What I found"
+      sub={`Read from your photo, ${meterBill.readAt.split(', ')[1] ?? '4:02 PM'}`}
+    />
     <Card style={{ gap: space.s3 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
@@ -158,6 +167,32 @@ export const MeterRead = ({ nav }: { nav: Nav }) => (
       </View>
       <Button label="No" tone="grey" onPress={() => nav.go('bills')} />
     </View>
+    <Card style={{ gap: space.s3 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Meta tone="secondary">Amount</Meta>
+          <Caption tone="tertiary">from the photo</Caption>
+        </View>
+        <Row>{naira(meterBill.amount)}</Row>
+      </View>
+      <Divider />
+      <Between label="Meter" value={meterBill.meter} />
+      <Divider />
+      <Between label="Disco" value={meterBill.disco} />
+    </Card>
+    <Button
+      label="Continue"
+      onPress={() => {
+        bill = {
+          biller: meterBill.disco,
+          meter: meterBill.meter,
+          amount: meterBill.amount,
+          icon: 'power',
+        };
+        slip = null;
+        nav.go('confirmmeter');
+      }}
+    />
   </Screen>
 );
 
@@ -250,11 +285,41 @@ export const Bills = ({ nav }: { nav: Nav }) => {
   const covered = rows.filter(b => b.covered).length;
   return (
     <Screen dock={dock('Ask about your bills', nav, 'services')}>
-      <PageHead
-        lead
-        title={`${covered} of ${rows.length} covered`}
-        sub={`${rows.length - covered} still to sort`}
-      />
+      <PageHead lead title="Bills" sub="Everything that repeats each month" />
+      <View
+        style={{
+          gap: space.s4,
+          borderWidth: 1,
+          borderColor: colour.rule,
+          borderRadius: radius.card,
+          padding: space.s4,
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s3 }}>
+          <Icon name="mark" size={32} colour={colour.accent} />
+          <View style={{ flex: 1 }}>
+            <Bubble>{`${naira(34500)} of bills this month. Three of the five are covered.`}</Bubble>
+          </View>
+        </View>
+        {/* one block per bill, filled for the ones I already pay */}
+        <View style={{ flexDirection: 'row', gap: 4 }}>
+          {rows.map((b, i) => (
+            <View
+              key={b.name}
+              style={{
+                flex: 1,
+                height: 4,
+                borderRadius: 2,
+                backgroundColor: i < covered ? colour.accent : colour.surface3,
+              }}
+            />
+          ))}
+        </View>
+        <View style={{ flexDirection: 'row' }}>
+          <Label tone="accent" style={{ flex: 1 }}>{`${covered} of ${rows.length} covered`}</Label>
+          <Caption tone="tertiary">{`${rows.length - covered} still to sort`}</Caption>
+        </View>
+      </View>
       <Meta tone="tertiary">This month</Meta>
       <Card style={{ gap: space.s3 }}>
         {rows.map((b, i) => (
@@ -295,15 +360,16 @@ export const Bills = ({ nav }: { nav: Nav }) => {
           </View>
         ))}
       </Card>
-      <Bubble>
-        I keep the meter and account numbers, so you never type them again. If a bill jumps by more than a
-        third I tell you before I pay it.
-      </Bubble>
       <Button
         label="Add a bill"
         tone="grey"
         leading="plus"
         onPress={() => toast('Point the camera at it, or type the number.')}
+      />
+      <AgentAsk
+        question="DStv and Spectranet are not covered. Shall I pay them?"
+        answer="Set both up"
+        onAnswer={() => nav.go('rules')}
       />
     </Screen>
   );
@@ -320,8 +386,10 @@ export const PowerPay = ({ nav }: { nav: Nav }) => {
   const kwh = (a: number) => `About ${UNITS[a] ?? Math.round(a / 210)} kWh`;
   return (
     <Screen dock={dock('Ask about this bill', nav, 'bills')}>
+      <PageHead lead title="Pay a bill" sub="Ikeja Electric, on your saved meter" />
       <Caption tone="secondary">You said</Caption>
       <Said onPress={() => nav.go('scanbill')}>pay my light bill</Said>
+      <AgentCard>Ikeja Electric, the meter you always use.</AgentCard>
       <Card style={{ gap: space.s3 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
           <Icon name="power" size={20} />

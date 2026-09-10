@@ -3,12 +3,14 @@
    figures as the components it sits beside — 20 between things in a column,
    56 for a button, 24 for a card. */
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
-import { Animated, PanResponder, Pressable, ScrollView, View } from 'react-native';
+import { Animated, PanResponder, Pressable, ScrollView, StyleProp, View, ViewStyle } from 'react-native';
 import Svg, { Circle, Rect } from 'react-native-svg';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from './Icon';
 import { Body, Caption, Display, Head, Label, Meta, Row, Title } from './text';
 import { Card, Divider } from './Screen';
 import { Sheet } from './Sheet';
+import { Bubble } from './Bubble';
 import { Button } from './Button';
 import { Keypad, Pips } from './Keypad';
 import { IconName } from '../icons';
@@ -296,13 +298,17 @@ export function Picker({
   options,
   value,
   onChange,
+  plain = false,
 }: {
   options: Choice[];
   value: string;
   onChange: (id: string) => void;
+  /* some frames set the choices straight on the page, with only the rules between */
+  plain?: boolean;
 }) {
+  const Frame = plain ? PlainList : Card;
   return (
-    <Card style={{ gap: 0 }}>
+    <Frame style={{ gap: 0 }}>
       {options.map((o, i) => (
         <View key={o.id}>
           {i ? <Divider /> : null}
@@ -318,15 +324,19 @@ export function Picker({
             }}
           >
             <View style={{ flex: 1, gap: 2 }}>
-              <Row>{o.label}</Row>
+              {plain ? <Body>{o.label}</Body> : <Row>{o.label}</Row>}
               {o.sub ? <Meta tone="secondary">{o.sub}</Meta> : null}
             </View>
             <Tick on={o.id === value} />
           </Tap>
         </View>
       ))}
-    </Card>
+    </Frame>
   );
+}
+
+function PlainList({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
+  return <View style={style}>{children}</View>;
 }
 
 /* A part of a form you can change, drawn as label, value and the word the
@@ -394,7 +404,7 @@ const ROWS = [
 /* The typed-entry keyboard, 236 tall on the frame. It types for real, which
    is the only way the typed screens are worth having. */
 export function Keyboard({ onKey, action = 'send' }: { onKey: (k: string) => void; action?: string }) {
-  const key = (k: string, wide?: number, dark?: boolean, label?: string) => (
+  const key = (k: string, wide?: number, dark?: boolean, label?: string, fill?: string, ink?: string) => (
     <Tap
       key={k}
       accessibilityRole="button"
@@ -405,12 +415,16 @@ export function Keyboard({ onKey, action = 'send' }: { onKey: (k: string) => voi
         height: 42,
         marginHorizontal: 2,
         borderRadius: 5,
-        backgroundColor: dark ? colour.ruleStrong : colour.surface,
+        backgroundColor: fill ?? (dark ? colour.rule : colour.surface),
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      {k === 'del' ? <Icon name="del" size={20} /> : <Body>{label ?? k}</Body>}
+      {k === 'del' ? (
+        <Icon name="del" size={20} />
+      ) : (
+        <Body style={ink ? { color: ink } : undefined}>{label ?? k}</Body>
+      )}
     </Tap>
   );
   return (
@@ -418,7 +432,7 @@ export function Keyboard({ onKey, action = 'send' }: { onKey: (k: string) => voi
       spring={keys}
       style={{
         height: 236,
-        backgroundColor: colour.surface3,
+        backgroundColor: '#f3f3f5',
         paddingTop: 8,
         paddingHorizontal: 3,
         gap: 10,
@@ -427,16 +441,101 @@ export function Keyboard({ onKey, action = 'send' }: { onKey: (k: string) => voi
       <View style={{ flexDirection: 'row' }}>{ROWS[0].map(k => key(k))}</View>
       <View style={{ flexDirection: 'row', paddingHorizontal: 18 }}>{ROWS[1].map(k => key(k))}</View>
       <View style={{ flexDirection: 'row' }}>
-        {key('shift', 1.5, true, '⇧')}
+        {/* shift and delete sit on the ground itself in the frames, not on a key */}
+        {key('shift', 1.5, false, '⇧')}
         {ROWS[2].map(k => key(k))}
-        {key('del', 1.5, true, 'del')}
+        {key('del', 1.5, false, 'del')}
       </View>
       <View style={{ flexDirection: 'row' }}>
         {key('123', 1.5, true, '123')}
-        {key(' ', 5, false, 'space')}
-        {key(action, 2, true, action)}
+        {key(' ', 5, false, ' ')}
+        {key(action, 2, false, action, colour.accent, colour.textInverse)}
       </View>
     </Rise>
+  );
+}
+
+/* Typing over the screen you were on.
+
+   The four keyboard frames are not their own page. They are the home with the
+   keyboard up: the ask bar has floated off the bottom to sit on top of it, and
+   everything you could see a second ago is still there behind. */
+export function TypeOver({
+  behind,
+  value,
+  onKey,
+  onSend,
+  action = 'send',
+  chips,
+}: {
+  behind: ReactNode;
+  value: string;
+  onKey: (k: string) => void;
+  onSend: () => void;
+  action?: string;
+  /* what it has made of the line so far, where the frame shows it */
+  chips?: string[];
+}) {
+  return (
+    <View style={{ flex: 1, backgroundColor: colour.surface }}>
+      <View style={{ flex: 1 }} pointerEvents="none">
+        {behind}
+      </View>
+      <View
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 236,
+          paddingHorizontal: 20,
+          paddingBottom: 14,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+        }}
+      >
+        <View style={{ flex: 1, gap: space.s2 }}>
+          {chips?.length ? (
+            <ChipRow>
+              {chips.map(c => (
+                <Chip key={c} label={c} on />
+              ))}
+            </ChipRow>
+          ) : null}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 8,
+              height: 48,
+              borderRadius: 24,
+              paddingHorizontal: 8,
+              backgroundColor: colour.surface,
+            }}
+          >
+            <Icon name="mark" size={32} colour={colour.accent} />
+            <Body style={{ flex: 1 }}>{value}</Body>
+            <View style={{ width: 2, height: 22, backgroundColor: colour.accent }} />
+          </View>
+        </View>
+        <Tap
+          accessibilityRole="button"
+          accessibilityLabel="Send"
+          onPress={onSend}
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: 24,
+            backgroundColor: colour.ink,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Icon name="up" size={22} colour={colour.textInverse} />
+        </Tap>
+      </View>
+      <Keyboard action={action} onKey={onKey} />
+    </View>
   );
 }
 
@@ -457,61 +556,123 @@ export function TypedLine({ value, placeholder }: { value: string; placeholder?:
 export function CameraScreen({
   title,
   sub,
+  read,
   children,
   onShutter,
+  onClose,
   foot,
 }: {
   title: string;
   sub: string;
+  /* what the camera has read, drawn inside the viewfinder */
+  read?: ReactNode;
   children?: ReactNode;
   onShutter: () => void;
+  onClose?: () => void;
   foot?: string;
 }) {
+  const round = (glyph: IconName, label: string, onPress?: () => void, fill = 'rgba(255,255,255,0.12)') => (
+    <Tap
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      style={{
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: fill,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Icon name={glyph} size={18} colour={colour.textInverse} />
+    </Tap>
+  );
   return (
-    <View style={{ flex: 1, backgroundColor: '#101216' }}>
-      <ScrollView
-        contentContainerStyle={{
-          padding: 20,
-          paddingTop: 72,
-          paddingBottom: 60,
-          gap: space.s5,
-          alignItems: 'center',
+    <LinearGradient
+      colors={['#151519', '#08080a']}
+      start={{ x: 0.5, y: 0 }}
+      end={{ x: 0.5, y: 1 }}
+      style={{ flex: 1 }}
+    >
+      {/* leaving and the light, one in each top corner */}
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          paddingHorizontal: 20,
+          paddingTop: 58,
         }}
       >
+        {round('close', 'Close', onClose)}
+        {round('power', 'Flash')}
+      </View>
+      <View style={{ paddingHorizontal: 20, paddingTop: 26, gap: space.s5, alignItems: 'center' }}>
         <RevealAll>
-          <Head tone="inverse">{title}</Head>
+          <Row tone="inverse">{title}</Row>
           <Meta tone="tertiary">{sub}</Meta>
-          {children}
-          <View style={{ height: 10 }} />
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 30 }}>
-            <View style={{ opacity: 0.7 }}>
-              <Icon name="grid" size={24} colour={colour.textInverse} />
-            </View>
-            <Tap
-              accessibilityRole="button"
-              accessibilityLabel="Take the photo"
-              onPress={onShutter}
+          {read ? (
+            <View
               style={{
-                width: 68,
-                height: 68,
-                borderRadius: 34,
-                backgroundColor: colour.surface,
-                borderWidth: 5,
-                borderColor: '#4b5160',
+                alignSelf: 'stretch',
+                borderWidth: 2,
+                borderColor: 'rgba(255,255,255,0.32)',
+                borderRadius: 20,
+                padding: 14,
               }}
-            />
-            <View style={{ opacity: 0.7 }}>
-              <Icon name="power" size={24} colour={colour.textInverse} />
+            >
+              {read}
             </View>
-          </View>
-          {foot ? (
-            <Caption tone="tertiary" style={{ textAlign: 'center' }}>
-              {foot}
-            </Caption>
           ) : null}
+          {children}
         </RevealAll>
-      </ScrollView>
-    </View>
+      </View>
+      <View style={{ flex: 1 }} />
+      {/* the roll, the shutter and the code reader, along the bottom */}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 20,
+        }}
+      >
+        <View style={{ width: 52, height: 52, borderRadius: 12, backgroundColor: colour.surface }} />
+        <Tap
+          accessibilityRole="button"
+          accessibilityLabel="Take the photo"
+          onPress={onShutter}
+          style={{
+            width: 72,
+            height: 72,
+            borderRadius: 36,
+            backgroundColor: colour.surface,
+            borderWidth: 4,
+            borderColor: '#08080a',
+          }}
+        />
+        <Tap
+          accessibilityRole="button"
+          accessibilityLabel="Read a code"
+          style={{
+            width: 52,
+            height: 52,
+            borderRadius: 26,
+            backgroundColor: 'rgba(255,255,255,0.12)',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Icon name="qr" size={22} colour={colour.textInverse} />
+        </Tap>
+      </View>
+      {foot ? (
+        <Caption tone="tertiary" style={{ textAlign: 'center', marginTop: 31 }}>
+          {foot}
+        </Caption>
+      ) : null}
+      <View style={{ height: 32 }} />
+    </LinearGradient>
   );
 }
 
@@ -651,6 +812,30 @@ export function ToastHost() {
 
 /* ---- the card ---- */
 
+/* What the agent has noticed about the thing on the screen, boxed. The frames
+   draw it as a white card with a hairline round it, the mark at the left and
+   the line itself in the pale blue bubble. */
+export function AgentCard({ children }: { children: string }) {
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: space.s3,
+        borderWidth: 1,
+        borderColor: colour.rule,
+        borderRadius: radius.card,
+        padding: space.s4,
+      }}
+    >
+      <Icon name="mark" size={32} colour={colour.accent} />
+      <View style={{ flex: 1 }}>
+        <Bubble>{children}</Bubble>
+      </View>
+    </View>
+  );
+}
+
 export function CardFace({
   only,
   number,
@@ -663,14 +848,30 @@ export function CardFace({
   expiry: string;
 }) {
   return (
-    <View style={{ backgroundColor: colour.accentDeep, borderRadius: radius.lg, padding: 22, gap: 30 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Caption tone="inverse" style={{ flex: 1, fontWeight: '600', letterSpacing: 1 }}>
+    <LinearGradient
+      colors={['#1e3a8a', '#0a0f24']}
+      start={{ x: 0.1, y: 0 }}
+      end={{ x: 0.9, y: 1 }}
+      style={{ borderRadius: radius.lg, padding: 22, gap: 22 }}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+        <View style={{ flex: 1 }}>
+          <Icon name="mark" size={26} colour={colour.textInverse} />
+        </View>
+        <Caption tone="inverse" style={{ fontWeight: '600', letterSpacing: 1.4 }}>
           {only}
         </Caption>
-        <Icon name="card" size={22} colour={colour.textInverse} />
       </View>
-      <Head tone="inverse" style={{ fontWeight: '500', letterSpacing: 1.2 }}>
+      {/* the chip the frame draws under the mark */}
+      <View
+        style={{
+          width: 34,
+          height: 24,
+          borderRadius: 5,
+          backgroundColor: 'rgba(255,255,255,0.22)',
+        }}
+      />
+      <Head tone="inverse" style={{ fontWeight: '500', letterSpacing: 1.6 }}>
         {number}
       </Head>
       <View style={{ flexDirection: 'row' }}>
@@ -687,7 +888,7 @@ export function CardFace({
           <Caption tone="inverse">{expiry}</Caption>
         </View>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -814,6 +1015,96 @@ export function BigMoney({
         {change ? <Label tone="accent">{change}</Label> : null}
       </Tap>
       {note ? <Meta tone="tertiary">{note}</Meta> : null}
+    </View>
+  );
+}
+
+/* ---- asking out loud ---- */
+
+/* The voice sheet, the same on all three flows it appears in. Read off the
+   frames: the mark and Listening, what it heard with the part it is unsure of
+   in grey, the waveform, three things you could say instead, the way out as a
+   link rather than a button, and the send with a stop beside it. */
+export function VoiceSheet({
+  said,
+  tail,
+  seed = 11,
+  offers,
+  onOffer,
+  onSend,
+  onNotThis,
+  onStop,
+  behind,
+  onClose,
+}: {
+  said: string;
+  tail: string;
+  seed?: number;
+  offers: string[];
+  onOffer: (t: string) => void;
+  onSend: () => void;
+  onNotThis: () => void;
+  onStop: () => void;
+  behind?: ReactNode;
+  onClose: () => void;
+}) {
+  return (
+    <Sheet onClose={onClose} behind={behind}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Icon name="mark" size={20} colour={colour.accent} />
+        <Label tone="accent">Listening</Label>
+      </View>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+        <Head style={{ fontSize: 32, lineHeight: 40 }}>{said}</Head>
+        <Head style={{ fontSize: 32, lineHeight: 40, color: colour.textTertiary }}>{tail}</Head>
+      </View>
+      <Waveform seed={seed} />
+      <Meta tone="tertiary">Or try one of these</Meta>
+      <View style={{ gap: space.s2 }}>
+        {offers.map(t => (
+          <Button key={t} label={t} tone="grey" size={48} onPress={() => onOffer(t)} />
+        ))}
+      </View>
+      <Ghost label="Not what I said" onPress={onNotThis} />
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s2 }}>
+        <View style={{ flex: 1 }}>
+          <Button label="Release to send" tone="blue" onPress={onSend} />
+        </View>
+        <Tap
+          accessibilityRole="button"
+          accessibilityLabel="Stop listening"
+          onPress={onStop}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            backgroundColor: colour.surface2,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <View style={{ width: 12, height: 12, borderRadius: 2, backgroundColor: colour.textSecondary }} />
+        </Tap>
+      </View>
+    </Sheet>
+  );
+}
+
+/* The listening indicator: thirty bars, three wide, three apart. */
+export function Waveform({ seed = 11 }: { seed?: number }) {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, height: 28 }}>
+      {Array.from({ length: 30 }).map((_, i) => (
+        <View
+          key={i}
+          style={{
+            width: 3,
+            borderRadius: 2,
+            backgroundColor: colour.accent,
+            height: 6 + Math.abs(Math.sin((i + seed) * 1.7)) * 20,
+          }}
+        />
+      ))}
     </View>
   );
 }

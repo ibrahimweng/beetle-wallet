@@ -18,8 +18,6 @@ import {
   Button,
   Card,
   Caption,
-  Chip,
-  ChipRow,
   CameraScreen,
   Divider,
   EditRow,
@@ -35,6 +33,7 @@ import {
   Row,
   Said,
   Screen,
+  TypeOver,
   Sheet,
   SlideToSend,
   Tick,
@@ -44,13 +43,17 @@ import {
   nairaFull,
   space,
   toast,
+  Badge,
+  Tap,
 } from '../design';
 import { Nav, asked, dock } from './nav';
+import { still } from './send';
 import { check, useDraft, useForm, useStore, Person } from '../state/live';
 import { contacts, me, transfer, dollarSend } from '../state/data.js';
 import { dollarsInNaira } from '../state/store.js';
 import * as act from '../state/actions.js';
 import { start } from '../state/flow.js';
+import { Home } from './home';
 
 const PEOPLE: Person[] = [contacts.sarah, contacts.musa, contacts.chidi, contacts.john];
 
@@ -61,6 +64,7 @@ export const Scan = ({ nav }: { nav: Nav }) => (
     title="Point at an account number"
     sub="A QR code works too. So does a screenshot."
     foot="Or send a screenshot straight to Beetle from WhatsApp."
+    onClose={nav.back}
     onShutter={() => {
       start({
         to: contacts.sarah,
@@ -70,26 +74,41 @@ export const Scan = ({ nav }: { nav: Nav }) => (
       });
       nav.go('chat');
     }}
+    read={
+      <ReadCard
+        who="Musa · Agent"
+        when="2:14 PM"
+        kind="Good afternoon sir. Rent part payment:"
+        lines={[naira(20000), contacts.sarah.bank, contacts.sarah.account]}
+        unsure="Sarah A."
+      />
+    }
   >
-    <ReadCard
-      who="Musa · Agent"
-      when="2:14 PM"
-      kind="Good afternoon sir. Rent part payment:"
-      lines={[naira(20000), contacts.sarah.bank, contacts.sarah.account]}
-      unsure="Sarah A."
-    />
+    {/* what it took the number to be, on a dark pill with a green tick */}
     <View
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        backgroundColor: colour.good,
+        gap: 8,
+        backgroundColor: '#2d2d2f',
         borderRadius: 999,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
+        paddingLeft: 8,
+        paddingRight: 18,
+        paddingVertical: 7,
       }}
     >
-      <Icon name="check" size={16} colour={colour.textInverse} />
+      <View
+        style={{
+          width: 22,
+          height: 22,
+          borderRadius: 11,
+          backgroundColor: colour.good,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Icon name="check" size={13} colour={colour.textInverse} />
+      </View>
       <Label tone="inverse">{contacts.sarah.account}</Label>
     </View>
   </CameraScreen>
@@ -130,26 +149,7 @@ export const Typed = ({ nav }: { nav: Nav }) => {
     if (k === 'shift' || k === '123') return;
     setText(t => t + k);
   };
-  return (
-    <View style={{ flex: 1, backgroundColor: colour.surface }}>
-      <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 72, gap: space.s3 }}>
-        <Said>send sarah 20k</Said>
-        <TypedLine value={text} placeholder="send sarah 20k" />
-        <ChipRow>
-          {amount ? <Chip key="a" label={naira(amount)} on /> : null}
-          {who ? <Chip key="w" label={who.name} on /> : null}
-          {amount || who ? <Chip key="f" label="Everyday" on /> : null}
-          {!amount && !who ? (
-            <Caption key="n" tone="tertiary">
-              A name and an amount is all I need.
-            </Caption>
-          ) : null}
-        </ChipRow>
-        <Meta tone="tertiary">Try: send chidi 5k, or john 250</Meta>
-      </View>
-      <Keyboard onKey={key} />
-    </View>
-  );
+  return <TypeOver behind={<Home nav={still} />} value={text} onKey={key} onSend={() => key('send')} />;
 };
 
 /* ---- the form ---- */
@@ -335,15 +335,11 @@ export const PayFrom = ({ nav }: { nav: Nav }) => {
     sub: string,
     onPress: () => void,
   ) => (
-    <Pressable
+    <Tap
       accessibilityRole="button"
+      accessibilityState={{ selected: d.from === id }}
       onPress={onPress}
-      style={({ pressed }) => ({
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: space.s3,
-        opacity: pressed ? 0.6 : 1,
-      })}
+      style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}
     >
       <Icon name={glyph} size={20} />
       <View style={{ flex: 1, gap: 2 }}>
@@ -351,69 +347,37 @@ export const PayFrom = ({ nav }: { nav: Nav }) => {
         <Meta tone="secondary">{sub}</Meta>
       </View>
       <Tick on={d.from === id} />
-    </Pressable>
+    </Tap>
   );
   return (
-    <Screen dock={dock('Ask where it should come from', nav, 'pay')}>
-      <Caption tone="secondary">You said</Caption>
-      <Said>{dollarSend.spoken}</Said>
-      <BigMoney amount={naira(d.amount)} note="I took this from your message" />
-      <Card style={{ gap: space.s3 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
-          <Avatar initials={d.to.initials} />
-          <View style={{ flex: 1, gap: 2 }}>
-            <Row>{d.to.name}</Row>
-            <Meta tone="secondary">
-              {d.to.bank} · {d.to.account}
-            </Meta>
-          </View>
-        </View>
-        {d.to.note ? <Caption tone="tertiary">{d.to.note}</Caption> : null}
-      </Card>
+    <Sheet onClose={() => nav.go('pay')} behind={<Pay nav={still} />}>
+      <View style={{ alignItems: 'flex-start' }}>
+        <Badge glyph="send" size={44} />
+      </View>
       <View style={{ gap: 4 }}>
         <Head>Pay from</Head>
-        <Caption tone="tertiary">Two places the money can leave</Caption>
+        <Meta tone="tertiary">Two places the money can leave</Meta>
       </View>
-      <Card style={{ gap: space.s3 }}>
-        {way('everyday', 'bank', 'Everyday', `${naira(s.everyday)} in naira`, () =>
-          setDraft({ from: 'everyday' }),
-        )}
-        <Divider />
-        {way(
-          'dollars',
-          'dollar',
-          'Dollars',
-          `$${s.dollars.toFixed(2)}, about ${naira(dollarsInNaira())} today`,
-          () => {
-            setDraft({ from: 'dollars' });
-            nav.go('paydollars');
-          },
-        )}
-      </Card>
-      <Card style={{ gap: space.s3 }}>
-        <EditRow
-          label="Reference"
-          value={d.narration || dollarSend.reference}
-          sub="I took this from your message"
-        />
-        <Divider />
-        <Between
-          label="From"
-          value={
-            d.from === 'dollars' ? `Dollars · $${s.dollars.toFixed(2)}` : `Everyday · ${naira(s.everyday)}`
-          }
-        />
-        <Divider />
-        <Between label="Arrives" value="In a few seconds" />
-        <Divider />
-        <Between label="Fee" value="Free" tone="good" />
-      </Card>
-      <Aside>Nothing moves until you slide.</Aside>
-      <SlideToSend
-        label={`Slide to send ${naira(d.amount)}`}
-        onDone={() => nav.go(d.from === 'dollars' ? 'paydollars' : 'confirm')}
-      />
-    </Screen>
+      {way('everyday', 'bank', 'Everyday', `${naira(s.everyday)} in naira`, () =>
+        setDraft({ from: 'everyday' }),
+      )}
+      <Divider />
+      {way(
+        'dollars',
+        'dollar',
+        'Dollars',
+        `$${s.dollars.toFixed(2)}, about ${naira(dollarsInNaira())} today`,
+        () => {
+          setDraft({ from: 'dollars' });
+          nav.go('paydollars');
+        },
+      )}
+      <Bubble>
+        Sarah is paid in naira either way. From dollars I convert at the rate on the next screen, and you see
+        it before anything moves.
+      </Bubble>
+      <Button label="Done" tone="grey" onPress={() => nav.go('pay')} />
+    </Sheet>
   );
 };
 
@@ -479,51 +443,26 @@ export const PayDollars = ({ nav }: { nav: Nav }) => {
 
 /* ---- the note only you see ---- */
 
+/* The frame for this one is the home with the keyboard up and the three things
+   it has already made of the line sitting over it: the amount, the person, and
+   the account it would leave from. Nothing has been sent. */
 export const DraftNote = ({ nav }: { nav: Nav }) => {
   const [d] = useDraft();
-  const [note, setNote] = useState('Rent, second half. Ask about the receipt for the first.');
-  const [writing, setWriting] = useState(false);
-  if (writing)
-    return (
-      <View style={{ flex: 1, backgroundColor: colour.surface }}>
-        <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 72, gap: space.s3 }}>
-          <Caption tone="secondary">Note to yourself</Caption>
-          <TypedLine value={note} placeholder="What is this one really for?" />
-          <Meta tone="tertiary">Only you ever see this.</Meta>
-        </View>
-        <Keyboard
-          action="done"
-          onKey={k => {
-            if (k === 'done') return setWriting(false);
-            if (k === 'del') return setNote(t => t.slice(0, -1));
-            if (k === 'shift' || k === '123') return;
-            setNote(t => t + k);
-          }}
-        />
-      </View>
-    );
+  const [text, setText] = useState('send sarah 20k');
+  const key = (k: string) => {
+    if (k === 'send') return nav.go('pay');
+    if (k === 'del') return setText(t => t.slice(0, -1));
+    if (k === 'shift' || k === '123') return;
+    setText(t => t + k);
+  };
   return (
-    <Screen dock={dock('Ask about notes', nav, 'actions')}>
-      <PageHead title="Before it goes" sub="A note only you will see" />
-      <Card style={{ gap: space.s3 }}>
-        <EditRow label="What" value={naira(d.amount)} sub={d.to.name} />
-        <Divider />
-        <EditRow label="From" value="Everyday" />
-        <Divider />
-        <EditRow label="Note to yourself" value={note} onPress={() => setWriting(true)} />
-      </Card>
-      <Bubble>
-        I keep this against the payment in your history. Nobody receiving the money ever sees it.
-      </Bubble>
-      <Button
-        label="Save and send"
-        onPress={() => {
-          toast('Kept against this payment.');
-          nav.go('confirm');
-        }}
-      />
-      <Ghost label="Just send it" onPress={() => nav.go('confirm')} />
-    </Screen>
+    <TypeOver
+      behind={<Home nav={still} />}
+      value={text}
+      chips={[nairaFull(d.amount), d.to.name, 'Everyday']}
+      onKey={key}
+      onSend={() => key('send')}
+    />
   );
 };
 

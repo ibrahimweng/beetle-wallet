@@ -56,10 +56,10 @@ export const Rule = ({ nav }: { nav: Nav }) => (
         ['Stops if', 'Everyday is under ₦15,000'],
       ]}
     />
-    <AgentSay>Over ₦10,000 and I stop and ask you, every time. I never raise it on my own.</AgentSay>
+    <AgentSay>Over ₦10,000 and I stop and ask you, every time. I never raise this on my own.</AgentSay>
     <FootNote
       title="You can stop it any time"
-      sub="It sits in Standing instructions with a switch beside it."
+      sub="It sits in Standing instructions with a switch beside it. Or just tell me to stop and it stops."
     />
     <Button label="Set it up" onPress={() => nav.go('rules')} />
     <Pressable accessibilityRole="button" onPress={nav.back} style={{ alignSelf: 'center' }}>
@@ -238,7 +238,7 @@ export const Lock = ({ nav }: { nav: Nav }) => {
       </Aside>
       <FootNote
         title="Your passcode is not on our servers"
-        sub="It opens this phone and nothing else. If you lose it, you prove who you are again."
+        sub="It opens this phone and nothing else. If you lose it, recovery gives you a new one. Nobody, here or anywhere, can read the old one."
       />
     </Screen>
   );
@@ -316,7 +316,7 @@ export const LimitStop = ({ nav }: { nav: Nav }) => {
       <PageHead title="Past your own limit" sub="Nothing has been sent" />
       <BigStatus
         glyph="warn-filled"
-        tone={colour.warn}
+        tone={colour.good}
         amount="₦120,000"
         line="₦20,000 over the ₦100,000 you set for one transfer"
       />
@@ -372,7 +372,7 @@ export const Devices = ({ nav }: { nav: Nav }) => (
     </View>
     <AgentSay>
       The Windows one signed in from Abuja on 12 August and has not been back. If that was not you, sign it
-      out.
+      out and change your passcode. I will not do either without you.
     </AgentSay>
     <Button label="Sign out everywhere else" tone="grey" onPress={() => nav.go('settings')} />
     <Aside>
@@ -404,8 +404,8 @@ export const LostPhone = ({ nav }: { nav: Nav }) => (
       <DeviceRow glyph="laptop" title="iPhone 13" where="Lagos · seen 09:14" tag="Yours" />
     </View>
     <AgentSay>
-      You are on a device this account has never seen. I will not send anything until somebody proves who they
-      are.
+      You are on a device this account has never seen. I will not open the money here until you prove it is
+      you. Freezing costs nothing and lifts in a minute.
     </AgentSay>
     <Button label="Freeze it, then prove it is me" onPress={() => nav.go('newcode')} />
     <Aside>

@@ -48,7 +48,10 @@ export function Button({
   disabled?: boolean;
 }) {
   const s = SIZES[size];
-  const t = TONES[tone];
+  /* A button that cannot be pressed is not the same button faded. The frames
+     draw it in the pale grey with grey letters, so it reads as a shape waiting
+     to be filled rather than as something half there. */
+  const t = disabled ? { fill: colour.surface2, ink: colour.textTertiary } : TONES[tone];
   /* It gives a little under the finger and springs back, so the press is
      answered before the screen it asks for arrives. */
   const tap = useTap();
@@ -68,7 +71,6 @@ export function Button({
           paddingHorizontal: s.padding,
           backgroundColor: t.fill,
           alignSelf: full ? 'stretch' : 'flex-start',
-          opacity: disabled ? 0.4 : 1,
         },
         tone === 'white' && styles.hairline,
         disabled ? null : tap.style,

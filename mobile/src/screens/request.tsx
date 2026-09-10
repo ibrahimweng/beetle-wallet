@@ -13,32 +13,34 @@ import {
   Button,
   Card,
   Caption,
-  Chip,
-  ChipRow,
   Display,
   Divider,
   EditRow,
   Head,
   Icon,
   Keyboard,
-  Label,
   Meta,
   PageHead,
   Picker,
   Said,
   Screen,
+  TypeOver,
   Sheet,
+  ToolPanel,
+  TopBar,
   TypedLine,
   colour,
   naira,
   nairaFull,
   space,
   toast,
+  VoiceSheet,
 } from '../design';
-import { Nav, dock } from './nav';
+import { Nav, asked, dock } from './nav';
+import { still } from './send';
+import { Home } from './home';
 import { Person } from '../state/live';
-import { Wave } from './buy';
-import { contacts, me } from '../state/data.js';
+import { contacts } from '../state/data.js';
 import * as act from '../state/actions.js';
 
 const PEOPLE: Person[] = [contacts.musa, contacts.sarah, contacts.chidi, contacts.john];
@@ -53,50 +55,29 @@ let req = {
 };
 
 export const AskReq = ({ nav }: { nav: Nav }) => (
-  <Sheet onClose={nav.back}>
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-      <Icon name="mark" size={20} colour={colour.accent} />
-      <Label tone="accent">Listening</Label>
-    </View>
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-      <Head style={{ fontSize: 32, lineHeight: 40 }}>Ask Musa for </Head>
-      <Head style={{ fontSize: 32, lineHeight: 40, color: colour.textTertiary }}>20k</Head>
-    </View>
-    <Wave seed={41} />
-    <Meta tone="tertiary">Or try one of these</Meta>
-    <View style={{ gap: space.s2 }}>
-      {['Who owes me money?', 'Show my code', 'Remind Musa again'].map(t => (
-        <Button key={t} label={t} tone="grey" size={48} onPress={() => nav.go('request')} />
-      ))}
-    </View>
-    <Button label="Release to send" tone="blue" onPress={() => nav.go('request')} />
-    <Button label="Not what I said" tone="white" onPress={() => nav.go('typedask')} />
-  </Sheet>
+  <VoiceSheet
+    said="Ask Musa for "
+    tail="20k"
+    seed={41}
+    offers={['Who owes me money?', 'Show my code', 'Remind Musa again']}
+    onOffer={(t: string) => asked(nav, t)}
+    onNotThis={() => nav.go('typedask')}
+    onStop={() => nav.go('home')}
+    onSend={() => nav.go('request')}
+    onClose={nav.back}
+    behind={<Home nav={still} />}
+  />
 );
 
 export const TypedAsk = ({ nav }: { nav: Nav }) => {
   const [text, setText] = useState('ask musa for 20k');
-  return (
-    <View style={{ flex: 1, backgroundColor: colour.surface }}>
-      <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 72, gap: space.s3 }}>
-        <Said>ask musa for 20k</Said>
-        <TypedLine value={text} placeholder="ask musa for 20k" />
-        <ChipRow>
-          <Chip label={naira(20000)} on />
-          <Chip label="Musa Danjuma" on />
-        </ChipRow>
-      </View>
-      <Keyboard
-        action="ask"
-        onKey={k => {
-          if (k === 'ask') return nav.go('request');
-          if (k === 'del') return setText(t => t.slice(0, -1));
-          if (k === 'shift' || k === '123') return;
-          setText(t => t + k);
-        }}
-      />
-    </View>
-  );
+  const key = (k: string) => {
+    if (k === 'send') return nav.go('request');
+    if (k === 'del') return setText(t => t.slice(0, -1));
+    if (k === 'shift' || k === '123') return;
+    setText(t => t + k);
+  };
+  return <TypeOver behind={<Home nav={still} />} value={text} onKey={key} onSend={() => key('send')} />;
 };
 
 type Editing = null | 'who' | 'amount' | 'why';
@@ -110,30 +91,28 @@ export const Request = ({ nav }: { nav: Nav }) => {
   const first = req.who.name.split(' ')[0] ?? req.who.name;
 
   const base = (
-    <Screen dock={dock('Ask about requests', nav, 'home')}>
-      <PageHead title="Ask to be paid" sub="What they see, before it goes" />
-      <Card style={{ gap: space.s3 }}>
-        <EditRow
-          label="Who"
-          value={req.who.name}
-          sub={`${req.who.bank} · ${req.who.account}`}
-          onPress={() => setEditing('who')}
-        />
-        <Divider />
-        <EditRow label="How much" value={nairaFull(req.amount)} onPress={() => setEditing('amount')} />
-        <Divider />
-        <EditRow label="What for" value={req.why} onPress={() => setEditing('why')} />
-      </Card>
-      <Bubble>
-        I write it, you check it. It goes as a message with a button in it, so they pay in one tap without
-        typing your account number.
-      </Bubble>
-      <View style={{ gap: space.s2 }}>
-        <Label>{`What ${first} gets`}</Label>
-        <Bubble>
-          {`${me.name.split(' ')[0]} is asking you for ${naira(req.amount)} for ${req.why.toLowerCase()}. Tap to pay.`}
-        </Bubble>
+    <Screen dock={dock('Reply, or just keep talking', nav, 'home')}>
+      <TopBar title="Beetle" onBack={nav.back} />
+      <Said>{`Ask ${first} for ${Math.round(req.amount / 1000)}k`}</Said>
+      <View style={{ flexDirection: 'row', gap: space.s2 }}>
+        <Icon name="mark" size={32} colour={colour.accent} />
+        <View style={{ flex: 1 }}>
+          <Bubble>
+            {`${req.who.name}, the line ending 4471. He is the only ${first} who has ever paid you.`}
+          </Bubble>
+        </View>
       </View>
+      <ToolPanel
+        tool="Beetle Requests"
+        state="Running"
+        rows={[
+          { k: 'Person', v: req.who.name, go: () => setEditing('who') },
+          { k: 'Reaches him', v: 'WhatsApp and SMS' },
+          { k: 'Amount', v: nairaFull(req.amount), go: () => setEditing('amount') },
+          { k: 'For', v: req.why, go: () => setEditing('why') },
+          { k: 'Expires', v: 'Picking a date', done: 'work' as const },
+        ]}
+      />
       <Button
         label="Send the request"
         onPress={() => {

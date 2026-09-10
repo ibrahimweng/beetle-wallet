@@ -8,9 +8,22 @@
    fades in over the same time. What is in it then arrives in sequence, the
    same way a screen's column does. */
 import React, { ReactNode } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { colour, space } from './tokens';
 import { Backdrop, Reveal, Rise, Scrim } from './motion';
+
+const s = StyleSheet.create({
+  soften: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
+  wash: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: 'rgba(236,236,239,0.5)',
+  },
+});
 
 export function Sheet({
   children,
@@ -24,9 +37,14 @@ export function Sheet({
   return (
     <View style={{ flex: 1, backgroundColor: colour.surface }}>
       {behind ? (
-        <Scrim style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}>
+        <Scrim style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }} to={0.9}>
           <View pointerEvents="none" style={{ flex: 1 }}>
             <Backdrop>{behind}</Backdrop>
+            {/* the frames put the screen behind a sheet out of focus rather
+                than merely dim, which is what keeps the sheet the only thing
+                you can read */}
+            <BlurView intensity={52} tint="light" style={s.soften} />
+            <View style={s.wash} />
           </View>
         </Scrim>
       ) : null}
@@ -38,6 +56,9 @@ export function Sheet({
       />
       <Rise
         style={{
+          /* the frames never let a sheet swallow the whole screen: what it is
+             over stays visible above it */
+          maxHeight: '78%',
           backgroundColor: colour.surface,
           borderTopLeftRadius: 28,
           borderTopRightRadius: 28,

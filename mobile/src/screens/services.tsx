@@ -31,10 +31,12 @@ import {
   Meter,
   PageHead,
   Row,
-  Said,
   AgentSay,
   BottomBar,
   Nudge,
+  Told,
+  FormBlock,
+  Slip,
   Screen,
   SlideToSend,
   colour,
@@ -153,36 +155,50 @@ const BUNDLES: [string, number][] = [
 ];
 
 export const Airtime = ({ nav }: { nav: Nav }) => (
-  <Screen dock={dock('Ask for a plan', nav, 'services')}>
+  <Screen
+    dock={
+      <BottomBar onBack={() => nav.go('services')}>
+        <SlideToSend
+          label={`Slide to buy ${naira(2500)}`}
+          onDone={() => {
+            setPlan(2500);
+            nav.go('confirmbuy');
+          }}
+        />
+      </BottomBar>
+    }
+  >
     <PageHead lead title="Buy data" sub="Check the parts I filled in before it goes" />
-    <Caption tone="secondary">You said</Caption>
-    <Said onPress={() => nav.go('asksvc')}>2k data for mum</Said>
-    <AgentCard>5GB for 30 days, on Mum’s MTN line.</AgentCard>
-    <Card style={{ gap: space.s3 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
-        <Avatar initials={contacts.mum.initials} />
-        <View style={{ flex: 1, gap: 2 }}>
-          <Row>Mum</Row>
-          <Meta tone="secondary">{`${contacts.mum.account} · MTN`}</Meta>
+    <Told onPress={() => nav.go('asksvc')}>2k data for mum</Told>
+    <AgentSay>5GB for 30 days, on Mum’s MTN line.</AgentSay>
+    <FormBlock>
+      <Slip>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
+          <Avatar initials={contacts.mum.initials} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <Row>Mum</Row>
+            <Meta tone="secondary">{`${contacts.mum.account} · MTN`}</Meta>
+          </View>
+          <Icon name="chevron" size={18} colour={colour.textTertiary} />
         </View>
-      </View>
-      <Caption tone="tertiary">The number you top up most</Caption>
-    </Card>
-    <Card style={{ gap: space.s3 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <View style={{ flex: 1, gap: 2 }}>
-          <Row>5GB for 30 days</Row>
-          <Caption tone="tertiary">It will not renew on its own</Caption>
+        <Caption tone="tertiary">The number you top up most</Caption>
+      </Slip>
+      <Slip>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Row>5GB for 30 days</Row>
+            <Caption tone="tertiary">It will not renew on its own</Caption>
+          </View>
+          <Label>{naira(2500)}</Label>
         </View>
-        <Label>{naira(2500)}</Label>
+        <Caption tone="tertiary">The bundle you bought last month</Caption>
+      </Slip>
+      <View style={{ paddingHorizontal: space.s3, gap: space.s3, paddingVertical: space.s3 }}>
+        <Between label="From" value={`Everyday · ${me.account}`} />
+        <Between label="Goes to your Holiday goal" value={naira(25)} tone="accent" />
       </View>
-      <Caption tone="tertiary">The bundle you bought last month</Caption>
-    </Card>
-    <Card style={{ gap: space.s3 }}>
-      <Between label="From" value={`Everyday · ${me.account}`} />
-      <Between label="Goes to your Holiday goal" value={naira(25)} />
-    </Card>
-    <Head>Other bundles</Head>
+    </FormBlock>
+    <Meta tone="secondary">Other bundles</Meta>
     <View style={{ flexDirection: 'row', gap: space.s2 }}>
       {BUNDLES.map(([t, v]) => (
         <Pressable
@@ -196,7 +212,10 @@ export const Airtime = ({ nav }: { nav: Nav }) => (
             flex: 1,
             padding: 12,
             borderRadius: radius.md,
-            backgroundColor: colour.surface2,
+            backgroundColor: colour.surface,
+            borderWidth: 1,
+            borderColor: colour.rule,
+            alignItems: 'center',
             gap: 2,
             opacity: pressed ? 0.6 : 1,
           })}
@@ -206,14 +225,7 @@ export const Airtime = ({ nav }: { nav: Nav }) => (
         </Pressable>
       ))}
     </View>
-    <Caption tone="tertiary">You also top up</Caption>
-    <SlideToSend
-      label={`Slide to buy ${naira(2500)}`}
-      onDone={() => {
-        setPlan(2500);
-        nav.go('confirmbuy');
-      }}
-    />
+    <Meta tone="secondary">You also top up</Meta>
   </Screen>
 );
 

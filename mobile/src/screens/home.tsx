@@ -44,11 +44,19 @@ export const Home = ({ nav }: { nav: Nav }) => {
   const whole = '₦' + Math.floor(s.everyday).toLocaleString('en-NG');
   const kobo = '.' + s.everyday.toFixed(2).split('.')[1];
 
-  const rows = (day: string) =>
-    filtered(day)
+  /* The home feed carries what settled. A transfer still on its way, one that
+     did not go and one that came back each have a screen of their own and a
+     line in the history; the frame does not put them in the day's list here. */
+  const day = (which: string) =>
+    filtered(which)
+      .filter((r: { status?: string }) => r.status === undefined || r.status === 'done')
       .filter((r: { kind: string; amount: number }) =>
         filter === 'All' ? true : filter === 'In' ? r.amount > 0 : filter === 'Out' ? r.amount < 0 : false,
-      )
+      );
+
+  const rows = (which: string, from = 0, to = 99) =>
+    day(which)
+      .slice(from, to)
       .map(
         (r: {
           id: string;
@@ -136,7 +144,7 @@ export const Home = ({ nav }: { nav: Nav }) => {
       {!put.includes('topup') && filter !== 'In' && filter !== 'Out' ? (
         <Insight {...insights.topup} onAction={() => nav.go('powerpay')} onDismiss={() => away('topup')} />
       ) : null}
-      {rows('today')}
+      {rows('today', 0, 4)}
       {!put.includes('data') && filter !== 'In' && filter !== 'Out' ? (
         <Insight
           kicker={insights.data.kicker}
@@ -164,6 +172,7 @@ export const Home = ({ nav }: { nav: Nav }) => {
           </View>
         </Insight>
       ) : null}
+      {rows('today', 4)}
       {!put.includes('changes') && filter !== 'In' && filter !== 'Out' ? (
         <Insight {...insights.changes} onAction={() => nav.go('health')} onDismiss={() => away('changes')} />
       ) : null}
@@ -175,10 +184,11 @@ export const Home = ({ nav }: { nav: Nav }) => {
         title={insights.card.kicker}
         sub={insights.card.sub}
       />
-      {rows('yesterday')}
+      {rows('yesterday', 0, 2)}
       {!put.includes('spend') && filter !== 'In' && filter !== 'Out' ? (
         <Insight {...insights.spend} onAction={() => nav.go('answer')} onDismiss={() => away('spend')} />
       ) : null}
+      {rows('yesterday', 2)}
       <Meta tone="tertiary">{ledgerFooter}</Meta>
     </Screen>
   );

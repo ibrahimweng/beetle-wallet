@@ -8,7 +8,8 @@ import React, { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { Icon } from './Icon';
-import { Body, Caption, Display, Head, Label, Meta, Row } from './text';
+import { Bubble } from './Bubble';
+import { Caption, Display, Head, Label, Meta, Row } from './text';
 import { IconName } from '../icons';
 import { colour, radius, space } from './tokens';
 import { Tap } from './motion';
@@ -208,7 +209,13 @@ export function LedgerRow({
   );
 }
 
-/* Something the agent noticed. It can always be put away. */
+/* Something the agent noticed.
+
+   The frames draw it as a white card with a hairline: the mark and what it
+   noticed across the top, the line itself in the pale blue bubble, and then
+   what you can do about it. Where it can be put away, the black button and the
+   round dismiss sit in one row; where it cannot, the action is a grey pill
+   with a chevron on it. */
 export function Insight({
   kicker,
   body,
@@ -226,33 +233,58 @@ export function Insight({
 }) {
   return (
     <View
-      style={{ backgroundColor: colour.surface2, borderRadius: radius.lg, padding: space.s4, gap: space.s3 }}
+      style={{
+        backgroundColor: colour.surface,
+        borderWidth: 1,
+        borderColor: colour.rule,
+        borderRadius: radius.lg,
+        padding: space.s4,
+        gap: space.s3,
+      }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s2 }}>
         <Icon name="mark" size={32} colour={colour.accent} />
         <Label style={{ flex: 1 }}>{kicker}</Label>
-        {onDismiss ? (
-          <Pressable accessibilityRole="button" accessibilityLabel="Not now" onPress={onDismiss}>
-            <Icon name="close-small" size={16} colour={colour.textTertiary} />
-          </Pressable>
-        ) : null}
       </View>
-      {body ? <Body>{body}</Body> : null}
+      {body ? <Bubble>{body}</Bubble> : null}
       {children}
       {action ? (
-        <Pressable
-          accessibilityRole="button"
-          onPress={onAction}
-          style={{
-            backgroundColor: colour.ink,
-            borderRadius: radius.pill,
-            height: 44,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Row tone="inverse">{action}</Row>
-        </Pressable>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s2 }}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={onAction}
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              backgroundColor: onDismiss ? colour.ink : colour.surface2,
+              borderRadius: radius.pill,
+              height: 44,
+            }}
+          >
+            <Row tone={onDismiss ? 'inverse' : 'ink'}>{action}</Row>
+            {onDismiss ? null : <Icon name="chevron" size={16} colour={colour.textTertiary} />}
+          </Pressable>
+          {onDismiss ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Not now"
+              onPress={onDismiss}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 22,
+                backgroundColor: colour.surface2,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Icon name="close-small" size={16} colour={colour.textSecondary} />
+            </Pressable>
+          ) : null}
+        </View>
       ) : null}
     </View>
   );

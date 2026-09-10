@@ -47,23 +47,25 @@ const dock = (p: string, nav: Nav) => <Dock placeholder={p} onBack={nav.back} />
 export const Rule = ({ nav }: { nav: Nav }) => (
   <Screen dock={undefined}>
     <PageHead title="Set this up?" sub="Nothing is saved until you say yes" />
-    <Facts
-      rows={[
-        ['What', 'Top up Ikeja Electric'],
-        ['Meter', '4457 8891'],
-        ['When', 'The day units run low'],
-        ['Up to', '₦10,000'],
-        ['Stops if', 'Everyday is under ₦15,000'],
-      ]}
-    />
+    <Card style={{ paddingVertical: space.s5 }}>
+      <Facts
+        rows={[
+          ['What', 'Top up Ikeja Electric'],
+          ['Meter', '4457 8891'],
+          ['When', 'The day units run low'],
+          ['Up to', '₦10,000'],
+          ['Stops if', 'Everyday is under ₦15,000'],
+        ]}
+      />
+    </Card>
     <AgentSay>Over ₦10,000 and I stop and ask you, every time. I never raise this on my own.</AgentSay>
     <FootNote
       title="You can stop it any time"
       sub="It sits in Standing instructions with a switch beside it. Or just tell me to stop and it stops."
     />
-    <Button label="Set it up" onPress={() => nav.go('rules')} />
+    <Button label="Set it up" full={false} style={{ alignSelf: 'center' }} onPress={() => nav.go('rules')} />
     <Pressable accessibilityRole="button" onPress={nav.back} style={{ alignSelf: 'center' }}>
-      <Row>Not now</Row>
+      <Row tone="tertiary">Not now</Row>
     </Pressable>
   </Screen>
 );

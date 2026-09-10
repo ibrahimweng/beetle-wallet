@@ -10,7 +10,6 @@ import {
   Badge,
   Banner,
   AgentAsk,
-  AgentCard,
   Bubble,
   Button,
   Card,
@@ -28,7 +27,11 @@ import {
   ReadCard,
   Receipt,
   Row,
-  Said,
+  Told,
+  FormBlock,
+  Slip,
+  AgentSay,
+  BottomBar,
   Screen,
   ShareSheet,
   SlideToSend,
@@ -42,7 +45,7 @@ import {
 } from '../design';
 import { Nav, dock } from './nav';
 import { still } from './send';
-import { useStore, Receipt as Slip } from '../state/live';
+import { useStore, Receipt as Paid } from '../state/live';
 import { bills, me, meterBill } from '../state/data.js';
 import * as act from '../state/actions.js';
 
@@ -50,7 +53,7 @@ type Bill = { biller: string; meter: string; amount: number; icon: string };
 
 /* The bill being paid, whichever way you came in. */
 let bill: Bill = { biller: meterBill.disco, meter: meterBill.meter, amount: meterBill.amount, icon: 'power' };
-let slip: Slip | null = null;
+let slip: Paid | null = null;
 
 export const startBill = (b: { name: string; sub: string; icon: string }, amount: number) => {
   bill = { biller: b.name, meter: b.sub.split('· ')[1] ?? meterBill.meter, amount, icon: b.icon };
@@ -413,30 +416,42 @@ export const PowerPay = ({ nav }: { nav: Nav }) => {
   const UNITS: Record<number, number> = { 3000: 14, 8000: 38, 15000: 72 };
   const kwh = (a: number) => `About ${UNITS[a] ?? Math.round(a / 210)} kWh`;
   return (
-    <Screen dock={dock('Ask about this bill', nav, 'bills')}>
+    <Screen
+      dock={
+        <BottomBar onBack={() => nav.go('bills')}>
+          {enough ? (
+            <SlideToSend label={`Slide to pay ${naira(bill.amount)}`} onDone={() => nav.go('confirmmeter')} />
+          ) : (
+            <Banner text="Not enough in Everyday for that." />
+          )}
+        </BottomBar>
+      }
+    >
       <PageHead lead title="Pay a bill" sub="Ikeja Electric, on your saved meter" />
-      <Caption tone="secondary">You said</Caption>
-      <Said onPress={() => nav.go('scanbill')}>pay my light bill</Said>
-      <AgentCard>Ikeja Electric, the meter you always use.</AgentCard>
-      <Card style={{ gap: space.s3 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
-          <Icon name="power" size={20} />
-          <View style={{ flex: 1, gap: 2 }}>
-            <Row>{bill.biller}</Row>
-            <Meta tone="secondary">{`Prepaid · ${bill.meter}`}</Meta>
+      <Told onPress={() => nav.go('scanbill')}>pay my light bill</Told>
+      <AgentSay>Ikeja Electric, the meter you always use.</AgentSay>
+      <FormBlock>
+        <Slip>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
+            <Icon name="power" size={20} />
+            <View style={{ flex: 1, gap: 2 }}>
+              <Row>{bill.biller}</Row>
+              <Meta tone="secondary">{`Prepaid · ${bill.meter}`}</Meta>
+            </View>
+            <Icon name="chevron" size={18} colour={colour.textTertiary} />
           </View>
+          <Caption tone="tertiary">The meter you paid last month</Caption>
+        </Slip>
+        <Slip>
+          <Head style={{ fontSize: 32, lineHeight: 40, fontWeight: '700' }}>{naira(bill.amount)}</Head>
+          <Meta tone="tertiary">About what you used last month</Meta>
+        </Slip>
+        <View style={{ paddingHorizontal: space.s3, gap: space.s3, paddingVertical: space.s3 }}>
+          <Between label="From" value={`Everyday · ${me.account}`} />
+          <Between label="Token arrives" value="In a few seconds" />
         </View>
-        <Caption tone="tertiary">The meter you paid last month</Caption>
-      </Card>
-      <View style={{ gap: 4 }}>
-        <Head style={{ fontSize: 32, lineHeight: 40, fontWeight: '700' }}>{naira(bill.amount)}</Head>
-        <Meta tone="tertiary">About what you used last month</Meta>
-      </View>
-      <Card style={{ gap: space.s3 }}>
-        <Between label="From" value={`Everyday · ${me.account}`} />
-        <Between label="Token arrives" value="In a few seconds" />
-      </Card>
-      <Head>Or pick an amount</Head>
+      </FormBlock>
+      <Meta tone="secondary">Or pick an amount</Meta>
       <View style={{ flexDirection: 'row', gap: space.s2 }}>
         {[3000, 8000, 15000].map(v => (
           <Pressable
@@ -452,9 +467,10 @@ export const PowerPay = ({ nav }: { nav: Nav }) => {
               flex: 1,
               padding: 12,
               borderRadius: radius.md,
-              backgroundColor: colour.surface2,
-              borderWidth: 2,
-              borderColor: v === bill.amount ? colour.accent : 'transparent',
+              backgroundColor: colour.surface,
+              borderWidth: v === bill.amount ? 2 : 1,
+              borderColor: v === bill.amount ? colour.accent : colour.rule,
+              alignItems: 'center',
               gap: 2,
             }}
           >
@@ -463,13 +479,7 @@ export const PowerPay = ({ nav }: { nav: Nav }) => {
           </Pressable>
         ))}
       </View>
-      <Caption tone="tertiary">The token appears here and in your messages.</Caption>
-      {enough ? (
-        <SlideToSend label={`Slide to pay ${naira(bill.amount)}`} onDone={() => nav.go('confirmmeter')} />
-      ) : (
-        <Banner text="Not enough in Everyday for that." />
-      )}
-      <Aside>Nothing moves until you slide.</Aside>
+      <Aside>The token appears here and in your messages.</Aside>
     </Screen>
   );
 };

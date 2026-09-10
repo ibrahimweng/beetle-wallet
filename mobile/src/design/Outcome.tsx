@@ -99,7 +99,9 @@ export function AgentSay({ children }: { children: ReactNode }) {
   );
 }
 
-/* The agent asking something, with the one thing you can answer. */
+/* The agent asking something, with the one thing you can answer. The frames
+   box it in white with a hairline: the mark and the question in the bubble,
+   then the answer as a grey pill with a chevron on it. */
 export function AgentAsk({
   question,
   answer,
@@ -110,18 +112,37 @@ export function AgentAsk({
   onAnswer?: () => void;
 }) {
   return (
-    <View style={{ gap: space.s5, backgroundColor: colour.surface2, borderRadius: 20, padding: space.s4 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s4 }}>
+    <View
+      style={{
+        gap: space.s3,
+        backgroundColor: colour.surface,
+        borderWidth: 1,
+        borderColor: colour.rule,
+        borderRadius: radius.card,
+        padding: space.s4,
+      }}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s2 }}>
         <Icon name="mark" size={32} colour={colour.accent} />
-        <Body style={{ flex: 1 }}>{question}</Body>
+        <View style={{ flex: 1 }}>
+          <Bubble>{question}</Bubble>
+        </View>
       </View>
       <Pressable
         accessibilityRole="button"
         onPress={onAnswer}
-        style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 6,
+          height: 44,
+          borderRadius: radius.pill,
+          backgroundColor: colour.surface2,
+        }}
       >
         <Row>{answer}</Row>
-        <Icon name="chevron" size={20} />
+        <Icon name="chevron" size={16} colour={colour.textTertiary} />
       </Pressable>
     </View>
   );
@@ -187,11 +208,22 @@ export function Choices({ children }: { children: ReactNode }) {
   );
 }
 
+/* The quiet promise at the end of a screen. The frames set it in the pale blue
+   with the line above it in the accent, not as bare text on the page. */
 export function FootNote({ title, sub }: { title: string; sub: string }) {
   return (
-    <View style={{ alignItems: 'center', gap: 6 }}>
-      <Label>{title}</Label>
-      <Caption tone="secondary" style={{ textAlign: 'center' }}>
+    <View
+      style={{
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: colour.accentWash,
+        borderRadius: radius.md,
+        paddingVertical: space.s4,
+        paddingHorizontal: space.s4,
+      }}
+    >
+      <Label tone="accent">{title}</Label>
+      <Caption tone="accent" style={{ textAlign: 'center' }}>
         {sub}
       </Caption>
     </View>

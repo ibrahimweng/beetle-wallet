@@ -387,7 +387,7 @@ export function Between({
 }: {
   label: string;
   value: string;
-  tone?: 'ink' | 'good' | 'secondary' | 'bad';
+  tone?: 'ink' | 'good' | 'secondary' | 'bad' | 'accent';
 }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
@@ -998,6 +998,28 @@ export function Empty({
 }
 
 /* The big figure a screen is about, with its line under it. */
+/* What you said, the way the form frames write it back: the words in grey
+   under a small label, not the black pill the chat frames use. */
+export function Told({ children, onPress }: { children: string; onPress?: () => void }) {
+  return (
+    <View style={{ gap: 4 }}>
+      <Caption tone="secondary">You said</Caption>
+      <Tap accessibilityRole={onPress ? 'button' : undefined} onPress={onPress} disabled={!onPress}>
+        <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
+          {children}
+        </Meta>
+      </Tap>
+    </View>
+  );
+}
+
+/* The grey block a form sits in: one part per white slip inside it. */
+export function FormBlock({ children }: { children: ReactNode }) {
+  return (
+    <Card style={{ gap: space.s2, paddingVertical: space.s3, paddingHorizontal: space.s3 }}>{children}</Card>
+  );
+}
+
 /* The round button either side of a figure you can nudge, the way the Borrow
    frame draws its amount. */
 export function Nudge({ glyph, onPress }: { glyph: IconName; onPress?: () => void }) {

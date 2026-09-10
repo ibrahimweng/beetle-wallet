@@ -24,7 +24,6 @@ import {
   Label,
   Meta,
   PageHead,
-  Receipt,
   Ring,
   Row,
   Screen,
@@ -587,45 +586,40 @@ export const Converted = ({ nav }: { nav: Nav }) => {
     ? fx
     : { gave: 155200, got: 100, rate: s.rate, unit: '$', at: '9 September 2026 at 4:23 PM' };
   const toDollars = r.unit === '$';
+  /* The frame keeps this one short: the tick, the figure, three lines about
+     the rate, and the one thing worth doing next. No slip, no session line. */
   return (
     <Screen dock={dock('Ask me about this', nav, 'dollars')}>
-      <View style={{ gap: 8 }}>
-        <Head>Converted</Head>
-        <Meta tone="tertiary" style={{ fontSize: 16, lineHeight: 24 }}>
-          It is in your dollars already
-        </Meta>
-        <Meta tone="tertiary" style={{ fontSize: 16, lineHeight: 24 }}>
-          {r.at}
+      <PageHead title="Converted" sub="It is in your dollars already" />
+      <View
+        style={{
+          width: 56,
+          height: 56,
+          borderRadius: 28,
+          backgroundColor: colour.good,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Icon name="check" size={26} colour={colour.textInverse} />
+      </View>
+      <View style={{ gap: 4 }}>
+        <Display>{toDollars ? `$${r.got.toFixed(2)}` : nairaFull(r.got)}</Display>
+        <Meta tone="secondary">
+          {toDollars ? `From ${naira(r.gave)} in Everyday` : `From $${r.gave.toFixed(2)} in Dollars`}
         </Meta>
       </View>
-      <Receipt
-        amount={toDollars ? `$${r.got.toFixed(2)}` : nairaFull(r.got)}
-        line={toDollars ? `From ${naira(r.gave)} in Everyday` : `From $${r.gave.toFixed(2)} in Dollars`}
-        fields={[
-          ['Rate you got', `₦${r.rate.toLocaleString('en-NG')} to $1`],
-          ['Fee', 'Free'],
-          ['Dollars now', `$${(fx.at ? s.dollars : s.dollars + r.got).toFixed(2)}`],
-          [
-            'Our margin',
-            naira(Math.round((toDollars ? r.gave : r.got) * 0.01)),
-            '1.0%, shown before you slid',
-          ],
-        ]}
-        /* fixed once the conversion is done, so it is worked out from the
-           conversion rather than rolled again on every draw */
-        session={
-          'FX ' +
-          String(41000000000 + Math.round(r.gave * 100) + Math.round(r.rate))
-            .replace(/(\d{4})(?=\d)/g, '$1 ')
-            .trim()
-        }
-      />
+      <View style={{ gap: space.s6 }}>
+        <Between label="Rate you got" value={`₦${r.rate.toLocaleString('en-NG')} to $1`} />
+        <Between label="Fee" value="Free" tone="good" />
+        <Between label="Dollars now" value={`$${(fx.at ? s.dollars : s.dollars + r.got).toFixed(2)}`} />
+      </View>
       <AgentAsk
         question="Dollars sitting still do nothing. Move ₦20,000 across on payday and you never have to think about it again."
         answer="Set it up"
         onAnswer={() => nav.go('rule')}
       />
-      <Button label="See your dollars" onPress={() => nav.go('dollars')} />
+      <Ghost label="See your dollars" onPress={() => nav.go('dollars')} />
       <Ghost label="Something wrong with this?" onPress={() => nav.go('wrong')} />
     </Screen>
   );

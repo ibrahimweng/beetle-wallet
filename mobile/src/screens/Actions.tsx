@@ -8,6 +8,8 @@ import { Head, Icon, colour } from '../design';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { IconName } from '../icons';
 import { Route } from '../routes';
+import { Home } from './home';
+import { still } from './send';
 
 const ITEMS: { icon: IconName; label: string; to: Route; colour: string }[] = [
   { icon: 'voice-filled', label: 'Voice', to: 'ask', colour: colour.warn },
@@ -20,6 +22,11 @@ const ITEMS: { icon: IconName; label: string; to: Route; colour: string }[] = [
 export function Actions({ go, close }: { go: (r: Route) => void; close: () => void }) {
   return (
     <Pressable style={s.fill} accessibilityLabel="Close" onPress={close}>
+      {/* the frame fades the home screen out behind the menu rather than
+          covering it, so the button you pressed stays where it was */}
+      <View style={s.behind} pointerEvents="none">
+        <Home nav={still} />
+      </View>
       <View style={s.veil} />
       <View style={s.items}>
         {ITEMS.map(it => (
@@ -42,13 +49,29 @@ export function Actions({ go, close }: { go: (r: Route) => void; close: () => vo
 }
 
 const s = StyleSheet.create({
-  fill: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
-  veil: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(255,255,255,0.88)' },
+  fill: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: colour.surface },
+  behind: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
+  veil: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: 'rgba(255,255,255,0.88)',
+  },
   items: { position: 'absolute', right: 26, bottom: 138, alignItems: 'flex-end', gap: 28 },
   item: { flexDirection: 'row', alignItems: 'center', gap: 32 },
   fab: {
-    position: 'absolute', right: 20, bottom: 56,
-    width: 56, height: 56, borderRadius: 28, backgroundColor: colour.ink,
-    alignItems: 'center', justifyContent: 'center',
+    /* exactly where the dock's own button is, so the one you pressed is the
+       one that closes this */
+    position: 'absolute',
+    right: 20,
+    bottom: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colour.ink,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

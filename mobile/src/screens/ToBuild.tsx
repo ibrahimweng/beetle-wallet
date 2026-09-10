@@ -18,7 +18,9 @@ export function ToBuild({ route, onBack }: { route: Route; onBack: () => void })
       <Card style={{ gap: 12 }}>
         <Caption tone="secondary">Build it from</Caption>
         <Head>{info.design ?? 'no frame recorded'}</Head>
-        <Meta tone="secondary">{info.act} · {info.section}</Meta>
+        <Meta tone="secondary">
+          {info.act} · {info.section}
+        </Meta>
         {info.frame ? <Caption tone="tertiary">Figma node {info.frame}</Caption> : null}
       </Card>
       <Caption tone="tertiary" style={{ color: colour.textTertiary }}>

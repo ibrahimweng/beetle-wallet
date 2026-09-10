@@ -5,8 +5,24 @@
 import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import {
-  BottomBar, Button, Card, Dock, Field, Icon, Keypad, Screen, StepHead, StepTrail, TrailStep,
-  Body, Caption, Head, Label, Meta, Row, colour, space,
+  BottomBar,
+  Button,
+  Card,
+  Field,
+  Icon,
+  Keypad,
+  Screen,
+  StepHead,
+  StepTrail,
+  TrailStep,
+  Body,
+  Caption,
+  Head,
+  Label,
+  Meta,
+  Row,
+  colour,
+  space,
 } from '../design';
 import { Route } from '../routes';
 
@@ -20,16 +36,37 @@ type Nav = { go: (r: Route) => void; back: () => void };
 /* Type a number, then six digits. The same shape serves both the new account
    and the sign in, which is why they share this. */
 function DigitScreen({
-  trail, icon, title, sub, start, groups, max, done, footer, nav, placeholder,
+  trail,
+  icon,
+  title,
+  sub,
+  start,
+  groups,
+  max,
+  done,
+  footer,
+  nav,
+  placeholder,
 }: {
-  trail: TrailStep[]; icon: Parameters<typeof StepHead>[0]['icon']; title: string; sub: string;
-  start: string; groups: number[]; max: number; done: (digits: string) => void;
-  footer?: React.ReactNode; nav: Nav; placeholder?: string;
+  trail: TrailStep[];
+  icon: Parameters<typeof StepHead>[0]['icon'];
+  title: string;
+  sub: string;
+  start: string;
+  groups: number[];
+  max: number;
+  done: (digits: string) => void;
+  footer?: React.ReactNode;
+  nav: Nav;
+  placeholder?: string;
 }) {
   const [digits, setDigits] = useState(start);
   const grouped = (() => {
     let i = 0;
-    return groups.map(g => digits.slice(i, (i += g))).filter(Boolean).join(' ');
+    return groups
+      .map(g => digits.slice(i, (i += g)))
+      .filter(Boolean)
+      .join(' ');
   })();
   /* The updater stays pure: React may run it more than once, and a navigation
      fired from inside it would happen twice. Finishing is watched instead. */
@@ -45,6 +82,8 @@ function DigitScreen({
     if (!touched || digits.length < max) return;
     const t = setTimeout(() => done(digits), 140);
     return () => clearTimeout(t);
+    /* what was typed is what finishes the step, not which screen asked for it */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [digits, max, touched]);
   /* These frames do not scroll and carry no dock. The content sits at the top
      and the keypad is pinned near the bottom, its first row at 554 of 852. */
@@ -65,15 +104,25 @@ function DigitScreen({
 
 export const Number = ({ nav }: { nav: Nav }) => (
   <DigitScreen
-    nav={nav} trail={[]} icon="phone-filled" title="Your number"
+    nav={nav}
+    trail={[]}
+    icon="phone-filled"
+    title="Your number"
     sub="I will text you six digits to check the number is yours."
-    start="08032144471" groups={[4, 3, 4]} max={11}
-    done={() => nav.go('code')} placeholder="Ask why this is needed"
+    start="08032144471"
+    groups={[4, 3, 4]}
+    max={11}
+    done={() => nav.go('code')}
+    placeholder="Ask why this is needed"
   />
 );
 
 const didNotGet = (onPress: () => void) => (
-  <Pressable accessibilityRole="button" onPress={onPress} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+  <Pressable
+    accessibilityRole="button"
+    onPress={onPress}
+    style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+  >
     <Label>I did not get it</Label>
     <Icon name="chevron" size={12} colour={colour.ink} />
   </Pressable>
@@ -81,19 +130,30 @@ const didNotGet = (onPress: () => void) => (
 
 export const Code = ({ nav }: { nav: Nav }) => (
   <DigitScreen
-    nav={nav} trail={[]} icon="phone-filled" title="Your number"
+    nav={nav}
+    trail={[]}
+    icon="phone-filled"
+    title="Your number"
     sub="Six digits, sent to 0803 214 4471 a moment ago."
-    start="" groups={[6]} max={6}
+    start=""
+    groups={[6]}
+    max={6}
     footer={didNotGet(() => nav.go('number'))}
-    done={() => nav.go('nin')} placeholder="It did not arrive"
+    done={() => nav.go('nin')}
+    placeholder="It did not arrive"
   />
 );
 
 export const Nin = ({ nav }: { nav: Nav }) => (
   <DigitScreen
-    nav={nav} trail={[NUMBER]} icon="id-filled" title="Who you are"
+    nav={nav}
+    trail={[NUMBER]}
+    icon="id-filled"
+    title="Who you are"
     sub="Eleven digits from your NIN or your BVN, whichever you know. Your name comes back with them."
-    start="123456789" groups={[4, 4, 3]} max={11}
+    start="1234567890"
+    groups={[4, 4, 3]}
+    max={11}
     done={d => nav.go(d === '12345678900' ? 'who' : 'nomatch')}
     placeholder="Ask why this is needed"
   />
@@ -101,54 +161,106 @@ export const Nin = ({ nav }: { nav: Nav }) => (
 
 export const Signin = ({ nav }: { nav: Nav }) => (
   <DigitScreen
-    nav={nav} trail={[]} icon="mark" title="Welcome back"
+    nav={nav}
+    trail={[]}
+    icon="mark"
+    title="Welcome back"
     sub="Your number, and then six digits from a text. Nothing else, because the account is already yours."
-    start="08032144471" groups={[4, 3, 4]} max={11}
-    done={() => nav.go('signcode')} placeholder="Ask about signing in"
+    start="08032144471"
+    groups={[4, 3, 4]}
+    max={11}
+    done={() => nav.go('signcode')}
+    placeholder="Ask about signing in"
   />
 );
 
 export const Signcode = ({ nav }: { nav: Nav }) => (
   <DigitScreen
-    nav={nav} trail={[]} icon="mark" title="Six digits"
+    nav={nav}
+    trail={[]}
+    icon="mark"
+    title="Six digits"
     sub="Sent to 0803 214 4471 a moment ago. On a phone I already know, your passcode alone would have been enough."
-    start="" groups={[6]} max={6}
+    start=""
+    groups={[6]}
+    max={6}
     footer={didNotGet(() => nav.go('signin'))}
-    done={() => nav.go('home')} placeholder="Ask about signing in"
+    done={() => nav.go('home')}
+    placeholder="Ask about signing in"
   />
 );
 
 export const Passcode = ({ nav }: { nav: Nav }) => (
   <DigitScreen
-    nav={nav} trail={[NUMBER, WHO, FACE]} icon="lock-filled" title="A passcode"
+    nav={nav}
+    trail={[NUMBER, WHO, FACE]}
+    icon="lock-filled"
+    title="A passcode"
     sub="Six digits. These are what send your money, so pick something nobody watching could guess."
-    start="" groups={[6]} max={6}
+    start=""
+    groups={[6]}
+    max={6}
     footer={
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
         <Icon name="lock" size={16} colour={colour.textTertiary} />
-        <Meta tone="secondary" style={{ flex: 1 }}>Not your year of birth, and not 123456.</Meta>
+        <Meta tone="secondary" style={{ flex: 1 }}>
+          Not your year of birth, and not 123456.
+        </Meta>
       </View>
     }
-    done={() => nav.go('ready')} placeholder="Ask about the passcode"
+    done={() => nav.go('ready')}
+    placeholder="Ask about the passcode"
   />
 );
 
 /* Is this you. The record comes back and you say yes or that it is wrong. */
 export const Who = ({ nav }: { nav: Nav }) => (
-  <Screen dock={
-    <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 20, paddingVertical: 24, backgroundColor: colour.surface }}>
-      <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={nav.back} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
-        <Icon name="back" size={22} />
-      </Pressable>
-      <Button label="Yes, that is me" onPress={() => nav.go('face')} style={{ flex: 1 }} />
-    </View>
-  }>
+  <Screen
+    dock={
+      <View
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+          paddingHorizontal: 20,
+          paddingVertical: 24,
+          backgroundColor: colour.surface,
+        }}
+      >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          onPress={nav.back}
+          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Icon name="back" size={22} />
+        </Pressable>
+        <Button label="Yes, that is me" onPress={() => nav.go('face')} style={{ flex: 1 }} />
+      </View>
+    }
+  >
     <StepTrail done={[NUMBER]} />
-    <StepHead icon="id-filled" title="Who you are"
-      sub="This came back from the record against those digits. I did not type it." />
+    <StepHead
+      icon="id-filled"
+      title="Who you are"
+      sub="This came back from the record against those digits. I did not type it."
+    />
     <Card style={{ gap: space.s4 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
-        <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colour.surface3, alignItems: 'center', justifyContent: 'center' }}>
+        <View
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            backgroundColor: colour.surface3,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <Label>IM</Label>
         </View>
         <View style={{ gap: 2 }}>
@@ -161,7 +273,11 @@ export const Who = ({ nav }: { nav: Nav }) => (
         <Row>IBRAHIM MUSA WENG</Row>
       </View>
     </Card>
-    <Pressable accessibilityRole="button" onPress={() => nav.go('nomatch')} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+    <Pressable
+      accessibilityRole="button"
+      onPress={() => nav.go('nomatch')}
+      style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+    >
       <Label>Something here is wrong</Label>
       <Icon name="chevron" size={12} />
     </Pressable>
@@ -170,17 +286,40 @@ export const Who = ({ nav }: { nav: Nav }) => (
 
 /* One photo, and what happens to it. */
 export const Face = ({ nav }: { nav: Nav }) => (
-  <Screen dock={
-    <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 20, paddingVertical: 24, backgroundColor: colour.surface }}>
-      <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={nav.back} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
-        <Icon name="back" size={22} />
-      </Pressable>
-      <Button label="Take it" onPress={() => nav.go('passcode')} style={{ flex: 1 }} />
-    </View>
-  }>
+  <Screen
+    dock={
+      <View
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+          paddingHorizontal: 20,
+          paddingVertical: 24,
+          backgroundColor: colour.surface,
+        }}
+      >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          onPress={nav.back}
+          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Icon name="back" size={22} />
+        </Pressable>
+        <Button label="Take it" onPress={() => nav.go('passcode')} style={{ flex: 1 }} />
+      </View>
+    }
+  >
     <StepTrail done={[NUMBER, WHO]} />
-    <StepHead icon="faceid-filled" title="Your face"
-      sub="One photo, checked against the same record, so that only you can open this again." />
+    <StepHead
+      icon="faceid-filled"
+      title="Your face"
+      sub="One photo, checked against the same record, so that only you can open this again."
+    />
     <View style={{ alignItems: 'center', gap: space.s5, paddingVertical: space.s6 }}>
       <Icon name="person" size={56} colour={colour.textTertiary} />
       <Meta tone="secondary">Hold still and look at the camera</Meta>
@@ -199,15 +338,29 @@ export const Ready = ({ nav }: { nav: Nav }) => {
   const can = (text: string, on: boolean) => (
     <View key={text} style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
       <Icon name="check" size={12} colour={on ? colour.good : colour.textTertiary} />
-      <Meta tone={on ? 'ink' : 'tertiary'} style={{ flex: 1 }}>{text}</Meta>
+      <Meta tone={on ? 'ink' : 'tertiary'} style={{ flex: 1 }}>
+        {text}
+      </Meta>
     </View>
   );
   return (
-    <Screen dock={
-      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 20, paddingVertical: 24, backgroundColor: colour.surface }}>
-        <Button label="Take me in" onPress={() => nav.go('firsthome')} />
-      </View>
-    }>
+    <Screen
+      dock={
+        <View
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            paddingHorizontal: 20,
+            paddingVertical: 24,
+            backgroundColor: colour.surface,
+          }}
+        >
+          <Button label="Take me in" onPress={() => nav.go('firsthome')} />
+        </View>
+      }
+    >
       <StepTrail done={[NUMBER, WHO, FACE, PASS]} />
       <View style={{ flexDirection: 'row', gap: space.s3 }}>
         <Icon name="check" size={12} colour={colour.good} />
@@ -224,7 +377,9 @@ export const Ready = ({ nav }: { nav: Nav }) => {
         {can('Send up to ₦1,000,000 a day', false)}
       </View>
       <Pressable accessibilityRole="button" onPress={() => nav.go('finish')}>
-        <Card style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3, paddingVertical: space.s4 }}>
+        <Card
+          style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3, paddingVertical: space.s4 }}
+        >
           <Icon name="shield-filled" size={29} colour={colour.accent} />
           <View style={{ flex: 1, gap: 2 }}>
             <Label>Finish setting up</Label>
@@ -242,14 +397,23 @@ export const Ready = ({ nav }: { nav: Nav }) => {
 export const NewCode = ({ nav }: { nav: Nav }) => (
   <DigitScreen
     nav={nav}
-    trail={[{ icon: 'phone-filled', label: 'Frozen' }, { icon: 'id-filled', label: 'Your number' }, { icon: 'faceid-filled', label: 'Your face' }]}
-    icon="lock-filled" title="A new passcode"
-    sub="Six digits, and not the old ones. Sending stays locked until this is set."
-    start="" groups={[6]} max={6}
+    trail={[
+      { icon: 'phone-filled', label: 'Frozen' },
+      { icon: 'id-filled', label: 'Your number' },
+      { icon: 'faceid-filled', label: 'Your face' },
+    ]}
+    icon="lock-filled"
+    title="A new passcode"
+    sub="Six digits, and not the old ones. Sending stays locked for twelve hours."
+    start=""
+    groups={[6]}
+    max={6}
     footer={
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
         <Icon name="lock" size={16} colour={colour.textTertiary} />
-        <Meta tone="secondary" style={{ flex: 1 }}>Money can still reach you. Only sending waits.</Meta>
+        <Meta tone="secondary" style={{ flex: 1 }}>
+          Money can still reach you. Only sending waits.
+        </Meta>
       </View>
     }
     done={() => nav.go('home')}
@@ -261,26 +425,38 @@ export const NoMatch = ({ nav }: { nav: Nav }) => (
   <View style={{ flex: 1, backgroundColor: colour.surface, paddingHorizontal: 20, paddingTop: 72 }}>
     <View style={{ gap: 20 }}>
       <StepTrail done={[NUMBER]} />
-      <StepHead icon="id-filled" title="Who you are"
-        sub="Eleven digits from your NIN or your BVN. These ones did not match." />
+      <StepHead
+        icon="id-filled"
+        title="Who you are"
+        sub="Eleven digits from your NIN or your BVN. These ones did not match anything."
+      />
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s5 }}>
         <Icon name="warn-filled" size={28} colour={colour.warn} />
         <Row>Nothing came back</Row>
       </View>
-      <Meta tone="secondary">No record matches 1234 5678 90. One wrong digit is the usual reason.</Meta>
+      <Meta tone="secondary">
+        No record matches 1234 5678 90. One wrong digit is the usual reason, so it is worth reading them
+        again.
+      </Meta>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s5 }}>
         <Icon name="mark" size={32} colour={colour.accent} />
         <Body style={{ flex: 1 }}>
-          If the digits are right and it still says this, your record may be under a different name. Somebody here can sort that out.
+          If the digits are right and it still says this, your record may be under a different name. Somebody
+          here can sort that out.
         </Body>
       </View>
-      <Pressable accessibilityRole="button" onPress={() => nav.go('agentchat')}
-        style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => nav.go('agentchat')}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+      >
         <Label>Talk to someone</Label>
         <Icon name="chevron" size={12} />
       </Pressable>
     </View>
     <View style={{ flex: 1 }} />
-    <BottomBar onBack={nav.back}><Button label="Try again" onPress={() => nav.go('nin')} /></BottomBar>
+    <BottomBar onBack={nav.back}>
+      <Button label="Try again" onPress={() => nav.go('nin')} />
+    </BottomBar>
   </View>
 );

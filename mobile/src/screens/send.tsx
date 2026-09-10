@@ -9,65 +9,96 @@
 import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import {
-  Bubble, Button, Dock, Icon, Keypad, Receipt, Screen, Sheet, StatusPill, ToolPanel, TopBar,
-  Caption, Head, Label, Meta, Row, colour, space,
+  Bubble,
+  Button,
+  Dock,
+  Icon,
+  Keypad,
+  Receipt,
+  Screen,
+  ShareSheet,
+  Sheet,
+  ToolPanel,
+  TopBar,
+  Head,
+  Label,
+  Meta,
+  Row,
+  colour,
+  space,
 } from '../design';
 import { Route } from '../routes';
-import { get } from '../state/store.js';
+import { check, useDraft, useStore } from '../state/live';
+import { asked } from './nav';
 import * as act from '../state/actions.js';
-import { transfer, contacts } from '../state/data.js';
+import { transfer, contacts, me } from '../state/data.js';
+import { start } from '../state/flow.js';
 
 type Nav = { go: (r: Route) => void; back: () => void };
 
 const naira = (n: number) => '₦' + Math.round(n).toLocaleString('en-NG');
 
-/* What the agent has filled in. The amount row is the one you can change,
-   which is why it is the only one with somewhere to go. */
-const steps = (onAmount: () => void) => [
-  { k: 'Recipient', v: contacts.sarah.name },
-  { k: 'Bank', v: `${contacts.sarah.bank} · ${contacts.sarah.account}` },
-  { k: 'Amount', v: naira(transfer.amount), go: onAmount },
-  { k: 'Fee', v: 'Free' },
-  { k: 'Arrives', v: 'Checking with GTBank', done: 'work' as const },
-];
+/* The frames draw a sheet over the screen it came from, so the sheet screens
+   render that screen behind them. It is not reachable through the sheet, so
+   its nav goes nowhere. */
+export const still: Nav = { go: () => {}, back: () => {} };
+const nairaFull = (n: number) =>
+  '₦' + n.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-function Thread({ nav }: { nav: Nav }) {
+/* Everything below reads the payment being put together rather than the
+   design's seed figures, so what the form says is what the receipt says. */
+
+export const Chat = ({ nav }: { nav: Nav }) => {
+  const [d] = useDraft();
+  const verdict = check({ amount: d.amount, from: d.from });
+  const fee = act.feeFor(d.amount);
   return (
-    <>
+    <Screen
+      dock={<Dock placeholder="Reply, or just keep talking" onBack={nav.back} onAsk={q => asked(nav, q)} />}
+    >
+      <TopBar title="Beetle" onBack={nav.back} />
       <View style={{ alignSelf: 'flex-end', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <Icon name="mic" size={16} colour={colour.textTertiary} />
-        <Bubble who="You">Send 20k to Sarah</Bubble>
+        <Bubble who="You">{`Send ${Math.round(d.amount / 1000)}k to ${d.to.name.split(' ')[0]}`}</Bubble>
       </View>
       <View style={{ flexDirection: 'row', gap: space.s2 }}>
         <Icon name="mark" size={32} colour={colour.accent} />
         <View style={{ flex: 1 }}>
           <Bubble>
-            Sarah Adeyemi at GTBank, the same account the flat deposit went to. I am putting it together now.
+            {`${d.to.name} at ${d.to.bank}, the same account the flat deposit went to. I am putting it together now.`}
           </Bubble>
         </View>
       </View>
-      <ToolPanel tool="Beetle Transfers" state="Running" rows={steps(() => nav.go('pay'))} />
-    </>
+      <ToolPanel
+        tool="Beetle Transfers"
+        state="Running"
+        rows={[
+          { k: 'Recipient', v: d.to.name },
+          { k: 'Bank', v: `${d.to.bank} · ${d.to.account}` },
+          { k: 'Amount', v: naira(d.amount), go: () => nav.go('pay') },
+          { k: 'Fee', v: fee ? nairaFull(fee) : 'Free' },
+          { k: 'Arrives', v: `Checking with ${d.to.bank}`, done: 'work' as const },
+        ]}
+      />
+      {verdict.ok ? (
+        <Button label={`Confirm ${naira(d.amount)}`} onPress={() => nav.go('confirm')} />
+      ) : (
+        <Button label="Change it" tone="grey" onPress={() => nav.go('pay')} />
+      )}
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+        <Icon name="lock" size={16} colour={colour.textTertiary} />
+        <Meta tone="secondary" style={{ flex: 1 }}>
+          Face ID first. Nothing leaves your account until then.
+        </Meta>
+      </View>
+    </Screen>
   );
-}
-
-export const Chat = ({ nav }: { nav: Nav }) => (
-  <Screen dock={<Dock placeholder="Reply, or just keep talking" onBack={nav.back} />}>
-    <TopBar title="Beetle" onBack={nav.back} />
-    <Thread nav={nav} />
-    <Button label={`Confirm ${naira(transfer.amount)}`} onPress={() => nav.go('confirm')} />
-    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-      <Icon name="lock" size={16} colour={colour.textTertiary} />
-      <Meta tone="secondary" style={{ flex: 1 }}>
-        Face ID first. Nothing leaves your account until then.
-      </Meta>
-    </View>
-  </Screen>
-);
+};
 
 /* The passcode over the transfer. Six digits and it goes; the store is what
    actually moves the money, so the receipt reads the real balance after. */
 export const Confirm = ({ nav, faceMissed = false }: { nav: Nav; faceMissed?: boolean }) => {
+  const [d] = useDraft();
   const [digits, setDigits] = useState('');
   /* Pure updater, and the send is watched rather than fired from inside it, so
      the money cannot move twice. */
@@ -75,122 +106,157 @@ export const Confirm = ({ nav, faceMissed = false }: { nav: Nav; faceMissed?: bo
   React.useEffect(() => {
     if (digits.length < 6) return;
     const t = setTimeout(() => {
-      act.send({ to: contacts.sarah, amount: transfer.amount, from: 'everyday', narration: transfer.narration });
+      act.send({ to: d.to, amount: d.amount, from: d.from, narration: d.narration });
       nav.go('donesend');
     }, 150);
     return () => clearTimeout(t);
+    /* only the sixth digit sends it; watching the transfer as well would send
+       it again the moment anything about it changed */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [digits]);
   return (
-    <Sheet onClose={nav.back}>
+    <Sheet onClose={nav.back} behind={<Chat nav={still} />}>
       <View style={{ alignItems: 'center', gap: space.s3 }}>
-        <Head style={{ fontSize: 32, lineHeight: 40, fontWeight: '700' }}>{naira(transfer.amount)}</Head>
+        <Head style={{ fontSize: 32, lineHeight: 40, fontWeight: '700' }}>{naira(d.amount)}</Head>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
-          <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colour.surface3, alignItems: 'center', justifyContent: 'center' }}>
-            <Label>SA</Label>
+          <View
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 18,
+              backgroundColor: colour.surface3,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Label>{d.to.initials}</Label>
           </View>
           <View>
-            <Row>{contacts.sarah.name}</Row>
-            <Meta tone="secondary">{contacts.sarah.bank} · {contacts.sarah.account}</Meta>
+            <Row>{d.to.name}</Row>
+            <Meta tone="secondary">
+              {d.to.bank} · {d.to.account}
+            </Meta>
           </View>
         </View>
       </View>
       <View style={{ alignItems: 'center', gap: 4 }}>
         <Head>Enter your passcode</Head>
         <Meta tone={faceMissed ? 'bad' : 'secondary'}>
-          {faceMissed ? 'Face ID did not catch you. Type the six digits.' : 'Or tap the face to use Face ID.'}
+          {faceMissed
+            ? 'Face ID did not catch you. Tap the face to try again.'
+            : 'Or tap the face to use Face ID.'}
         </Meta>
       </View>
-      <Keypad onKey={key} />
+      <Keypad onKey={key} onFace={() => nav.go('noface')} />
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
         <Icon name="lock" size={16} colour={colour.textTertiary} />
-        <Meta tone="secondary">Nothing moves until the fourth number lands.</Meta>
+        <Meta tone="secondary">
+          {faceMissed
+            ? 'Three wrong tries locks the passcode for an hour.'
+            : 'Nothing moves until the fourth number lands.'}
+        </Meta>
       </View>
     </Sheet>
   );
 };
 
-const receiptFields = () => {
-  const s = get();
-  return [
-    ['To', contacts.sarah.name, `${contacts.sarah.bank} · ${contacts.sarah.account}`],
-    ['From', 'Everyday', '0102 4457 88'],
-    ['Narration', transfer.narration],
-    ['Amount', '₦' + transfer.amount.toLocaleString('en-NG', { minimumFractionDigits: 2 })],
-    ['Fee', '₦26.88', 'Transfers under ₦10,000 carry none'],
-    ['Total charged', '₦' + (transfer.amount + 26.88).toLocaleString('en-NG', { minimumFractionDigits: 2 })],
-    ['Balance after', '₦' + s.everyday.toLocaleString('en-NG', { minimumFractionDigits: 2 })],
-  ] as [string, string, string?][];
-};
-
-export const DoneSend = ({ nav }: { nav: Nav }) => (
-  <Screen dock={<Dock placeholder="Ask about this transfer" onBack={nav.back} />}>
-    <View style={{ gap: 8 }}>
-      <Head>All done</Head>
-      <Meta tone="tertiary" style={{ fontSize: 16, lineHeight: 24 }}>28 August 2026 at 7:55 AM</Meta>
-    </View>
-    <Receipt
-      amount={naira(transfer.amount)}
-      line={`Sent to ${contacts.sarah.name}`}
-      fields={receiptFields()}
-      session="000016 260828 075504 471803 926104"
-    />
-    <Button label="Share receipt" leading="share" onPress={() => nav.go('share')} />
-    <Pressable accessibilityRole="button" onPress={() => nav.go('rule')}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3, backgroundColor: colour.surface2, borderRadius: 20, padding: space.s4 }}>
-        <Icon name="mark" size={32} colour={colour.accent} />
-        <Meta style={{ flex: 1 }}>She has it. Rent again next month?</Meta>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colour.surface, borderRadius: 19, paddingHorizontal: 16, paddingVertical: 9 }}>
-          <Label>Set it up</Label>
-          <Icon name="chevron" size={12} />
-        </View>
-      </View>
-    </Pressable>
-    <Pressable accessibilityRole="button" onPress={() => nav.go('wrong')}
-      style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-      <Label>Something wrong with this?</Label>
-      <Icon name="chevron" size={12} />
-    </Pressable>
-  </Screen>
-);
-
-/* Four ways out, and a line about what is left off every copy. */
-export const Share = ({ nav }: { nav: Nav }) => {
-  const way = (icon: Parameters<typeof Icon>[0]['name'], title: string, sub: string) => (
-    <Pressable key={title} accessibilityRole="button" onPress={nav.back}
-      style={{ flexDirection: 'row', alignItems: 'center', gap: space.s5 }}>
-      <Icon name={icon} size={20} />
-      <View style={{ flex: 1, gap: 2 }}>
-        <Row>{title}</Row>
-        <Meta tone="secondary">{sub}</Meta>
-      </View>
-      <Icon name="chevron" size={16} colour={colour.textTertiary} />
-    </Pressable>
-  );
+/* The receipt of what was actually sent. Opened without having sent anything
+   — straight from a link — it shows the transfer the design is written
+   around, so the screen is never blank. */
+export const DoneSend = ({ nav }: { nav: Nav }) => {
+  const s = useStore();
+  const [d] = useDraft();
+  const r = d.receipt ?? {
+    to: d.to,
+    amount: transfer.amount,
+    fee: transfer.fee,
+    from: 'everyday',
+    narration: transfer.narration,
+    total: transfer.total,
+    balanceAfter: s.everyday,
+    at: transfer.at,
+    session: transfer.session,
+  };
+  const to = r.to ?? d.to;
+  const fee = r.fee ?? 0;
   return (
-    <Sheet onClose={nav.back}>
-      <View style={{ alignItems: 'center' }}>
-        <Icon name="share" size={28} />
-      </View>
+    <Screen
+      dock={<Dock placeholder="Ask about this transfer" onBack={nav.back} onAsk={q => asked(nav, q)} />}
+    >
       <View style={{ gap: 8 }}>
-        <Head>Share this receipt</Head>
+        <Head>All done</Head>
         <Meta tone="tertiary" style={{ fontSize: 16, lineHeight: 24 }}>
-          {naira(transfer.amount)} to {contacts.sarah.name}, 7:55 AM
+          {r.at}
         </Meta>
       </View>
-      <View style={{ gap: 28 }}>
-        {way('chat', 'WhatsApp', 'The picture, ready to send')}
-        {way('camera', 'Save to photos', 'It stays on this phone')}
-        {way('receipt', 'Save as PDF', 'The full record, for an office')}
-        {way('grid', 'Somewhere else', 'Messages, mail, anywhere you share')}
-      </View>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-        <Icon name="eye" size={16} colour={colour.textTertiary} />
-        <Meta tone="secondary" style={{ flex: 1 }}>
-          Your balance and the full account numbers are left off every copy that leaves the phone.
-        </Meta>
-      </View>
-      <Button label="Done" tone="grey" onPress={nav.back} />
-    </Sheet>
+      <Receipt
+        amount={naira(r.amount)}
+        line={`Sent to ${to.name}`}
+        fields={[
+          ['To', to.name, `${to.bank} · ${to.account}`],
+          ['From', r.from === 'dollars' ? 'Dollars' : 'Everyday', me.account],
+          ['Narration', r.narration || 'None'],
+          ['Amount', nairaFull(r.amount)],
+          ['Fee', fee ? nairaFull(fee) : 'Free', 'Transfers under ₦10,000 carry none'],
+          ['Total charged', nairaFull(r.total ?? r.amount + fee)],
+          ['Balance after', nairaFull(r.balanceAfter ?? s.everyday)],
+        ]}
+        session={r.session}
+      />
+      <Button label="Share receipt" leading="share" onPress={() => nav.go('share')} />
+      <Pressable accessibilityRole="button" onPress={() => nav.go('rule')}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: space.s3,
+            backgroundColor: colour.surface2,
+            borderRadius: 20,
+            padding: space.s4,
+          }}
+        >
+          <Icon name="mark" size={32} colour={colour.accent} />
+          <Meta style={{ flex: 1 }}>She has it. Rent again next month?</Meta>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 4,
+              backgroundColor: colour.surface,
+              borderRadius: 19,
+              paddingHorizontal: 16,
+              paddingVertical: 9,
+            }}
+          >
+            <Label>Set it up</Label>
+            <Icon name="chevron" size={12} />
+          </View>
+        </View>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => nav.go('wrong')}
+        style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+      >
+        <Label>Something wrong with this?</Label>
+        <Icon name="chevron" size={12} />
+      </Pressable>
+    </Screen>
+  );
+};
+
+/* Sharing the receipt. The frame draws the sheet over the receipt it is
+   sharing, and names the amount, who it went to and the time. */
+export const Share = ({ nav }: { nav: Nav }) => {
+  const [d] = useDraft();
+  const r = d.receipt;
+  const at = (r?.at ?? transfer.at).split(' at ')[1] ?? '7:55 AM';
+  return (
+    <ShareSheet
+      line={`${naira(r?.amount ?? transfer.amount)} to ${(r?.to ?? d.to).name}, ${at}`}
+      onClose={nav.back}
+      behind={<DoneSend nav={still} />}
+    />
   );
 };
 
@@ -208,21 +274,33 @@ export const Ask = ({ nav }: { nav: Nav }) => (
     </View>
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, height: 28 }}>
       {Array.from({ length: 30 }).map((_, i) => (
-        <View key={i} style={{
-          width: 3, borderRadius: 2, backgroundColor: colour.accent,
-          height: 6 + Math.abs(Math.sin(i * 1.7)) * 20,
-        }} />
+        <View
+          key={i}
+          style={{
+            width: 3,
+            borderRadius: 2,
+            backgroundColor: colour.accent,
+            height: 6 + Math.abs(Math.sin(i * 1.7)) * 20,
+          }}
+        />
       ))}
     </View>
     <Meta tone="tertiary">Or try one of these</Meta>
     <View style={{ gap: space.s2 }}>
       {['Pay my light bill', 'How much did I spend on data?', 'What can I borrow?'].map(t => (
-        <Button key={t} label={t} tone="grey" size={48} onPress={() => nav.go('chat')} />
+        <Button key={t} label={t} tone="grey" size={48} onPress={() => asked(nav, t)} />
       ))}
     </View>
-    <Pressable accessibilityRole="button" onPress={() => nav.go('typed')} style={{ alignSelf: 'center' }}>
+    <Pressable accessibilityRole="button" onPress={() => nav.go('misheard')} style={{ alignSelf: 'center' }}>
       <Label tone="accent">Not what I said</Label>
     </Pressable>
-    <Button label="Release to send" tone="blue" onPress={() => nav.go('chat')} />
+    <Button
+      label="Release to send"
+      tone="blue"
+      onPress={() => {
+        start({ to: contacts.sarah, amount: 20000, narration: transfer.narration, spoken: transfer.spoken });
+        nav.go('chat');
+      }}
+    />
   </Sheet>
 );

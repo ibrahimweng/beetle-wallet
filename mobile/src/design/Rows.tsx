@@ -123,7 +123,9 @@ export function DeviceRow({
       {tag ? (
         <View
           style={{
-            backgroundColor: odd ? colour.warn : colour.surface2,
+            /* on the grey card a plain grey pill would not show, so the frames
+               use the stronger rule grey — and amber for the odd one out */
+            backgroundColor: odd ? colour.warn : colour.rule,
             borderRadius: 12,
             paddingHorizontal: 10,
             paddingVertical: 4,

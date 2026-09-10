@@ -291,7 +291,7 @@ export const Power = ({ nav }: { nav: Nav }) => {
           <Icon name="copy" size={14} colour={colour.accent} />
         </Pressable>
       </Card>
-      <Button label="Share receipt" leading="share" onPress={() => nav.go('sharepower')} />
+      <Button label="Share receipt" leading="share" badge onPress={() => nav.go('sharepower')} />
       <Bubble>Pay this every month, without asking?</Bubble>
       <Button label="Set it up" tone="grey" onPress={() => nav.go('rule')} />
       <Ghost label="The token did not work?" onPress={() => nav.go('agentchat')} />

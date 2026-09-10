@@ -648,19 +648,43 @@ export function CameraScreen({
           paddingHorizontal: 20,
         }}
       >
-        <View style={{ width: 52, height: 52, borderRadius: 12, backgroundColor: colour.surface }} />
+        {/* the roll shows the last thing it read: a message, with the green
+            dot beside it, which is what the frames draw in there */}
+        <View
+          style={{
+            width: 52,
+            height: 52,
+            borderRadius: 14,
+            backgroundColor: colour.surface,
+            padding: 9,
+            gap: 4,
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colour.good }} />
+            <View style={{ flex: 1, height: 4, borderRadius: 2, backgroundColor: colour.surface3 }} />
+          </View>
+          <View style={{ height: 4, borderRadius: 2, backgroundColor: colour.surface3 }} />
+          <View style={{ height: 4, borderRadius: 2, backgroundColor: colour.surface3 }} />
+          <View style={{ height: 4, width: '70%', borderRadius: 2, backgroundColor: colour.surface3 }} />
+        </View>
+        {/* a 70 ring with a 55 disc inside it, five clear between */}
         <Tap
           accessibilityRole="button"
           accessibilityLabel="Take the photo"
           onPress={onShutter}
           style={{
-            width: 72,
-            height: 72,
-            borderRadius: 36,
-            borderWidth: 5,
+            width: 70,
+            height: 70,
+            borderRadius: 35,
+            borderWidth: 3,
             borderColor: colour.surface,
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
-        />
+        >
+          <View style={{ width: 55, height: 55, borderRadius: 28, backgroundColor: colour.surface }} />
+        </Tap>
         <Tap
           accessibilityRole="button"
           accessibilityLabel="Read a code"
@@ -706,53 +730,73 @@ export function ReadCard({
   unsure?: string;
   slip?: string;
 }) {
-  return (
+  /* Two cards, the way the frames draw a message it has read: a grey one
+     carrying who sent it and when, and a white one inside that holding what
+     they wrote, with each thing it lifted out on its own chip. Measured off
+     the Scan frame: grey 194 tall, white 144 inside it, chips 22 with 6
+     between them. */
+  const chip = (text: string, fill: string, edge: string) => (
     <View
-      style={{ backgroundColor: colour.surface, borderRadius: 16, padding: 14, width: '100%', gap: space.s2 }}
+      key={text}
+      style={{
+        height: 22,
+        justifyContent: 'center',
+        backgroundColor: fill,
+        borderWidth: 1,
+        borderColor: edge,
+        borderRadius: 8,
+        paddingHorizontal: 8,
+      }}
     >
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <Label>{text}</Label>
+    </View>
+  );
+  return (
+    <View style={{ backgroundColor: colour.surface2, borderRadius: 16, padding: 10, gap: 2, width: '100%' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', height: 28, paddingHorizontal: 2 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
           {glyph ? (
-            <Badge glyph={glyph} size={28} tone={tone ?? colour.surface3} />
+            <Badge glyph={glyph} size={28} tone={tone ?? colour.surface3} ink={colour.textInverse} />
           ) : (
-            <Avatar initials={who.slice(0, 2)} size={28} />
+            /* the frames give whoever sent it a filled green circle with their
+               initials in white, and set the name in ink beside it */
+            <Avatar
+              initials={who
+                .split(/[\s·]+/)
+                .map(w => w[0])
+                .join('')
+                .slice(0, 2)
+                .toUpperCase()}
+              size={28}
+              tone={colour.good}
+              text={colour.textInverse}
+            />
           )}
-          <Caption tone="secondary">{who}</Caption>
+          <Caption>{who}</Caption>
         </View>
         <Caption tone="tertiary">{when}</Caption>
       </View>
-      {kind ? <Caption tone="secondary">{kind}</Caption> : null}
-      <View style={{ gap: space.s2, alignItems: 'flex-start' }}>
-        {lines.map(t => (
-          <View
-            key={t}
-            style={{
-              backgroundColor: colour.accentWash,
-              borderRadius: 6,
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-            }}
-          >
-            <Label tone="accent">{t}</Label>
-          </View>
-        ))}
-        {unsure ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <View
-              style={{
-                backgroundColor: '#fdf2dd',
-                borderRadius: 6,
-                paddingHorizontal: 8,
-                paddingVertical: 4,
-              }}
-            >
-              <Label style={{ color: '#7a5b12' }}>{unsure}</Label>
+      <View
+        style={{
+          backgroundColor: colour.surface,
+          borderRadius: 12,
+          paddingHorizontal: 12,
+          paddingVertical: 14,
+          gap: 8,
+        }}
+      >
+        {kind ? <Caption tone="secondary">{kind}</Caption> : null}
+        <View style={{ gap: 6, alignItems: 'flex-start' }}>
+          {lines.map(t => chip(t, colour.accentWash, '#dce0f6'))}
+          {unsure ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              {chip(unsure, '#fdf2dd', '#f4e3c0')}
+              <Caption tone="secondary">not sure</Caption>
             </View>
-            <Caption style={{ color: '#7a5b12' }}>not sure</Caption>
-          </View>
-        ) : null}
+          ) : null}
+        </View>
+        {slip ? <Caption tone="tertiary">{slip}</Caption> : null}
       </View>
-      {slip ? <Caption tone="tertiary">{slip}</Caption> : null}
     </View>
   );
 }

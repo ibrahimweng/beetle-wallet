@@ -12,6 +12,7 @@ import { Caption, Display, Label, Meta, Row } from './text';
 import { StatusPill } from './StatusPill';
 import { Card } from './Screen';
 import { colour, space } from './tokens';
+import { Tap } from './motion';
 
 export type ReceiptField = [label: string, value: string, note?: string];
 
@@ -58,15 +59,31 @@ export function Receipt({
   onCopy?: () => void;
 }) {
   const cells: React.ReactNode[] = [];
+  let pair = 0;
   fields.forEach((f, i) => {
-    if (RULE_BEFORE.includes(f[0])) cells.push(<Rule key={'r' + i} />);
+    if (RULE_BEFORE.includes(f[0])) {
+      cells.push(<Rule key={'r' + i} />);
+      pair = 0;
+    }
     cells.push(
-      <View key={i} style={{ width: WIDE.includes(f[0]) ? '100%' : '50%', gap: 4, paddingBottom: 20 }}>
+      /* the frames put the second column 164 along in a 310 card, which leaves
+         each cell 147 with 16 between them — narrow enough that a long bank
+         line wraps where theirs does */
+      <View
+        key={i}
+        style={{
+          width: WIDE.includes(f[0]) ? '100%' : '47%',
+          marginRight: WIDE.includes(f[0]) || pair % 2 === 1 ? 0 : '6%',
+          gap: 4,
+          paddingBottom: 20,
+        }}
+      >
         <Caption tone="secondary">{f[0]}</Caption>
         {BIG.includes(f[0]) ? <Row>{f[1]}</Row> : <Label>{f[1]}</Label>}
         {f[2] ? <Caption tone="tertiary">{f[2]}</Caption> : null}
       </View>,
     );
+    pair = WIDE.includes(f[0]) ? 0 : pair + 1;
   });
 
   return (
@@ -104,12 +121,28 @@ export function Receipt({
         {session ? (
           <>
             <Rule />
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3, paddingTop: space.s3 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s4, paddingTop: space.s3 }}>
               <View style={{ flex: 1, gap: 2 }}>
                 <Caption tone="secondary">{sessionLabel}</Caption>
                 <Label>{session}</Label>
               </View>
-              <Icon name="copy" size={16} colour={colour.textSecondary} />
+              {/* the frames give it a button, not a bare glyph, which is also
+                  what holds the reference to the width it wraps at */}
+              <Tap
+                accessibilityRole="button"
+                accessibilityLabel="Copy it"
+                onPress={onCopy}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  backgroundColor: colour.surface2,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Icon name="copy" size={16} colour={colour.textSecondary} />
+              </Tap>
             </View>
           </>
         ) : null}

@@ -20,6 +20,7 @@ export function Screen({
   still = false,
   wash,
   sink = false,
+  thread = false,
 }: {
   children: ReactNode;
   dock?: ReactNode;
@@ -29,13 +30,17 @@ export function Screen({
   wash?: { tone: string; height?: number };
   /* the way-in frames hang their column off the dock rather than the status bar */
   sink?: boolean;
+  /* a thread is spaced tighter than a column of sections: the chat frames set
+     what was said, what the agent replied and the panel it built 16 apart, not
+     the column's own 20 */
+  thread?: boolean;
 }) {
   return (
     <View style={s.screen}>
       {wash ? <Wash tone={wash.tone} height={wash.height} /> : null}
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={[s.body, sink && s.sunk]}
+        contentContainerStyle={[s.body, sink && s.sunk, thread && s.thread]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -96,6 +101,7 @@ export function ActionRow(p: Parameters<typeof ListRow>[0]) {
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colour.surface },
   sunk: { flexGrow: 1, justifyContent: 'flex-end' },
+  thread: { gap: 16 },
   body: {
     paddingHorizontal: frame.sidePad,
     paddingTop: frame.topPad,

@@ -1,6 +1,8 @@
 /* Bubble — the set's four variants.
      who = You | You · typed        black, 20 radius, 16 semibold white
-     who = Beetle                   accent wash, 16 radius, 16 regular ink
+     who = Beetle                   accent wash, 16 radius, 16 regular ink,
+                                    filling whatever it is put in — the frames
+                                    never hold it short of the edge
      who = Beetle · with a title    the same, with a 14 semibold title over
                                     12 regular secondary */
 import React from 'react';
@@ -39,8 +41,7 @@ export function Bubble({
   return (
     <View
       style={{
-        alignSelf: 'flex-start',
-        maxWidth: '92%',
+        alignSelf: 'stretch',
         backgroundColor: colour.accentWash,
         borderRadius: radius.md,
         paddingVertical: title ? 12 : 16,

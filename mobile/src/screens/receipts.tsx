@@ -53,7 +53,7 @@ export const DoneIn = ({ nav }: { nav: Nav }) => (
       ]}
       session="000015 260827 164004 118220 774301"
     />
-    <Button label="Share receipt" leading="share" onPress={() => nav.go('sharein')} />
+    <Button label="Share receipt" leading="share" badge onPress={() => nav.go('sharein')} />
     <AgentAsk
       question="Put ₦50,000 away before it goes?"
       answer="Set it up"
@@ -106,7 +106,7 @@ const past = (p: Past) => {
         session={p.session}
         sessionLabel={p.sessionLabel}
       />
-      <Button label="Share receipt" leading="share" onPress={() => nav.go(p.share)} />
+      <Button label="Share receipt" leading="share" badge onPress={() => nav.go(p.share)} />
       <Bubble>{p.nudge}</Bubble>
       <Button label={p.nudgeAction} tone="grey" onPress={() => nav.go(p.nudgeTo)} />
       <Ghost label={p.wrong} onPress={() => nav.go(p.wrongTo)} />

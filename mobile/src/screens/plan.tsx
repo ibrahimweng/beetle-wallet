@@ -391,7 +391,7 @@ export const Dollars = ({ nav }: { nav: Nav }) => {
   return (
     <Screen dock={dock('Ask me about your dollars', nav, 'home', true)}>
       <PageHead lead title="Dollars" sub="Steady when the naira is not, and yours to turn back any day" />
-      <Card style={{ gap: space.s5 }}>
+      <Card style={{ gap: space.s4, paddingVertical: space.s4 }}>
         <View style={{ gap: 4 }}>
           <Display>{`$${s.dollars.toFixed(2)}`}</Display>
           <Meta tone="tertiary">{`${naira(dollarsInNaira())} at today’s rate`}</Meta>

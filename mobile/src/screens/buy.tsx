@@ -93,6 +93,7 @@ export const Buy = ({ nav }: { nav: Nav }) => {
   const enough = s.everyday >= plan.price;
   return (
     <Screen
+      thread
       dock={
         <Dock
           placeholder="Reply, or just keep talking"
@@ -103,34 +104,37 @@ export const Buy = ({ nav }: { nav: Nav }) => {
     >
       <TopBar title="Beetle" onBack={nav.back} />
       <Said>2k data for mum</Said>
-      <View style={{ flexDirection: 'row', gap: space.s2 }}>
-        <Icon name="mark" size={32} colour={colour.accent} />
-        <View style={{ flex: 1 }}>
-          <Bubble>
-            Mum’s MTN line, the one ending 4471. She ran dry eleven days early last month, so I have priced
-            the bigger bundle too.
-          </Bubble>
+      <View style={{ gap: 8 }}>
+        <View style={{ flexDirection: 'row', gap: space.s2 }}>
+          <Icon name="mark" size={32} colour={colour.accent} />
+          <View style={{ flex: 1 }}>
+            <Bubble>
+              Mum’s MTN line, the one ending 4471. She ran dry eleven days early last month, so I have priced
+              the bigger bundle too.
+            </Bubble>
+          </View>
         </View>
+        <ToolPanel
+          tool="Beetle Airtime"
+          state="Running"
+          rows={[
+            { k: 'Line', v: `MTN · ${contacts.mum.account}` },
+            { k: 'Whose', v: 'Mum' },
+            { k: 'Plan', v: plan.label },
+            { k: 'Price', v: naira(plan.price) },
+            { k: 'Cheaper?', v: 'Checking MTN plans', done: 'work' as const },
+          ]}
+        >
+          {/* edge to edge inside the panel, the way the frame draws it */}
+          <View style={{ paddingTop: 19, paddingBottom: 9 }}>
+            {enough ? (
+              <Button label={`Confirm ${naira(plan.price)}`} size={48} onPress={() => nav.go('confirmbuy')} />
+            ) : (
+              <Banner text="Not enough in Everyday for that plan." />
+            )}
+          </View>
+        </ToolPanel>
       </View>
-      <ToolPanel
-        tool="Beetle Airtime"
-        state="Running"
-        rows={[
-          { k: 'Line', v: `MTN · ${contacts.mum.account}` },
-          { k: 'Whose', v: 'Mum' },
-          { k: 'Plan', v: plan.label },
-          { k: 'Price', v: naira(plan.price) },
-          { k: 'Cheaper?', v: 'Checking MTN plans', done: 'work' as const },
-        ]}
-      >
-        <View style={{ padding: 12 }}>
-          {enough ? (
-            <Button label={`Confirm ${naira(plan.price)}`} onPress={() => nav.go('confirmbuy')} />
-          ) : (
-            <Banner text="Not enough in Everyday for that plan." />
-          )}
-        </View>
-      </ToolPanel>
       <Aside>Face ID first. Nothing leaves your account until then.</Aside>
     </Screen>
   );
@@ -188,7 +192,7 @@ export const Done = ({ nav }: { nav: Nav }) => {
         session={r.session}
         sessionLabel="MTN reference"
       />
-      <Button label="Share receipt" leading="share" onPress={() => nav.go('sharebuy')} />
+      <Button label="Share receipt" leading="share" badge onPress={() => nav.go('sharebuy')} />
       <Bubble>Mum has it. Every month, without asking?</Bubble>
       <Button
         label="Set it up"

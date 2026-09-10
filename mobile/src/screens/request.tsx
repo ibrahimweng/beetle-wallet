@@ -93,6 +93,7 @@ export const Request = ({ nav }: { nav: Nav }) => {
 
   const base = (
     <Screen
+      thread
       dock={
         <Dock
           placeholder="Reply, or just keep talking"
@@ -103,40 +104,44 @@ export const Request = ({ nav }: { nav: Nav }) => {
     >
       <TopBar title="Beetle" onBack={nav.back} />
       <Said>{`Ask ${first} for ${Math.round(req.amount / 1000)}k`}</Said>
-      <View style={{ flexDirection: 'row', gap: space.s2 }}>
-        <Icon name="mark" size={32} colour={colour.accent} />
-        <View style={{ flex: 1 }}>
-          <Bubble>
-            {`${req.who.name}, the line ending 4471. He is the only ${first} who has ever paid you.`}
-          </Bubble>
+      <View style={{ gap: 8 }}>
+        <View style={{ flexDirection: 'row', gap: space.s2 }}>
+          <Icon name="mark" size={32} colour={colour.accent} />
+          <View style={{ flex: 1 }}>
+            <Bubble>
+              {`${req.who.name}, the line ending 4471. He is the only ${first} who has ever paid you.`}
+            </Bubble>
+          </View>
         </View>
+        <ToolPanel
+          tool="Beetle Requests"
+          state="Running"
+          rows={[
+            { k: 'Person', v: req.who.name, go: () => setEditing('who') },
+            { k: 'Reaches him', v: 'WhatsApp and SMS' },
+            { k: 'Amount', v: naira(req.amount), go: () => setEditing('amount') },
+            { k: 'For', v: req.why, go: () => setEditing('why') },
+            { k: 'Expires', v: 'Picking a date', done: 'work' as const },
+          ]}
+        >
+          {/* edge to edge inside the panel, the way the frame draws it */}
+          <View style={{ paddingTop: 19, paddingBottom: 9 }}>
+            <Button
+              label="Send the request"
+              size={48}
+              onPress={() => {
+                req.ref =
+                  'REQ ' +
+                  Math.floor(1e12 + Math.random() * 8e12)
+                    .toString()
+                    .replace(/(\d{4})(?=\d)/g, '$1 ')
+                    .trim();
+                nav.go('sent');
+              }}
+            />
+          </View>
+        </ToolPanel>
       </View>
-      <ToolPanel
-        tool="Beetle Requests"
-        state="Running"
-        rows={[
-          { k: 'Person', v: req.who.name, go: () => setEditing('who') },
-          { k: 'Reaches him', v: 'WhatsApp and SMS' },
-          { k: 'Amount', v: naira(req.amount), go: () => setEditing('amount') },
-          { k: 'For', v: req.why, go: () => setEditing('why') },
-          { k: 'Expires', v: 'Picking a date', done: 'work' as const },
-        ]}
-      >
-        <View style={{ padding: 12 }}>
-          <Button
-            label="Send the request"
-            onPress={() => {
-              req.ref =
-                'REQ ' +
-                Math.floor(1e12 + Math.random() * 8e12)
-                  .toString()
-                  .replace(/(\d{4})(?=\d)/g, '$1 ')
-                  .trim();
-              nav.go('sent');
-            }}
-          />
-        </View>
-      </ToolPanel>
       <Aside>
         Asking cannot move money. Nothing can leave your account because somebody was asked to pay into it.
       </Aside>

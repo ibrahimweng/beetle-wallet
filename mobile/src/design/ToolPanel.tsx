@@ -18,7 +18,7 @@ export function ToolRow({ k, v, done, go }: Step) {
         alignItems: 'center',
         gap: space.s3,
         paddingHorizontal: space.s4,
-        paddingVertical: space.s3,
+        height: 43,
       }}
     >
       <Icon name={done === false ? 'step-todo' : done === 'work' ? 'step-work' : 'step-done'} size={18} />
@@ -52,8 +52,9 @@ export function ToolPanel({
   return (
     <View
       style={{
-        /* the frames draw the panel as a white card with a hairline round it,
-           its name centred between the tool's badge and what it is doing */
+        /* the frames draw the panel as a white card with a hairline round it.
+           Its name sits centred on a 46 grey band, between the tool's badge —
+           a white 32 square — and what it is doing. */
         backgroundColor: colour.surface,
         borderWidth: 1,
         borderColor: colour.rule,
@@ -66,21 +67,22 @@ export function ToolPanel({
           flexDirection: 'row',
           alignItems: 'center',
           gap: space.s2,
+          height: 46,
           paddingHorizontal: 12,
-          paddingVertical: 12,
+          backgroundColor: colour.surface2,
         }}
       >
         <View
           style={{
-            width: 26,
-            height: 26,
-            borderRadius: 8,
-            backgroundColor: colour.surface2,
+            width: 32,
+            height: 32,
+            borderRadius: 10,
+            backgroundColor: colour.surface,
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Icon name="send" size={14} colour={colour.textSecondary} />
+          <Icon name="send" size={14} />
         </View>
         <Label style={{ flex: 1, textAlign: 'center' }}>{tool}</Label>
         <StatusPill label={state} />

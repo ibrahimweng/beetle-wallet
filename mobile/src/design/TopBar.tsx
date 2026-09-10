@@ -1,5 +1,7 @@
 /* Top bar — the set's two variants. title=Beetle puts the mark beside the
-   name, centred, with back on the left. 16 semibold. */
+   name, centred across the bar and flush with the top of the column, with back
+   on the left, which sits lower because it is centred in the 44 the bar takes.
+   16 semibold. */
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { Icon } from './Icon';
@@ -16,7 +18,7 @@ export function TopBar({
   onBack?: () => void;
 }) {
   return (
-    <View style={{ height: 44, justifyContent: 'center' }}>
+    <View style={{ height: 44 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
         {mark ? <Icon name="mark" size={24} colour={colour.accent} /> : null}
         <Row>{title}</Row>

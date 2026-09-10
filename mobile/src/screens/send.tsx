@@ -61,6 +61,7 @@ export const Chat = ({ nav }: { nav: Nav }) => {
   const canSend = verdict.ok || past;
   return (
     <Screen
+      thread
       dock={
         <Dock
           placeholder="Reply, or just keep talking"
@@ -71,37 +72,41 @@ export const Chat = ({ nav }: { nav: Nav }) => {
     >
       <TopBar title="Beetle" onBack={nav.back} />
       <Said>{`Send ${Math.round(d.amount / 1000)}k to ${d.to.name.split(' ')[0]}`}</Said>
-      <View style={{ flexDirection: 'row', gap: space.s2 }}>
-        <Icon name="mark" size={32} colour={colour.accent} />
-        <View style={{ flex: 1 }}>
-          <Bubble>
-            {`${d.to.name} at ${d.to.bank}, the same account the flat deposit went to. I am putting it together now.`}
-          </Bubble>
+      <View style={{ gap: 8 }}>
+        <View style={{ flexDirection: 'row', gap: space.s2 }}>
+          <Icon name="mark" size={32} colour={colour.accent} />
+          <View style={{ flex: 1 }}>
+            <Bubble>
+              {`${d.to.name} at ${d.to.bank}, the same account the flat deposit went to. I am putting it together now.`}
+            </Bubble>
+          </View>
         </View>
+        <ToolPanel
+          tool="Beetle Transfers"
+          state="Running"
+          rows={[
+            { k: 'Recipient', v: d.to.name },
+            { k: 'Bank', v: `${d.to.bank} · ${d.to.account}` },
+            { k: 'Amount', v: naira(d.amount), go: () => nav.go('pay') },
+            { k: 'Fee', v: fee ? nairaFull(fee) : 'Free' },
+            { k: 'Arrives', v: `Checking with ${d.to.bank}`, done: 'work' as const },
+          ]}
+        >
+          {/* the frame keeps the button inside the panel it belongs to, edge to
+              edge, with the gap only above it */}
+          <View style={{ paddingTop: 19, paddingBottom: 9 }}>
+            {canSend ? (
+              <Button
+                label={`Confirm ${naira(d.amount)}`}
+                size={48}
+                onPress={() => nav.go(past ? 'limitstop' : 'confirm')}
+              />
+            ) : (
+              <Button label="Change it" tone="grey" size={48} onPress={() => nav.go('pay')} />
+            )}
+          </View>
+        </ToolPanel>
       </View>
-      <ToolPanel
-        tool="Beetle Transfers"
-        state="Running"
-        rows={[
-          { k: 'Recipient', v: d.to.name },
-          { k: 'Bank', v: `${d.to.bank} · ${d.to.account}` },
-          { k: 'Amount', v: naira(d.amount), go: () => nav.go('pay') },
-          { k: 'Fee', v: fee ? nairaFull(fee) : 'Free' },
-          { k: 'Arrives', v: `Checking with ${d.to.bank}`, done: 'work' as const },
-        ]}
-      >
-        {/* the frame keeps the button inside the panel it belongs to */}
-        <View style={{ padding: 12 }}>
-          {canSend ? (
-            <Button
-              label={`Confirm ${naira(d.amount)}`}
-              onPress={() => nav.go(past ? 'limitstop' : 'confirm')}
-            />
-          ) : (
-            <Button label="Change it" tone="grey" onPress={() => nav.go('pay')} />
-          )}
-        </View>
-      </ToolPanel>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
         <Icon name="lock" size={16} colour={colour.textTertiary} />
         <Meta tone="secondary" style={{ flex: 1 }}>
@@ -220,7 +225,7 @@ export const DoneSend = ({ nav }: { nav: Nav }) => {
         ]}
         session={r.session}
       />
-      <Button label="Share receipt" leading="share" onPress={() => nav.go('share')} />
+      <Button label="Share receipt" leading="share" badge onPress={() => nav.go('share')} />
       <Pressable accessibilityRole="button" onPress={() => nav.go('rule')}>
         <View
           style={{

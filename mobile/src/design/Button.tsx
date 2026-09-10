@@ -4,7 +4,7 @@
    Height, radius and side padding are the set's own numbers. A leading or
    trailing glyph sits 8 from the label, as the set spaces them. */
 import React from 'react';
-import { StyleSheet, Text, ViewStyle, StyleProp } from 'react-native';
+import { StyleSheet, Text, View, ViewStyle, StyleProp } from 'react-native';
 import { Icon } from './Icon';
 import { IconName } from '../icons';
 import { colour } from './tokens';
@@ -36,6 +36,7 @@ export function Button({
   full = true,
   style,
   disabled,
+  badge = false,
 }: {
   label: string;
   onPress?: () => void;
@@ -46,6 +47,8 @@ export function Button({
   full?: boolean;
   style?: StyleProp<ViewStyle>;
   disabled?: boolean;
+  /* the share buttons on the receipts carry their glyph on a white disc */
+  badge?: boolean;
 }) {
   const s = SIZES[size];
   /* A button that cannot be pressed is not the same button faded. The frames
@@ -77,7 +80,22 @@ export function Button({
         style,
       ]}
     >
-      {leading ? <Icon name={leading} size={20} colour={t.ink} /> : null}
+      {leading && badge ? (
+        <View
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 16,
+            backgroundColor: t.ink,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Icon name={leading} size={18} colour={t.fill} />
+        </View>
+      ) : leading ? (
+        <Icon name={leading} size={20} colour={t.ink} />
+      ) : null}
       <Text style={{ fontSize: s.text, lineHeight: 24, fontWeight: '600', color: t.ink }}>{label}</Text>
       {trailing ? <Icon name={trailing} size={20} colour={t.ink} /> : null}
     </AnimatedPressable>

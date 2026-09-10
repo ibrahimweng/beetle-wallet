@@ -378,7 +378,7 @@ export const LimitStop = ({ nav }: { nav: Nav }) => {
 export const Devices = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about a device', nav)}>
     <PageHead lead title="Devices" sub="Everywhere this account is open" />
-    <Card style={{ gap: space.s4 }}>
+    <Card style={{ gap: 34, paddingVertical: 12 }}>
       <DeviceRow glyph="airtime" title="iPhone 13" where="Lagos · open now" tag="This one" />
       <DeviceRow glyph="airtime" title="Tecno Spark 10" where="Lagos · 3 days ago" />
       <DeviceRow glyph="laptop" title="Chrome on Windows" where="Abuja · 12 August" tag="Odd one" odd />
@@ -405,7 +405,8 @@ export const Devices = ({ nav }: { nav: Nav }) => (
 export const LostPhone = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask what freezing does', nav)}>
     <PageHead title="Not your phone" sub="Signed in on a device I do not know" />
-    <Card style={{ gap: space.s4 }}>
+    {/* the frame sets these 74 apart, badge top to badge top */}
+    <Card style={{ gap: 34, paddingVertical: 12 }}>
       <DeviceRow
         glyph="airtime"
         title="Freeze the money"
@@ -419,7 +420,7 @@ export const LostPhone = ({ nav }: { nav: Nav }) => (
         }}
       />
       <DeviceRow glyph="airtime" title="Infinix Hot 40" where="Ikeja · signing in now" />
-      <DeviceRow glyph="laptop" title="iPhone 13" where="Lagos · seen 09:14" tag="Yours" />
+      <DeviceRow glyph="laptop" title="iPhone 13" where="Lagos · seen 09:14" tag="Yours" odd />
     </Card>
     <AgentSay>
       You are on a device this account has never seen. I will not open the money here until you prove it is

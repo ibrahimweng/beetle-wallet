@@ -44,15 +44,20 @@ export const Home = ({ nav }: { nav: Nav }) => {
   const whole = '₦' + Math.floor(s.everyday).toLocaleString('en-NG');
   const kobo = '.' + s.everyday.toFixed(2).split('.')[1];
 
-  /* The home feed carries what settled. A transfer still on its way, one that
-     did not go and one that came back each have a screen of their own and a
-     line in the history; the frame does not put them in the day's list here. */
-  const day = (which: string) =>
-    filtered(which)
+  /* The home feed carries what settled, once per name. A transfer still on its
+     way, one that did not go and one that came back each have a screen of
+     their own and a line in the history; so does a second payment to somebody
+     already in the day's list. This is the day at a glance, which is what the
+     frame draws — the history is where every line lives. */
+  const day = (which: string) => {
+    const seen = new Set<string>();
+    return filtered(which)
       .filter((r: { status?: string }) => r.status === undefined || r.status === 'done')
+      .filter((r: { name: string }) => !seen.has(r.name) && seen.add(r.name))
       .filter((r: { kind: string; amount: number }) =>
         filter === 'All' ? true : filter === 'In' ? r.amount > 0 : filter === 'Out' ? r.amount < 0 : false,
       );
+  };
 
   const rows = (which: string, from = 0, to = 99) =>
     day(which)
@@ -92,7 +97,13 @@ export const Home = ({ nav }: { nav: Nav }) => {
       <WalletHeader onSettings={() => nav.go('settings')} onAlerts={() => nav.go('history')} />
       <Balance whole={whole} kobo={kobo} change="+9% this month" />
       <View style={{ alignSelf: 'center' }}>
-        <Button label="Receive" leading="receive-filled" full={false} onPress={() => nav.go('receive')} />
+        <Button
+          label="Receive"
+          leading="receive-filled"
+          size={44}
+          full={false}
+          onPress={() => nav.go('receive')}
+        />
       </View>
       <Shortcuts
         items={[
@@ -151,7 +162,6 @@ export const Home = ({ nav }: { nav: Nav }) => {
           body={insights.data.body}
           action={insights.data.action}
           onAction={() => nav.go('airtime')}
-          onDismiss={() => away('data')}
         >
           <View
             style={{
@@ -174,7 +184,7 @@ export const Home = ({ nav }: { nav: Nav }) => {
       ) : null}
       {rows('today', 4)}
       {!put.includes('changes') && filter !== 'In' && filter !== 'Out' ? (
-        <Insight {...insights.changes} onAction={() => nav.go('health')} onDismiss={() => away('changes')} />
+        <Insight {...insights.changes} onAction={() => nav.go('health')} />
       ) : null}
 
       <Meta tone="secondary">Yesterday</Meta>
@@ -186,7 +196,7 @@ export const Home = ({ nav }: { nav: Nav }) => {
       />
       {rows('yesterday', 0, 2)}
       {!put.includes('spend') && filter !== 'In' && filter !== 'Out' ? (
-        <Insight {...insights.spend} onAction={() => nav.go('answer')} onDismiss={() => away('spend')} />
+        <Insight {...insights.spend} onAction={() => nav.go('answer')} />
       ) : null}
       {rows('yesterday', 2)}
       <Meta tone="tertiary">{ledgerFooter}</Meta>

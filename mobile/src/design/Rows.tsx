@@ -250,15 +250,47 @@ export function CapRow({
 }
 
 /* What is out today against what you set. */
-export function Usage({ out, of, note }: { out: string; of: string; note: string }) {
+export function Usage({
+  out,
+  of,
+  note,
+  pct = 0,
+}: {
+  out: string;
+  of: string;
+  note: string;
+  /* the frame runs a bar under the figure, filled to the share of the day
+     that has gone */
+  pct?: number;
+}) {
   return (
-    <View style={{ gap: space.s2 }}>
+    <View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <Meta tone="secondary">Out today</Meta>
         <Meta tone="secondary">of {of}</Meta>
       </View>
-      <Head style={{ fontSize: 32, lineHeight: 40, fontWeight: '700' }}>{out}</Head>
-      <Meta tone="secondary">{note}</Meta>
+      <Head style={{ fontSize: 32, lineHeight: 40, fontWeight: '700', marginTop: 10 }}>{out}</Head>
+      <View
+        style={{
+          height: 10,
+          borderRadius: 5,
+          backgroundColor: colour.rule,
+          marginTop: 17,
+          overflow: 'hidden',
+        }}
+      >
+        <View
+          style={{
+            width: `${Math.max(0, Math.min(100, pct))}%`,
+            height: 10,
+            borderRadius: 5,
+            backgroundColor: colour.accent,
+          }}
+        />
+      </View>
+      <Meta tone="secondary" style={{ marginTop: 11 }}>
+        {note}
+      </Meta>
     </View>
   );
 }

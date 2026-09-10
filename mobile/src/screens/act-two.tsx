@@ -17,6 +17,7 @@ import {
   ChoiceRow,
   Choices,
   DeviceRow,
+  Divider,
   Dock,
   Facts,
   FootNote,
@@ -25,6 +26,7 @@ import {
   Screen,
   SectionLabel,
   SettingRow,
+  Toggle,
   ToggleRow,
   Usage,
   Caption,
@@ -80,16 +82,28 @@ export const Rule = ({ nav }: { nav: Nav }) => (
 export const Rules = ({ nav }: { nav: Nav }) => {
   const s = useStore();
   const tight = s.standing.find(r => r.name === 'Money is tight')?.on ?? false;
-  const instruction = (title: string, when: string, log: string) => (
-    <Card key={title} style={{ gap: space.s3 }}>
-      <Row>{title}</Row>
-      <Meta tone="secondary">{when}</Meta>
+  /* the frame puts a switch on each one and rules a line between what it does
+     and what it has done, with the way to the log in the accent */
+  const instruction = (rule: string, title: string, when: string, log: string) => (
+    <Card key={title} style={{ gap: 9, paddingVertical: 14 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s3 }}>
+        <View style={{ flex: 1, gap: 9 }}>
+          <Row>{title}</Row>
+          <Meta tone="secondary">{when}</Meta>
+        </View>
+        <Toggle
+          value={s.standing.find(r => r.name === rule)?.on ?? true}
+          onChange={v => act.setStanding(rule, v)}
+          label={title}
+        />
+      </View>
+      <Divider />
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Meta tone="secondary" style={{ flex: 1 }}>
           {log}
         </Meta>
         <Pressable accessibilityRole="button" onPress={() => nav.go('history')}>
-          <Label>See log</Label>
+          <Label tone="accent">See log</Label>
         </Pressable>
       </View>
     </Card>
@@ -106,13 +120,27 @@ export const Rules = ({ nav }: { nav: Nav }) => {
         />
         <Caption tone="secondary">You can also just tell me, any time.</Caption>
       </Card>
-      {instruction(
-        'Move ₦20,000 to Holiday on payday',
-        'The day your salary lands.',
-        'Moved 4 times · ₦80,000 put aside',
-      )}
-      {instruction('Top up Ikeja Electric', 'When units run low, up to ₦10,000.', 'Paid 3 times · ₦22,400')}
-      {instruction('Buy 5GB when my data runs out', 'Once a month at most.', 'Bought twice · ₦5,000')}
+      {/* the frame runs the three instructions ten apart, not a column gap */}
+      <View style={{ gap: 10 }}>
+        {instruction(
+          'Payday transfer',
+          'Move ₦20,000 to Holiday on payday',
+          'The day your salary lands.',
+          'Moved 4 times · ₦80,000 put aside',
+        )}
+        {instruction(
+          'Top up Ikeja Electric',
+          'Top up Ikeja Electric',
+          'When units run low, up to ₦10,000.',
+          'Paid 3 times · ₦22,400',
+        )}
+        {instruction(
+          'Round ups',
+          'Buy 5GB when my data runs out',
+          'Once a month at most.',
+          'Bought twice · ₦5,000',
+        )}
+      </View>
       <SectionLabel>I will always ask first</SectionLabel>
       <View style={{ gap: space.s5 }}>
         <Aside>Paying anyone you have not paid before</Aside>
@@ -273,13 +301,18 @@ export const Limits = ({ nav }: { nav: Nav }) => {
   return (
     <Screen dock={dock('Ask me to change a limit', nav)}>
       <PageHead lead title="Spending limits" sub="What you set, and where today stands" />
-      <Usage
-        out={money(s.outToday)}
-        of={money(s.limits.day)}
-        note={`${money(left)} left before I stop and ask you twice.`}
-      />
+      {/* the frame boxes each of the three parts: where today stands, the caps
+          themselves, and what happens at the line */}
+      <Card style={{ paddingVertical: 13 }}>
+        <Usage
+          out={money(s.outToday)}
+          of={money(s.limits.day)}
+          pct={(s.outToday / s.limits.day) * 100}
+          note={`${money(left)} left before I stop and ask you twice.`}
+        />
+      </Card>
       <Head>Your caps</Head>
-      <View style={{ gap: 32 }}>
+      <Card style={{ gap: 24, paddingVertical: 12 }}>
         <CapRow
           title="One transfer"
           sub="The most that can leave in a single go"
@@ -298,15 +331,22 @@ export const Limits = ({ nav }: { nav: Nav }) => {
           value={money(s.limits.month)}
           onPress={() => nav.go('limitstop')}
         />
-      </View>
-      <SectionLabel>What happens at the line</SectionLabel>
-      <View style={{ gap: space.s5 }}>
+      </Card>
+      <Card
+        style={{
+          gap: space.s5,
+          backgroundColor: colour.surface,
+          borderWidth: 1,
+          borderColor: colour.rule,
+        }}
+      >
+        <SectionLabel>What happens at the line</SectionLabel>
         <Aside glyph="key">Your passcode. Not your face, because a face can be held up to a phone.</Aside>
         <Aside glyph="list">Then you type Confirm this transaction in full. Three words, spelled out.</Aside>
-      </View>
-      <Meta tone="secondary">
-        Two deliberate things, so a bad minute cannot carry you past a line you drew on a good one.
-      </Meta>
+        <Meta tone="secondary">
+          Two deliberate things, so a bad minute cannot carry you past a line you drew on a good one.
+        </Meta>
+      </Card>
       <Pressable
         accessibilityRole="button"
         onPress={() => nav.go('limitstop')}

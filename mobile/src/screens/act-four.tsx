@@ -7,6 +7,8 @@ import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import {
   ActionRow,
+  AgentSay,
+  Badge,
   Aside,
   BottomBar,
   Avatar,
@@ -407,46 +409,50 @@ const reply = (q: string) => NEW.find(([re]) => re.test(q))?.[1] ?? answer(q);
 
 export const EmptyActivity = ({ nav }: { nav: Nav }) => {
   const [filter, setFilter] = useState('All');
+  /* The frame for this one is nearly empty on purpose: the title, the three
+     filters on their grey track, and one line saying what will land here. */
   return (
-    <Screen dock={dock('Ask what shows up here', nav, 'firsthome')}>
-      <PageHead lead title="History" sub="Nothing has moved yet" />
-      <ChipRow>
-        {['All', 'In', 'Out'].map(f => (
-          <Chip key={f} label={f} on={f === filter} onPress={() => setFilter(f)} />
-        ))}
-      </ChipRow>
-      <Empty
-        glyph="wait-filled"
-        title="Nothing to carry yet"
-        body="Every line here will open a receipt you can keep, send on, or dispute."
-      />
-      <View style={{ gap: space.s2 }}>
-        <Label>What will show here</Label>
-        <View style={{ gap: space.s2 }}>
-          {(
-            [
-              ['send', 'Every payment, with who and why'],
-              ['mark', 'What I noticed, in the same feed'],
-              ['undo-filled', 'Anything that failed, and what I did about it'],
-            ] as [string, string][]
-          ).map(([g, t]) => (
-            <View key={t} style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
-              <Icon name={g as 'send'} size={20} />
-              <Meta style={{ flex: 1, fontSize: 16, lineHeight: 24 }}>{t}</Meta>
-            </View>
-          ))}
-        </View>
-        <Caption tone="secondary">
-          I do not fill this with adverts. If there is nothing to say, it stays empty.
-        </Caption>
+    <Screen dock={dock('Ask what shows up here', nav, 'firsthome', true)}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
+        <Badge glyph="clock" size={40} tone={colour.surface2} ink={colour.ink} />
+        <Display>History</Display>
       </View>
-      <Button label="Put money in" onPress={() => nav.go('receive')} />
+      <Meta tone="tertiary">Nothing has moved yet</Meta>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignSelf: 'center',
+          backgroundColor: colour.surface2,
+          borderRadius: 999,
+          padding: 4,
+        }}
+      >
+        {['All', 'In', 'Out'].map(f => (
+          <Pressable
+            key={f}
+            accessibilityRole="button"
+            accessibilityState={{ selected: f === filter }}
+            onPress={() => setFilter(f)}
+            style={{
+              paddingHorizontal: 28,
+              height: 40,
+              borderRadius: 999,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: f === filter ? colour.surface : 'transparent',
+            }}
+          >
+            <Label tone={f === filter ? 'ink' : 'secondary'}>{f}</Label>
+          </Pressable>
+        ))}
+      </View>
+      <AgentSay>Every line here will open a receipt you can keep, send on, or dispute.</AgentSay>
     </Screen>
   );
 };
 
 export const EmptyGoal = ({ nav }: { nav: Nav }) => (
-  <Screen dock={dock('Ask about saving', nav, 'firsthome')}>
+  <Screen dock={dock('Ask about saving', nav, 'firsthome', true)}>
     <PageHead lead title="Goals" sub="Nothing put aside yet" />
     <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s2 }}>
       <Icon name="mark" size={32} colour={colour.accent} />

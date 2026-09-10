@@ -26,6 +26,7 @@ import {
   Sheet,
   Title,
   colour,
+  radius,
   space,
   toast,
 } from '../design';
@@ -82,7 +83,7 @@ export const Receive = ({ nav }: { nav: Nav }) => (
 );
 
 export const Ways = ({ nav }: { nav: Nav }) => (
-  <Screen dock={dock('Ask about getting paid', nav, 'home')}>
+  <Screen dock={dock('Ask about getting paid', nav, 'home', true)}>
     <PageHead lead title="Three ways to be paid" sub="All of them safe to hand out" />
     <Bubble>
       You cannot receive by talking. What I can do is hand you the two things money reaches you by, and write
@@ -116,14 +117,25 @@ export const Ways = ({ nav }: { nav: Nav }) => (
 );
 
 export const MyCode = ({ nav }: { nav: Nav }) => (
-  <Screen dock={dock('Ask about your code', nav, 'ways')}>
+  <Screen dock={dock('Ask about your code', nav, 'ways', true)}>
     <PageHead lead title="Your code" sub="Point their camera at this and the money reaches you" />
-    <QrCode />
-    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.s3 }}>
-      <Avatar initials={me.initials} />
-      <View style={{ gap: 2 }}>
-        <Row>{me.name}</Row>
-        <Meta tone="tertiary">{`${me.bank} · ${me.account}`}</Meta>
+    {/* the code and whose it is sit on one white card with a hairline round it */}
+    <View
+      style={{
+        borderWidth: 1,
+        borderColor: colour.rule,
+        borderRadius: radius.lg,
+        paddingVertical: space.s5,
+        gap: space.s5,
+      }}
+    >
+      <QrCode size={148} />
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.s3 }}>
+        <Avatar initials={me.initials} size={44} tone={colour.accent} text={colour.textInverse} />
+        <View style={{ gap: 2 }}>
+          <Row>{me.name}</Row>
+          <Meta tone="tertiary">{`${me.bank} · ${me.account}`}</Meta>
+        </View>
       </View>
     </View>
     <View style={{ flexDirection: 'row', gap: space.s2 }}>
@@ -131,7 +143,7 @@ export const MyCode = ({ nav }: { nav: Nav }) => (
         <Button label="Share it" onPress={() => toast('Ready to send, wherever you share things.')} />
       </View>
       <View style={{ flex: 1 }}>
-        <Button label="Save it" tone="grey" onPress={() => toast('Saved to your photos.')} />
+        <Button label="Save it" tone="grey" leading="down" onPress={() => toast('Saved to your photos.')} />
       </View>
     </View>
     <Aside>

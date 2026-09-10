@@ -126,7 +126,9 @@ const s = StyleSheet.create({
     paddingLeft: 8,
     paddingRight: 12,
   },
-  input: { flex: 1, fontSize: 16, color: colour.ink, padding: 0 },
+  /* minWidth 0 or the field refuses to give the camera and the microphone
+     their room on a dock that also carries a back arrow and a button */
+  input: { flex: 1, minWidth: 0, fontSize: 16, color: colour.ink, padding: 0 },
   fab: {
     width: 56,
     height: 56,

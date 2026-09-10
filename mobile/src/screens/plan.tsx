@@ -8,10 +8,11 @@ import {
   ActionRow,
   AmountPad,
   AgentAsk,
-  AgentCard,
+  AgentSay,
   Aside,
   Banner,
   Bubble,
+  BottomBar,
   Button,
   Card,
   Caption,
@@ -123,7 +124,7 @@ export const Goal = ({ nav }: { nav: Nav }) => {
   const close = () => setSheet(null);
 
   const base = (
-    <Screen dock={dock('Ask about this goal', nav, 'home')}>
+    <Screen dock={dock('Ask about this goal', nav, 'home', true)}>
       <PageHead lead title={g.name} sub={`${naira(g.target)} by ${g.by}`} />
       <Card>
         <View style={{ alignItems: 'center', gap: space.s3 }}>
@@ -324,7 +325,7 @@ export const Paused = ({ nav }: { nav: Nav }) => {
   const g = s.goal;
   const pct = Math.min(100, Math.round((g.saved / g.target) * 100));
   return (
-    <Screen dock={dock('Ask about this goal', nav, 'goal')}>
+    <Screen dock={dock('Ask about this goal', nav, 'goal', true)}>
       <PageHead lead title={g.name} sub="Paused while things are tight" />
       <Card>
         <View style={{ alignItems: 'center', gap: space.s2 }}>
@@ -359,10 +360,10 @@ export const Paused = ({ nav }: { nav: Nav }) => {
           </View>
         ))}
       </Card>
-      <AgentCard>
+      <AgentSay>
         You told me money is tight, so I have stopped moving it. Your date moves from 12 March to 9 April.
         Nothing has been taken and nothing has been charged.
-      </AgentCard>
+      </AgentSay>
       <Button label="Add money anyway" tone="grey" onPress={() => nav.go('goal')} />
       <Button
         label="Start again"
@@ -388,48 +389,55 @@ const CAME: [string, string, string][] = [
 export const Dollars = ({ nav }: { nav: Nav }) => {
   const s = useStore();
   return (
-    <Screen dock={dock('Ask me about your dollars', nav, 'home')}>
+    <Screen dock={dock('Ask me about your dollars', nav, 'home', true)}>
       <PageHead lead title="Dollars" sub="Steady when the naira is not, and yours to turn back any day" />
-      <View style={{ gap: 4 }}>
-        <Display>{`$${s.dollars.toFixed(2)}`}</Display>
-        <Meta tone="tertiary">{`${naira(dollarsInNaira())} at today’s rate`}</Meta>
-      </View>
-      <View style={{ flexDirection: 'row', gap: space.s2 }}>
-        <View style={{ flex: 1 }}>
-          <Button label="Convert" onPress={() => nav.go('convert')} />
+      <Card style={{ gap: space.s5 }}>
+        <View style={{ gap: 4 }}>
+          <Display>{`$${s.dollars.toFixed(2)}`}</Display>
+          <Meta tone="tertiary">{`${naira(dollarsInNaira())} at today’s rate`}</Meta>
         </View>
-        <View style={{ flex: 1 }}>
-          <Button label="Send" tone="grey" onPress={() => nav.go('paydollars')} />
+        <View style={{ flexDirection: 'row', gap: space.s2 }}>
+          <View style={{ flex: 1 }}>
+            <Button label="Convert" size={48} onPress={() => nav.go('convert')} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Button label="Send" tone="white" size={48} onPress={() => nav.go('paydollars')} />
+          </View>
         </View>
-      </View>
+      </Card>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
+        <Icon name="chart" size={18} colour={colour.textSecondary} />
         <Meta tone="secondary" style={{ flex: 1 }}>{`${naira(s.rate)} to the dollar today`}</Meta>
         <Label tone="good">Up ₦18</Label>
       </View>
-      <AgentCard>
+      <AgentSay>
         You put these away in March at ₦1,410. Held in naira that same money would be worth ₦58,200 less than
         it is now.
-      </AgentCard>
+      </AgentSay>
       <Head>Where they came from</Head>
-      <Card style={{ gap: space.s3 }}>
-        {CAME.map(([title, amt, when], i) => (
-          <View key={title + when}>
-            {i ? (
-              <View style={{ paddingBottom: space.s3 }}>
-                <Divider />
-              </View>
-            ) : null}
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
-              <Icon name="dollar" size={20} />
-              <View style={{ flex: 1, gap: 2 }}>
-                <Row>{title}</Row>
-                <Meta tone="secondary">{when}</Meta>
-              </View>
-              <Label tone="good">{amt}</Label>
+      <View style={{ gap: space.s5 }}>
+        {CAME.map(([title, amt, when]) => (
+          <View key={title + when} style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
+            <View
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: colour.surface2,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Icon name={title.startsWith('Converted') ? 'swap' : 'down'} size={18} />
             </View>
+            <View style={{ flex: 1, gap: 2 }}>
+              <Row>{title}</Row>
+              <Meta tone="secondary">{when}</Meta>
+            </View>
+            <Label tone="good">{amt}</Label>
           </View>
         ))}
-      </Card>
+      </View>
       <Head>Nobody here holds a key</Head>
       <Meta tone="secondary">
         Your dollars sit in a domiciliary account at our partner bank, under CBN rules. Beetle moves them when
@@ -468,7 +476,26 @@ export const Convert = ({ nav }: { nav: Nav }) => {
   const redraw = () => tick(n => n + 1);
 
   const base = (
-    <Screen dock={dock('Ask about the rate', nav, 'dollars')}>
+    <Screen
+      dock={
+        <BottomBar onBack={() => nav.go('dollars')}>
+          {enough ? (
+            <SlideToSend
+              label="Slide to convert"
+              onDone={() => {
+                const r = act.convert({ direction: fx.direction, amount: fx.amount });
+                fx = { ...fx, ...r };
+                nav.go('converted');
+              }}
+            />
+          ) : (
+            <Banner
+              text={toDollars ? 'Not enough in Everyday for that.' : 'You do not hold that many dollars.'}
+            />
+          )}
+        </BottomBar>
+      }
+    >
       <PageHead lead title="Convert" sub="Naira into dollars, at the rate on this screen" />
       <Card style={{ gap: space.s3 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -523,39 +550,25 @@ export const Convert = ({ nav }: { nav: Nav }) => {
           })}
         >
           <Display>{toDollars ? naira(fx.amount) : `$${fx.amount.toFixed(2)}`}</Display>
-          <Label tone="accent">Change</Label>
+          <View style={{ width: 2, height: 28, backgroundColor: colour.accent }} />
         </Pressable>
         <Meta tone="tertiary">{`You get about ${toDollars ? '$' + gets.toFixed(2) : naira(gets)}`}</Meta>
       </View>
-      <Card style={{ gap: space.s3 }}>
+      {/* the frame rules these three on the page rather than boxing them */}
+      <View style={{ gap: space.s6 }}>
         <Between label="Rate" value={`₦${s.rate.toLocaleString('en-NG')} to $1`} />
         <Between label="Our fee" value="Free under $500" tone="good" />
-        <Divider />
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Caption tone="secondary" style={{ flex: 1 }}>
             You get
           </Caption>
           <Row>{toDollars ? `$${gets.toFixed(2)}` : nairaFull(gets)}</Row>
         </View>
-      </Card>
-      <AgentCard>
+      </View>
+      <AgentSay>
         The rate moved ₦18 your way this week. If you were waiting for a better day, this is one of them.
-      </AgentCard>
+      </AgentSay>
       <Aside glyph="clock">The rate is held for sixty seconds once you slide.</Aside>
-      {enough ? (
-        <SlideToSend
-          label="Slide to convert"
-          onDone={() => {
-            const r = act.convert({ direction: fx.direction, amount: fx.amount });
-            fx = { ...fx, ...r };
-            nav.go('converted');
-          }}
-        />
-      ) : (
-        <Banner
-          text={toDollars ? 'Not enough in Everyday for that.' : 'You do not hold that many dollars.'}
-        />
-      )}
     </Screen>
   );
 

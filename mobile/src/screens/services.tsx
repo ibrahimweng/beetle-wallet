@@ -438,7 +438,7 @@ export const History = ({ nav }: { nav: Nav }) => {
     />
   );
   return (
-    <Screen dock={dock('Ask about any of these', nav, 'home')}>
+    <Screen dock={dock('Ask about any of these', nav, 'home', true)}>
       <PageHead lead title="History" sub="Everything that moved, newest first" />
       <Filters options={['All', 'In', 'Out']} value={filter} onChange={setFilter} />
       {today.length ? <Meta tone="tertiary">Today</Meta> : null}
@@ -476,7 +476,7 @@ const WENT: [string, string, number][] = [
 export const Answer = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about this', nav, 'history')}>
     <PageHead lead title="Airtime and data" sub="You asked how much you spend on staying connected" />
-    <AgentCard>₦18,900 on airtime and data last month. That is your highest month this year.</AgentCard>
+    <AgentSay>₦18,900 on airtime and data last month. That is your highest month this year.</AgentSay>
     <View style={{ gap: 4 }}>
       <Display>{naira(18900)}</Display>
       <Meta tone="secondary">Airtime and data</Meta>
@@ -541,6 +541,6 @@ export const Answer = ({ nav }: { nav: Nav }) => (
       sub="Only when the data actually runs out"
       onPress={() => nav.go('rule')}
     />
-    <AgentCard>A 10GB monthly plan is ₦4,000 and would save about ₦1,800.</AgentCard>
+    <AgentSay>A 10GB monthly plan is ₦4,000 and would save about ₦1,800.</AgentSay>
   </Screen>
 );

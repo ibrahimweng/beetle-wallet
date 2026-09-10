@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import {
   AgentSay,
+  ActionButton,
   Aside,
   Banner,
   BigStatus,
@@ -40,7 +41,13 @@ import * as act from '../state/actions.js';
 import { update } from '../state/store.js';
 
 type Nav = { go: (r: Route) => void; back: () => void };
-const dock = (p: string, nav: Nav) => <Dock placeholder={p} onBack={nav.back} />;
+const dock = (p: string, nav: Nav, _back?: undefined, plus = false) => (
+  <Dock
+    placeholder={p}
+    onBack={nav.back}
+    action={plus ? <ActionButton onPress={() => nav.go('actions')} /> : undefined}
+  />
+);
 
 /* ---- what runs without asking ---- */
 
@@ -88,7 +95,7 @@ export const Rules = ({ nav }: { nav: Nav }) => {
     </Card>
   );
   return (
-    <Screen dock={dock('Ask me to set one up', nav)}>
+    <Screen dock={dock('Ask me to set one up', nav, undefined, true)}>
       <PageHead lead title="Standing instructions" sub="What I can do without asking you first" />
       <Card style={{ gap: space.s3 }}>
         <ToggleRow

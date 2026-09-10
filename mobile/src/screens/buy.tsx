@@ -14,7 +14,6 @@ import {
   Icon,
   Meta,
   PassSheet,
-  Picker,
   Receipt,
   Said,
   Dock,
@@ -91,7 +90,6 @@ export const TypedBuy = ({ nav }: { nav: Nav }) => {
 
 export const Buy = ({ nav }: { nav: Nav }) => {
   const s = useStore();
-  const [, tick] = useState(0);
   const enough = s.everyday >= plan.price;
   return (
     <Screen
@@ -133,15 +131,6 @@ export const Buy = ({ nav }: { nav: Nav }) => {
           )}
         </View>
       </ToolPanel>
-      <Head>Change the plan</Head>
-      <Picker
-        value={plan.id}
-        options={PLANS.map(x => ({ id: x.id, label: x.label, sub: naira(x.price) }))}
-        onChange={id => {
-          plan = PLANS.find(x => x.id === id) ?? plan;
-          tick(n => n + 1);
-        }}
-      />
       <Aside>Face ID first. Nothing leaves your account until then.</Aside>
     </Screen>
   );

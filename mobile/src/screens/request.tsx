@@ -33,7 +33,6 @@ import {
   TypedLine,
   colour,
   naira,
-  nairaFull,
   space,
   toast,
   VoiceSheet,
@@ -118,7 +117,7 @@ export const Request = ({ nav }: { nav: Nav }) => {
         rows={[
           { k: 'Person', v: req.who.name, go: () => setEditing('who') },
           { k: 'Reaches him', v: 'WhatsApp and SMS' },
-          { k: 'Amount', v: nairaFull(req.amount), go: () => setEditing('amount') },
+          { k: 'Amount', v: naira(req.amount), go: () => setEditing('amount') },
           { k: 'For', v: req.why, go: () => setEditing('why') },
           { k: 'Expires', v: 'Picking a date', done: 'work' as const },
         ]}

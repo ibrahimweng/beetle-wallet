@@ -43,6 +43,7 @@ export function Receipt({
   sessionLabel = 'Session ID',
   status = 'Successful',
   icon = 'check',
+  good = false,
   onCopy,
 }: {
   amount: string;
@@ -52,6 +53,8 @@ export function Receipt({
   sessionLabel?: string;
   status?: string;
   icon?: IconName;
+  /* money in: the frames set the figure itself in the green */
+  good?: boolean;
   onCopy?: () => void;
 }) {
   const cells: React.ReactNode[] = [];
@@ -82,7 +85,7 @@ export function Receipt({
           <Icon name={icon} size={24} colour={colour.textInverse} />
         </View>
         <View style={{ flex: 1, gap: 4 }}>
-          <Display>{amount}</Display>
+          <Display tone={good ? 'good' : 'ink'}>{amount}</Display>
           <Meta tone="secondary">{line}</Meta>
         </View>
         <StatusPill label={status} tone={colour.good} ink={colour.goodText} />

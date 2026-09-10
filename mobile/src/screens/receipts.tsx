@@ -8,6 +8,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import {
+  AgentAsk,
   Bubble,
   Button,
   Ghost,
@@ -38,8 +39,9 @@ export const DoneIn = ({ nav }: { nav: Nav }) => (
     <Receipt
       amount={naira(640000)}
       line="From Pagrin Limited"
-      icon="receive-filled"
+      icon="check"
       status="Cleared"
+      good
       fields={[
         ['From', 'Pagrin Limited', 'Zenith Bank · 1014 2288 31'],
         ['To', 'Everyday', me.account],
@@ -51,13 +53,12 @@ export const DoneIn = ({ nav }: { nav: Nav }) => (
       ]}
       session="000015 260827 164004 118220 774301"
     />
-    <Bubble>
-      Your salary landed on the same day it has for six months. I moved ₦20,000 into Holiday, as your standing
-      instruction says.
-    </Bubble>
     <Button label="Share receipt" leading="share" onPress={() => nav.go('sharein')} />
-    <Bubble>Put ₦50,000 away before it goes?</Bubble>
-    <Button label="Set it up" tone="grey" onPress={() => nav.go('saverule')} />
+    <AgentAsk
+      question="Put ₦50,000 away before it goes?"
+      answer="Set it up"
+      onAnswer={() => nav.go('saverule')}
+    />
     <Ghost label="Expecting more than this?" onPress={() => nav.go('agentchat')} />
   </Screen>
 );

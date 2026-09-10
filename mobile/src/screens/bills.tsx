@@ -315,7 +315,7 @@ export const Bills = ({ nav }: { nav: Nav }) => {
   const rows = bills as BillRow[];
   const covered = rows.filter(b => b.covered).length;
   return (
-    <Screen dock={dock('Ask about your bills', nav, 'services')}>
+    <Screen dock={dock('Ask about your bills', nav, 'services', true)}>
       <PageHead lead title="Bills" sub="Everything that repeats each month" />
       <View
         style={{

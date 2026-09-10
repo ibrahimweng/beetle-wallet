@@ -256,7 +256,18 @@ export function ReasonList({
   note?: string;
 }) {
   return (
-    <View style={{ backgroundColor: colour.surface2, borderRadius: 20, padding: space.s4, gap: space.s4 }}>
+    /* the frames draw this one white with a hairline, the way they draw a
+       thing being explained rather than a thing being listed */
+    <View
+      style={{
+        backgroundColor: colour.surface,
+        borderWidth: 1,
+        borderColor: colour.rule,
+        borderRadius: 20,
+        padding: space.s4,
+        gap: space.s4,
+      }}
+    >
       <Body tone="secondary">{title}</Body>
       <View style={{ gap: space.s4 }}>
         {rows.map(([g, t]) => (

@@ -1291,10 +1291,10 @@ export function ShareSheet({
     <Sheet onClose={onClose} behind={behind}>
       {/* the frame opens the sheet on its own mark, with the two lines under
           it set centred rather than to the column */}
-      <View style={{ alignItems: 'center', marginTop: -5 }}>
+      <View style={{ alignItems: 'center', marginTop: -11 }}>
         <Mark glyph="share" big />
         <Head style={{ marginTop: 14 }}>Share this receipt</Head>
-        <Meta tone="tertiary" style={{ marginTop: 19, fontSize: 16, lineHeight: 24 }}>
+        <Meta tone="tertiary" style={{ marginTop: 13, fontSize: 16, lineHeight: 24 }}>
           {line}
         </Meta>
       </View>

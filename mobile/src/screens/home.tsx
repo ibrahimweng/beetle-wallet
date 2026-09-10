@@ -15,6 +15,7 @@ import {
   Icon,
   Insight,
   LedgerRow,
+  Mark,
   Meta,
   Row,
   Screen,
@@ -51,12 +52,28 @@ export const Home = ({ nav }: { nav: Nav }) => {
      frame draws — the history is where every line lives. */
   const day = (which: string) => {
     const seen = new Set<string>();
-    return filtered(which)
+    const list = filtered(which)
       .filter((r: { status?: string }) => r.status === undefined || r.status === 'done')
       .filter((r: { name: string }) => !seen.has(r.name) && seen.add(r.name))
       .filter((r: { kind: string; amount: number }) =>
         filter === 'All' ? true : filter === 'In' ? r.amount > 0 : filter === 'Out' ? r.amount < 0 : false,
       );
+    /* Today is still running, so the frame leads its glance with the biggest
+       thing that moved, then what else left in the order it happened, and puts
+       what you put away at the end — money to yourself is not spending.
+       Yesterday is closed, and keeps the ledger's own newest-first order. */
+    if (which !== 'today' || list.length < 2) return list;
+    const rest = [...list];
+    const [big] = rest.splice(
+      rest.reduce((m, r, i) => (Math.abs(r.amount) > Math.abs(rest[m].amount) ? i : m), 0),
+      1,
+    );
+    const asItHappened = rest.reverse();
+    return [
+      big,
+      ...asItHappened.filter((r: { kind: string }) => r.kind !== 'saving'),
+      ...asItHappened.filter((r: { kind: string }) => r.kind === 'saving'),
+    ];
   };
 
   const rows = (which: string, from = 0, to = 99) =>
@@ -150,13 +167,16 @@ export const Home = ({ nav }: { nav: Nav }) => {
         </View>
         <Meta tone="secondary">What I noticed, and every naira that moved.</Meta>
       </View>
-      <Filters options={['All', 'Insights', 'In', 'Out']} value={filter} onChange={setFilter} />
+      <View style={{ marginTop: -8 }}>
+        <Filters options={['All', 'Insights', 'In', 'Out']} value={filter} onChange={setFilter} />
+      </View>
 
       <Meta tone="secondary">Today</Meta>
       {!put.includes('topup') && filter !== 'In' && filter !== 'Out' ? (
         <Insight {...insights.topup} onAction={() => nav.go('powerpay')} onDismiss={() => away('topup')} />
       ) : null}
-      {rows('today', 0, 4)}
+      {/* the frame runs the feed 80 apart, glyph to glyph */}
+      <View style={{ gap: 34 }}>{rows('today', 0, 4)}</View>
       {!put.includes('data') && filter !== 'In' && filter !== 'Out' ? (
         <Insight
           kicker={insights.data.kicker}
@@ -164,17 +184,30 @@ export const Home = ({ nav }: { nav: Nav }) => {
           action={insights.data.action}
           onAction={() => nav.go('airtime')}
         >
+          {/* the frame sets what it is offering on the pale row inside the
+              card, with the mark on a white square */}
           <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
               gap: space.s3,
-              backgroundColor: colour.surface,
+              backgroundColor: colour.surface2,
               borderRadius: radius.md,
               padding: space.s3,
             }}
           >
-            <Icon name="data" size={20} />
+            <View
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                backgroundColor: colour.surface,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Icon name="data" size={20} />
+            </View>
             <View style={{ flex: 1 }}>
               <Row>{insights.data.offer.title}</Row>
               <Meta tone="secondary">{insights.data.offer.sub}</Meta>
@@ -183,7 +216,7 @@ export const Home = ({ nav }: { nav: Nav }) => {
           </View>
         </Insight>
       ) : null}
-      {rows('today', 4)}
+      <View style={{ gap: 34 }}>{rows('today', 4)}</View>
       {!put.includes('changes') && filter !== 'In' && filter !== 'Out' ? (
         <Insight {...insights.changes} onAction={() => nav.go('health')} />
       ) : null}
@@ -191,15 +224,17 @@ export const Home = ({ nav }: { nav: Nav }) => {
       <Meta tone="secondary">Yesterday</Meta>
       <Tile
         onPress={() => nav.go('card')}
-        lead={<Icon name="card" size={24} />}
+        plain
+        go
+        lead={<Mark glyph="card" />}
         title={insights.card.kicker}
         sub={insights.card.sub}
       />
-      {rows('yesterday', 0, 2)}
+      <View style={{ gap: 34 }}>{rows('yesterday', 0, 2)}</View>
       {!put.includes('spend') && filter !== 'In' && filter !== 'Out' ? (
         <Insight {...insights.spend} onAction={() => nav.go('answer')} />
       ) : null}
-      {rows('yesterday', 2)}
+      <View style={{ gap: 34 }}>{rows('yesterday', 2)}</View>
       <Meta tone="tertiary">{ledgerFooter}</Meta>
     </Screen>
   );

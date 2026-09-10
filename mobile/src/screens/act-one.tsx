@@ -239,8 +239,10 @@ export const Pending = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about this transfer', nav)}>
     <PageHead title="Still on its way" sub="Sent at 14:22, not confirmed yet" />
     {/* the frame turns the ring in the accent while it waits, not in the amber
-        the words beneath it carry */}
-    <BigStatus glyph="wait-filled" tone={colour.accent} amount="₦20,000" line="to Sarah Adeyemi · GTBank" />
+        the words beneath it carry, and drops the block six under the line */}
+    <View style={{ marginTop: 6 }}>
+      <BigStatus glyph="wait-filled" tone={colour.accent} amount="₦20,000" line="to Sarah Adeyemi · GTBank" />
+    </View>
     <Banner text="Do not send it again. This one is still live." glyph="warn-filled" ink={colour.good} />
     {/* the frame draws these three as a plain grey block, with no tool over
         them: the transfer is already out, so there is nothing running */}
@@ -269,11 +271,14 @@ export const Pending = ({ nav }: { nav: Nav }) => (
       Slow, not lost. If GTBank has not confirmed by 16:22 it comes back on its own, and I will tell you
       either way.
     </AgentSay>
-    <AgentAsk
-      question="Want a message the moment it lands?"
-      answer="Yes, tell me"
-      onAnswer={() => nav.go('home')}
-    />
+    {/* the frame sets the question close under what it just said */}
+    <View style={{ marginTop: -14 }}>
+      <AgentAsk
+        question="Want a message the moment it lands?"
+        answer="Yes, tell me"
+        onAnswer={() => nav.go('home')}
+      />
+    </View>
   </Screen>
 );
 
@@ -419,25 +424,31 @@ export const Recall = ({ nav }: { nav: Nav }) => (
 export const DisputeOpen = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask where this stands', nav)}>
     <PageHead title="Your dispute, day 3 of 5" sub="₦20,000 to Sarah Adeyemi, 28 August" />
-    <ToolPanel
-      tool="Beetle Dispute"
-      state="Day 3"
-      rows={[
-        { k: 'You reported it', v: '28 Aug' },
-        { k: 'Filed with GTBank', v: '28 Aug' },
-        { k: 'GTBank acknowledged', v: '29 Aug' },
-        { k: 'Their decision', v: 'By 4 September', done: false },
-      ]}
-    />
-    <ReasonList
-      title="Where this actually is"
-      rows={[
-        ['check', 'GTBank has it and the clock is running. Nothing more is needed from you.'],
-        ['lock', 'I check every morning and tell you the day it moves.'],
-        ['lock', 'If they miss 4 September it escalates on its own.'],
-      ]}
-      note="You do not have to call anybody, and you do not have to watch this screen."
-    />
+    {/* the frame leaves more between the line and the panel, and between the
+        panel and what it explains, than the column's own gap */}
+    <View style={{ marginTop: 11 }}>
+      <ToolPanel
+        tool="Beetle Dispute"
+        state="Day 3"
+        rows={[
+          { k: 'You reported it', v: '28 Aug' },
+          { k: 'Filed with GTBank', v: '28 Aug' },
+          { k: 'GTBank acknowledged', v: '29 Aug' },
+          { k: 'Their decision', v: 'By 4 September', done: false },
+        ]}
+      />
+    </View>
+    <View style={{ marginTop: 12 }}>
+      <ReasonList
+        title="Where this actually is"
+        rows={[
+          ['check', 'GTBank has it and the clock is running. Nothing more is needed from you.'],
+          ['lock', 'I check every morning and tell you the day it moves.'],
+          ['lock', 'If they miss 4 September it escalates on its own.'],
+        ]}
+        note="You do not have to call anybody, and you do not have to watch this screen."
+      />
+    </View>
     <Choices>
       <ChoiceRow
         glyph="chat"
@@ -464,7 +475,9 @@ export const DisputeOpen = ({ nav }: { nav: Nav }) => (
 export const DisputeEnd = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about this dispute', nav)}>
     <PageHead title="The dispute is closed" sub="GTBank decided on 3 September" />
-    <BigStatus glyph="wait-filled" tone={colour.good} amount="₦20,000" line="back in Everyday at 11:40" />
+    <View style={{ marginTop: 6 }}>
+      <BigStatus glyph="wait-filled" tone={colour.good} amount="₦20,000" line="back in Everyday at 11:40" />
+    </View>
     <Banner text="It is already in your balance. Nothing to do." glyph="warn-filled" ink={colour.good} />
     {/* closed, so nothing is running over it — the frame draws the three as a
         plain grey block */}
@@ -492,11 +505,14 @@ export const DisputeEnd = ({ nav }: { nav: Nav }) => (
     <AgentSay>
       Six days, and you did not chase it once. Most disputes that get this far end the same way.
     </AgentSay>
-    <AgentAsk
-      question="Want the closing letter for your records?"
-      answer="Save it"
-      onAnswer={() => nav.go('history')}
-    />
+    {/* the frame sets the question close under what it just said */}
+    <View style={{ marginTop: -14 }}>
+      <AgentAsk
+        question="Want the closing letter for your records?"
+        answer="Save it"
+        onAnswer={() => nav.go('history')}
+      />
+    </View>
   </Screen>
 );
 
@@ -539,13 +555,16 @@ export const Amend = ({ nav }: { nav: Nav }) => {
     <Screen dock={undefined}>
       <PageHead title="Change the amount" sub="Nothing has been sent" />
       <AmountPad value={amount} onChange={setAmount} heard="₦200,000" />
-      <AgentSay>
-        Change it as many times as you like. It moves after your face and your passcode, not before.
-      </AgentSay>
+      {/* the frame closes the gap under the pad and under what it says */}
+      <View style={{ marginTop: -16 }}>
+        <AgentSay>
+          Change it as many times as you like. It moves after your face and your passcode, not before.
+        </AgentSay>
+      </View>
       <Button
         label={`Use ₦${amount.toLocaleString('en-NG')}`}
         full={false}
-        style={{ alignSelf: 'center' }}
+        style={{ alignSelf: 'center', marginTop: -18 }}
         onPress={() => nav.go('confirm')}
       />
       <Pressable accessibilityRole="button" onPress={() => nav.go('short')} style={{ alignSelf: 'center' }}>

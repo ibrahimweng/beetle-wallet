@@ -74,7 +74,7 @@ export function Balance({ whole, kobo, change }: { whole: string; kobo: string; 
    balance and what it can do read as one block, and these are the next one. */
 export function Shortcuts({ items }: { items: { glyph: IconName; label: string; onPress?: () => void }[] }) {
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 22 }}>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 22, marginBottom: 12 }}>
       {items.map(i => (
         <Tap
           key={i.label}
@@ -101,12 +101,18 @@ export function Tile({
   title,
   sub,
   value,
+  plain = false,
+  go = false,
   onPress,
 }: {
   lead: ReactNode;
   title: string;
   sub: string;
   value?: string;
+  /* the card tile is white with a hairline where the others are pale grey */
+  plain?: boolean;
+  /* and it ends in a filled circle rather than a bare chevron */
+  go?: boolean;
   onPress?: () => void;
 }) {
   return (
@@ -117,7 +123,9 @@ export function Tile({
         flexDirection: 'row',
         alignItems: 'center',
         gap: space.s4,
-        backgroundColor: colour.surface2,
+        backgroundColor: plain ? colour.surface : colour.surface2,
+        borderWidth: plain ? 1 : 0,
+        borderColor: colour.rule,
         borderRadius: radius.lg,
         padding: space.s4,
       }}
@@ -128,7 +136,22 @@ export function Tile({
         <Meta tone="secondary">{sub}</Meta>
       </View>
       {value ? <Row>{value}</Row> : null}
-      <Icon name="chevron" size={16} colour={colour.textTertiary} />
+      {go ? (
+        <View
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            backgroundColor: colour.ink,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Icon name="chevron" size={16} colour={colour.textInverse} />
+        </View>
+      ) : (
+        <Icon name="chevron" size={16} colour={colour.textTertiary} />
+      )}
     </Tap>
   );
 }
@@ -250,6 +273,8 @@ export function Insight({
   children?: ReactNode;
 }) {
   return (
+    /* the frames set one of these close under the line above it, not a column
+       gap away */
     <View
       style={{
         backgroundColor: colour.surface,
@@ -258,6 +283,8 @@ export function Insight({
         borderRadius: radius.lg,
         padding: space.s4,
         gap: space.s3,
+        marginTop: -11,
+        marginBottom: 11,
       }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s2 }}>

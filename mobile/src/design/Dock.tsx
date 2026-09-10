@@ -3,8 +3,10 @@
    than a send arrow: you point it at something, or you talk to it. */
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { Icon } from './Icon';
 import { colour, frame, radius, space } from './tokens';
+import { Tap, arrive, ease, motion, useStill } from './motion';
 
 export function Dock({
   placeholder = 'Ask, or just say what you need',
@@ -46,23 +48,45 @@ export function Dock({
           returnKeyType="send"
           accessibilityLabel="Ask Beetle"
         />
-        <Pressable accessibilityRole="button" accessibilityLabel="Scan something" onPress={onScan}>
+        <Tap accessibilityRole="button" accessibilityLabel="Scan something" onPress={onScan} scale={0.85}>
           <Icon name="camera" size={18} colour={colour.textSecondary} />
-        </Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel="Speak" onPress={fire}>
+        </Tap>
+        <Tap accessibilityRole="button" accessibilityLabel="Speak" onPress={fire} scale={0.85}>
           <Icon name="mic" size={18} colour={colour.textSecondary} />
-        </Pressable>
+        </Tap>
       </View>
       {action}
     </View>
   );
 }
 
-/* Action button — 56 square, black, the one the menu opens from. */
+/* Action button — 56 square, black, the one the menu opens from.
+
+   The turn into a cross starts here, under the finger, and the menu carries it
+   the rest of the way. Pressing it is the first frame of the animation that
+   screen finishes, which is what keeps the two feeling like one movement. */
 export function ActionButton({ onPress, label = 'What can I do' }: { onPress?: () => void; label?: string }) {
+  const held = useSharedValue(0);
+  const still = useStill();
+  const turning = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${held.value * 14}deg` }, { scale: 1 - held.value * 0.06 }],
+  }));
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={s.fab}>
-      <Icon name="fab-plus" size={24} colour={colour.textInverse} />
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      onPressIn={() => {
+        if (!still) held.value = withTiming(1, { duration: motion.press, easing: ease });
+      }}
+      onPressOut={() => {
+        if (!still) held.value = withSpring(0, arrive);
+      }}
+      style={s.fab}
+    >
+      <Animated.View style={turning}>
+        <Icon name="fab-plus" size={24} colour={colour.textInverse} />
+      </Animated.View>
     </Pressable>
   );
 }

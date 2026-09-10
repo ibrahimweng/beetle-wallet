@@ -170,11 +170,25 @@ row the design does not have.
 - [x] Geometry checked against the frames for the shared components —
       `npm run geometry`
 
+## 5b · How it moves
+
+- [x] One file for every duration and spring, `src/design/motion.tsx`
+- [x] Every screen assembles after the tap instead of appearing
+- [x] The direction a screen arrives from matches the tap that asked for it
+- [x] Every sheet, keyboard and camera comes up from the bottom
+- [x] Every press is answered under the finger before the screen changes
+- [x] The button's menu blurs the home and brings the actions up out of the
+      button, nearest first, with a bounce; the plus turns into a cross and
+      starts turning on the home screen
+- [x] Closing the menu runs it backwards rather than cutting
+- [x] Reduce motion is honoured, and a screen behind a sheet does not re-enter
+- [x] A check that fails if any of it stops moving — `npm run motion`
+
 ## 6 · Developer ready
 
 - [x] README current: how to run, what is generated, how to add a screen
 - [x] `npm test` runs the type check, lint, format, reachability, the bundle,
-      and the four checks against it
+      and the five checks against it
 - [x] Lint and format config — `eslint.config.js`, `.prettierrc`, both clean
 - [x] No placeholder screens left in the running app
 - [x] BUILD-PLAN.md fully checked off, or honest about what is not

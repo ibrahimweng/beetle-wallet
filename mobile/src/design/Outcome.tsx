@@ -9,6 +9,7 @@ import { Icon } from './Icon';
 import { Body, Caption, Display, Label, Meta, Row } from './text';
 import { IconName } from '../icons';
 import { colour, space } from './tokens';
+import { Tap } from './motion';
 
 export function BigStatus({
   glyph,
@@ -115,15 +116,14 @@ export function ChoiceRow({
   tone?: string;
 }) {
   return (
-    <Pressable
+    <Tap
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => ({
+      style={{
         flexDirection: 'row',
         alignItems: 'center',
         gap: space.s5,
-        opacity: pressed ? 0.6 : 1,
-      })}
+      }}
     >
       <Icon name={glyph} size={20} colour={tone} />
       <View style={{ flex: 1, gap: 2 }}>
@@ -131,7 +131,7 @@ export function ChoiceRow({
         <Meta tone="secondary">{sub}</Meta>
       </View>
       <Icon name="chevron" size={16} colour={colour.textTertiary} />
-    </Pressable>
+    </Tap>
   );
 }
 

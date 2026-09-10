@@ -2,10 +2,11 @@
    four grid, columns 84 apart and rows 76 apart, digits 20 semibold, with the
    delete glyph in the last cell. */
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { Icon } from './Icon';
 import { Head } from './text';
 import { colour } from './tokens';
+import { Tap } from './motion';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'face', '0', 'del'] as const;
 
@@ -17,7 +18,7 @@ export function Keypad({ onKey, onFace }: { onKey: (k: string) => void; onFace?:
       {KEYS.map((k, i) => {
         const live = k === 'face' ? !!onFace : !!k;
         return (
-          <Pressable
+          <Tap
             key={i}
             accessibilityRole={live ? 'button' : undefined}
             accessibilityLabel={!live ? undefined : k === 'del' ? 'Delete' : k === 'face' ? 'Use Face ID' : k}
@@ -26,13 +27,12 @@ export function Keypad({ onKey, onFace }: { onKey: (k: string) => void; onFace?:
               if (k === 'face') onFace?.();
               else if (k) onKey(k);
             }}
-            style={({ pressed }) => ({
+            style={{
               width: 353 / 3,
               height: 76,
               alignItems: 'center',
               justifyContent: 'center',
-              opacity: pressed && live ? 0.4 : 1,
-            })}
+            }}
           >
             {k === 'del' ? (
               <Icon name="del" size={28} colour={colour.ink} />
@@ -43,7 +43,7 @@ export function Keypad({ onKey, onFace }: { onKey: (k: string) => void; onFace?:
             ) : (
               <Head>{k}</Head>
             )}
-          </Pressable>
+          </Tap>
         );
       })}
     </View>

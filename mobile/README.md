@@ -24,6 +24,7 @@ minutes and needs a Chromium (`npx playwright install chromium`).
 | `npm run reach` | every one of the 100 screens can be reached by tapping, from the first screen the app opens on |
 | `npm run screens` | every screen draws, with no error and nothing blank |
 | `npm run copy` | every line of text in the Figma frames is on the screen that should say it |
+| `npm run motion` | screens assemble after the tap rather than appearing, sheets come up, and the menu blurs what is behind it |
 | `npm run flows` | the way in, sending, buying, a bill, a request, the ask bar and the button all work, and the money really moves |
 
 ## What comes from where
@@ -96,6 +97,35 @@ of side padding, a 56 is 28 radius with 24, and the label is semibold.
 `StepTrail` and `StepHead` are the way-in pattern. Note that the onboarding
 frames set their second line at 14 regular, while the Page head component sets
 it at 16. They are two different heads and both are correct in their place.
+
+## How it moves
+
+`src/design/motion.tsx` is to movement what `tokens.ts` is to colour and size:
+one file with every duration and spring in it, and nothing anywhere else
+picking a number.
+
+The rule the whole thing is built on is that **the tap starts the movement and
+the movement finishes the tap**. Nothing appears; everything arrives, in a
+direction that matches what you did to ask for it.
+
+| | |
+|---|---|
+| A screen's column | Each thing rises 14 and fades in, 38 apart, so you watch the screen assemble. Nothing waits longer than 300, however far down it is. |
+| Where it comes from | A sheet, a keyboard and a camera come up from the bottom. Everything else slides in from the right, the way a stack of pages does. |
+| A sheet | Rises from below its own height on a heavy spring while the screen behind it recedes to 35%. What is in it then arrives in sequence. |
+| A press | Gives 3% under the finger and springs back, before the screen it asks for arrives. |
+| The button's menu | The home behind goes soft — a real blur, `expo-blur`, not a white wash — while the five actions come up out of the button you pressed, nearest first, each overshooting and settling. The plus turns 45° into a cross, and starts turning under your finger on the home screen before the menu screen finishes it. Closing runs the whole thing backwards before the screen goes. |
+
+Everything is a spring rather than a curve, because a spring keeps the
+momentum of whatever you just did. Anybody whose phone is set to reduce motion
+gets none of it: `useStill()` reads that setting, and every piece here starts
+in its finished state when it is on. A screen drawn behind a sheet is scenery,
+not an arrival, so it skips its entrance too.
+
+This is **react-native-reanimated**, which runs the animation on the UI thread,
+so a screen still moves smoothly while JavaScript is busy putting the next one
+together. anime.js and every other DOM animation library cannot be used here:
+on a phone there are no DOM nodes to animate.
 
 ## Checked against the frames, not against memory
 

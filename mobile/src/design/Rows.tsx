@@ -11,6 +11,7 @@ import { Icon } from './Icon';
 import { Body, Caption, Head, Meta, Row } from './text';
 import { IconName } from '../icons';
 import { colour, space } from './tokens';
+import { Tap } from './motion';
 
 export function SectionLabel({ children }: { children: string }) {
   return <Body tone="secondary">{children}</Body>;
@@ -28,21 +29,20 @@ export function SettingRow({
   onPress?: () => void;
 }) {
   return (
-    <Pressable
+    <Tap
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => ({
+      style={{
         flexDirection: 'row',
         alignItems: 'center',
         gap: space.s5,
-        opacity: pressed ? 0.6 : 1,
-      })}
+      }}
     >
       {glyph ? <Icon name={glyph} size={28} /> : <View style={{ width: 28 }} />}
       <Row style={{ flex: 1 }}>{title}</Row>
       {value ? <Meta tone="secondary">{value}</Meta> : null}
       <Icon name="chevron" size={16} colour={colour.textTertiary} />
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -90,15 +90,14 @@ export function DeviceRow({
   onPress?: () => void;
 }) {
   return (
-    <Pressable
+    <Tap
       accessibilityRole={onPress ? 'button' : undefined}
       onPress={onPress}
-      style={({ pressed }) => ({
+      style={{
         flexDirection: 'row',
         alignItems: 'center',
         gap: space.s5,
-        opacity: pressed && onPress ? 0.6 : 1,
-      })}
+      }}
     >
       <Icon name={glyph} size={20} />
       <View style={{ flex: 1, gap: 2 }}>
@@ -117,7 +116,7 @@ export function DeviceRow({
           <Caption style={{ fontWeight: '600' }}>{tag}</Caption>
         </View>
       ) : null}
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -133,15 +132,14 @@ export function CapRow({
   onPress?: () => void;
 }) {
   return (
-    <Pressable
+    <Tap
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => ({
+      style={{
         flexDirection: 'row',
         alignItems: 'center',
         gap: space.s4,
-        opacity: pressed ? 0.6 : 1,
-      })}
+      }}
     >
       <View style={{ flex: 1, gap: 2 }}>
         <Row>{title}</Row>
@@ -149,7 +147,7 @@ export function CapRow({
       </View>
       <Row>{value}</Row>
       <Icon name="chevron" size={16} colour={colour.textTertiary} />
-    </Pressable>
+    </Tap>
   );
 }
 

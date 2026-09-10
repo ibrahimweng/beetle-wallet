@@ -23,3 +23,4 @@ export * from './Rows';
 export * from './Home';
 export * from './Money';
 export * from './Kit';
+export * from './motion';

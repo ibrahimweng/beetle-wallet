@@ -2,13 +2,27 @@
    spaced 20, starts 72 down and leaves 124 clear at the bottom for the dock.
    A card is 24 radius with 20 and 21 of padding. */
 import React, { ReactNode } from 'react';
-import { Pressable, ScrollView, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { ScrollView, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Icon } from './Icon';
 import { Meta, Row } from './text';
 import { IconName } from '../icons';
 import { colour, frame, radius, space } from './tokens';
+import { Reveal, RevealAll, Tap } from './motion';
 
-export function Screen({ children, dock }: { children: ReactNode; dock?: ReactNode }) {
+/* The column arrives a piece at a time rather than all at once, so you can see
+   the screen being put together after the tap that asked for it. The dock is
+   last, and does not wait its turn — it is the thing you might want to touch
+   straight away. */
+export function Screen({
+  children,
+  dock,
+  still = false,
+}: {
+  children: ReactNode;
+  dock?: ReactNode;
+  /* for a screen drawn behind a sheet, which should already be there */
+  still?: boolean;
+}) {
   return (
     <View style={s.screen}>
       <ScrollView
@@ -17,9 +31,15 @@ export function Screen({ children, dock }: { children: ReactNode; dock?: ReactNo
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {children}
+        {still ? children : <RevealAll>{children}</RevealAll>}
       </ScrollView>
-      {dock}
+      {still ? (
+        dock
+      ) : (
+        <Reveal index={2} rise={22}>
+          {dock}
+        </Reveal>
+      )}
     </View>
   );
 }
@@ -46,18 +66,14 @@ export function ListRow({
   onPress?: () => void;
 }) {
   return (
-    <Pressable
-      accessibilityRole={onPress ? 'button' : undefined}
-      onPress={onPress}
-      style={({ pressed }) => [s.row, { opacity: pressed && onPress ? 0.6 : 1 }]}
-    >
+    <Tap accessibilityRole={onPress ? 'button' : undefined} onPress={onPress} style={s.row}>
       {icon ? <Icon name={icon} size={20} /> : null}
       <View style={{ flex: 1, gap: 2 }}>
         <Row>{title}</Row>
         {sub ? <Meta tone="secondary">{sub}</Meta> : null}
       </View>
       {right ?? (onPress ? <Icon name="chevron" size={18} colour={colour.textTertiary} /> : null)}
-    </Pressable>
+    </Tap>
   );
 }
 

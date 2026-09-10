@@ -4,10 +4,11 @@
    figure that arrives filled in is a suggestion, not something you are
    halfway through typing. */
 import React, { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { Icon } from './Icon';
 import { Caption, Display, Head, Body } from './text';
 import { space } from './tokens';
+import { Tap } from './motion';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '000', '0', 'del'] as const;
 
@@ -42,21 +43,20 @@ export function AmountPad({
       </View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignSelf: 'center', width: 353 }}>
         {KEYS.map(k => (
-          <Pressable
+          <Tap
             key={k}
             accessibilityRole="button"
             accessibilityLabel={k === 'del' ? 'Delete' : k}
             onPress={() => press(k)}
-            style={({ pressed }) => ({
+            style={{
               width: 353 / 3,
               height: 90,
               alignItems: 'center',
               justifyContent: 'center',
-              opacity: pressed ? 0.4 : 1,
-            })}
+            }}
           >
             {k === 'del' ? <Icon name="del" size={32} /> : <Head>{k}</Head>}
-          </Pressable>
+          </Tap>
         ))}
       </View>
     </View>

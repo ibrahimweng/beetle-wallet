@@ -9,7 +9,7 @@ import { View } from 'react-native';
 import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Route, routeList } from './routes';
-import { ToastHost } from './design';
+import { ToastHost, motion } from './design';
 import { ToBuild } from './screens/ToBuild';
 import { Start } from './screens/Start';
 import { Actions } from './screens/Actions';
@@ -217,6 +217,47 @@ const linking: LinkingOptions<Stack> = {
   config: { screens: Object.fromEntries(routeList.map(r => [r, r])) as never },
 };
 
+/* How each screen arrives.
+
+   Something that came up over what you were looking at comes up from the
+   bottom, because that is where a sheet lives and where a keyboard and a
+   camera come from. Everything else slides in from the right, the way a stack
+   of pages does. The button's menu fades, because it does its own animation
+   and the fade is only there to hand over to it.
+
+   The point is that the movement matches the tap: the same gesture that asked
+   for the screen is the one that brings it in. */
+const UP: Route[] = [
+  /* the sheets */
+  'ask',
+  'asksvc',
+  'askreq',
+  'receive',
+  'confirm',
+  'noface',
+  'confirmbuy',
+  'confirmmeter',
+  'share',
+  'sharebuy',
+  'sharepower',
+  'sharein',
+  'shareflat',
+  'shareshop',
+  'sharesub',
+  'sharecard',
+  'saverule',
+  /* the keyboard comes up with them */
+  'typed',
+  'typedbuy',
+  'typedask',
+  /* and so does a camera */
+  'scan',
+  'scanbill',
+];
+
+const arrival = (id: Route): 'slide_from_bottom' | 'fade' | 'slide_from_right' =>
+  id === 'actions' ? 'fade' : UP.includes(id) ? 'slide_from_bottom' : 'slide_from_right';
+
 export function App() {
   return (
     <View style={{ flex: 1 }}>
@@ -226,7 +267,11 @@ export function App() {
           screenOptions={{ headerShown: false, animation: 'slide_from_right' }}
         >
           {routeList.map(id => (
-            <Screens.Screen key={id} name={id}>
+            <Screens.Screen
+              key={id}
+              name={id}
+              options={{ animation: arrival(id), animationDuration: motion.screen }}
+            >
               {({ navigation }) => {
                 const nav: Nav = {
                   navigate: r => navigation.navigate(r as never),

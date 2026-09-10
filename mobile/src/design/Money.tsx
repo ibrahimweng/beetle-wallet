@@ -7,26 +7,26 @@ import { Icon } from './Icon';
 import { Caption, Label, Meta, Row } from './text';
 import { IconName } from '../icons';
 import { colour, radius, space } from './tokens';
+import { Tap } from './motion';
 
 export function Grid({ items }: { items: { glyph: IconName; label: string; onPress?: () => void }[] }) {
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
       {items.map(i => (
-        <Pressable
+        <Tap
           key={i.label}
           accessibilityRole="button"
           onPress={i.onPress}
-          style={({ pressed }) => ({
+          style={{
             width: '25%',
             alignItems: 'center',
             gap: space.s2,
             paddingVertical: space.s3,
-            opacity: pressed ? 0.6 : 1,
-          })}
+          }}
         >
           <Icon name={i.glyph} size={24} />
           <Label>{i.label}</Label>
-        </Pressable>
+        </Tap>
       ))}
     </View>
   );
@@ -91,15 +91,14 @@ export function FormRow({
 }) {
   return (
     <View style={{ gap: 4 }}>
-      <Pressable
+      <Tap
         accessibilityRole={onPress ? 'button' : undefined}
         onPress={onPress}
-        style={({ pressed }) => ({
+        style={{
           flexDirection: 'row',
           alignItems: 'center',
           gap: space.s3,
-          opacity: pressed && onPress ? 0.6 : 1,
-        })}
+        }}
       >
         {lead}
         <View style={{ flex: 1, gap: 2 }}>
@@ -108,7 +107,7 @@ export function FormRow({
           {sub ? <Meta tone="secondary">{sub}</Meta> : null}
         </View>
         {onPress ? <Icon name="chevron" size={16} colour={colour.textTertiary} /> : null}
-      </Pressable>
+      </Tap>
       {note ? <Caption tone="tertiary">{note}</Caption> : null}
     </View>
   );

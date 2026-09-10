@@ -4,10 +4,11 @@
    Height, radius and side padding are the set's own numbers. A leading or
    trailing glyph sits 8 from the label, as the set spaces them. */
 import React from 'react';
-import { Pressable, StyleSheet, Text, ViewStyle, StyleProp } from 'react-native';
+import { StyleSheet, Text, ViewStyle, StyleProp } from 'react-native';
 import { Icon } from './Icon';
 import { IconName } from '../icons';
 import { colour } from './tokens';
+import { AnimatedPressable, useTap } from './motion';
 
 export type ButtonTone = 'black' | 'grey' | 'white' | 'blue';
 export type ButtonSize = 44 | 48 | 56;
@@ -48,13 +49,18 @@ export function Button({
 }) {
   const s = SIZES[size];
   const t = TONES[tone];
+  /* It gives a little under the finger and springs back, so the press is
+     answered before the screen it asks for arrives. */
+  const tap = useTap();
   return (
-    <Pressable
+    <AnimatedPressable
       accessibilityRole="button"
       accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [
+      onPressIn={tap.onPressIn}
+      onPressOut={tap.onPressOut}
+      style={[
         styles.base,
         {
           height: s.height,
@@ -62,16 +68,17 @@ export function Button({
           paddingHorizontal: s.padding,
           backgroundColor: t.fill,
           alignSelf: full ? 'stretch' : 'flex-start',
-          opacity: disabled ? 0.4 : pressed ? 0.9 : 1,
+          opacity: disabled ? 0.4 : 1,
         },
         tone === 'white' && styles.hairline,
+        disabled ? null : tap.style,
         style,
       ]}
     >
       {leading ? <Icon name={leading} size={20} colour={t.ink} /> : null}
       <Text style={{ fontSize: s.text, lineHeight: 24, fontWeight: '600', color: t.ink }}>{label}</Text>
       {trailing ? <Icon name={trailing} size={20} colour={t.ink} /> : null}
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 

@@ -13,6 +13,7 @@ import { Button } from './Button';
 import { Keypad, Pips } from './Keypad';
 import { IconName } from '../icons';
 import { colour, radius, space } from './tokens';
+import { Tap, Rise, RevealAll, keys } from './motion';
 
 /* ---- the small things ---- */
 
@@ -28,18 +29,17 @@ export function Said({
   onPress?: () => void;
 }) {
   return (
-    <Pressable
+    <Tap
       accessibilityRole={onPress ? 'button' : undefined}
       accessibilityLabel={onPress ? `Say it again: ${children}` : undefined}
       onPress={onPress}
       disabled={!onPress}
-      style={({ pressed }) => ({
+      style={{
         alignSelf: 'flex-end',
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        opacity: pressed && onPress ? 0.6 : 1,
-      })}
+      }}
     >
       {mic ? <Icon name="mic" size={16} colour={colour.textTertiary} /> : null}
       <View
@@ -53,7 +53,7 @@ export function Said({
       >
         <Body tone="inverse">{children}</Body>
       </View>
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -159,13 +159,9 @@ export function Badge({
 /* A centred text button, the quiet way out of a screen. */
 export function Ghost({ label, onPress }: { label: string; onPress: () => void }) {
   return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={onPress}
-      style={({ pressed }) => ({ alignSelf: 'center', opacity: pressed ? 0.5 : 1 })}
-    >
+    <Tap accessibilityRole="button" onPress={onPress} style={{ alignSelf: 'center' }}>
       <Row tone="accent">{label}</Row>
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -310,24 +306,23 @@ export function Picker({
       {options.map((o, i) => (
         <View key={o.id}>
           {i ? <Divider /> : null}
-          <Pressable
+          <Tap
             accessibilityRole="radio"
             accessibilityState={{ selected: o.id === value }}
             onPress={() => onChange(o.id)}
-            style={({ pressed }) => ({
+            style={{
               flexDirection: 'row',
               alignItems: 'center',
               gap: space.s3,
               paddingVertical: space.s3,
-              opacity: pressed ? 0.6 : 1,
-            })}
+            }}
           >
             <View style={{ flex: 1, gap: 2 }}>
               <Row>{o.label}</Row>
               {o.sub ? <Meta tone="secondary">{o.sub}</Meta> : null}
             </View>
             <Tick on={o.id === value} />
-          </Pressable>
+          </Tap>
         </View>
       ))}
     </Card>
@@ -348,15 +343,14 @@ export function EditRow({
   onPress?: () => void;
 }) {
   return (
-    <Pressable
+    <Tap
       accessibilityRole={onPress ? 'button' : undefined}
       onPress={onPress}
-      style={({ pressed }) => ({
+      style={{
         flexDirection: 'row',
         alignItems: 'center',
         gap: space.s3,
-        opacity: pressed && onPress ? 0.6 : 1,
-      })}
+      }}
     >
       <View style={{ flex: 1, gap: 2 }}>
         <Caption tone="secondary">{label}</Caption>
@@ -364,7 +358,7 @@ export function EditRow({
         {sub ? <Caption tone="tertiary">{sub}</Caption> : null}
       </View>
       {onPress ? <Label tone="accent">Change</Label> : null}
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -401,12 +395,12 @@ const ROWS = [
    is the only way the typed screens are worth having. */
 export function Keyboard({ onKey, action = 'send' }: { onKey: (k: string) => void; action?: string }) {
   const key = (k: string, wide?: number, dark?: boolean, label?: string) => (
-    <Pressable
+    <Tap
       key={k}
       accessibilityRole="button"
       accessibilityLabel={label ?? k}
       onPress={() => onKey(k)}
-      style={({ pressed }) => ({
+      style={{
         flex: wide ?? 1,
         height: 42,
         marginHorizontal: 2,
@@ -414,15 +408,21 @@ export function Keyboard({ onKey, action = 'send' }: { onKey: (k: string) => voi
         backgroundColor: dark ? colour.ruleStrong : colour.surface,
         alignItems: 'center',
         justifyContent: 'center',
-        opacity: pressed ? 0.5 : 1,
-      })}
+      }}
     >
       {k === 'del' ? <Icon name="del" size={20} /> : <Body>{label ?? k}</Body>}
-    </Pressable>
+    </Tap>
   );
   return (
-    <View
-      style={{ height: 236, backgroundColor: colour.surface3, paddingTop: 8, paddingHorizontal: 3, gap: 10 }}
+    <Rise
+      spring={keys}
+      style={{
+        height: 236,
+        backgroundColor: colour.surface3,
+        paddingTop: 8,
+        paddingHorizontal: 3,
+        gap: 10,
+      }}
     >
       <View style={{ flexDirection: 'row' }}>{ROWS[0].map(k => key(k))}</View>
       <View style={{ flexDirection: 'row', paddingHorizontal: 18 }}>{ROWS[1].map(k => key(k))}</View>
@@ -436,7 +436,7 @@ export function Keyboard({ onKey, action = 'send' }: { onKey: (k: string) => voi
         {key(' ', 5, false, 'space')}
         {key(action, 2, true, action)}
       </View>
-    </View>
+    </Rise>
   );
 }
 
@@ -478,37 +478,38 @@ export function CameraScreen({
           alignItems: 'center',
         }}
       >
-        <Head tone="inverse">{title}</Head>
-        <Meta tone="tertiary">{sub}</Meta>
-        {children}
-        <View style={{ height: 10 }} />
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 30 }}>
-          <View style={{ opacity: 0.7 }}>
-            <Icon name="grid" size={24} colour={colour.textInverse} />
+        <RevealAll>
+          <Head tone="inverse">{title}</Head>
+          <Meta tone="tertiary">{sub}</Meta>
+          {children}
+          <View style={{ height: 10 }} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 30 }}>
+            <View style={{ opacity: 0.7 }}>
+              <Icon name="grid" size={24} colour={colour.textInverse} />
+            </View>
+            <Tap
+              accessibilityRole="button"
+              accessibilityLabel="Take the photo"
+              onPress={onShutter}
+              style={{
+                width: 68,
+                height: 68,
+                borderRadius: 34,
+                backgroundColor: colour.surface,
+                borderWidth: 5,
+                borderColor: '#4b5160',
+              }}
+            />
+            <View style={{ opacity: 0.7 }}>
+              <Icon name="power" size={24} colour={colour.textInverse} />
+            </View>
           </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Take the photo"
-            onPress={onShutter}
-            style={({ pressed }) => ({
-              width: 68,
-              height: 68,
-              borderRadius: 34,
-              backgroundColor: colour.surface,
-              borderWidth: 5,
-              borderColor: '#4b5160',
-              opacity: pressed ? 0.7 : 1,
-            })}
-          />
-          <View style={{ opacity: 0.7 }}>
-            <Icon name="power" size={24} colour={colour.textInverse} />
-          </View>
-        </View>
-        {foot ? (
-          <Caption tone="tertiary" style={{ textAlign: 'center' }}>
-            {foot}
-          </Caption>
-        ) : null}
+          {foot ? (
+            <Caption tone="tertiary" style={{ textAlign: 'center' }}>
+              {foot}
+            </Caption>
+          ) : null}
+        </RevealAll>
       </ScrollView>
     </View>
   );
@@ -799,20 +800,19 @@ export function BigMoney({
 }) {
   return (
     <View style={{ gap: 4 }}>
-      <Pressable
+      <Tap
         accessibilityRole={onPress ? 'button' : undefined}
         onPress={onPress}
         disabled={!onPress}
-        style={({ pressed }) => ({
+        style={{
           flexDirection: 'row',
           alignItems: 'center',
           gap: space.s2,
-          opacity: pressed && onPress ? 0.6 : 1,
-        })}
+        }}
       >
         <Display>{amount}</Display>
         {change ? <Label tone="accent">{change}</Label> : null}
-      </Pressable>
+      </Tap>
       {note ? <Meta tone="tertiary">{note}</Meta> : null}
     </View>
   );
@@ -832,16 +832,15 @@ export function ShareSheet({
   behind?: ReactNode;
 }) {
   const way = (glyph: IconName, title: string, sub: string) => (
-    <Pressable
+    <Tap
       key={title}
       accessibilityRole="button"
       onPress={onClose}
-      style={({ pressed }) => ({
+      style={{
         flexDirection: 'row',
         alignItems: 'center',
         gap: space.s5,
-        opacity: pressed ? 0.6 : 1,
-      })}
+      }}
     >
       <Icon name={glyph} size={20} />
       <View style={{ flex: 1, gap: 2 }}>
@@ -849,7 +848,7 @@ export function ShareSheet({
         <Meta tone="secondary">{sub}</Meta>
       </View>
       <Icon name="chevron" size={16} colour={colour.textTertiary} />
-    </Pressable>
+    </Tap>
   );
   return (
     <Sheet onClose={onClose} behind={behind}>

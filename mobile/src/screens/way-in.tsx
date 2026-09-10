@@ -24,6 +24,7 @@ import {
   colour,
   space,
 } from '../design';
+import { Rise, RevealAll, keys } from '../design/motion';
 import { Route } from '../routes';
 
 const NUMBER: TrailStep = { icon: 'phone-filled', label: 'Your number' };
@@ -90,13 +91,18 @@ function DigitScreen({
   return (
     <View style={{ flex: 1, backgroundColor: colour.surface, paddingHorizontal: 20, paddingTop: 72 }}>
       <View style={{ gap: 20 }}>
-        <StepTrail done={trail} />
-        <StepHead icon={icon} title={title} sub={sub} />
-        <Field value={grouped} />
-        {footer}
+        <RevealAll>
+          <StepTrail done={trail} />
+          <StepHead icon={icon} title={title} sub={sub} />
+          <Field value={grouped} />
+          {footer}
+        </RevealAll>
       </View>
       <View style={{ flex: 1 }} />
-      <Keypad onKey={key} />
+      {/* the pad comes up under the step, the way a keyboard would */}
+      <Rise spring={keys} from={120} delay={60}>
+        <Keypad onKey={key} />
+      </Rise>
       <View style={{ height: 32 }} />
     </View>
   );

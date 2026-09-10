@@ -1,10 +1,16 @@
 /* A sheet over a screen. The design keeps the screen behind visible and dim,
    and the sheet is a white panel from the bottom with the page's own radius.
    Tapping the dimmed part closes it, because a sheet you cannot leave is how
-   people get stuck. */
+   people get stuck.
+
+   It comes up from below its own height on a heavy spring, so it reads as
+   something lifted rather than something switched on, and the dim behind it
+   fades in over the same time. What is in it then arrives in sequence, the
+   same way a screen's column does. */
 import React, { ReactNode } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { colour, space } from './tokens';
+import { Backdrop, Reveal, Rise, Scrim } from './motion';
 
 export function Sheet({
   children,
@@ -18,12 +24,11 @@ export function Sheet({
   return (
     <View style={{ flex: 1, backgroundColor: colour.surface }}>
       {behind ? (
-        <View
-          style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, opacity: 0.35 }}
-          pointerEvents="none"
-        >
-          {behind}
-        </View>
+        <Scrim style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}>
+          <View pointerEvents="none" style={{ flex: 1 }}>
+            <Backdrop>{behind}</Backdrop>
+          </View>
+        </Scrim>
       ) : null}
       <Pressable
         accessibilityRole="button"
@@ -31,7 +36,7 @@ export function Sheet({
         onPress={onClose}
         style={{ flex: 1 }}
       />
-      <View
+      <Rise
         style={{
           backgroundColor: colour.surface,
           borderTopLeftRadius: 28,
@@ -52,9 +57,13 @@ export function Sheet({
           }}
         />
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: space.s5 }}>
-          {children}
+          {React.Children.toArray(children).map((child, i) => (
+            <Reveal key={i} index={i + 3} rise={10}>
+              {child}
+            </Reveal>
+          ))}
         </ScrollView>
-      </View>
+      </Rise>
     </View>
   );
 }

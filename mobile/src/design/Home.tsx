@@ -11,6 +11,7 @@ import { Icon } from './Icon';
 import { Body, Caption, Display, Head, Label, Meta, Row } from './text';
 import { IconName } from '../icons';
 import { colour, radius, space } from './tokens';
+import { Tap } from './motion';
 
 export function WalletHeader({ onSettings, onAlerts }: { onSettings?: () => void; onAlerts?: () => void }) {
   return (
@@ -56,20 +57,19 @@ export function Shortcuts({ items }: { items: { glyph: IconName; label: string; 
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
       {items.map(i => (
-        <Pressable
+        <Tap
           key={i.label}
           accessibilityRole="button"
           onPress={i.onPress}
-          style={({ pressed }) => ({
+          style={{
             alignItems: 'center',
             gap: space.s2,
             flex: 1,
-            opacity: pressed ? 0.6 : 1,
-          })}
+          }}
         >
           <Icon name={i.glyph} size={32} />
           <Caption tone="secondary">{i.label}</Caption>
-        </Pressable>
+        </Tap>
       ))}
     </View>
   );
@@ -91,18 +91,17 @@ export function Tile({
   onPress?: () => void;
 }) {
   return (
-    <Pressable
+    <Tap
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => ({
+      style={{
         flexDirection: 'row',
         alignItems: 'center',
         gap: space.s4,
         backgroundColor: colour.surface2,
         borderRadius: radius.lg,
         padding: space.s4,
-        opacity: pressed ? 0.7 : 1,
-      })}
+      }}
     >
       {lead}
       <View style={{ flex: 1, gap: 2 }}>
@@ -111,7 +110,7 @@ export function Tile({
       </View>
       {value ? <Row>{value}</Row> : null}
       <Icon name="chevron" size={16} colour={colour.textTertiary} />
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -190,15 +189,14 @@ export function LedgerRow({
   onPress?: () => void;
 }) {
   return (
-    <Pressable
+    <Tap
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => ({
+      style={{
         flexDirection: 'row',
         alignItems: 'center',
         gap: space.s5,
-        opacity: pressed ? 0.6 : 1,
-      })}
+      }}
     >
       <Icon name={glyph} size={20} />
       <View style={{ flex: 1, gap: 2 }}>
@@ -206,7 +204,7 @@ export function LedgerRow({
         <Meta tone="secondary">{detail}</Meta>
       </View>
       <Label tone={good ? 'good' : 'ink'}>{amount}</Label>
-    </Pressable>
+    </Tap>
   );
 }
 

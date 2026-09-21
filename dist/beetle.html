@@ -284,8 +284,6 @@ body {
 .pill-warn { background: #fdf2dd; color: #7a5b12; }
 .pill-accent { background: var(--accent-wash); color: var(--accent-deep); }
 
-.waveform { display: flex; align-items: center; gap: 3px; height: 34px; }
-.waveform i { width: 3px; border-radius: 2px; background: var(--accent); display: block; }
 
 .kbd { background: var(--surface-3); padding: 8px 3px 22px; }
 .kbd-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 8px; }
@@ -398,7 +396,7 @@ body {
 .tool-state .dot {
   width: 7px; height: 7px; border-radius: 999px; background: currentColor; display: block;
 }
-.bubble-spoken { display: inline-flex; align-items: center; gap: 7px; }
+.bubble-photo { display: inline-flex; align-items: center; gap: 7px; }
 .key .icon, .kbd-key .icon { color: currentColor; }
 .slide-thumb .icon { color: #fff; }
 .fab .icon, .backbtn .icon { color: currentColor; }
@@ -520,7 +518,6 @@ const ICONS = {
   "lock": "<path d=\"M8 10.2V7.6C8 6.54 8.42 5.52 9.17 4.77C9.92 4.02 10.94 3.6 12 3.6C13.06 3.6 14.08 4.02 14.83 4.77C15.58 5.52 16 6.54 16 7.6V10.2\" stroke=\"currentColor\"/><path d=\"M17 10.2H7C5.67 10.2 4.6 11.27 4.6 12.6V17.2C4.6 18.53 5.67 19.6 7 19.6H17C18.33 19.6 19.4 18.53 19.4 17.2V12.6C19.4 11.27 18.33 10.2 17 10.2Z\" stroke=\"currentColor\"/>",
   "lock-filled": "<path d=\"M12 2C13.33 2 14.6 2.53 15.54 3.46C16.47 4.4 17 5.67 17 7V9.8H14.3V7C14.3 6.39 14.06 5.8 13.63 5.37C13.2 4.94 12.61 4.7 12 4.7C11.39 4.7 10.8 4.94 10.37 5.37C9.94 5.8 9.7 6.39 9.7 7V9.8H7V7C7 5.67 7.53 4.4 8.46 3.46C9.4 2.53 10.67 2 12 2Z\" fill=\"currentColor\"/><path d=\"M17 9.7H7C5.4 9.7 4.1 11 4.1 12.6V18.3C4.1 19.9 5.4 21.2 7 21.2H17C18.6 21.2 19.9 19.9 19.9 18.3V12.6C19.9 11 18.6 9.7 17 9.7Z\" fill=\"currentColor\"/><path d=\"M12 17.05C12.91 17.05 13.65 16.31 13.65 15.4C13.65 14.49 12.91 13.75 12 13.75C11.09 13.75 10.35 14.49 10.35 15.4C10.35 16.31 11.09 17.05 12 17.05Z\" fill=\"white\"/>",
   "mark": "<g clip-path=\"url(#c_mark)\"><path d=\"M16.8 0H7.2C3.22 0 0 3.22 0 7.2V16.8C0 20.78 3.22 24 7.2 24H16.8C20.78 24 24 20.78 24 16.8V7.2C24 3.22 20.78 0 16.8 0Z\" fill=\"#213ACA\"/><path d=\"M16.9 7.89C17.87 9.04 18.4 10.49 18.4 12C18.4 15.53 15.53 18.4 12 18.4C8.47 18.4 5.6 15.53 5.6 12C5.6 10.49 6.13 9.04 7.1 7.89\" stroke=\"white\"/><path d=\"M12 14.7C13.49 14.7 14.7 13.49 14.7 12C14.7 10.51 13.49 9.3 12 9.3C10.51 9.3 9.3 10.51 9.3 12C9.3 13.49 10.51 14.7 12 14.7Z\" fill=\"white\"/></g><defs><clipPath id=\"c_mark\"><rect width=\"24\" height=\"24\" fill=\"white\"/></clipPath></defs>",
-  "mic": "<path d=\"M14.6 5.6C14.6 4.16 13.44 3 12 3C10.56 3 9.4 4.16 9.4 5.6V10C9.4 11.44 10.56 12.6 12 12.6C13.44 12.6 14.6 11.44 14.6 10V5.6Z\" stroke=\"currentColor\"/><path d=\"M5.6 11.2C5.6 12.9 6.27 14.53 7.47 15.73C8.67 16.93 10.3 17.6 12 17.6M12 17.6C13.7 17.6 15.33 16.93 16.53 15.73C17.73 14.53 18.4 12.9 18.4 11.2M12 17.6V21\" stroke=\"currentColor\"/>",
   "minus": "<path d=\"M5.2 12H18.8\" stroke=\"currentColor\" stroke-width=\"2.4\"/>",
   "more": "<path d=\"M8 9.5C8.83 9.5 9.5 8.83 9.5 8C9.5 7.17 8.83 6.5 8 6.5C7.17 6.5 6.5 7.17 6.5 8C6.5 8.83 7.17 9.5 8 9.5Z\" fill=\"currentColor\"/><path d=\"M16 9.5C16.83 9.5 17.5 8.83 17.5 8C17.5 7.17 16.83 6.5 16 6.5C15.17 6.5 14.5 7.17 14.5 8C14.5 8.83 15.17 9.5 16 9.5Z\" fill=\"currentColor\"/><path d=\"M8 17.5C8.83 17.5 9.5 16.83 9.5 16C9.5 15.17 8.83 14.5 8 14.5C7.17 14.5 6.5 15.17 6.5 16C6.5 16.83 7.17 17.5 8 17.5Z\" fill=\"currentColor\"/><path d=\"M16 17.5C16.83 17.5 17.5 16.83 17.5 16C17.5 15.17 16.83 14.5 16 14.5C15.17 14.5 14.5 15.17 14.5 16C14.5 16.83 15.17 17.5 16 17.5Z\" fill=\"currentColor\"/>",
   "person": "<path d=\"M12 11.6C14.1 11.6 15.8 9.9 15.8 7.8C15.8 5.7 14.1 4 12 4C9.9 4 8.2 5.7 8.2 7.8C8.2 9.9 9.9 11.6 12 11.6Z\" stroke=\"currentColor\"/><path d=\"M4.8 21.29C5.18 19.67 6.1 18.23 7.41 17.19C8.72 16.16 10.33 15.6 12 15.6C13.67 15.6 15.28 16.16 16.59 17.19C17.9 18.23 18.82 19.67 19.2 21.29\" stroke=\"currentColor\"/>",
@@ -557,7 +554,6 @@ const ICONS = {
   "undo-filled": "<path d=\"M12 4.6C13.72 4.6 15.41 5.08 16.88 5.98C18.35 6.88 19.55 8.17 20.33 9.7C21.12 11.24 21.47 12.96 21.35 14.68C21.23 16.4 20.63 18.05 19.63 19.45C18.63 20.86 17.27 21.96 15.68 22.64C14.1 23.32 12.36 23.55 10.65 23.31C8.94 23.06 7.34 22.36 6.01 21.26C4.67 20.17 3.67 18.73 3.1 17.1C2.94 16.62 2.97 16.1 3.19 15.65C3.41 15.19 3.8 14.84 4.28 14.68C4.76 14.52 5.28 14.55 5.73 14.77C6.19 14.99 6.54 15.38 6.7 15.86C7.04 16.83 7.64 17.68 8.44 18.33C9.23 18.98 10.19 19.4 11.2 19.55C12.22 19.69 13.26 19.55 14.2 19.14C15.14 18.74 15.95 18.08 16.55 17.24C17.14 16.41 17.49 15.42 17.57 14.4C17.64 13.38 17.43 12.35 16.96 11.44C16.49 10.53 15.78 9.76 14.91 9.22C14.03 8.69 13.03 8.4 12 8.4H9.9L11.4 6.9C11.76 6.54 11.96 6.06 11.96 5.55C11.96 5.04 11.76 4.56 11.4 4.2C11.04 3.84 10.56 3.64 10.05 3.64C9.54 3.64 9.06 3.84 8.7 4.2L3.9 9C3.72 9.18 3.58 9.39 3.48 9.62C3.39 9.85 3.34 10.1 3.34 10.35C3.34 10.6 3.39 10.85 3.48 11.08C3.58 11.31 3.72 11.52 3.9 11.7L8.7 16.5C9.06 16.86 9.54 17.06 10.05 17.06C10.56 17.06 11.04 16.86 11.4 16.5C11.76 16.14 11.96 15.66 11.96 15.15C11.96 14.64 11.76 14.16 11.4 13.8L9.9 12.3H12V4.6Z\" fill=\"currentColor\"/>",
   "up": "<path d=\"M12 19.2V4.8M17.8 10.6L12 4.8L6.2 10.6\" stroke=\"white\" stroke-width=\"2.4\"/>",
   "up-small": "<path d=\"M12 19V5M18 11L12 5L6 11\" stroke=\"#CC2A20\" stroke-width=\"2.4\"/>",
-  "voice-filled": "<path d=\"M4.3 11.05C4.3 10.25 3.65 9.6 2.85 9.6C2.05 9.6 1.4 10.25 1.4 11.05V12.95C1.4 13.75 2.05 14.4 2.85 14.4C3.65 14.4 4.3 13.75 4.3 12.95V11.05Z\" fill=\"currentColor\"/><path d=\"M8.9 6.65C8.9 5.85 8.25 5.2 7.45 5.2C6.65 5.2 6 5.85 6 6.65V17.35C6 18.15 6.65 18.8 7.45 18.8C8.25 18.8 8.9 18.15 8.9 17.35V6.65Z\" fill=\"currentColor\"/><path d=\"M13.5 3.05C13.5 2.25 12.85 1.6 12.05 1.6C11.25 1.6 10.6 2.25 10.6 3.05V20.95C10.6 21.75 11.25 22.4 12.05 22.4C12.85 22.4 13.5 21.75 13.5 20.95V3.05Z\" fill=\"currentColor\"/><path d=\"M18.1 8.45C18.1 7.65 17.45 7 16.65 7C15.85 7 15.2 7.65 15.2 8.45V15.55C15.2 16.35 15.85 17 16.65 17C17.45 17 18.1 16.35 18.1 15.55V8.45Z\" fill=\"currentColor\"/><path d=\"M22.7 11.85C22.7 11.05 22.05 10.4 21.25 10.4C20.45 10.4 19.8 11.05 19.8 11.85V12.15C19.8 12.95 20.45 13.6 21.25 13.6C22.05 13.6 22.7 12.95 22.7 12.15V11.85Z\" fill=\"currentColor\"/>",
   "wait-filled": "<path opacity=\"0.26\" d=\"M12 20.7C16.8 20.7 20.7 16.8 20.7 12C20.7 7.19 16.8 3.3 12 3.3C7.2 3.3 3.3 7.19 3.3 12C3.3 16.8 7.2 20.7 12 20.7Z\" stroke=\"currentColor\" stroke-width=\"3\"/><path d=\"M12 3.3C14.31 3.3 16.52 4.22 18.15 5.85C19.78 7.48 20.7 9.69 20.7 12\" stroke=\"currentColor\" stroke-width=\"3\"/>",
   "warn-filled": "<path d=\"M12 2.9C12.37 2.9 12.74 3 13.06 3.18C13.38 3.37 13.65 3.64 13.83 3.96L22.33 18.86C22.51 19.18 22.61 19.54 22.61 19.91C22.6 20.28 22.51 20.64 22.32 20.96C22.13 21.28 21.87 21.54 21.55 21.72C21.23 21.91 20.87 22 20.5 22H3.5C3.13 22 2.77 21.91 2.45 21.72C2.13 21.54 1.87 21.28 1.68 20.96C1.49 20.64 1.4 20.28 1.39 19.91C1.39 19.54 1.49 19.18 1.67 18.86L10.17 3.96C10.35 3.64 10.62 3.37 10.94 3.18C11.26 3 11.63 2.9 12 2.9Z\" fill=\"currentColor\"/><path d=\"M12 9V13.6M12 17.4H12.02\" stroke=\"white\" stroke-width=\"2.2\"/>",
   "waste": "<path d=\"M4.6 7H19.4M9.4 7V4.8H14.6V7M6.8 7L7.7 19.2C7.73 19.61 7.91 19.99 8.2 20.27C8.5 20.55 8.89 20.7 9.3 20.7H14.7C15.11 20.7 15.5 20.55 15.8 20.27C16.09 19.99 16.27 19.61 16.3 19.2L17.2 7\" stroke=\"currentColor\"/>",
@@ -713,10 +709,12 @@ const Bubble = text =>
   e('div', { class: 'row', style: { alignItems: 'flex-start', gap: '10px' } },
     AgentMark(),
     e('div', { class: 'bubble' }, text));
-const Said = (text, { spoken = false } = {}) =>
+/* What you asked for, as the black bubble on the right. A line that came off
+   a photo carries the camera beside it; a typed one carries nothing. */
+const Said = (text, { photo = false } = {}) =>
   e('div', { class: 'row', style: { justifyContent: 'flex-end' } },
-    e('div', { class: 'bubble-me' + (spoken ? ' bubble-spoken' : '') },
-      spoken ? Icon('mic', { size: 16 }) : null, e('span', null, text)));
+    e('div', { class: 'bubble-me' + (photo ? ' bubble-photo' : '') },
+      photo ? Icon('camera', { size: 16 }) : null, e('span', null, text)));
 const Typing = () =>
   e('div', { class: 'row', style: { alignItems: 'flex-start', gap: '10px' } },
     AgentMark(),
@@ -778,20 +776,8 @@ const Keyboard = (onKey, sendLabel = 'send') =>
       e('button', { class: 'kbd-key', style: { flex: 4 }, onClick: () => onKey(' ') }, ' '),
       e('button', { class: 'kbd-key wide', style: { background: 'var(--accent)', color: '#fff' }, onClick: () => onKey('send') }, sendLabel)));
 
-/* ---------- waveform ---------- */
-const Waveform = (bars = 26, seed = 7) => {
-  const w = e('div', { class: 'waveform' });
-  let s = seed;
-  for (let i = 0; i < bars; i++) {
-    s = (s * 1103515245 + 12345) % 2147483648;
-    const h = 6 + (s % 100) / 100 * 28;
-    w.appendChild(e('i', { style: { height: h.toFixed(0) + 'px', opacity: 0.35 + (s % 65) / 100 } }));
-  }
-  return w;
-};
-
 /* ---------- dock ---------- */
-const Dock = ({ placeholder = 'Ask, or just say what you need', back, onAsk, fab = 'fab-plus', onFab } = {}) => {
+const Dock = ({ placeholder = 'Ask, or show me a photo', back, onAsk, fab = 'fab-plus', onFab } = {}) => {
   /* Every ask bar answers, on every screen. A screen that wants to do
      something particular with what you typed passes its own onAsk; the rest
      hand it to the agent. */
@@ -807,11 +793,10 @@ const Dock = ({ placeholder = 'Ask, or just say what you need', back, onAsk, fab
   input.addEventListener('keydown', ev => { if (ev.key === 'Enter') fire(); });
   return e('div', { class: 'dock' },
     back && e('button', { class: 'backbtn', 'aria-label': 'Back', onClick: back }, Icon('back', { size: 20 })),
-    /* the design ends the ask bar with a camera and a microphone, not a send
-       arrow: you point it at something, or you talk to it */
+    /* the design ends the ask bar with a camera, not a send arrow: you type,
+       or you point it at something */
     e('div', { class: 'askbar' }, AgentMark(), input,
-      e('button', { class: 'askbar-btn press', 'aria-label': 'Scan something', onClick: () => window.beetleGo('scan') }, Icon('camera', { size: 19 })),
-      e('button', { class: 'askbar-btn press', 'aria-label': 'Speak', onClick: fire }, Icon('mic', { size: 19 }))),
+      e('button', { class: 'askbar-btn press', 'aria-label': 'Scan something', onClick: () => window.beetleGo('scan') }, Icon('camera', { size: 19 }))),
     onFab !== undefined && e('button', { class: 'fab', 'aria-label': 'What can I do', onClick: onFab }, Icon(fab, { size: 22 })));
 };
 
@@ -1043,7 +1028,7 @@ const Picker = (options, current, onPick) =>
           o.sub && e('div', { class: 't-caption c-3' }, o.sub)),
         e('div', { class: 'tick ' + (o.id === current ? '' : 'tick-wait') }, o.id === current ? Icon('check', { size: 13 }) : null)))));
 
-return { el, frag, naira, nairaFull, signed, Display, Title, Head, Body, Meta, Caption, Label, PageHead, Card, Plain, Stack, Row, Between, Divider, Spacer, Icon, Glyph, ListRow, TxRow, Field, Button, Ghost, Chip, ActionRow, AgentMark, Bubble, Said, Typing, ToolPanel, Banner, Note, Pill, Timeline, Meter, Pips, Keypad, Keyboard, Waveform, Dock, Sheet, Screen, Toggle, AmountPad, PassPad, Slide, EditRow, toast, TextPad, ChipRow, Picker };
+return { el, frag, naira, nairaFull, signed, Display, Title, Head, Body, Meta, Caption, Label, PageHead, Card, Plain, Stack, Row, Between, Divider, Spacer, Icon, Glyph, ListRow, TxRow, Field, Button, Ghost, Chip, ActionRow, AgentMark, Bubble, Said, Typing, ToolPanel, Banner, Note, Pill, Timeline, Meter, Pips, Keypad, Keyboard, Dock, Sheet, Screen, Toggle, AmountPad, PassPad, Slide, EditRow, toast, TextPad, ChipRow, Picker };
 })();
 
 /* src/data.js */
@@ -1137,7 +1122,7 @@ const transfer = {
   balanceAfter: 659320.75,
   from: 'Everyday',
   narration: 'Rent part payment',
-  spoken: 'Send 20k to Sarah',
+  message: 'Send 20k to Sarah',
   typed: 'send sarah 20k',
   at: '28 August 2026 at 7:55 AM',
   session: '000016 260828 075504 471803 926104',
@@ -1148,7 +1133,7 @@ const transfer = {
 const dollarSend = {
   to: contacts.sarah,
   amount: 50000,
-  spoken: 'send Sarah 50k for the flat deposit',
+  message: 'send Sarah 50k for the flat deposit',
   reference: 'Flat deposit',
   inDollars: 32.22,
   rateLine: 'About $32.22 from your dollars, at ₦1,552 to $1',
@@ -1195,7 +1180,7 @@ const meterBill = {
   address: '14 Bode Thomas',
   readAt: 'Read from your photo, 4:02 PM',
   slip: 'Keep this slip for your records',
-  token: '0293 8471 5502 1946',
+  token: '4471 8823 0195 6640 3277',
 };
 
 /* Borrow, priced honestly: the screen shows the APR the design omitted. */
@@ -1244,7 +1229,7 @@ const services = [
   { name: 'Virtual card',     sub: 'Spend online anywhere', icon: 'card', to: 'card' },
   { name: 'Savings pot',      sub: 'Put money away, take it back any time', icon: 'pot', to: 'goal' },
   { name: 'Dollars',          sub: 'Hold it steady, or convert', icon: 'dollar', to: 'dollars' },
-  { name: 'Request money',    sub: 'Ask, and they pay in one tap', icon: 'request', to: 'askreq' },
+  { name: 'Request money',    sub: 'Ask, and they pay in one tap', icon: 'request', to: 'request' },
 ];
 
 const onboarding = {
@@ -1627,7 +1612,7 @@ const { draft } = M$src_flow_js;
 /* The brief is built fresh on every question, from the live account, so the
    agent is answering about the money as it stands and not as it was written
    into the design. */
-const voice = () => {
+const brief = () => {
   const s = get();
   const money = n => '₦' + Number(n).toLocaleString('en-NG');
   const rows = day => byDay(day).map(r => `${r.name}, ${r.detail}, ${r.amount > 0 ? 'in' : 'out'} ${money(Math.abs(r.amount))} at ${r.time}${r.status !== 'done' ? ' (' + r.status + ')' : ''}`).join('; ') || 'nothing';
@@ -1727,7 +1712,7 @@ function fallbackReply(text) {
  */
 async function ask(text, { context = '', onText } = {}) {
   if (mode === 'pending') await initAgent();
-  const system = voice() + (context ? `\n\nThe person is looking at: ${context}` : '');
+  const system = brief() + (context ? `\n\nThe person is looking at: ${context}` : '');
 
   if (mode === 'sample' && sampleFn) {
     try {
@@ -1820,10 +1805,10 @@ const checking = {
   render: () => Screen([
     PageHead('Before I filled this in', 'What I checked, and the one part I am unsure of'),
     ToolPanel('Beetle Reasoning', 'Checked', [
-      { k: 'Heard the name Sarah', v: 'Certain' },
+      { k: 'Read the name Sarah', v: 'Certain' },
       { k: 'Matched 14 past payments', v: 'Certain' },
       { k: 'Confirmed the account with GTBank', v: 'Certain' },
-      { k: 'Heard the amount', v: 'Not certain', done: false, tone: 'c-2' },
+      { k: 'Read the amount', v: 'Not certain', done: false, tone: 'c-2' },
     ]),
     Plain(
       Label('How I decided'),
@@ -1844,7 +1829,7 @@ const iwillnot = {
     e('div', { class: 'row' }, Glyph('alert', 'bad', { lg: true })),
     BigAmount(naira(get().everyday), 'to an account I have never seen'),
     Compare([
-      { k: 'You said', v: 'send everything' },
+      { k: 'You typed', v: 'send everything' },
       { k: 'Account age', v: 'Four minutes' },
       { k: 'Paid before', v: 'Never', tone: 'c-bad' },
     ]),
@@ -1858,39 +1843,39 @@ const iwillnot = {
 };
 
 /* ---------------------------------------------------------------- *
- * When it heard you wrong
+ * When it read it wrong
  * ---------------------------------------------------------------- */
 
-const misheard = {
+const misread = {
   title: 'Check this number',
   render: () => Screen([
     PageHead('Check this number', 'Nothing has been sent'),
     e('div', { class: 'row' }, Glyph('alert', 'warn', { lg: true })),
-    BigAmount(naira(200000), 'and I am not sure I heard it right'),
+    BigAmount(contacts.sarah.account, 'and I am not sure of the last digit'),
     Compare([
-      { k: 'You said', v: 'two hundred' },
-      { k: 'I heard', v: naira(200000) },
-      { k: 'Or maybe', v: naira(200) },
+      { k: 'From the photo', v: `Sarah A. · ${contacts.sarah.bank}` },
+      { k: 'I read', v: contacts.sarah.account },
+      { k: 'Or maybe', v: contacts.sarah.account.slice(0, -1) + '6' },
     ]),
-    Bubble('Spoken round numbers are where I slip most. I will not choose between these two on my own.'),
-    ActionRow({ icon: 'send', title: 'It is ₦200,000', sub: 'Rent money, to Sarah', onClick: () => go('confirm') }),
-    ActionRow({ icon: 'send', title: 'It is ₦200', sub: 'Small change, to Sarah', onClick: () => go('confirm') }),
+    Bubble('The last digit is soft in the photo. I will not choose between these two on my own.'),
+    ActionRow({ icon: 'send', title: `It is ${contacts.sarah.account}`, sub: `${contacts.sarah.name}, who you have paid before`, onClick: () => go('confirm') }),
+    ActionRow({ icon: 'send', title: `It is ${contacts.sarah.account.slice(0, -1)}6`, sub: 'Someone you have never paid', onClick: () => go('confirm') }),
     ActionRow({ icon: 'list', title: 'Let me type it', sub: 'Neither one is right', onClick: () => go('typed') }),
     Note('Nothing has left your account', 'lock'),
-    Note('I stop whenever an amount reads two ways.', 'alert'),
-  ], Dock({ placeholder: 'Ask me about this', back: () => go('ask') })),
+    Note('I stop whenever a number reads two ways.', 'alert'),
+  ], Dock({ placeholder: 'Ask me about this', back: () => go('found') })),
 };
 
 const alreadygone = {
   title: 'I sent it wrong',
   render: () => Screen([
-    PageHead('I sent it wrong', '₦200,000 left at 14:22'),
+    PageHead('I sent it wrong', '₦20,000 left at 14:22'),
     e('div', { class: 'row' }, Glyph('alert', 'bad', { lg: true })),
-    BigAmount(naira(200000), 'left your account'),
+    BigAmount(naira(20000), 'went to the wrong account'),
     Banner('This one is mine. You are covered.', 'good'),
-    Bubble('You said two hundred. I sent two hundred thousand. That is my error, so you get the difference back today, whether or not Sarah returns it.'),
-    ActionRow({ icon: 'undo-filled', tone: 'good', title: 'Take ₦199,800 back', sub: 'Paid by us today, not in days', onClick: () => go('donesend') }),
-    ActionRow({ icon: 'bank', title: 'Ask Sarah to return it', sub: 'We do this to recover our side', onClick: () => go('recall') }),
+    Bubble('I read the last digit wrong and sent it to a stranger. That is my error, so you get it back today, whether or not they return it.'),
+    ActionRow({ icon: 'undo-filled', tone: 'good', title: 'Take ₦20,000 back', sub: 'Paid by us today, not in days', onClick: () => go('donesend') }),
+    ActionRow({ icon: 'bank', title: `Ask ${contacts.sarah.bank} to recall it`, sub: 'We do this to recover our side', onClick: () => go('recall') }),
     Plain(Bubble('Want to know how I stop this?'), Button('Tell me', { kind: 'quiet', onClick: () => go('checking') })),
   ], Dock({ placeholder: 'Ask about the cover', back: () => go('donesend') })),
 };
@@ -1945,7 +1930,7 @@ const passcodeSheet = (base, { error } = {}) => {
 const chatBase = () => e('div', { class: 'screen-scroll', style: { filter: 'blur(3px)' } },
   e('div', { class: 'pad top-pad stack gap-4' },
     PageHead('Beetle', ''),
-    Said(draft.spoken || `Send ${Math.round(draft.amount / 1000)}k to ${draft.to.name.split(' ')[0]}`),
+    Said(draft.message || `Send ${Math.round(draft.amount / 1000)}k to ${draft.to.name.split(' ')[0]}`, { photo: draft.photo }),
     Bubble(`${draft.to.name} at ${draft.to.bank}, the same account the flat deposit went to. I am putting it together now.`)));
 
 const confirm = { title: 'Confirm', render: () => passcodeSheet(chatBase()) };
@@ -1977,7 +1962,7 @@ const short = {
       ActionRow({ icon: 'pot', title: `Move it from ${s.goal.name}`, sub: `${naira(s.goal.saved)} is sitting there`, onClick: () => go('goal') }),
       ActionRow({ icon: 'send', title: `Send ${naira(Math.floor(have))} now`, sub: 'The rest when your salary lands',
         onClick: () => { set({ amount: Math.floor(have) }); go('pay'); } }),
-      ActionRow({ icon: 'request', title: `Ask Musa for ${naira(Math.ceil(gap))}`, sub: 'He owes you from the rent', onClick: () => go('askreq') }),
+      ActionRow({ icon: 'request', title: `Ask Musa for ${naira(Math.ceil(gap))}`, sub: 'He owes you from the rent', onClick: () => go('request') }),
       Note('Nothing has left your account', 'lock'),
       Note('No fee and no attempt. This is a sum I did before trying.'),
     ], Dock({ placeholder: 'Ask me about this', back: () => go('pay') }));
@@ -2075,7 +2060,7 @@ const amend = {
     const draw = () => {
       host.innerHTML = '';
       host.appendChild(e('div', { class: 'stack gap-1' },
-        Caption('I heard', 'c-2'),
+        Caption('I read', 'c-2'),
         e('div', { class: 't-display c-3', style: { textDecoration: 'line-through' } }, naira(200000))));
       host.appendChild(e('div', { class: 'stack gap-1' },
         Caption('You meant', 'c-2'),
@@ -2160,7 +2145,7 @@ const nonetwork = {
   ], Dock({ placeholder: 'Ask what works offline', back: () => go('home') })),
 };
 
-return { checking, iwillnot, misheard, alreadygone, confirm, noface, short, pending, failed, reversed, wrong, recall, amend, disputeopen, disputeend, nonetwork };
+return { checking, iwillnot, misread, alreadygone, confirm, noface, short, pending, failed, reversed, wrong, recall, amend, disputeopen, disputeend, nonetwork };
 })();
 
 /* src/screens/home.js */
@@ -2384,7 +2369,7 @@ const agentchat = {
     }
 
     return Screen(body, Dock({
-      placeholder: 'Reply, or just keep talking',
+      placeholder: 'Reply, or just keep typing',
       back: () => go('home'),
       onAsk: say,
     }));
@@ -2726,7 +2711,7 @@ const M$src_screens_act3a_js = (function () {
 const {
   el, Icon, AgentMark, Screen, Dock, Sheet, PageHead, Head, Body, Meta, Caption, Label,
   Card, Plain, Stack, Row, Divider, Spacer, Glyph, ListRow, ActionRow, Field,
-  Button, Ghost, Chip, Bubble, Said, ToolPanel, Banner, Note, Pill, Waveform,
+  Button, Ghost, Chip, Bubble, Said, ToolPanel, Banner, Note, Pill,
   Keyboard, AmountPad, TextPad, Picker, EditRow, Slide, PassPad, toast,
   naira, nairaFull,
 } = M$src_ui_js;
@@ -2799,20 +2784,47 @@ const blurredHome = () => e('div', { class: 'screen-scroll', style: { filter: 'b
     e('div', { class: 'row' }, ...['airtime-tone', 'power-tone', 'pot-tone', 'grid-tone'].map(i =>
       e('div', { class: 'center', style: { flex: 1 } }, Icon(i, { size: 24 }))))));
 
-const ask = {
-  title: 'Ask (voice)',
-  render: () => Sheet(blurredHome(),
-    e('div', { class: 'row', style: { gap: '8px' } }, AgentMark(), e('div', { class: 't-label c-accent' }, 'Listening')),
-    e('div', { class: 't-title' }, e('span', null, 'Send 20k to '), e('span', { class: 'c-3' }, 'Sarah')),
-    Waveform(30, 11),
-    Meta('Or try one of these', 'c-3'),
-    Stack(2,
-      ...['Pay my light bill', 'How much did I spend on data?', 'What can I borrow?'].map(t =>
-        e('button', { class: 'btn btn-quiet', onClick: () => { setQuestion(t); go('agentchat'); } }, t))),
-    Ghost('Not what I said', () => go('misheard')),
-    e('div', { class: 'row', style: { gap: '10px' } },
-      e('button', { class: 'btn btn-accent grow press', onClick: () => { start({ to: contacts.sarah, amount: 20000, narration: seedTransfer.narration, spoken: seedTransfer.spoken }); go('chat'); } }, 'Release to send'),
-      e('button', { class: 'key', style: { width: '56px', height: '56px', flex: 'none' }, 'aria-label': 'Stop', onClick: () => go('home') }, Icon('close', { size: 22 })))),
+/* The camera, out of focus, for the sheet that comes up over it once it has
+   read something. */
+const blurredCamera = () => e('div', { style: { position: 'absolute', inset: '0', filter: 'blur(4px)', opacity: .6 } }, scan.render());
+
+/* The card of what the camera read: one ticked row per part, and where the
+   part came from, the way the Meter screen lists a bill. */
+const readRows = rows => Card(...rows.flatMap(([k, v, tag], i) => [
+  i ? Divider() : null,
+  e('div', { class: 'row between', style: { padding: '6px 0', gap: '12px' } },
+    e('div', { class: 'row', style: { gap: '12px' } }, Icon('step-done', { size: 18 }), Caption(k, 'c-2')),
+    e('div', { class: 'row', style: { gap: '8px' } }, e('div', { class: 't-row' }, v), tag ? Caption(tag, 'c-3') : null)),
+]));
+
+/* The sheet over the camera, the same on the three flows it starts: what it
+   took the photo to mean, the parts it read, the way out as a link, and the
+   go with a retake beside it. */
+const foundSheet = ({ meant, read, cta, notThis, onNotThis, onGo }) => Sheet(blurredCamera(),
+  e('div', { class: 'row', style: { gap: '8px' } }, AgentMark(), e('div', { class: 't-label c-accent' }, 'Read from your photo')),
+  e('div', { class: 't-title' }, meant),
+  Meta('What I read', 'c-3'),
+  readRows(read),
+  Ghost(notThis, onNotThis),
+  e('div', { class: 'row', style: { gap: '10px' } },
+    e('button', { class: 'btn btn-accent grow press', onClick: onGo }, cta),
+    e('button', { class: 'key', style: { width: '56px', height: '56px', flex: 'none' }, 'aria-label': 'Take it again', onClick: () => go('scan') }, Icon('camera', { size: 22 }))));
+
+const found = {
+  title: 'Found (photo)',
+  render: () => foundSheet({
+    meant: 'Send 20k to Sarah',
+    read: [
+      ['Amount', naira(20000), 'from the photo'],
+      ['Account', contacts.sarah.account, contacts.sarah.bank],
+      ['Name', contacts.sarah.name, `${contacts.sarah.bank} says`],
+      ['For', seedTransfer.narration, 'from the photo'],
+    ],
+    cta: 'Send to Sarah',
+    notThis: 'Not this number',
+    onNotThis: () => go('misread'),
+    onGo: () => { start({ to: contacts.sarah, amount: 20000, narration: seedTransfer.narration, message: seedTransfer.message, photo: true }); go('chat'); },
+  }),
 };
 
 const scan = {
@@ -2820,7 +2832,7 @@ const scan = {
   render: () => e('div', { class: 'screen-scroll', style: { background: '#101216' } },
     e('div', { class: 'pad top-pad stack gap-4 center', style: { color: '#fff' } },
       e('div', { class: 't-head c-inv' }, 'Point at an account number'),
-      Meta('A QR code works too. So does a screenshot.', 'c-3'),
+      Meta('Anything with a number on it: a QR code, a screenshot, a signboard, a shirt.', 'c-3'),
       e('div', { style: { background: '#fff', borderRadius: '16px', padding: '14px', width: '100%', textAlign: 'left' } },
         e('div', { class: 'row between', style: { marginBottom: '8px' } },
           e('div', { class: 'row', style: { gap: '8px' } }, Glyph('MA'), e('div', { class: 't-caption c-2' }, 'Musa · Agent')),
@@ -2839,7 +2851,7 @@ const scan = {
       e('div', { class: 'row center', style: { gap: '30px' } },
         e('div', { style: { opacity: .7 } }, Icon('grid', { size: 24 })),
         e('button', { class: 'press', style: { width: '68px', height: '68px', borderRadius: '999px', background: '#fff', border: '5px solid #4b5160', cursor: 'pointer' }, 'aria-label': 'Take the photo',
-          onClick: () => { start({ to: contacts.sarah, amount: 20000, narration: 'Rent part payment', spoken: 'the account in the photo' }); go('chat'); } }),
+          onClick: () => go('found') }),
         e('div', { style: { opacity: .7 } }, Icon('power', { size: 24 }))),
       Caption('Or send a screenshot straight to Beetle from WhatsApp.', 'c-3'))),
 };
@@ -2883,7 +2895,7 @@ const typed = {
       onSend: text => {
         const { who, amount } = readTyped(text);
         if (!who || !amount) { toast('I need a name I know and an amount.'); return; }
-        start({ to: who, amount, narration: seedTransfer.narration, spoken: text });
+        start({ to: who, amount, narration: seedTransfer.narration, message: text });
         go('chat');
       },
     });
@@ -2945,8 +2957,8 @@ const pay = {
 
     const base = Screen([
       PageHead('Send money', `To ${draft.to.name}`, { big: true }),
-      Caption('You said', 'c-2'),
-      Said(draft.spoken || `send ${draft.to.name.split(' ')[0].toLowerCase()} ${Math.round(draft.amount / 1000)}k`),
+      Caption(draft.photo ? 'From your photo' : 'You typed', 'c-2'),
+      Said(draft.message || `send ${draft.to.name.split(' ')[0].toLowerCase()} ${Math.round(draft.amount / 1000)}k`),
       Bubble('Here it is, ready to go. Check the three parts I filled in.'),
 
       e('div', { class: 'stack gap-1' },
@@ -2997,7 +3009,7 @@ const chat = {
     const fee = act.feeFor(draft.amount);
     return Screen([
       PageHead('Beetle', ''),
-      Said(draft.spoken || `Send ${Math.round(draft.amount / 1000)}k to ${draft.to.name.split(' ')[0]}`, { spoken: true }),
+      Said(draft.message || `Send ${Math.round(draft.amount / 1000)}k to ${draft.to.name.split(' ')[0]}`, { photo: draft.photo }),
       Bubble(`${draft.to.name} at ${draft.to.bank}, the same account the flat deposit went to. I am putting it together now.`),
       ToolPanel('Beetle Transfers', 'Running', [
         { k: 'Recipient', v: draft.to.name },
@@ -3090,17 +3102,21 @@ const share = {
  * Buying something
  * ---------------------------------------------------------------- */
 
-const asksvc = {
-  title: 'Ask (voice)',
-  render: () => Sheet(blurredHome(),
-    e('div', { class: 'row', style: { gap: '8px' } }, AgentMark(), e('div', { class: 't-label c-accent' }, 'Listening')),
-    e('div', { class: 't-title' }, e('span', null, '2k data for '), e('span', { class: 'c-3' }, 'mum')),
-    Waveform(30, 23),
-    Meta('Or try one of these', 'c-3'),
-    Stack(2, ...['Buy me airtime', 'Top up my light', 'What data plan is cheapest?'].map(t =>
-      e('button', { class: 'btn btn-quiet', onClick: () => { setQuestion(t); go('agentchat'); } }, t))),
-    e('button', { class: 'btn btn-accent press', onClick: () => go('buy') }, 'Release to send'),
-    Ghost('Not what I said', () => go('typedbuy'))),
+const foundsvc = {
+  title: 'Found (photo)',
+  render: () => foundSheet({
+    meant: '2k data for mum',
+    read: [
+      ['Line', contacts.mum.account, 'MTN'],
+      ['Whose', 'Mum', 'her usual line'],
+      ['Amount', naira(2000), 'from the photo'],
+      ['Plan', '2GB for 30 days', null],
+    ],
+    cta: 'Top up Mum',
+    notThis: 'Not this line',
+    onNotThis: () => go('typedbuy'),
+    onGo: () => go('buy'),
+  }),
 };
 
 const typedbuy = {
@@ -3129,7 +3145,7 @@ const buy = {
   title: 'Buy data',
   render: () => Screen([
     PageHead('Buy data', 'Everything I filled in, before it goes'),
-    Said(plan.label.split(' for ')[0] + ' for Mum'),
+    Said(plan.label.split(' for ')[0] + ' for Mum', { photo: true }),
     Bubble(`Mum’s line is MTN, and ${plan.label.toLowerCase()} is ${naira(plan.price)}. ${plan.id === '5gb' ? 'That is the same plan you bought last month.' : 'You have not bought this one before.'}`),
     ToolPanel('Beetle Airtime', 'Running', [
       { k: 'Line', v: contacts.mum.account },
@@ -3154,7 +3170,7 @@ const confirmbuy = {
   title: 'Confirm',
   render: () => Sheet(
     quietReceipt([
-      Caption('You said', 'c-2'),
+      Caption('From your photo', 'c-2'),
       Said('2k data for mum'),
       e('div', { class: 't-display' }, naira(plan.price)),
       Bubble('Mum’s MTN line, the one ending 4471. She ran dry eleven days early last month, so I have priced the bigger bundle too.'),
@@ -3222,17 +3238,21 @@ const sharebuy = {
  * Asking to be paid
  * ---------------------------------------------------------------- */
 
-const askreq = {
-  title: 'Ask (voice)',
-  render: () => Sheet(blurredHome(),
-    e('div', { class: 'row', style: { gap: '8px' } }, AgentMark(), e('div', { class: 't-label c-accent' }, 'Listening')),
-    e('div', { class: 't-title' }, e('span', null, 'Ask Musa for '), e('span', { class: 'c-3' }, '20k')),
-    Waveform(30, 41),
-    Meta('Or try one of these', 'c-3'),
-    Stack(2, ...['Who owes me money?', 'Show my code', 'Remind Musa again'].map(t =>
-      e('button', { class: 'btn btn-quiet', onClick: () => { setQuestion(t); go('agentchat'); } }, t))),
-    e('button', { class: 'btn btn-accent', onClick: () => go('request') }, 'Release to send'),
-    Ghost('Not what I said', () => go('typedask'))),
+const foundreq = {
+  title: 'Found (photo)',
+  render: () => foundSheet({
+    meant: 'Ask Musa for 20k',
+    read: [
+      ['Amount', naira(20000), 'from the photo'],
+      ['Person', contacts.musa.name, 'paid you before'],
+      ['Reaches him', 'WhatsApp and SMS', null],
+      ['For', 'Rent balance', 'from the photo'],
+    ],
+    cta: 'Ask Musa',
+    notThis: 'Not this person',
+    onNotThis: () => go('typedask'),
+    onGo: () => go('request'),
+  }),
 };
 
 const typedask = {
@@ -3445,7 +3465,7 @@ const powerpay = {
     const enough = s.everyday >= bill.amount;
     const kwh = a => `About ${Math.round(a / 62.5)} kWh`;
     const base = Screen([
-      Caption('You said', 'c-2'),
+      Caption('You typed', 'c-2'),
       Said('pay my light bill'),
       Card(
         e('div', { class: 'listrow' },
@@ -3522,7 +3542,7 @@ const sharepower = {
     () => go('power')),
 };
 
-return { receiptBody, blurredHome, ask, scan, typed, pay, chat, lastReceipt, donesend, shareSheet, quietReceipt, share, asksvc, typedbuy, setPlan, currentPlan, buy, confirmbuy, done, sharebuy, askreq, typedask, request, sent, scanbill, startBill, meter, confirmmeter, billsScreen, powerpay, power, sharepower };
+return { receiptBody, blurredHome, found, scan, typed, pay, chat, lastReceipt, donesend, shareSheet, quietReceipt, share, foundsvc, typedbuy, setPlan, currentPlan, buy, confirmbuy, done, sharebuy, foundreq, typedask, request, sent, scanbill, startBill, meter, confirmmeter, billsScreen, powerpay, power, sharepower };
 })();
 
 /* src/screens/act3b.js */
@@ -3567,7 +3587,7 @@ const receive = {
     Card(...[
       ['bank', 'Bank transfer', `Your number, ${me.account}`, 'ways'],
       ['card', 'From a card', 'Any Nigerian debit card', 'ways'],
-      ['request', 'Ask someone', 'Send a request they pay in one tap', 'askreq'],
+      ['request', 'Ask someone', 'Send a request they pay in one tap', 'request'],
       ['dollar', 'In dollars', 'Hold it steady, or convert it now', 'dollars'],
     ].map(([i, t, s, to], n) => e('div', null,
       n ? Divider() : null,
@@ -3584,7 +3604,7 @@ const ways = {
   title: 'Three ways to be paid',
   render: () => Screen([
     PageHead('Three ways to be paid', 'All of them safe to hand out', { big: true }),
-    Bubble('You cannot receive by talking. What I can do is hand you the two things money reaches you by, and write the message that asks.'),
+    Bubble('There is nothing to photograph when money is coming to you. What I can do is hand you the two things money reaches you by, and write the message that asks.'),
     Card(
       Caption('Your account number', 'c-2'),
       e('div', { class: 't-row' }, `${me.bank} · ${me.name}`),
@@ -3599,7 +3619,7 @@ const ways = {
       Caption('Ask somebody', 'c-2'),
       e('div', { class: 't-row' }, 'I write it, you check it'),
       Meta('On WhatsApp and SMS', 'c-3'),
-      Button('Ask for money', { kind: 'quiet', onClick: () => go('askreq') })),
+      Button('Ask for money', { kind: 'quiet', onClick: () => go('request') })),
     Plain(
       Label('None of these can take anything'),
       Caption('A number and a code can only be paid into. Neither carries your balance.', 'c-2')),
@@ -3710,7 +3730,7 @@ const airtime = {
   render: () => {
     const BUNDLES = [['1GB', 800], ['2GB', 2000], ['10GB', 4000]];
     return Screen([
-      Caption('You said', 'c-2'),
+      Caption('You typed', 'c-2'),
       Said('2k data for mum'),
       Card(
         e('div', { class: 'listrow' },
@@ -4037,7 +4057,7 @@ const actions = {
       blurredHome(),
       e('div', { class: 'fab-menu-veil' }),
       e('div', { class: 'fab-menu-items' },
-        item('voice-filled', 'Voice', 'ask', 'var(--warn)'),
+        item('camera-filled', 'Camera', 'scan', 'var(--warn)'),
         item('send-filled', 'Send money', 'pay', 'var(--accent)'),
         item('receive-filled', 'Receive', 'ways', 'var(--good)'),
         item('history-filled', 'History', 'history', '#AF52DE'),
@@ -4372,8 +4392,8 @@ const payfrom = {
     const st = get();
     const d = flow.draft;
     return Screen([
-      Caption('You said', 'c-2'),
-      Said(dollarSend.spoken),
+      Caption('You typed', 'c-2'),
+      Said(dollarSend.message),
       e('div', { class: 'stack gap-1' },
         e('div', { class: 't-display' }, naira(d.amount)),
         Caption('I took this from your message', 'c-3')),
@@ -4425,8 +4445,8 @@ const paydollars = {
     const enough = st.dollars >= inDollars;
     return Screen([
       PageHead('Send money', `To ${d.to.name}`, { big: true }),
-      Caption('You said', 'c-2'),
-      Said(dollarSend.spoken),
+      Caption('You typed', 'c-2'),
+      Said(dollarSend.message),
       Bubble('Here it is, ready to go. Check the three parts I filled in.'),
       e('div', { class: 'stack gap-1' },
         e('div', { class: 't-display' }, naira(d.amount)),
@@ -4903,7 +4923,7 @@ const { home, agentchat } = M$src_screens_home_js;
 const SCREENS = {
   /* Act One */
   checking: a1.checking, iwillnot: a1.iwillnot,
-  misheard: a1.misheard, alreadygone: a1.alreadygone,
+  misread: a1.misread, alreadygone: a1.alreadygone,
   confirm: a1.confirm, noface: a1.noface, short: a1.short,
   pending: a1.pending, failed: a1.failed, reversed: a1.reversed,
   wrong: a1.wrong, recall: a1.recall, amend: a1.amend,
@@ -4919,11 +4939,11 @@ const SCREENS = {
 
   /* Act Three */
   home, agentchat,
-  ask: a3a.ask, scan: a3a.scan, typed: a3a.typed, pay: a3a.pay, chat: a3a.chat,
+  scan: a3a.scan, found: a3a.found, typed: a3a.typed, pay: a3a.pay, chat: a3a.chat,
   donesend: a3a.donesend, share: a3a.share,
-  asksvc: a3a.asksvc, typedbuy: a3a.typedbuy, buy: a3a.buy,
+  foundsvc: a3a.foundsvc, typedbuy: a3a.typedbuy, buy: a3a.buy,
   confirmbuy: a3a.confirmbuy, done: a3a.done, sharebuy: a3a.sharebuy,
-  askreq: a3a.askreq, typedask: a3a.typedask, request: a3a.request, sent: a3a.sent,
+  foundreq: a3a.foundreq, typedask: a3a.typedask, request: a3a.request, sent: a3a.sent,
   scanbill: a3a.scanbill, meter: a3a.meter, confirmmeter: a3a.confirmmeter,
   power: a3a.power, sharepower: a3a.sharepower,
   bills: a3a.billsScreen, powerpay: a3a.powerpay,
@@ -4956,8 +4976,8 @@ const ACTS = [
     sections: [
       { name: 'When it is not sure', aim: 'It shows its working, and flags the one part it could have got wrong.',
         screens: ['checking', 'iwillnot'] },
-      { name: 'When it heard you wrong', aim: 'A misheard word is caught before the money leaves, and after.',
-        screens: ['misheard', 'alreadygone'] },
+      { name: 'When it read it wrong', aim: 'A misread digit is caught before the money leaves, and after.',
+        screens: ['misread', 'alreadygone'] },
       { name: 'When it does not go', aim: 'Six ways a payment stops, each one saying what happened and what it costs.',
         screens: ['confirm', 'noface', 'short', 'pending', 'failed', 'reversed'] },
       { name: 'When it was wrong', aim: 'It made the mistake, so it pays first and recovers afterwards.',
@@ -4984,12 +5004,12 @@ const ACTS = [
     sections: [
       { name: 'Home and the ask bar', aim: 'The balance, what it noticed, and one place to ask anything.',
         screens: ['home', 'agentchat'] },
-      { name: 'Sending money', aim: 'Voice, camera or typing, all landing on the same confirmation.',
-        screens: ['ask', 'scan', 'typed', 'pay', 'chat', 'donesend', 'share'] },
+      { name: 'Sending money', aim: 'Camera or typing, both landing on the same confirmation.',
+        screens: ['scan', 'found', 'typed', 'pay', 'chat', 'donesend', 'share'] },
       { name: 'Buying something', aim: 'Airtime and data bought in a sentence, priced before you agree.',
-        screens: ['asksvc', 'typedbuy', 'buy', 'confirmbuy', 'done', 'sharebuy'] },
+        screens: ['foundsvc', 'typedbuy', 'buy', 'confirmbuy', 'done', 'sharebuy'] },
       { name: 'Asking to be paid', aim: 'A request that carries the reason, and pays in one tap.',
-        screens: ['askreq', 'typedask', 'request', 'sent'] },
+        screens: ['foundreq', 'typedask', 'request', 'sent'] },
       { name: 'Pay a bill from a photo', aim: 'Point the camera at the bill and let it read the meter.',
         screens: ['scanbill', 'meter', 'confirmmeter', 'power', 'sharepower'] },
       { name: 'Pay a bill the ordinary way', aim: 'The same bill from the list, for when there is no photo.',

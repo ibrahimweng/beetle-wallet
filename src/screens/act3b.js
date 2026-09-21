@@ -39,7 +39,7 @@ export const receive = {
     Card(...[
       ['bank', 'Bank transfer', `Your number, ${me.account}`, 'ways'],
       ['card', 'From a card', 'Any Nigerian debit card', 'ways'],
-      ['request', 'Ask someone', 'Send a request they pay in one tap', 'askreq'],
+      ['request', 'Ask someone', 'Send a request they pay in one tap', 'request'],
       ['dollar', 'In dollars', 'Hold it steady, or convert it now', 'dollars'],
     ].map(([i, t, s, to], n) => e('div', null,
       n ? Divider() : null,
@@ -56,7 +56,7 @@ export const ways = {
   title: 'Three ways to be paid',
   render: () => Screen([
     PageHead('Three ways to be paid', 'All of them safe to hand out', { big: true }),
-    Bubble('You cannot receive by talking. What I can do is hand you the two things money reaches you by, and write the message that asks.'),
+    Bubble('There is nothing to photograph when money is coming to you. What I can do is hand you the two things money reaches you by, and write the message that asks.'),
     Card(
       Caption('Your account number', 'c-2'),
       e('div', { class: 't-row' }, `${me.bank} · ${me.name}`),
@@ -71,7 +71,7 @@ export const ways = {
       Caption('Ask somebody', 'c-2'),
       e('div', { class: 't-row' }, 'I write it, you check it'),
       Meta('On WhatsApp and SMS', 'c-3'),
-      Button('Ask for money', { kind: 'quiet', onClick: () => go('askreq') })),
+      Button('Ask for money', { kind: 'quiet', onClick: () => go('request') })),
     Plain(
       Label('None of these can take anything'),
       Caption('A number and a code can only be paid into. Neither carries your balance.', 'c-2')),
@@ -182,7 +182,7 @@ export const airtime = {
   render: () => {
     const BUNDLES = [['1GB', 800], ['2GB', 2000], ['10GB', 4000]];
     return Screen([
-      Caption('You said', 'c-2'),
+      Caption('You typed', 'c-2'),
       Said('2k data for mum'),
       Card(
         e('div', { class: 'listrow' },
@@ -509,7 +509,7 @@ export const actions = {
       blurredHome(),
       e('div', { class: 'fab-menu-veil' }),
       e('div', { class: 'fab-menu-items' },
-        item('voice-filled', 'Voice', 'ask', 'var(--warn)'),
+        item('camera-filled', 'Camera', 'scan', 'var(--warn)'),
         item('send-filled', 'Send money', 'pay', 'var(--accent)'),
         item('receive-filled', 'Receive', 'ways', 'var(--good)'),
         item('history-filled', 'History', 'history', '#AF52DE'),
@@ -844,8 +844,8 @@ export const payfrom = {
     const st = get();
     const d = flow.draft;
     return Screen([
-      Caption('You said', 'c-2'),
-      Said(dollarSend.spoken),
+      Caption('You typed', 'c-2'),
+      Said(dollarSend.message),
       e('div', { class: 'stack gap-1' },
         e('div', { class: 't-display' }, naira(d.amount)),
         Caption('I took this from your message', 'c-3')),
@@ -897,8 +897,8 @@ export const paydollars = {
     const enough = st.dollars >= inDollars;
     return Screen([
       PageHead('Send money', `To ${d.to.name}`, { big: true }),
-      Caption('You said', 'c-2'),
-      Said(dollarSend.spoken),
+      Caption('You typed', 'c-2'),
+      Said(dollarSend.message),
       Bubble('Here it is, ready to go. Check the three parts I filled in.'),
       e('div', { class: 'stack gap-1' },
         e('div', { class: 't-display' }, naira(d.amount)),

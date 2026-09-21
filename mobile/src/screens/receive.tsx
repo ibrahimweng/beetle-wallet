@@ -39,7 +39,7 @@ import { me } from '../state/data.js';
 const WAYS: [string, string, string, Route][] = [
   ['bank', 'Bank transfer', `Your number, ${me.account}`, 'ways'],
   ['card', 'From a card', 'Any Nigerian debit card', 'ways'],
-  ['request', 'Ask someone', 'Send a request they can pay', 'askreq'],
+  ['request', 'Ask someone', 'Send a request they can pay', 'request'],
   ['dollar', 'In dollars', 'Hold it steady, or turn naira across', 'dollars'],
 ];
 
@@ -86,8 +86,8 @@ export const Ways = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about getting paid', nav, 'home', true)}>
     <PageHead lead title="Three ways to be paid" sub="All of them safe to hand out" />
     <Bubble>
-      You cannot receive by talking. What I can do is hand you the two things money reaches you by, and write
-      the message that asks.
+      There is nothing to photograph when money is coming to you. What I can do is hand you the two things
+      money reaches you by, and write the message that asks.
     </Bubble>
     <Card style={{ gap: space.s3 }}>
       <Caption tone="secondary">Your account number</Caption>
@@ -105,7 +105,7 @@ export const Ways = ({ nav }: { nav: Nav }) => (
       <Caption tone="secondary">Ask somebody</Caption>
       <Row>I write it, you check it</Row>
       <Meta tone="tertiary">On WhatsApp and SMS</Meta>
-      <Button label="Ask for money" tone="grey" onPress={() => nav.go('askreq')} />
+      <Button label="Ask for money" tone="grey" onPress={() => nav.go('request')} />
     </Card>
     <View style={{ gap: space.s2 }}>
       <Label>None of these can take anything</Label>

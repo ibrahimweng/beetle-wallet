@@ -53,7 +53,9 @@ export type Draft = {
   meter: string;
   reason: string;
   direction: string;
-  spoken?: string;
+  message?: string;
+  /* true when the line came off a photo rather than the keyboard */
+  photo?: boolean;
   receipt: Receipt | null;
 };
 

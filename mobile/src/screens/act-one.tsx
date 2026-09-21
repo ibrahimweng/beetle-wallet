@@ -39,10 +39,10 @@ export const Checking = ({ nav }: { nav: Nav }) => (
       tool="Beetle Reasoning"
       state="Checked"
       rows={[
-        { k: 'Heard the name Sarah', v: 'Certain' },
+        { k: 'Read the name Sarah', v: 'Certain' },
         { k: 'Matched 14 past payments', v: 'Certain' },
         { k: 'Confirmed the account with GTBank', v: 'Certain' },
-        { k: 'Heard the amount', v: 'Not certain', done: false },
+        { k: 'Read the amount', v: 'Not certain', done: false },
       ]}
     />
     <ReasonList
@@ -88,7 +88,7 @@ export const IWillNot = ({ nav }: { nav: Nav }) => (
     />
     <Facts
       rows={[
-        ['You said', 'send everything'],
+        ['You typed', 'send everything'],
         ['Account age', 'Four minutes'],
         ['Paid before', 'Never'],
       ]}
@@ -118,33 +118,36 @@ export const IWillNot = ({ nav }: { nav: Nav }) => (
   </Screen>
 );
 
-export const Misheard = ({ nav }: { nav: Nav }) => (
+export const Misread = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask me about this', nav)}>
     <PageHead title="Check this number" sub="Nothing has been sent" />
     <BigStatus
       glyph="warn-filled"
       tone={colour.good}
-      amount="₦200,000"
-      line="and I am not sure I heard it right"
+      amount="0234 5678 90"
+      line="and I am not sure of the last digit"
     />
     <Facts
       rows={[
-        ['You said', 'two hundred'],
-        ['I heard', '₦200,000'],
-        ['Or maybe', '₦200'],
+        ['From the photo', 'Sarah A. · GTBank'],
+        ['I read', '0234 5678 90'],
+        ['Or maybe', '0234 5678 96'],
       ]}
     />
-    <AgentSay>
-      Spoken round numbers are where I slip most. I will not choose between these two on my own.
-    </AgentSay>
+    <AgentSay>The last digit is soft in the photo. I will not choose between these two on my own.</AgentSay>
     <Choices>
       <ChoiceRow
         glyph="pot"
-        title="It is ₦200,000"
-        sub="Rent money, to Sarah"
+        title="It is 0234 5678 90"
+        sub="Sarah Adeyemi, who you have paid before"
         onPress={() => nav.go('pay')}
       />
-      <ChoiceRow glyph="send" title="It is ₦200" sub="Small change, to Sarah" onPress={() => nav.go('pay')} />
+      <ChoiceRow
+        glyph="send"
+        title="It is 0234 5678 96"
+        sub="Someone you have never paid"
+        onPress={() => nav.go('pay')}
+      />
       <ChoiceRow
         glyph="request"
         title="Let me type it"
@@ -154,33 +157,33 @@ export const Misheard = ({ nav }: { nav: Nav }) => (
       <ChoiceRow
         glyph="undo-filled"
         title="I sent it wrong"
-        sub="₦200,000 left at 14:22"
+        sub="₦20,000 left at 14:22"
         onPress={() => nav.go('alreadygone')}
       />
     </Choices>
-    <FootNote title="Nothing has left your account" sub="I stop whenever an amount reads two ways." />
+    <FootNote title="Nothing has left your account" sub="I stop whenever a number reads two ways." />
   </Screen>
 );
 
 export const AlreadyGone = ({ nav }: { nav: Nav }) => (
   <Screen dock={dock('Ask about the cover', nav)}>
-    <PageHead title="I sent it wrong" sub="₦200,000 left at 14:22" />
-    <BigStatus glyph="warn-filled" tone={colour.alert} amount="₦200,000" line="left your account" />
+    <PageHead title="I sent it wrong" sub="₦20,000 left at 14:22" />
+    <BigStatus glyph="warn-filled" tone={colour.alert} amount="₦20,000" line="went to the wrong account" />
     <Banner text="This one is mine. You are covered." tone={colour.good} />
     <AgentSay>
-      You said two hundred. I sent two hundred thousand. That is my error, so you get the difference back
-      today, whether or not Sarah returns it.
+      I read the last digit wrong and sent it to a stranger. That is my error, so you get it back today,
+      whether or not they return it.
     </AgentSay>
     <Choices>
       <ChoiceRow
         glyph="send"
-        title="Take ₦199,800 back"
+        title="Take ₦20,000 back"
         sub="Paid by us today, not in days"
         onPress={() => nav.go('reversed')}
       />
       <ChoiceRow
         glyph="bank"
-        title="Ask Sarah to return it"
+        title="Ask GTBank to recall it"
         sub="We do this to recover our side"
         onPress={() => nav.go('recall')}
       />
@@ -225,7 +228,7 @@ export const Short = ({ nav }: { nav: Nav }) => (
         glyph="request"
         title="Ask Musa for ₦7,520"
         sub="He owes you from the rent"
-        onPress={() => nav.go('askreq')}
+        onPress={() => nav.go('request')}
       />
     </Choices>
     <FootNote
@@ -548,13 +551,13 @@ export const NoNetwork = ({ nav }: { nav: Nav }) => (
 );
 
 /* Changing an amount before it goes. The pad replaces on the first key, so the
-   figure it heard is a suggestion rather than something half typed. */
+   figure it read is a suggestion rather than something half typed. */
 export const Amend = ({ nav }: { nav: Nav }) => {
   const [amount, setAmount] = React.useState(20000);
   return (
     <Screen dock={undefined}>
       <PageHead title="Change the amount" sub="Nothing has been sent" />
-      <AmountPad value={amount} onChange={setAmount} heard="₦200,000" />
+      <AmountPad value={amount} onChange={setAmount} read="₦200,000" />
       {/* the frame closes the gap under the pad and under what it says */}
       <View style={{ marginTop: -16 }}>
         <AgentSay>

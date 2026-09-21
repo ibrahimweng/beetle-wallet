@@ -26,11 +26,11 @@ import {
   NewCode,
   NoMatch,
 } from './screens/way-in';
-import { Ask, Chat, Confirm, DoneSend, Share } from './screens/send';
+import { Chat, Confirm, DoneSend, Share } from './screens/send';
 import {
   Checking,
   IWillNot,
-  Misheard,
+  Misread,
   AlreadyGone,
   Short,
   Pending,
@@ -45,9 +45,9 @@ import {
 } from './screens/act-one';
 import { Rule, Rules, Settings, Lock, Limits, LimitStop, Devices, LostPhone } from './screens/act-two';
 import { Home, AgentChat } from './screens/home';
-import { Scan, Typed, Pay, PayFrom, PayDollars, DraftNote } from './screens/money';
-import { AskSvc, TypedBuy, Buy, ConfirmBuy, Done, ShareBuy } from './screens/buy';
-import { AskReq, TypedAsk, Request, Sent } from './screens/request';
+import { Scan, Found, Typed, Pay, PayFrom, PayDollars, DraftNote } from './screens/money';
+import { FoundSvc, TypedBuy, Buy, ConfirmBuy, Done, ShareBuy } from './screens/buy';
+import { FoundReq, TypedAsk, Request, Sent } from './screens/request';
 import { ScanBill, MeterRead, ConfirmMeter, Power, SharePower, Bills, PowerPay } from './screens/bills';
 import { Receive, Ways, MyCode } from './screens/receive';
 import { Services, Airtime, Loan, CardScreen, History, Answer } from './screens/services';
@@ -95,7 +95,6 @@ const BUILT: Partial<Record<Route, React.ComponentType<{ nav: Nav }>>> = {
   signin: ({ nav }) => <Signin nav={as(nav)} />,
   signcode: ({ nav }) => <Signcode nav={as(nav)} />,
 
-  ask: ({ nav }) => <Ask nav={as(nav)} />,
   chat: ({ nav }) => <Chat nav={as(nav)} />,
   confirm: ({ nav }) => <Confirm nav={as(nav)} />,
   noface: ({ nav }) => <Confirm nav={as(nav)} faceMissed />,
@@ -104,7 +103,7 @@ const BUILT: Partial<Record<Route, React.ComponentType<{ nav: Nav }>>> = {
 
   checking: ({ nav }) => <Checking nav={as(nav)} />,
   iwillnot: ({ nav }) => <IWillNot nav={as(nav)} />,
-  misheard: ({ nav }) => <Misheard nav={as(nav)} />,
+  misread: ({ nav }) => <Misread nav={as(nav)} />,
   alreadygone: ({ nav }) => <AlreadyGone nav={as(nav)} />,
   short: ({ nav }) => <Short nav={as(nav)} />,
   pending: ({ nav }) => <Pending nav={as(nav)} />,
@@ -133,6 +132,7 @@ const BUILT: Partial<Record<Route, React.ComponentType<{ nav: Nav }>>> = {
 
   /* Act Three — sending */
   scan: ({ nav }) => <Scan nav={as(nav)} />,
+  found: ({ nav }) => <Found nav={as(nav)} />,
   typed: ({ nav }) => <Typed nav={as(nav)} />,
   pay: ({ nav }) => <Pay nav={as(nav)} />,
   payfrom: ({ nav }) => <PayFrom nav={as(nav)} />,
@@ -140,7 +140,7 @@ const BUILT: Partial<Record<Route, React.ComponentType<{ nav: Nav }>>> = {
   draft: ({ nav }) => <DraftNote nav={as(nav)} />,
 
   /* buying */
-  asksvc: ({ nav }) => <AskSvc nav={as(nav)} />,
+  foundsvc: ({ nav }) => <FoundSvc nav={as(nav)} />,
   typedbuy: ({ nav }) => <TypedBuy nav={as(nav)} />,
   buy: ({ nav }) => <Buy nav={as(nav)} />,
   confirmbuy: ({ nav }) => <ConfirmBuy nav={as(nav)} />,
@@ -148,7 +148,7 @@ const BUILT: Partial<Record<Route, React.ComponentType<{ nav: Nav }>>> = {
   sharebuy: ({ nav }) => <ShareBuy nav={as(nav)} />,
 
   /* asking to be paid */
-  askreq: ({ nav }) => <AskReq nav={as(nav)} />,
+  foundreq: ({ nav }) => <FoundReq nav={as(nav)} />,
   typedask: ({ nav }) => <TypedAsk nav={as(nav)} />,
   request: ({ nav }) => <Request nav={as(nav)} />,
   sent: ({ nav }) => <Sent nav={as(nav)} />,
@@ -229,9 +229,9 @@ const linking: LinkingOptions<Stack> = {
    for the screen is the one that brings it in. */
 const UP: Route[] = [
   /* the sheets */
-  'ask',
-  'asksvc',
-  'askreq',
+  'found',
+  'foundsvc',
+  'foundreq',
   'receive',
   'confirm',
   'noface',

@@ -104,7 +104,7 @@ function Rows({ rows, nav }: { rows: [string, string, string, Route][]; nav: Nav
 }
 
 export const Services = ({ nav }: { nav: Nav }) => (
-  <Screen dock={dock('Search, or say what you need', nav, 'home')}>
+  <Screen dock={dock('Search, or show me a photo', nav, 'home')}>
     <PageHead lead title="All services" sub="Everything you can pay for from here" />
     <Head>You use these most</Head>
     <Grid
@@ -141,7 +141,7 @@ function MoneyRows({ nav }: { nav: Nav }) {
       nav={nav}
       rows={[
         ['dollar', 'Dollars', `$${s.dollars.toFixed(2)}, holding steady`, 'dollars'],
-        ['request', 'Request money', 'Ask someone to pay you', 'askreq'],
+        ['request', 'Request money', 'Ask someone to pay you', 'request'],
         ['globe', 'Send abroad', 'Pounds, dollars and euros', 'convert'],
       ]}
     />
@@ -171,7 +171,7 @@ export const Airtime = ({ nav }: { nav: Nav }) => (
     }
   >
     <PageHead lead title="Buy data" sub="Check the parts I filled in before it goes" />
-    <Told onPress={() => nav.go('asksvc')}>2k data for mum</Told>
+    <Told onPress={() => nav.go('typedbuy')}>2k data for mum</Told>
     <AgentSay>5GB for 30 days, on Mum’s MTN line.</AgentSay>
     <FormBlock>
       <Slip>

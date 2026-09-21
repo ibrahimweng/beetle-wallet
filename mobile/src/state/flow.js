@@ -50,7 +50,7 @@ export const formDraft = () => (started ? draft : Object.assign(blank(), {
   to: contacts.sarah,
   amount: dollarSend.amount,
   narration: dollarSend.reference,
-  spoken: dollarSend.spoken,
+  message: dollarSend.message,
 }));
 
 export { bills };

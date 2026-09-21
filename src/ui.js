@@ -141,10 +141,12 @@ export const Bubble = text =>
   e('div', { class: 'row', style: { alignItems: 'flex-start', gap: '10px' } },
     AgentMark(),
     e('div', { class: 'bubble' }, text));
-export const Said = (text, { spoken = false } = {}) =>
+/* What you asked for, as the black bubble on the right. A line that came off
+   a photo carries the camera beside it; a typed one carries nothing. */
+export const Said = (text, { photo = false } = {}) =>
   e('div', { class: 'row', style: { justifyContent: 'flex-end' } },
-    e('div', { class: 'bubble-me' + (spoken ? ' bubble-spoken' : '') },
-      spoken ? Icon('mic', { size: 16 }) : null, e('span', null, text)));
+    e('div', { class: 'bubble-me' + (photo ? ' bubble-photo' : '') },
+      photo ? Icon('camera', { size: 16 }) : null, e('span', null, text)));
 export const Typing = () =>
   e('div', { class: 'row', style: { alignItems: 'flex-start', gap: '10px' } },
     AgentMark(),
@@ -206,20 +208,8 @@ export const Keyboard = (onKey, sendLabel = 'send') =>
       e('button', { class: 'kbd-key', style: { flex: 4 }, onClick: () => onKey(' ') }, ' '),
       e('button', { class: 'kbd-key wide', style: { background: 'var(--accent)', color: '#fff' }, onClick: () => onKey('send') }, sendLabel)));
 
-/* ---------- waveform ---------- */
-export const Waveform = (bars = 26, seed = 7) => {
-  const w = e('div', { class: 'waveform' });
-  let s = seed;
-  for (let i = 0; i < bars; i++) {
-    s = (s * 1103515245 + 12345) % 2147483648;
-    const h = 6 + (s % 100) / 100 * 28;
-    w.appendChild(e('i', { style: { height: h.toFixed(0) + 'px', opacity: 0.35 + (s % 65) / 100 } }));
-  }
-  return w;
-};
-
 /* ---------- dock ---------- */
-export const Dock = ({ placeholder = 'Ask, or just say what you need', back, onAsk, fab = 'fab-plus', onFab } = {}) => {
+export const Dock = ({ placeholder = 'Ask, or show me a photo', back, onAsk, fab = 'fab-plus', onFab } = {}) => {
   /* Every ask bar answers, on every screen. A screen that wants to do
      something particular with what you typed passes its own onAsk; the rest
      hand it to the agent. */
@@ -235,11 +225,10 @@ export const Dock = ({ placeholder = 'Ask, or just say what you need', back, onA
   input.addEventListener('keydown', ev => { if (ev.key === 'Enter') fire(); });
   return e('div', { class: 'dock' },
     back && e('button', { class: 'backbtn', 'aria-label': 'Back', onClick: back }, Icon('back', { size: 20 })),
-    /* the design ends the ask bar with a camera and a microphone, not a send
-       arrow: you point it at something, or you talk to it */
+    /* the design ends the ask bar with a camera, not a send arrow: you type,
+       or you point it at something */
     e('div', { class: 'askbar' }, AgentMark(), input,
-      e('button', { class: 'askbar-btn press', 'aria-label': 'Scan something', onClick: () => window.beetleGo('scan') }, Icon('camera', { size: 19 })),
-      e('button', { class: 'askbar-btn press', 'aria-label': 'Speak', onClick: fire }, Icon('mic', { size: 19 }))),
+      e('button', { class: 'askbar-btn press', 'aria-label': 'Scan something', onClick: () => window.beetleGo('scan') }, Icon('camera', { size: 19 }))),
     onFab !== undefined && e('button', { class: 'fab', 'aria-label': 'What can I do', onClick: onFab }, Icon(fab, { size: 22 })));
 };
 

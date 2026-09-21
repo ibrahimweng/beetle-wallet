@@ -350,7 +350,7 @@ export const FirstAsk = ({ nav }: { nav: Nav }) => {
       <TopBar mark title="Beetle" onBack={() => nav.go('firsthome')} />
       {thread.length === 0 ? (
         <>
-          {/* the frame opens this one on a spoken question, and offers nothing
+          {/* the frame opens this one on a typed question, and offers nothing
               under the answer: a new account has nothing to suggest from */}
           <Said>What can you do?</Said>
           <View style={{ flexDirection: 'row', gap: space.s2 }}>

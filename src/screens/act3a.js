@@ -4,7 +4,7 @@
 import {
   el, Icon, AgentMark, Screen, Dock, Sheet, PageHead, Head, Body, Meta, Caption, Label,
   Card, Plain, Stack, Row, Divider, Spacer, Glyph, ListRow, ActionRow, Field,
-  Button, Ghost, Chip, Bubble, Said, ToolPanel, Banner, Note, Pill, Waveform,
+  Button, Ghost, Chip, Bubble, Said, ToolPanel, Banner, Note, Pill,
   Keyboard, AmountPad, TextPad, Picker, EditRow, Slide, PassPad, toast,
   naira, nairaFull,
 } from '../ui.js';
@@ -78,20 +78,47 @@ export const blurredHome = () => e('div', { class: 'screen-scroll', style: { fil
     e('div', { class: 'row' }, ...['airtime-tone', 'power-tone', 'pot-tone', 'grid-tone'].map(i =>
       e('div', { class: 'center', style: { flex: 1 } }, Icon(i, { size: 24 }))))));
 
-export const ask = {
-  title: 'Ask (voice)',
-  render: () => Sheet(blurredHome(),
-    e('div', { class: 'row', style: { gap: '8px' } }, AgentMark(), e('div', { class: 't-label c-accent' }, 'Listening')),
-    e('div', { class: 't-title' }, e('span', null, 'Send 20k to '), e('span', { class: 'c-3' }, 'Sarah')),
-    Waveform(30, 11),
-    Meta('Or try one of these', 'c-3'),
-    Stack(2,
-      ...['Pay my light bill', 'How much did I spend on data?', 'What can I borrow?'].map(t =>
-        e('button', { class: 'btn btn-quiet', onClick: () => { setQuestion(t); go('agentchat'); } }, t))),
-    Ghost('Not what I said', () => go('misheard')),
-    e('div', { class: 'row', style: { gap: '10px' } },
-      e('button', { class: 'btn btn-accent grow press', onClick: () => { start({ to: contacts.sarah, amount: 20000, narration: seedTransfer.narration, spoken: seedTransfer.spoken }); go('chat'); } }, 'Release to send'),
-      e('button', { class: 'key', style: { width: '56px', height: '56px', flex: 'none' }, 'aria-label': 'Stop', onClick: () => go('home') }, Icon('close', { size: 22 })))),
+/* The camera, out of focus, for the sheet that comes up over it once it has
+   read something. */
+const blurredCamera = () => e('div', { style: { position: 'absolute', inset: '0', filter: 'blur(4px)', opacity: .6 } }, scan.render());
+
+/* The card of what the camera read: one ticked row per part, and where the
+   part came from, the way the Meter screen lists a bill. */
+const readRows = rows => Card(...rows.flatMap(([k, v, tag], i) => [
+  i ? Divider() : null,
+  e('div', { class: 'row between', style: { padding: '6px 0', gap: '12px' } },
+    e('div', { class: 'row', style: { gap: '12px' } }, Icon('step-done', { size: 18 }), Caption(k, 'c-2')),
+    e('div', { class: 'row', style: { gap: '8px' } }, e('div', { class: 't-row' }, v), tag ? Caption(tag, 'c-3') : null)),
+]));
+
+/* The sheet over the camera, the same on the three flows it starts: what it
+   took the photo to mean, the parts it read, the way out as a link, and the
+   go with a retake beside it. */
+const foundSheet = ({ meant, read, cta, notThis, onNotThis, onGo }) => Sheet(blurredCamera(),
+  e('div', { class: 'row', style: { gap: '8px' } }, AgentMark(), e('div', { class: 't-label c-accent' }, 'Read from your photo')),
+  e('div', { class: 't-title' }, meant),
+  Meta('What I read', 'c-3'),
+  readRows(read),
+  Ghost(notThis, onNotThis),
+  e('div', { class: 'row', style: { gap: '10px' } },
+    e('button', { class: 'btn btn-accent grow press', onClick: onGo }, cta),
+    e('button', { class: 'key', style: { width: '56px', height: '56px', flex: 'none' }, 'aria-label': 'Take it again', onClick: () => go('scan') }, Icon('camera', { size: 22 }))));
+
+export const found = {
+  title: 'Found (photo)',
+  render: () => foundSheet({
+    meant: 'Send 20k to Sarah',
+    read: [
+      ['Amount', naira(20000), 'from the photo'],
+      ['Account', contacts.sarah.account, contacts.sarah.bank],
+      ['Name', contacts.sarah.name, `${contacts.sarah.bank} says`],
+      ['For', seedTransfer.narration, 'from the photo'],
+    ],
+    cta: 'Send to Sarah',
+    notThis: 'Not this number',
+    onNotThis: () => go('misread'),
+    onGo: () => { start({ to: contacts.sarah, amount: 20000, narration: seedTransfer.narration, message: seedTransfer.message, photo: true }); go('chat'); },
+  }),
 };
 
 export const scan = {
@@ -99,7 +126,7 @@ export const scan = {
   render: () => e('div', { class: 'screen-scroll', style: { background: '#101216' } },
     e('div', { class: 'pad top-pad stack gap-4 center', style: { color: '#fff' } },
       e('div', { class: 't-head c-inv' }, 'Point at an account number'),
-      Meta('A QR code works too. So does a screenshot.', 'c-3'),
+      Meta('Anything with a number on it: a QR code, a screenshot, a signboard, a shirt.', 'c-3'),
       e('div', { style: { background: '#fff', borderRadius: '16px', padding: '14px', width: '100%', textAlign: 'left' } },
         e('div', { class: 'row between', style: { marginBottom: '8px' } },
           e('div', { class: 'row', style: { gap: '8px' } }, Glyph('MA'), e('div', { class: 't-caption c-2' }, 'Musa · Agent')),
@@ -118,7 +145,7 @@ export const scan = {
       e('div', { class: 'row center', style: { gap: '30px' } },
         e('div', { style: { opacity: .7 } }, Icon('grid', { size: 24 })),
         e('button', { class: 'press', style: { width: '68px', height: '68px', borderRadius: '999px', background: '#fff', border: '5px solid #4b5160', cursor: 'pointer' }, 'aria-label': 'Take the photo',
-          onClick: () => { start({ to: contacts.sarah, amount: 20000, narration: 'Rent part payment', spoken: 'the account in the photo' }); go('chat'); } }),
+          onClick: () => go('found') }),
         e('div', { style: { opacity: .7 } }, Icon('power', { size: 24 }))),
       Caption('Or send a screenshot straight to Beetle from WhatsApp.', 'c-3'))),
 };
@@ -162,7 +189,7 @@ export const typed = {
       onSend: text => {
         const { who, amount } = readTyped(text);
         if (!who || !amount) { toast('I need a name I know and an amount.'); return; }
-        start({ to: who, amount, narration: seedTransfer.narration, spoken: text });
+        start({ to: who, amount, narration: seedTransfer.narration, message: text });
         go('chat');
       },
     });
@@ -224,8 +251,8 @@ export const pay = {
 
     const base = Screen([
       PageHead('Send money', `To ${draft.to.name}`, { big: true }),
-      Caption('You said', 'c-2'),
-      Said(draft.spoken || `send ${draft.to.name.split(' ')[0].toLowerCase()} ${Math.round(draft.amount / 1000)}k`),
+      Caption(draft.photo ? 'From your photo' : 'You typed', 'c-2'),
+      Said(draft.message || `send ${draft.to.name.split(' ')[0].toLowerCase()} ${Math.round(draft.amount / 1000)}k`),
       Bubble('Here it is, ready to go. Check the three parts I filled in.'),
 
       e('div', { class: 'stack gap-1' },
@@ -276,7 +303,7 @@ export const chat = {
     const fee = act.feeFor(draft.amount);
     return Screen([
       PageHead('Beetle', ''),
-      Said(draft.spoken || `Send ${Math.round(draft.amount / 1000)}k to ${draft.to.name.split(' ')[0]}`, { spoken: true }),
+      Said(draft.message || `Send ${Math.round(draft.amount / 1000)}k to ${draft.to.name.split(' ')[0]}`, { photo: draft.photo }),
       Bubble(`${draft.to.name} at ${draft.to.bank}, the same account the flat deposit went to. I am putting it together now.`),
       ToolPanel('Beetle Transfers', 'Running', [
         { k: 'Recipient', v: draft.to.name },
@@ -369,17 +396,21 @@ export const share = {
  * Buying something
  * ---------------------------------------------------------------- */
 
-export const asksvc = {
-  title: 'Ask (voice)',
-  render: () => Sheet(blurredHome(),
-    e('div', { class: 'row', style: { gap: '8px' } }, AgentMark(), e('div', { class: 't-label c-accent' }, 'Listening')),
-    e('div', { class: 't-title' }, e('span', null, '2k data for '), e('span', { class: 'c-3' }, 'mum')),
-    Waveform(30, 23),
-    Meta('Or try one of these', 'c-3'),
-    Stack(2, ...['Buy me airtime', 'Top up my light', 'What data plan is cheapest?'].map(t =>
-      e('button', { class: 'btn btn-quiet', onClick: () => { setQuestion(t); go('agentchat'); } }, t))),
-    e('button', { class: 'btn btn-accent press', onClick: () => go('buy') }, 'Release to send'),
-    Ghost('Not what I said', () => go('typedbuy'))),
+export const foundsvc = {
+  title: 'Found (photo)',
+  render: () => foundSheet({
+    meant: '2k data for mum',
+    read: [
+      ['Line', contacts.mum.account, 'MTN'],
+      ['Whose', 'Mum', 'her usual line'],
+      ['Amount', naira(2000), 'from the photo'],
+      ['Plan', '2GB for 30 days', null],
+    ],
+    cta: 'Top up Mum',
+    notThis: 'Not this line',
+    onNotThis: () => go('typedbuy'),
+    onGo: () => go('buy'),
+  }),
 };
 
 export const typedbuy = {
@@ -408,7 +439,7 @@ export const buy = {
   title: 'Buy data',
   render: () => Screen([
     PageHead('Buy data', 'Everything I filled in, before it goes'),
-    Said(plan.label.split(' for ')[0] + ' for Mum'),
+    Said(plan.label.split(' for ')[0] + ' for Mum', { photo: true }),
     Bubble(`Mum’s line is MTN, and ${plan.label.toLowerCase()} is ${naira(plan.price)}. ${plan.id === '5gb' ? 'That is the same plan you bought last month.' : 'You have not bought this one before.'}`),
     ToolPanel('Beetle Airtime', 'Running', [
       { k: 'Line', v: contacts.mum.account },
@@ -433,7 +464,7 @@ export const confirmbuy = {
   title: 'Confirm',
   render: () => Sheet(
     quietReceipt([
-      Caption('You said', 'c-2'),
+      Caption('From your photo', 'c-2'),
       Said('2k data for mum'),
       e('div', { class: 't-display' }, naira(plan.price)),
       Bubble('Mum’s MTN line, the one ending 4471. She ran dry eleven days early last month, so I have priced the bigger bundle too.'),
@@ -501,17 +532,21 @@ export const sharebuy = {
  * Asking to be paid
  * ---------------------------------------------------------------- */
 
-export const askreq = {
-  title: 'Ask (voice)',
-  render: () => Sheet(blurredHome(),
-    e('div', { class: 'row', style: { gap: '8px' } }, AgentMark(), e('div', { class: 't-label c-accent' }, 'Listening')),
-    e('div', { class: 't-title' }, e('span', null, 'Ask Musa for '), e('span', { class: 'c-3' }, '20k')),
-    Waveform(30, 41),
-    Meta('Or try one of these', 'c-3'),
-    Stack(2, ...['Who owes me money?', 'Show my code', 'Remind Musa again'].map(t =>
-      e('button', { class: 'btn btn-quiet', onClick: () => { setQuestion(t); go('agentchat'); } }, t))),
-    e('button', { class: 'btn btn-accent', onClick: () => go('request') }, 'Release to send'),
-    Ghost('Not what I said', () => go('typedask'))),
+export const foundreq = {
+  title: 'Found (photo)',
+  render: () => foundSheet({
+    meant: 'Ask Musa for 20k',
+    read: [
+      ['Amount', naira(20000), 'from the photo'],
+      ['Person', contacts.musa.name, 'paid you before'],
+      ['Reaches him', 'WhatsApp and SMS', null],
+      ['For', 'Rent balance', 'from the photo'],
+    ],
+    cta: 'Ask Musa',
+    notThis: 'Not this person',
+    onNotThis: () => go('typedask'),
+    onGo: () => go('request'),
+  }),
 };
 
 export const typedask = {
@@ -724,7 +759,7 @@ export const powerpay = {
     const enough = s.everyday >= bill.amount;
     const kwh = a => `About ${Math.round(a / 62.5)} kWh`;
     const base = Screen([
-      Caption('You said', 'c-2'),
+      Caption('You typed', 'c-2'),
       Said('pay my light bill'),
       Card(
         e('div', { class: 'listrow' },

@@ -218,7 +218,7 @@ export const agentchat = {
     }
 
     return Screen(body, Dock({
-      placeholder: 'Reply, or just keep talking',
+      placeholder: 'Reply, or just keep typing',
       back: () => go('home'),
       onAsk: say,
     }));

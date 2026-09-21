@@ -6,7 +6,7 @@
 export type Route =
   | 'checking'
   | 'iwillnot'
-  | 'misheard'
+  | 'misread'
   | 'alreadygone'
   | 'confirm'
   | 'noface'
@@ -31,20 +31,20 @@ export type Route =
   | 'newcode'
   | 'home'
   | 'agentchat'
-  | 'ask'
+  | 'found'
   | 'scan'
   | 'typed'
   | 'pay'
   | 'chat'
   | 'donesend'
   | 'share'
-  | 'asksvc'
+  | 'foundsvc'
   | 'typedbuy'
   | 'buy'
   | 'confirmbuy'
   | 'done'
   | 'sharebuy'
-  | 'askreq'
+  | 'foundreq'
   | 'typedask'
   | 'request'
   | 'sent'
@@ -128,17 +128,17 @@ export const ROUTES: Record<Route, RouteInfo> = {
     frame: '973:20699',
     design: 'IWillNot',
   },
-  misheard: {
+  misread: {
     title: 'Check this number',
     act: 'One · It goes wrong',
-    section: 'When it heard you wrong',
+    section: 'When it read it wrong',
     frame: '957:20338',
-    design: 'Misheard',
+    design: 'Misread',
   },
   alreadygone: {
     title: 'I sent it wrong',
     act: 'One · It goes wrong',
-    section: 'When it heard you wrong',
+    section: 'When it read it wrong',
     frame: '957:20392',
     design: 'AlreadyGone',
   },
@@ -303,12 +303,12 @@ export const ROUTES: Record<Route, RouteInfo> = {
     frame: null,
     design: null,
   },
-  ask: {
-    title: 'Ask (voice)',
+  found: {
+    title: 'Found (photo)',
     act: 'Three · It works',
     section: 'Sending money',
     frame: '205:2',
-    design: 'Ask',
+    design: 'Found',
   },
   scan: {
     title: 'Scan (photo)',
@@ -352,12 +352,12 @@ export const ROUTES: Record<Route, RouteInfo> = {
     frame: '472:10886',
     design: 'Share',
   },
-  asksvc: {
-    title: 'Ask (voice)',
+  foundsvc: {
+    title: 'Found (photo)',
     act: 'Three · It works',
     section: 'Buying something',
     frame: '225:2620',
-    design: 'AskSvc',
+    design: 'FoundSvc',
   },
   typedbuy: {
     title: 'Typed',
@@ -394,12 +394,12 @@ export const ROUTES: Record<Route, RouteInfo> = {
     frame: '472:11590',
     design: 'ShareBuy',
   },
-  askreq: {
-    title: 'Ask (voice)',
+  foundreq: {
+    title: 'Found (photo)',
     act: 'Three · It works',
     section: 'Asking to be paid',
     frame: '225:1551',
-    design: 'AskReq',
+    design: 'FoundReq',
   },
   typedask: {
     title: 'Typed',

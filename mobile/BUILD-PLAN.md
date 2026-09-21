@@ -44,14 +44,14 @@ row the design does not have.
 - [x] Segmented filter — All / Insights / In / Out, used by home and history
 - [x] Activity row — the ledger line, used by home and history
 - [x] Insight card — the agent card on home
-- [x] Waveform — the listening indicator on the three voice sheets
+- [x] FoundSheet — what the camera read, on the three photo sheets
 
 ## 2 · Screens
 
 ### Act One · It goes wrong
 - [x] checking (973:20644)
 - [x] iwillnot (973:20699)
-- [x] misheard (957:20338)
+- [x] misread (957:20338)
 - [x] alreadygone (957:20392)
 - [x] noface (331:9488) — already routed to Confirm, verify against its own frame
 - [x] short (208:88)
@@ -86,13 +86,13 @@ row the design does not have.
 - [x] chat (205:57)
 - [x] donesend (239:7829)
 - [x] share (472:10886)
-- [x] asksvc (225:2620)
+- [x] foundsvc (225:2620)
 - [x] typedbuy (225:2973)
 - [x] buy (221:165)
 - [x] confirmbuy (239:8474)
 - [x] done (239:8418)
 - [x] sharebuy (472:11590)
-- [x] askreq (225:1551)
+- [x] foundreq (225:1551)
 - [x] typedask (225:1928)
 - [x] request (225:1606)
 - [x] sent (239:8294)

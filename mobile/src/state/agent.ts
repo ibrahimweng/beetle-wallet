@@ -33,7 +33,7 @@ const PLACES: [RegExp, Route][] = [
   [/\b(limit|limits|cap)\b/i, 'limits'],
   [/\b(settings|lock|privacy|face ?id|passcode)\b/i, 'settings'],
   [/\b(receive|paid|my code|account number)\b/i, 'ways'],
-  [/\b(request|owes?|ask .* for)\b/i, 'askreq'],
+  [/\b(request|owes?|ask .* for)\b/i, 'request'],
   [/\b(send|transfer|pay)\b/i, 'pay'],
   [/\b(health|score)\b/i, 'health'],
   [/\b(standing|instruction|rule)\b/i, 'rules'],

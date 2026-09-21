@@ -1,4 +1,4 @@
-/* Asking to be paid — the voice sheet, the typed way in, the message the
+/* Asking to be paid — the camera's sheet, the typed way in, the message the
    agent writes for you to check, and what it looks like once it has gone.
 
    Frames 225:1551, 225:1928, 225:1606 and 239:8294. Asking never moves money
@@ -22,6 +22,7 @@ import {
   Meta,
   PageHead,
   Picker,
+  ReadCard,
   Said,
   Dock,
   SendButton,
@@ -35,11 +36,12 @@ import {
   naira,
   space,
   toast,
-  VoiceSheet,
+  FoundSheet,
 } from '../design';
 import { Nav, asked, dock } from './nav';
 import { still } from './send';
 import { Home } from './home';
+import { Scan } from './money';
 import { Person } from '../state/live';
 import { contacts } from '../state/data.js';
 import * as act from '../state/actions.js';
@@ -55,18 +57,35 @@ let req = {
   ref: null as string | null,
 };
 
-export const AskReq = ({ nav }: { nav: Nav }) => (
-  <VoiceSheet
-    said="Ask Musa for "
-    tail="20k"
-    seed={41}
-    offers={['Who owes me money?', 'Show my code', 'Remind Musa again']}
-    onOffer={(t: string) => asked(nav, t)}
+export const FoundReq = ({ nav }: { nav: Nav }) => (
+  <FoundSheet
+    meant="Ask Musa for 20k"
+    read={[
+      ['Amount', naira(20000), 'from the photo'],
+      ['Person', contacts.musa.name, 'paid you before'],
+      ['Reaches him', 'WhatsApp and SMS', null],
+      ['For', 'Rent balance', 'from the photo'],
+    ]}
+    cta="Ask Musa"
+    notThis="Not this person"
     onNotThis={() => nav.go('typedask')}
-    onStop={() => nav.go('home')}
-    onSend={() => nav.go('request')}
+    onRetake={() => nav.go('scan')}
+    onGo={() => nav.go('request')}
     onClose={nav.back}
-    behind={<Home nav={still} />}
+    behind={
+      <Scan
+        nav={still}
+        chip={naira(20000)}
+        read={
+          <ReadCard
+            who="Musa Danjuma"
+            when="9:41 AM"
+            kind="Bros, rent balance coming Friday:"
+            lines={['20k', 'Friday', 'send me your account', 'Musa D.']}
+          />
+        }
+      />
+    }
   />
 );
 
@@ -96,14 +115,15 @@ export const Request = ({ nav }: { nav: Nav }) => {
       thread
       dock={
         <Dock
-          placeholder="Reply, or just keep talking"
+          placeholder="Reply, or just keep typing"
           onAsk={q => asked(nav, q)}
+          onScan={() => nav.go('foundreq')}
           action={<SendButton onPress={() => nav.go('sent')} />}
         />
       }
     >
       <TopBar title="Beetle" onBack={nav.back} />
-      <Said>{`Ask ${first} for ${Math.round(req.amount / 1000)}k`}</Said>
+      <Said photo>{`Ask ${first} for ${Math.round(req.amount / 1000)}k`}</Said>
       <View style={{ gap: 8 }}>
         <View style={{ flexDirection: 'row', gap: space.s2 }}>
           <Icon name="mark" size={32} colour={colour.accent} />

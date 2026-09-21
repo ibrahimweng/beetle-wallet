@@ -14,7 +14,7 @@ import { draft } from './flow.js';
 /* The brief is built fresh on every question, from the live account, so the
    agent is answering about the money as it stands and not as it was written
    into the design. */
-const voice = () => {
+const brief = () => {
   const s = get();
   const money = n => '₦' + Number(n).toLocaleString('en-NG');
   const rows = day => byDay(day).map(r => `${r.name}, ${r.detail}, ${r.amount > 0 ? 'in' : 'out'} ${money(Math.abs(r.amount))} at ${r.time}${r.status !== 'done' ? ' (' + r.status + ')' : ''}`).join('; ') || 'nothing';
@@ -114,7 +114,7 @@ function fallbackReply(text) {
  */
 export async function ask(text, { context = '', onText } = {}) {
   if (mode === 'pending') await initAgent();
-  const system = voice() + (context ? `\n\nThe person is looking at: ${context}` : '');
+  const system = brief() + (context ? `\n\nThe person is looking at: ${context}` : '');
 
   if (mode === 'sample' && sampleFn) {
     try {

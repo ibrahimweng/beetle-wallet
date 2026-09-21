@@ -92,7 +92,7 @@ red there means something actually broke.
 | `src/store.js` | Live state, kept in the browser, with the reset |
 | `src/actions.js` | The things that move money, and what each one costs |
 | `src/flow.js` | The payment being put together right now, shared across the screens that build it |
-| `src/agent.js` | Model wiring, the voice brief, the written fallbacks |
+| `src/agent.js` | Model wiring, the brief, the written fallbacks |
 | `src/app.js` | Routing, the index, the phone frame |
 | `src/screens/act1.js` | It goes wrong — 16 screens |
 | `src/screens/act2.js` | It decides — 9 screens |

@@ -19,21 +19,22 @@ import { Tap, Rise, RevealAll, keys } from './motion';
 
 /* ---- the small things ---- */
 
-/* What you said, as the design draws it: a black bubble on the right with the
-   microphone beside it. */
+/* What you asked for, as the design draws it: a black bubble on the right.
+   A line that came off a photo carries the camera beside it; a typed one
+   carries nothing. */
 export function Said({
   children,
-  mic = true,
+  photo = false,
   onPress,
 }: {
   children: string;
-  mic?: boolean;
+  photo?: boolean;
   onPress?: () => void;
 }) {
   return (
     <Tap
       accessibilityRole={onPress ? 'button' : undefined}
-      accessibilityLabel={onPress ? `Say it again: ${children}` : undefined}
+      accessibilityLabel={onPress ? `Ask it again: ${children}` : undefined}
       onPress={onPress}
       disabled={!onPress}
       style={{
@@ -45,20 +46,20 @@ export function Said({
     >
       <View
         style={{
-          /* the frames put the microphone inside the pill, at its left, and
-             let the pill run as wide as it needs rather than wrap early */
+          /* the frames put the camera inside the pill, at its left, and let
+             the pill run as wide as it needs rather than wrap early */
           flexDirection: 'row',
           alignItems: 'center',
           gap: 10,
           backgroundColor: colour.ink,
           borderRadius: 23,
-          paddingLeft: mic ? 18 : 20,
+          paddingLeft: photo ? 18 : 20,
           paddingRight: 20,
           paddingVertical: 12,
           maxWidth: 340,
         }}
       >
-        {mic ? <Icon name="mic" size={16} colour={colour.textInverse} /> : null}
+        {photo ? <Icon name="camera" size={16} colour={colour.textInverse} /> : null}
         <Body tone="inverse">{children}</Body>
       </View>
     </Tap>
@@ -1060,12 +1061,12 @@ export function Empty({
 }
 
 /* The big figure a screen is about, with its line under it. */
-/* What you said, the way the form frames write it back: the words in grey
+/* What you typed, the way the form frames write it back: the words in grey
    under a small label, not the black pill the chat frames use. */
 export function Told({ children, onPress }: { children: string; onPress?: () => void }) {
   return (
     <View style={{ gap: 4 }}>
-      <Caption tone="secondary">You said</Caption>
+      <Caption tone="secondary">You typed</Caption>
       <Tap accessibilityRole={onPress ? 'button' : undefined} onPress={onPress} disabled={!onPress}>
         <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
           {children}
@@ -1156,102 +1157,110 @@ export function BigMoney({
   );
 }
 
-/* ---- asking out loud ---- */
+/* ---- what the camera read ---- */
 
-/* The voice sheet, the same on all three flows it appears in. Read off the
-   frames: the mark and Listening, what it heard with the part it is unsure of
-   in grey, the waveform, three things you could say instead, the way out as a
-   link rather than a button, and the send with a stop beside it. */
-export function VoiceSheet({
-  said,
-  tail,
-  seed = 11,
-  offers,
-  onOffer,
-  onSend,
+/* The sheet that comes up over the camera once it has read something, the
+   same on all three flows it starts. Read off the frames: the mark and Read
+   from your photo, the line it took the picture to mean, the card of what it
+   read with a tick on each part and where the part came from, the way out as
+   a link rather than a button, and the go with a retake beside it. */
+export function FoundSheet({
+  meant,
+  read,
+  cta,
+  notThis,
+  onGo,
   onNotThis,
-  onStop,
+  onRetake,
   behind,
   onClose,
-  veil = false,
 }: {
-  said: string;
-  tail: string;
-  seed?: number;
-  offers: string[];
-  onOffer: (t: string) => void;
-  onSend: () => void;
+  /* what it took the photo to mean */
+  meant: string;
+  /* each part it read: the label, the value, and where the value came from */
+  read: [string, string, string | null][];
+  cta: string;
+  notThis: string;
+  onGo: () => void;
   onNotThis: () => void;
-  onStop: () => void;
+  onRetake: () => void;
   behind?: ReactNode;
   onClose: () => void;
-  /* the ask bar's own voice sheet only veils the home behind it */
-  veil?: boolean;
 }) {
   return (
-    <Sheet onClose={onClose} behind={behind} veil={veil}>
+    <Sheet onClose={onClose} behind={behind} veil>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <Icon name="mark" size={24} colour={colour.accent} />
-        <Label tone="accent">Listening</Label>
+        <Label tone="accent">Read from your photo</Label>
       </View>
-      {/* the frame does not space these on the column's own gap: what it heard
-          sits close under Listening, and the way out and the send close under
-          the three offers */}
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: -12 }}>
-        <Head style={{ fontSize: 32, lineHeight: 40 }}>{said}</Head>
-        <Head style={{ fontSize: 32, lineHeight: 40, color: colour.textTertiary }}>{tail}</Head>
+      {/* the frame does not space these on the column's own gap: the line it
+          read sits close under the status, and the way out and the go close
+          under the card */}
+      <View style={{ marginTop: -12 }}>
+        <Head style={{ fontSize: 32, lineHeight: 40 }}>{meant}</Head>
       </View>
-      <Waveform seed={seed} />
-      <Meta tone="tertiary">Or try one of these</Meta>
-      <View style={{ gap: space.s2, marginTop: -2 }}>
-        {offers.map(t => (
-          <Button key={t} label={t} tone="grey" size={48} onPress={() => onOffer(t)} />
+      <Meta tone="tertiary">What I read</Meta>
+      <View
+        style={{
+          marginTop: -7,
+          backgroundColor: colour.surface2,
+          borderRadius: radius.card,
+          paddingHorizontal: 16,
+        }}
+      >
+        {read.map(([k, v, from], i) => (
+          <View
+            key={k}
+            style={{
+              height: 48,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+              borderBottomWidth: i < read.length - 1 ? 1 : 0,
+              borderBottomColor: colour.surface3,
+            }}
+          >
+            <Icon name="step-done" size={18} />
+            <Meta tone="secondary">{k}</Meta>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                gap: 8,
+              }}
+            >
+              <Row>{v}</Row>
+              {from ? <Caption tone="tertiary">{from}</Caption> : null}
+            </View>
+          </View>
         ))}
       </View>
       <View style={{ marginTop: -9 }}>
-        <Ghost label="Not what I said" onPress={onNotThis} />
+        <Ghost label={notThis} onPress={onNotThis} />
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s2, marginTop: -7 }}>
         <View style={{ flex: 1 }}>
-          <Button label="Release to send" tone="blue" onPress={onSend} />
+          <Button label={cta} tone="blue" onPress={onGo} />
         </View>
         <Tap
           accessibilityRole="button"
-          accessibilityLabel="Stop listening"
-          onPress={onStop}
+          accessibilityLabel="Take it again"
+          onPress={onRetake}
           style={{
-            width: 44,
-            height: 44,
-            borderRadius: 22,
+            width: 56,
+            height: 56,
+            borderRadius: 28,
             backgroundColor: colour.surface2,
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <View style={{ width: 12, height: 12, borderRadius: 2, backgroundColor: colour.textSecondary }} />
+          <Icon name="camera" size={24} />
         </Tap>
       </View>
     </Sheet>
-  );
-}
-
-/* The listening indicator: twenty-two bars, three wide, four apart, in a band
-   44 tall — measured off the ask frames. */
-export function Waveform({ seed = 11 }: { seed?: number }) {
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, height: 44 }}>
-      {Array.from({ length: 22 }).map((_, i) => (
-        <View
-          key={i}
-          style={{
-            width: 3,
-            borderRadius: 2,
-            backgroundColor: colour.accent,
-            height: 8 + Math.abs(Math.sin((i + seed) * 1.7)) * 36,
-          }}
-        />
-      ))}
-    </View>
   );
 }
 

@@ -1,4 +1,4 @@
-/* Buying something — the voice sheet, the typed way in, the plan the agent
+/* Buying something — the camera's sheet, the typed way in, the plan the agent
    put together, the passcode, the receipt and its share sheet.
 
    Frames 225:2620, 225:2973, 221:165, 239:8474, 239:8418 and 472:11590. */
@@ -15,6 +15,7 @@ import {
   Meta,
   PassSheet,
   Receipt,
+  ReadCard,
   Said,
   Dock,
   SendButton,
@@ -28,11 +29,12 @@ import {
   nairaFull,
   space,
   toast,
-  VoiceSheet,
+  FoundSheet,
 } from '../design';
 import { Nav, asked, dock } from './nav';
 import { still } from './send';
 import { Home } from './home';
+import { Scan } from './money';
 import { useStore, Receipt as Slip } from '../state/live';
 import { contacts, me } from '../state/data.js';
 import * as act from '../state/actions.js';
@@ -56,20 +58,37 @@ export const currentPlan = () => plan;
 
 let slip: Slip | null = null;
 
-/* ---- asking for it out loud ---- */
+/* ---- what the camera read ---- */
 
-export const AskSvc = ({ nav }: { nav: Nav }) => (
-  <VoiceSheet
-    said="2k data for "
-    tail="mum"
-    seed={23}
-    offers={['Pay my light bill', 'How much did I spend on data?', 'Top up my own line']}
-    onOffer={(t: string) => asked(nav, t)}
+export const FoundSvc = ({ nav }: { nav: Nav }) => (
+  <FoundSheet
+    meant="2k data for mum"
+    read={[
+      ['Line', contacts.mum.account, 'MTN'],
+      ['Whose', 'Mum', 'her usual line'],
+      ['Amount', naira(2000), 'from the photo'],
+      ['Plan', '2GB for 30 days', null],
+    ]}
+    cta="Top up Mum"
+    notThis="Not this line"
     onNotThis={() => nav.go('typedbuy')}
-    onStop={() => nav.go('home')}
-    onSend={() => nav.go('buy')}
+    onRetake={() => nav.go('scan')}
+    onGo={() => nav.go('buy')}
     onClose={nav.back}
-    behind={<Home nav={still} />}
+    behind={
+      <Scan
+        nav={still}
+        chip={contacts.mum.account}
+        read={
+          <ReadCard
+            who="Mum"
+            when="8:02 AM"
+            kind="My data has finished again:"
+            lines={['2k data', 'MTN', contacts.mum.account, 'Mum']}
+          />
+        }
+      />
+    }
   />
 );
 
@@ -96,14 +115,15 @@ export const Buy = ({ nav }: { nav: Nav }) => {
       thread
       dock={
         <Dock
-          placeholder="Reply, or just keep talking"
+          placeholder="Reply, or just keep typing"
           onAsk={q => asked(nav, q)}
+          onScan={() => nav.go('foundsvc')}
           action={<SendButton onPress={() => nav.go('confirmbuy')} />}
         />
       }
     >
       <TopBar title="Beetle" onBack={nav.back} />
-      <Said>2k data for mum</Said>
+      <Said photo>2k data for mum</Said>
       <View style={{ gap: 8 }}>
         <View style={{ flexDirection: 'row', gap: space.s2 }}>
           <Icon name="mark" size={32} colour={colour.accent} />

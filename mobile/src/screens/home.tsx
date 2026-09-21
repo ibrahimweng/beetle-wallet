@@ -255,7 +255,7 @@ export const AgentChat = ({ nav }: { nav: Nav }) => {
   });
   const say = (q: string) => setThread(t => [...t, { me: true, text: q }, { me: false, text: answer(q) }]);
   return (
-    <Screen dock={<Dock placeholder="Reply, or just keep talking" onBack={nav.back} onAsk={say} />}>
+    <Screen dock={<Dock placeholder="Reply, or just keep typing" onBack={nav.back} onAsk={say} />}>
       <View style={{ gap: 8 }}>
         <Head>Beetle</Head>
         <Meta tone="tertiary" style={{ fontSize: 16, lineHeight: 24 }}>

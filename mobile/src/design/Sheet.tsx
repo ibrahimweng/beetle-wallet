@@ -10,6 +10,7 @@
 import React, { ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { colour, space } from './tokens';
 import { Backdrop, Reveal, Rise, Scrim } from './motion';
 
@@ -27,8 +28,13 @@ const s = StyleSheet.create({
        turned down. A quarter of black keeps what contrast the blur leaves. */
     backgroundColor: 'rgba(0,0,0,0.25)',
   },
-  veil: { backgroundColor: 'rgba(255,255,255,0.28)' },
 });
+
+/* Over the camera the frames lay white instead: a fifth of it at the top,
+   running to solid by the bottom, so the dark screen reads as a dim room
+   above the sheet rather than a black one. The blur's own tint carries the
+   first sixth of that. */
+const VEIL = ['rgba(255,255,255,0.05)', 'rgba(255,255,255,1)'] as const;
 
 export function Sheet({
   children,
@@ -39,9 +45,8 @@ export function Sheet({
   children: ReactNode;
   onClose?: () => void;
   behind?: ReactNode;
-  /* Thirteen of the fourteen sheet frames turn the screen behind them down to
-     about #c5c5c7. One — the voice sheet you open from the ask bar — only
-     veils it, leaving white white. Pass this for that one. */
+  /* Most sheet frames turn the screen behind them down to about #c5c5c7.
+     The ones over the camera veil it in white instead. Pass this for those. */
   veil?: boolean;
 }) {
   return (
@@ -53,8 +58,17 @@ export function Sheet({
             {/* the frames put the screen behind a sheet out of focus rather
                 than merely dim, which is what keeps the sheet the only thing
                 you can read */}
-            <BlurView intensity={52} tint="light" style={s.soften} />
-            <View style={[s.wash, veil && s.veil]} />
+            <BlurView intensity={52} tint={veil ? 'default' : 'light'} style={s.soften} />
+            {veil ? (
+              <LinearGradient
+                colors={VEIL}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
+                style={s.soften}
+              />
+            ) : (
+              <View style={s.wash} />
+            )}
           </View>
         </Scrim>
       ) : null}

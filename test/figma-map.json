@@ -4,10 +4,10 @@
   "section": "Sending money",
   "design": "Home screen"
  },
- "ask": {
+ "found": {
   "node": "205:2",
   "section": "Sending money",
-  "design": "Ask"
+  "design": "Found"
  },
  "chat": {
   "node": "205:57",
@@ -44,10 +44,10 @@
   "section": "Sending money",
   "design": "Pay"
  },
- "askreq": {
+ "foundreq": {
   "node": "225:1551",
   "section": "Asking to be paid",
-  "design": "AskReq"
+  "design": "FoundReq"
  },
  "request": {
   "node": "225:1606",
@@ -79,10 +79,10 @@
   "section": "Be paid, from home",
   "design": "MyCode"
  },
- "asksvc": {
+ "foundsvc": {
   "node": "225:2620",
   "section": "Buying something",
-  "design": "AskSvc"
+  "design": "FoundSvc"
  },
  "buy": {
   "node": "221:165",
@@ -389,14 +389,14 @@
   "section": "When the digits do not match",
   "design": "Nomatch"
  },
- "misheard": {
+ "misread": {
   "node": "957:20338",
-  "section": "When it heard you wrong",
-  "design": "Misheard"
+  "section": "When it read it wrong",
+  "design": "Misread"
  },
  "alreadygone": {
   "node": "957:20392",
-  "section": "When it heard you wrong",
+  "section": "When it read it wrong",
   "design": "AlreadyGone"
  },
  "lostphone": {

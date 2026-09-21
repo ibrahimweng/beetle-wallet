@@ -30,7 +30,7 @@ import { Home } from './home';
 import { still as nowhere } from './send';
 
 const ITEMS: { icon: IconName; label: string; to: Route; colour: string }[] = [
-  { icon: 'voice-filled', label: 'Voice', to: 'ask', colour: colour.warn },
+  { icon: 'camera-filled', label: 'Camera', to: 'scan', colour: colour.warn },
   { icon: 'send-filled', label: 'Send money', to: 'pay', colour: colour.accent },
   { icon: 'receive-filled', label: 'Receive', to: 'ways', colour: colour.good },
   { icon: 'history-filled', label: 'History', to: 'history', colour: colour.violet },

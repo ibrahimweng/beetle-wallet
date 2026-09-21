@@ -1,6 +1,6 @@
 /* Dock — 104 tall, 24 above and below its row. The ask bar is 48 tall at the
-   pill radius, and the design ends it with a camera and a microphone rather
-   than a send arrow: you point it at something, or you talk to it. */
+   pill radius, and the design ends it with a camera rather than a send
+   arrow: you type, or you point it at something. */
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
@@ -9,7 +9,7 @@ import { colour, frame, radius, space } from './tokens';
 import { Tap, arrive, ease, motion, useStill } from './motion';
 
 export function Dock({
-  placeholder = 'Ask, or just say what you need',
+  placeholder = 'Ask, or show me a photo',
   onBack,
   onAsk,
   onScan,
@@ -50,9 +50,6 @@ export function Dock({
         />
         <Tap accessibilityRole="button" accessibilityLabel="Scan something" onPress={onScan} scale={0.85}>
           <Icon name="camera" size={18} colour={colour.textSecondary} />
-        </Tap>
-        <Tap accessibilityRole="button" accessibilityLabel="Speak" onPress={fire} scale={0.85}>
-          <Icon name="mic" size={18} colour={colour.textSecondary} />
         </Tap>
       </View>
       {action}
@@ -126,8 +123,8 @@ const s = StyleSheet.create({
     paddingLeft: 8,
     paddingRight: 12,
   },
-  /* minWidth 0 or the field refuses to give the camera and the microphone
-     their room on a dock that also carries a back arrow and a button */
+  /* minWidth 0 or the field refuses to give the camera its room on a dock
+     that also carries a back arrow and a button */
   input: { flex: 1, minWidth: 0, fontSize: 16, color: colour.ink, padding: 0 },
   fab: {
     width: 56,

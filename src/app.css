@@ -211,8 +211,6 @@ body {
 .pill-warn { background: #fdf2dd; color: #7a5b12; }
 .pill-accent { background: var(--accent-wash); color: var(--accent-deep); }
 
-.waveform { display: flex; align-items: center; gap: 3px; height: 34px; }
-.waveform i { width: 3px; border-radius: 2px; background: var(--accent); display: block; }
 
 .kbd { background: var(--surface-3); padding: 8px 3px 22px; }
 .kbd-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 8px; }
@@ -325,7 +323,7 @@ body {
 .tool-state .dot {
   width: 7px; height: 7px; border-radius: 999px; background: currentColor; display: block;
 }
-.bubble-spoken { display: inline-flex; align-items: center; gap: 7px; }
+.bubble-photo { display: inline-flex; align-items: center; gap: 7px; }
 .key .icon, .kbd-key .icon { color: currentColor; }
 .slide-thumb .icon { color: #fff; }
 .fab .icon, .backbtn .icon { color: currentColor; }

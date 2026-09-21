@@ -1,11 +1,11 @@
-/* Sending money — the ways in that are not the voice sheet, and the form the
-   transfer is checked on before it goes.
+/* Sending money — the camera and the keyboard, what the camera read, and the
+   form the transfer is checked on before it goes.
 
    Built from frames 209:2 (the camera), 209:209 (typed), 332:9851 (the send
    form), 301:9464 (which account it leaves) and 301:9565 (leaving in
    dollars). The form opens a sheet to change one part at a time, which is
    what the file draws; it never sends you to a screen that is not in it. */
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { View } from 'react-native';
 import {
   AmountPad,
@@ -19,6 +19,7 @@ import {
   Card,
   Caption,
   CameraScreen,
+  FoundSheet,
   Divider,
   EditRow,
   Ghost,
@@ -60,29 +61,34 @@ const PEOPLE: Person[] = [contacts.sarah, contacts.musa, contacts.chidi, contact
 
 /* ---- pointing a camera at an account number ---- */
 
-export const Scan = ({ nav }: { nav: Nav }) => (
+/* The camera, with the last thing it read in the viewfinder and the number it
+   took from it on the pill below. The sheets that come up over it each hand
+   it their own photo. */
+export const Scan = ({
+  nav,
+  read,
+  chip = contacts.sarah.account,
+}: {
+  nav: Nav;
+  read?: ReactNode;
+  chip?: string;
+}) => (
   <CameraScreen
     title="Point at an account number"
-    sub="A QR code works too. So does a screenshot."
+    sub="Anything with a number on it: a QR code, a screenshot, a signboard, a shirt."
     foot="Or send a screenshot straight to Beetle from WhatsApp."
     onClose={nav.back}
-    onShutter={() => {
-      start({
-        to: contacts.sarah,
-        amount: 20000,
-        narration: 'Rent part payment',
-        spoken: 'the account in the photo',
-      });
-      nav.go('chat');
-    }}
+    onShutter={() => nav.go('found')}
     read={
-      <ReadCard
-        who="Musa · Agent"
-        when="2:14 PM"
-        kind="Good afternoon sir. Rent part payment:"
-        lines={[naira(20000), contacts.sarah.bank, contacts.sarah.account]}
-        unsure="Sarah A."
-      />
+      read ?? (
+        <ReadCard
+          who="Musa · Agent"
+          when="2:14 PM"
+          kind="Good afternoon sir. Rent part payment:"
+          lines={[naira(20000), contacts.sarah.bank, contacts.sarah.account]}
+          unsure="Sarah A."
+        />
+      )
     }
   >
     {/* what it took the number to be, on a dark pill with a green tick */}
@@ -110,9 +116,41 @@ export const Scan = ({ nav }: { nav: Nav }) => (
       >
         <Icon name="check" size={13} colour={colour.textInverse} />
       </View>
-      <Label tone="inverse">{contacts.sarah.account}</Label>
+      <Label tone="inverse">{chip}</Label>
     </View>
   </CameraScreen>
+);
+
+/* ---- what the camera read ---- */
+
+/* The sheet over the camera once it has a number: what it took the photo to
+   mean, the parts it read, and the way on. Frame 205:2. */
+export const Found = ({ nav }: { nav: Nav }) => (
+  <FoundSheet
+    meant="Send 20k to Sarah"
+    read={[
+      ['Amount', naira(20000), 'from the photo'],
+      ['Account', contacts.sarah.account, contacts.sarah.bank],
+      ['Name', contacts.sarah.name, `${contacts.sarah.bank} says`],
+      ['For', 'Rent part payment', 'from the photo'],
+    ]}
+    cta="Send to Sarah"
+    notThis="Not this number"
+    onNotThis={() => nav.go('misread')}
+    onRetake={() => nav.go('scan')}
+    onGo={() => {
+      start({
+        to: contacts.sarah,
+        amount: 20000,
+        narration: 'Rent part payment',
+        message: 'Send 20k to Sarah',
+        photo: true,
+      });
+      nav.go('chat');
+    }}
+    onClose={nav.back}
+    behind={<Scan nav={still} />}
+  />
 );
 
 /* ---- typing it ---- */
@@ -142,7 +180,7 @@ export const Typed = ({ nav }: { nav: Nav }) => {
         toast('I need a name I know and an amount.');
         return;
       }
-      start({ to: who, amount, narration: transfer.narration, spoken: text });
+      start({ to: who, amount, narration: transfer.narration, message: text });
       /* the Draft frame is this same screen a moment later, with the three
          things it has made of the line sitting over the keyboard */
       nav.go('draft');
@@ -197,10 +235,10 @@ export const Pay = ({ nav }: { nav: Nav }) => {
     >
       <PageHead lead title="Send money" sub={`To ${d.to.name}`} />
       <View style={{ gap: 4 }}>
-        <Caption tone="secondary">You said</Caption>
-        <Tap accessibilityRole="button" onPress={() => nav.go('ask')}>
+        <Caption tone="secondary">{d.photo ? 'From your photo' : 'You typed'}</Caption>
+        <Tap accessibilityRole="button" onPress={() => nav.go(d.photo ? 'found' : 'typed')}>
           <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
-            {d.spoken || `send ${d.to.name.split(' ')[0]} ${Math.round(d.amount / 1000)}k`}
+            {d.message || `send ${d.to.name.split(' ')[0]} ${Math.round(d.amount / 1000)}k`}
           </Meta>
         </Tap>
       </View>
@@ -414,9 +452,9 @@ export const PayDollars = ({ nav }: { nav: Nav }) => {
     >
       <PageHead lead title="Send money" sub={`To ${d.to.name}`} />
       <View style={{ gap: 4 }}>
-        <Caption tone="secondary">You said</Caption>
+        <Caption tone="secondary">You typed</Caption>
         <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
-          {dollarSend.spoken}
+          {dollarSend.message}
         </Meta>
       </View>
       <Bubble>Here it is, ready to go. Check the three parts I filled in.</Bubble>

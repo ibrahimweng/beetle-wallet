@@ -71,9 +71,9 @@ await page.goto(base + '/home', { waitUntil: 'load' });
 await settle();
 await page.getByLabel('What can I do').first().click();
 await page.waitForTimeout(60);
-const menuEarly = await seen('Voice');
+const menuEarly = await seen('Camera');
 await settle();
-const menuLate = await seen('Voice');
+const menuLate = await seen('Camera');
 moved('the menu opening', menuEarly, menuLate);
 
 /* the background behind it really is blurred, not just washed out */
@@ -88,7 +88,7 @@ if (!blurred) fails.push('the menu: nothing behind it is blurred');
 /* the buttons do not all arrive together */
 const spread = await page.evaluate(async () => {
   const at = () =>
-    ['Voice', 'Send money', 'Receive', 'History', 'Settings'].map(t => {
+    ['Camera', 'Send money', 'Receive', 'History', 'Settings'].map(t => {
       const el = [...document.querySelectorAll('div')].find(
         e => e.textContent.trim() === t && e.getClientRects().length,
       );

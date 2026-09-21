@@ -21,7 +21,6 @@ import {
   ShareSheet,
   ToolPanel,
   TopBar,
-  VoiceSheet,
   Head,
   Label,
   Meta,
@@ -31,10 +30,8 @@ import {
 import { Route } from '../routes';
 import { check, useDraft, useStore } from '../state/live';
 import { asked } from './nav';
-import { Home } from './home';
 import * as act from '../state/actions.js';
-import { transfer, contacts, me } from '../state/data.js';
-import { start } from '../state/flow.js';
+import { transfer, me } from '../state/data.js';
 
 type Nav = { go: (r: Route) => void; back: () => void };
 
@@ -62,14 +59,15 @@ export const Chat = ({ nav }: { nav: Nav }) => {
       thread
       dock={
         <Dock
-          placeholder="Reply, or just keep talking"
+          placeholder="Reply, or just keep typing"
           onAsk={q => asked(nav, q)}
+          onScan={() => nav.go('found')}
           action={<SendButton onPress={() => nav.go(past ? 'limitstop' : 'confirm')} />}
         />
       }
     >
       <TopBar title="Beetle" onBack={nav.back} />
-      <Said>{`Send ${Math.round(d.amount / 1000)}k to ${d.to.name.split(' ')[0]}`}</Said>
+      <Said photo={!!d.photo}>{`Send ${Math.round(d.amount / 1000)}k to ${d.to.name.split(' ')[0]}`}</Said>
       <View style={{ gap: 8 }}>
         <View style={{ flexDirection: 'row', gap: space.s2 }}>
           <Icon name="mark" size={32} colour={colour.accent} />
@@ -241,24 +239,3 @@ export const Share = ({ nav }: { nav: Nav }) => {
     />
   );
 };
-
-/* The voice sheet the flow starts from. Its three suggestions are the ones the
-   frame offers, and "Not what I said" is what opens the typed version. */
-export const Ask = ({ nav }: { nav: Nav }) => (
-  <VoiceSheet
-    veil
-    said="Send 20k to "
-    tail="Sarah"
-    seed={11}
-    offers={['Pay my light bill', 'How much did I spend on data?', 'What can I borrow?']}
-    onOffer={(t: string) => asked(nav, t)}
-    onNotThis={() => nav.go('misheard')}
-    onStop={() => nav.go('home')}
-    onSend={() => {
-      start({ to: contacts.sarah, amount: 20000, narration: transfer.narration, spoken: transfer.spoken });
-      nav.go('chat');
-    }}
-    onClose={nav.back}
-    behind={<Home nav={still} />}
-  />
-);

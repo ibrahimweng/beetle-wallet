@@ -15,13 +15,14 @@ const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '000', '0', 'del'] as
 export function AmountPad({
   value,
   onChange,
-  heard,
-  heardLabel = 'I heard',
+  read,
+  readLabel = 'I read',
 }: {
   value: number;
   onChange: (n: number) => void;
-  heard?: string;
-  heardLabel?: string;
+  /* the figure it arrived with, when there was one, and what to call it */
+  read?: string;
+  readLabel?: string;
 }) {
   const [fresh, setFresh] = useState(true);
   const press = (k: string) => {
@@ -37,8 +38,8 @@ export function AmountPad({
   return (
     <View style={{ gap: space.s5 }}>
       <View style={{ alignItems: 'center', gap: 4 }}>
-        {heard ? <Caption tone="secondary">{heardLabel}</Caption> : null}
-        {heard ? <Body tone="secondary">{heard}</Body> : null}
+        {read ? <Caption tone="secondary">{readLabel}</Caption> : null}
+        {read ? <Body tone="secondary">{read}</Body> : null}
         <Display>{'₦' + value.toLocaleString('en-NG')}</Display>
       </View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignSelf: 'center', width: 282 }}>

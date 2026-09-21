@@ -39,10 +39,10 @@ export const checking = {
   render: () => Screen([
     PageHead('Before I filled this in', 'What I checked, and the one part I am unsure of'),
     ToolPanel('Beetle Reasoning', 'Checked', [
-      { k: 'Heard the name Sarah', v: 'Certain' },
+      { k: 'Read the name Sarah', v: 'Certain' },
       { k: 'Matched 14 past payments', v: 'Certain' },
       { k: 'Confirmed the account with GTBank', v: 'Certain' },
-      { k: 'Heard the amount', v: 'Not certain', done: false, tone: 'c-2' },
+      { k: 'Read the amount', v: 'Not certain', done: false, tone: 'c-2' },
     ]),
     Plain(
       Label('How I decided'),
@@ -63,7 +63,7 @@ export const iwillnot = {
     e('div', { class: 'row' }, Glyph('alert', 'bad', { lg: true })),
     BigAmount(naira(get().everyday), 'to an account I have never seen'),
     Compare([
-      { k: 'You said', v: 'send everything' },
+      { k: 'You typed', v: 'send everything' },
       { k: 'Account age', v: 'Four minutes' },
       { k: 'Paid before', v: 'Never', tone: 'c-bad' },
     ]),
@@ -77,39 +77,39 @@ export const iwillnot = {
 };
 
 /* ---------------------------------------------------------------- *
- * When it heard you wrong
+ * When it read it wrong
  * ---------------------------------------------------------------- */
 
-export const misheard = {
+export const misread = {
   title: 'Check this number',
   render: () => Screen([
     PageHead('Check this number', 'Nothing has been sent'),
     e('div', { class: 'row' }, Glyph('alert', 'warn', { lg: true })),
-    BigAmount(naira(200000), 'and I am not sure I heard it right'),
+    BigAmount(contacts.sarah.account, 'and I am not sure of the last digit'),
     Compare([
-      { k: 'You said', v: 'two hundred' },
-      { k: 'I heard', v: naira(200000) },
-      { k: 'Or maybe', v: naira(200) },
+      { k: 'From the photo', v: `Sarah A. · ${contacts.sarah.bank}` },
+      { k: 'I read', v: contacts.sarah.account },
+      { k: 'Or maybe', v: contacts.sarah.account.slice(0, -1) + '6' },
     ]),
-    Bubble('Spoken round numbers are where I slip most. I will not choose between these two on my own.'),
-    ActionRow({ icon: 'send', title: 'It is ₦200,000', sub: 'Rent money, to Sarah', onClick: () => go('confirm') }),
-    ActionRow({ icon: 'send', title: 'It is ₦200', sub: 'Small change, to Sarah', onClick: () => go('confirm') }),
+    Bubble('The last digit is soft in the photo. I will not choose between these two on my own.'),
+    ActionRow({ icon: 'send', title: `It is ${contacts.sarah.account}`, sub: `${contacts.sarah.name}, who you have paid before`, onClick: () => go('confirm') }),
+    ActionRow({ icon: 'send', title: `It is ${contacts.sarah.account.slice(0, -1)}6`, sub: 'Someone you have never paid', onClick: () => go('confirm') }),
     ActionRow({ icon: 'list', title: 'Let me type it', sub: 'Neither one is right', onClick: () => go('typed') }),
     Note('Nothing has left your account', 'lock'),
-    Note('I stop whenever an amount reads two ways.', 'alert'),
-  ], Dock({ placeholder: 'Ask me about this', back: () => go('ask') })),
+    Note('I stop whenever a number reads two ways.', 'alert'),
+  ], Dock({ placeholder: 'Ask me about this', back: () => go('found') })),
 };
 
 export const alreadygone = {
   title: 'I sent it wrong',
   render: () => Screen([
-    PageHead('I sent it wrong', '₦200,000 left at 14:22'),
+    PageHead('I sent it wrong', '₦20,000 left at 14:22'),
     e('div', { class: 'row' }, Glyph('alert', 'bad', { lg: true })),
-    BigAmount(naira(200000), 'left your account'),
+    BigAmount(naira(20000), 'went to the wrong account'),
     Banner('This one is mine. You are covered.', 'good'),
-    Bubble('You said two hundred. I sent two hundred thousand. That is my error, so you get the difference back today, whether or not Sarah returns it.'),
-    ActionRow({ icon: 'undo-filled', tone: 'good', title: 'Take ₦199,800 back', sub: 'Paid by us today, not in days', onClick: () => go('donesend') }),
-    ActionRow({ icon: 'bank', title: 'Ask Sarah to return it', sub: 'We do this to recover our side', onClick: () => go('recall') }),
+    Bubble('I read the last digit wrong and sent it to a stranger. That is my error, so you get it back today, whether or not they return it.'),
+    ActionRow({ icon: 'undo-filled', tone: 'good', title: 'Take ₦20,000 back', sub: 'Paid by us today, not in days', onClick: () => go('donesend') }),
+    ActionRow({ icon: 'bank', title: `Ask ${contacts.sarah.bank} to recall it`, sub: 'We do this to recover our side', onClick: () => go('recall') }),
     Plain(Bubble('Want to know how I stop this?'), Button('Tell me', { kind: 'quiet', onClick: () => go('checking') })),
   ], Dock({ placeholder: 'Ask about the cover', back: () => go('donesend') })),
 };
@@ -164,7 +164,7 @@ const passcodeSheet = (base, { error } = {}) => {
 const chatBase = () => e('div', { class: 'screen-scroll', style: { filter: 'blur(3px)' } },
   e('div', { class: 'pad top-pad stack gap-4' },
     PageHead('Beetle', ''),
-    Said(draft.spoken || `Send ${Math.round(draft.amount / 1000)}k to ${draft.to.name.split(' ')[0]}`),
+    Said(draft.message || `Send ${Math.round(draft.amount / 1000)}k to ${draft.to.name.split(' ')[0]}`, { photo: draft.photo }),
     Bubble(`${draft.to.name} at ${draft.to.bank}, the same account the flat deposit went to. I am putting it together now.`)));
 
 export const confirm = { title: 'Confirm', render: () => passcodeSheet(chatBase()) };
@@ -196,7 +196,7 @@ export const short = {
       ActionRow({ icon: 'pot', title: `Move it from ${s.goal.name}`, sub: `${naira(s.goal.saved)} is sitting there`, onClick: () => go('goal') }),
       ActionRow({ icon: 'send', title: `Send ${naira(Math.floor(have))} now`, sub: 'The rest when your salary lands',
         onClick: () => { set({ amount: Math.floor(have) }); go('pay'); } }),
-      ActionRow({ icon: 'request', title: `Ask Musa for ${naira(Math.ceil(gap))}`, sub: 'He owes you from the rent', onClick: () => go('askreq') }),
+      ActionRow({ icon: 'request', title: `Ask Musa for ${naira(Math.ceil(gap))}`, sub: 'He owes you from the rent', onClick: () => go('request') }),
       Note('Nothing has left your account', 'lock'),
       Note('No fee and no attempt. This is a sum I did before trying.'),
     ], Dock({ placeholder: 'Ask me about this', back: () => go('pay') }));
@@ -294,7 +294,7 @@ export const amend = {
     const draw = () => {
       host.innerHTML = '';
       host.appendChild(e('div', { class: 'stack gap-1' },
-        Caption('I heard', 'c-2'),
+        Caption('I read', 'c-2'),
         e('div', { class: 't-display c-3', style: { textDecoration: 'line-through' } }, naira(200000))));
       host.appendChild(e('div', { class: 'stack gap-1' },
         Caption('You meant', 'c-2'),

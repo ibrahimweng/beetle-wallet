@@ -11,7 +11,7 @@ import { home, agentchat } from './home.js';
 export const SCREENS = {
   /* Act One */
   checking: a1.checking, iwillnot: a1.iwillnot,
-  misheard: a1.misheard, alreadygone: a1.alreadygone,
+  misread: a1.misread, alreadygone: a1.alreadygone,
   confirm: a1.confirm, noface: a1.noface, short: a1.short,
   pending: a1.pending, failed: a1.failed, reversed: a1.reversed,
   wrong: a1.wrong, recall: a1.recall, amend: a1.amend,
@@ -27,11 +27,11 @@ export const SCREENS = {
 
   /* Act Three */
   home, agentchat,
-  ask: a3a.ask, scan: a3a.scan, typed: a3a.typed, pay: a3a.pay, chat: a3a.chat,
+  scan: a3a.scan, found: a3a.found, typed: a3a.typed, pay: a3a.pay, chat: a3a.chat,
   donesend: a3a.donesend, share: a3a.share,
-  asksvc: a3a.asksvc, typedbuy: a3a.typedbuy, buy: a3a.buy,
+  foundsvc: a3a.foundsvc, typedbuy: a3a.typedbuy, buy: a3a.buy,
   confirmbuy: a3a.confirmbuy, done: a3a.done, sharebuy: a3a.sharebuy,
-  askreq: a3a.askreq, typedask: a3a.typedask, request: a3a.request, sent: a3a.sent,
+  foundreq: a3a.foundreq, typedask: a3a.typedask, request: a3a.request, sent: a3a.sent,
   scanbill: a3a.scanbill, meter: a3a.meter, confirmmeter: a3a.confirmmeter,
   power: a3a.power, sharepower: a3a.sharepower,
   bills: a3a.billsScreen, powerpay: a3a.powerpay,
@@ -64,8 +64,8 @@ export const ACTS = [
     sections: [
       { name: 'When it is not sure', aim: 'It shows its working, and flags the one part it could have got wrong.',
         screens: ['checking', 'iwillnot'] },
-      { name: 'When it heard you wrong', aim: 'A misheard word is caught before the money leaves, and after.',
-        screens: ['misheard', 'alreadygone'] },
+      { name: 'When it read it wrong', aim: 'A misread digit is caught before the money leaves, and after.',
+        screens: ['misread', 'alreadygone'] },
       { name: 'When it does not go', aim: 'Six ways a payment stops, each one saying what happened and what it costs.',
         screens: ['confirm', 'noface', 'short', 'pending', 'failed', 'reversed'] },
       { name: 'When it was wrong', aim: 'It made the mistake, so it pays first and recovers afterwards.',
@@ -92,12 +92,12 @@ export const ACTS = [
     sections: [
       { name: 'Home and the ask bar', aim: 'The balance, what it noticed, and one place to ask anything.',
         screens: ['home', 'agentchat'] },
-      { name: 'Sending money', aim: 'Voice, camera or typing, all landing on the same confirmation.',
-        screens: ['ask', 'scan', 'typed', 'pay', 'chat', 'donesend', 'share'] },
+      { name: 'Sending money', aim: 'Camera or typing, both landing on the same confirmation.',
+        screens: ['scan', 'found', 'typed', 'pay', 'chat', 'donesend', 'share'] },
       { name: 'Buying something', aim: 'Airtime and data bought in a sentence, priced before you agree.',
-        screens: ['asksvc', 'typedbuy', 'buy', 'confirmbuy', 'done', 'sharebuy'] },
+        screens: ['foundsvc', 'typedbuy', 'buy', 'confirmbuy', 'done', 'sharebuy'] },
       { name: 'Asking to be paid', aim: 'A request that carries the reason, and pays in one tap.',
-        screens: ['askreq', 'typedask', 'request', 'sent'] },
+        screens: ['foundreq', 'typedask', 'request', 'sent'] },
       { name: 'Pay a bill from a photo', aim: 'Point the camera at the bill and let it read the meter.',
         screens: ['scanbill', 'meter', 'confirmmeter', 'power', 'sharepower'] },
       { name: 'Pay a bill the ordinary way', aim: 'The same bill from the list, for when there is no photo.',

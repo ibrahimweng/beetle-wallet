@@ -87,7 +87,7 @@ export const transfer = {
   balanceAfter: 659320.75,
   from: 'Everyday',
   narration: 'Rent part payment',
-  spoken: 'Send 20k to Sarah',
+  message: 'Send 20k to Sarah',
   typed: 'send sarah 20k',
   at: '28 August 2026 at 7:55 AM',
   session: '000016 260828 075504 471803 926104',
@@ -98,7 +98,7 @@ export const transfer = {
 export const dollarSend = {
   to: contacts.sarah,
   amount: 50000,
-  spoken: 'send Sarah 50k for the flat deposit',
+  message: 'send Sarah 50k for the flat deposit',
   reference: 'Flat deposit',
   inDollars: 32.22,
   rateLine: 'About $32.22 from your dollars, at ₦1,552 to $1',
@@ -194,7 +194,7 @@ export const services = [
   { name: 'Virtual card',     sub: 'Spend online anywhere', icon: 'card', to: 'card' },
   { name: 'Savings pot',      sub: 'Put money away, take it back any time', icon: 'pot', to: 'goal' },
   { name: 'Dollars',          sub: 'Hold it steady, or convert', icon: 'dollar', to: 'dollars' },
-  { name: 'Request money',    sub: 'Ask, and they pay in one tap', icon: 'request', to: 'askreq' },
+  { name: 'Request money',    sub: 'Ask, and they pay in one tap', icon: 'request', to: 'request' },
 ];
 
 export const onboarding = {

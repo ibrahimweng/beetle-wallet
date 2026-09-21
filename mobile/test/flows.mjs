@@ -100,15 +100,17 @@ await flow('way in', async () => {
 });
 
 /* ---- 2. sending money ---- */
-/* The way in the frames draw: the button, the voice sheet, the chat it puts
-   together, then the passcode. */
+/* The way in the frames draw: the button, the camera and what it read, the
+   chat it puts together, then the passcode. */
 await flow('send', async () => {
   await at('home');
   const before = await balance();
   await tapLabel('What can I do');
-  await tap('Voice');
-  await sees('Listening', 'ask');
-  await tap('Release to send');
+  await tap('Camera');
+  await sees('Point at an account number', 'scan');
+  await tapLabel('Take the photo');
+  await sees('Read from your photo', 'found');
+  await tap('Send to Sarah');
   await sees('Beetle Transfers', 'chat');
   await tap('Confirm ₦20,000');
   await sees('Enter your passcode', 'confirm');
@@ -162,8 +164,6 @@ await flow('bill', async () => {
 await flow('request', async () => {
   await at('ways');
   await tap('Ask for money');
-  await sees('Listening', 'askreq');
-  await tap('Release to send');
   await sees('Beetle Requests', 'request');
   await tap('Send the request');
   await sees('Request sent', 'sent');
@@ -191,7 +191,7 @@ await flow('ask bar', async () => {
 await flow('the button', async () => {
   await at('home');
   await tapLabel('What can I do');
-  await sees('Voice', 'actions');
+  await sees('Camera', 'actions');
   await page.mouse.click(60, 200);
   await page.waitForTimeout(500);
   await sees('Total balance', 'back on home');

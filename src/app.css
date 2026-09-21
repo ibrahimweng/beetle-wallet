@@ -82,6 +82,17 @@ body {
 
 .card { background: var(--surface-2); border-radius: var(--r-card); padding: 20px 21px; }
 .card-plain { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-card); padding: 20px 21px; }
+
+/* the top of the home screen: one pale card the width of the phone, rounded at
+   its foot, above the column everything else keeps to */
+.home-top { margin: -72px calc(-1 * var(--s-5)) 16px; background: var(--surface-2); border-radius: 0 0 36px 36px; padding: 52px 16px 20px; display: flex; flex-direction: column; gap: 24px; }
+.home-mark { width: 36px; height: 36px; border-radius: 999px; display: block; }
+.home-usd { height: 24px; border-radius: 12px; border: 1px solid #efeff1; background: none; padding: 0 4px; font: var(--t-label); color: var(--text-secondary); cursor: pointer; }
+.home-receive { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 10px; border-radius: 20px; background: var(--ink); color: #fff; border: 0; font: var(--t-row); cursor: pointer; }
+.home-receive i { width: 24px; height: 24px; border-radius: 999px; background: #fff; color: var(--ink); display: grid; place-items: center; font-style: normal; }
+.home-shortcuts { display: flex; gap: 4px; border-radius: 20px; padding: 12px 8px; align-self: stretch; }
+.home-shortcut { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 4px 0; border: 0; background: none; cursor: pointer; font: var(--t-caption); color: var(--ink); }
+.home-grab { width: 27px; height: 4px; border-radius: 999px; background: #cdcdcd; }
 .divider { height: 1px; background: var(--rule); }
 
 .icon {

@@ -23,8 +23,7 @@
   "foundsvc": "same as confirmbuy: the frame writes Mum’s line as 0803 4457 881 on this photo and as 0803 214 4471 on its own receipt; the app uses the receipt’s"
  },
  "actions": [
-  "~ 340 USD",
-  "Swipe Up"
+  "~ 340 USD"
  ],
  "buy": [
   "Mum’s MTN line, the one ending 881. She ran dry eleven days early last month, so I have priced the bigger bundle too.",
@@ -50,8 +49,7 @@
   "₦659,320.75"
  ],
  "draft": [
-  "~ 340 USD",
-  "Swipe Up"
+  "~ 340 USD"
  ],
  "foundreq": [
   "not sure"
@@ -61,8 +59,7 @@
   "not sure"
  ],
  "home": [
-  "~ 340 USD",
-  "Swipe Up"
+  "~ 340 USD"
  ],
  "noface": [
   "You top up Ikeja Electric about every three weeks. The last one was ₦8,000.",
@@ -78,8 +75,7 @@
   "₦39,654.51"
  ],
  "receive": [
-  "~ 340 USD",
-  "Swipe Up"
+  "~ 340 USD"
  ],
  "share": [
   "₦659,320.75"
@@ -91,15 +87,12 @@
   "₦39,654.51"
  ],
  "typed": [
-  "~ 340 USD",
-  "Swipe Up"
+  "~ 340 USD"
  ],
  "typedask": [
-  "~ 340 USD",
-  "Swipe Up"
+  "~ 340 USD"
  ],
  "typedbuy": [
-  "~ 340 USD",
-  "Swipe Up"
+  "~ 340 USD"
  ]
 }

@@ -12,7 +12,7 @@ import { transfer as seedTransfer, contacts, me, bills, meterBill, insights } fr
 import { get, dollarsInNaira } from '../store.js';
 import * as act from '../actions.js';
 import { draft, start, set } from '../flow.js';
-import { setQuestion } from './home.js';
+import { setQuestion, homeTop } from './home.js';
 
 const e = el;
 const go = id => window.beetleGo(id);
@@ -67,16 +67,7 @@ export const receiptBody = ({ head, sub, amount, line, fields, session, sessionL
  * ---------------------------------------------------------------- */
 
 export const blurredHome = () => e('div', { class: 'screen-scroll', style: { filter: 'blur(4px)', opacity: .6 } },
-  e('div', { class: 'pad top-pad stack gap-4' },
-    e('div', { class: 'row between' }, Glyph('mark', 'accent', { circle: true }), Label('Wallet'), Icon('bell', { size: 22 })),
-    e('div', { class: 'stack gap-2 center' },
-      e('div', { class: 'row center', style: { gap: '8px' } },
-        Caption('Total balance', 'c-2'),
-        e('span', { class: 'pill pill-good' }, '+9% this month')),
-      e('div', { class: 't-display' }, naira(get().everyday)),
-      e('button', { class: 'btn btn-primary', style: { width: 'auto', padding: '13px 26px' } }, Icon('receive-filled', { size: 18 }), 'Receive')),
-    e('div', { class: 'row' }, ...['airtime-tone', 'power-tone', 'pot-tone', 'grid-tone'].map(i =>
-      e('div', { class: 'center', style: { flex: 1 } }, Icon(i, { size: 24 }))))));
+  e('div', { class: 'pad top-pad stack gap-4' }, homeTop()));
 
 /* The camera, out of focus, for the sheet that comes up over it once it has
    read something. */

@@ -8,20 +8,19 @@ import { Pressable, View } from 'react-native';
 import {
   ActionRow,
   AgentSay,
-  Badge,
   Aside,
+  Badge,
+  Balance,
   BottomBar,
   Bubble,
-  Balance,
   Button,
-  Card,
   Caption,
-  Chip,
-  ChipRow,
-  Dock,
+  Card,
   Display,
   Divider,
+  Dock,
   Empty,
+  Filters,
   Ghost,
   Head,
   Icon,
@@ -35,17 +34,17 @@ import {
   SendButton,
   Shortcuts,
   StepHead,
-  StepTrail,
   StepsAhead,
+  StepTrail,
   Tick,
   Tile,
   TopBar,
   TrailStep,
+  WalletHeader,
   colour,
   space,
   toast,
   washes,
-  WalletHeader,
 } from '../design';
 import { Nav, dock } from './nav';
 import { answer } from '../state/agent';
@@ -247,7 +246,7 @@ export const FirstHome = ({ nav }: { nav: Nav }) => (
         beside the words, not something in the bar */}
     <WalletHeader onSettings={() => nav.go('settings')} onAlerts={() => nav.go('history')} />
     <Balance whole="₦0" kobo=".00" change="New account" />
-    <View style={{ alignSelf: 'center' }}>
+    <View style={{ alignSelf: 'center', marginTop: 4 }}>
       <Button
         label="Receive"
         leading="receive-filled"
@@ -270,32 +269,39 @@ export const FirstHome = ({ nav }: { nav: Nav }) => (
       lead={
         <View
           style={{
-            width: 36,
-            height: 36,
-            borderRadius: 18,
-            backgroundColor: colour.surface3,
+            width: 48,
+            height: 48,
+            borderRadius: 24,
+            backgroundColor: colour.ink,
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Head>₦</Head>
+          <Head tone="inverse">₦</Head>
         </View>
       }
       title="Nothing has moved yet"
       sub="Your first transfer shows up here"
     />
-    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <Head style={{ flex: 1 }}>Activities</Head>
-      <Pressable accessibilityRole="button" onPress={() => nav.go('emptyactivity')}>
-        <Row>See all</Row>
-      </Pressable>
+    {/* the same head the home frame gives the day: the row and its words 8
+        apart, the chips 12 under them */}
+    <View style={{ gap: space.s2 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', height: 28 }}>
+        <Head style={{ flex: 1 }}>Activities</Head>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => nav.go('emptyactivity')}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+        >
+          <Label style={{ color: colour.accentDeep }}>See all</Label>
+          <Icon name="chevron" size={12} colour={colour.accentDeep} />
+        </Pressable>
+      </View>
+      <Meta tone="tertiary">Nothing to notice yet.</Meta>
     </View>
-    <Meta tone="secondary">Nothing to notice yet.</Meta>
-    <ChipRow>
-      {['All', 'Insights', 'In', 'Out'].map(f => (
-        <Chip key={f} label={f} on={f === 'All'} />
-      ))}
-    </ChipRow>
+    <View style={{ marginTop: -8 }}>
+      <Filters options={['All', 'Insights', 'In', 'Out']} value="All" onChange={() => {}} />
+    </View>
     <Empty
       glyph="wait-filled"
       body="Beetle has nothing to carry yet"

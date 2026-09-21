@@ -13,6 +13,7 @@ import { me, onboarding, balances, limits, goal } from '../data.js';
 import { get } from '../store.js';
 import * as act from '../actions.js';
 import { ask } from '../agent.js';
+import { MARK } from './home.js';
 
 const e = el;
 const go = id => window.beetleGo(id);
@@ -322,7 +323,7 @@ export const firsthome = {
   title: 'The first home',
   render: () => Screen([
     e('div', { class: 'row between' },
-      Glyph('mark', 'accent', { circle: true }),
+      e('img', { class: 'home-mark', src: MARK, alt: '' }),
       Label('Wallet'),
       Pill('New account', 'accent')),
     e('div', { class: 'stack gap-2 center', style: { padding: '10px 0 4px' } },

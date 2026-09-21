@@ -1,5 +1,5 @@
 {
-"home":["Wallet", "+9% this month", "Total balance"],
+"home":["Wallet","Swipe Up","Total balance"],
 "found":["Read from your photo", "Send 20k to Sarah", "What I read"],
 "chat":["Face ID first. Nothing leaves your account until then."],
 "confirm":["Beetle", "Send 20k to Sarah", "₦20,000"],
@@ -9,7 +9,7 @@
 "pay":["Send money", "To Sarah Adeyemi", "You typed"],
 "foundreq":["Read from your photo", "Ask Musa for 20k", "What I read"],
 "sent":["Request sent", "Musa has it on WhatsApp and in a text", "₦20,000"],
-"receive":["Wallet", "+9% this month", "Total balance"],
+"receive":["Wallet","Swipe Up","Total balance"],
 "ways":["Your account number"],
 "mycode":["Ibrahim Musa", "IM"],
 "foundsvc":["Read from your photo", "2k data for mum", "What I read"],

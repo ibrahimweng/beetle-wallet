@@ -155,6 +155,17 @@ body {
 
 .card { background: var(--surface-2); border-radius: var(--r-card); padding: 20px 21px; }
 .card-plain { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-card); padding: 20px 21px; }
+
+/* the top of the home screen: one pale card the width of the phone, rounded at
+   its foot, above the column everything else keeps to */
+.home-top { margin: -72px calc(-1 * var(--s-5)) 16px; background: var(--surface-2); border-radius: 0 0 36px 36px; padding: 52px 16px 20px; display: flex; flex-direction: column; gap: 24px; }
+.home-mark { width: 36px; height: 36px; border-radius: 999px; display: block; }
+.home-usd { height: 24px; border-radius: 12px; border: 1px solid #efeff1; background: none; padding: 0 4px; font: var(--t-label); color: var(--text-secondary); cursor: pointer; }
+.home-receive { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 10px; border-radius: 20px; background: var(--ink); color: #fff; border: 0; font: var(--t-row); cursor: pointer; }
+.home-receive i { width: 24px; height: 24px; border-radius: 999px; background: #fff; color: var(--ink); display: grid; place-items: center; font-style: normal; }
+.home-shortcuts { display: flex; gap: 4px; border-radius: 20px; padding: 12px 8px; align-self: stretch; }
+.home-shortcut { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 4px 0; border: 0; background: none; cursor: pointer; font: var(--t-caption); color: var(--ink); }
+.home-grab { width: 27px; height: 4px; border-radius: 999px; background: #cdcdcd; }
 .divider { height: 1px; background: var(--rule); }
 
 .icon {
@@ -464,7 +475,7 @@ const M$src_icons_js = (function () {
 
 const ICONS = {
   "airtime": "<path d=\"M14.6 3.2H9.4C8.07 3.2 7 4.27 7 5.6V18.4C7 19.73 8.07 20.8 9.4 20.8H14.6C15.93 20.8 17 19.73 17 18.4V5.6C17 4.27 15.93 3.2 14.6 3.2Z\" stroke=\"currentColor\"/><path d=\"M10.4 17.8H13.6\" stroke=\"currentColor\"/>",
-  "airtime-tone": "<path d=\"M14.4 1.6H9.6C7.17 1.6 5.2 3.57 5.2 6V18C5.2 20.43 7.17 22.4 9.6 22.4H14.4C16.83 22.4 18.8 20.43 18.8 18V6C18.8 3.57 16.83 1.6 14.4 1.6Z\" fill=\"url(#g_at)\"/><path d=\"M13.7 4.7H10.3C8.86 4.7 7.7 5.86 7.7 7.3V14.3C7.7 15.74 8.86 16.9 10.3 16.9H13.7C15.14 16.9 16.3 15.74 16.3 14.3V7.3C16.3 5.86 15.14 4.7 13.7 4.7Z\" fill=\"#9CA5D8\"/><path d=\"M12.9 18.6H11.1C10.6 18.6 10.2 19 10.2 19.5C10.2 20 10.6 20.4 11.1 20.4H12.9C13.4 20.4 13.8 20 13.8 19.5C13.8 19 13.4 18.6 12.9 18.6Z\" fill=\"#9CA5D8\"/><defs><linearGradient id=\"g_at\" x1=\"0\" y1=\"2\" x2=\"0\" y2=\"22\" gradientUnits=\"userSpaceOnUse\"><stop stop-color=\"#3172FF\"/><stop offset=\"1\" stop-color=\"#0A1B7E\"/></linearGradient></defs>",
+  "airtime-tone": "<path d=\"M14.4 1.6H9.6C7.17 1.6 5.2 3.57 5.2 6V18C5.2 20.43 7.17 22.4 9.6 22.4H14.4C16.83 22.4 18.8 20.43 18.8 18V6C18.8 3.57 16.83 1.6 14.4 1.6Z\" fill=\"url(#g_at)\"/><path d=\"M13.7 4.7H10.3C8.86 4.7 7.7 5.86 7.7 7.3V14.3C7.7 15.74 8.86 16.9 10.3 16.9H13.7C15.14 16.9 16.3 15.74 16.3 14.3V7.3C16.3 5.86 15.14 4.7 13.7 4.7Z\" fill=\"#FFFFFF\"/><path d=\"M12.9 18.6H11.1C10.6 18.6 10.2 19 10.2 19.5C10.2 20 10.6 20.4 11.1 20.4H12.9C13.4 20.4 13.8 20 13.8 19.5C13.8 19 13.4 18.6 12.9 18.6Z\" fill=\"#FFFFFF\"/><defs><linearGradient id=\"g_at\" x1=\"0\" y1=\"2\" x2=\"0\" y2=\"22\" gradientUnits=\"userSpaceOnUse\"><stop stop-color=\"#C4AAFF\"/><stop offset=\"1\" stop-color=\"#8B5CF6\"/></linearGradient></defs>",
   "alert": "<path d=\"M12 3.8L21.2 19.8H2.8L12 3.8Z\" stroke=\"currentColor\"/><path d=\"M12 9.8V14M12 16.8H12.02\" stroke=\"currentColor\"/>",
   "back": "<path d=\"M14.62 5.02L7.42 12L14.62 18.98\" stroke=\"currentColor\" stroke-width=\"2.4\"/>",
   "bank": "<path d=\"M3.4 9.4L12 4.6L20.6 9.4M5.6 9.4V17.8M10 9.4V17.8M14 9.4V17.8M18.4 9.4V17.8M3.4 20.4H20.6\" stroke=\"currentColor\"/>",
@@ -503,7 +514,7 @@ const ICONS = {
   "gift-filled": "<path d=\"M19.7 7.5H4.3C3.36 7.5 2.6 8.26 2.6 9.2V10.9C2.6 11.84 3.36 12.6 4.3 12.6H19.7C20.64 12.6 21.4 11.84 21.4 10.9V9.2C21.4 8.26 20.64 7.5 19.7 7.5Z\" fill=\"currentColor\"/><path d=\"M4.5 13.5H19.5V19.2C19.5 19.44 19.45 19.67 19.36 19.89C19.27 20.11 19.14 20.31 18.97 20.47C18.81 20.64 18.61 20.77 18.39 20.86C18.17 20.95 17.94 21 17.7 21H6.3C6.06 21 5.83 20.95 5.61 20.86C5.39 20.77 5.19 20.64 5.03 20.47C4.86 20.31 4.73 20.11 4.64 19.89C4.55 19.67 4.5 19.44 4.5 19.2V13.5Z\" fill=\"currentColor\"/><path d=\"M12 7.5C12 7.5 10.3 2.9 7.9 2.9C7.29 2.9 6.7 3.14 6.27 3.57C5.84 4.01 5.6 4.59 5.6 5.2C5.6 5.81 5.84 6.4 6.27 6.83C6.7 7.26 7.29 7.5 7.9 7.5H12ZM12 7.5C12 7.5 13.7 2.9 16.1 2.9C16.71 2.9 17.3 3.14 17.73 3.57C18.16 4.01 18.4 4.59 18.4 5.2C18.4 5.81 18.16 6.4 17.73 6.83C17.3 7.26 16.71 7.5 16.1 7.5H12Z\" fill=\"currentColor\"/><path d=\"M12 8.1V20.6\" stroke=\"white\" stroke-width=\"2.1\"/>",
   "globe": "<path d=\"M12 20.6C16.75 20.6 20.6 16.75 20.6 12C20.6 7.25 16.75 3.4 12 3.4C7.25 3.4 3.4 7.25 3.4 12C3.4 16.75 7.25 20.6 12 20.6Z\" stroke=\"currentColor\"/><path d=\"M3.4 12H20.6\" stroke=\"currentColor\"/><path d=\"M12 3.4C14.4 6 14.4 18 12 20.6C9.6 18 9.6 6 12 3.4Z\" stroke=\"currentColor\"/>",
   "grid": "<path d=\"M8.6 3.4H5.6C4.38 3.4 3.4 4.39 3.4 5.6V8.6C3.4 9.82 4.38 10.8 5.6 10.8H8.6C9.82 10.8 10.8 9.82 10.8 8.6V5.6C10.8 4.39 9.82 3.4 8.6 3.4Z\" stroke=\"currentColor\"/><path d=\"M18.4 3.4H15.4C14.19 3.4 13.2 4.39 13.2 5.6V8.6C13.2 9.82 14.19 10.8 15.4 10.8H18.4C19.61 10.8 20.6 9.82 20.6 8.6V5.6C20.6 4.39 19.61 3.4 18.4 3.4Z\" stroke=\"currentColor\"/><path d=\"M8.6 13.2H5.6C4.38 13.2 3.4 14.19 3.4 15.4V18.4C3.4 19.62 4.38 20.6 5.6 20.6H8.6C9.82 20.6 10.8 19.62 10.8 18.4V15.4C10.8 14.19 9.82 13.2 8.6 13.2Z\" stroke=\"currentColor\"/><path d=\"M18.4 13.2H15.4C14.19 13.2 13.2 14.19 13.2 15.4V18.4C13.2 19.62 14.19 20.6 15.4 20.6H18.4C19.61 20.6 20.6 19.62 20.6 18.4V15.4C20.6 14.19 19.61 13.2 18.4 13.2Z\" stroke=\"currentColor\"/>",
-  "grid-tone": "<path d=\"M8.3 3.9H6.5C5.06 3.9 3.9 5.06 3.9 6.5V8.3C3.9 9.74 5.06 10.9 6.5 10.9H8.3C9.74 10.9 10.9 9.74 10.9 8.3V6.5C10.9 5.06 9.74 3.9 8.3 3.9Z\" fill=\"url(#g_gt)\"/><path d=\"M17.5 3.9H15.7C14.26 3.9 13.1 5.06 13.1 6.5V8.3C13.1 9.74 14.26 10.9 15.7 10.9H17.5C18.94 10.9 20.1 9.74 20.1 8.3V6.5C20.1 5.06 18.94 3.9 17.5 3.9Z\" fill=\"url(#g_gt)\"/><path d=\"M8.3 13.1H6.5C5.06 13.1 3.9 14.26 3.9 15.7V17.5C3.9 18.94 5.06 20.1 6.5 20.1H8.3C9.74 20.1 10.9 18.94 10.9 17.5V15.7C10.9 14.26 9.74 13.1 8.3 13.1Z\" fill=\"url(#g_gt)\"/><path d=\"M17.5 13.1H15.7C14.26 13.1 13.1 14.26 13.1 15.7V17.5C13.1 18.94 14.26 20.1 15.7 20.1H17.5C18.94 20.1 20.1 18.94 20.1 17.5V15.7C20.1 14.26 18.94 13.1 17.5 13.1Z\" fill=\"url(#g_gt)\"/><defs><linearGradient id=\"g_gt\" x1=\"0\" y1=\"2\" x2=\"0\" y2=\"22\" gradientUnits=\"userSpaceOnUse\"><stop stop-color=\"#3172FF\"/><stop offset=\"1\" stop-color=\"#0A1B7E\"/></linearGradient></defs>",
+  "grid-tone": "<path d=\"M8.3 3.9H6.5C5.06 3.9 3.9 5.06 3.9 6.5V8.3C3.9 9.74 5.06 10.9 6.5 10.9H8.3C9.74 10.9 10.9 9.74 10.9 8.3V6.5C10.9 5.06 9.74 3.9 8.3 3.9Z\" fill=\"url(#g_gt)\"/><path d=\"M17.5 3.9H15.7C14.26 3.9 13.1 5.06 13.1 6.5V8.3C13.1 9.74 14.26 10.9 15.7 10.9H17.5C18.94 10.9 20.1 9.74 20.1 8.3V6.5C20.1 5.06 18.94 3.9 17.5 3.9Z\" fill=\"url(#g_gt)\"/><path d=\"M8.3 13.1H6.5C5.06 13.1 3.9 14.26 3.9 15.7V17.5C3.9 18.94 5.06 20.1 6.5 20.1H8.3C9.74 20.1 10.9 18.94 10.9 17.5V15.7C10.9 14.26 9.74 13.1 8.3 13.1Z\" fill=\"url(#g_gt)\"/><path d=\"M17.5 13.1H15.7C14.26 13.1 13.1 14.26 13.1 15.7V17.5C13.1 18.94 14.26 20.1 15.7 20.1H17.5C18.94 20.1 20.1 18.94 20.1 17.5V15.7C20.1 14.26 18.94 13.1 17.5 13.1Z\" fill=\"url(#g_gt)\"/><defs><linearGradient id=\"g_gt\" x1=\"0\" y1=\"2\" x2=\"0\" y2=\"22\" gradientUnits=\"userSpaceOnUse\"><stop stop-color=\"#22B8E8\"/><stop offset=\"1\" stop-color=\"#0A1B7E\"/></linearGradient></defs>",
   "history-filled": "<path d=\"M12 21.5C17.25 21.5 21.5 17.25 21.5 12C21.5 6.75 17.25 2.5 12 2.5C6.75 2.5 2.5 6.75 2.5 12C2.5 17.25 6.75 21.5 12 21.5Z\" fill=\"currentColor\"/><path d=\"M12 6.5V12.25L15.6 14.35\" stroke=\"white\" stroke-width=\"2.1\"/>",
   "home-filled": "<path d=\"M11.1 2.9C11.35 2.69 11.67 2.57 12 2.57C12.33 2.57 12.65 2.69 12.9 2.9L21 9.65C21.16 9.78 21.28 9.94 21.37 10.13C21.45 10.31 21.5 10.52 21.5 10.72V19.4C21.5 19.96 21.28 20.49 20.88 20.88C20.49 21.28 19.96 21.5 19.4 21.5H4.6C4.04 21.5 3.51 21.28 3.12 20.88C2.72 20.49 2.5 19.96 2.5 19.4V10.72C2.5 10.52 2.55 10.31 2.63 10.13C2.72 9.94 2.84 9.78 3 9.65L11.1 2.9Z\" fill=\"currentColor\"/><path d=\"M9.6 21.5V16.4C9.6 15.76 9.85 15.15 10.3 14.7C10.75 14.25 11.36 14 12 14C12.64 14 13.25 14.25 13.7 14.7C14.15 15.15 14.4 15.76 14.4 16.4V21.5H9.6Z\" fill=\"white\"/>",
   "id": "<path d=\"M18.6 4.8H5.4C3.85 4.8 2.6 6.05 2.6 7.6V16.4C2.6 17.95 3.85 19.2 5.4 19.2H18.6C20.15 19.2 21.4 17.95 21.4 16.4V7.6C21.4 6.05 20.15 4.8 18.6 4.8Z\" stroke=\"currentColor\"/><path d=\"M8.6 13.4C9.82 13.4 10.8 12.41 10.8 11.2C10.8 9.98 9.82 9 8.6 9C7.38 9 6.4 9.98 6.4 11.2C6.4 12.41 7.38 13.4 8.6 13.4Z\" stroke=\"currentColor\"/><path d=\"M5.2 16.6C5.54 16 6.03 15.49 6.63 15.14C7.23 14.79 7.91 14.61 8.6 14.61C9.29 14.61 9.97 14.79 10.57 15.14C11.17 15.49 11.66 16 12 16.6M14.8 10.2H18.4M14.8 13.8H18.4\" stroke=\"currentColor\"/>",
@@ -525,9 +536,9 @@ const ICONS = {
   "phone-filled": "<path d=\"M15.2 1.8H8.8C6.92 1.8 5.4 3.32 5.4 5.2V18.8C5.4 20.68 6.92 22.2 8.8 22.2H15.2C17.08 22.2 18.6 20.68 18.6 18.8V5.2C18.6 3.32 17.08 1.8 15.2 1.8Z\" fill=\"currentColor\"/><path d=\"M10.3 5.1H13.7\" stroke=\"white\" stroke-width=\"1.7\"/><path d=\"M12 19.8C12.72 19.8 13.3 19.22 13.3 18.5C13.3 17.78 12.72 17.2 12 17.2C11.28 17.2 10.7 17.78 10.7 18.5C10.7 19.22 11.28 19.8 12 19.8Z\" fill=\"white\"/>",
   "plus": "<path d=\"M12 5.2V18.8M5.2 12H18.8\" stroke=\"currentColor\" stroke-width=\"2.4\"/>",
   "pot": "<path d=\"M9 10.4V7.4C9 6.6 9.32 5.84 9.88 5.28C10.44 4.72 11.2 4.4 12 4.4C12.8 4.4 13.56 4.72 14.12 5.28C14.68 5.84 15 6.6 15 7.4V10.4\" stroke=\"currentColor\"/><path d=\"M5 10.4H19V17C19 17.8 18.68 18.56 18.12 19.12C17.56 19.68 16.8 20 16 20H8C7.2 20 6.44 19.68 5.88 19.12C5.32 18.56 5 17.8 5 17V10.4Z\" stroke=\"currentColor\"/>",
-  "pot-tone": "<path d=\"M8.9 11.2V7.6C8.9 6.78 9.23 5.99 9.81 5.41C10.39 4.83 11.18 4.5 12 4.5C12.82 4.5 13.61 4.83 14.19 5.41C14.77 5.99 15.1 6.78 15.1 7.6V11.2\" stroke=\"#0A1B7E\" stroke-width=\"3\"/><path d=\"M15.4 9.4H8.6C6.17 9.4 4.2 11.37 4.2 13.8V17.4C4.2 19.83 6.17 21.8 8.6 21.8H15.4C17.83 21.8 19.8 19.83 19.8 17.4V13.8C19.8 11.37 17.83 9.4 15.4 9.4Z\" fill=\"url(#g_pt)\"/><path d=\"M12 13.9C11.63 13.9 11.28 14.02 10.98 14.24C10.69 14.46 10.47 14.77 10.37 15.12C10.26 15.47 10.28 15.85 10.41 16.19C10.53 16.54 10.77 16.83 11.08 17.03L10.74 18.7C10.72 18.79 10.72 18.88 10.75 18.96C10.77 19.05 10.81 19.13 10.86 19.2C10.92 19.27 10.99 19.33 11.07 19.36C11.15 19.4 11.24 19.42 11.33 19.42H12.67C12.76 19.42 12.85 19.4 12.93 19.36C13.01 19.33 13.08 19.27 13.14 19.2C13.19 19.13 13.23 19.05 13.25 18.96C13.28 18.88 13.28 18.79 13.26 18.7L12.92 17.03C13.23 16.83 13.47 16.54 13.59 16.19C13.72 15.85 13.74 15.47 13.63 15.12C13.53 14.77 13.31 14.46 13.02 14.24C12.72 14.02 12.37 13.9 12 13.9Z\" fill=\"#9CA5D8\"/><defs><linearGradient id=\"g_pt\" x1=\"0\" y1=\"2\" x2=\"0\" y2=\"22\" gradientUnits=\"userSpaceOnUse\"><stop stop-color=\"#3172FF\"/><stop offset=\"1\" stop-color=\"#0A1B7E\"/></linearGradient></defs>",
+  "pot-tone": "<path d=\"M8.9 11.2V7.6C8.9 6.78 9.23 5.99 9.81 5.41C10.39 4.83 11.18 4.5 12 4.5C12.82 4.5 13.61 4.83 14.19 5.41C14.77 5.99 15.1 6.78 15.1 7.6V11.2\" stroke=\"#12833C\" stroke-width=\"3\"/><path d=\"M15.4 9.4H8.6C6.17 9.4 4.2 11.37 4.2 13.8V17.4C4.2 19.83 6.17 21.8 8.6 21.8H15.4C17.83 21.8 19.8 19.83 19.8 17.4V13.8C19.8 11.37 17.83 9.4 15.4 9.4Z\" fill=\"#34C759\"/><path d=\"M12 13.9C11.63 13.9 11.28 14.02 10.98 14.24C10.69 14.46 10.47 14.77 10.37 15.12C10.26 15.47 10.28 15.85 10.41 16.19C10.53 16.54 10.77 16.83 11.08 17.03L10.74 18.7C10.72 18.79 10.72 18.88 10.75 18.96C10.77 19.05 10.81 19.13 10.86 19.2C10.92 19.27 10.99 19.33 11.07 19.36C11.15 19.4 11.24 19.42 11.33 19.42H12.67C12.76 19.42 12.85 19.4 12.93 19.36C13.01 19.33 13.08 19.27 13.14 19.2C13.19 19.13 13.23 19.05 13.25 18.96C13.28 18.88 13.28 18.79 13.26 18.7L12.92 17.03C13.23 16.83 13.47 16.54 13.59 16.19C13.72 15.85 13.74 15.47 13.63 15.12C13.53 14.77 13.31 14.46 13.02 14.24C12.72 14.02 12.37 13.9 12 13.9Z\" fill=\"#FFFFFF\"/>",
   "power": "<path d=\"M13 3L6 13.2H11.2L11 21L18 10.8H12.8L13 3Z\" stroke=\"currentColor\"/>",
-  "power-tone": "<path d=\"M14.4 3.2L6.9 13.1H11L10.1 20.8L17.6 10.9H13.5L14.4 3.2Z\" fill=\"url(#g_pw)\" stroke=\"url(#g_pw)\" stroke-width=\"2.1\"/><defs><linearGradient id=\"g_pw\" x1=\"0\" y1=\"2\" x2=\"0\" y2=\"22\" gradientUnits=\"userSpaceOnUse\"><stop stop-color=\"#3172FF\"/><stop offset=\"1\" stop-color=\"#0A1B7E\"/></linearGradient></defs>",
+  "power-tone": "<path d=\"M14.4 3.2L6.9 13.1H11L10.1 20.8L17.6 10.9H13.5L14.4 3.2Z\" fill=\"url(#g_pw)\"/><defs><linearGradient id=\"g_pw\" x1=\"0\" y1=\"2\" x2=\"0\" y2=\"22\" gradientUnits=\"userSpaceOnUse\"><stop stop-color=\"#FFC261\"/><stop offset=\"1\" stop-color=\"#D58400\"/></linearGradient></defs>",
   "qr": "<path d=\"M8.6 3.4H5.2C4.21 3.4 3.4 4.21 3.4 5.2V8.6C3.4 9.59 4.21 10.4 5.2 10.4H8.6C9.59 10.4 10.4 9.59 10.4 8.6V5.2C10.4 4.21 9.59 3.4 8.6 3.4Z\" stroke=\"currentColor\"/><path d=\"M18.8 3.4H15.4C14.41 3.4 13.6 4.21 13.6 5.2V8.6C13.6 9.59 14.41 10.4 15.4 10.4H18.8C19.79 10.4 20.6 9.59 20.6 8.6V5.2C20.6 4.21 19.79 3.4 18.8 3.4Z\" stroke=\"currentColor\"/><path d=\"M8.6 13.6H5.2C4.21 13.6 3.4 14.41 3.4 15.4V18.8C3.4 19.79 4.21 20.6 5.2 20.6H8.6C9.59 20.6 10.4 19.79 10.4 18.8V15.4C10.4 14.41 9.59 13.6 8.6 13.6Z\" stroke=\"currentColor\"/><path d=\"M13.6 13.6H16.8V16.8H13.6V13.6ZM17.4 17.4H20.6V20.6H17.4V17.4Z\" stroke=\"currentColor\"/>",
   "receipt": "<path d=\"M5.4 3.6H18.6V20.8L16 19.2L13.8 20.8L11.6 19.2L9.4 20.8L7.2 19.2L5.4 20.8V3.6Z\" stroke=\"currentColor\"/><path d=\"M8.6 8.6H15.4M8.6 12.8H15.4\" stroke=\"currentColor\"/>",
   "receive-filled": "<path d=\"M12 2.4C12.53 2.4 13.04 2.61 13.41 2.99C13.79 3.36 14 3.87 14 4.4V13.75L17.3 10.45C17.68 10.08 18.18 9.86 18.71 9.86C19.25 9.86 19.75 10.08 20.13 10.45C20.51 10.83 20.72 11.33 20.72 11.87C20.72 12.4 20.51 12.91 20.13 13.28L13.42 20C13.23 20.19 13.01 20.33 12.77 20.43C12.53 20.54 12.27 20.59 12.01 20.59C11.74 20.59 11.48 20.54 11.24 20.43C11 20.33 10.78 20.19 10.59 20L3.87 13.3C3.49 12.93 3.28 12.42 3.28 11.88C3.27 11.35 3.48 10.84 3.86 10.46C4.24 10.08 4.75 9.87 5.28 9.87C5.81 9.87 6.32 10.08 6.7 10.45L10 13.75V4.4C10 3.87 10.21 3.36 10.59 2.99C10.96 2.61 11.47 2.4 12 2.4Z\" fill=\"currentColor\"/>",
@@ -2174,9 +2185,50 @@ const setQuestion = q => { pendingQuestion = q; };
 /* The four shortcuts under the balance. These use the tone variants of the
    glyphs, the only icons in the set that carry their own colour. */
 const shortcut = (icon, label, to) =>
-  e('button', { class: 'stack gap-2 center press', style: { border: 0, background: 'none', cursor: 'pointer', flex: 1 }, onClick: () => go(to) },
-    Icon(icon, { size: 26 }),
-    e('div', { class: 't-caption c-2' }, label));
+  e('button', { class: 'home-shortcut press', onClick: () => go(to) }, Icon(icon, { size: 32 }), label);
+
+/* The mark the home frame sets by the wallet name is a picture, not a glyph,
+   so it ships as one: the frame's own 36 disc, taken out of the file at 3x. */
+const MARK = 'data:image/png;base64,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';
+
+/* The top of the home screen as its frame now draws it: one pale card the
+   width of the phone, rounded 36 at its foot, holding the mark and the wallet
+   name, the balance with its reading in dollars, Receive, the four shortcuts
+   on a hairline card, and the hint that the rest is underneath. The sheets
+   that open over home draw it too, so it takes no handlers of its own. */
+const homeTop = ({ hidden = false, onBalance } = {}) => {
+  const s = get();
+  const whole = Math.floor(s.everyday);
+  const cents = (s.everyday - whole).toFixed(2).slice(1);
+  return e('div', { class: 'home-top' },
+    e('div', { class: 'row', style: { gap: '12px' } },
+      e('img', { class: 'home-mark', src: MARK, alt: 'Beetle', width: '36', height: '36' }),
+      Label('Wallet')),
+    e('div', { class: 'stack center', style: { gap: '32px' } },
+      e('div', { class: 'stack center', style: { gap: '4px' } },
+        Caption('Total balance', 'c-2'),
+        e('button', {
+          class: 'row center press', style: { gap: 0, alignItems: 'baseline', border: 0, background: 'none', cursor: 'pointer', padding: '0 4px' },
+          title: hidden ? 'Show it' : 'Hide it',
+          onClick: onBalance,
+        },
+          hidden
+            ? e('span', { class: 't-display c-3' }, '₦ • • • • • •')
+            : e('span', { class: 't-display' }, '₦' + whole.toLocaleString('en-NG')),
+          hidden ? null : e('span', { class: 't-head', style: { color: '#c4c4c9' } }, cents)),
+        e('button', { class: 'home-usd press', 'aria-label': 'Your dollars', onClick: () => go('dollars') },
+          `~ ${Math.round(s.everyday / s.rate).toLocaleString('en-NG')} USD`)),
+      e('button', { class: 'home-receive press', onClick: () => go('receive') },
+        e('i', null, Icon('receive-filled', { size: 14 })), 'Receive'),
+      e('div', { class: 'home-shortcuts' },
+        shortcut('airtime-tone', 'Airtime', 'airtime'),
+        shortcut('power-tone', 'Bills', 'bills'),
+        shortcut('pot-tone', 'Savings', 'goal'),
+        shortcut('grid-tone', 'Services', 'services')),
+      e('div', { class: 'stack center', style: { gap: '12px' } },
+        e('div', { class: 't-caption' }, 'Swipe Up'),
+        e('div', { class: 'home-grab' }))));
+};
 
 const insightCard = ({ kicker, body, action, onAction, extra }) => {
   const card = Card(
@@ -2191,14 +2243,15 @@ const insightCard = ({ kicker, body, action, onAction, extra }) => {
   return card;
 };
 
+/* The score ring, in the green of a good thing, with the number at row size. */
 const ring = value =>
   e('div', { style: { position: 'relative', width: '36px', height: '36px', flex: 'none' } },
     e('svg', { width: '36', height: '36', viewBox: '0 0 36 36', html:
       `<circle cx="18" cy="18" r="15" fill="none" stroke="#dedee3" stroke-width="4"/>
-       <circle cx="18" cy="18" r="15" fill="none" stroke="#213aca" stroke-width="4"
+       <circle cx="18" cy="18" r="15" fill="none" stroke="#11823b" stroke-width="4"
                stroke-linecap="round" stroke-dasharray="${(value / 100) * 94.2} 94.2"
                transform="rotate(-90 18 18)"/>` }),
-    e('div', { style: { position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', font: '600 12px var(--font)' } }, String(value)));
+    e('div', { style: { position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', font: 'var(--t-row)' } }, String(value)));
 
 /* One ledger row, drawn from the store rather than written into the screen. */
 const entryRow = r => TxRow({
@@ -2226,60 +2279,11 @@ const home = {
     const showInsights = f === 'all' || f === 'insights';
     const hidden = s.toggles.hideBalance;
 
-    const whole = Math.floor(s.everyday);
-    const cents = (s.everyday - whole).toFixed(2).slice(1);
-
     const body = [
-      /* wallet header */
-      e('div', { class: 'row between' },
-        Glyph('mark', 'accent', { circle: true }),
-        Label('Wallet'),
-        e('button', { class: 'chip press', style: { background: 'none', padding: '4px' }, 'aria-label': 'Notifications', onClick: () => go('history') }, Icon('bell', { size: 22 }))),
-
-      /* balance */
-      e('div', { class: 'stack gap-2 center', style: { padding: '10px 0 4px' } },
-        e('div', { class: 'row center', style: { gap: '8px' } },
-          Caption('Total balance', 'c-2'),
-          e('span', { class: 'pill pill-good' }, '+9% this month')),
-        e('button', {
-          class: 'row center press', style: { gap: 0, alignItems: 'baseline', border: 0, background: 'none', cursor: 'pointer' },
-          title: hidden ? 'Show it' : 'Hide it',
-          onClick: () => { setToggle('hideBalance', !hidden); repaint(); },
-        },
-          hidden
-            ? e('span', { class: 't-display c-3' }, '₦ • • • • • •')
-            : e('span', { class: 't-display' }, '₦' + whole.toLocaleString('en-NG')),
-          hidden ? null : e('span', { class: 't-head c-3' }, cents)),
-        e('button', { class: 'btn btn-primary press', style: { width: 'auto', padding: '13px 26px' }, onClick: () => go('receive') }, Icon('receive-filled', { size: 18 }), 'Receive')),
-
-      /* shortcuts */
-      e('div', { class: 'row', style: { padding: '6px 0 2px' } },
-        shortcut('airtime-tone', 'Airtime', 'airtime'),
-        shortcut('power-tone', 'Bills', 'bills'),
-        shortcut('pot-tone', 'Savings', 'goal'),
-        shortcut('grid-tone', 'Services', 'services')),
-
-      /* dollars */
-      e('div', { class: 'card press', style: { padding: '10px 14px', cursor: 'pointer' }, role: 'button', onClick: () => go('dollars') },
-        e('div', { class: 'listrow' },
-          Glyph('$', 'accent', { circle: true }),
-          e('div', { class: 'grow stack gap-1' },
-            e('div', { class: 'listrow-title' }, 'Dollars'),
-            e('div', { class: 'listrow-sub' }, `${naira(dollarsInNaira())} today`)),
-          Label('$' + s.dollars.toFixed(2)),
-          Icon('chevron', { size: 18, cls: 'chev' }))),
-
-      /* money health */
-      e('div', { class: 'card press', style: { padding: '10px 14px', cursor: 'pointer' }, role: 'button', onClick: () => go('health') },
-        e('div', { class: 'listrow' },
-          ring(s.health),
-          e('div', { class: 'grow stack gap-1' },
-            e('div', { class: 'listrow-title' }, 'Money health'),
-            e('div', { class: 'listrow-sub c-good' }, 'Up 4 since July')),
-          Icon('chevron', { size: 18, cls: 'chev' }))),
+      homeTop({ hidden, onBalance: () => { setToggle('hideBalance', !hidden); repaint(); } }),
 
       /* activities */
-      e('div', { class: 'row between', style: { paddingTop: '8px' } },
+      e('div', { class: 'row between', style: { minHeight: '28px' } },
         Head('Activities'),
         e('button', { class: 'btn btn-ghost press', style: { width: 'auto', padding: 0 }, onClick: () => go('history') }, 'See all', Icon('chevron', { size: 15 }))),
       Meta('What I noticed, and every naira that moved.', 'c-3'),
@@ -2289,7 +2293,15 @@ const home = {
     const today = applyFilter(byDay('today'), f);
     const yesterday = applyFilter(byDay('yesterday'), f);
 
-    body.push(Meta('Today', 'c-3'));
+    body.push(Body('Today', 'c-3'));
+    /* the day leads with the score, on a pale card padded 12 by 16 */
+    body.push(e('div', { class: 'card press', style: { padding: '12px 16px', cursor: 'pointer' }, role: 'button', onClick: () => go('health') },
+      e('div', { class: 'row', style: { gap: '12px' } },
+        ring(s.health),
+        e('div', { class: 'grow stack gap-1' },
+          e('div', { class: 'listrow-title' }, 'Money health'),
+          e('div', { class: 'listrow-sub c-good' }, 'Up 4 since July')),
+        Icon('chevron', { size: 16, cls: 'chev' }))));
     if (showInsights) body.push(insightCard({ ...insights.topup, onAction: () => go('powerpay') }));
     if (showRows) body.push(...today.slice(0, 5).map(entryRow));
     if (showInsights) body.push(insightCard({
@@ -2376,7 +2388,7 @@ const agentchat = {
   },
 };
 
-return { setQuestion, entryRow, home, agentchat };
+return { setQuestion, MARK, homeTop, entryRow, home, agentchat };
 })();
 
 /* src/screens/act2.js */
@@ -2719,7 +2731,7 @@ const { transfer : seedTransfer, contacts, me, bills, meterBill, insights } = M$
 const { get, dollarsInNaira } = M$src_store_js;
 const act = M$src_actions_js;
 const { draft, start, set } = M$src_flow_js;
-const { setQuestion } = M$src_screens_home_js;
+const { setQuestion, homeTop } = M$src_screens_home_js;
 const e = el;
 const go = id => window.beetleGo(id);
 const repaint = () => window.beetleRepaint();
@@ -2773,16 +2785,7 @@ const receiptBody = ({ head, sub, amount, line, fields, session, sessionLabel = 
  * ---------------------------------------------------------------- */
 
 const blurredHome = () => e('div', { class: 'screen-scroll', style: { filter: 'blur(4px)', opacity: .6 } },
-  e('div', { class: 'pad top-pad stack gap-4' },
-    e('div', { class: 'row between' }, Glyph('mark', 'accent', { circle: true }), Label('Wallet'), Icon('bell', { size: 22 })),
-    e('div', { class: 'stack gap-2 center' },
-      e('div', { class: 'row center', style: { gap: '8px' } },
-        Caption('Total balance', 'c-2'),
-        e('span', { class: 'pill pill-good' }, '+9% this month')),
-      e('div', { class: 't-display' }, naira(get().everyday)),
-      e('button', { class: 'btn btn-primary', style: { width: 'auto', padding: '13px 26px' } }, Icon('receive-filled', { size: 18 }), 'Receive')),
-    e('div', { class: 'row' }, ...['airtime-tone', 'power-tone', 'pot-tone', 'grid-tone'].map(i =>
-      e('div', { class: 'center', style: { flex: 1 } }, Icon(i, { size: 24 }))))));
+  e('div', { class: 'pad top-pad stack gap-4' }, homeTop()));
 
 /* The camera, out of focus, for the sheet that comes up over it once it has
    read something. */
@@ -4489,6 +4492,7 @@ const { me, onboarding, balances, limits, goal } = M$src_data_js;
 const { get } = M$src_store_js;
 const act = M$src_actions_js;
 const { ask } = M$src_agent_js;
+const { MARK } = M$src_screens_home_js;
 const e = el;
 const go = id => window.beetleGo(id);
 const repaint = () => window.beetleRepaint();
@@ -4797,7 +4801,7 @@ const firsthome = {
   title: 'The first home',
   render: () => Screen([
     e('div', { class: 'row between' },
-      Glyph('mark', 'accent', { circle: true }),
+      e('img', { class: 'home-mark', src: MARK, alt: '' }),
       Label('Wallet'),
       Pill('New account', 'accent')),
     e('div', { class: 'stack gap-2 center', style: { padding: '10px 0 4px' } },

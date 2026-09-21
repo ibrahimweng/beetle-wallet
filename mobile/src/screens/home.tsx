@@ -5,23 +5,23 @@ import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import {
   ActionButton,
-  Balance,
   Bubble,
+  Body,
   Button,
-  Dial,
   Dock,
   Filters,
   Head,
+  HomeCard,
   Icon,
   Insight,
+  Label,
   LedgerRow,
   Mark,
   Meta,
   Row,
   Screen,
-  Shortcuts,
+  ScoreRow,
   Tile,
-  WalletHeader,
   colour,
   radius,
   space,
@@ -30,7 +30,7 @@ import { Route } from '../routes';
 import { Nav, asked } from './nav';
 import { useStore } from '../state/live';
 import { answer, takeQuestion } from '../state/agent';
-import { filtered, dollarsInNaira } from '../state/store.js';
+import { filtered } from '../state/store.js';
 import { insights, ledgerFooter } from '../state/data.js';
 
 export { useStore };
@@ -111,58 +111,30 @@ export const Home = ({ nav }: { nav: Nav }) => {
         />
       }
     >
-      <WalletHeader onSettings={() => nav.go('settings')} onAlerts={() => nav.go('history')} />
-      <Balance whole={whole} kobo={kobo} change="+9% this month" />
-      <View style={{ alignSelf: 'center' }}>
-        <Button
-          label="Receive"
-          leading="receive-filled"
-          badge
-          size={40}
-          full={false}
-          onPress={() => nav.go('receive')}
-        />
-      </View>
-      <Shortcuts
-        items={[
+      <HomeCard
+        whole={whole}
+        kobo={kobo}
+        dollars={`~ ${Math.round(s.everyday / s.rate).toLocaleString('en-NG')} USD`}
+        onDollars={() => nav.go('dollars')}
+        onReceive={() => nav.go('receive')}
+        shortcuts={[
           { glyph: 'airtime-tone', label: 'Airtime', onPress: () => nav.go('airtime') },
           { glyph: 'power-tone', label: 'Bills', onPress: () => nav.go('bills') },
           { glyph: 'pot-tone', label: 'Savings', onPress: () => nav.go('goal') },
           { glyph: 'grid-tone', label: 'Services', onPress: () => nav.go('services') },
         ]}
       />
-      <Tile
-        onPress={() => nav.go('dollars')}
-        lead={
-          <View
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 24,
-              backgroundColor: colour.ink,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Head tone="inverse">$</Head>
-          </View>
-        }
-        title="Dollars"
-        sub={`₦${dollarsInNaira().toLocaleString('en-NG')} today`}
-        value={`$${s.dollars.toFixed(2)}`}
-      />
-      <Tile
-        onPress={() => nav.go('health')}
-        lead={<Dial score={s.health ?? 72} />}
-        title="Money health"
-        sub="Up 4 since July"
-      />
 
       <View style={{ gap: space.s2 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', height: 28 }}>
           <Head style={{ flex: 1 }}>Activities</Head>
-          <Pressable accessibilityRole="button" onPress={() => nav.go('history')}>
-            <Row>See all</Row>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => nav.go('history')}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+          >
+            <Label style={{ color: colour.accentDeep }}>See all</Label>
+            <Icon name="chevron" size={12} colour={colour.accentDeep} />
           </Pressable>
         </View>
         <Meta tone="secondary">What I noticed, and every naira that moved.</Meta>
@@ -171,7 +143,18 @@ export const Home = ({ nav }: { nav: Nav }) => {
         <Filters options={['All', 'Insights', 'In', 'Out']} value={filter} onChange={setFilter} />
       </View>
 
-      <Meta tone="secondary">Today</Meta>
+      {/* the frame sets the day's label 8 over its first card rather than
+          the column's 20, and leads the day with the score; the insight under
+          it pulls itself up to the same 8 */}
+      <View style={{ gap: 8 }}>
+        <Body tone="secondary">Today</Body>
+        <ScoreRow
+          score={s.health ?? 72}
+          title="Money health"
+          sub="Up 4 since July"
+          onPress={() => nav.go('health')}
+        />
+      </View>
       {!put.includes('topup') && filter !== 'In' && filter !== 'Out' ? (
         <Insight {...insights.topup} onAction={() => nav.go('powerpay')} onDismiss={() => away('topup')} />
       ) : null}

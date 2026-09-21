@@ -5,24 +5,32 @@
    amount 14 semibold on the right; and an insight is the agent's mark with a
    14 semibold kicker, a 16 regular body and one thing to do. */
 import React, { ReactNode } from 'react';
-import { Pressable, View } from 'react-native';
+import { Image, Pressable, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { Icon } from './Icon';
 import { Bubble } from './Bubble';
 import { Caption, Display, Head, Label, Meta, Row } from './text';
 import { IconName } from '../icons';
-import { colour, radius, space } from './tokens';
+import { colour, frame, radius, space } from './tokens';
 import { Tap } from './motion';
 
-/* The wallet bar sits under the status bar rather than at the top of the
-   column the rest of the screen keeps to — the frames put it twenty above
-   where everything else begins. The bell is on the pale disc; the mark is
-   not. */
+/* The head of the first-day home, which its frame still draws the earlier
+   way: the wallet bar sits under the status bar rather than at the top of the
+   column the rest of the screen keeps to, twenty above where everything else
+   begins, with the bell on the pale disc and the mark not. */
+/* The mark the home frame sets by the wallet name is a picture, not a glyph,
+   so it ships as one: the frame's own 36 disc, taken out of the file at 3x. */
+const MARK = require('../../assets/wallet-mark.png');
+
 export function WalletHeader({ onSettings, onAlerts }: { onSettings?: () => void; onAlerts?: () => void }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: -20 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: -20, marginBottom: 4 }}>
       <Pressable accessibilityRole="button" accessibilityLabel="Settings" onPress={onSettings}>
-        <Icon name="mark" size={28} />
+        <Image
+          source={MARK}
+          style={{ width: 36, height: 36, borderRadius: 18 }}
+          accessibilityLabel="Beetle"
+        />
       </Pressable>
       <View style={{ flex: 1, alignItems: 'center' }}>
         <Label>Wallet</Label>
@@ -32,15 +40,17 @@ export function WalletHeader({ onSettings, onAlerts }: { onSettings?: () => void
         accessibilityLabel="Alerts"
         onPress={onAlerts}
         style={{
-          width: 34,
-          height: 34,
-          borderRadius: 17,
+          width: 36,
+          height: 36,
+          borderRadius: 18,
           backgroundColor: colour.surface2,
+          borderWidth: 1,
+          borderColor: colour.surface3,
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        <Icon name="bell" size={18} />
+        <Icon name="bell" size={16} />
       </Pressable>
     </View>
   );
@@ -48,46 +58,182 @@ export function WalletHeader({ onSettings, onAlerts }: { onSettings?: () => void
 
 export function Balance({ whole, kobo, change }: { whole: string; kobo: string; change: string }) {
   return (
-    <View style={{ alignItems: 'center', gap: space.s2 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s2 }}>
-        <Meta tone="secondary">Total balance</Meta>
+    <View style={{ alignItems: 'center', gap: 4 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s2, height: 24 }}>
+        <Caption tone="secondary">Total balance</Caption>
         <View
           style={{
+            height: 24,
+            justifyContent: 'center',
             backgroundColor: colour.surface2,
-            borderRadius: radius.pill,
-            paddingHorizontal: 10,
-            paddingVertical: 3,
+            borderWidth: 1,
+            borderColor: colour.surface3,
+            borderRadius: 12,
+            paddingHorizontal: 8,
           }}
         >
-          <Label>{change}</Label>
+          <Label tone="secondary">{change}</Label>
         </View>
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start', paddingHorizontal: 4 }}>
         <Display>{whole}</Display>
-        <Head style={{ marginTop: 8 }}>{kobo}</Head>
+        <Head style={{ marginTop: 8, color: colour.ruleStrong }}>{kobo}</Head>
       </View>
     </View>
   );
 }
 
-/* The frames leave more room above the four than the column's own gap — the
-   balance and what it can do read as one block, and these are the next one. */
+/* The top of the home screen as its frame now draws it: one pale card the
+   width of the phone, rounded 36 at its foot, holding the mark and the wallet
+   name, the balance with its reading in dollars, Receive, the four shortcuts
+   on a hairline card, and the hint that the rest is underneath. It starts at
+   the top edge, above the column everything else keeps to, and what follows
+   sits 32 under it rather than the column's 20. */
+export function HomeCard({
+  whole,
+  kobo,
+  dollars,
+  onDollars,
+  onReceive,
+  shortcuts,
+}: {
+  whole: string;
+  kobo: string;
+  dollars: string;
+  onDollars?: () => void;
+  onReceive?: () => void;
+  shortcuts: { glyph: IconName; label: string; onPress?: () => void }[];
+}) {
+  return (
+    <View
+      style={{
+        marginTop: -frame.topPad,
+        marginHorizontal: -frame.sidePad,
+        marginBottom: 12,
+        backgroundColor: colour.surface2,
+        borderBottomLeftRadius: 36,
+        borderBottomRightRadius: 36,
+        paddingTop: 52,
+        paddingHorizontal: 16,
+        paddingBottom: 20,
+        gap: 24,
+      }}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <Image
+          source={MARK}
+          style={{ width: 36, height: 36, borderRadius: 18 }}
+          accessibilityLabel="Beetle"
+        />
+        <Label>Wallet</Label>
+      </View>
+      <View style={{ alignItems: 'center', gap: 32 }}>
+        <View style={{ alignItems: 'center', gap: 4 }}>
+          <Caption tone="secondary">Total balance</Caption>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start', paddingHorizontal: 4 }}>
+            <Display>{whole}</Display>
+            <Head style={{ marginTop: 8, color: colour.ruleStrong }}>{kobo}</Head>
+          </View>
+          {/* the reading in dollars sits on a chip the colour of the card, so
+              only its hairline shows */}
+          <Tap
+            accessibilityRole="button"
+            accessibilityLabel="Your dollars"
+            onPress={onDollars}
+            style={{
+              height: 24,
+              borderRadius: 12,
+              borderWidth: 1,
+              borderColor: colour.surface3,
+              paddingHorizontal: 4,
+              justifyContent: 'center',
+            }}
+          >
+            <Label tone="secondary">{dollars}</Label>
+          </Tap>
+        </View>
+        {/* Receive is a 40 pill here, padded 10, with the glyph on a 24 disc */}
+        <Tap
+          accessibilityRole="button"
+          onPress={onReceive}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+            height: 40,
+            borderRadius: 20,
+            paddingHorizontal: 10,
+            backgroundColor: colour.ink,
+          }}
+        >
+          <View
+            style={{
+              width: 24,
+              height: 24,
+              borderRadius: 12,
+              backgroundColor: colour.surface,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Icon name="receive-filled" size={14} colour={colour.ink} />
+          </View>
+          <Row tone="inverse">Receive</Row>
+        </Tap>
+        <View
+          style={{
+            alignSelf: 'stretch',
+            flexDirection: 'row',
+            gap: 4,
+            borderRadius: 20,
+            paddingVertical: 12,
+            paddingHorizontal: 8,
+          }}
+        >
+          {shortcuts.map(i => (
+            <Tap
+              key={i.label}
+              accessibilityRole="button"
+              onPress={i.onPress}
+              style={{ flex: 1, alignItems: 'center', gap: 8, paddingVertical: 4 }}
+            >
+              <Icon name={i.glyph} size={32} />
+              <Caption>{i.label}</Caption>
+            </Tap>
+          ))}
+        </View>
+        <View style={{ alignItems: 'center', gap: 12 }}>
+          <Caption>Swipe Up</Caption>
+          <View style={{ width: 27, height: 4, borderRadius: 2, backgroundColor: '#cdcdcd' }} />
+        </View>
+      </View>
+    </View>
+  );
+}
+
+/* The four shortcuts of the first-day home, whose frame still draws them
+   bare, with more room above than the column's own gap. */
 export function Shortcuts({ items }: { items: { glyph: IconName; label: string; onPress?: () => void }[] }) {
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 22, marginBottom: 12 }}>
+    <View
+      style={{
+        flexDirection: 'row',
+        gap: 4,
+        marginTop: 4,
+        borderRadius: 20,
+        paddingVertical: 12,
+        paddingHorizontal: 8,
+      }}
+    >
       {items.map(i => (
         <Tap
           key={i.label}
           accessibilityRole="button"
           onPress={i.onPress}
-          style={{
-            alignItems: 'center',
-            gap: 10,
-            flex: 1,
-          }}
+          style={{ flex: 1, alignItems: 'center', gap: 8, paddingVertical: 4 }}
         >
-          <Icon name={i.glyph} size={28} />
-          <Caption tone="secondary">{i.label}</Caption>
+          <Icon name={i.glyph} size={32} />
+          <Caption>{i.label}</Caption>
         </Tap>
       ))}
     </View>
@@ -122,18 +268,19 @@ export function Tile({
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: space.s4,
+        gap: space.s3,
         backgroundColor: plain ? colour.surface : colour.surface2,
         borderWidth: plain ? 1 : 0,
         borderColor: colour.rule,
-        borderRadius: radius.lg,
-        padding: space.s4,
+        borderRadius: radius.card,
+        paddingVertical: space.s3,
+        paddingHorizontal: space.s4,
       }}
     >
       {lead}
-      <View style={{ flex: 1, gap: 2 }}>
+      <View style={{ flex: 1, gap: 4 }}>
         <Row>{title}</Row>
-        <Meta tone="secondary">{sub}</Meta>
+        <Meta tone="tertiary">{sub}</Meta>
       </View>
       {value ? <Row>{value}</Row> : null}
       {go ? (
@@ -150,14 +297,26 @@ export function Tile({
           <Icon name="chevron" size={16} colour={colour.textInverse} />
         </View>
       ) : (
-        <Icon name="chevron" size={16} colour={colour.textTertiary} />
+        <Icon name="chevron" size={16} colour={colour.ruleStrong} />
       )}
     </Tap>
   );
 }
 
-/* The health ring, with its score in the middle. */
-export function Dial({ score, size = 36 }: { score: number; size?: number }) {
+/* The health ring, with its score in the middle. The home frame draws it in
+   the green of a good thing with the score at row size; elsewhere it is the
+   accent with a caption. */
+export function Dial({
+  score,
+  size = 36,
+  tone = colour.accent,
+  strong = false,
+}: {
+  score: number;
+  size?: number;
+  tone?: string;
+  strong?: boolean;
+}) {
   const r = (size - 4) / 2;
   const c = 2 * Math.PI * r;
   return (
@@ -168,7 +327,7 @@ export function Dial({ score, size = 36 }: { score: number; size?: number }) {
           cx={size / 2}
           cy={size / 2}
           r={r}
-          stroke={colour.accent}
+          stroke={tone}
           strokeWidth={4}
           fill="none"
           strokeDasharray={`${(c * score) / 100} ${c}`}
@@ -176,8 +335,45 @@ export function Dial({ score, size = 36 }: { score: number; size?: number }) {
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </Svg>
-      <Caption style={{ fontWeight: '600' }}>{String(score)}</Caption>
+      {strong ? <Row>{String(score)}</Row> : <Caption style={{ fontWeight: '600' }}>{String(score)}</Caption>}
     </View>
+  );
+}
+
+/* The score as the home frame sets it at the head of the day: the ring with
+   the number in it, the words, and a chevron, on a pale card padded 12 by 16. */
+export function ScoreRow({
+  score,
+  title,
+  sub,
+  onPress,
+}: {
+  score: number;
+  title: string;
+  sub: string;
+  onPress?: () => void;
+}) {
+  return (
+    <Tap
+      accessibilityRole="button"
+      onPress={onPress}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        backgroundColor: colour.surface2,
+        borderRadius: radius.card,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+      }}
+    >
+      <Dial score={score} tone={colour.goodText} strong />
+      <View style={{ flex: 1, gap: 4 }}>
+        <Row>{title}</Row>
+        <Meta tone="good">{sub}</Meta>
+      </View>
+      <Icon name="chevron" size={16} colour={colour.ruleStrong} />
+    </Tap>
   );
 }
 
@@ -207,7 +403,7 @@ export function Filters({
               paddingVertical: 7,
             }}
           >
-            <Label tone={on ? 'inverse' : 'ink'}>{o}</Label>
+            <Label tone={on ? 'inverse' : 'secondary'}>{o}</Label>
           </Pressable>
         );
       })}

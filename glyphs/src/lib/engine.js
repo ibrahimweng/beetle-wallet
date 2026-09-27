@@ -404,11 +404,12 @@ function svgInner(prims, P, opts = {}) {
     const d = pathOf(pr, P); if (!d) return;
     const role = roles[i];
     const a = pr.alpha != null ? pr.alpha : 1;
-    if (a < 1) { // a translucent part draws on its own, above the mask, in the outline style it was drawn in
-      const attrs = role === 'flat' || role === 'fill' ? `fill="currentColor" fill-rule="${pr.evenodd ? 'evenodd' : 'nonzero'}"` : STROKE;
+    if (a < 1) { // a translucent part draws on its own, above the mask
+      const attrs = role === 'fill' || (solid && role === 'flat') ? `fill="currentColor" fill-rule="${pr.evenodd ? 'evenodd' : 'nonzero'}"` : STROKE;
       faint.push(`<path d="${d}" ${attrs} opacity="${f2(a)}"/>`); return;
     }
     if (role === 'fill') fills.push(d);
+    else if (!solid && (role === 'flat' || role === 'knock' || role === 'cut')) strokes.push(d); // the outline weight of a filled glyph: its contours, stroked
     else if (role === 'flat') flats.push(`<path d="${d}" fill="currentColor" fill-rule="${pr.evenodd ? 'evenodd' : 'nonzero'}"/>`);
     else if (role === 'cut') cuts.push(d);
     else if (role === 'knock') knocks.push(d);
@@ -500,6 +501,7 @@ function outline(prims, P, weight, CL, roles) {
     const addStroke = (part, co) => { if (part.pts.length) co.AddPath(toIP(part.pts), CL.JoinType.jtRound, part.closed ? CL.EndType.etClosedLine : CL.EndType.etOpenRound); };
     const addPolygon = part => { if (part.pts.length < 3) return; let ip = toIP(part.pts); if (!CL.Clipper.Orientation(ip)) ip.reverse(); body.AddPath(ip, CL.JoinType.jtRound, CL.EndType.etClosedPolygon); };
     if (role === 'fill') { for (const part of parts) addPolygon(part); hasBody = true; }
+    else if (!solid && (role === 'flat' || role === 'knock' || role === 'cut')) { for (const part of parts) addStroke(part, body); hasBody = true; }
     else if (role === 'flat') { const c = new CL.Clipper(); let any = false; for (const part of parts) { if (part.pts.length >= 3) { c.AddPath(toIP(part.pts), CL.PolyType.ptSubject, true); any = true; } } if (any) { const u = new CL.Paths(); const ft = pr.evenodd ? CL.PolyFillType.pftEvenOdd : CL.PolyFillType.pftNonZero; c.Execute(CL.ClipType.ctUnion, u, ft, ft); for (const q of u) flat.push(q); hasFlat = true; } }
     else if (role === 'knock') { for (const part of parts) { if (part.pts.length >= 3) { knock.push(toIP(part.pts)); hasKnock = true; } } }
     else if (role === 'cut') { for (const part of parts) addStroke(part, cutter); hasCut = true; }

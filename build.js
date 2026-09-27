@@ -89,7 +89,7 @@ console.log('dist/beetle.html', (page.length / 1024).toFixed(1) + ' kB');
 const out = resolve(here, 'public');
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
-for (const item of ['index.html', 'src', 'dist']) {
+for (const item of ['index.html', 'src', 'dist', 'glyphs']) {
   cpSync(resolve(here, item), resolve(out, item), { recursive: true });
 }
 console.log('public/ ready to serve');

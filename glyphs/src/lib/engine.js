@@ -1,15 +1,15 @@
 /* Beetle glyph engine, v2. One geometry model for every icon: centreline
- primitives on a 24 grid, every radius and gap in stroke units. The same
- primitives render to SVG (curves kept), flatten to polygons for Clipper, and
- come out the far end as filled outlines for a sprite or a font.
+  primitives on a 24 grid, every radius and gap in stroke units. The same
+  primitives render to SVG (curves kept), flatten to polygons for Clipper, and
+  come out the far end as filled outlines for a sprite or a font.
 
- Primitives
-   poly  { pts:[[x,y,kind?]...], closed }       kind: 'none' | 'soft' | 'box' | 'box:k' | 'fillet' | number
-   arc   { c:[x,y], rx, ry, a0, a1 }            parametric angles in degrees, y down, 360 = full
-   seq   { segs:[['M',x,y] | ['L',x,y] | ['A',cx,cy,rx,ry,a0,a1]] }
-   quad  { pts:[p, ctrl, p, ctrl ...] }         closed quadratic loop
-   path  { d } or { segs }                      SVG path data, straight joins get fillets
- Roles: stroke | shape | detail | fill | flat. */
+  Primitives
+    poly  { pts:[[x,y,kind?]...], closed }       kind: 'none' | 'soft' | 'box' | 'box:k' | 'fillet' | number
+    arc   { c:[x,y], rx, ry, a0, a1 }            parametric angles in degrees, y down, 360 = full
+    seq   { segs:[['M',x,y] | ['L',x,y] | ['A',cx,cy,rx,ry,a0,a1]] }
+    quad  { pts:[p, ctrl, p, ctrl ...] }         closed quadratic loop
+    path  { d } or { segs }                      SVG path data, straight joins get fillets
+  Roles: stroke | shape | detail | fill | flat. */
 
 const DEF = { S: 2.5, R: 2, G: 0.75, choke: 0, goo: 0, fillet: 0.5, weight: 'outline' };
 const PRESETS = {
@@ -376,32 +376,81 @@ function bbox(pr, P) {
 /* closed shapes are 'shape'; anything sitting inside a closed shape is a
    'detail' (a cut in the solid); the rest are strokes */
 function autoRoles(prims, P) {
-  const info = prims.map(pr => ({ pr, closed: isClosed(pr) && !(pr.alpha != null && pr.alpha < 1), bb: bbox(pr, P) }));
-  const inside = (a, b, tol = 0.6) => a.bb[0] >= b.bb[0] - tol && a.bb[1] >= b.bb[1] - tol && a.bb[2] <= b.bb[2] + tol && a.bb[3] <= b.bb[3] + tol && ((a.bb[2] - a.bb[0]) * (a.bb[3] - a.bb[1]) < (b.bb[2] - b.bb[0]) * (b.bb[3] - b.bb[1]) - 0.5);
+  /* a pill narrower than 2 S is a glyph (a digit's 0), drawn as a stroke, not a shape */
+  const glyphPill = (pr, bb) => { if (pr.t !== 'poly' || !pr.closed || pr.pts.length !== 4) return false; const w = bb[2] - bb[0], h = bb[3] - bb[1], mn = Math.min(w, h), mx = Math.max(w, h); if (mn > 2 * P.S || mx < 1.3 * mn || mx > 1.75 * mn) return false; return pr.pts.every(p => typeof p[2] === 'string' && p[2].startsWith('box') && (p[2] === 'box' ? 2 : 2 * parseFloat(p[2].slice(4))) >= 0.45 * mn); };
+  const info = prims.map(pr => {
+    const parts = flatten(pr, P);
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const part of parts) for (const p of part.pts) { if (p[0] < x0) x0 = p[0]; if (p[0] > x1) x1 = p[0]; if (p[1] < y0) y0 = p[1]; if (p[1] > y1) y1 = p[1]; }
+    const bb = [x0, y0, x1, y1];
+    const faint = pr.alpha != null && pr.alpha < 1; const closed = isClosed(pr) && !faint && !glyphPill(pr, bb);
+    const fills = !faint && (pr.role === 'flat' || pr.role === 'fill' || (closed && (!pr.role || pr.role === 'shape')));
+    return { pr, closed, fills, bb, parts, shapeHost: fills && pr.role !== 'flat' && pr.role !== 'fill' };
+  });
+  const pip = (p, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const a = poly[i], b = poly[j]; if ((a[1] > p[1]) !== (b[1] > p[1]) && p[0] < (b[0] - a[0]) * (p[1] - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; };
+  /* inside the host's box, and most of its points inside the host's shape itself:
+     a line that only crosses the box stays a stroke */
+  const inside = (a, b, tol = 0.6) => {
+    if (!(a.bb[0] >= b.bb[0] - tol && a.bb[1] >= b.bb[1] - tol && a.bb[2] <= b.bb[2] + tol && a.bb[3] <= b.bb[3] + tol && ((a.bb[2] - a.bb[0]) * (a.bb[3] - a.bb[1]) < (b.bb[2] - b.bb[0]) * (b.bb[3] - b.bb[1]) - 0.5))) return false;
+    const polys = b.parts.filter(part => part.pts.length >= 3).map(part => part.pts); if (!polys.length) return false;
+    let n = 0, hit = 0;
+    const test = p => { n++; if (polys.some(poly => pip(p, poly))) hit++; };
+    for (const part of a.parts) { // sampled along the edges, so a line that only touches the edge still counts as inside
+      const pts = part.pts; if (pts.length === 1) { test(pts[0]); continue; }
+      const m = part.closed ? pts.length : pts.length - 1;
+      for (let i = 0; i < m; i++) { const p = pts[i], q = pts[(i + 1) % pts.length]; const k = Math.max(1, Math.ceil(Math.hypot(q[0] - p[0], q[1] - p[1]) / 0.5)); for (let s = 0; s < k; s++) { const t = (s + 0.5) / k; test([p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]); } }
+    }
+    return n > 0 && hit / n > 0.5;
+  };
   return prims.map((pr, i) => {
     if (pr.role && pr.roleLocked) return pr.role;
-    if (pr.role === 'flat' || pr.role === 'fill' || pr.role === 'cut' || pr.role === 'knock') return pr.role;
     const me = info[i];
+    if (pr.role === 'flat') { if (info.some((o, j) => j !== i && o.shapeHost && inside(me, o))) return 'punch'; return Math.min(me.bb[2] - me.bb[0], me.bb[3] - me.bb[1]) <= P.S ? 'fill' : 'flat'; } // a filled dot on a line shape punches a hole of its outline size; a filled dot on its own is a dot in both weights
+    if (pr.role === 'fill' || pr.role === 'cut' || pr.role === 'knock' || pr.role === 'punch') return pr.role;
     if (pr.alpha != null && pr.alpha < 1) return 'stroke';
-    const host = info.some((o, j) => j !== i && o.closed && inside(me, o));
+    const host = info.some((o, j) => j !== i && o.fills && inside(me, o));
     if (host) return 'detail';
     return me.closed ? 'shape' : 'stroke';
   });
 }
+/* shapes that partly overlap an earlier shape get a gap around them in the
+   solid, the way a designer separates a stacked pair: j -> [k...] */
+function halos(prims, roles, P) {
+  const out = new Map();
+  const bbs = prims.map((pr, i) => roles[i] === 'shape' ? bbox(pr, P) : null);
+  const flats = prims.map((pr, i) => bbs[i] ? flatten(pr, P).filter(part => part.pts.length >= 3).map(part => part.pts) : null);
+  const contains = (a, b, tol = 0.6) => a[0] <= b[0] + tol && a[1] <= b[1] + tol && a[2] >= b[2] - tol && a[3] >= b[3] - tol;
+  const segDist = (p, a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1]; const l2 = dx * dx + dy * dy || 1e-9; let t = ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2; t = Math.max(0, Math.min(1, t)); return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy); };
+  /* inside a polygon and further than m from its edge */
+  const deepInside = (p, poly, m) => { let inside = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const a = poly[i], b = poly[j]; if (segDist(p, a, b) < m) return false; if ((a[1] > p[1]) !== (b[1] > p[1]) && p[0] < (b[0] - a[0]) * (p[1] - a[1]) / (b[1] - a[1]) + a[0]) inside = !inside; } return inside; };
+  const meets = (A, B) => A.some(pa => B.some(pb => pb.some(p => deepInside(p, pa, 0.35)) || pa.some(p => deepInside(p, pb, 0.35))));
+  for (let j = 0; j < prims.length; j++) {
+    if (!bbs[j]) continue;
+    for (let k = j + 1; k < prims.length; k++) {
+      const a = bbs[j], b = bbs[k]; if (!b) continue;
+      const boxes = a[0] < b[2] - 0.5 && b[0] < a[2] - 0.5 && a[1] < b[3] - 0.5 && b[1] < a[3] - 0.5;
+      if (boxes && !contains(a, b) && !contains(b, a) && meets(flats[j], flats[k])) { if (!out.has(j)) out.set(j, []); out.get(j).push(k); }
+    }
+  }
+  return out;
+}
 
 /* ---------- SVG ---------- */
+const safeId = s => String(s == null ? 'g' : s).replace(/[^A-Za-z0-9_-]/g, '_');
 const widths = P => ({ w: Math.max(0.2, P.S + 2 * (P.choke || 0)), wCut: Math.max(0.2, P.S - 2 * (P.choke || 0)) });
 function svgInner(prims, P, opts = {}) {
   const { w, wCut } = widths(P);
-  const id = opts.uid || 'g';
+  const id = safeId(opts.uid || 'g');
   const solid = (opts.weight || P.weight) === 'solid';
   const roles = opts.roles || autoRoles(prims, P);
   const STROKE = `fill="none" stroke="currentColor" stroke-width="${f2(w)}" stroke-linecap="round" stroke-linejoin="round"`;
   const FILL = `fill="currentColor" stroke="currentColor" stroke-width="${f2(w)}" stroke-linejoin="round" stroke-linecap="round"`;
   const CUT = `fill="none" stroke="#000" stroke-width="${f2(wCut)}" stroke-linecap="round" stroke-linejoin="round"`;
-  const strokes = [], fills = [], flats = [], cuts = [], knocks = [], shapes = [], faint = [];
+  const strokes = [], fills = [], flats = [], cuts = [], knocks = [], punches = [], shapes = [], faint = [], haloed = [];
+  const H = solid ? halos(prims, roles, P) : new Map();
+  const ds = prims.map(pr => pathOf(pr, P));
   prims.forEach((pr, i) => {
-    const d = pathOf(pr, P); if (!d) return;
+    const d = ds[i]; if (!d) return;
     const role = roles[i];
     const a = pr.alpha != null ? pr.alpha : 1;
     if (a < 1) { // a translucent part draws on its own, above the mask
@@ -409,40 +458,46 @@ function svgInner(prims, P, opts = {}) {
       faint.push(`<path d="${d}" ${attrs} opacity="${f2(a)}"/>`); return;
     }
     if (role === 'fill') fills.push(d);
-    else if (!solid && (role === 'flat' || role === 'knock' || role === 'cut')) strokes.push(d); // the outline weight of a filled glyph: its contours, stroked
+    else if (!solid && (role === 'flat' || role === 'knock' || role === 'cut' || role === 'punch')) strokes.push(d); // the outline weight of a filled glyph: its contours, stroked
     else if (role === 'flat') flats.push(`<path d="${d}" fill="currentColor" fill-rule="${pr.evenodd ? 'evenodd' : 'nonzero'}"/>`);
     else if (role === 'cut') cuts.push(d);
     else if (role === 'knock') knocks.push(d);
+    else if (role === 'punch') punches.push(d);
     else if (!solid) strokes.push(d);
-    else if (role === 'shape') shapes.push(d);
+    else if (role === 'shape') { if (H.has(i)) haloed.push([i, d]); else shapes.push(d); }
     else if (role === 'detail') cuts.push(pr.cut ? pathOf(pr.cut, P) : d);
     else strokes.push(d);
   });
-  let body = '';
+  let body = '', defs = '';
   if (solid && shapes.length) body += `<path d="${shapes.join('')}" ${FILL}/>`;
+  for (const [i, d] of haloed) { const gap = f2(w + 2 * (P.G != null ? P.G : 0.75) * P.S); defs += `<mask id="halo-${id}-${i}"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/><path d="${H.get(i).map(k => ds[k]).join('')}" fill="none" stroke="#000" stroke-width="${gap}" stroke-linejoin="round" stroke-linecap="round"/></mask>`; body += `<g mask="url(#halo-${id}-${i})"><path d="${d}" ${FILL}/></g>`; }
   if (fills.length) body += `<path d="${fills.join('')}" ${FILL}/>`;
   body += flats.join('');
-  let out = '';
-  if (body && (cuts.length || knocks.length)) {
-    out += `<mask id="cut-${id}"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/>${cuts.length ? `<path d="${cuts.join('')}" ${CUT}/>` : ''}${knocks.length ? `<path d="${knocks.join('')}" fill="#000"/>` : ''}</mask><g mask="url(#cut-${id})">${body}</g>`;
+  let out = defs;
+  if (body && (cuts.length || knocks.length || punches.length)) {
+    out += `<mask id="cut-${id}"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/>${cuts.length ? `<path d="${cuts.join('')}" ${CUT}/>` : ''}${knocks.length ? `<path d="${knocks.join('')}" fill="#000"/>` : ''}${punches.length ? `<path d="${punches.join('')}" fill="#000" stroke="#000" stroke-width="${f2(wCut)}" stroke-linejoin="round"/>` : ''}</mask><g mask="url(#cut-${id})">${body}</g>`;
   } else out += body;
   if (strokes.length) out += `<path d="${strokes.join('')}" ${STROKE}/>`;
-  out += faint.join('');
+  if (faint.length) out += `<g class="faint">${faint.join('')}</g>`;
   return out;
 }
 function gooFilter(P, id) {
   if (!(P.goo > 0)) return '';
+  id = safeId(id);
   return `<filter id="goo-${id}" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="${f2(P.goo)}"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 18 -9"/></filter>`;
 }
 function svg(prims, P, opts = {}) {
-  const id = opts.uid || 'g', size = opts.size || 24;
-  const inner = svgInner(prims, P, opts);
+  const id = safeId(opts.uid || 'g'), size = opts.size || 24;
+  let inner = svgInner(prims, P, opts);
   const goo = gooFilter(P, id);
-  const body = goo ? `<defs>${goo}</defs><g filter="url(#goo-${id})">${inner}</g>` : inner;
+  let faint = ''; // translucent parts stay out of the goo filter, whose threshold would drop them
+  if (goo) { const at = inner.indexOf('<g class="faint">'); if (at >= 0) { faint = inner.slice(at); inner = inner.slice(0, at); } }
+  const body = goo ? `<defs>${goo}</defs><g filter="url(#goo-${id})">${inner}</g>${faint}` : inner;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${opts.width || size}" height="${opts.height || size}" viewBox="${opts.viewBox || '0 0 24 24'}"${opts.attrs ? ' ' + opts.attrs : ''}>${body}</svg>`;
 }
 /* a symbol for a sprite */
 function symbol(id, prims, P, opts = {}) {
+  id = safeId(id);
   const inner = svgInner(prims, P, { ...opts, uid: id });
   return `<symbol id="${id}" viewBox="0 0 24 24">${inner}</symbol>`;
 }
@@ -492,7 +547,8 @@ function outline(prims, P, weight, CL, roles) {
   const R = roles || autoRoles(prims, P);
   const toIP = pts => pts.map(p => ({ X: Math.round(p[0] * SC), Y: Math.round(p[1] * SC) }));
   const body = new CL.ClipperOffset(2, 0.03 * SC), cutter = new CL.ClipperOffset(2, 0.03 * SC);
-  const flat = new CL.Paths(), knock = new CL.Paths();
+  const flat = new CL.Paths(), knock = new CL.Paths(), extra = new CL.Paths();
+  const H = solid ? halos(prims, R, P) : new Map();
   let hasBody = false, hasCut = false, hasFlat = false, hasKnock = false;
   prims.forEach((pr, i) => {
     const role = R[i];
@@ -500,19 +556,34 @@ function outline(prims, P, weight, CL, roles) {
     const parts = flatten(pr, P);
     const addStroke = (part, co) => { if (part.pts.length) co.AddPath(toIP(part.pts), CL.JoinType.jtRound, part.closed ? CL.EndType.etClosedLine : CL.EndType.etOpenRound); };
     const addPolygon = part => { if (part.pts.length < 3) return; let ip = toIP(part.pts); if (!CL.Clipper.Orientation(ip)) ip.reverse(); body.AddPath(ip, CL.JoinType.jtRound, CL.EndType.etClosedPolygon); };
-    if (role === 'fill') { for (const part of parts) addPolygon(part); hasBody = true; }
-    else if (!solid && (role === 'flat' || role === 'knock' || role === 'cut')) { for (const part of parts) addStroke(part, body); hasBody = true; }
+    if (role === 'fill') { for (const part of parts) { if (part.pts.length >= 3) addPolygon(part); else addStroke(part, body); } hasBody = true; }
+    else if (!solid && (role === 'flat' || role === 'knock' || role === 'cut' || role === 'punch')) { for (const part of parts) addStroke(part, body); hasBody = true; }
     else if (role === 'flat') { const c = new CL.Clipper(); let any = false; for (const part of parts) { if (part.pts.length >= 3) { c.AddPath(toIP(part.pts), CL.PolyType.ptSubject, true); any = true; } } if (any) { const u = new CL.Paths(); const ft = pr.evenodd ? CL.PolyFillType.pftEvenOdd : CL.PolyFillType.pftNonZero; c.Execute(CL.ClipType.ctUnion, u, ft, ft); for (const q of u) flat.push(q); hasFlat = true; } }
     else if (role === 'knock') { for (const part of parts) { if (part.pts.length >= 3) { knock.push(toIP(part.pts)); hasKnock = true; } } }
+    else if (role === 'punch') { const co = new CL.ClipperOffset(2, 0.03 * SC); let any = false; for (const part of parts) { if (part.pts.length < 3) continue; let ip = toIP(part.pts); if (!CL.Clipper.Orientation(ip)) ip.reverse(); co.AddPath(ip, CL.JoinType.jtRound, CL.EndType.etClosedPolygon); any = true; } if (any) { const grown = new CL.Paths(); co.Execute(grown, (wCut / 2) * SC); for (const q of grown) knock.push(q); hasKnock = true; } }
     else if (role === 'cut') { for (const part of parts) addStroke(part, cutter); hasCut = true; }
-    else if (solid && role === 'shape') { for (const part of parts) addPolygon(part); hasBody = true; }
+    else if (solid && role === 'shape') {
+      if (H.has(i)) { // grown on its own, then the later shapes' gaps taken out of it
+        const co = new CL.ClipperOffset(2, 0.03 * SC); let any = false;
+        for (const part of parts) { if (part.pts.length < 3) continue; let ip = toIP(part.pts); if (!CL.Clipper.Orientation(ip)) ip.reverse(); co.AddPath(ip, CL.JoinType.jtRound, CL.EndType.etClosedPolygon); any = true; }
+        if (any) {
+          const grown = new CL.Paths(); co.Execute(grown, (w / 2) * SC);
+          const hc = new CL.ClipperOffset(2, 0.03 * SC);
+          for (const k of H.get(i)) for (const part of flatten(prims[k], P)) if (part.pts.length) hc.AddPath(toIP(part.pts), CL.JoinType.jtRound, part.closed ? CL.EndType.etClosedLine : CL.EndType.etOpenRound);
+          const gap = new CL.Paths(); hc.Execute(gap, (w / 2 + (P.G != null ? P.G : 0.75) * P.S) * SC);
+          const c = new CL.Clipper(); c.AddPaths(grown, CL.PolyType.ptSubject, true); c.AddPaths(gap, CL.PolyType.ptClip, true);
+          const left = new CL.Paths(); c.Execute(CL.ClipType.ctDifference, left, CL.PolyFillType.pftNonZero, CL.PolyFillType.pftNonZero);
+          for (const q of left) extra.push(q);
+        }
+      } else { for (const part of parts) addPolygon(part); hasBody = true; }
+    }
     else if (solid && role === 'detail') { const cp = pr.cut ? flatten(pr.cut, P) : parts; for (const part of cp) addStroke(part, cutter); hasCut = true; }
     else { for (const part of parts) addStroke(part, body); hasBody = true; }
   });
   let union = new CL.Paths();
-  if (hasBody) {
-    const grown = new CL.Paths(); body.Execute(grown, (w / 2) * SC);
-    const c = new CL.Clipper(); c.AddPaths(grown, CL.PolyType.ptSubject, true);
+  if (hasBody || extra.length) {
+    const grown = new CL.Paths(); if (hasBody) body.Execute(grown, (w / 2) * SC);
+    const c = new CL.Clipper(); c.AddPaths(grown, CL.PolyType.ptSubject, true); if (extra.length) c.AddPaths(extra, CL.PolyType.ptSubject, true);
     c.Execute(CL.ClipType.ctUnion, union, CL.PolyFillType.pftNonZero, CL.PolyFillType.pftNonZero);
   }
   if (hasFlat) {
@@ -550,6 +621,94 @@ function buildFont(P, entries, opts, CL, ot) {
   const font = new ot.Font({ familyName: opts.family || 'Beetle Glyphs', styleName: weight === 'solid' ? 'Solid' : 'Outline', unitsPerEm: 1000, ascender: 800, descender: -200, glyphs: list });
   return { font, map };
 }
+
+/* ---------- the outline weight of a filled glyph, derived ----------
+   A native solid (flats minus knocks) becomes a line icon. Fat parts of the
+   silhouette are drawn as a stroke sitting just inside their edge, so the
+   outline covers exactly the solid's footprint. Parts thinner than about
+   1.2 S collapse to a line along their middle, small discs to a dot. A hole
+   gets a ring on its edge, moved inside the hole when the ring would crowd
+   the outer stroke, or a line or a dot when the hole is a slit or a pinhole.
+   Cuts, plain strokes and translucent parts pass through. Needs Clipper. */
+function deriveOutline(prims, P, CL) {
+  const S = P.S;
+  const toIP = pts => pts.map(p => ({ X: Math.round(p[0] * SC), Y: Math.round(p[1] * SC) }));
+  const area = paths => Math.abs(CL.JS.AreaOfPolygons(paths)) / (SC * SC);
+  const boolOp = (type, subj, clip, tree) => { const c = new CL.Clipper(); if (subj.length) c.AddPaths(subj, CL.PolyType.ptSubject, true); if (clip && clip.length) c.AddPaths(clip, CL.PolyType.ptClip, true); const out = tree ? new CL.PolyTree() : new CL.Paths(); c.Execute(type, out, CL.PolyFillType.pftNonZero, CL.PolyFillType.pftNonZero); return out; };
+  const offset = (paths, d) => { const out = new CL.Paths(); if (!paths.length) return out; const co = new CL.ClipperOffset(2, 0.03 * SC); co.AddPaths(paths, CL.JoinType.jtRound, CL.EndType.etClosedPolygon); co.Execute(out, d * SC); return out; };
+  const inradius = paths => { let lo = 0, hi = 12; for (let i = 0; i < 11; i++) { const mid = (lo + hi) / 2; if (area(offset(paths, -mid)) > 0.01) lo = mid; else hi = mid; } return lo; };
+  /* an outer contour with its holes; islands inside holes are components of their own */
+  const components = tree => { const out = []; const walk = n => { for (const ch of n.Childs()) { if (!ch.IsHole()) out.push({ outer: ch.Contour(), holes: ch.Childs().filter(h => h.IsHole()).map(h => h.Contour()) }); walk(ch); } }; walk(tree); return out; };
+  const asTree = paths => boolOp(CL.ClipType.ctUnion, paths, null, true);
+  const polyOf = (contour, role) => { const pts = CL.Clipper.CleanPolygon(contour, 0.012 * SC).map(q => [f2(q.X / SC), f2(q.Y / SC)]); return pts.length >= 3 ? { t: 'poly', pts, closed: true, role } : null; };
+  const centroid = paths => { let x = 0, y = 0, n = 0; for (const p of paths) for (const q of p) { x += q.X; y += q.Y; n++; } return n ? [f2(x / n / SC), f2(y / n / SC)] : null; };
+  const out = [];
+  const push = pr => { if (pr) out.push(pr); };
+  /* a thin piece becomes a line along its middle: erode it to a sliver, then
+     fill and stroke the sliver; a piece too small for that becomes a dot */
+  const midline = paths => { const r = inradius(paths); if (r < 0.28) return; const sl = offset(paths, -Math.max(0, r - 0.12)); let any = false; for (const q of sl) { const pr = polyOf(q, 'fill'); if (pr) { push(pr); any = true; } } if (!any) { const c = centroid(paths); if (c) push({ t: 'poly', pts: [c], role: 'fill' }); } };
+
+  const flatPaths = new CL.Paths(), knockPaths = new CL.Paths();
+  for (const pr of prims) {
+    const role = pr.role, a = pr.alpha != null ? pr.alpha : 1;
+    if ((role === 'flat' || role === 'knock') && a >= 0.5) {
+      const parts = flatten(pr, P).filter(part => part.pts.length >= 3).map(part => toIP(part.pts));
+      if (!parts.length) continue;
+      const c = new CL.Clipper(); c.AddPaths(parts, CL.PolyType.ptSubject, true); const u = new CL.Paths();
+      const ft = pr.evenodd ? CL.PolyFillType.pftEvenOdd : CL.PolyFillType.pftNonZero; c.Execute(CL.ClipType.ctUnion, u, ft, ft);
+      for (const q of u) (role === 'flat' ? flatPaths : knockPaths).push(q);
+    } else { const cp = JSON.parse(JSON.stringify(pr)); delete cp.segs; out.push(cp); }
+  }
+  if (!flatPaths.length) return out;
+  /* the ink of the parts that pass through, to keep clear of */
+  const passInk = new CL.Paths();
+  { const co = new CL.ClipperOffset(2, 0.03 * SC); let any = false; for (const pr of out) { if (pr.alpha != null && pr.alpha < 1) continue; for (const part of flatten(pr, P)) if (part.pts.length) { co.AddPath(toIP(part.pts), CL.JoinType.jtRound, part.closed ? CL.EndType.etClosedLine : CL.EndType.etOpenRound); any = true; } } if (any) co.Execute(passInk, (S / 2) * SC); }
+  const R = boolOp(CL.ClipType.ctDifference, flatPaths, knockPaths, true);
+  for (const comp of components(R)) {
+    const C = [comp.outer, ...comp.holes];
+    let E = offset(C, -S / 2);            // where a stroke of S fits: its centreline sits here
+    if (area(E) < 0.2) E = new CL.Paths();  // a speck: the whole part is thin
+    const F = offset(E, S / 2);           // the fat part of the component
+    const thin = boolOp(CL.ClipType.ctDifference, C, F, true);
+    const thinInk = new CL.Paths();
+    for (const piece of components(thin)) { const pp = [piece.outer, ...piece.holes]; if (area(pp) >= 0.45) { midline(pp); for (const q of offset(pp, 0.1)) thinInk.push(q); } }
+    if (!E.length) continue;
+    const Ft = asTree(F);
+    const outers = components(Ft).map(c => c.outer);
+    /* the holes: a ring on the edge, or a line or dot when the hole is a slit or a pinhole */
+    const holes = [];
+    for (const c of components(Ft)) for (const H of c.holes) { const Hp = [H.slice().reverse()]; const rh = inradius(Hp); holes.push({ H, Hp, rh, thin: rh <= 0.6 * S, ringC: rh > 0.6 * S ? boolOp(CL.ClipType.ctDifference, offset(Hp, S / 2), offset(Hp, -S / 2)) : offset(offset(Hp, -Math.max(0, rh - 0.12)), S / 2) }); }
+    /* the outer stroke sits inside the edge, unless the interior is crowded and there
+       is room in the box: then it sits on the edge, as the designer's own pairs do */
+    const insetBand = boolOp(CL.ClipType.ctDifference, outers, offset(outers, -S));
+    const near = offset(insetBand, 0.3 * S);
+    let crowded = false;
+    for (const h of holes) if (area(boolOp(CL.ClipType.ctIntersection, h.ringC, near)) > 0.1) crowded = true;
+    if (!crowded && passInk.length && area(boolOp(CL.ClipType.ctIntersection, passInk, near)) > 0.1) crowded = true;
+    if (!crowded && thinInk.length && area(boolOp(CL.ClipType.ctIntersection, thinInk, near)) > 0.1) crowded = true;
+    const bb = CL.JS.BoundsOfPaths(outers);
+    const fits = bb.left / SC >= S / 2 - 0.05 && bb.top / SC >= S / 2 - 0.05 && bb.right / SC <= 24 - S / 2 + 0.05 && bb.bottom / SC <= 24 - S / 2 + 0.05;
+    const centred = crowded && fits;
+    const Et = asTree(E);
+    for (const c of components(Et)) {
+      const piece = [c.outer, ...c.holes];
+      if (inradius(piece) < 0.8 * S) { for (const q of piece) push(polyOf(q, 'fill')); continue; } // a hollow that would be a hairline: solid instead
+      if (!centred) push(polyOf(c.outer, 'stroke'));
+    }
+    if (centred) for (const o of outers) push(polyOf(o, 'stroke'));
+    const band = centred ? offset(boolOp(CL.ClipType.ctDifference, offset(outers, S / 2), offset(outers, -S / 2)), 0.3 * S) : near;
+    for (const h of holes) {
+      if (h.thin) { midline(h.Hp); continue; }
+      if (area(boolOp(CL.ClipType.ctIntersection, h.ringC, band)) < 0.1) { push(polyOf(h.H, 'stroke')); continue; }
+      const Hi = offset(h.Hp, -S / 2);
+      if (Hi.length && inradius(Hi) >= 0.35 * S) { for (const q of Hi) push(polyOf(q, 'stroke')); continue; }
+      push(polyOf(h.H, 'stroke'));
+    }
+  }
+  return out;
+}
+/* an icon's parts for a weight: a native solid when the library has one */
+const primsFor = (ic, weight) => (weight === 'solid' && ic.ps ? ic.ps : ic.p);
 
 /* ---------- the app's own parametric icons ---------- */
 const ICONS = {
@@ -591,4 +750,4 @@ const ICONS = {
 };
 const ICON_ORDER = ['card', 'home', 'bag', 'search', 'globe', 'send', 'person', 'target', 'star', 'plus', 'arrow', 'naira'];
 
-export { DEF, PRESETS, ICONS, ICON_ORDER, BASE, corners, radiusOf, parsePath, segsToString, subpaths, polyfy, arcCentre, pathOf, flatten, isClosed, bbox, autoRoles, svg, svgInner, symbol, gooFilter, widths, fromNodes, outline, buildFont, f2 };
+export { DEF, PRESETS, ICONS, ICON_ORDER, BASE, corners, radiusOf, parsePath, segsToString, subpaths, polyfy, arcCentre, pathOf, flatten, isClosed, bbox, autoRoles, svg, svgInner, symbol, gooFilter, widths, fromNodes, outline, buildFont, deriveOutline, primsFor, halos, safeId, f2  };

@@ -45,7 +45,7 @@ const topbar = Topbar({
 const aside = h('aside', { class: 'inspector', 'aria-label': 'Inspector' }, inspector.el);
 const about = h('section', { class: 'about', id: 'about' },
   Card({ title: 'Engine', description: 'Polylines with per-vertex radius kinds, arcs, quadratic loops and SVG paths. Straight joins get true circular fillets. Quarter-circle corners in Lucide paths follow the box corner slider.' }),
-  Card({ title: 'Solid weight', description: 'Closed shapes fill and inflate by S with round joins. Anything sitting inside a closed shape becomes a cut of S. Set any part by hand from the editor.' }),
+  Card({ title: 'Two weights', description: 'Line icons: closed shapes fill and inflate by S, anything inside them becomes a cut of S, a stacked shape gets a gap. Beetle glyphs the designer drew in both weights keep both; the other filled glyphs get an outline derived from the solid: a stroke just inside every edge, thin parts as lines, holes as rings. Set any part by hand from the editor.' }),
   Card({ title: 'Exports', description: 'SVG keeps curves and the goo filter. Sprite and font flatten every primitive, offset it by S/2 with round joins and caps through Clipper, union and cut it.' }),
   Card({ title: 'Licenses', description: 'Lucide icons © Lucide Contributors, ISC license. Beetle glyphs from the Beetle wallet design. The engine and this site live in the beetle-wallet repository.' }));
 grid.el.append(about);
@@ -63,7 +63,9 @@ document.addEventListener('keydown', ev => {
 
 /* ---------- go ---------- */
 loadLibrary('data/icons.json').then(() => {
-  if (!lib.byKey.has(store.get().sel)) store.set({ sel: 'param:card' });
+  const cur = lib.byKey.get(store.get().sel);
+  if (!cur) store.set({ sel: 'param:card' });
+  else if (cur.key !== store.get().sel) store.set({ sel: cur.key, P: { ...store.get().P, weight: 'solid' } }); // an old '-filled' name: the same icon, solid
   store.set({ ready: true });
   inspector.refresh();
 }).catch(err => {

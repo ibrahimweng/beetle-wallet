@@ -1,14 +1,15 @@
 /* The point editor: a 24-unit canvas with the selected icon, its anchors,
    bezier handles, arc centres and radii, midpoint inserts, corner kinds and
-   the role of each part in the solid weight. */
+   the role of each part in the solid weight. It edits the weight on show: an
+   icon with parts of its own for the solid keeps two sets of edits. */
 import * as E from '../../lib/engine.js';
 import { h, ICO, clone } from '../../lib/utils.js';
 import { Button } from '../ui/button.js';
 import { store } from '../../lib/store.js';
-import { primsOf, editKey, lib } from '../../lib/library.js';
+import { primsOf, editKey, hasOwnSolid, lib } from '../../lib/library.js';
 
 const KINDS = ['none', 'soft', 'box', 'fillet'];
-const ROLES = ['auto', 'stroke', 'shape', 'detail', 'cut', 'knock', 'flat'];
+const ROLES = ['auto', 'stroke', 'shape', 'detail', 'cut', 'knock', 'punch', 'flat'];
 const segsOf = pr => pr.segs || (pr.segs = E.parsePath(pr.d || ''));
 
 export function Editor() {
@@ -20,7 +21,7 @@ export function Editor() {
   const tDel = Button({ variant: 'outline', size: 'xs', label: 'Delete point', disabled: true, onClick: () => delPoint() });
   const tClose = Button({ variant: 'outline', size: 'xs', label: 'Close path', disabled: true, onClick: () => toggleClose() });
   const tRole = Button({ variant: 'outline', size: 'xs', label: 'Part: auto', disabled: true, onClick: () => cycleRole() });
-  const tReset = Button({ variant: 'secondary', size: 'xs', icon: ICO.rotate, label: 'Reset icon', onClick: () => { const s = store.get(); const edits = { ...s.edits }; delete edits[editKey(s.sel)]; selPt = null; selPrim = null; store.set({ edits }); } });
+  const tReset = Button({ variant: 'secondary', size: 'xs', icon: ICO.rotate, label: 'Reset icon', onClick: () => { const s = store.get(); const edits = { ...s.edits }; delete edits[editKey(s.sel, 'outline')]; delete edits[editKey(s.sel, 'solid')]; selPt = null; selPrim = null; store.set({ edits }); } });
   const tGrid = Button({ variant: 'ghost', size: 'xs', label: 'Grid', 'aria-pressed': 'true', onClick: () => { showGrid = !showGrid; tGrid.setAttribute('aria-pressed', String(showGrid)); render(); } });
   const tSnap = Button({ variant: 'ghost', size: 'xs', label: 'Snap ¼', 'aria-pressed': 'true', onClick: () => { snapOn = !snapOn; tSnap.setAttribute('aria-pressed', String(snapOn)); } });
   const status = h('div', { class: 'status' });
@@ -28,7 +29,7 @@ export function Editor() {
   const el = h('div', { class: 'stack', style: { gap: '10px' } }, wrap, tools, status);
 
   const work = () => primsOf(store.get().sel, store.get());
-  const commit = prims => { const s = store.get(); const stored = clone(prims); for (const pr of stored) if (pr.t === 'path' && pr.segs) delete pr.d; store.set({ edits: { ...s.edits, [editKey(s.sel)]: stored } }); };
+  const commit = prims => { const s = store.get(); const stored = clone(prims); for (const pr of stored) if (pr.t === 'path' && pr.segs) delete pr.d; store.set({ edits: { ...s.edits, [editKey(s.sel, s.P.weight)]: stored } }); };
   const snap = v => snapOn ? Math.round(v * 4) / 4 : Math.round(v * 100) / 100;
   const toGrid = ev => { const p = canvas.createSVGPoint(); p.x = ev.clientX; p.y = ev.clientY; const q = p.matrixTransform(canvas.getScreenCTM().inverse()); return [q.x, q.y]; };
 
@@ -129,9 +130,10 @@ export function Editor() {
     const part = selPrim !== null && prims[selPrim];
     tRole.disabled = !part;
     tRole.textContent = part ? 'Part: ' + (part.roleLocked ? part.role : 'auto · ' + E.autoRoles(prims, s.P)[selPrim]) : 'Part: auto';
-    const detached = !!s.edits[editKey(s.sel)];
+    const detached = !!s.edits[editKey(s.sel, s.P.weight)];
     const e = lib.byKey.get(s.sel);
-    status.textContent = detached ? 'Edited. Detached from its source; corner kinds still follow the sliders.' : (e && e.key.startsWith('param:') ? 'Parametric. Derived from the sliders.' : 'From the library. Drag a point to make it yours.');
+    const own = hasOwnSolid(s.sel);
+    status.textContent = detached ? `Edited (${s.P.weight}). Detached from its source; corner kinds still follow the sliders.` : (e && e.key.startsWith('param:') ? 'Parametric. Derived from the sliders.' : own ? (s.P.weight === 'solid' ? 'The designer\u2019s solid. Editing the solid weight; switch the weight to edit the outline.' : (e && e.derived ? 'Outline derived from the designer\u2019s solid. Editing the outline weight.' : 'The designer\u2019s outline. Editing the outline weight; switch the weight to edit the solid.')) : 'From the library. Drag a point to make it yours.');
   }
   document.addEventListener('keydown', ev => {
     if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;

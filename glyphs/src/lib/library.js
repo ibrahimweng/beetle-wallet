@@ -1,10 +1,14 @@
 /* The library: every entry the grid can show, with search and the edits the
    viewer made applied on top. Keys are 'lucide:<name>', 'beetle:<name>',
-   'param:<id>' and 'scene:<scenario>'. */
+   'param:<id>' and 'scene:<scenario>'. A Beetle icon the designer drew in both
+   weights carries its own solid (ps); its old '-filled' name is an alias. */
 import * as E from './engine.js';
 import { clone } from './utils.js';
 
 export const lib = { entries: [], byKey: new Map(), cats: [], sets: {}, meta: null, ready: false };
+
+/* an entry by key, aliases included; the entry's own key is the canonical one */
+export const entryOf = key => lib.byKey.get(key);
 
 function add(e) { lib.entries.push(e); lib.byKey.set(e.key, e); }
 
@@ -14,11 +18,15 @@ export async function loadLibrary(url = 'data/icons.json') {
   const data = await res.json();
   lib.meta = { version: data.version, license: data.license };
   for (const id of E.ICON_ORDER) add({ key: 'param:' + id, set: 'beetle', name: id, label: E.ICONS[id].name.toLowerCase(), tags: ['beetle', 'parametric', id], cats: ['beetle'], make: P => E.ICONS[id].make(P) });
-  for (const [name, ic] of Object.entries(data.sets.beetle)) add({ key: 'beetle:' + name, set: 'beetle', name, label: name, tags: ic.t, cats: ic.c, make: () => clone(ic.p) });
+  for (const [name, ic] of Object.entries(data.sets.beetle)) {
+    const e = { key: 'beetle:' + name, set: 'beetle', name, label: name, tags: ic.t, cats: ic.c, make: () => clone(ic.p), makeSolid: ic.ps ? () => clone(ic.ps) : null, derived: !!ic.d, aliases: ic.a || [] };
+    add(e);
+    for (const a of e.aliases) lib.byKey.set('beetle:' + a, e);
+  }
   for (const [name, ic] of Object.entries(data.sets.lucide)) add({ key: 'lucide:' + name, set: 'lucide', name, label: name, tags: ic.t, cats: ic.c, make: () => clone(ic.p) });
   for (const sc of data.scenarios) {
     const base = lib.byKey.get(sc.key); if (!base) continue;
-    add({ key: 'scene:' + sc.scenario, set: 'scenarios', name: sc.scenario, label: sc.scenario, tags: [sc.note, base.name], cats: ['scenarios'], base: base.key, make: P => base.make(P) });
+    add({ key: 'scene:' + sc.scenario, set: 'scenarios', name: sc.scenario, label: sc.scenario, tags: [sc.note, base.name], cats: ['scenarios'], base: base.key, make: P => base.make(P), makeSolid: base.makeSolid, derived: base.derived });
   }
   const cats = new Map();
   for (const e of lib.entries) if (e.set !== 'scenarios') for (const c of e.cats) cats.set(c, (cats.get(c) || 0) + 1);
@@ -54,12 +62,17 @@ export function quickSearch(q, limit = 40) {
   return scored.sort((a, b) => b[0] - a[0] || a[1].label.localeCompare(b[1].label)).slice(0, limit).map(x => x[1]);
 }
 
-export const editKey = key => { const e = lib.byKey.get(key); return e && e.base ? e.base : key; };
-export function primsOf(key, state) {
+/* where an icon's edits live: its canonical key, with '#solid' for the solid
+   weight of an icon that has parts of its own for it */
+export const editKey = (key, weight) => { const e = lib.byKey.get(key); const k = e ? (e.base || e.key) : key; return weight === 'solid' && e && e.makeSolid ? k + '#solid' : k; };
+export const hasOwnSolid = key => { const e = lib.byKey.get(key); return !!(e && e.makeSolid); };
+export function primsOf(key, state, weight) {
   const e = lib.byKey.get(key); if (!e) return [];
-  const ek = editKey(key);
+  weight = weight || state.P.weight;
+  const ek = editKey(key, weight);
   const edits = state.edits || {};
-  return edits[ek] ? clone(edits[ek]) : e.make(state.P);
+  if (edits[ek]) return clone(edits[ek]);
+  return weight === 'solid' && e.makeSolid ? e.makeSolid(state.P) : e.make(state.P);
 }
 export const labelOf = key => { const e = lib.byKey.get(key); return e ? e.label : key; };
 export const fileName = key => key.replace(/^[a-z]+:/, '').replace(/[^a-z0-9-]+/gi, '-').toLowerCase();

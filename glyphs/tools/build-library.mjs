@@ -6,7 +6,9 @@
 
    Sources: glyphs/lucide/ (Lucide 1.48.0 node data, tags and the category map;
    fetched once if missing) and src/icons.js at the repository root, the code
-   mirror of the Figma Icon set. Figma itself is never touched. */
+   mirror of the Figma Icon set. Figma itself is never touched. A glyph drawn in
+   both weights becomes one icon with p (outline) and ps (solid); a filled glyph
+   without a drawn outline gets one derived from its solid. */
 import { createRequire } from 'module';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
@@ -77,9 +79,36 @@ for (const [name, markup] of Object.entries(BEETLE_SVG)) {
   }
   // a glyph drawn only in white was made for a dark button: read it as ink
   if (prims.length && prims.every(pr => pr.role === 'cut' || pr.role === 'knock')) for (const pr of prims) { if (pr.role === 'cut') delete pr.role; else pr.role = 'flat'; }
+  // a light stroke with nothing to cut into is a track (a progress ring's rail): translucent ink in both weights
+  else if (!prims.some(pr => pr.role === 'flat')) for (const pr of prims) if (pr.role === 'cut') { delete pr.role; pr.alpha = 0.26; }
   for (const pr of prims) delete pr.segs;
   beetle[name] = { c: ['beetle'], t: ['beetle', 'app', name.replace(/-/g, ' ')], p: prims, flat: prims.some(pr => pr.role === 'flat') };
 }
+/* A line glyph and its filled version are one icon in two weights: the designer
+   drew the pair, so the outline is the solid's own replica (p and ps, the old
+   name kept as an alias). Every other filled glyph keeps its solid and gets an
+   outline derived from it through Clipper. */
+const TWIN = { 'warn-filled': 'alert' };
+const merged = [], derived = [];
+for (const name of Object.keys(beetle)) {
+  const base = TWIN[name] || name.replace(/-(filled|tone)$/, '');
+  if (base === name || !beetle[base]) continue;
+  const line = beetle[base], fill = beetle[name];
+  if (line.flat || !fill.flat) continue;
+  line.ps = fill.p; line.a = [...(line.a || []), name]; line.t = [...new Set([...line.t, ...fill.t])];
+  delete beetle[name]; merged.push(name);
+}
+/* a glyph that is chunky by design gets its line version drawn from the solid's
+   own geometry: undo-filled is a band 3.8 wide on a circle of 7.5 about (12, 14),
+   from the top clockwise to the lower left, with a chevron head 3.8 thick */
+const OUTLINES = {
+  'undo-filled': [{ t: 'arc', c: [12, 14], rx: 7.5, ry: 7.5, a0: -90, a1: 170 }, { t: 'poly', pts: [[10.05, 5.55, 'none'], [5.25, 10.35, 'fillet'], [10.05, 15.15, 'none']] }],
+};
+for (const [name, ic] of Object.entries(beetle)) {
+  if (ic.flat && !ic.ps) { ic.ps = ic.p; ic.p = OUTLINES[name] || E.deriveOutline(ic.ps, P, CL); ic.d = true; derived.push(name); }
+  delete ic.flat;
+}
+console.log(`beetle: ${merged.length} drawn pairs merged, ${derived.length} outlines derived (${derived.join(', ')})`);
 
 /* ---------- Beetle: every scenario of the app, mapped to a glyph ---------- */
 const SCENARIOS = [
@@ -125,10 +154,10 @@ const validate = (label, prims) => {
   for (const pr of prims) for (const part of E.flatten(pr, P)) for (const q of part.pts) if (!Number.isFinite(q[0]) || !Number.isFinite(q[1])) { stats.fail.push(label + ' flatten'); return; }
 };
 for (const [n, ic] of Object.entries(lucide)) validate('lucide:' + n, ic.p);
-for (const [n, ic] of Object.entries(beetle)) validate('beetle:' + n, ic.p);
+for (const [n, ic] of Object.entries(beetle)) { validate('beetle:' + n, ic.p); if (ic.ps) validate('beetle:' + n + ' solid', ic.ps); }
 const t0 = Date.now();
 const sample = Object.keys(lucide).filter((_, i) => i % 12 === 0).slice(0, 160).map(n => ({ name: n, prims: lucide[n].p }));
-for (const [n, ic] of Object.entries(beetle)) sample.push({ name: 'beetle-' + n, prims: ic.p });
+for (const [n, ic] of Object.entries(beetle)) { sample.push({ name: 'beetle-' + n, prims: ic.p }); if (ic.ps) sample.push({ name: 'beetle-' + n + '-solid', prims: ic.ps }); }
 const { font } = E.buildFont(P, sample, { weight: 'outline', family: 'Beetle Glyphs' }, CL, ot);
 const parsed = ot.parse(font.toArrayBuffer());
 if (parsed.glyphs.length !== sample.length + 1) stats.fail.push('font sample glyph count');
@@ -143,7 +172,7 @@ const lib = {
 };
 const json = JSON.stringify(lib);
 const out = resolve(root, 'data', 'icons.json');
-console.log(`lucide ${Object.keys(lucide).length} icons (polys ${stats.polys}, paths ${stats.paths}, arcs ${stats.arcs}); beetle ${Object.keys(beetle).length} glyphs; scenarios ${SCENARIOS.length}; failures ${stats.fail.length} ${stats.fail.slice(0, 6).join(', ')}`);
+console.log(`lucide ${Object.keys(lucide).length} icons (polys ${stats.polys}, paths ${stats.paths}, arcs ${stats.arcs}); beetle ${Object.keys(beetle).length} glyphs (${Object.values(beetle).filter(ic => ic.ps).length} with a solid of their own); scenarios ${SCENARIOS.length}; failures ${stats.fail.length} ${stats.fail.slice(0, 6).join(', ')}`);
 if (stats.fail.length) process.exit(1);
 if (check) {
   const current = existsSync(out) ? readFileSync(out, 'utf8') : '';

@@ -30,8 +30,10 @@ export function Inspector() {
     meta.innerHTML = '';
     meta.append(Badge(e.set, e.set === 'lucide' ? 'secondary' : 'brand'));
     if (e.base) meta.append(Badge(e.base.replace(':', ' / '), 'outline'));
+    if (e.makeSolid) meta.append(Badge(e.derived ? 'outline derived' : 'both weights drawn', 'outline'));
+    for (const a of e.aliases || []) meta.append(Badge('was ' + a, 'outline'));
     for (const t of e.tags.slice(0, 4)) meta.append(Badge(t, 'outline'));
-    twins.innerHTML = E.svg(prims, s.P, { size: 44, weight: 'outline', uid: 'tw1' }) + E.svg(prims, s.P, { size: 44, weight: 'solid', uid: 'tw2' });
+    twins.innerHTML = E.svg(primsOf(s.sel, s, 'outline'), s.P, { size: 44, weight: 'outline', uid: 'tw1' }) + E.svg(primsOf(s.sel, s, 'solid'), s.P, { size: 44, weight: 'solid', uid: 'tw2' });
     sizes.innerHTML = [32, 24, 16].map((z, i) => E.svg(prims, s.P, { size: z, uid: 'sz' + i })).join('');
   }
   store.subscribe((s, keys) => { if (keys.some(k => ['sel', 'P', 'edits', 'ready'].includes(k))) refresh(); });

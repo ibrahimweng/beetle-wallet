@@ -28,7 +28,7 @@ export function Inspector() {
     const prims = primsOf(s.sel, s);
     name.textContent = e.label;
     meta.innerHTML = '';
-    meta.append(Badge(e.set, e.set === 'lucide' ? 'secondary' : 'brand'));
+    meta.append(Badge(e.set === 'beetle' ? 'app glyph' : e.set, e.set === 'core' ? 'secondary' : 'brand'));
     if (e.base) meta.append(Badge(e.base.replace(':', ' / '), 'outline'));
     if (e.makeSolid) meta.append(Badge(e.derived ? 'outline derived' : 'both weights drawn', 'outline'));
     for (const a of e.aliases || []) meta.append(Badge('was ' + a, 'outline'));

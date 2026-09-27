@@ -1,5 +1,5 @@
 /* The library: every entry the grid can show, with search and the edits the
-   viewer made applied on top. Keys are 'lucide:<name>', 'beetle:<name>',
+   viewer made applied on top. Keys are 'core:<name>', 'beetle:<name>',
    'param:<id>' and 'scene:<scenario>'. A Beetle icon the designer drew in both
    weights carries its own solid (ps); its old '-filled' name is an alias. */
 import * as E from './engine.js';
@@ -23,7 +23,7 @@ export async function loadLibrary(url = 'data/icons.json') {
     add(e);
     for (const a of e.aliases) lib.byKey.set('beetle:' + a, e);
   }
-  for (const [name, ic] of Object.entries(data.sets.lucide)) add({ key: 'lucide:' + name, set: 'lucide', name, label: name, tags: ic.t, cats: ic.c, make: () => clone(ic.p) });
+  for (const [name, ic] of Object.entries(data.sets.core)) add({ key: 'core:' + name, set: 'core', name, label: name, tags: ic.t, cats: ic.c, make: () => clone(ic.p) });
   for (const sc of data.scenarios) {
     const base = lib.byKey.get(sc.key); if (!base) continue;
     add({ key: 'scene:' + sc.scenario, set: 'scenarios', name: sc.scenario, label: sc.scenario, tags: [sc.note, base.name], cats: ['scenarios'], base: base.key, make: P => base.make(P), makeSolid: base.makeSolid, derived: base.derived });
@@ -31,7 +31,7 @@ export async function loadLibrary(url = 'data/icons.json') {
   const cats = new Map();
   for (const e of lib.entries) if (e.set !== 'scenarios') for (const c of e.cats) cats.set(c, (cats.get(c) || 0) + 1);
   lib.cats = [...cats].sort((a, b) => a[0].localeCompare(b[0])).map(([name, count]) => ({ name, count }));
-  lib.sets = { all: lib.entries.filter(e => e.set !== 'scenarios').length, scenarios: lib.entries.filter(e => e.set === 'scenarios').length, beetle: lib.entries.filter(e => e.set === 'beetle').length, lucide: lib.entries.filter(e => e.set === 'lucide').length };
+  lib.sets = { all: lib.entries.filter(e => e.set !== 'scenarios').length, scenarios: lib.entries.filter(e => e.set === 'scenarios').length, beetle: lib.entries.filter(e => e.set === 'beetle').length, core: lib.entries.filter(e => e.set === 'core').length };
   lib.ready = true;
   return lib;
 }

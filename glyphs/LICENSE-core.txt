@@ -1,3 +1,8 @@
+The core set of Beetle Glyphs (glyphs/sources/core and the icons built from it)
+is used under the ISC licence below. This notice stays with the icons.
+
+---
+
 ISC License
 
 Copyright (c) 2026 Lucide Icons and Contributors

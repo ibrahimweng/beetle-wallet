@@ -1,14 +1,15 @@
-/* build-library.mjs — turns Lucide's icon nodes and the Beetle app's own glyph
-   set into data/icons.json, then validates every icon. Run from anywhere:
+/* build-library.mjs — turns the core set's icon nodes and the Beetle app's own
+   glyph set into data/icons.json, then validates every icon. Run from anywhere:
 
      node glyphs/tools/build-library.mjs          rebuild data/icons.json
      node glyphs/tools/build-library.mjs --check  rebuild and fail if it differs from the committed file
 
-   Sources: glyphs/lucide/ (Lucide 1.48.0 node data, tags and the category map;
-   fetched once if missing) and src/icons.js at the repository root, the code
-   mirror of the Figma Icon set. Figma itself is never touched. A glyph drawn in
-   both weights becomes one icon with p (outline) and ps (solid); a filled glyph
-   without a drawn outline gets one derived from its solid. */
+   Sources: glyphs/sources/core/ (the core set's node data, tags and category
+   map, used under the ISC licence in glyphs/LICENSE-core.txt) and src/icons.js
+   at the repository root, the code mirror of the Figma Icon set. Figma itself
+   is never touched. A glyph drawn in both weights becomes one icon with p
+   (outline) and ps (solid); a filled glyph without a drawn outline gets one
+   derived from its solid. */
 import { createRequire } from 'module';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
@@ -23,36 +24,20 @@ const ot = require('../vendor/opentype.min.js');
 const { ICONS: BEETLE_SVG } = await import(resolve(root, '..', 'src', 'icons.js'));
 const check = process.argv.includes('--check');
 
-const LUCIDE_VERSION = '1.48.0';
-const LUCIDE_DIR = resolve(root, 'lucide');
-const SOURCES = {
-  'icon-nodes.json': `https://cdn.jsdelivr.net/npm/lucide-static@${LUCIDE_VERSION}/icon-nodes.json`,
-  'tags.json': `https://cdn.jsdelivr.net/npm/lucide-static@${LUCIDE_VERSION}/tags.json`,
-  'categories.json': 'https://lucide.dev/api/categories',
-  'LICENSE': `https://cdn.jsdelivr.net/npm/lucide-static@${LUCIDE_VERSION}/LICENSE`,
-};
-mkdirSync(LUCIDE_DIR, { recursive: true });
-for (const [name, url] of Object.entries(SOURCES)) {
-  const path = resolve(LUCIDE_DIR, name);
-  if (existsSync(path)) continue;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`${url}: ${res.status}`);
-  writeFileSync(path, await res.text());
-  console.log('fetched', name);
-}
-const nodes = JSON.parse(readFileSync(resolve(LUCIDE_DIR, 'icon-nodes.json'), 'utf8'));
-const tags = JSON.parse(readFileSync(resolve(LUCIDE_DIR, 'tags.json'), 'utf8'));
-const cats = JSON.parse(readFileSync(resolve(LUCIDE_DIR, 'categories.json'), 'utf8'));
-const license = readFileSync(resolve(LUCIDE_DIR, 'LICENSE'), 'utf8');
+const CORE_DIR = resolve(root, 'sources', 'core');
+for (const name of ['icon-nodes.json', 'tags.json', 'categories.json']) if (!existsSync(resolve(CORE_DIR, name))) { console.error(`missing glyphs/sources/core/${name}: the core set's source data is part of the repository`); process.exit(1); }
+const nodes = JSON.parse(readFileSync(resolve(CORE_DIR, 'icon-nodes.json'), 'utf8'));
+const tags = JSON.parse(readFileSync(resolve(CORE_DIR, 'tags.json'), 'utf8'));
+const cats = JSON.parse(readFileSync(resolve(CORE_DIR, 'categories.json'), 'utf8'));
 const P = { ...E.DEF };
 
-/* ---------- Lucide ---------- */
-const lucide = {};
+/* ---------- the core set ---------- */
+const core = {};
 const stats = { polys: 0, paths: 0, arcs: 0, fail: [] };
 for (const [name, els] of Object.entries(nodes)) {
   const prims = E.fromNodes(els);
   for (const pr of prims) { if (pr.t === 'poly') stats.polys++; else if (pr.t === 'path') stats.paths++; else stats.arcs++; delete pr.segs; }
-  lucide[name] = { c: cats[name] || ['other'], t: tags[name] || [], p: prims };
+  core[name] = { c: cats[name] || ['other'], t: tags[name] || [], p: prims };
 }
 
 /* ---------- Beetle: the app's own glyphs ---------- */
@@ -112,40 +97,40 @@ console.log(`beetle: ${merged.length} drawn pairs merged, ${derived.length} outl
 
 /* ---------- Beetle: every scenario of the app, mapped to a glyph ---------- */
 const SCENARIOS = [
-  ['Home', 'lucide:house', 'the wallet home'], ['Wallet balance', 'lucide:wallet', 'total balance'], ['Hide balance', 'lucide:eye-off', 'balance hidden'], ['Show balance', 'lucide:eye', 'balance shown'],
-  ['Naira', 'param:naira', 'the currency'], ['Dollars', 'lucide:dollar-sign', 'keep some in dollars'], ['Convert', 'lucide:arrow-left-right', 'naira to dollars and back'], ['Pay from dollars', 'lucide:badge-dollar-sign', 'pay in naira from the dollar balance'],
-  ['Send', 'lucide:send', 'sending money'], ['Request', 'lucide:hand-coins', 'asking to be paid'], ['Receive', 'lucide:arrow-down-to-line', 'be paid'], ['Account number', 'lucide:hash', 'copy your account number'],
-  ['Copy', 'lucide:copy', 'copied'], ['Share', 'lucide:share-2', 'share a code or receipt'], ['My code', 'lucide:qr-code', 'the QR to be paid'], ['Scan', 'lucide:scan-line', 'point the camera at a code'],
-  ['Camera', 'lucide:camera', 'take the photo'], ['Photo', 'lucide:image', 'a photo from the roll'], ['Flash', 'lucide:zap', 'torch on'], ['Found', 'lucide:scan-search', 'what the photo read'],
-  ['Misread', 'lucide:scan-text', 'when it read it wrong'], ['Checking', 'lucide:shield-question-mark', 'when it is not sure'], ['Confirm', 'lucide:circle-check', 'confirmed'], ['Sent', 'lucide:circle-check-big', 'it went'],
-  ['Pending', 'lucide:clock', 'still on its way'], ['Failed', 'lucide:circle-x', 'it did not go'], ['Reversed', 'lucide:undo-2', 'it came back'], ['Short', 'lucide:circle-alert', 'not enough in the balance'],
-  ['Limit', 'lucide:gauge', 'a daily limit'], ['Limit reached', 'lucide:octagon-alert', 'the line is hit'], ['Wrong', 'lucide:flag', 'when it was wrong'], ['Recall', 'lucide:undo', 'ask for it back'],
-  ['Amend', 'lucide:pencil', 'change what was read'], ['Dispute', 'lucide:scale', 'following a dispute'], ['Receipt', 'lucide:receipt', 'the receipt'], ['History', 'lucide:rotate-ccw-clock', 'look at what happened'],
-  ['Money in', 'lucide:arrow-down-left', 'came in'], ['Money out', 'lucide:arrow-up-right', 'went out'], ['Insights', 'lucide:lightbulb', 'what I noticed'], ['Filter', 'lucide:list-filter', 'filter the feed'],
-  ['Search', 'param:search', 'search'], ['Calendar', 'lucide:calendar', 'a date'], ['Bills', 'lucide:receipt-text', 'pay a bill'], ['Electricity', 'lucide:zap', 'power'],
-  ['Meter', 'lucide:circle-gauge', 'the meter number'], ['Token', 'lucide:key-square', 'the token arrives'], ['Water', 'lucide:droplets', 'water'], ['Waste', 'lucide:trash', 'waste'],
-  ['Internet', 'lucide:wifi', 'internet'], ['Data', 'lucide:signal', 'mobile data'], ['Airtime', 'lucide:smartphone', 'airtime'], ['TV', 'lucide:tv', 'television'],
-  ['School', 'lucide:graduation-cap', 'school fees'], ['Betting', 'lucide:dices', 'betting'], ['Loan', 'lucide:hand-coins', 'a loan'], ['Services', 'lucide:layout-grid', 'the services drawer'],
-  ['Merchant', 'lucide:store', 'a shop'], ['Bank', 'lucide:landmark', 'another bank'], ['Card', 'lucide:credit-card', 'the virtual card'], ['Freeze card', 'lucide:snowflake', 'freeze it'],
-  ['Goal', 'lucide:target', 'putting money away'], ['Savings pot', 'lucide:piggy-bank', 'a pot'], ['Save rule', 'lucide:repeat', 'save on its own'], ['Paused', 'lucide:circle-pause', 'a rule paused'],
-  ['Rules', 'lucide:calendar-sync', 'what runs on its own'], ['Money health', 'lucide:heart-pulse', 'how the habits add up'], ['Score', 'beetle:dial', 'the ring with the score'], ['Trend up', 'lucide:trending-up', 'up since last month'],
-  ['Trend down', 'lucide:trending-down', 'down since last month'], ['Chat', 'lucide:message-circle', 'ask me anything'], ['Agent', 'lucide:sparkles', 'Beetle speaking'], ['Typed', 'lucide:keyboard', 'you typed'],
-  ['Draft', 'lucide:pencil-line', 'a draft'], ['Actions', 'lucide:plus', 'the button'], ['Settings', 'lucide:settings', 'what you set'], ['Lock', 'lucide:lock', 'lock and privacy'],
-  ['Face ID', 'lucide:scan-face', 'face first'], ['Passcode', 'lucide:asterisk', 'six digits'], ['Fingerprint', 'lucide:fingerprint-pattern', 'a fingerprint'], ['Devices', 'lucide:monitor-smartphone', 'signed in devices'],
-  ['Keys and recovery', 'lucide:key-round', 'recovery keys'], ['Standing instructions', 'lucide:repeat-2', 'running instructions'], ['Notifications', 'lucide:bell', 'alerts'], ['Notifications off', 'lucide:bell-off', 'muted'],
-  ['Referral', 'lucide:gift', 'invite a friend'], ['Favourites', 'lucide:star', 'saved'], ['Help', 'lucide:life-buoy', 'support'], ['Sign in', 'lucide:log-in', 'signing in again'],
-  ['Sign out', 'lucide:log-out', 'signing out'], ['Phone number', 'lucide:phone', 'opening an account'], ['Code', 'lucide:message-square-text', 'the code by SMS'], ['New code', 'lucide:refresh-cw', 'send it again'],
-  ['No match', 'lucide:triangle-alert', 'the digits do not match'], ['ID card', 'lucide:id-card', 'identity'], ['Income', 'lucide:banknote', 'what comes in'], ['Finish', 'lucide:badge-check', 'finishing setting up'],
-  ['Ready', 'lucide:party-popper', 'ready'], ['Start', 'lucide:rocket', 'start'], ['First day', 'lucide:sunrise', 'the first day'], ['Empty', 'lucide:inbox', 'nothing here yet'],
-  ['No network', 'lucide:wifi-off', 'when the network is not there'], ['Lost phone', 'lucide:smartphone-nfc', 'when the phone is gone'], ['Locked out', 'lucide:lock-keyhole', 'locked'], ['Time', 'lucide:clock', 'a time'],
-  ['Location', 'lucide:map-pin', 'a place'], ['Person', 'lucide:user', 'somebody'], ['People', 'lucide:users', 'contacts'], ['Split', 'lucide:split', 'split a bill'],
-  ['Download', 'lucide:download', 'save the receipt'], ['Print', 'lucide:printer', 'print it'], ['Mail', 'lucide:mail', 'email'], ['WhatsApp and SMS', 'lucide:message-square', 'on WhatsApp and SMS'],
-  ['Back', 'lucide:arrow-left', 'go back'], ['Close', 'lucide:x', 'close'], ['More', 'lucide:ellipsis', 'more'], ['Chevron', 'lucide:chevron-right', 'go on'],
-  ['Done', 'lucide:check', 'done'], ['Info', 'lucide:info', 'about this'], ['Warning', 'lucide:triangle-alert', 'careful'], ['Danger', 'lucide:octagon-x', 'stop'],
-  ['Delete', 'lucide:delete', 'the keypad delete'], ['Keypad', 'lucide:grip', 'the number pad'], ['Slide to confirm', 'beetle:slide-arrow', 'slide'], ['Step done', 'beetle:step-done', 'a finished step'],
+  ['Home', 'core:house', 'the wallet home'], ['Wallet balance', 'core:wallet', 'total balance'], ['Hide balance', 'core:eye-off', 'balance hidden'], ['Show balance', 'core:eye', 'balance shown'],
+  ['Naira', 'param:naira', 'the currency'], ['Dollars', 'core:dollar-sign', 'keep some in dollars'], ['Convert', 'core:arrow-left-right', 'naira to dollars and back'], ['Pay from dollars', 'core:badge-dollar-sign', 'pay in naira from the dollar balance'],
+  ['Send', 'core:send', 'sending money'], ['Request', 'core:hand-coins', 'asking to be paid'], ['Receive', 'core:arrow-down-to-line', 'be paid'], ['Account number', 'core:hash', 'copy your account number'],
+  ['Copy', 'core:copy', 'copied'], ['Share', 'core:share-2', 'share a code or receipt'], ['My code', 'core:qr-code', 'the QR to be paid'], ['Scan', 'core:scan-line', 'point the camera at a code'],
+  ['Camera', 'core:camera', 'take the photo'], ['Photo', 'core:image', 'a photo from the roll'], ['Flash', 'core:zap', 'torch on'], ['Found', 'core:scan-search', 'what the photo read'],
+  ['Misread', 'core:scan-text', 'when it read it wrong'], ['Checking', 'core:shield-question-mark', 'when it is not sure'], ['Confirm', 'core:circle-check', 'confirmed'], ['Sent', 'core:circle-check-big', 'it went'],
+  ['Pending', 'core:clock', 'still on its way'], ['Failed', 'core:circle-x', 'it did not go'], ['Reversed', 'core:undo-2', 'it came back'], ['Short', 'core:circle-alert', 'not enough in the balance'],
+  ['Limit', 'core:gauge', 'a daily limit'], ['Limit reached', 'core:octagon-alert', 'the line is hit'], ['Wrong', 'core:flag', 'when it was wrong'], ['Recall', 'core:undo', 'ask for it back'],
+  ['Amend', 'core:pencil', 'change what was read'], ['Dispute', 'core:scale', 'following a dispute'], ['Receipt', 'core:receipt', 'the receipt'], ['History', 'core:rotate-ccw-clock', 'look at what happened'],
+  ['Money in', 'core:arrow-down-left', 'came in'], ['Money out', 'core:arrow-up-right', 'went out'], ['Insights', 'core:lightbulb', 'what I noticed'], ['Filter', 'core:list-filter', 'filter the feed'],
+  ['Search', 'param:search', 'search'], ['Calendar', 'core:calendar', 'a date'], ['Bills', 'core:receipt-text', 'pay a bill'], ['Electricity', 'core:zap', 'power'],
+  ['Meter', 'core:circle-gauge', 'the meter number'], ['Token', 'core:key-square', 'the token arrives'], ['Water', 'core:droplets', 'water'], ['Waste', 'core:trash', 'waste'],
+  ['Internet', 'core:wifi', 'internet'], ['Data', 'core:signal', 'mobile data'], ['Airtime', 'core:smartphone', 'airtime'], ['TV', 'core:tv', 'television'],
+  ['School', 'core:graduation-cap', 'school fees'], ['Betting', 'core:dices', 'betting'], ['Loan', 'core:hand-coins', 'a loan'], ['Services', 'core:layout-grid', 'the services drawer'],
+  ['Merchant', 'core:store', 'a shop'], ['Bank', 'core:landmark', 'another bank'], ['Card', 'core:credit-card', 'the virtual card'], ['Freeze card', 'core:snowflake', 'freeze it'],
+  ['Goal', 'core:target', 'putting money away'], ['Savings pot', 'core:piggy-bank', 'a pot'], ['Save rule', 'core:repeat', 'save on its own'], ['Paused', 'core:circle-pause', 'a rule paused'],
+  ['Rules', 'core:calendar-sync', 'what runs on its own'], ['Money health', 'core:heart-pulse', 'how the habits add up'], ['Score', 'beetle:dial', 'the ring with the score'], ['Trend up', 'core:trending-up', 'up since last month'],
+  ['Trend down', 'core:trending-down', 'down since last month'], ['Chat', 'core:message-circle', 'ask me anything'], ['Agent', 'core:sparkles', 'Beetle speaking'], ['Typed', 'core:keyboard', 'you typed'],
+  ['Draft', 'core:pencil-line', 'a draft'], ['Actions', 'core:plus', 'the button'], ['Settings', 'core:settings', 'what you set'], ['Lock', 'core:lock', 'lock and privacy'],
+  ['Face ID', 'core:scan-face', 'face first'], ['Passcode', 'core:asterisk', 'six digits'], ['Fingerprint', 'core:fingerprint-pattern', 'a fingerprint'], ['Devices', 'core:monitor-smartphone', 'signed in devices'],
+  ['Keys and recovery', 'core:key-round', 'recovery keys'], ['Standing instructions', 'core:repeat-2', 'running instructions'], ['Notifications', 'core:bell', 'alerts'], ['Notifications off', 'core:bell-off', 'muted'],
+  ['Referral', 'core:gift', 'invite a friend'], ['Favourites', 'core:star', 'saved'], ['Help', 'core:life-buoy', 'support'], ['Sign in', 'core:log-in', 'signing in again'],
+  ['Sign out', 'core:log-out', 'signing out'], ['Phone number', 'core:phone', 'opening an account'], ['Code', 'core:message-square-text', 'the code by SMS'], ['New code', 'core:refresh-cw', 'send it again'],
+  ['No match', 'core:triangle-alert', 'the digits do not match'], ['ID card', 'core:id-card', 'identity'], ['Income', 'core:banknote', 'what comes in'], ['Finish', 'core:badge-check', 'finishing setting up'],
+  ['Ready', 'core:party-popper', 'ready'], ['Start', 'core:rocket', 'start'], ['First day', 'core:sunrise', 'the first day'], ['Empty', 'core:inbox', 'nothing here yet'],
+  ['No network', 'core:wifi-off', 'when the network is not there'], ['Lost phone', 'core:smartphone-nfc', 'when the phone is gone'], ['Locked out', 'core:lock-keyhole', 'locked'], ['Time', 'core:clock', 'a time'],
+  ['Location', 'core:map-pin', 'a place'], ['Person', 'core:user', 'somebody'], ['People', 'core:users', 'contacts'], ['Split', 'core:split', 'split a bill'],
+  ['Download', 'core:download', 'save the receipt'], ['Print', 'core:printer', 'print it'], ['Mail', 'core:mail', 'email'], ['WhatsApp and SMS', 'core:message-square', 'on WhatsApp and SMS'],
+  ['Back', 'core:arrow-left', 'go back'], ['Close', 'core:x', 'close'], ['More', 'core:ellipsis', 'more'], ['Chevron', 'core:chevron-right', 'go on'],
+  ['Done', 'core:check', 'done'], ['Info', 'core:info', 'about this'], ['Warning', 'core:triangle-alert', 'careful'], ['Danger', 'core:octagon-x', 'stop'],
+  ['Delete', 'core:delete', 'the keypad delete'], ['Keypad', 'core:grip', 'the number pad'], ['Slide to confirm', 'beetle:slide-arrow', 'slide'], ['Step done', 'beetle:step-done', 'a finished step'],
   ['Step to do', 'beetle:step-todo', 'a step ahead'], ['Step in progress', 'beetle:step-work', 'the current step'], ['Beetle mark', 'beetle:mark', 'the mark'],
 ];
-const missing = SCENARIOS.filter(([, key]) => { const [set, name] = key.split(':'); return set === 'lucide' ? !lucide[name] : set === 'beetle' ? !beetle[name] : !E.ICONS[name]; });
+const missing = SCENARIOS.filter(([, key]) => { const [set, name] = key.split(':'); return set === 'core' ? !core[name] : set === 'beetle' ? !beetle[name] : !E.ICONS[name]; });
 if (missing.length) { console.error('scenario icons missing:', missing.map(m => m[1]).join(', ')); process.exit(1); }
 
 /* ---------- validate ---------- */
@@ -153,10 +138,10 @@ const validate = (label, prims) => {
   for (const weight of ['outline', 'solid']) { const s = E.svg(prims, P, { uid: 'v', weight }); if (/NaN|undefined|null/.test(s)) stats.fail.push(`${label} ${weight}`); }
   for (const pr of prims) for (const part of E.flatten(pr, P)) for (const q of part.pts) if (!Number.isFinite(q[0]) || !Number.isFinite(q[1])) { stats.fail.push(label + ' flatten'); return; }
 };
-for (const [n, ic] of Object.entries(lucide)) validate('lucide:' + n, ic.p);
+for (const [n, ic] of Object.entries(core)) validate('core:' + n, ic.p);
 for (const [n, ic] of Object.entries(beetle)) { validate('beetle:' + n, ic.p); if (ic.ps) validate('beetle:' + n + ' solid', ic.ps); }
 const t0 = Date.now();
-const sample = Object.keys(lucide).filter((_, i) => i % 12 === 0).slice(0, 160).map(n => ({ name: n, prims: lucide[n].p }));
+const sample = Object.keys(core).filter((_, i) => i % 12 === 0).slice(0, 160).map(n => ({ name: n, prims: core[n].p }));
 for (const [n, ic] of Object.entries(beetle)) { sample.push({ name: 'beetle-' + n, prims: ic.p }); if (ic.ps) sample.push({ name: 'beetle-' + n + '-solid', prims: ic.ps }); }
 const { font } = E.buildFont(P, sample, { weight: 'outline', family: 'Beetle Glyphs' }, CL, ot);
 const parsed = ot.parse(font.toArrayBuffer());
@@ -165,14 +150,14 @@ console.log(`font sample: ${sample.length} icons -> ${parsed.glyphs.length} glyp
 
 /* ---------- write ---------- */
 const lib = {
-  version: { lucide: LUCIDE_VERSION, engine: 2 },
-  license: { lucide: license.split('---')[0].trim() + ' Full text at https://lucide.dev/license', beetle: 'Beetle glyphs from the app, ISC-style use inside the product.' },
-  sets: { lucide, beetle },
+  version: { engine: 2, library: 3 },
+  license: { core: 'ISC. The notice is in LICENSE-core.txt beside this site and stays with the icons.', beetle: 'The app glyphs belong to the Beetle wallet design.' },
+  sets: { core, beetle },
   scenarios: SCENARIOS.map(([scenario, key, note]) => ({ scenario, key, note })),
 };
 const json = JSON.stringify(lib);
 const out = resolve(root, 'data', 'icons.json');
-console.log(`lucide ${Object.keys(lucide).length} icons (polys ${stats.polys}, paths ${stats.paths}, arcs ${stats.arcs}); beetle ${Object.keys(beetle).length} glyphs (${Object.values(beetle).filter(ic => ic.ps).length} with a solid of their own); scenarios ${SCENARIOS.length}; failures ${stats.fail.length} ${stats.fail.slice(0, 6).join(', ')}`);
+console.log(`core ${Object.keys(core).length} icons (polys ${stats.polys}, paths ${stats.paths}, arcs ${stats.arcs}); beetle ${Object.keys(beetle).length} glyphs (${Object.values(beetle).filter(ic => ic.ps).length} with a solid of their own); scenarios ${SCENARIOS.length}; failures ${stats.fail.length} ${stats.fail.slice(0, 6).join(', ')}`);
 if (stats.fail.length) process.exit(1);
 if (check) {
   const current = existsSync(out) ? readFileSync(out, 'utf8') : '';

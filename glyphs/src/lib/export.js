@@ -24,7 +24,7 @@ export const iconSVG = (key, prims, P, weight) => E.svg(prims, P, { size: 24, ui
 
 export function spriteOf(entries, P, prims) {
   const syms = entries.map(e => E.symbol(fileName(e.key), prims(e.key), P, {})).join('\n');
-  return `<svg xmlns="http://www.w3.org/2000/svg" style="display:none">\n<!-- Beetle Glyphs · S ${P.S} R ${P.R} fillet ${P.fillet} choke ${P.choke} · ${P.weight} · Lucide icons ISC © Lucide Contributors -->\n${syms}\n</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" style="display:none">\n<!-- Beetle Glyphs · S ${P.S} R ${P.R} fillet ${P.fillet} choke ${P.choke} · ${P.weight} · core set under the ISC license, see LICENSE-core.txt -->\n${syms}\n</svg>`;
 }
 
 export function fontOf(entries, P, prims) {

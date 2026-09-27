@@ -2,7 +2,7 @@
    as a convenience; the page renders correctly without it. */
 import { DEF } from './engine.js';
 
-const KEY = 'beetle-glyphs-v3';
+const KEY = 'beetle-glyphs-v4';
 const PERSIST = ['P', 'surface', 'theme', 'filter', 'sel', 'edits', 'tab'];
 
 const initial = {

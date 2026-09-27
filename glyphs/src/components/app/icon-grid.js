@@ -39,7 +39,7 @@ export function IconGrid() {
   }
   function run() {
     const s = store.get(); results = search(s.filter); shown = 0; grid.innerHTML = ''; renderMore();
-    const f = s.filter; const setName = { all: 'All icons', scenarios: 'App scenarios', beetle: 'Beetle glyphs', lucide: 'Lucide' }[f.set] || 'Icons';
+    const f = s.filter; const setName = { all: 'All icons', scenarios: 'App scenarios', beetle: 'App glyphs', core: 'Core set' }[f.set] || 'Icons';
     title.textContent = f.cat && f.cat !== 'all' ? `${setName} · ${f.cat.replace(/-/g, ' ')}` : setName;
     count.textContent = `${fmtInt(results.length)} icons`;
   }
@@ -47,7 +47,7 @@ export function IconGrid() {
   function markSel() { const k = store.get().sel; grid.querySelectorAll('[data-key]').forEach(t => t.setAttribute('aria-pressed', t.dataset.key === k ? 'true' : 'false')); }
   grid.addEventListener('click', ev => { const t = ev.target.closest('[data-key]'); if (t) store.set({ sel: t.dataset.key }); });
   store.subscribe((s, keys) => {
-    if (keys.includes('ready')) { badges.innerHTML = ''; badges.append(Badge(`${fmtInt(lib.sets.all)} icons`, 'secondary'), Badge(`Lucide ${lib.meta.version.lucide}`, 'outline'), Badge(`${lib.sets.beetle} Beetle glyphs`, 'outline'), Badge(`${lib.sets.scenarios} scenarios`, 'outline')); run(); }
+    if (keys.includes('ready')) { badges.innerHTML = ''; badges.append(Badge(`${fmtInt(lib.sets.all)} icons`, 'secondary'), Badge(`${fmtInt(lib.sets.core)} core`, 'outline'), Badge(`${lib.sets.beetle} app glyphs`, 'outline'), Badge(`${lib.sets.scenarios} scenarios`, 'outline')); run(); }
     if (keys.includes('filter')) { if (q.value !== s.filter.q) q.value = s.filter.q; run(); }
     if (keys.includes('P') || keys.includes('edits')) { weight.set(s.P.weight); refresh(); }
     if (keys.includes('surface')) surface.set(s.surface);

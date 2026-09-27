@@ -3,7 +3,7 @@ import { h, fmtInt } from '../../lib/utils.js';
 import { store } from '../../lib/store.js';
 import { lib } from '../../lib/library.js';
 
-const SETS = [['all', 'All icons'], ['scenarios', 'App scenarios'], ['beetle', 'Beetle glyphs'], ['lucide', 'Lucide']];
+const SETS = [['all', 'All icons'], ['scenarios', 'App scenarios'], ['beetle', 'App glyphs'], ['core', 'Core set']];
 
 export function Sidebar() {
   const el = h('nav', { class: 'sidebar', 'aria-label': 'Library' });

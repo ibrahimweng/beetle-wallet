@@ -14,7 +14,7 @@
 const DEF = { S: 2.5, R: 2, G: 0.75, choke: 0, goo: 0, fillet: 0.5, weight: 'outline' };
 const PRESETS = {
   beetle: { S: 2.5, R: 2, G: 0.75, choke: 0, goo: 0, fillet: 0.5 },
-  lucide: { S: 2, R: 1.5, G: 0.75, choke: 0, goo: 0, fillet: 0 },
+  core: { S: 2, R: 1.5, G: 0.75, choke: 0, goo: 0, fillet: 0 },
 };
 const D2R = Math.PI / 180;
 const f2 = v => Math.round(v * 100) / 100;

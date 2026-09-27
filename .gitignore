@@ -8,3 +8,5 @@ shot.mjs
 mobile/node_modules/
 mobile/.expo/
 mobile/dist/
+glyphs/sheets/
+glyphs/qa-*.json

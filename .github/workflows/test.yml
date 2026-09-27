@@ -22,3 +22,5 @@ jobs:
         run: npm test
       - name: The committed bundle matches the source
         run: git diff --exit-code dist/ || (echo 'dist/beetle.html is stale — run `npm run build` and commit it'; exit 1)
+      - name: The icon library matches its sources and every icon renders
+        run: node glyphs/tools/build-library.mjs --check

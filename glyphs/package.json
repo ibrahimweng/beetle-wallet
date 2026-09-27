@@ -2,9 +2,12 @@
   "name": "beetle-glyphs",
   "version": "2.0.0",
   "private": true,
+  "type": "module",
   "description": "Beetle Glyphs: a parametric icon library and editor. Static site, no build step.",
   "scripts": {
-    "start": "python3 -m http.server 4173 --bind 127.0.0.1"
+    "start": "python3 -m http.server 4173 --bind 127.0.0.1",
+    "build:library": "node tools/build-library.mjs",
+    "check:library": "node tools/build-library.mjs --check"
   },
   "license": "ISC"
 }

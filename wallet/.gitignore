@@ -5,3 +5,4 @@ shots/
 expo-env.d.ts
 *.log
 .DS_Store
+artifact/out/

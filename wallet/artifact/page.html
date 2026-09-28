@@ -1,0 +1,197 @@
+<title>Beetle onboarding flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  /* Layout: a phone on the left running the real app, and beside it the
+     keys that get you through the way in. On a narrow screen the phone
+     takes the whole width and the keys come up as a sheet over it. */
+  :root {
+    --bg: #f5f5f8;
+    --fg: #111114;
+    --muted: #66666f;
+    --rule: #dedee3;
+    --card: #ffffff;
+    --accent: #213aca;
+    --accent-ink: #ffffff;
+    --bezel: #141418;
+    --well: #ecedf3;
+    --display: 'Bricolage Grotesque', 'Helvetica Neue', Arial, sans-serif;
+    --body: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f0f13; --fg: #f1f1f4; --muted: #9b9ba4; --rule: #2b2b33; --card: #17171c;
+      --accent: #8c9bf4; --accent-ink: #0f0f13; --bezel: #34343d; --well: #202028;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f0f13; --fg: #f1f1f4; --muted: #9b9ba4; --rule: #2b2b33; --card: #17171c;
+    --accent: #8c9bf4; --accent-ink: #0f0f13; --bezel: #34343d; --well: #202028;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 400 15px/1.5 var(--body); }
+  * { box-sizing: border-box; }
+  .top {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 3;
+    display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+    background: var(--bg); border-bottom: 1px solid var(--rule);
+  }
+  .top .name { font: 700 18px/1 var(--display); letter-spacing: -0.01em; display: flex; align-items: center; gap: 10px; }
+  .top .name svg { width: 24px; height: 24px; display: block; }
+  .top .spacer { flex: 1; }
+  .btn {
+    font: 600 13px/1 var(--body); color: var(--fg); background: var(--card);
+    border: 1px solid var(--rule); border-radius: 999px; padding: 9px 14px; cursor: pointer;
+  }
+  .btn:hover { border-color: var(--muted); }
+  .btn:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+  .keys-toggle { display: none; }
+
+  main { padding: 24px 16px 40px; display: grid; gap: 28px; justify-content: center; }
+  .stage { display: flex; justify-content: center; align-items: flex-start; }
+  .phone-wrap { --scale: 1; width: calc(413px * var(--scale)); height: calc(872px * var(--scale)); }
+  .phone {
+    width: 413px; height: 872px; transform: scale(var(--scale)); transform-origin: top left;
+    border-radius: 52px; padding: 10px; background: var(--bezel);
+    box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.45), 0 2px 0 rgba(255, 255, 255, 0.06) inset;
+  }
+  .phone iframe {
+    width: 393px; height: 852px; border: 0; display: block; border-radius: 42px;
+    background: #ffffff; overflow: hidden;
+  }
+  .keys { max-width: 34rem; min-width: 0; }
+  .keys h1 { font: 700 30px/1.1 var(--display); letter-spacing: -0.02em; margin: 0 0 8px; text-wrap: balance; }
+  .keys .lede { color: var(--muted); margin: 0 0 22px; max-width: 30rem; }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--rule); }
+  .steps li { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); gap: 4px 16px; padding: 14px 0; border-bottom: 1px solid var(--rule); }
+  .steps .where { font-weight: 600; }
+  .steps .what { min-width: 0; }
+  .steps .note { color: var(--muted); font-size: 14px; margin-top: 2px; }
+  code {
+    font: 500 14px/1 var(--mono); font-variant-numeric: tabular-nums; background: var(--well);
+    border-radius: 6px; padding: 3px 7px; white-space: nowrap;
+  }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; align-items: center; }
+  .actions a { color: var(--accent); font-weight: 600; text-decoration: none; padding: 9px 4px; }
+  .actions a:hover { text-decoration: underline; }
+  .fine { color: var(--muted); font-size: 13px; margin-top: 18px; }
+  .blocked { display: none; color: var(--muted); font-size: 14px; margin-top: 12px; }
+
+  @media (min-width: 900px) {
+    main { grid-template-columns: auto minmax(0, 34rem); align-items: start; gap: 48px; padding-top: 32px; }
+    .keys { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 84px); }
+  }
+  @media (max-width: 899px) {
+    .keys-toggle { display: inline-block; }
+    main { padding: 0 0 24px; gap: 0; }
+    .stage { display: block; }
+    .phone-wrap { width: 100%; height: calc(100dvh - 53px - env(safe-area-inset-top, 0px)); }
+    .phone { width: 100%; height: 100%; transform: none; border-radius: 0; padding: 0; box-shadow: none; background: #ffffff; }
+    .phone iframe { width: 100%; height: 100%; border-radius: 0; }
+    .keys {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 4; max-width: none;
+      max-height: 80dvh; overflow: auto; padding: 18px 16px calc(24px + env(safe-area-inset-bottom, 0px));
+      background: var(--card); border-top: 1px solid var(--rule); border-radius: 20px 20px 0 0;
+      box-shadow: 0 -20px 40px -20px rgba(0, 0, 0, 0.4);
+      transform: translateY(0); transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .keys[hidden] { display: block !important; transform: translateY(105%); visibility: hidden; }
+    .keys h1 { font-size: 22px; }
+    .steps li { grid-template-columns: 1fr; gap: 2px; padding: 12px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { .keys { transition: none; } }
+</style>
+
+<header class="top">
+  <div class="name">{{MARK}} Beetle</div>
+  <span class="spacer"></span>
+  <button class="btn keys-toggle" id="toggle" type="button" aria-controls="keys" aria-expanded="false">Codes</button>
+  <button class="btn" id="startOver" type="button">Start over</button>
+</header>
+
+<main>
+  <div class="stage">
+    <div class="phone-wrap" id="phoneWrap">
+      <div class="phone"><iframe id="phone" src="app.html" title="Beetle, the way in"></iframe></div>
+    </div>
+  </div>
+
+  <aside class="keys" id="keys">
+    <h1>The way in, from the loading screen to home</h1>
+    <p class="lede">This is the app's own code, exported for the web. Nothing is texted and no register is asked, so these are the keys.</p>
+    <ol class="steps">
+      <li><span class="where">Your number</span><span class="what"><code>0812 345 6789</code><div class="note">Any Nigerian mobile number opens a fresh account. They start 070, 080, 081, 090 or 091.</div></span></li>
+      <li><span class="where">Six digits</span><span class="what"><code>123456</code><div class="note"><code>000000</code> has expired. Three that do not match send a fresh code on their own.</div></span></li>
+      <li><span class="where">Who you are</span><span class="what"><code>1234 5678 900</code><div class="note">Comes back as Ibrahim Musa. Eleven digits with <code>0000</code> in them match nothing, and you see the other screen.</div></span></li>
+      <li><span class="where">Your face</span><span class="what">Tap <strong>Take it</strong><div class="note">A moment's wait stands in for the camera here. On a phone it is the device's own face check. Or do it later.</div></span></li>
+      <li><span class="where">A passcode</span><span class="what"><code>402917</code>, twice<div class="note">Runs, a repeated pair, one digit six times, the year of birth and the usual ones are refused, and it says which.</div></span></li>
+      <li><span class="where">Welcome back</span><span class="what"><code>0803 214 4471</code> then <code>123456</code><div class="note">Signs into the account the design is drawn around, history and all. Sign out first: the round glyph at the top left of a new account's home, or Sign out at the foot of the demo one.</div></span></li>
+    </ol>
+    <div class="actions">
+      <button class="btn primary" id="startOver2" type="button">Start over</button>
+      <a href="app.html" target="_blank" rel="noopener">Open the phone on its own</a>
+    </div>
+    <p class="blocked" id="blocked">The phone could not load inside this page. Open it on its own with the link above.</p>
+    <p class="fine">Close the app halfway and open it again and you land on the step you left. Start over forgets everything this browser kept.</p>
+  </aside>
+</main>
+
+<script>
+  (function () {
+    var wrap = document.getElementById('phoneWrap');
+    var frame = document.getElementById('phone');
+    var keys = document.getElementById('keys');
+    var toggle = document.getElementById('toggle');
+    var wide = window.matchMedia('(min-width: 900px)');
+
+    /* the phone is drawn at its real size and shrunk to fit the height there is */
+    function fit() {
+      if (!wide.matches) { wrap.style.setProperty('--scale', '1'); return; }
+      var room = window.innerHeight - 84 - 32;
+      var s = Math.max(0.55, Math.min(1, room / 872));
+      wrap.style.setProperty('--scale', String(s));
+    }
+    fit();
+    window.addEventListener('resize', fit);
+
+    /* on a narrow screen the keys are a sheet, closed until asked for */
+    function layout() {
+      if (wide.matches) { keys.hidden = false; toggle.setAttribute('aria-expanded', 'false'); }
+      else if (!toggle.dataset.open) keys.hidden = true;
+    }
+    layout();
+    wide.addEventListener('change', layout);
+    toggle.addEventListener('click', function () {
+      var open = keys.hidden;
+      keys.hidden = !open;
+      toggle.dataset.open = open ? '1' : '';
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      toggle.textContent = open ? 'Close' : 'Codes';
+    });
+
+    /* start over: forget what the app kept in this browser, and load it again */
+    function startOver() {
+      try {
+        Object.keys(localStorage).forEach(function (k) {
+          if (/^(secure\.)?beetle\./.test(k)) localStorage.removeItem(k);
+        });
+      } catch (e) { /* nothing kept, nothing to forget */ }
+      try { frame.contentWindow.location.reload(); }
+      catch (e) { frame.src = frame.getAttribute('src'); }
+      if (!wide.matches) { keys.hidden = true; toggle.dataset.open = ''; toggle.textContent = 'Codes'; toggle.setAttribute('aria-expanded', 'false'); }
+    }
+    document.getElementById('startOver').addEventListener('click', startOver);
+    document.getElementById('startOver2').addEventListener('click', startOver);
+
+    /* if the page is not allowed to frame the app, say so */
+    setTimeout(function () {
+      var ok = false;
+      try { ok = !!(frame.contentDocument && frame.contentDocument.body && frame.contentDocument.body.childElementCount); } catch (e) { ok = true; }
+      if (!ok) document.getElementById('blocked').style.display = 'block';
+    }, 6000);
+  })();
+</script>

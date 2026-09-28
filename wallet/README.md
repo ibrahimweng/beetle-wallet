@@ -62,6 +62,7 @@ mocks in and says so on the code screen; a real `AuthService` and
 | `src/services/` | `AuthService`, `IdentityService`, storage and hashing behind interfaces, with the mocks this build runs on |
 | `src/lib/` | Formatting: digit groups, naira and kobo, dates |
 | `test/` | The unit tests, and the browser walk of the way in |
+| `artifact/` | `npm run artifact` packages the exported bundle as a page that can be hosted anywhere, even inside another page: the phone in a frame with the keys to the mocks beside it |
 
 Progress along the way in is kept in `AsyncStorage`, so closing the app halfway
 brings you back to the step you were on. The session and the passcode hash

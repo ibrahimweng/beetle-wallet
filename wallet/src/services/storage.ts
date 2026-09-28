@@ -7,37 +7,57 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
+/* Where the device refuses to keep anything — a browser with site data
+   blocked, a private window — what is written is kept for the session
+   instead, so the app still works and simply starts afresh next time. */
+const memory = new Map<string, string>();
+const kept = {
+  async get(key: string): Promise<string | null> {
+    try {
+      const v = await AsyncStorage.getItem(key);
+      if (v !== null) return v;
+    } catch {
+      /* fall through to what the session remembers */
+    }
+    return memory.get(key) ?? null;
+  },
+  async set(key: string, value: string) {
+    memory.set(key, value);
+    try {
+      await AsyncStorage.setItem(key, value);
+    } catch {
+      /* kept for the session only */
+    }
+  },
+  async remove(key: string) {
+    memory.delete(key);
+    try {
+      await AsyncStorage.removeItem(key);
+    } catch {
+      /* nothing on the device to remove */
+    }
+  },
+};
+
 export const storage = {
   async get<T>(key: string): Promise<T | null> {
     try {
-      const raw = await AsyncStorage.getItem(key);
+      const raw = await kept.get(key);
       return raw ? (JSON.parse(raw) as T) : null;
     } catch {
       return null;
     }
   },
-  async set(key: string, value: unknown) {
-    try {
-      await AsyncStorage.setItem(key, JSON.stringify(value));
-    } catch {
-      /* the next write will try again */
-    }
-  },
-  async remove(key: string) {
-    try {
-      await AsyncStorage.removeItem(key);
-    } catch {
-      /* nothing to remove */
-    }
-  },
+  set: (key: string, value: unknown) => kept.set(key, JSON.stringify(value)),
+  remove: (key: string) => kept.remove(key),
 };
 
 type Secure = { get(key: string): Promise<string | null>; set(key: string, value: string): Promise<void>; remove(key: string): Promise<void> };
 
 const webSecure: Secure = {
-  get: key => AsyncStorage.getItem('secure.' + key).catch(() => null),
-  set: (key, value) => AsyncStorage.setItem('secure.' + key, value).catch(() => undefined),
-  remove: key => AsyncStorage.removeItem('secure.' + key).catch(() => undefined),
+  get: key => kept.get('secure.' + key),
+  set: (key, value) => kept.set('secure.' + key, value),
+  remove: key => kept.remove('secure.' + key),
 };
 
 let nativeSecure: Secure | null = null;

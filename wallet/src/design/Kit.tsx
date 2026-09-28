@@ -10,11 +10,12 @@ import { Card, Divider } from './Screen';
 import { Bubble } from './Bubble';
 import { IconName } from '../icons';
 import { colour, radius, space } from './tokens';
-import { Tap } from './motion';
+import { Pop, Tap } from './motion';
 
-/* The round tick beside a thing that is on; a dashed ring when it is not yet. */
-export function Tick({ on, size = 22 }: { on: boolean; size?: number }) {
-  return (
+/* The round tick beside a thing that is on; a dashed ring when it is not yet.
+   Given a `delay`, it lands then, so a list of them can cascade. */
+export function Tick({ on, size = 22, delay }: { on: boolean; size?: number; delay?: number }) {
+  const disc = (
     <View
       style={{
         width: size,
@@ -31,20 +32,11 @@ export function Tick({ on, size = 22 }: { on: boolean; size?: number }) {
       {on ? <Icon name="check" size={Math.round(size * 0.5)} colour={colour.textInverse} /> : null}
     </View>
   );
+  return delay === undefined ? disc : <Pop delay={delay}>{disc}</Pop>;
 }
 
 /* A glyph in a circle, where the file wants an icon to read as a token. */
-export function Badge({
-  glyph,
-  size = 44,
-  tone = colour.surface3,
-  ink = colour.ink,
-}: {
-  glyph: IconName;
-  size?: number;
-  tone?: string;
-  ink?: string;
-}) {
+export function Badge({ glyph, size = 44, tone = colour.surface3, ink = colour.ink }: { glyph: IconName; size?: number; tone?: string; ink?: string }) {
   return (
     <View
       style={{
@@ -95,7 +87,12 @@ export function More({ label, onPress }: { label: string; onPress: () => void })
     <Tap
       accessibilityRole="button"
       onPress={onPress}
-      style={{ flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' }}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        alignSelf: 'flex-start',
+      }}
     >
       <Row style={{ fontSize: 14, lineHeight: 20 }}>{label}</Row>
       <Icon name="chevron" size={12} colour={colour.ink} />
@@ -105,17 +102,7 @@ export function More({ label, onPress }: { label: string; onPress: () => void })
 
 export type Choice = { id: string; label: string; sub?: string };
 
-export function Picker({
-  options,
-  value,
-  onChange,
-  plain = false,
-}: {
-  options: Choice[];
-  value: string;
-  onChange: (id: string) => void;
-  plain?: boolean;
-}) {
+export function Picker({ options, value, onChange, plain = false }: { options: Choice[]; value: string; onChange: (id: string) => void; plain?: boolean }) {
   const Frame = plain ? PlainList : Card;
   return (
     <Frame style={{ gap: 0 }}>
@@ -126,7 +113,12 @@ export function Picker({
             accessibilityRole="radio"
             accessibilityState={{ selected: o.id === value }}
             onPress={() => onChange(o.id)}
-            style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3, paddingVertical: space.s3 }}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: space.s3,
+              paddingVertical: space.s3,
+            }}
           >
             <View style={{ flex: 1, gap: 2 }}>
               {plain ? <Body>{o.label}</Body> : <Row>{o.label}</Row>}
@@ -203,9 +195,17 @@ export function ToastHost() {
   useEffect(() => {
     if (text === null) return;
     fade.setValue(0);
-    Animated.timing(fade, { toValue: 1, duration: 140, useNativeDriver: true }).start();
+    Animated.timing(fade, {
+      toValue: 1,
+      duration: 140,
+      useNativeDriver: true,
+    }).start();
     const t = setTimeout(() => {
-      Animated.timing(fade, { toValue: 0, duration: 200, useNativeDriver: true }).start(() => setText(null));
+      Animated.timing(fade, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => setText(null));
     }, 2400);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,24 +1,20 @@
 /* Welcome back. Your number, and then six digits from a text. */
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
 import { More, washes } from '../src/design';
 import { DigitStep, type Note } from '../src/features/onboarding/DigitStep';
 import { checkPhone } from '../src/features/onboarding/validation';
-import { useApp } from '../src/features/onboarding/store';
-import { landing, routeOf } from '../src/features/onboarding/machine';
+import { useGo } from '../src/features/onboarding/useGo';
+import { useSessionRedirect } from '../src/features/onboarding/useGuard';
 import { auth } from '../src/services';
 
 export default function SignIn() {
-  const router = useRouter();
-  const { ready, session, progress } = useApp();
+  const go = useGo();
+  useSessionRedirect();
   const [digits, setDigits] = useState('');
   const [note, setNote] = useState<Note>(null);
   const [busy, setBusy] = useState(false);
   const [shake, setShake] = useState(0);
   const [unknown, setUnknown] = useState(false);
-  useEffect(() => {
-    if (ready && session) router.replace(routeOf[landing(progress)]);
-  }, [ready, session, progress, router]);
 
   const typed = async (d: string) => {
     setDigits(d);
@@ -40,9 +36,12 @@ export default function SignIn() {
         return;
       }
       await auth.requestCode(check.phone);
-      router.push({ pathname: '/sign-in-code', params: { phone: check.phone } });
+      go.push({ pathname: '/sign-in-code', params: { phone: check.phone } });
     } catch {
-      setNote({ text: 'The text could not be sent. Check the network and try again.', tone: 'bad' });
+      setNote({
+        text: 'The text could not be sent. Check the network and try again.',
+        tone: 'bad',
+      });
     } finally {
       setBusy(false);
     }
@@ -60,8 +59,9 @@ export default function SignIn() {
       note={note}
       busy={busy}
       shake={shake}
-      onBack={() => router.back()}
-      footer={unknown ? <More label="Open an account with it" onPress={() => router.replace('/phone')} /> : undefined}
+      leaving={go.leaving}
+      onBack={go.back}
+      footer={unknown ? <More label="Open an account with it" onPress={() => go.replace('/phone')} /> : undefined}
     />
   );
 }

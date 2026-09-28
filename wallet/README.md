@@ -71,6 +71,23 @@ fallback on the web where there is none. The passcode itself is never kept:
 a random salt and a SHA-256 of salt and code are, and `checkPasscode` compares
 against that.
 
+## How it moves
+
+Everything is in `src/design/motion.tsx`, the way every colour is in
+`tokens.ts`. A screen arrives out of a blur and leaves back into one: the one
+going softens and fades in 280ms, the next sharpens and fills in 520ms, and
+nothing slides in from the side. A press dips to 96% in 90ms and springs back
+past full. A marker lands beside a step 140ms after the step's label has
+changed. A button's label changes through a blur rather than being swapped.
+The wash at the top of a step recedes while you type. The ticks on the ready
+screen land one after another, and the balance on home comes into focus
+rather than counting up. All of it runs on one family of curves, and all of
+it stops for anyone who has asked their phone to reduce motion.
+
+`npm run flow` traces the three moments that matter — the first screen
+change, the ticks, the balance — and fails if they are not moving the way
+that file says.
+
 ## What comes next
 
 Finishing setting up (the ID card and the income question that turn the last

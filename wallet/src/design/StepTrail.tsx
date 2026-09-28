@@ -9,17 +9,26 @@ import React from 'react';
 import { View } from 'react-native';
 import { Icon } from './Icon';
 import { Body, Display, Meta } from './text';
+import { Pop, Swap } from './motion';
 import { IconName } from '../icons';
 
 export type TrailStep = { icon: IconName; label: string };
 
+/* The step just finished is the last row, and its glyph lands a beat after
+   the row has arrived — the marker moving to the thing that changed. */
 export function StepTrail({ done }: { done: TrailStep[] }) {
   if (!done.length) return null;
   return (
     <View style={{ gap: 16 }}>
-      {done.map(s => (
+      {done.map((s, i) => (
         <View key={s.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <Icon name={s.icon} size={24} />
+          {i === done.length - 1 ? (
+            <Pop>
+              <Icon name={s.icon} size={24} />
+            </Pop>
+          ) : (
+            <Icon name={s.icon} size={24} />
+          )}
           <Body tone="tertiary">{s.label}</Body>
         </View>
       ))}
@@ -33,22 +42,14 @@ export const StepsAhead = StepTrail;
 /* The glyph on the step you are on carries the same colour as the blob at the
    top of the screen — cyan for the number, purple for the name, pink for the
    face. Behind and ahead of it the same glyph is ink. */
-export function StepHead({
-  icon,
-  title,
-  sub,
-  tint,
-}: {
-  icon: IconName;
-  title: string;
-  sub: string;
-  tint?: string;
-}) {
+export function StepHead({ icon, title, sub, tint }: { icon: IconName; title: string; sub: string; tint?: string }) {
   return (
     <View style={{ gap: 8 }}>
-      <Icon name={icon} size={32} colour={tint} />
-      <Display>{title}</Display>
-      <Meta tone="secondary">{sub}</Meta>
+      <Pop style={{ alignSelf: 'flex-start' }}>
+        <Icon name={icon} size={32} colour={tint} />
+      </Pop>
+      <Swap value={title}>{shown => <Display>{shown}</Display>}</Swap>
+      <Swap value={sub}>{shown => <Meta tone="secondary">{shown}</Meta>}</Swap>
     </View>
   );
 }

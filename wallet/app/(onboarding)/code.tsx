@@ -3,17 +3,35 @@
    a fresh code is sent on its own. "I did not get it" sends another, once
    the half minute the first one is given has passed. */
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
 import { Caption, More, washes } from '../../src/design';
 import { DigitStep, type Note } from '../../src/features/onboarding/DigitStep';
 import { useApp } from '../../src/features/onboarding/store';
 import { useStepGuard } from '../../src/features/onboarding/useGuard';
+import { useGo } from '../../src/features/onboarding/useGo';
 import { auth, MOCK, MOCK_CODE } from '../../src/services';
 import { groupPhone } from '../../src/lib/format';
 
 const TRIES = 3;
 
-export function CodeStep({ phone, onVerified, icon, title, sub, onBack, wash }: { phone: string; onVerified: (token: string) => Promise<void> | void; icon: 'phone-filled' | 'mark'; title: string; sub: string; onBack: () => void; wash: { tone: string; height?: number } }) {
+export function CodeStep({
+  phone,
+  onVerified,
+  icon,
+  title,
+  sub,
+  onBack,
+  wash,
+  leaving = false,
+}: {
+  phone: string;
+  onVerified: (token: string) => Promise<void> | void;
+  icon: 'phone-filled' | 'mark';
+  title: string;
+  sub: string;
+  onBack: () => void;
+  wash: { tone: string; height?: number };
+  leaving?: boolean;
+}) {
   const [digits, setDigits] = useState('');
   const [note, setNote] = useState<Note>(null);
   const [busy, setBusy] = useState(false);
@@ -34,9 +52,14 @@ export function CodeStep({ phone, onVerified, icon, title, sub, onBack, wash }: 
       setWait(r.resendAfterSeconds);
       setWrong(0);
       setDigits('');
-      setNote({ text: `Another six digits are on their way to ${groupPhone(phone)}.` });
+      setNote({
+        text: `Another six digits are on their way to ${groupPhone(phone)}.`,
+      });
     } catch {
-      setNote({ text: 'It could not be sent. Check the network and try again.', tone: 'bad' });
+      setNote({
+        text: 'It could not be sent. Check the network and try again.',
+        tone: 'bad',
+      });
     } finally {
       setBusy(false);
     }
@@ -59,16 +82,27 @@ export function CodeStep({ phone, onVerified, icon, title, sub, onBack, wash }: 
       }
       setShake(s => s + 1);
       setDigits('');
-      if (r.reason === 'expired') setNote({ text: 'Those six have expired. Ask for another.', tone: 'bad' });
+      if (r.reason === 'expired')
+        setNote({
+          text: 'Those six have expired. Ask for another.',
+          tone: 'bad',
+        });
       else if (r.reason === 'too-many') await resend('Too many tries. A fresh code is on its way.');
       else {
         const n = wrong + 1;
         setWrong(n);
         if (n >= TRIES) await resend('Three that did not match. A fresh code is on its way.');
-        else setNote({ text: `Those six did not match. ${TRIES - n === 1 ? 'One more try' : `${TRIES - n} more tries`} before I send another.`, tone: 'bad' });
+        else
+          setNote({
+            text: `Those six did not match. ${TRIES - n === 1 ? 'One more try' : `${TRIES - n} more tries`} before I send another.`,
+            tone: 'bad',
+          });
       }
     } catch {
-      setNote({ text: 'I could not check them. Check the network and try again.', tone: 'bad' });
+      setNote({
+        text: 'I could not check them. Check the network and try again.',
+        tone: 'bad',
+      });
     } finally {
       setBusy(false);
     }
@@ -87,6 +121,7 @@ export function CodeStep({ phone, onVerified, icon, title, sub, onBack, wash }: 
       note={note}
       busy={busy}
       shake={shake}
+      leaving={leaving}
       onBack={onBack}
       footer={
         <>
@@ -99,7 +134,7 @@ export function CodeStep({ phone, onVerified, icon, title, sub, onBack, wash }: 
 }
 
 export default function Code() {
-  const router = useRouter();
+  const go = useGo();
   const app = useApp();
   const allowed = useStepGuard('code');
   const phone = app.progress.phone ?? '';
@@ -111,10 +146,11 @@ export default function Code() {
       title="Your number"
       sub={`Six digits, sent to ${groupPhone(phone)} a moment ago.`}
       wash={washes.code}
-      onBack={() => router.back()}
+      leaving={go.leaving}
+      onBack={go.back}
       onVerified={async () => {
         await app.markVerified();
-        router.push('/identity');
+        go.push('/identity');
       }}
     />
   );

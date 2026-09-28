@@ -8,7 +8,7 @@ import { StyleSheet, Text, View, ViewStyle, StyleProp } from 'react-native';
 import { Icon } from './Icon';
 import { IconName } from '../icons';
 import { colour } from './tokens';
-import { AnimatedPressable, useTap } from './motion';
+import { AnimatedPressable, Swap, useTap } from './motion';
 
 export type ButtonTone = 'black' | 'grey' | 'white' | 'blue';
 export type ButtonSize = 40 | 44 | 48 | 56;
@@ -99,13 +99,31 @@ export function Button({
       ) : leading ? (
         <Icon name={leading} size={20} colour={t.ink} />
       ) : null}
-      <Text style={{ fontSize: s.text, lineHeight: 24, fontWeight: '600', color: t.ink }}>{label}</Text>
+      <Swap value={label}>
+        {shown => (
+          <Text
+            style={{
+              fontSize: s.text,
+              lineHeight: 24,
+              fontWeight: '600',
+              color: t.ink,
+            }}
+          >
+            {shown}
+          </Text>
+        )}
+      </Swap>
       {trailing ? <Icon name={trailing} size={20} colour={t.ink} /> : null}
     </AnimatedPressable>
   );
 }
 
 const styles = StyleSheet.create({
-  base: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  base: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
   hairline: { borderWidth: 1, borderColor: colour.rule },
 });

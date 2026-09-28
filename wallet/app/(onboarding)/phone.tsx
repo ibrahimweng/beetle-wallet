@@ -2,16 +2,16 @@
    code is asked for and the next step opens. Digits that do not make one say
    so under the field instead. */
 import React, { useState } from 'react';
-import { useRouter } from 'expo-router';
 import { washes } from '../../src/design';
 import { DigitStep, type Note } from '../../src/features/onboarding/DigitStep';
 import { checkPhone } from '../../src/features/onboarding/validation';
 import { useApp } from '../../src/features/onboarding/store';
 import { useStepGuard } from '../../src/features/onboarding/useGuard';
+import { useGo } from '../../src/features/onboarding/useGo';
 import { auth } from '../../src/services';
 
 export default function Phone() {
-  const router = useRouter();
+  const go = useGo();
   const app = useApp();
   const allowed = useStepGuard('phone');
   const [digits, setDigits] = useState(app.progress.phone ?? '');
@@ -25,7 +25,10 @@ export default function Phone() {
     if (d.length < 11) return;
     const check = checkPhone(d);
     if (!check.ok) {
-      setNote({ text: 'That is not a Nigerian mobile number. They start 070, 080, 081, 090 or 091.', tone: 'bad' });
+      setNote({
+        text: 'That is not a Nigerian mobile number. They start 070, 080, 081, 090 or 091.',
+        tone: 'bad',
+      });
       setShake(s => s + 1);
       return;
     }
@@ -34,9 +37,12 @@ export default function Phone() {
     try {
       await app.setPhone(check.phone);
       await auth.requestCode(check.phone);
-      router.push('/code');
+      go.push('/code');
     } catch {
-      setNote({ text: 'The text could not be sent. Check the network and try again.', tone: 'bad' });
+      setNote({
+        text: 'The text could not be sent. Check the network and try again.',
+        tone: 'bad',
+      });
     } finally {
       setBusy(false);
     }
@@ -55,7 +61,8 @@ export default function Phone() {
       note={note}
       busy={busy}
       shake={shake}
-      onBack={() => router.back()}
+      leaving={go.leaving}
+      onBack={go.back}
     />
   );
 }

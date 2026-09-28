@@ -81,6 +81,9 @@ async function shot(name, settle = 700) {
   console.log(`  ${file}`);
 }
 const see = text => page.getByText(text).first().waitFor();
+/* the moment a screen's words are in the page at all, before it has arrived —
+   what a trace of the arrival has to start from */
+const arrives = text => page.waitForFunction(t => (document.body.innerText || '').includes(t), text, { polling: 16, timeout: 15000 });
 const button = name => page.getByRole('button', { name, exact: true }).first();
 const tap = name => button(name).click();
 const type = async digits => {
@@ -93,6 +96,56 @@ const at = path => {
   const now = page.url().slice(base.length).split('?')[0] || '/';
   if (now !== path) throw new Error(`Expected to be at ${path}, but the address is ${now}`);
 };
+/* How the screen is moving: every 40ms for `ms`, the opacity and blur of the
+   first (or, `deep`, the innermost) element carrying a filter whose text
+   includes `match`, and how many marks are still on their way in. The panes,
+   swaps and resolving figures all carry a filter; the marks a scale. */
+const motion = {};
+async function trace(name, ms, matches, { since = Date.now(), picture } = {}) {
+  const samples = [];
+  const t0 = since;
+  let taken = false;
+  while (Date.now() - t0 < ms) {
+    if (picture && !taken && Date.now() - t0 >= picture.at) {
+      taken = true;
+      await shot(picture.name, 0);
+    }
+    const s = await page.evaluate(ms => {
+      const out = {};
+      for (const [key, match, deep] of ms) {
+        let found = null;
+        for (const el of document.querySelectorAll('[style*="filter"]')) {
+          if (!(el.innerText || '').replace(/\s+/g, ' ').includes(match)) continue;
+          found = { opacity: +getComputedStyle(el).opacity, blur: +((el.style.filter.match(/blur\(([\d.]+)px\)/) || [])[1] || 0) };
+          if (!deep) break;
+        }
+        out[key] = found;
+      }
+      let pending = 0;
+      const what = [];
+      for (const el of document.querySelectorAll('[style*="scale"]')) {
+        const cs = getComputedStyle(el);
+        if (+cs.opacity >= 0.99) continue;
+        /* a screen underneath the one showing keeps its last look; only what is showing counts */
+        if (el.closest('[aria-hidden="true"]') || !el.offsetParent) continue;
+        pending++;
+        if (what.length < 3) what.push(`${(el.innerText || '').replace(/\s+/g, ' ').trim().slice(0, 24) || el.tagName} opacity ${cs.opacity} ${el.style.transform}`);
+      }
+      out.pending = pending;
+      out.what = what;
+      return out;
+    }, matches);
+    samples.push({ t: Date.now() - t0, ...s });
+    await page.waitForTimeout(40);
+  }
+  motion[name] = samples;
+  return samples;
+}
+const firstAt = (samples, key, test) => samples.find(x => x[key] && test(x[key]));
+const must = (ok, what) => {
+  if (!ok) throw new Error(`The motion is not as the motion file says: ${what}`);
+};
+
 /* The screen scrolls inside the page, so the bottom needs the list itself moved. */
 const toBottom = () =>
   page.evaluate(() => {
@@ -110,7 +163,18 @@ try {
   await see('Open an account');
   await shot('welcome');
 
+  /* the whole change traced from the tap, with a frame mid-way: the welcome
+     softens out in 280ms, the number step sharpens in over 520ms */
+  const tapped = Date.now();
   await tap('Open an account');
+  const change = await trace('welcome-to-number', 1400, [['welcome', 'Open an account', false], ['number', 'Your number', false]], { since: tapped, picture: { at: 120, name: 'welcome-leaving' } });
+  const gone = firstAt(change, 'welcome', w => w.opacity < 0.15);
+  must(gone && gone.t <= 600, 'the welcome should be gone within 600ms of the tap');
+  const soft = firstAt(change, 'number', n => n.blur > 1);
+  must(soft, 'the number step should arrive out of a blur');
+  const sharp = firstAt(change, 'number', n => n.opacity > 0.98 && n.blur < 0.05);
+  must(sharp && sharp.t <= 1400, 'the number step should be sharp and whole within 1.4s');
+  console.log(`  welcome gone at ${gone.t}ms, number step first seen ${soft.number.blur.toFixed(1)}px soft at ${soft.t}ms, sharp at ${sharp.t}ms`);
   await see('I will text you six digits');
   await shot('phone');
   await type('01234567890');
@@ -144,6 +208,7 @@ try {
   at('/confirm');
   await shot('confirm');
   await tap('Yes, that is me');
+  await shot('confirm-leaving', 120);
 
   await see('Hold still and look at the camera');
   at('/face');
@@ -170,8 +235,17 @@ try {
   await see('The same six, to be sure');
   await type(PASSCODE);
 
-  await see('Your account is ready');
+  await arrives('Your account is ready');
   at('/ready');
+  const ticks = await trace('ready-ticks', 1300, [['ready', 'Your account is ready', false]], { picture: { at: 330, name: 'ready-landing' } });
+  const early = ticks[0];
+  const late = ticks[ticks.length - 1];
+  must(early && early.pending >= 2, `the ticks should still be on their way at ${early?.t}ms (${early?.pending} pending)`);
+  must(late && late.pending === 0, `every tick should have landed by ${late?.t}ms (${late?.pending} pending: ${late?.what?.join('; ')})`);
+  const landed = ticks.map(x => x.pending);
+  must(landed.every((v, i) => i === 0 || v <= landed[i - 1]), 'the ticks should land one after another, never un-land');
+  must(new Set(landed).size >= 3, `the ticks should land one after another, not all at once (${landed.join(' ')})`);
+  console.log(`  ${early.pending} marks on their way at ${early.t}ms, the last landed by ${ticks.find(x => x.pending === 0).t}ms (${ticks.map(x => `${x.t}:${x.pending}`).join(' ')})`);
   await shot('ready');
   await tap('Take me in');
 
@@ -221,8 +295,14 @@ try {
   await shot('sign-in-code');
   await type(CODE);
 
-  await see('Money health');
+  await arrives('Money health');
   at('/home');
+  const balance = await trace('home-balance', 1100, [['balance', '595,320', true]], { picture: { at: 220, name: 'home-resolving' } });
+  const blurry = firstAt(balance, 'balance', b => b.blur > 1);
+  const clear = firstAt(balance, 'balance', b => b.blur < 0.05 && b.opacity > 0.98);
+  must(blurry, `the balance should resolve from a blur (first samples: ${balance.slice(0, 4).map(x => JSON.stringify(x)).join(' ')})`);
+  must(clear && clear.t <= 1100, 'the balance should be clear within 1.1s');
+  console.log(`  balance ${blurry.balance.blur.toFixed(1)}px soft at ${blurry.t}ms, clear at ${clear.t}ms`);
   await shot('home');
   await tap('In');
   await shot('home-in', 400);
@@ -244,7 +324,7 @@ await b.close();
 server.close();
 
 const real = errors.filter(e => !/favicon|React DevTools/i.test(e));
-await writeFile(join(SHOTS, 'index.json'), JSON.stringify({ steps, errors: real }, null, 2));
+await writeFile(join(SHOTS, 'index.json'), JSON.stringify({ steps, motion, errors: real }, null, 2));
 console.log(`\n${steps.length} screens in ${((Date.now() - t0) / 1000).toFixed(1)}s, in ${SHOTS}`);
 if (real.length) {
   console.error('The page logged errors:\n' + real.map(e => '  ' + e).join('\n'));

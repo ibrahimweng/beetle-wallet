@@ -12,7 +12,7 @@ import { Bubble } from './Bubble';
 import { Caption, Display, Head, Label, Meta, Row } from './text';
 import { IconName } from '../icons';
 import { colour, frame, radius, space } from './tokens';
-import { Tap } from './motion';
+import { Tap, Resolve } from './motion';
 
 /* The head of the first-day home, which its frame still draws the earlier
    way: the wallet bar sits under the status bar rather than at the top of the
@@ -24,13 +24,16 @@ const MARK = require('../../assets/wallet-mark.png');
 
 export function WalletHeader({ onSettings, onAlerts }: { onSettings?: () => void; onAlerts?: () => void }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: -20, marginBottom: 4 }}>
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: -20,
+        marginBottom: 4,
+      }}
+    >
       <Pressable accessibilityRole="button" accessibilityLabel="Settings" onPress={onSettings}>
-        <Image
-          source={MARK}
-          style={{ width: 36, height: 36, borderRadius: 18 }}
-          accessibilityLabel="Beetle"
-        />
+        <Image source={MARK} style={{ width: 36, height: 36, borderRadius: 18 }} accessibilityLabel="Beetle" />
       </Pressable>
       <View style={{ flex: 1, alignItems: 'center' }}>
         <Label>Wallet</Label>
@@ -59,7 +62,14 @@ export function WalletHeader({ onSettings, onAlerts }: { onSettings?: () => void
 export function Balance({ whole, kobo, change }: { whole: string; kobo: string; change: string }) {
   return (
     <View style={{ alignItems: 'center', gap: 4 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s2, height: 24 }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: space.s2,
+          height: 24,
+        }}
+      >
         <Caption tone="secondary">Total balance</Caption>
         <View
           style={{
@@ -75,9 +85,17 @@ export function Balance({ whole, kobo, change }: { whole: string; kobo: string; 
           <Label tone="secondary">{change}</Label>
         </View>
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start', paddingHorizontal: 4 }}>
-        <Display>{whole}</Display>
-        <Head style={{ marginTop: 8, color: colour.ruleStrong }}>{kobo}</Head>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          paddingHorizontal: 4,
+        }}
+      >
+        <Resolve delay={120} style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+          <Display>{whole}</Display>
+          <Head style={{ marginTop: 8, color: colour.ruleStrong }}>{kobo}</Head>
+        </Resolve>
       </View>
     </View>
   );
@@ -120,19 +138,23 @@ export function HomeCard({
       }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <Image
-          source={MARK}
-          style={{ width: 36, height: 36, borderRadius: 18 }}
-          accessibilityLabel="Beetle"
-        />
+        <Image source={MARK} style={{ width: 36, height: 36, borderRadius: 18 }} accessibilityLabel="Beetle" />
         <Label>Wallet</Label>
       </View>
       <View style={{ alignItems: 'center', gap: 32 }}>
         <View style={{ alignItems: 'center', gap: 4 }}>
           <Caption tone="secondary">Total balance</Caption>
-          <View style={{ flexDirection: 'row', alignItems: 'flex-start', paddingHorizontal: 4 }}>
-            <Display>{whole}</Display>
-            <Head style={{ marginTop: 8, color: colour.ruleStrong }}>{kobo}</Head>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'flex-start',
+              paddingHorizontal: 4,
+            }}
+          >
+            <Resolve delay={120} style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+              <Display>{whole}</Display>
+              <Head style={{ marginTop: 8, color: colour.ruleStrong }}>{kobo}</Head>
+            </Resolve>
           </View>
           {/* the reading in dollars sits on a chip the colour of the card, so
               only its hairline shows */}
@@ -195,7 +217,12 @@ export function HomeCard({
               key={i.label}
               accessibilityRole="button"
               onPress={i.onPress}
-              style={{ flex: 1, alignItems: 'center', gap: 8, paddingVertical: 4 }}
+              style={{
+                flex: 1,
+                alignItems: 'center',
+                gap: 8,
+                paddingVertical: 4,
+              }}
             >
               <Icon name={i.glyph} size={32} />
               <Caption>{i.label}</Caption>
@@ -204,7 +231,14 @@ export function HomeCard({
         </View>
         <View style={{ alignItems: 'center', gap: 12 }}>
           <Caption>Swipe Up</Caption>
-          <View style={{ width: 27, height: 4, borderRadius: 2, backgroundColor: '#cdcdcd' }} />
+          <View
+            style={{
+              width: 27,
+              height: 4,
+              borderRadius: 2,
+              backgroundColor: '#cdcdcd',
+            }}
+          />
         </View>
       </View>
     </View>
@@ -226,12 +260,7 @@ export function Shortcuts({ items }: { items: { glyph: IconName; label: string; 
       }}
     >
       {items.map(i => (
-        <Tap
-          key={i.label}
-          accessibilityRole="button"
-          onPress={i.onPress}
-          style={{ flex: 1, alignItems: 'center', gap: 8, paddingVertical: 4 }}
-        >
+        <Tap key={i.label} accessibilityRole="button" onPress={i.onPress} style={{ flex: 1, alignItems: 'center', gap: 8, paddingVertical: 4 }}>
           <Icon name={i.glyph} size={32} />
           <Caption>{i.label}</Caption>
         </Tap>
@@ -306,21 +335,18 @@ export function Tile({
 /* The health ring, with its score in the middle. The home frame draws it in
    the green of a good thing with the score at row size; elsewhere it is the
    accent with a caption. */
-export function Dial({
-  score,
-  size = 36,
-  tone = colour.accent,
-  strong = false,
-}: {
-  score: number;
-  size?: number;
-  tone?: string;
-  strong?: boolean;
-}) {
+export function Dial({ score, size = 36, tone = colour.accent, strong = false }: { score: number; size?: number; tone?: string; strong?: boolean }) {
   const r = (size - 4) / 2;
   const c = 2 * Math.PI * r;
   return (
-    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+    <View
+      style={{
+        width: size,
+        height: size,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <Svg width={size} height={size} style={{ position: 'absolute' }}>
         <Circle cx={size / 2} cy={size / 2} r={r} stroke={colour.rule} strokeWidth={4} fill="none" />
         <Circle
@@ -342,17 +368,7 @@ export function Dial({
 
 /* The score as the home frame sets it at the head of the day: the ring with
    the number in it, the words, and a chevron, on a pale card padded 12 by 16. */
-export function ScoreRow({
-  score,
-  title,
-  sub,
-  onPress,
-}: {
-  score: number;
-  title: string;
-  sub: string;
-  onPress?: () => void;
-}) {
+export function ScoreRow({ score, title, sub, onPress }: { score: number; title: string; sub: string; onPress?: () => void }) {
   return (
     <Tap
       accessibilityRole="button"
@@ -377,15 +393,7 @@ export function ScoreRow({
   );
 }
 
-export function Filters({
-  options,
-  value,
-  onChange,
-}: {
-  options: string[];
-  value: string;
-  onChange: (v: string) => void;
-}) {
+export function Filters({ options, value, onChange }: { options: string[]; value: string; onChange: (v: string) => void }) {
   return (
     <View style={{ flexDirection: 'row', gap: space.s2 }}>
       {options.map(o => {
@@ -411,21 +419,7 @@ export function Filters({
   );
 }
 
-export function LedgerRow({
-  glyph,
-  name,
-  detail,
-  amount,
-  good,
-  onPress,
-}: {
-  glyph: IconName;
-  name: string;
-  detail: string;
-  amount: string;
-  good?: boolean;
-  onPress?: () => void;
-}) {
+export function LedgerRow({ glyph, name, detail, amount, good, onPress }: { glyph: IconName; name: string; detail: string; amount: string; good?: boolean; onPress?: () => void }) {
   return (
     <Tap
       accessibilityRole="button"

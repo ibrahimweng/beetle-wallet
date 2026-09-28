@@ -5,7 +5,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Display, Icon, Meta, colour } from '../src/design';
+import { Display, Icon, Meta, Pane, colour } from '../src/design';
 import { useApp } from '../src/features/onboarding/store';
 import { landing, nextStep, routeOf } from '../src/features/onboarding/machine';
 
@@ -17,7 +17,12 @@ export default function Boot() {
   const [held, setHeld] = useState(false);
   const fill = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    Animated.timing(fill, { toValue: 1, duration: HOLD, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
+    Animated.timing(fill, {
+      toValue: 1,
+      duration: HOLD,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
     const t = setTimeout(() => setHeld(true), HOLD);
     return () => clearTimeout(t);
   }, [fill]);
@@ -26,13 +31,41 @@ export default function Boot() {
     router.replace(routeOf[session ? landing(progress) : nextStep(progress)]);
   }, [ready, held, session, progress, router]);
   return (
-    <View style={{ flex: 1, backgroundColor: colour.surface, alignItems: 'center', justifyContent: 'center', gap: 16 }} accessibilityLabel="Beetle is opening">
-      <Icon name="mark" size={56} colour={colour.accent} />
-      <Display>Beetle</Display>
-      <View style={{ width: 120, height: 3, borderRadius: 2, backgroundColor: colour.surface3, overflow: 'hidden', marginTop: 8 }}>
-        <Animated.View style={{ height: 3, backgroundColor: colour.accent, width: fill.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }} />
-      </View>
-      <Meta tone="tertiary">{ready ? 'Ready' : 'Opening'}</Meta>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: colour.surface,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+      accessibilityLabel="Beetle is opening"
+    >
+      <Pane style={{ alignItems: 'center', gap: 16 }}>
+        <Icon name="mark" size={56} colour={colour.accent} />
+        <Display>Beetle</Display>
+        <View
+          style={{
+            width: 120,
+            height: 3,
+            borderRadius: 2,
+            backgroundColor: colour.surface3,
+            overflow: 'hidden',
+            marginTop: 8,
+          }}
+        >
+          <Animated.View
+            style={{
+              height: 3,
+              backgroundColor: colour.accent,
+              width: fill.interpolate({
+                inputRange: [0, 1],
+                outputRange: ['0%', '100%'],
+              }),
+            }}
+          />
+        </View>
+        <Meta tone="tertiary">{ready ? 'Ready' : 'Opening'}</Meta>
+      </Pane>
     </View>
   );
 }

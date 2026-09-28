@@ -1,22 +1,24 @@
 /* The record did not match. Nothing is wrong with the person, usually. */
 import React from 'react';
 import { View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { AgentSay, BottomBar, Button, Card, Icon, Meta, More, Row, Screen, StepHead, StepTrail, colour, space, toast, washes } from '../../src/design';
 import { NUMBER } from '../../src/features/onboarding/steps';
 import { groupIdentity } from '../../src/lib/format';
+import { useGo } from '../../src/features/onboarding/useGo';
 
 export default function NoMatch() {
-  const router = useRouter();
+  const go = useGo();
   const { number } = useLocalSearchParams<{ number?: string }>();
   const shown = number ? groupIdentity(number) : 'those digits';
   return (
     <Screen
       sink
       wash={washes.nomatch}
+      leaving={go.leaving}
       dock={
-        <BottomBar onBack={() => router.back()}>
-          <Button label="Try again" onPress={() => router.back()} />
+        <BottomBar onBack={go.back}>
+          <Button label="Try again" onPress={go.back} />
         </BottomBar>
       }
     >

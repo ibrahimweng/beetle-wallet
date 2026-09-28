@@ -1,15 +1,15 @@
 /* Is this you. The record comes back and you say yes, or that it is wrong. */
 import React from 'react';
 import { View } from 'react-native';
-import { useRouter } from 'expo-router';
 import { Avatar, Body, BottomBar, Button, Card, Meta, More, Row, Screen, StepHead, StepTrail, space, washes } from '../../src/design';
 import { NUMBER } from '../../src/features/onboarding/steps';
 import { useApp } from '../../src/features/onboarding/store';
 import { useStepGuard } from '../../src/features/onboarding/useGuard';
+import { useGo } from '../../src/features/onboarding/useGo';
 import { initialsOf, longDate } from '../../src/lib/format';
 
 export default function Confirm() {
-  const router = useRouter();
+  const go = useGo();
   const app = useApp();
   const allowed = useStepGuard('confirm');
   const id = app.progress.identity;
@@ -20,13 +20,14 @@ export default function Confirm() {
     <Screen
       sink
       wash={washes.who}
+      leaving={go.leaving}
       dock={
-        <BottomBar onBack={() => router.back()}>
+        <BottomBar onBack={go.back}>
           <Button
             label="Yes, that is me"
             onPress={async () => {
               await app.confirmIdentity();
-              router.push('/face');
+              go.push('/face');
             }}
           />
         </BottomBar>
@@ -42,12 +43,18 @@ export default function Confirm() {
             <Meta tone="secondary">Born {longDate(record.born)}</Meta>
           </View>
         </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: space.s3 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            gap: space.s3,
+          }}
+        >
           <Body tone="secondary">On the record as</Body>
           <Row>{record.recordName}</Row>
         </View>
       </Card>
-      <More label="Something here is wrong" onPress={() => router.push({ pathname: '/no-match', params: { number: id.number } })} />
+      <More label="Something here is wrong" onPress={() => go.push({ pathname: '/no-match', params: { number: id.number } })} />
     </Screen>
   );
 }

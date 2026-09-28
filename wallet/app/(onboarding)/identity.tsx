@@ -1,16 +1,16 @@
 /* Who you are. Eleven digits from a NIN or a BVN go to the register and a
    name comes back, or nothing does. */
 import React, { useState } from 'react';
-import { useRouter } from 'expo-router';
 import { washes } from '../../src/design';
 import { DigitStep, type Note } from '../../src/features/onboarding/DigitStep';
 import { NUMBER } from '../../src/features/onboarding/steps';
 import { useApp } from '../../src/features/onboarding/store';
 import { useStepGuard } from '../../src/features/onboarding/useGuard';
+import { useGo } from '../../src/features/onboarding/useGo';
 import { identity } from '../../src/services';
 
 export default function Identity() {
-  const router = useRouter();
+  const go = useGo();
   const app = useApp();
   const allowed = useStepGuard('identity');
   const [digits, setDigits] = useState('');
@@ -27,14 +27,17 @@ export default function Identity() {
       const r = await identity.lookup(d);
       if (r.found) {
         await app.setIdentity(d, r.record);
-        router.push('/confirm');
+        go.push('/confirm');
       } else {
-        router.push({ pathname: '/no-match', params: { number: d } });
+        go.push({ pathname: '/no-match', params: { number: d } });
         setDigits('');
         setNote(null);
       }
     } catch {
-      setNote({ text: 'The register did not answer. Try again in a moment.', tone: 'bad' });
+      setNote({
+        text: 'The register did not answer. Try again in a moment.',
+        tone: 'bad',
+      });
     } finally {
       setBusy(false);
     }
@@ -53,7 +56,8 @@ export default function Identity() {
       max={11}
       note={note}
       busy={busy}
-      onBack={() => router.back()}
+      leaving={go.leaving}
+      onBack={go.back}
     />
   );
 }

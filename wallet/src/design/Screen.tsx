@@ -7,22 +7,24 @@ import { Icon } from './Icon';
 import { Meta, Row } from './text';
 import { IconName } from '../icons';
 import { colour, frame, radius, space } from './tokens';
-import { Reveal, RevealAll, Tap } from './motion';
+import { Pane, Tap } from './motion';
 import { Wash } from './Wash';
 
-/* The column arrives a piece at a time rather than all at once, so you can see
-   the screen being put together after the tap that asked for it. The dock is
-   last, and does not wait its turn. */
+/* The column and the dock arrive together, out of a blur, and when the screen
+   is `leaving` they go back into one before the next screen comes. */
 export function Screen({
   children,
   dock,
   still = false,
   wash,
   sink = false,
+  leaving = false,
 }: {
   children: ReactNode;
   dock?: ReactNode;
   still?: boolean;
+  /* on its way out: see useLeave */
+  leaving?: boolean;
   /* the blob of colour some frames open with */
   wash?: { tone: string; height?: number };
   /* the way-in frames hang their column off the dock rather than the status bar */
@@ -31,15 +33,16 @@ export function Screen({
   return (
     <View style={s.screen}>
       {wash ? <Wash tone={wash.tone} height={wash.height} /> : null}
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={[s.body, sink && s.sunk]}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        {still ? children : <RevealAll>{children}</RevealAll>}
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={[s.body, sink && s.sunk]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        {still ? (
+          children
+        ) : (
+          <Pane leaving={leaving} style={{ gap: frame.columnGap }}>
+            {children}
+          </Pane>
+        )}
       </ScrollView>
-      {still ? dock : <Reveal index={2} rise={22}>{dock}</Reveal>}
+      {still ? dock : <Pane leaving={leaving}>{dock}</Pane>}
     </View>
   );
 }
@@ -52,19 +55,7 @@ export function Divider() {
   return <View style={{ height: 1, backgroundColor: colour.rule }} />;
 }
 
-export function ListRow({
-  icon,
-  title,
-  sub,
-  right,
-  onPress,
-}: {
-  icon?: IconName;
-  title: string;
-  sub?: string;
-  right?: ReactNode;
-  onPress?: () => void;
-}) {
+export function ListRow({ icon, title, sub, right, onPress }: { icon?: IconName; title: string; sub?: string; right?: ReactNode; onPress?: () => void }) {
   return (
     <Tap accessibilityRole={onPress ? 'button' : undefined} onPress={onPress} style={s.row}>
       {icon ? <Icon name={icon} size={20} /> : null}
@@ -107,7 +98,12 @@ export function BottomBar({ onBack, children }: { onBack?: () => void; children:
           accessibilityRole="button"
           accessibilityLabel="Back"
           onPress={onBack}
-          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+          style={{
+            width: 44,
+            height: 44,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
           <Icon name="back" size={22} />
         </Pressable>
@@ -139,7 +135,11 @@ const s = StyleSheet.create({
     paddingHorizontal: frame.cardPad.horizontal,
     gap: space.s5,
   },
-  outline: { backgroundColor: colour.surface, borderWidth: 1, borderColor: colour.rule },
+  outline: {
+    backgroundColor: colour.surface,
+    borderWidth: 1,
+    borderColor: colour.rule,
+  },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.s3 },
   bottom: {
     position: 'absolute',

@@ -3,16 +3,16 @@
    handful everybody picks; the second has to match the first. Then the
    account is opened and the session begins. */
 import React, { useState } from 'react';
-import { useRouter } from 'expo-router';
 import { Aside, washes } from '../../src/design';
 import { DigitStep, type Note } from '../../src/features/onboarding/DigitStep';
 import { FACE, NUMBER, WHO } from '../../src/features/onboarding/steps';
 import { useApp } from '../../src/features/onboarding/store';
 import { useStepGuard } from '../../src/features/onboarding/useGuard';
+import { useGo } from '../../src/features/onboarding/useGo';
 import { passcodeProblem, PASSCODE_WORDS } from '../../src/features/onboarding/validation';
 
 export default function Passcode() {
-  const router = useRouter();
+  const go = useGo();
   const app = useApp();
   const allowed = useStepGuard('passcode');
   const [first, setFirst] = useState<string | null>(null);
@@ -47,17 +47,23 @@ export default function Passcode() {
     }
     setBusy(true);
     setNote({ text: 'Opening your account…' });
-    try {
-      /* opening the account starts the session, and the step guard sends
-         the session on to the ready screen */
-      await app.finish(d);
-    } catch {
-      setNote({ text: 'The account could not be opened. Check the network and try again.', tone: 'bad' });
-      setFirst(null);
-      setDigits('');
-    } finally {
-      setBusy(false);
-    }
+    /* the screen blurs away while the account opens; opening it starts the
+       session, and the step guard sends the session on to the ready screen */
+    go.leave(async () => {
+      try {
+        await app.finish(d);
+      } catch {
+        go.stay();
+        setNote({
+          text: 'The account could not be opened. Check the network and try again.',
+          tone: 'bad',
+        });
+        setFirst(null);
+        setDigits('');
+      } finally {
+        setBusy(false);
+      }
+    });
   };
   if (!allowed) return null;
   const again = first !== null;
@@ -76,6 +82,7 @@ export default function Passcode() {
       busy={busy}
       shake={shake}
       secret
+      leaving={go.leaving}
       footer={<Aside>Not your year of birth, and not 123456.</Aside>}
     />
   );

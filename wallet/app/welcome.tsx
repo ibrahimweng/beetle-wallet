@@ -6,10 +6,9 @@
    anyone who has asked for less movement. */
 import React, { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Body, Button, Display, Icon, Row, Wash, colour, space, washes, useStill } from '../src/design';
-import { useApp } from '../src/features/onboarding/store';
-import { landing, routeOf } from '../src/features/onboarding/machine';
+import { Body, Button, Display, Icon, Pane, Row, Wash, colour, space, washes, useStill } from '../src/design';
+import { useGo } from '../src/features/onboarding/useGo';
+import { useSessionRedirect } from '../src/features/onboarding/useGuard';
 
 const WORDS = [
   { word: 'Save', icon: 'pot' },
@@ -19,8 +18,8 @@ const WORDS = [
 ] as const;
 
 export default function Welcome() {
-  const router = useRouter();
-  const { ready, session, progress } = useApp();
+  const go = useGo();
+  useSessionRedirect();
   const still = useStill();
   const [on, setOn] = useState(1);
   useEffect(() => {
@@ -28,14 +27,18 @@ export default function Welcome() {
     const t = setInterval(() => setOn(i => (i + 1) % WORDS.length), 1600);
     return () => clearInterval(t);
   }, [still]);
-  useEffect(() => {
-    if (ready && session) router.replace(routeOf[landing(progress)]);
-  }, [ready, session, progress, router]);
   return (
     <View style={{ flex: 1, backgroundColor: colour.surface }}>
       <Wash tone={washes.start.tone} height={washes.start.height} />
-      <View style={{ flex: 1, paddingHorizontal: space.s5, paddingBottom: 36 }}>
-        <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: 32, gap: 4 }}>
+      <Pane leaving={go.leaving} style={{ flex: 1, paddingHorizontal: space.s5, paddingBottom: 36 }}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'flex-end',
+            paddingBottom: 32,
+            gap: 4,
+          }}
+        >
           {WORDS.map((w, i) => (
             <View key={w.word} style={{ flexDirection: 'row', alignItems: 'center' }}>
               <View style={{ width: 36 }}>{i === on ? <Icon name={w.icon} size={22} colour={colour.accent} /> : null}</View>
@@ -46,19 +49,24 @@ export default function Welcome() {
         <View style={{ gap: space.s3, marginBottom: space.s5 }}>
           <Icon name="mark" size={40} colour={colour.accent} />
           <Display>Beetle</Display>
-          <Body tone="tertiary">
-            A bank that answers when you ask it something. Opening one takes about a minute, and all it needs is
-            your number and your NIN.
-          </Body>
+          <Body tone="tertiary">A bank that answers when you ask it something. Opening one takes about a minute, and all it needs is your number and your NIN.</Body>
         </View>
-        <Button label="Open an account" onPress={() => router.push('/phone')} />
-        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: space.s4 }}>
+        <Button label="Open an account" onPress={() => go.push('/phone')} />
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 6,
+            marginTop: space.s4,
+          }}
+        >
           <Body tone="tertiary">Already have one?</Body>
-          <Pressable onPress={() => router.push('/sign-in')} accessibilityRole="button">
+          <Pressable onPress={() => go.push('/sign-in')} accessibilityRole="button">
             <Row tone="accent">Sign in</Row>
           </Pressable>
         </View>
-      </View>
+      </Pane>
     </View>
   );
 }

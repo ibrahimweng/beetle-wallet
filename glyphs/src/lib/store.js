@@ -2,17 +2,17 @@
    as a convenience; the page renders correctly without it. */
 import { DEF } from './engine.js';
 
-const KEY = 'beetle-glyphs-v4';
-const PERSIST = ['P', 'surface', 'theme', 'filter', 'sel', 'edits', 'tab'];
+const KEY = 'beetle-glyphs-v5';
+const PERSIST = ['P', 'surface', 'theme', 'filter', 'sel', 'edits', 'scope'];
 
 const initial = {
   P: { ...DEF },
-  surface: 'red',
+  surface: 'auto',        // auto (follows the theme) | paper (white) | ink (black)
   theme: 'system',
   filter: { q: '', set: 'all', cat: 'all' },
   sel: 'param:card',
   edits: {},
-  tab: 'edit',
+  scope: 'icon',          // what the inspector edits: this icon | the whole library
   page: 1,
   status: '',
   ready: false,
@@ -26,6 +26,8 @@ function load() {
     for (const k of PERSIST) if (saved[k] != null) out[k] = saved[k];
     if (out.P) out.P = { ...DEF, ...out.P };
     if (out.filter) out.filter = { ...initial.filter, ...out.filter };
+    if (!['auto', 'paper', 'ink'].includes(out.surface)) delete out.surface;
+    if (!['icon', 'library'].includes(out.scope)) delete out.scope;
     return out;
   } catch { return {}; }
 }
@@ -50,5 +52,6 @@ export const store = {
     for (const fn of listeners) fn(state, Object.keys(next));
   },
   subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
-  reset() { state = { ...initial, theme: state.theme, ready: state.ready }; persist(); for (const fn of listeners) fn(state, Object.keys(initial)); },
+  /* the parameters only: edits and the selection stay */
+  resetParams() { this.set({ P: { ...DEF, weight: state.P.weight } }); },
 };

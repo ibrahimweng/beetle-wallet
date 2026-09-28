@@ -1,48 +1,51 @@
-/* Export tabs: the selected icon as SVG, and the current results as a sprite,
-   an icon font or JSON. */
-import { h, ICO } from '../../lib/utils.js';
-import { Tabs } from '../ui/tabs.js';
+/* Exports. IconExport: the selected icon as SVG, in the weight being edited.
+   LibraryExport: the icons in the current view as a sprite, a font or JSON. */
+import { h, ICO, fmtInt } from '../../lib/utils.js';
 import { Button } from '../ui/button.js';
 import { CodeBlock } from '../ui/code-block.js';
 import { store } from '../../lib/store.js';
-import { primsOf, search, labelOf, fileName } from '../../lib/library.js';
+import { primsOf, search, fileName } from '../../lib/library.js';
 import { saveFile, copyText, iconSVG, spriteOf, fontOf, jsonOf, usageSnippet } from '../../lib/export.js';
 
-export function ExportPanel() {
+const wait = () => new Promise(r => setTimeout(r, 30));
+
+export function IconExport() {
   const status = h('div', { class: 'status' });
   const say = t => { status.textContent = t; };
-  const svgCode = CodeBlock({ label: 'SVG' });
+  const code = CodeBlock({ label: 'SVG' });
+  const cur = () => { const s = store.get(); return iconSVG(s.sel, primsOf(s.sel, s), s.P); };
+  const copy = Button({ size: 'sm', icon: ICO.copy, label: 'Copy SVG', onClick: async () => say((await copyText(cur())) ? 'SVG copied.' : 'Select the code below and copy it.') });
+  const download = Button({ variant: 'outline', size: 'sm', icon: ICO.download, label: 'Download', onClick: async () => { const s = store.get(); say(await saveFile(`${fileName(s.sel)}-${s.P.weight}.svg`, cur(), 'image/svg+xml')); } });
+  const actions = h('div', { class: 'stack', style: { gap: '6px' } }, h('div', { class: 'row wrap' }, copy, download), status);
+  const fold = h('details', { class: 'fold' }, h('summary', {}, h('span', { html: ICO.chevron }), 'SVG code of this icon'), h('div', { class: 'fold-body' }, code.el));
+  const refresh = () => { if (fold.open) code.set(cur().replace(/></g, '>\n<')); };
+  fold.addEventListener('toggle', refresh);
+  store.subscribe((s, keys) => { if (keys.some(k => ['sel', 'P', 'edits'].includes(k))) { refresh(); status.textContent = ''; } });
+  return { actions, code: fold };
+}
+
+export function LibraryExport() {
+  const status = h('div', { class: 'status' });
+  const say = t => { status.textContent = t; };
+  const count = h('div', { class: 'section-desc' });
   const useCode = CodeBlock({ label: 'usage' });
-  const mapCode = CodeBlock({ label: 'codepoint map' });
+  const mapCode = CodeBlock({ label: 'codepoint map', code: 'Build the font to see the codepoint map.' });
   const results = () => search(store.get().filter);
   const prims = key => primsOf(key, store.get());
   const P = () => store.get().P;
-  const wait = () => new Promise(r => setTimeout(r, 30));
-
-  const svgTab = h('div', { class: 'stack', style: { gap: '10px' } },
-    h('div', { class: 'row wrap' },
-      Button({ size: 'sm', icon: ICO.copy, label: 'Copy SVG', onClick: async () => say((await copyText(iconSVG(store.get().sel, prims(store.get().sel), P()))) ? 'SVG copied.' : 'Select the code and copy it.') }),
-      Button({ variant: 'outline', size: 'sm', icon: ICO.download, label: 'Download SVG', onClick: async () => say(await saveFile(`${fileName(store.get().sel)}-${P().weight}.svg`, iconSVG(store.get().sel, prims(store.get().sel), P()), 'image/svg+xml')) })),
-    svgCode.el);
-  const spriteTab = h('div', { class: 'stack', style: { gap: '10px' } },
-    h('p', { class: 'text-sm text-muted' }, 'One SVG with a <symbol> per icon in the current results, at the current settings. Reference a symbol with <use href="sprite.svg#name">.'),
-    h('div', { class: 'row wrap' }, Button({ size: 'sm', icon: ICO.download, label: 'Download sprite', onClick: async () => { const r = results(); say(`Building a sprite of ${r.length} icons…`); await wait(); say(await saveFile(`beetle-glyphs-${P().weight}-sprite.svg`, spriteOf(r, P(), prims), 'image/svg+xml')); } })),
-    useCode.el);
-  const fontTab = h('div', { class: 'stack', style: { gap: '10px' } },
-    h('p', { class: 'text-sm text-muted' }, 'A TrueType font of the current results. Every primitive is flattened, offset by half a stroke with round joins and caps, unioned and cut. Icons map to U+E000 upward in result order.'),
-    h('div', { class: 'row wrap' }, Button({ size: 'sm', icon: ICO.download, label: 'Download .ttf', onClick: async () => {
-      const r = results(); const t0 = performance.now(); say(`Building a font of ${r.length} icons…`); await wait();
-      try { const { buf, map } = fontOf(r, P(), prims); const msg = await saveFile(`beetle-glyphs-${P().weight}.ttf`, buf, 'font/ttf'); mapCode.set(map.map(m => `${m.name}\tU+${m.cp.toString(16).toUpperCase()}`).join('\n')); say(`${msg} ${map.length} glyphs, ${(buf.byteLength / 1024).toFixed(0)} KB, ${Math.round(performance.now() - t0)} ms.`); }
-      catch (e) { say('Font build failed: ' + e.message); }
-    } })),
-    mapCode.el);
-  const jsonTab = h('div', { class: 'stack', style: { gap: '10px' } },
-    h('p', { class: 'text-sm text-muted' }, 'The current results as engine primitives with the parameters, for another tool or a later import.'),
-    h('div', { class: 'row wrap' }, Button({ size: 'sm', icon: ICO.download, label: 'Download JSON', onClick: async () => say(await saveFile('beetle-glyphs.json', jsonOf(results(), P(), prims), 'application/json')) })));
-  const tabs = Tabs({ value: 'svg', tabs: [{ value: 'svg', label: 'SVG', content: svgTab }, { value: 'sprite', label: 'Sprite', content: spriteTab }, { value: 'font', label: 'Font', content: fontTab }, { value: 'json', label: 'JSON', content: jsonTab }] });
-  const el = h('div', { class: 'stack', style: { gap: '10px' } }, tabs.el, status);
-  const refresh = () => { const s = store.get(); svgCode.set(iconSVG(s.sel, prims(s.sel), s.P).replace(/></g, '>\n<')); useCode.set(usageSnippet(s.sel, s.P.weight)); mapCode.set(mapCode.el.querySelector('pre').textContent || 'Build the font to see the codepoint map.'); };
-  store.subscribe((s, keys) => { if (keys.some(k => ['sel', 'P', 'edits'].includes(k))) refresh(); });
-  refresh();
-  return { el, say };
+  const sprite = Button({ size: 'sm', icon: ICO.download, label: 'Sprite', title: 'One SVG with a <symbol> per icon', onClick: async () => { const r = results(); say(`Building a sprite of ${fmtInt(r.length)} icons…`); await wait(); say(await saveFile(`beetle-glyphs-${P().weight}-sprite.svg`, spriteOf(r, P(), prims), 'image/svg+xml')); } });
+  const font = Button({ size: 'sm', icon: ICO.download, label: 'Font .ttf', title: 'A TrueType icon font, icons at U+E000 upward', onClick: async () => {
+    const r = results(); const t0 = performance.now(); say(`Building a font of ${fmtInt(r.length)} icons…`); await wait();
+    try { const { buf, map } = fontOf(r, P(), prims); const msg = await saveFile(`beetle-glyphs-${P().weight}.ttf`, buf, 'font/ttf'); mapCode.set(map.map(m => `${m.name}\tU+${m.cp.toString(16).toUpperCase()}`).join('\n')); say(`${msg} ${map.length} glyphs, ${(buf.byteLength / 1024).toFixed(0)} KB, ${Math.round(performance.now() - t0)} ms.`); }
+    catch (e) { say('Font build failed: ' + e.message); }
+  } });
+  const json = Button({ variant: 'outline', size: 'sm', icon: ICO.download, label: 'JSON', title: 'Engine primitives and the parameters', onClick: async () => say(await saveFile('beetle-glyphs.json', jsonOf(results(), P(), prims), 'application/json')) });
+  const el = h('div', { class: 'stack', style: { gap: '10px' } },
+    count,
+    h('div', { class: 'row wrap' }, sprite, font, json),
+    status,
+    h('details', { class: 'fold' }, h('summary', {}, h('span', { html: ICO.chevron }), 'How to use a sprite or the font'), h('div', { class: 'fold-body stack' }, useCode.el, mapCode.el)));
+  const refresh = () => { const s = store.get(); const r = results(); const where = { all: 'all icons', scenarios: 'the app scenarios', beetle: 'the app glyphs', core: 'the core set' }[s.filter.set] || 'the current view'; count.textContent = `${fmtInt(r.length)} icons in the current view (${where}${s.filter.q ? `, matching “${s.filter.q}”` : ''}${s.filter.cat && s.filter.cat !== 'all' ? `, ${s.filter.cat.replace(/-/g, ' ')}` : ''}), in the ${s.P.weight} weight at the current parameters.`; useCode.set(usageSnippet(s.sel, s.P.weight)); };
+  store.subscribe((s, keys) => { if (keys.some(k => ['filter', 'P', 'ready', 'sel'].includes(k))) refresh(); });
+  return { el, refresh };
 }

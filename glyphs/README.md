@@ -38,8 +38,17 @@ glyphs/
       utils.js                h(), cn(), debounce, the interface's own small icons
     components/
       ui/                     button, badge, input + select, slider, toggle-group, tabs, card + separator + kbd, sheet, code-block, command
-      app/                    topbar, sidebar, icon-grid, inspector, editor, params, export-panel
+      app/                    topbar, sidebar, icon-grid, inspector, editor, library-panel, export-panel
 ```
+
+## The inspector
+
+The panel on the right is about one thing at a time, and says which at the top: **This icon** or **Whole library**.
+
+- **This icon**: the name and tags; the weight switch, made of the icon's own outline and solid, where the one you pick is the one you edit and the one the grid shows; the icon on paper and on ink at three sizes; copy and download; the point editor, which edits exactly the weight on show (an icon with a solid of its own keeps separate edits per weight); the list of parts with the role each plays in the solid; and the SVG code.
+- **Whole library**: the six parameters every icon is derived from, the presets, the weight the grid shows, the preview surface, and the sprite, font and JSON exports of the current view. Everything here applies to all icons at once.
+
+The palette is black and white: every token is a grey with no hue, and the preview surface is the page, white paper or black ink.
 
 ## The engine
 

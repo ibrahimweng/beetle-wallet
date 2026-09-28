@@ -2,7 +2,6 @@
 import * as E from '../../lib/engine.js';
 import { h, ICO, fmtInt, debounce } from '../../lib/utils.js';
 import { Input } from '../ui/input.js';
-import { ToggleGroup } from '../ui/toggle-group.js';
 import { Button } from '../ui/button.js';
 import { Badge } from '../ui/badge.js';
 import { store } from '../../lib/store.js';
@@ -14,18 +13,17 @@ export function IconGrid() {
   let results = [], shown = 0, uid = 0;
   const q = Input({ type: 'search', id: 'q', placeholder: 'Filter by name or tag', 'aria-label': 'Filter icons', autocomplete: 'off', value: store.get().filter.q, style: { maxWidth: '360px' } });
   q.addEventListener('input', debounce(() => store.set({ filter: { ...store.get().filter, q: q.value } }), 120));
-  const weight = ToggleGroup({ label: 'Weight', value: store.get().P.weight, options: [{ value: 'outline', label: 'Outline', icon: ICO.circle }, { value: 'solid', label: 'Solid', icon: ICO.disc }], onChange: v => store.set({ P: { ...store.get().P, weight: v } }) });
-  const surface = ToggleGroup({ label: 'Preview surface', value: store.get().surface, options: [{ value: 'red', label: 'Red' }, { value: 'paper', label: 'Paper' }, { value: 'night', label: 'Night' }], onChange: v => store.set({ surface: v }) });
+  const weightNote = h('span', { class: 'weight-note text-muted text-sm' });
   const count = h('span', { class: 'count tabular' });
   const grid = h('div', { class: 'grid', role: 'list' });
   const more = Button({ variant: 'outline', size: 'sm', label: 'Show more', onClick: () => renderMore() });
   const foot = h('div', { class: 'grid-foot' }, more, h('span', { class: 'status' }));
   const title = h('h1', { class: 'page-title' }, 'Icon library');
-  const desc = h('p', { class: 'page-desc' }, 'Every icon is centrelines on a 24 grid, re-derived from the parameters. Pick one to edit its points or export it.');
+  const desc = h('p', { class: 'page-desc' }, 'Every icon is centrelines on a 24 grid, re-derived from the library parameters. Pick one: the panel on the right is about that icon; switch it to the whole library to change every icon at once.');
   const badges = h('div', { class: 'row wrap', style: { gap: '6px' } });
   const el = h('section', { class: 'main', id: 'library' },
     h('div', { class: 'page-head' }, title, desc, badges),
-    h('div', { class: 'toolbar' }, q, weight.el, surface.el, count),
+    h('div', { class: 'toolbar' }, q, weightNote, count),
     grid, foot);
 
   const tile = e => { const s = store.get(); const svg = E.svg(primsOf(e.key, s), s.P, { size: 28, uid: 'g' + (++uid) }); return h('button', { type: 'button', class: 'tile', role: 'listitem', 'data-key': e.key, 'aria-pressed': e.key === s.sel ? 'true' : 'false', title: e.label, html: svg }, h('span', { class: 'truncate' }, e.label)); };
@@ -47,10 +45,9 @@ export function IconGrid() {
   function markSel() { const k = store.get().sel; grid.querySelectorAll('[data-key]').forEach(t => t.setAttribute('aria-pressed', t.dataset.key === k ? 'true' : 'false')); }
   grid.addEventListener('click', ev => { const t = ev.target.closest('[data-key]'); if (t) store.set({ sel: t.dataset.key }); });
   store.subscribe((s, keys) => {
-    if (keys.includes('ready')) { badges.innerHTML = ''; badges.append(Badge(`${fmtInt(lib.sets.all)} icons`, 'secondary'), Badge(`${fmtInt(lib.sets.core)} core`, 'outline'), Badge(`${lib.sets.beetle} app glyphs`, 'outline'), Badge(`${lib.sets.scenarios} scenarios`, 'outline')); run(); }
+    if (keys.includes('ready')) { weightNote.textContent = `Showing the ${s.P.weight} weight`; badges.innerHTML = ''; badges.append(Badge(`${fmtInt(lib.sets.all)} icons`, 'secondary'), Badge(`${fmtInt(lib.sets.core)} core`, 'outline'), Badge(`${lib.sets.beetle} app glyphs`, 'outline'), Badge(`${lib.sets.scenarios} scenarios`, 'outline')); run(); }
     if (keys.includes('filter')) { if (q.value !== s.filter.q) q.value = s.filter.q; run(); }
-    if (keys.includes('P') || keys.includes('edits')) { weight.set(s.P.weight); refresh(); }
-    if (keys.includes('surface')) surface.set(s.surface);
+    if (keys.includes('P') || keys.includes('edits')) { weightNote.textContent = `Showing the ${s.P.weight} weight`; refresh(); }
     if (keys.includes('sel')) markSel();
   });
   return { el, results: () => results };

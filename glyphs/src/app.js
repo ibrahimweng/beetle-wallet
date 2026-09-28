@@ -24,7 +24,7 @@ function applyTheme() {
 }
 media.addEventListener('change', applyTheme);
 new MutationObserver(applyTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-const applySurface = () => { document.documentElement.dataset.surface = store.get().surface; };
+const applySurface = () => { const sf = store.get().surface; if (sf && sf !== 'auto') document.documentElement.dataset.surface = sf; else delete document.documentElement.dataset.surface; };
 store.subscribe((s, keys) => { if (keys.includes('theme')) applyTheme(); if (keys.includes('surface')) applySurface(); });
 applyTheme(); applySurface();
 
@@ -45,7 +45,7 @@ const topbar = Topbar({
 const aside = h('aside', { class: 'inspector', 'aria-label': 'Inspector' }, inspector.el);
 const about = h('section', { class: 'about', id: 'about' },
   Card({ title: 'Engine', description: 'Polylines with per-vertex radius kinds, arcs, quadratic loops and SVG paths. Straight joins get true circular fillets. Quarter-circle corners in imported paths follow the box corner slider.' }),
-  Card({ title: 'Two weights', description: 'Line icons: closed shapes fill and inflate by S, anything inside them becomes a cut of S, a stacked shape gets a gap. Beetle glyphs the designer drew in both weights keep both; the other filled glyphs get an outline derived from the solid: a stroke just inside every edge, thin parts as lines, holes as rings. Set any part by hand from the editor.' }),
+  Card({ title: 'Two weights', description: 'Line icons: closed shapes fill and inflate by S, anything inside them becomes a cut of S, a stacked shape gets a gap. Beetle glyphs the designer drew in both weights keep both; the other filled glyphs get an outline derived from the solid: a stroke just inside every edge, thin parts as lines, holes as rings. Set any part by hand from the parts list.' }),
   Card({ title: 'Exports', description: 'SVG keeps curves and the goo filter. Sprite and font flatten every primitive, offset it by S/2 with round joins and caps through Clipper, union and cut it.' }),
   Card({ title: 'Licenses', description: 'The core set is used under the ISC license; the notice is in LICENSE-core.txt in the repository. The app glyphs belong to the Beetle wallet design. The engine and this site live in the beetle-wallet repository.' }));
 grid.el.append(about);
@@ -64,6 +64,7 @@ document.addEventListener('keydown', ev => {
 /* ---------- go ---------- */
 loadLibrary('data/icons.json').then(() => {
   const cur = lib.byKey.get(store.get().sel);
+  inspector.refresh();
   if (!cur) store.set({ sel: 'param:card' });
   else if (cur.key !== store.get().sel) store.set({ sel: cur.key, P: { ...store.get().P, weight: 'solid' } }); // an old '-filled' name: the same icon, solid
   store.set({ ready: true });

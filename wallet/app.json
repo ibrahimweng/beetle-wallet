@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "Beetle",
+    "slug": "beetle-wallet",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "beetle",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#ffffff",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.beetle.wallet",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Beetle uses Face ID so that only you can open the app and move money."
+      }
+    },
+    "android": {
+      "package": "com.beetle.wallet",
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Beetle uses Face ID so that only you can open the app and move money."
+        }
+      ],
+      "expo-status-bar",
+      "expo-splash-screen"
+    ]
+  }
+}

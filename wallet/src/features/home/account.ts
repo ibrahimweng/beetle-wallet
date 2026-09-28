@@ -1,0 +1,87 @@
+/* What home shows for an account: its balance and its ledger. A new account
+   has nothing yet. The demo account, the one the design is drawn around, has
+   the day the frames show. This is the shape the real account service will
+   fill; until then it is derived here. */
+import type { Account } from '../../services/auth';
+import type { IconName } from '../../icons';
+
+export type LedgerRow = {
+  id: string;
+  day: 'today' | 'yesterday';
+  time: string;
+  icon: IconName;
+  name: string;
+  detail: string;
+  amount: number;
+  status: 'done' | 'pending' | 'failed' | 'reversed';
+  kind: 'transfer' | 'service' | 'airtime' | 'saving' | 'in' | 'bill' | 'card';
+};
+
+export type Insight = { id: string; kicker: string; body: string; action: string };
+
+export type Holdings = {
+  everyday: number;
+  dollars: number;
+  rate: number;
+  health: number | null;
+  healthMove: string;
+  ledger: LedgerRow[];
+  insights: Insight[];
+  footer: string | null;
+};
+
+export const DEMO_LEDGER: LedgerRow[] = [
+  { id: 'l01', day: 'today', time: '14:22', icon: 'wait-filled', name: 'Sarah Adeyemi', detail: 'Still on its way', amount: -20000, status: 'pending', kind: 'transfer' },
+  { id: 'l02', day: 'today', time: '13:40', icon: 'alert', name: 'Chidi Okafor', detail: 'Did not go', amount: -12000, status: 'failed', kind: 'transfer' },
+  { id: 'l03', day: 'today', time: '11:15', icon: 'undo-filled', name: 'Musa Danjuma', detail: 'Came back', amount: 20000, status: 'reversed', kind: 'transfer' },
+  { id: 'l04', day: 'today', time: '12:00', icon: 'data', name: 'Netflix', detail: 'Monthly Subscription', amount: -3500, status: 'done', kind: 'service' },
+  { id: 'l05', day: 'today', time: '10:45', icon: 'send', name: 'John Doe', detail: 'Grocery Shopping', amount: -8000, status: 'done', kind: 'transfer' },
+  { id: 'l06', day: 'today', time: '09:14', icon: 'send', name: 'Sarah Adeyemi', detail: 'Flat deposit', amount: -50000, status: 'done', kind: 'transfer' },
+  { id: 'l07', day: 'today', time: '08:02', icon: 'data', name: 'MTN', detail: '5GB for Mum', amount: -2500, status: 'done', kind: 'airtime' },
+  { id: 'l08', day: 'today', time: '07:55', icon: 'send', name: 'Sarah Adeyemi', detail: 'Rent part payment', amount: -20000, status: 'done', kind: 'transfer' },
+  { id: 'l09', day: 'today', time: '07:30', icon: 'pot', name: 'Holiday goal', detail: 'Round ups', amount: -280, status: 'done', kind: 'saving' },
+  { id: 'l10', day: 'yesterday', time: '16:40', icon: 'bank', name: 'Pagrin Limited', detail: 'August salary', amount: 640000, status: 'done', kind: 'in' },
+  { id: 'l11', day: 'yesterday', time: '11:22', icon: 'power', name: 'Ikeja Electric', detail: 'Meter 4457 8891', amount: -8000, status: 'done', kind: 'bill' },
+  { id: 'l12', day: 'yesterday', time: '09:00', icon: 'data', name: 'Netflix', detail: 'Virtual card', amount: -5200, status: 'done', kind: 'card' },
+];
+
+export const DEMO_INSIGHTS: Insight[] = [
+  { id: 'topup', kicker: 'Your usual top up', body: 'You top up Ikeja Electric about every three weeks. The last one was ₦8,000.', action: 'Top up ₦8,000 now' },
+  { id: 'data', kicker: 'Your data is nearly gone', body: 'Your data usually runs out about now. The same 5GB is ₦2,500.', action: 'Buy it again' },
+  { id: 'changes', kicker: 'Three changes you made', body: 'They save you ₦1,800 every month. The data plan, the DStv package, and the transfer you moved off your card.', action: 'See the three' },
+  { id: 'spend', kicker: 'Where your money went', body: 'You spent ₦18,900 on airtime and data last month. That is your highest month this year.', action: 'Show me what would help' },
+];
+
+export function holdingsFor(account: Account): Holdings {
+  if (account.demo) {
+    return {
+      everyday: 595320.75,
+      dollars: 412.6,
+      rate: 1552,
+      health: 72,
+      healthMove: 'Up 4 since July',
+      ledger: DEMO_LEDGER,
+      insights: DEMO_INSIGHTS,
+      footer: 'Your spending is ₦41,000 above this point last month.',
+    };
+  }
+  return { everyday: 0, dollars: 0, rate: 1552, health: null, healthMove: '', ledger: [], insights: [], footer: null };
+}
+
+/* The day at a glance, the way the home frame draws it: what settled, once
+   per name, led by the biggest thing that moved, then the rest in the order
+   it happened, with what you put away at the end. Yesterday is closed and
+   keeps the ledger's own order. */
+export function glance(ledger: LedgerRow[], day: LedgerRow['day'], filter: 'All' | 'Insights' | 'In' | 'Out'): LedgerRow[] {
+  const seen = new Set<string>();
+  const list = ledger
+    .filter(r => r.day === day && r.status === 'done')
+    .filter(r => !seen.has(r.name) && seen.add(r.name))
+    .filter(r => (filter === 'All' ? true : filter === 'In' ? r.amount > 0 : filter === 'Out' ? r.amount < 0 : false));
+  if (day !== 'today' || list.length < 2) return list;
+  const rest = [...list];
+  const bigAt = rest.reduce((m, r, i) => (Math.abs(r.amount) > Math.abs(rest[m]?.amount ?? 0) ? i : m), 0);
+  const [big] = rest.splice(bigAt, 1);
+  const asItHappened = rest.reverse();
+  return [big!, ...asItHappened.filter(r => r.kind !== 'saving'), ...asItHappened.filter(r => r.kind === 'saving')];
+}

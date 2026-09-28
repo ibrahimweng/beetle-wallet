@@ -24,3 +24,31 @@ jobs:
         run: git diff --exit-code dist/ || (echo 'dist/beetle.html is stale — run `npm run build` and commit it'; exit 1)
       - name: The icon library matches its sources and every icon renders
         run: node glyphs/tools/build-library.mjs --check
+
+  # The product app in wallet/: it compiles, the rules of the way in hold, the
+  # web bundle builds, and the whole way in runs in a browser from the loading
+  # screen to home. The pictures it takes are kept with the run.
+  wallet:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: wallet
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: wallet/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: It compiles and the rules of the way in hold
+        run: npm run typecheck && npm test
+      - name: The way in runs in a browser, from the loading screen to home
+        run: npm run bundle && npm run flow
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wallet-screens
+          path: wallet/shots
+          if-no-files-found: ignore

@@ -12,24 +12,25 @@ const here = dirname(fileURLToPath(import.meta.url));
 const DIST = resolve(here, '..', 'dist');
 const OUT = resolve(process.argv[2] || join(here, 'out'));
 rmSync(OUT, { recursive: true, force: true });
-mkdirSync(join(OUT, '_expo/static/js/web'), { recursive: true });
+mkdirSync(join(OUT, 'js'), { recursive: true });
 
 /* the bundle, with its asset paths made relative to the page */
 const jsDir = join(DIST, '_expo/static/js/web');
 const entry = readdirSync(jsDir).find(f => /^entry-.*\.js$/.test(f));
 if (!entry) throw new Error('No exported bundle in dist/. Run npm run bundle first.');
 const js = readFileSync(join(jsDir, entry), 'utf8').replace(/"\/assets\//g, '"assets/');
-writeFileSync(join(OUT, '_expo/static/js/web', entry), js);
+writeFileSync(join(OUT, 'js', entry), js);
 cpSync(join(DIST, 'assets'), join(OUT, 'assets'), { recursive: true });
 
-/* the app's page: the bundle by a relative path, and history that keeps the
-   address as it is, because a host that serves the page at one address has
-   nothing to serve at /welcome */
+/* the app's page: the bundle by a relative path under a plain name (some
+   hosts keep names starting with an underscore for themselves), and history
+   that keeps the address as it is, because a host that serves the page at one
+   address has nothing to serve at /welcome */
 const keepAddress = `<script>(function(){var p=history.pushState.bind(history),r=history.replaceState.bind(history);history.pushState=function(s,t){p(s,t)};history.replaceState=function(s,t){r(s,t)};})();</script>`;
 let app = readFileSync(join(DIST, 'index.html'), 'utf8')
-  .replace('src="/_expo/', 'src="_expo/')
+  .replace('src="/_expo/static/js/web/', 'src="js/')
   .replace('<script src=', keepAddress + '\n    <script src=');
-if (!app.includes('src="_expo/')) throw new Error('The script tag in dist/index.html was not where this expected it.');
+if (!app.includes('src="js/')) throw new Error('The script tag in dist/index.html was not where this expected it.');
 writeFileSync(join(OUT, 'app.html'), app);
 
 /* the page around it, with the mark from the icon set */

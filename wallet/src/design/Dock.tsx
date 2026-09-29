@@ -14,6 +14,7 @@ export function Dock({
   onAsk,
   onScan,
   action,
+  hole = false,
 }: {
   placeholder?: string;
   onBack?: () => void;
@@ -21,6 +22,9 @@ export function Dock({
   onScan?: () => void;
   /* the round button sits in the row beside the bar, not over it */
   action?: React.ReactNode;
+  /* the bar's room left empty, for a screen that draws the bar itself and
+     moves it about — home, where it rises into the card */
+  hole?: boolean;
 }) {
   const [value, setValue] = useState('');
   const fire = () => {
@@ -36,22 +40,26 @@ export function Dock({
           <Icon name="back" size={22} />
         </Pressable>
       ) : null}
-      <View style={s.bar}>
-        <Icon name="mark" size={32} colour={colour.accent} />
-        <TextInput
-          style={s.input}
-          value={value}
-          onChangeText={setValue}
-          onSubmitEditing={fire}
-          placeholder={placeholder}
-          placeholderTextColor={colour.textTertiary}
-          returnKeyType="send"
-          accessibilityLabel="Ask Beetle"
-        />
-        <Tap accessibilityRole="button" accessibilityLabel="Scan something" onPress={onScan} scale={0.85}>
-          <Icon name="camera" size={18} colour={colour.textSecondary} />
-        </Tap>
-      </View>
+      {hole ? (
+        <View style={{ flex: 1, height: frame.askBarHeight }} />
+      ) : (
+        <View style={s.bar}>
+          <Icon name="mark" size={32} colour={colour.accent} />
+          <TextInput
+            style={s.input}
+            value={value}
+            onChangeText={setValue}
+            onSubmitEditing={fire}
+            placeholder={placeholder}
+            placeholderTextColor={colour.textTertiary}
+            returnKeyType="send"
+            accessibilityLabel="Ask Beetle"
+          />
+          <Tap accessibilityRole="button" accessibilityLabel="Scan something" onPress={onScan} scale={0.85}>
+            <Icon name="camera" size={18} colour={colour.textSecondary} />
+          </Tap>
+        </View>
+      )}
       {action}
     </View>
   );

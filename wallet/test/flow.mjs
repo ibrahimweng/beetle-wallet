@@ -114,7 +114,12 @@ async function trace(name, ms, matches, { since = Date.now(), picture } = {}) {
     }
     const s = await page.evaluate(ms => {
       const out = {};
-      const look = el => ({ opacity: +getComputedStyle(el).opacity, blur: +((el.style.filter.match(/blur\(([\d.]+)px\)/) || [])[1] || 0) });
+      const look = el => ({
+        opacity: +getComputedStyle(el).opacity,
+        blur: +((el.style.filter.match(/blur\(([\d.]+)px\)/) || [])[1] || 0),
+        height: el.getBoundingClientRect().height,
+        size: parseFloat(getComputedStyle(el).fontSize),
+      });
       for (const [key, match, deep] of ms) {
         let found = null;
         if (match.startsWith('[')) {
@@ -156,6 +161,13 @@ const must = (ok, what) => {
 };
 
 /* The screen scrolls inside the page, so the bottom needs the list itself moved. */
+const toTop = () =>
+  page.evaluate(() => {
+    for (const el of document.querySelectorAll('div')) {
+      const o = getComputedStyle(el).overflowY;
+      if ((o === 'auto' || o === 'scroll') && el.scrollTop > 0) el.scrollTop = 0;
+    }
+  });
 const toBottom = () =>
   page.evaluate(() => {
     for (const el of document.querySelectorAll('div')) {
@@ -311,7 +323,8 @@ try {
   at('/home');
 
   console.log('Signing out');
-  await tap('Settings');
+  await toBottom();
+  await tap('Sign out');
   await see('Open an account');
   at('/way-in');
   /* and home, or a later step, is not for somebody who is not */
@@ -361,6 +374,104 @@ try {
   await toBottom();
   await shot('home-bottom');
 
+  console.log('Pulling the card down');
+  /* the day scrolls back to the top; a pull on the card from there opens the
+     chat: the card grows to two thirds of the screen while the figure glides
+     up into the header, shrinking from 32 to 20 */
+  await toTop();
+  await page.waitForTimeout(400);
+  const grab = await page.getByText('Pull down', { exact: true }).first().boundingBox();
+  must(grab, 'the grabber should be on the card');
+  const gx = grab.x + grab.width / 2;
+  const gy = grab.y;
+  const pulled = Date.now();
+  /* the finger and the trace run together, so the drag itself is in the samples */
+  const finger = (async () => {
+    await page.mouse.move(gx, gy);
+    await page.mouse.down();
+    for (let i = 1; i <= 14; i++) {
+      await page.mouse.move(gx, gy + i * 20);
+      await page.waitForTimeout(40);
+    }
+    await page.mouse.up();
+  })();
+  const opening = await trace(
+    'card-opening',
+    1500,
+    [
+      ['card', '[data-testid="card"]', false],
+      ['figure', '[data-testid="balance"]', false],
+    ],
+    { since: pulled, picture: { at: 420, name: 'home-pulling' } },
+  );
+  await finger;
+  const first = opening[0];
+  const last = opening[opening.length - 1];
+  must(first && first.card && first.card.height < 420, `the card should start closed (${first?.card?.height}px)`);
+  must(last && last.card && last.card.height >= 520, `the card should open to two thirds of the screen (${last?.card?.height}px)`);
+  must(last.figure && last.figure.size <= 21, `the figure should have shrunk into the header (${last.figure?.size}px)`);
+  const grew = opening.map(x => Math.round(x.card?.height ?? 0));
+  must(new Set(grew).size >= 4, `the card should grow through the drag, not jump (${grew.join(' ')})`);
+  console.log(`  card ${grew[0]} → ${grew[grew.length - 1]}px, figure ${opening[0].figure?.size} → ${last.figure.size}px`);
+  /* the reading in dollars sits after the figure in the header now */
+  const chip = await page.getByRole('button', { name: 'Your dollars', exact: true }).filter({ visible: true }).last().boundingBox();
+  must(chip && chip.x > 150 && chip.y < 80, `the dollars chip should sit after the figure in the header (at ${chip?.x},${chip?.y})`);
+  await shot('home-chat-open');
+
+  console.log('Sending money by asking');
+  await page.getByLabel('Ask Beetle').fill('Send 20k to Sarah');
+  await page.keyboard.press('Enter');
+  await see('Send 20k to Sarah');
+  await see('Beetle Transfers');
+  await shot('chat-transfer-running', 250);
+  await button('Confirm ₦20,000').waitFor();
+  await page.waitForTimeout(1900);
+  await shot('chat-transfer-ready');
+  await tap('Confirm ₦20,000');
+  await see('is with Sarah Adeyemi');
+  await see('₦575,320');
+  await shot('chat-transfer-sent', 500);
+  /* a tap on the day below brings the card back up, and the day has the transfer in it */
+  await tap('Back to the day');
+  await page.waitForTimeout(900);
+  await see('GTBank · sent');
+  await shot('home-after-transfer');
+
+  console.log('Reading a photo');
+  await tap('Show me a photo');
+  at('/scan');
+  await page.waitForTimeout(600);
+  if (
+    await page
+      .getByRole('button', { name: 'Allow the camera', exact: true })
+      .isVisible()
+      .catch(() => false)
+  )
+    await tap('Allow the camera');
+  await page
+    .getByText(/Fill the frame with the account number|No camera here/)
+    .first()
+    .waitFor();
+  await shot('scan', 900);
+  if (
+    await page
+      .getByRole('button', { name: 'Take the photo', exact: true })
+      .isVisible()
+      .catch(() => false)
+  )
+    await tap('Take the photo');
+  else await tap('Use the sample photo');
+  await see('Read off the photo');
+  at('/home');
+  await see('Sarah Adeyemi at GTBank');
+  await shot('chat-photo-read', 1200);
+  await page.getByLabel('Ask Beetle').fill('5k');
+  await page.keyboard.press('Enter');
+  await button('Confirm ₦5,000').waitFor();
+  await shot('chat-photo-transfer', 1900);
+  await tap('Back to the day');
+  await page.waitForTimeout(700);
+
   console.log('A place on its own');
   /* the tab on the edge brings the lab back; a step deep in the way in opens
      with the way there already walked, and home opens signed in */
@@ -386,6 +497,24 @@ try {
   await see('Nothing has moved yet');
   at('/home');
   await shot('lab-home-new', 400);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  await tap('A transfer, mid-way');
+  await see('Beetle Transfers');
+  at('/home');
+  await shot('lab-transfer', 1600);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* the first time: the card dips on its own, with the words that say why, then settles */
+  await tap('The first time');
+  await arrives('Money health');
+  const dip = await trace('first-time-dip', 3400, [['card', '[data-testid="card"]', false]], { picture: { at: 2150, name: 'home-first-dip' } });
+  const deepest = Math.max(...dip.map(x => x.card?.height ?? 0));
+  const settled = dip[dip.length - 1]?.card?.height ?? 0;
+  must(deepest >= 370, `the card should dip on the first visit (deepest ${deepest}px)`);
+  must(settled < 360, `and settle back (${settled}px)`);
+  must((await page.getByText('Pull down to ask Beetle').count()) > 0, 'the grabber should say what the pull is for');
+  console.log(`  the card dipped to ${Math.round(deepest)}px and settled at ${Math.round(settled)}px`);
 } catch (e) {
   await page.screenshot({ path: join(SHOTS, '00-failed.png') }).catch(() => {});
   const text = await page.evaluate(() => document.body.innerText || '').catch(() => '');

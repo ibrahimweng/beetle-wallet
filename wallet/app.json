@@ -15,7 +15,8 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.beetle.wallet",
       "infoPlist": {
-        "NSFaceIDUsageDescription": "Beetle uses Face ID so that only you can open the app and move money."
+        "NSFaceIDUsageDescription": "Beetle uses Face ID so that only you can open the app and move money.",
+        "NSCameraUsageDescription": "Beetle uses the camera to read an account number off a photo. The photo stays on this phone."
       }
     },
     "android": {
@@ -24,8 +25,7 @@
       "permissions": [
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT",
-        "android.permission.USE_BIOMETRIC",
-        "android.permission.USE_FINGERPRINT"
+        "android.permission.CAMERA"
       ]
     },
     "web": {
@@ -34,6 +34,14 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Beetle uses the camera to read an account number off a photo. The photo stays on this phone.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
       "expo-secure-store",
       [
         "expo-local-authentication",

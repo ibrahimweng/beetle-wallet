@@ -7,7 +7,7 @@ Four things live in this repository, each in its own place:
 | the root (`index.html`, `src/`, `test/`) | The web app: a hundred screens built from the Figma file, with money that really moves | Vercel from the root, `node build.js` into `public/` |
 | `mobile/` | The same app in React Native with Expo, sharing the state layer and the icon set | Expo, see `mobile/README.md` |
 | `glyphs/` | Beetle Glyphs: the parametric icon library and editor, a core set of 1,854 icons plus the app's own glyphs and scenarios | Vercel with Root Directory `glyphs`, or served at `/glyphs/` by the root deploy; see `glyphs/README.md` |
-| `wallet/` | The product itself, built feature by feature in React Native with Expo. So far: the way in, from the first loading screen to home, signing back in, and a lab that opens each feature on its own | Expo, see `wallet/README.md` |
+| `wallet/` | The product itself, built feature by feature in React Native with Expo. So far: the way in, from the first loading screen to home, signing back in, home with the chat Beetle answers in, the camera that reads an account number, and a lab that opens each feature on its own | Expo, see `wallet/README.md` |
 
 A Nigerian bank app with an agent that actually thinks, built in code from the
 Figma file. A hundred screens across four acts, every route in every flow, the design

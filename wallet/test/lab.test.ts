@@ -51,7 +51,10 @@ describe('the lab', () => {
       expect(p.seed.session).not.toBeNull();
       expect(p.seed.progress).toEqual({});
     }
-    expect(HOME.places.map(p => !!p.seed.session?.account.demo)).toEqual([false, true]);
+    const demo = HOME.places.map(p => !!p.seed.session?.account.demo);
+    expect(demo).toContain(true);
+    expect(demo).toContain(false);
+    expect(HOME.places.find(p => p.id === 'home-first')?.forget).toEqual(['beetle.home.pointed-out.v1']);
   });
 
   it('gives every place its own id and its own folder', () => {

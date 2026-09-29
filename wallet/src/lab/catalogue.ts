@@ -19,6 +19,8 @@ export type Place = {
   /** where the app goes, and the state to leave for it */
   href: string;
   seed: Seed;
+  /** things the phone remembers that this place wants forgotten first */
+  forget?: string[];
 };
 
 export type Feature = { id: string; title: string; folder: string; sub: string; places: Place[] };
@@ -66,22 +68,40 @@ export const WAY_IN: Feature = {
   ],
 };
 
+const demo: Seed = { progress: {}, session: sessionFor(DEMO_ACCOUNT) };
+
 export const HOME: Feature = {
   id: 'home',
   title: 'Home',
   folder: 'src/features/home',
-  sub: 'What the account looks like once you are in.',
+  sub: 'The card at the top, and the day under it. Pull the card down for the chat.',
   places: [
+    { id: 'home-demo', icon: 'home-filled', title: 'The demo account', sub: `${DEMO_ACCOUNT.firstName}'s day, the one the design is drawn around`, href: '/home', seed: demo },
     { id: 'home-new', icon: 'home-filled', title: 'A new account', sub: 'Nothing has moved yet', href: '/home', seed: { progress: {}, session: sessionFor(account(LAB_PHONE)) } },
-    {
-      id: 'home-demo',
-      icon: 'home-filled',
-      title: 'The demo account',
-      sub: `${DEMO_ACCOUNT.firstName}'s day, the one the design is drawn around`,
-      href: '/home',
-      seed: { progress: {}, session: sessionFor(DEMO_ACCOUNT) },
-    },
+    { id: 'home-first', icon: 'home-filled', title: 'The first time', sub: 'The card dips on its own to point out the chat', href: '/home', seed: demo, forget: ['beetle.home.pointed-out.v1'] },
   ],
 };
 
-export const FEATURES: Feature[] = [WAY_IN, HOME];
+export const ASK: Feature = {
+  id: 'ask',
+  title: 'Ask Beetle',
+  folder: 'src/features/agent',
+  sub: 'The chat inside the card: what it says, and the panels it puts up.',
+  places: [
+    { id: 'ask-open', icon: 'mark', title: 'The chat, open', sub: 'Home with the card already pulled down', href: '/home?chat=open', seed: demo },
+    { id: 'ask-transfer', icon: 'send', title: 'A transfer, mid-way', sub: '"Send 20k to Sarah", the panel filling in', href: '/home?chat=transfer', seed: demo },
+  ],
+};
+
+export const SCAN: Feature = {
+  id: 'scan',
+  title: 'Reading a photo',
+  folder: 'src/features/scan',
+  sub: 'The camera, and an account number read off what it sees.',
+  places: [
+    { id: 'scan-camera', icon: 'camera', title: 'The camera', sub: 'Permission, the shutter, and every way it can go wrong', href: '/scan', seed: demo },
+    { id: 'scan-read', icon: 'id', title: 'A photo, read', sub: 'The sample slip through the reader, into the chat', href: '/home?chat=photo', seed: demo },
+  ],
+};
+
+export const FEATURES: Feature[] = [WAY_IN, HOME, ASK, SCAN];

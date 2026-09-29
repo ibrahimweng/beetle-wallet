@@ -36,6 +36,28 @@ export const colour = {
   scrim: 'rgba(120, 120, 124, 0.42)',
 } as const;
 
+/* The dark card at the top of home, and the chat inside it, read off the
+   home frame: near-black behind everything, a step lighter for what you
+   said and for a panel's head, and grey text that is never quite white
+   except a figure. */
+export const dark = {
+  card: '#141414',
+  chip: '#3f3f3f',
+  chipText: '#8e8e93',
+  chipTextOpen: '#ececec',
+  kobo: '#c4c4c9',
+  bubble: '#2d2d2d',
+  text: '#c8c8c8',
+  textSoft: '#a3a3a3',
+  label: '#8e8e93',
+  panel: '#1c1c1e',
+  edge: '#2c2c2e',
+  edgeStrong: '#3a3a3c',
+  pillText: '#e5e5ea',
+  grabber: '#cdcdcd',
+  divider: '#2c2c2e',
+} as const;
+
 /* The file is drawn in SF Pro Text. iOS has it, so it asks for nothing and
    gets it; Android has Roboto. On the web "whatever the browser has" is not
    good enough — the default on a bare Linux is DejaVu Sans, which runs about
@@ -45,8 +67,7 @@ export const colour = {
 const family = Platform.select({
   ios: undefined,
   android: 'sans-serif',
-  default:
-    '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+  default: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
 });
 
 const face = (size: number, height: number, weight: TextStyle['fontWeight']): TextStyle => ({

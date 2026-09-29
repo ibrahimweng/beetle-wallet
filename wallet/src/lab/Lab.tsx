@@ -10,6 +10,7 @@ import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 import { Caption, Card, Display, Divider, Head, Icon, Label, Meta, More, Row, Screen, Tap, colour, space } from '../design';
 import { useApp } from '../features/onboarding/store';
+import { storage } from '../services';
 import { FEATURES, type Place } from './catalogue';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -36,6 +37,7 @@ export function Lab() {
     if (busy) return;
     setBusy(p.id);
     try {
+      for (const key of p.forget ?? []) await storage.remove(key);
       await app.seed(p.seed.progress, p.seed.session);
       router.push(p.href);
     } finally {

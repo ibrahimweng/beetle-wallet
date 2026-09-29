@@ -6,33 +6,53 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Body, Head, Icon, Meta, Pane, Row, Tap, colour, dark } from '../../design';
 import { reader } from '../../services';
 import { handoff } from './handoff';
 import { samplePhoto } from './sample';
 
+type CameraModule = typeof import('expo-camera');
+type CameraViewRef = InstanceType<CameraModule['CameraView']>;
+
+/* The camera module is asked for once, quietly. A build made before it was
+   added, running a newer update, has no such module and asking for it
+   throws; that build gets the sample slip instead of a crash. */
+const cam: CameraModule | null = (() => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require('expo-camera') as CameraModule;
+  } catch {
+    return null;
+  }
+})();
+
 type State = 'asking' | 'denied' | 'ready' | 'none' | 'taking';
 
 export function Scan() {
   const router = useRouter();
-  const [permission, requestPermission] = useCameraPermissions();
   const [state, setState] = useState<State>('asking');
   const [note, setNote] = useState<string | null>(null);
-  const camera = useRef<CameraView>(null);
+  const camera = useRef<CameraViewRef>(null);
   const failed = useRef(false);
 
   useEffect(() => {
-    if (!permission) return;
-    if (permission.granted) setState(s => (s === 'taking' ? s : 'ready'));
-    else if (!permission.canAskAgain) setState('denied');
-    else setState('asking');
-  }, [permission]);
+    if (!cam) {
+      setState('none');
+      return;
+    }
+    cam.Camera.getCameraPermissionsAsync()
+      .then(p => setState(p.granted ? 'ready' : p.canAskAgain ? 'asking' : 'denied'))
+      .catch(() => setState('none'));
+  }, []);
 
   const allow = async () => {
+    if (!cam) {
+      setState('none');
+      return;
+    }
     try {
-      const r = await requestPermission();
-      if (!r.granted) setState(r.canAskAgain ? 'asking' : 'denied');
+      const r = await cam.Camera.requestCameraPermissionsAsync();
+      setState(r.granted ? 'ready' : r.canAskAgain ? 'asking' : 'denied');
     } catch {
       setState('none');
     }
@@ -62,10 +82,11 @@ export function Scan() {
   };
 
   const back = () => router.back();
+  const CameraView = cam?.CameraView;
 
   return (
     <View style={s.screen}>
-      {state === 'ready' || state === 'taking' ? (
+      {CameraView && (state === 'ready' || state === 'taking') ? (
         <CameraView
           ref={camera}
           style={StyleSheet.absoluteFill}

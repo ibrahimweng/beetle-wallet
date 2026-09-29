@@ -831,7 +831,15 @@ try {
   await tap('More');
   await see('Send money');
   await shot('home-more', 900);
-  await tap('History');
+  must((await page.getByRole('button', { name: 'History', exact: true }).count()) === 0, 'More should carry three, not the two the bar has');
+  await button('Close').last().click();
+  await page.getByText('Send money').first().waitFor({ state: 'hidden' });
+  await tap('Settings');
+  await see('What keeps the money yours');
+  at('/settings');
+  await tap('Back');
+  await see('Pull down');
+  await tap('Activities');
   await see('Everything that moved');
   at('/activities');
   await shot('activities', 700);

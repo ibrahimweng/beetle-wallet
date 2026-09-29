@@ -1,11 +1,13 @@
 /* More, from the Actions frame: the screen behind goes soft under a real
-   blur, and the five actions stand right aligned above the button, each with
+   blur, and the actions stand right aligned above the button, each with
    its own coloured glyph, rows 68 apart, glyphs 40 with their right edge 28
-   in from the side. The black button stays where it is, so the one you
-   pressed is the one that closes this; anywhere that is not an action
-   closes it too.
+   in from the side. The frame draws five; the bar at the foot of home
+   carries Activities and Settings, so the sheet keeps the other three —
+   Camera, Send money, Receive — sitting nearest the button. The black
+   button stays where it is, so the one you pressed is the one that closes
+   this; anywhere that is not an action closes it too.
 
-   How it moves: the softening arrives first, then the five come up out of
+   How it moves: the softening arrives first, then the three come up out of
    the button, the nearest one first, each overshooting a little and
    settling; the plus turns forty-five degrees into a cross on the way in and
    back on the way out, so the same button reads as the thing that opened
@@ -30,14 +32,12 @@ const blur: BlurModule | null = (() => {
   }
 })();
 
-export type MoreItem = 'camera' | 'send' | 'receive' | 'history' | 'settings';
+export type MoreItem = 'camera' | 'send' | 'receive';
 
 const ITEMS: { id: MoreItem; icon: IconName; label: string; colour: string }[] = [
   { id: 'camera', icon: 'camera-filled', label: 'Camera', colour: colour.warn },
   { id: 'send', icon: 'send-filled', label: 'Send money', colour: colour.accent },
   { id: 'receive', icon: 'receive-filled', label: 'Receive', colour: colour.good },
-  { id: 'history', icon: 'history-filled', label: 'History', colour: colour.violet },
-  { id: 'settings', icon: 'settings-filled', label: 'Settings', colour: colour.ink },
 ];
 
 /** How long the menu takes to fold itself away before the screen changes. */
@@ -45,13 +45,11 @@ const AWAY = 190;
 
 type Router = ReturnType<typeof useRouter>;
 
-/** Where each action goes from a page that is not home: the camera, the
-    record and Settings on their own screens; sending and receiving back on
-    home, where the chat and the account's details are. */
+/** Where each action goes from a page that is not home: the camera on its
+    own screen; sending and receiving back on home, where the chat and the
+    account's details are. */
 export function moreTo(router: Router, item: MoreItem) {
   if (item === 'camera') router.push('/scan');
-  else if (item === 'history') router.push('/activities');
-  else if (item === 'settings') router.push('/settings');
   else router.dismissTo({ pathname: '/home', params: item === 'send' ? { send: String(Date.now()) } : { receive: `details-${Date.now()}` } });
 }
 

@@ -267,23 +267,26 @@ so the balance and the receipts hold across a restart.
 
 ## The bar and More
 
-Home carries a bar at its foot, where the frames put their docks: a grey
-pill with Home, Activities and Camera, and the black plus to the side. It
-goes down as the card opens — the open chat has the shortcuts row instead —
-and comes back as the card closes. The plus opens More, from its frame: the
-screen behind goes soft under a real blur, and the five actions come up out
-of the button, the nearest first, each with its own coloured glyph — Camera,
-Send money, Receive, History, Settings. The plus turns into a cross on the
-way in and back on the way out, and anywhere that is not an action closes
-it; closing runs the whole thing backwards before the screen goes. The
-pages whose frames carry the plus — Activities, Standing instructions, the
-card — open the same sheet; from there Send money and Receive go back to
-home, where the chat and the account's details are.
+Home carries a bar at its foot, drawn the way Fuse draws its own: a white
+surface with its top corners rounded and a soft shadow above it, three bare
+glyphs at the left — Home, Activities, Settings, the one you are on in
+black — and the black plus to the side. It goes down as the card opens —
+the open chat has the shortcuts row instead — and comes back as the card
+closes. The plus opens More, from its frame: the screen behind goes soft
+under a real blur, and the actions come up out of the button, the nearest
+first, each with its own coloured glyph. The frame draws five; the bar
+carries Activities and Settings, so the sheet keeps Camera, Send money and
+Receive. The plus turns into a cross on the way in and back on the way out,
+and anywhere that is not an action closes it; closing runs the whole thing
+backwards before the screen goes. The pages whose frames carry the plus —
+Activities, Standing instructions, the card — open the same sheet; from
+there Send money and Receive go back to home, where the chat and the
+account's details are.
 
 ## Activities
 
-See all on the day, History in More and Activities on the bar open the
-record, from its frame: everything that moved, newest first, All / In / Out
+See all on the day and Activities on the bar open the record, from its
+frame: everything that moved, newest first, All / In / Out
 to narrow it, today and yesterday, and what Beetle makes of it at the foot.
 What is still on its way, did not go or came back stands first with its
 status glyph and a chevron — their own screens come with round 3 — and what

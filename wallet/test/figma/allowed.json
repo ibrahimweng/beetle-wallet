@@ -179,8 +179,23 @@
   ],
   "actions": [
     {
-      "piece": "History",
-      "why": "the word is 4 wider in the web's font, and the row is set from its right edge"
+      "pieces": [
+        "Camera",
+        "Send money",
+        "Receive",
+        "Glyph · camera-filled",
+        "Glyph · spinner-track",
+        "Glyph · eye"
+      ],
+      "why": "the frame draws five actions; the bar at the foot of home carries Activities and Settings, so the sheet keeps these three, sitting nearest the button in the frame's lower three rows"
+    },
+    {
+      "text": "History",
+      "why": "the bar at the foot of home carries the record, as Activities"
+    },
+    {
+      "text": "Settings",
+      "why": "the bar at the foot of home carries Settings"
     }
   ],
   "history": [

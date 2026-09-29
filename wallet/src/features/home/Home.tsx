@@ -791,7 +791,7 @@ export function Home() {
         </Animated.View>
       ) : null}
       {/* the bar, while the card is closed: the open chat has the shortcuts row instead */}
-      <Bar open={open} onActivities={() => router.push('/activities')} onCamera={toCamera} onMore={() => setMore(true)} />
+      <Bar open={open} onActivities={() => router.push('/activities')} onSettings={() => router.push('/settings')} onMore={() => setMore(true)} />
       {/* the passcode, on its sheet over everything, before money moves */}
       {guard ? (
         <PasscodeSheet

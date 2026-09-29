@@ -2361,26 +2361,6 @@
         }
       },
       {
-        "name": "History",
-        "find": {
-          "text": "History",
-          "exact": true
-        },
-        "withinFind": {
-          "testid": "more"
-        }
-      },
-      {
-        "name": "Settings",
-        "find": {
-          "text": "Settings",
-          "exact": true
-        },
-        "withinFind": {
-          "testid": "more"
-        }
-      },
-      {
         "name": "Glyph · camera-filled",
         "find": {
           "button": "Camera",
@@ -2410,32 +2390,6 @@
         "name": "Glyph · eye",
         "find": {
           "button": "Receive",
-          "child": [
-            0,
-            1
-          ]
-        },
-        "withinFind": {
-          "testid": "more"
-        }
-      },
-      {
-        "name": "Glyph · copy",
-        "find": {
-          "button": "History",
-          "child": [
-            0,
-            1
-          ]
-        },
-        "withinFind": {
-          "testid": "more"
-        }
-      },
-      {
-        "name": "Glyph · star-solid",
-        "find": {
-          "button": "Settings",
           "child": [
             0,
             1

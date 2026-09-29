@@ -119,10 +119,12 @@ Activities and Camera, and a single More button to the side, as the frame
 draws it. The bar shows on home with the card closed and on the screens the
 frames give a bar to; the open chat has the shortcuts row instead.
 
-- [x] The bottom bar — Home, Activities, Camera, and the black plus to the
-      side; goes down as the card opens and comes back as it closes
-- [x] The More sheet (actions 204:85): Camera, Send money, Receive, History,
-      Settings, each with its coloured glyph, right aligned above the button;
+- [x] The bottom bar — Home, Activities, Settings, and the black plus to
+      the side, drawn like Fuse's; goes down as the card opens and comes
+      back as it closes
+- [x] The More sheet (actions 204:85): Camera, Send money, Receive — the
+      frame's five less the two the bar carries — each with its coloured
+      glyph, right aligned above the button;
       the screen behind blurs; the items come up out of the button and settle;
       the plus turns into a cross; anywhere else closes it; closing runs
       backwards before the screen goes; the same sheet from the plus on
@@ -145,8 +147,9 @@ frames give a bar to; the open chat has the shortcuts row instead.
 Done. Notes: two frames (lock, answer) box their head at 59 and let its
 second line run under the first card; the build gives the line its room and
 the check anchors those screens on the card. The card frame's root layer is
-itself named Card. The bar and More overlap on Camera and History /
-Activities — a question for the design, raised in the round's report.
+itself named Card. The bar and More overlapped on Camera and History; the
+answer was Home, Activities and Settings on the bar, and More without
+History and Settings.
 
 Taps: More (1), History (2), a line (3) is a receipt. More (1), Settings (2),
 a row (3).

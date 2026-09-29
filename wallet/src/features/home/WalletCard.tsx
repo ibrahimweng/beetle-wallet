@@ -13,7 +13,7 @@ import { Image, LayoutChangeEvent, StyleSheet, View, useWindowDimensions } from 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, type PanGesture } from 'react-native-gesture-handler';
 import Animated, { SharedValue, interpolate, runOnJS, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
-import { Caption, Icon, Label, Swap, Tap, blurred, colour, dark, keys, motion, settle as settleCurve, useStill } from '../../design';
+import { Caption, Icon, Label, Swap, Tap, blurred, colour, dark, keys, motion, settle as settleCurve, soft, useStill } from '../../design';
 import { Frost } from './Frost';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -150,6 +150,12 @@ export type CardProps = {
   chat: ReactNode;
   /** the ask bar, at the foot of the open card */
   foot: ReactNode;
+  /** money that just arrived: the figure comes back into focus and the words
+      take the caption's place for a moment */
+  flash?: { text: string; at: number };
+  /** what sits over the chat when something has to: the passcode before
+      money moves, the account's own details. The chat recedes behind it. */
+  over?: ReactNode;
 };
 
 const clamp = (v: number, lo: number, hi: number) => {
@@ -157,7 +163,7 @@ const clamp = (v: number, lo: number, hi: number) => {
   return Math.min(hi, Math.max(lo, v));
 };
 
-export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onSend, onReceive, onDollars, chat, foot }: CardProps) {
+export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onSend, onReceive, onDollars, chat, foot, over, flash }: CardProps) {
   const { width: W } = useWindowDimensions();
   const still = useStill();
   const { top, extra, headBand, closedH, haze, hazeSolid } = useCardTop();
@@ -176,6 +182,18 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
     setOpened(to);
     onSettle(to);
   };
+  /* money arriving: the figure resolves again, and the caption says what came */
+  const [line, setLine] = useState<string | null>(null);
+  useEffect(() => {
+    if (!flash) return;
+    setLine(flash.text);
+    if (!still) {
+      focus.value = 0.4;
+      focus.value = withTiming(1, { duration: motion.resolve, easing: settleCurve });
+    }
+    const t = setTimeout(() => setLine(null), 3600);
+    return () => clearTimeout(t);
+  }, [flash?.at]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* the widths the glide is written against, measured off hidden twins */
   const w32 = useSharedValue(190);
@@ -220,6 +238,13 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
   const wallet = useAnimatedStyle(() => ({ opacity: 1 - clamp((open.value - 0.2) / 0.3, 0, 1) }));
   /* the glass under the header only means anything once there is a conversation under it */
   const frost = useAnimatedStyle(() => ({ opacity: clamp((open.value - 0.4) / 0.4, 0, 1) }));
+  /* the chat and the bar recede while something sits over them */
+  const veil = useSharedValue(over ? 1 : 0);
+  useEffect(() => {
+    veil.value = still ? (over ? 1 : 0) : withTiming(over ? 1 : 0, { duration: motion.screen, easing: soft });
+  }, [!!over]); // eslint-disable-line react-hooks/exhaustive-deps
+  const receding = useAnimatedStyle(() => ({ opacity: 1 - veil.value * 0.78, transform: [{ scale: 1 - veil.value * 0.02 }], ...blurred(veil.value * motion.blur) }));
+  const fading = useAnimatedStyle(() => ({ opacity: 1 - veil.value }));
   /* the grabber and its words stay while the card only dips, and go once it is really opening */
   const goingLate = useAnimatedStyle(() => {
     const t = clamp((open.value - 0.3) / 0.3, 0, 1);
@@ -262,13 +287,19 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
     <Animated.View style={[s.card, card]} testID="card">
       {/* the open card: the conversation, running up under the header and down
           under the bar, and the bar at its foot on its own haze */}
-      <Animated.View style={[s.opened, coming]} pointerEvents={opened ? 'auto' : 'none'}>
-        <CardGesturesContext.Provider value={gestures}>{chat}</CardGesturesContext.Provider>
+      <Animated.View style={[s.opened, coming]} pointerEvents={opened && !over ? 'auto' : 'none'}>
+        <Animated.View style={[{ flex: 1 }, receding]}>
+          <CardGesturesContext.Provider value={gestures}>{chat}</CardGesturesContext.Provider>
+        </Animated.View>
       </Animated.View>
-      <Animated.View style={[s.foot, coming]} pointerEvents={opened ? 'box-none' : 'none'}>
+      <Animated.View style={[s.foot, coming]} pointerEvents={opened && !over ? 'box-none' : 'none'}>
         <Frost height={FOOT_HAZE} side="bottom" solid={20} />
-        <View style={s.bar}>{foot}</View>
+        <Animated.View style={[s.bar, fading]}>{foot}</Animated.View>
       </Animated.View>
+      {/* what sits over the chat, under the header: the passcode, the details */}
+      <View style={[s.over, { top: haze }]} pointerEvents={over ? 'auto' : 'none'}>
+        {over}
+      </View>
 
       {/* the header band: frosted glass over the conversation, the mark, and the
           wallet's name until the figure takes its place */}
@@ -290,7 +321,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
       <GestureDetector gesture={bodyPan}>
         <Animated.View style={[s.closed, { top: s.closed.top + extra }, going]} pointerEvents={opened ? 'none' : 'auto'}>
           <View style={{ alignItems: 'center', gap: 4 }}>
-            <Caption style={{ color: dark.chipText }}>Total balance</Caption>
+            <Swap value={line ?? 'Total balance'}>{w => <Caption style={{ color: line ? colour.good : dark.chipText }}>{w}</Caption>}</Swap>
             {/* the figure is drawn once, below, and travels; the chip has its place here */}
             <View style={{ height: 40 }} />
             <Tap accessibilityRole="button" accessibilityLabel="Your dollars" onPress={onDollars} style={s.chip}>
@@ -364,6 +395,7 @@ const s = StyleSheet.create({
   grab: { position: 'absolute', top: CLOSED_H - 20 - 32, left: 0, right: 0, alignItems: 'center', gap: 12, zIndex: 2 },
   grabber: { width: 27, height: 4, borderRadius: 2, backgroundColor: dark.grabber },
   opened: { position: 'absolute', top: 0, left: SIDE, right: SIDE, bottom: 0 },
+  over: { position: 'absolute', left: SIDE, right: SIDE, bottom: 0, zIndex: 5 },
   foot: { position: 'absolute', left: 0, right: 0, bottom: 0, height: FOOT_BAND },
   bar: { position: 'absolute', left: SIDE, right: SIDE, bottom: 20, height: 48 },
   figure: { position: 'absolute', top: 0, left: 0, flexDirection: 'row', alignItems: 'flex-start', zIndex: 4 },

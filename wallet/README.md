@@ -37,9 +37,9 @@ every screen. It needs a Chromium (`npx playwright install chromium`, or set
 | Command | What it proves |
 |---|---|
 | `npm run typecheck` | it compiles, with `strict` and `noUncheckedIndexedAccess` on |
-| `npm test` | the rules of the way in: what counts as a Nigerian number, what a passcode may not be, where each step leads, how the mock services answer |
+| `npm test` | the rules of the way in: what counts as a Nigerian number, what a passcode may not be, where each step leads, how the mock services answer; the scripted Beetle; the model against a fake API; the gate before money moves |
 | `npm run bundle` | the same JavaScript the phone runs, exported for the web into `dist/` |
-| `npm run flow` | from the lab to the welcome and on to home, then out and back in as the demo account, with the doors that should be shut tried on the way; the card pulled down and traced as it opens, money sent by asking, a photo taken with the browser's stand-in camera and read, and the lab's places opened on their own; every screen photographed into `shots/` |
+| `npm run flow` | from the lab to the welcome and on to home, then out and back in as the demo account, with the doors that should be shut tried on the way; the card pulled down and traced as it opens, money sent by asking and let through by the passcode, the account's details opened and copied, a photo taken with the browser's stand-in camera and read, money arriving, a shortcut, the model screen, and the lab's places opened on their own; every screen photographed into `shots/` |
 
 ## What this build accepts
 
@@ -56,6 +56,9 @@ mocks in and says so on the code screen; a real `AuthService` and
 | A passcode | six digits typed twice; this build also lets `654321` and `123456` through, so trying it never means thinking one up | the same digit six times, a run, a repeated pair, your year of birth, and the handful everybody picks |
 | Welcome back | `0906 911 3588`, the owner's own number, opens the demo account, history and all; any number that opened an account on this device opens that one | a number nobody has opened an account with, with a way to open one |
 | The chat | "Send 20k to Sarah", "top up my light", "buy data", "what about dollars", "how much do I have"; the people it knows are Sarah Adeyemi, Chidi Okafor, Musa Danjuma and John Doe, by name or account number | more than the balance; a name it does not know; anything else, with what it can do |
+| Before money moves | the passcode set on the way in, or `654321` and `123456` in this build; the face, on a phone with one enrolled | three wrong tries shut the gate for thirty seconds and Beetle says so |
+| Being paid | Receive on the card: the account number to copy or share; "have ₦50,000 arrive from Sarah" sets off an arrival in this build | nothing here can take money out |
+| Beetle's model | a key kept on the phone from the lab's model screen, or one in the build, puts Claude behind Beetle; without one the script answers | a key that is refused, or no network: the script answers, with a note saying why |
 | A photo | on the phone, the camera and the device's own reader; on the web and in Expo Go, the sample slip, which reads as Sarah Adeyemi at GTBank, `0123 4567 89` | a photo with no ten-digit number on it |
 
 ## How it is put together
@@ -69,8 +72,10 @@ mocks in and says so on the code screen; a real `AuthService` and
 | `src/features/home/` | Home: the card (`WalletCard.tsx`, closed and open and the drag between), the haze at its head and its foot (`Frost.tsx`), the screen around it with the day and the chats in it (`Home.tsx`), the ask bar in its two states (`AskBar.tsx`), what the day shows for an account (`account.ts`), and the once-only dip (`first.ts`) |
 | `src/features/agent/` | The chat: the conversation and what Beetle is waiting for (`conversation.tsx`), the list (`Chat.tsx`), the dark pieces it is drawn with — what was said, the panels, the dots (`Dark.tsx`) — and the chats filed in the day, Beetle's prompts among them (`chats.ts`) |
 | `src/features/scan/` | The camera screen with every way it can go wrong, the photo's way back to the chat, and the sample slip |
+| `src/features/passcode/` | The gate before money moves: the passcode pane over the chat (`Passcode.tsx`) and the check itself, with the tries and the lock (`check.ts`) |
+| `src/features/receive/` | Being paid: the account's details over the chat (`Receive.tsx`), money arriving (`arrival.ts`), and the clipboard |
 | `src/lab/` | The lab: which builds have it (`enabled.ts`), every feature and the places in it with the state each needs (`catalogue.ts`), the screen, and the tab that comes back to it |
-| `src/services/` | `AuthService`, `IdentityService`, `AgentService` (the scripted Beetle), `ReaderService` (the device's text reader, or a stand-in), storage and hashing behind interfaces, with the mocks this build runs on |
+| `src/services/` | `AuthService`, `IdentityService`, `AgentService` (Beetle: the model in `model.ts` where there is a key, the script in `agent.ts` where there is not), `ReaderService` (the device's text reader, or a stand-in), storage and hashing behind interfaces, with the mocks this build runs on |
 | `src/lib/` | Formatting: digit groups, naira and kobo, dates |
 | `test/` | The unit tests, and the browser walk of the way in |
 | `artifact/` | `npm run artifact` packages the exported bundle as a page that can be hosted anywhere, even inside another page: the phone in a frame with the keys to the mocks beside it |
@@ -140,9 +145,28 @@ something typed, with a hairline round the bar, the words in semibold, and a
 black disc with an arrow where the camera was.
 
 Beetle answers with words and with panels: what it checked and what it found,
-each row landing after the last, and one thing to do about it. Confirm a
-transfer and the panel says Sent, Beetle says where the money is, and the day
-below has the line. The amount on a panel can be corrected by tapping it.
+each row landing after the last, and one thing to do about it. Press a
+panel's button and the passcode comes up over the chat — the chat recedes
+behind it, the amount and where it is going at the top, the six dots and the
+pad under them — and the money moves only when the code is right (on a
+phone with a face enrolled, the face is asked first and the pad is the way
+past it). A wrong code shakes the dots and says how many tries are left; the
+third wrong one shuts the gate for thirty seconds. Then the panel says Sent,
+Beetle says where the money is, and the day below has the line. The amount
+on a panel can be corrected by tapping it.
+
+Under the open card, below the chips, a row of shortcuts: Bills, Data,
+Receive and Photo, each a quick way into what the chat above can do. (The
+frame for these is still being drawn; the row is the app's own reading of
+it, in the app's icons.)
+
+Receive, on the card, opens the account's own details over the chat: the
+number, big, and whose it is, to copy or to share, with the line that says
+these can only be paid into. Money arriving lands in three places at once:
+the caption on the card says what came while the figure comes back into
+focus, the day has the line under In, and Beetle starts a chat about it,
+waiting in the day with a dot. This build can have a sample arrival happen
+from the details pane, and the lab has a place for it.
 
 Where an ask takes time — a transfer, a photo, a bill, data — Beetle says
 what it is doing while it does it, in its own voice, a line at a time in the
@@ -150,9 +174,35 @@ chat ("I'm finding Sarah's account at GTBank…"), each line landing its tick
 as the next begins; the lines stay above the answer, dimmed, once it is
 there. The answer's words then arrive at reading speed, and the panel lands
 when the sentence is done. A quick answer — the balance, a greeting — shows
-none of that. The scripted Beetle reports its steps through `onStep` on
-`AgentService.ask`, which is where a real model's own reasoning will come
-through.
+none of that. Both Beetles report their steps through `onStep` on
+`AgentService.ask`.
+
+### Beetle's model
+
+Behind `AgentService` there are two Beetles, and `src/services/index.ts`
+picks between them on every ask: the model where there is a key for it, the
+script where there is not. The model is Claude (`claude-opus-5-5`) through
+the Messages API, with six tools that do what the app does — find an
+account, prepare a transfer, a bill or data, identify a number read off a
+photo, change an amount — and every tool takes a `saying`, one line in
+Beetle's own voice that the screen shows while it works. The tools put up
+the same panels the script does, so the chat does not know which Beetle
+answered; and the model never moves money, since a panel's button still goes
+through the passcode. A photo is read on the device and the words go to the
+model. The model's memory of the conversation is the chat's own transcript,
+rebuilt on every ask, so a chat reopened from the day carries on. When the
+model cannot answer — the key refused, no network — the script answers
+instead, with a note saying why.
+
+The key comes from the phone's keychain, set on the lab's "Beetle's model"
+screen, or from the build (`EXPO_PUBLIC_ANTHROPIC_API_KEY` at export time;
+the Phone workflow passes the repository secret `ANTHROPIC_API_KEY` there,
+so adding that secret puts the model behind Beetle on the phone). Neither is
+the shape a shipped app should have: that is a server that keeps the key,
+and `EXPO_PUBLIC_ANTHROPIC_BASE_URL` is where it goes when there is one. The
+model is called with plain `fetch`, since React Native is not a runtime the
+SDK supports; `npm test` drives it against a fake API to check the request,
+the tool loop, the steps, the panels and the fallback.
 
 Every chat is part of the day. Closing the card files the conversation at
 the top of Today — what you asked, what it came to, when — and opening the
@@ -202,5 +252,5 @@ dip — and fails if they are not moving the way that file says.
 ## What comes next
 
 Finishing setting up (the ID card and the income question that turn the last
-two limits on), the passcode before money moves, a real model behind
-`AgentService`, receiving, and the shortcuts on home.
+two limits on), a server for the model's key, the receipt behind a line in
+the day, and the shortcuts as the frame ends up drawing them.

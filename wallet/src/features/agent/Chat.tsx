@@ -17,6 +17,7 @@ export function Chat({
   active,
   top = 0,
   bottom = 8,
+  confirm,
 }: {
   talk: Conversation;
   active: boolean;
@@ -24,6 +25,9 @@ export function Chat({
   top?: number;
   /** and at the foot, under the bar */
   bottom?: number;
+  /** a panel's button, where something stands between it and the move —
+      the passcode; the conversation's own confirm otherwise */
+  confirm?: (panelId: string) => void;
 }) {
   const list = useRef<ScrollView>(null);
   const count = talk.turns.length + (talk.thinking ? 1 : 0);
@@ -81,7 +85,7 @@ export function Chat({
                 state={'state' in t ? t.state : 'ready'}
                 quick={'quick' in t && !!t.quick}
                 onReady={() => talk.ready(panel.id)}
-                onAction={() => talk.confirm(panel.id)}
+                onAction={() => (confirm ?? talk.confirm)(panel.id)}
                 onEdit={row => talk.edit(panel.id, row)}
               />
             </View>

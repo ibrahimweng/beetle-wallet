@@ -29,15 +29,32 @@ export type Feature = { id: string; title: string; folder: string; sub: string; 
    the number the browser walk uses, and the record the design's own number
    comes back as. */
 export const LAB_PHONE = '08123456789';
-const RECORD: IdentityRecord = { firstName: 'Ibrahim', lastName: 'Musa', recordName: 'MUSA IBRAHIM', born: '1996-06-14', birthYear: 1996 };
+const RECORD: IdentityRecord = {
+  firstName: 'Ibrahim',
+  lastName: 'Musa',
+  recordName: 'MUSA IBRAHIM',
+  born: '1996-06-14',
+  birthYear: 1996,
+};
 const LAB_NUMBER = '12345678900';
 
 const done = {
   number: { phone: LAB_PHONE, phoneVerified: true } satisfies Progress,
-  who: { phone: LAB_PHONE, phoneVerified: true, identity: { number: LAB_NUMBER, record: RECORD }, identityConfirmed: true } satisfies Progress,
+  who: {
+    phone: LAB_PHONE,
+    phoneVerified: true,
+    identity: { number: LAB_NUMBER, record: RECORD },
+    identityConfirmed: true,
+  } satisfies Progress,
 };
 
-const account = (phone: string) => ({ accountNumber: accountNumberFor(phone), phone, firstName: RECORD.firstName, lastName: RECORD.lastName, createdAt: '2026-09-01T09:00:00Z' });
+const account = (phone: string) => ({
+  accountNumber: accountNumberFor(phone),
+  phone,
+  firstName: RECORD.firstName,
+  lastName: RECORD.lastName,
+  createdAt: '2026-09-01T09:00:00Z',
+});
 const sessionFor = (a: Session['account']): Session => ({ token: 'lab', account: a });
 
 const none: Seed = { progress: {}, session: null };
@@ -55,10 +72,19 @@ export const WAY_IN: Feature = {
     stage('number', 'phone-filled', 'Your number', 'Eleven digits on the keypad'),
     stage('code', 'phone-filled', 'Six digits', 'The code from the text, and the half minute before another', { progress: { phone: LAB_PHONE }, session: null }),
     stage('identity', 'id-filled', 'Who you are', 'NIN or BVN', { progress: done.number, session: null }),
-    stage('confirm', 'id-filled', 'Is this you', 'The record that came back', { progress: { ...done.who, identityConfirmed: false }, session: null }),
-    stage('nomatch', 'warn-filled', 'Nothing came back', 'When the register has no record', { progress: done.number, session: null }),
+    stage('confirm', 'id-filled', 'Is this you', 'The record that came back', {
+      progress: { ...done.who, identityConfirmed: false },
+      session: null,
+    }),
+    stage('nomatch', 'warn-filled', 'Nothing came back', 'When the register has no record', {
+      progress: done.number,
+      session: null,
+    }),
     stage('face', 'faceid-filled', 'Your face', 'The photo, or later', { progress: done.who, session: null }),
-    stage('passcode', 'lock-filled', 'A passcode', 'Six digits, twice, with the weak ones refused', { progress: { ...done.who, face: 'later' }, session: null }),
+    stage('passcode', 'lock-filled', 'A passcode', 'Six digits, twice, with the weak ones refused', {
+      progress: { ...done.who, face: 'later' },
+      session: null,
+    }),
     stage('ready', 'check', 'Ready', 'The account open, the ticks landing', {
       progress: { ...done.who, face: 'later', passcodeSet: true, accountNumber: accountNumberFor(LAB_PHONE) },
       session: sessionFor(account(LAB_PHONE)),
@@ -76,9 +102,31 @@ export const HOME: Feature = {
   folder: 'src/features/home',
   sub: 'The card at the top, and the day under it. Pull the card down for the chat.',
   places: [
-    { id: 'home-demo', icon: 'home-filled', title: 'The demo account', sub: `${DEMO_ACCOUNT.firstName}'s day, the one the design is drawn around`, href: '/home', seed: demo },
-    { id: 'home-new', icon: 'home-filled', title: 'A new account', sub: 'Nothing has moved yet', href: '/home', seed: { progress: {}, session: sessionFor(account(LAB_PHONE)) } },
-    { id: 'home-first', icon: 'home-filled', title: 'The first time', sub: 'The card dips on its own to point out the chat', href: '/home', seed: demo, forget: ['beetle.home.pointed-out.v1'] },
+    {
+      id: 'home-demo',
+      icon: 'home-filled',
+      title: 'The demo account',
+      sub: `${DEMO_ACCOUNT.firstName}'s day, the one the design is drawn around`,
+      href: '/home',
+      seed: demo,
+    },
+    {
+      id: 'home-new',
+      icon: 'home-filled',
+      title: 'A new account',
+      sub: 'Nothing has moved yet',
+      href: '/home',
+      seed: { progress: {}, session: sessionFor(account(LAB_PHONE)) },
+    },
+    {
+      id: 'home-first',
+      icon: 'home-filled',
+      title: 'The first time',
+      sub: 'The card dips on its own to point out the chat',
+      href: '/home',
+      seed: demo,
+      forget: ['beetle.home.pointed-out.v1'],
+    },
   ],
 };
 
@@ -88,10 +136,38 @@ export const ASK: Feature = {
   folder: 'src/features/agent',
   sub: 'The chat inside the card: what it says, and the panels it puts up.',
   places: [
-    { id: 'ask-open', icon: 'mark', title: 'The chat, open', sub: 'Home with the card already pulled down', href: '/home?chat=open', seed: demo },
-    { id: 'ask-transfer', icon: 'send', title: 'A transfer, mid-way', sub: '"Send 20k to Sarah", the panel filling in', href: '/home?chat=transfer', seed: demo },
-    { id: 'ask-prompt', icon: 'power', title: 'A prompt from Beetle', sub: 'A chat Beetle started, waiting in the day, opened', href: '/home?chat=prompt', seed: demo },
-    { id: 'ask-thinking', icon: 'clock', title: 'Beetle thinking', sub: '"Send 20k to Sarah" asked live: the steps, then the words, then the panel', href: '/home?chat=thinking', seed: demo },
+    {
+      id: 'ask-open',
+      icon: 'mark',
+      title: 'The chat, open',
+      sub: 'Home with the card already pulled down',
+      href: '/home?chat=open',
+      seed: demo,
+    },
+    {
+      id: 'ask-transfer',
+      icon: 'send',
+      title: 'A transfer, mid-way',
+      sub: '"Send 20k to Sarah", the panel filling in',
+      href: '/home?chat=transfer',
+      seed: demo,
+    },
+    {
+      id: 'ask-prompt',
+      icon: 'power',
+      title: 'A prompt from Beetle',
+      sub: 'A chat Beetle started, waiting in the day, opened',
+      href: '/home?chat=prompt',
+      seed: demo,
+    },
+    {
+      id: 'ask-thinking',
+      icon: 'clock',
+      title: 'Beetle thinking',
+      sub: '"Send 20k to Sarah" asked live: the steps, then the words, then the panel',
+      href: '/home?chat=thinking',
+      seed: demo,
+    },
   ],
 };
 
@@ -101,9 +177,82 @@ export const SCAN: Feature = {
   folder: 'src/features/scan',
   sub: 'The camera, and an account number read off what it sees.',
   places: [
-    { id: 'scan-camera', icon: 'camera', title: 'The camera', sub: 'Permission, the shutter, and every way it can go wrong', href: '/scan', seed: demo },
-    { id: 'scan-read', icon: 'id', title: 'A photo, read', sub: 'The sample slip through the reader, into the chat', href: '/home?chat=photo', seed: demo },
+    {
+      id: 'scan-camera',
+      icon: 'camera',
+      title: 'The camera',
+      sub: 'Permission, the shutter, and every way it can go wrong',
+      href: '/scan',
+      seed: demo,
+    },
+    {
+      id: 'scan-read',
+      icon: 'id',
+      title: 'A photo, read',
+      sub: 'The sample slip through the reader, into the chat',
+      href: '/home?chat=photo',
+      seed: demo,
+    },
   ],
 };
 
-export const FEATURES: Feature[] = [WAY_IN, HOME, ASK, SCAN];
+export const GUARD: Feature = {
+  id: 'guard',
+  title: 'Before money moves',
+  folder: 'src/features/passcode',
+  sub: 'The passcode over the chat, and the face where the phone has one enrolled.',
+  places: [
+    {
+      id: 'guard-passcode',
+      icon: 'lock-filled',
+      title: 'The passcode',
+      sub: 'A transfer ready and the pad up: 654321 lets it through, three wrong shut the gate',
+      href: '/home?chat=confirm',
+      seed: demo,
+    },
+  ],
+};
+
+export const RECEIVE: Feature = {
+  id: 'receive',
+  title: 'Being paid',
+  folder: 'src/features/receive',
+  sub: 'The account number to hand out, and money arriving.',
+  places: [
+    {
+      id: 'receive-details',
+      icon: 'receive-filled',
+      title: 'Your details',
+      sub: 'The number and the name, to copy or share, over the chat',
+      href: '/home?receive=details',
+      seed: demo,
+    },
+    {
+      id: 'receive-arrival',
+      icon: 'bank',
+      title: 'Money arrives',
+      sub: '₦50,000 from Sarah lands on the card, in the day, and in a chat from Beetle',
+      href: '/home?receive=arrival',
+      seed: demo,
+    },
+  ],
+};
+
+export const MODEL: Feature = {
+  id: 'model',
+  title: "Beetle's model",
+  folder: 'src/features/agent',
+  sub: 'Claude behind the chat where there is a key for it, the script where there is not (src/services/model.ts).',
+  places: [
+    {
+      id: 'model-key',
+      icon: 'key-filled',
+      title: 'The key, and a try',
+      sub: 'Keep a key on this phone, see where Beetle answers from, and ask it something',
+      href: '/model',
+      seed: demo,
+    },
+  ],
+};
+
+export const FEATURES: Feature[] = [WAY_IN, HOME, ASK, SCAN, GUARD, RECEIVE, MODEL];

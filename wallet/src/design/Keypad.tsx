@@ -12,23 +12,20 @@ import React from 'react';
 import { View } from 'react-native';
 import { Icon } from './Icon';
 import { Head } from './text';
-import { colour } from './tokens';
+import { colour, dark } from './tokens';
 import { Tap } from './motion';
+
+/** The pad on the page, or on the dark card before money moves. */
+export type PadTone = 'light' | 'dark';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'face', '0', 'del'] as const;
 
 /* The face key sits in the bottom left where the frame leaves a gap, and is
    only drawn when the screen has something for it to do. */
-export function Keypad({
-  onKey,
-  onFace,
-  big = false,
-}: {
-  onKey: (k: string) => void;
-  onFace?: () => void;
-  big?: boolean;
-}) {
+export function Keypad({ onKey, onFace, big = false, tone = 'light' }: { onKey: (k: string) => void; onFace?: () => void; big?: boolean; tone?: PadTone }) {
   const cell = big ? { w: 100, h: 92, key: 77 } : { w: 84, h: 76, key: 68 };
+  const ink = tone === 'dark' ? '#ffffff' : colour.ink;
+  const disc = tone === 'dark' ? dark.edge : colour.surface2;
   return (
     <View style={{ width: cell.w * 3, alignSelf: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
       {KEYS.map((k, i) => {
@@ -58,18 +55,10 @@ export function Keypad({
                 alignItems: 'center',
                 justifyContent: 'center',
                 /* the two glyph keys sit on the page itself; only digits get the disc */
-                backgroundColor: k === 'del' || k === 'face' ? 'transparent' : colour.surface2,
+                backgroundColor: k === 'del' || k === 'face' ? 'transparent' : disc,
               }}
             >
-              {k === 'del' ? (
-                <Icon name="del" size={28} colour={colour.ink} />
-              ) : k === 'face' ? (
-                onFace ? (
-                  <Icon name="faceid" size={28} colour={colour.ink} />
-                ) : null
-              ) : (
-                <Head>{k}</Head>
-              )}
+              {k === 'del' ? <Icon name="del" size={28} colour={ink} /> : k === 'face' ? onFace ? <Icon name="faceid" size={28} colour={ink} /> : null : <Head style={{ color: ink }}>{k}</Head>}
             </View>
           </Tap>
         );
@@ -81,7 +70,9 @@ export function Keypad({
 /* The dots above a passcode as it is typed — 14 across, 20 apart, as the sheet
    frames draw them. The sheets centre them; the passcode step on the way in
    starts them at the left edge with everything else. */
-export function Pips({ of = 6, filled, align = 'center' }: { of?: number; filled: number; align?: 'center' | 'left' }) {
+export function Pips({ of = 6, filled, align = 'center', tone = 'light' }: { of?: number; filled: number; align?: 'center' | 'left'; tone?: PadTone }) {
+  const full = tone === 'dark' ? '#ffffff' : colour.ink;
+  const ring = tone === 'dark' ? dark.edgeStrong : colour.ruleStrong;
   return (
     <View style={{ flexDirection: 'row', gap: 20, alignSelf: align === 'center' ? 'center' : 'flex-start' }}>
       {Array.from({ length: of }).map((_, i) => (
@@ -91,9 +82,9 @@ export function Pips({ of = 6, filled, align = 'center' }: { of?: number; filled
             width: 14,
             height: 14,
             borderRadius: 7,
-            backgroundColor: i < filled ? colour.ink : 'transparent',
+            backgroundColor: i < filled ? full : 'transparent',
             borderWidth: i < filled ? 0 : 2,
-            borderColor: colour.ruleStrong,
+            borderColor: ring,
           }}
         />
       ))}

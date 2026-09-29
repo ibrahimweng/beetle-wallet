@@ -428,7 +428,7 @@ try {
   const first = opening[0];
   const last = opening[opening.length - 1];
   must(first && first.card && first.card.height < 420, `the card should start closed (${first?.card?.height}px)`);
-  must(last && last.card && last.card.height >= 640, `the card should open until only the head of the day and its chips show (${last?.card?.height}px)`);
+  must(last && last.card && last.card.height >= 600 && last.card.height <= 700, `the card should open until only the head of the day, its chips and the shortcuts show (${last?.card?.height}px)`);
   must(last.figure && last.figure.size <= 21, `the figure should have shrunk into the header (${last.figure?.size}px)`);
   const grew = opening.map(x => Math.round(x.card?.height ?? 0));
   must(new Set(grew).size >= 4, `the card should grow through the drag, not jump (${grew.join(' ')})`);
@@ -439,6 +439,9 @@ try {
   must(chip && chip.x > 150 && chip.y < 80, `the dollars chip should sit after the figure in the header (at ${chip?.x},${chip?.y})`);
   const chipsRow = await page.getByRole('button', { name: 'Chats', exact: true }).boundingBox();
   must(chipsRow && chipsRow.y > last.card.height && chipsRow.y + chipsRow.height <= 852, `the chips should show under the open card (at ${chipsRow?.y})`);
+  /* and the shortcuts under the chips, whole, on the screen */
+  const bills = await page.getByRole('button', { name: 'Bills', exact: true }).filter({ visible: true }).first().boundingBox();
+  must(bills && bills.y > chipsRow.y + chipsRow.height && bills.y + bills.height <= 852, `the shortcuts should sit under the chips (at ${bills?.y})`);
   await shot('home-chat-open');
 
   console.log('Sending money by asking');
@@ -471,7 +474,16 @@ try {
   await button('Confirm ₦20,000').waitFor();
   await page.waitForTimeout(1900);
   await shot('chat-transfer-ready');
+  /* the passcode stands between the button and the move: a wrong code
+     shakes the dots and counts the tries, the right one lands a tick and the
+     money goes */
   await tap('Confirm ₦20,000');
+  await see('Enter your passcode');
+  await shot('chat-passcode', 500);
+  await type('111111');
+  await see('Not it. 2 more tries.');
+  await shot('chat-passcode-wrong', 200);
+  await type(PASSCODE);
   await see('is with Sarah Adeyemi');
   await see('₦575,320');
   await shot('chat-transfer-sent', 500);
@@ -482,6 +494,20 @@ try {
   await see('GTBank · sent');
   await see('Send 20k to Sarah');
   await shot('home-after-transfer');
+
+  console.log('Being paid');
+  /* Receive opens the card on the account's own details; the number can be
+     copied, and Done closes the card again */
+  await tap('Receive');
+  await see('Your account number');
+  await see('0102 4457 88');
+  await shot('receive', 900);
+  await tap('Copy the number');
+  await see('copied. Paste it anywhere.');
+  await tap('Done');
+  await page.waitForTimeout(900);
+  const afterDetails = await page.locator('[data-testid="card"]').boundingBox();
+  must(afterDetails && afterDetails.height < 420, `Done should close the card again (${afterDetails?.height}px)`);
 
   console.log('The chats in the day');
   /* under their own chip: the one just filed, and the one Beetle started */
@@ -496,7 +522,7 @@ try {
   await page.waitForTimeout(700);
   await shot('chat-reopened');
   /* and a push up on the day below closes it too */
-  await pushUp(196, 780);
+  await pushUp(196, 690);
   must((await page.locator('[data-testid="card"]').boundingBox())?.height < 420, 'a push up on the day below should close the card');
   /* and Beetle's own prompt opens with the thing it wants handled */
   await tap('Your usual top up');
@@ -585,6 +611,42 @@ try {
   await see('Beetle Transfers');
   at('/home');
   await shot('lab-transfer', 1600);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  await tap('The passcode');
+  await see('Enter your passcode');
+  at('/home');
+  await shot('lab-passcode', 700);
+  await tap('Not now');
+  await button('Confirm ₦20,000').waitFor();
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* money arriving: the caption on the card says what came, the balance is
+     up, the day has the line, and Beetle's chat about it waits with a dot */
+  await tap('Money arrives');
+  await see('+₦50,000 from Sarah');
+  await see('₦645,320');
+  await shot('lab-arrival', 300);
+  await see('₦50,000 came in');
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* Beetle's model: no key here, so the try comes back from the script */
+  await tap('The key, and a try');
+  await see("Beetle's model");
+  await see('No key. Beetle answers from the script.');
+  at('/model');
+  await tap('Ask it');
+  await see('I can send money');
+  await shot('lab-model', 300);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* a shortcut under the open card hands its thing to the chat */
+  await tap('The chat, open');
+  await button('Data').waitFor();
+  await page.waitForTimeout(900);
+  await tap('Data');
+  await see('Beetle Data');
+  await shot('lab-shortcut-data', 1600);
   await tap('Back to the lab');
   await see('Beetle Lab');
   /* the first time: the card dips on its own, with the words that say why, then settles */

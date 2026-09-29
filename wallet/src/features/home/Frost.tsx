@@ -65,7 +65,10 @@ export function tint(height: number, solid: number, glass: boolean): { colours: 
   };
 }
 
-const along = (side: Side) => ({ start: { x: 0.5, y: side === 'top' ? 0 : 1 }, end: { x: 0.5, y: side === 'top' ? 1 : 0 } });
+const along = (side: Side) => ({
+  start: { x: 0.5, y: side === 'top' ? 0 : 1 },
+  end: { x: 0.5, y: side === 'top' ? 1 : 0 },
+});
 
 /* One sheet of blur, fading out at its own end. */
 function Sheet({ side, height, children }: { side: Side; height: number; children?: ReactNode }) {

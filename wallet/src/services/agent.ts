@@ -31,7 +31,7 @@ export type Panel = {
   move?: Move;
 };
 
-export type Move = { name: string; detail: string; amount: number; icon: IconName; kind: 'transfer' | 'bill' | 'airtime' | 'service' };
+export type Move = { name: string; detail: string; amount: number; icon: IconName; kind: 'transfer' | 'bill' | 'airtime' | 'service' | 'in' };
 
 export type Block =
   | { kind: 'say'; text: string }
@@ -49,6 +49,8 @@ export type Context = {
   balance: number;
   rate: number;
   pending: Pending;
+  /** the conversation so far, for a Beetle with a memory of its own */
+  transcript?: { who: 'you' | 'beetle'; text: string }[];
 };
 
 export type Reply = { blocks: Block[]; pending: Pending; reading?: Reading };

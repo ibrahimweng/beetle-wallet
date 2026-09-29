@@ -35,6 +35,12 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
       - run: npm ci --no-audit --no-fund
       - name: Send the change to the installed app
+        # A key in the repository's secrets puts Claude behind Beetle in the
+        # phone build; without one, Beetle answers from the script. The base
+        # URL is for a server that keeps the key, when there is one.
+        env:
+          EXPO_PUBLIC_ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          EXPO_PUBLIC_ANTHROPIC_BASE_URL: ${{ vars.ANTHROPIC_BASE_URL }}
         run: eas update --branch preview --environment preview --message "$(git log -1 --pretty=%s)" --non-interactive
       - name: Build a new APK
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.build }}

@@ -13,16 +13,42 @@ import { BackHandler, Keyboard, Platform, Pressable, TextInput, View, useWindowD
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Animated, { runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
-import { Button, Filters, Head, Icon, Insight, Label, LedgerRow, Mark, Meta, Pane, Row as RowText, ScoreRow, Tap, Tile, colour, frame, keys, settle, space, toast, useStill } from '../../design';
-import type { Move } from '../../services';
+import {
+  Button,
+  Caption,
+  Filters,
+  Head,
+  Icon,
+  Insight,
+  Label,
+  LedgerRow,
+  Mark,
+  Meta,
+  Pane,
+  Row as RowText,
+  ScoreRow,
+  Tap,
+  Tile,
+  colour,
+  frame,
+  keys,
+  settle,
+  space,
+  toast,
+  useStill,
+} from '../../design';
+import type { IconName } from '../../icons';
+import type { Move, Panel } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { Chat } from '../agent/Chat';
-import { turn, useConversation, type Turn } from '../agent/conversation';
+import { transcriptOf, turn, useConversation, type Turn } from '../agent/conversation';
 import { clock, detailOf, titleOf, useChats, type Chat as ChatRecord } from '../agent/chats';
 import { transferPanel, PEOPLE } from '../../services/agent';
 import { handoff } from '../scan/handoff';
 import { samplePhoto } from '../scan/sample';
+import { PasscodePane, lockedFor } from '../passcode';
+import { ReceivePane, SAMPLE_ARRIVAL, arrivalChat, arrivalLine, arrivalMove, type Arrival } from '../receive';
 import { LAB } from '../../lab/enabled';
 import { glance, holdingsFor, type LedgerRow as Row } from './account';
 import { AskBar } from './AskBar';
@@ -33,8 +59,11 @@ import { kobo, naira, signed } from '../../lib/format';
 
 const next = (what: string) => () => toast(`${what} is the next flow to build.`);
 
-/** What stays showing under the open card: the gap, the head of the day, and its chips. */
-const BELOW = 32 + 56 + 12 + 34 + 20;
+/** What stays showing under the open card: the gap, the head of the day, its
+    chips, and the row of shortcuts under them. */
+const SHORTCUTS_TOP = 32 + 56 + 12 + 34 + 12;
+const SHORTCUTS_H = 64;
+const BELOW = SHORTCUTS_TOP + SHORTCUTS_H + 16;
 
 type Filter = 'All' | 'Insights' | 'In' | 'Out' | 'Chats';
 const FILTERS: Filter[] = ['All', 'Insights', 'In', 'Out', 'Chats'];
@@ -46,7 +75,7 @@ export function Home() {
   const still = useStill();
   const { height: H } = useWindowDimensions();
   const { closedH, haze } = useCardTop();
-  const asked = useLocalSearchParams<{ chat?: string }>();
+  const asked = useLocalSearchParams<{ chat?: string; receive?: string }>();
 
   const [filter, setFilter] = useState<Filter>('All');
   const [put, setPut] = useState<string[]>([]);
@@ -67,7 +96,10 @@ export function Home() {
   const kb = useSharedValue(0);
   useEffect(() => {
     const show = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', e => {
-      kb.value = withTiming(e.endCoordinates.height, { duration: 220, easing: settle });
+      kb.value = withTiming(e.endCoordinates.height, {
+        duration: 220,
+        easing: settle,
+      });
     });
     const hide = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => {
       kb.value = withTiming(0, { duration: 220, easing: settle });
@@ -91,14 +123,35 @@ export function Home() {
   const rate = h?.rate ?? 1552;
 
   /* ---- the conversation, and the chats it becomes ---- */
-  const context = useCallback(() => ({ account: account!, balance, rate }), [account, balance, rate]);
+  const turnsRef = useRef<Turn[]>([]);
+  const context = useCallback(
+    () => ({
+      account: account!,
+      balance,
+      rate,
+      transcript: transcriptOf(turnsRef.current),
+    }),
+    [account, balance, rate],
+  );
   const onMove = useCallback((m: Move) => {
     const id = `m${Date.now()}`;
     const time = m.detail.slice(-5);
-    setMoves(list => [{ id, day: 'today', time, icon: m.icon, name: m.name, detail: m.detail, amount: m.amount, status: 'done', kind: m.kind }, ...list]);
+    setMoves(list => [
+      {
+        id,
+        day: 'today',
+        time,
+        icon: m.icon,
+        name: m.name,
+        detail: m.detail,
+        amount: m.amount,
+        status: 'done',
+        kind: m.kind,
+      },
+      ...list,
+    ]);
   }, []);
   const talk = useConversation(context, onMove);
-  const turnsRef = useRef(talk.turns);
   turnsRef.current = talk.turns;
   const pendingRef = useRef(talk.pending);
   pendingRef.current = talk.pending;
@@ -107,6 +160,13 @@ export function Home() {
   const current = useRef<ChatRecord | null>(null);
   /** the last chat was filed; the next opening starts afresh */
   const stale = useRef(false);
+  /** a panel's move waiting on the passcode */
+  const [guard, setGuard] = useState<{ panelId: string; panel: Panel } | null>(null);
+  /** the account's own details over the chat, and whether the card was open before them */
+  const [details, setDetails] = useState(false);
+  const detailsFrom = useRef<'closed' | 'open'>('closed');
+  /** money that just arrived, for the card to show */
+  const [flash, setFlash] = useState<{ text: string; at: number } | undefined>(undefined);
 
   /* Beetle opens a fresh chat: with something it noticed, taking turns, or
      for a new account with what it can do */
@@ -160,12 +220,73 @@ export function Home() {
         if (opts.greet !== false) begin(opts.opening);
       } else {
         Keyboard.dismiss();
+        setGuard(null);
+        setDetails(false);
         fileCurrent();
       }
       open.value = withSpring(to ? 1 : 0, keys);
     },
     [open, begin, fileCurrent],
   );
+
+  /* a panel's button: the passcode stands between it and the move, unless
+     the gate is shut, in which case Beetle says how long for */
+  const confirmWithPasscode = useCallback(
+    (panelId: string) => {
+      const t = turnsRef.current.find(x => x.who === 'beetle' && 'state' in x && x.block.panel.id === panelId);
+      if (!t || t.who !== 'beetle' || !('state' in t) || t.state === 'done') return;
+      const panel = t.block.panel;
+      if (!panel.action) {
+        talk.confirm(panelId);
+        return;
+      }
+      const shut = lockedFor();
+      if (shut) {
+        talk.open(`That was three wrong tries. Give it ${shut} seconds and press it again.`);
+        return;
+      }
+      Keyboard.dismiss();
+      setGuard({ panelId, panel });
+    },
+    [talk],
+  );
+  const guardDone = useCallback(() => {
+    if (!guard) return;
+    const id = guard.panelId;
+    setGuard(null);
+    talk.confirm(id);
+  }, [guard, talk]);
+
+  /* Receive: the account's details over the chat, the card opening for them
+     if it was closed, and closing again after */
+  const openDetails = useCallback(() => {
+    detailsFrom.current = openedRef.current ? 'open' : 'closed';
+    setGuard(null);
+    setDetails(true);
+    if (!openedRef.current) show(true, { greet: false });
+  }, [show]);
+  const closeDetails = useCallback(() => {
+    setDetails(false);
+    if (detailsFrom.current === 'closed') show(false);
+  }, [show]);
+
+  /* money arriving lands in three places at once: the card, the day, and a
+     chat from Beetle — said in the open chat too, if one is open */
+  const arrive = useCallback(
+    (a: Arrival) => {
+      const after = balance + a.amount;
+      onMove(arrivalMove(a));
+      file(arrivalChat(a, after));
+      setFlash({
+        text: `+${naira(a.amount)} from ${a.from.split(' ')[0]}`,
+        at: Date.now(),
+      });
+      if (openedRef.current) talk.open(arrivalLine(a, after));
+    },
+    [balance, onMove, file, talk],
+  );
+  const arriveRef = useRef(arrive);
+  arriveRef.current = arrive;
 
   /** a chat from the day, picked up where it was left */
   const reopen = useCallback(
@@ -183,11 +304,13 @@ export function Home() {
   useEffect(() => {
     if (!opened) return;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
-      show(false);
+      if (guard) setGuard(null);
+      else if (details) closeDetails();
+      else show(false);
       return true;
     });
     return () => sub.remove();
-  }, [opened, show]);
+  }, [opened, show, guard, details, closeDetails]);
 
   /* the first time: once the balance has resolved, the card dips and springs
      back with the words that say what it is for */
@@ -226,6 +349,12 @@ export function Home() {
   /* the lab opens it somewhere along the way */
   const staged = useRef(false);
   useEffect(() => {
+    if (!LAB || !ok || staged.current || !asked.receive) return;
+    staged.current = true;
+    if (asked.receive === 'details') setTimeout(openDetails, 300);
+    if (asked.receive === 'arrival') setTimeout(() => arriveRef.current(SAMPLE_ARRIVAL), 1400);
+  }, [ok, asked.receive, openDetails]);
+  useEffect(() => {
     if (!LAB || !ok || staged.current || !asked.chat) return;
     if (asked.chat === 'prompt') {
       const prompt = chats.find(c => c.startedBy === 'beetle');
@@ -255,6 +384,12 @@ export function Home() {
       show(true, { greet: false });
       setTimeout(() => void talk.ask({ text: 'Send 20k to Sarah' }), 700);
     }
+    if (asked.chat === 'confirm') {
+      const panel = transferPanel(PEOPLE[0]!, 20_000);
+      talk.preload([turn.you('Send 20k to Sarah'), turn.say('₦20,000 to Sarah Adeyemi at GTBank. Here is what I have; the amount is yours to change.'), turn.panel(panel, 'ready')]);
+      show(true, { greet: false });
+      setTimeout(() => setGuard({ panelId: panel.id, panel }), 700);
+    }
   }, [ok, asked.chat, show, talk, chats, reopen]);
 
   const send = () => {
@@ -266,12 +401,36 @@ export function Home() {
   const toCamera = () => router.push('/scan');
 
   const veilStyle = useAnimatedStyle(() => ({ top: openH.value }));
+  /* the shortcuts under the chips arrive with the rest of the open card, and
+     the day below the chips goes as the card opens, so the strip that stays
+     is the head, the chips and the shortcuts and nothing else */
+  const shortcutsStyle = useAnimatedStyle(() => ({
+    opacity: Math.min(1, Math.max(0, (open.value - 0.6) / 0.4)),
+  }));
+  const dayStyle = useAnimatedStyle(() => ({
+    opacity: 1 - Math.min(1, Math.max(0, (open.value - 0.25) / 0.35)),
+  }));
   /* the day below the open card: a tap on it, or a push up on it, brings the card back up */
   const showRef = useRef(show);
   showRef.current = show;
   const close = useCallback(() => showRef.current(false), []);
-  const veilPan = useCardDrag({ open, openH, closedH, only: 'close', settle: to => !to && close() });
-  const veilTap = useMemo(() => Gesture.Tap().onEnd(() => runOnJS(close)()), [close]);
+  const veilPan = useCardDrag({
+    open,
+    openH,
+    closedH,
+    only: 'close',
+    settle: to => !to && close(),
+  });
+  /* a tap on the day closes the card — except on the shortcuts row, whose
+     buttons answer their own taps */
+  const veilTap = useMemo(
+    () =>
+      Gesture.Tap().onEnd(e => {
+        if (e.y >= SHORTCUTS_TOP && e.y <= SHORTCUTS_TOP + SHORTCUTS_H) return;
+        runOnJS(close)();
+      }),
+    [close],
+  );
   const veilGesture = useMemo(() => Gesture.Exclusive(veilPan, veilTap), [veilPan, veilTap]);
 
   if (!ok || !app.session || !h || !account) return null;
@@ -363,73 +522,117 @@ export function Home() {
             dollars={`~ ${Math.round(balance / rate).toLocaleString('en-NG')} USD`}
             hint={hint}
             onSend={() => {
-              show(true, { opening: 'Who should I send to, and how much? A name I know, or an account number — or show me a photo of one.' });
+              show(true, {
+                opening: 'Who should I send to, and how much? A name I know, or an account number — or show me a photo of one.',
+              });
               setTimeout(() => input.current?.focus(), 380);
             }}
-            onReceive={next('Receiving')}
+            onReceive={openDetails}
+            flash={flash}
             onDollars={() => askFor('What about dollars?')}
-            chat={<Chat talk={talk} active={opened} top={haze + 8} bottom={FOOT_BAND - 8} />}
+            chat={<Chat talk={talk} active={opened} top={haze + 8} bottom={FOOT_BAND - 8} confirm={confirmWithPasscode} />}
+            over={
+              details && account ? (
+                <ReceivePane
+                  account={account}
+                  onDone={closeDetails}
+                  onPretend={() => {
+                    closeDetails();
+                    setTimeout(() => arriveRef.current(SAMPLE_ARRIVAL), 1400);
+                  }}
+                />
+              ) : guard ? (
+                <PasscodePane
+                  key={guard.panelId}
+                  amount={naira(Math.abs(guard.panel.move?.amount ?? guard.panel.action?.amount ?? 0))}
+                  title={whereTo(guard.panel)}
+                  sub={feeLine(guard.panel)}
+                  verify={app.checkPasscode}
+                  onDone={guardDone}
+                  onCancel={() => setGuard(null)}
+                />
+              ) : undefined
+            }
             foot={<AskBar ref={input} value={draft} onChange={setDraft} onSubmit={send} onCamera={toCamera} />}
           />
-          <View style={{ paddingHorizontal: frame.sidePad, paddingTop: 32, gap: frame.columnGap }}>
+          <View
+            style={{
+              paddingHorizontal: frame.sidePad,
+              paddingTop: 32,
+              gap: frame.columnGap,
+            }}
+          >
             {empty ? (
               <>
                 {dayHead('Nothing to notice yet.')}
                 {chips}
-                {todayChats.length ? (
-                  <>
-                    <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
-                      Today
-                    </Meta>
-                    <View style={{ gap: 34 }}>{todayChats}</View>
-                  </>
-                ) : filter === 'Chats' ? (
-                  <Meta tone="tertiary">No chats yet. Pull the card down to start one.</Meta>
-                ) : null}
-                {filter === 'Chats' ? null : (
-                  <>
-                    <Tile
-                      onPress={next('Ways to be paid')}
-                      lead={
-                        <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' }}>
-                          <Head tone="inverse">₦</Head>
-                        </View>
-                      }
-                      title="Nothing has moved yet"
-                      sub="Your first transfer shows up here"
-                    />
-                    <View style={{ alignSelf: 'center', marginTop: 4 }}>
-                      <Button label="Receive" leading="receive-filled" badge size={40} full={false} onPress={next('Receiving')} />
-                    </View>
-                  </>
-                )}
+                <Animated.View style={[{ gap: frame.columnGap }, dayStyle]}>
+                  {todayChats.length ? (
+                    <>
+                      <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
+                        Today
+                      </Meta>
+                      <View style={{ gap: 34 }}>{todayChats}</View>
+                    </>
+                  ) : filter === 'Chats' ? (
+                    <Meta tone="tertiary">No chats yet. Pull the card down to start one.</Meta>
+                  ) : null}
+                  {filter === 'Chats' ? null : (
+                    <>
+                      <Tile
+                        onPress={next('Ways to be paid')}
+                        lead={
+                          <View
+                            style={{
+                              width: 48,
+                              height: 48,
+                              borderRadius: 24,
+                              backgroundColor: colour.ink,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <Head tone="inverse">₦</Head>
+                          </View>
+                        }
+                        title="Nothing has moved yet"
+                        sub="Your first transfer shows up here"
+                      />
+                      <View style={{ alignSelf: 'center', marginTop: 4 }}>
+                        <Button label="Receive" leading="receive-filled" badge size={40} full={false} onPress={openDetails} />
+                      </View>
+                    </>
+                  )}
+                </Animated.View>
               </>
             ) : (
               <>
                 {dayHead('What I noticed, and every naira that moved.')}
                 {chips}
-                <View style={{ gap: 8 }}>
-                  <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
-                    Today
-                  </Meta>
-                  {h.health !== null && filter !== 'Chats' ? <ScoreRow score={h.health} title="Money health" sub={h.healthMove} onPress={next('Money health')} /> : null}
-                </View>
-                {todayChats.length ? <View style={{ gap: 34 }}>{todayChats}</View> : filter === 'Chats' ? <Meta tone="tertiary">No chats yet. Pull the card down to start one.</Meta> : null}
-                {insight('topup', { onDismiss: true })}
-                <View style={{ gap: 34 }}>{rows('today', 0, 4)}</View>
-                {insight('data')}
-                <View style={{ gap: 34 }}>{rows('today', 4)}</View>
-                {insight('changes')}
-                {h.ledger.length && filter !== 'Chats' ? (
-                  <>
-                    <Meta tone="secondary">Yesterday</Meta>
-                    <Tile onPress={next('The card')} plain go lead={<Mark glyph="card" />} title="Your card is ready" sub="Spend online anywhere" />
-                    <View style={{ gap: 34 }}>{rows('yesterday', 0, 2)}</View>
-                    {insight('spend')}
-                    <View style={{ gap: 34 }}>{rows('yesterday', 2)}</View>
-                  </>
-                ) : null}
-                {h.footer && filter !== 'Chats' ? <Meta tone="tertiary">{h.footer}</Meta> : null}
+                <Animated.View style={[{ gap: frame.columnGap }, dayStyle]}>
+                  <View style={{ gap: 8 }}>
+                    <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
+                      Today
+                    </Meta>
+                    {h.health !== null && filter !== 'Chats' ? <ScoreRow score={h.health} title="Money health" sub={h.healthMove} onPress={next('Money health')} /> : null}
+                  </View>
+                  {todayChats.length ? <View style={{ gap: 34 }}>{todayChats}</View> : filter === 'Chats' ? <Meta tone="tertiary">No chats yet. Pull the card down to start one.</Meta> : null}
+                  {insight('topup', { onDismiss: true })}
+                  <View style={{ gap: 34 }}>{rows('today', 0, 4)}</View>
+                  {insight('data')}
+                  <View style={{ gap: 34 }}>{rows('today', 4)}</View>
+                  {insight('changes')}
+                  {h.ledger.length && filter !== 'Chats' ? (
+                    <>
+                      <Meta tone="secondary">Yesterday</Meta>
+                      <Tile onPress={next('The card')} plain go lead={<Mark glyph="card" />} title="Your card is ready" sub="Spend online anywhere" />
+                      <View style={{ gap: 34 }}>{rows('yesterday', 0, 2)}</View>
+                      {insight('spend')}
+                      <View style={{ gap: 34 }}>{rows('yesterday', 2)}</View>
+                    </>
+                  ) : null}
+                  {h.footer && filter !== 'Chats' ? <Meta tone="tertiary">{h.footer}</Meta> : null}
+                </Animated.View>
               </>
             )}
             <Pressable accessibilityRole="button" onPress={() => app.signOut().then(() => router.replace('/way-in'))} style={{ alignSelf: 'center', paddingVertical: 8 }}>
@@ -443,12 +646,84 @@ export function Home() {
       {opened ? (
         <Animated.View style={[{ position: 'absolute', left: 0, right: 0, bottom: 0 }, veilStyle]}>
           <GestureDetector gesture={veilGesture}>
-            <View accessibilityRole="button" accessibilityLabel="Back to the day" style={{ flex: 1 }} />
+            <View accessibilityRole="button" accessibilityLabel="Back to the day" style={{ flex: 1 }}>
+              {/* the shortcuts under the chips: each hands its thing to the chat
+                  above; a push up that starts on one still closes the card */}
+              <Animated.View
+                style={[
+                  {
+                    position: 'absolute',
+                    left: frame.sidePad,
+                    right: frame.sidePad,
+                    top: SHORTCUTS_TOP,
+                    height: SHORTCUTS_H,
+                  },
+                  shortcutsStyle,
+                ]}
+              >
+                <Shortcuts
+                  items={[
+                    {
+                      glyph: 'power',
+                      label: 'Bills',
+                      onPress: () => askFor('Top up my light'),
+                    },
+                    {
+                      glyph: 'data',
+                      label: 'Data',
+                      onPress: () => askFor('Buy data'),
+                    },
+                    { glyph: 'down', label: 'Receive', onPress: openDetails },
+                    { glyph: 'camera', label: 'Photo', onPress: toCamera },
+                  ]}
+                />
+              </Animated.View>
+            </View>
           </GestureDetector>
         </Animated.View>
       ) : null}
     </View>
   );
+}
+
+/* The row of shortcuts under the open card: a glyph on a disc and a word,
+   four across, each a quick way into what the chat above can do. */
+function Shortcuts({ items }: { items: { glyph: IconName; label: string; onPress: () => void }[] }) {
+  return (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+      {items.map(i => (
+        <Tap key={i.label} accessibilityRole="button" accessibilityLabel={i.label} onPress={i.onPress} style={{ width: 72, alignItems: 'center', gap: 4 }}>
+          <View
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              backgroundColor: colour.surface2,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Icon name={i.glyph} size={20} colour={colour.ink} />
+          </View>
+          <Caption tone="secondary">{i.label}</Caption>
+        </Tap>
+      ))}
+    </View>
+  );
+}
+
+/** Where the money is going, for the passcode pane. */
+function whereTo(panel: Panel): string {
+  if (panel.tool === 'transfer') return `To ${panel.rows[0]?.value ?? 'them'} at ${panel.rows[1]?.value ?? 'their bank'}`;
+  return panel.move ? `${panel.move.name} · ${panel.move.detail}` : panel.title;
+}
+
+/** What the passcode pane says under where the money is going: the fee, if any. */
+function feeLine(panel: Panel): string | undefined {
+  if (!panel.action) return undefined;
+  const amount = Math.abs(panel.move?.amount ?? panel.action.amount);
+  const fee = panel.action.amount - amount;
+  return fee > 0 ? `plus ${naira(fee)} fee` : 'No fee';
 }
 
 /* A chat in the day: the mark, what it was about, what it came to, and
@@ -464,7 +739,16 @@ function ChatRow({ chat, onPress }: { chat: ChatRecord; onPress: () => void }) {
         </Meta>
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-        {chat.unread ? <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colour.accent }} /> : null}
+        {chat.unread ? (
+          <View
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: 3,
+              backgroundColor: colour.accent,
+            }}
+          />
+        ) : null}
         <Label tone="secondary">{chat.time}</Label>
       </View>
     </Tap>

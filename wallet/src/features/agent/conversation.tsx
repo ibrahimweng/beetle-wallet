@@ -195,6 +195,23 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
   return useMemo(() => ({ turns, thinking, pending, ask, ready, confirm, edit, preload, open, load, reset }), [turns, thinking, pending, ask, ready, confirm, edit, preload, open, load, reset]);
 }
 
+/** The conversation as lines, for a Beetle with a memory of its own: what
+    you said, what it said, and what each panel was and came to. */
+export function transcriptOf(turns: Turn[]): { who: 'you' | 'beetle'; text: string }[] {
+  const out: { who: 'you' | 'beetle'; text: string }[] = [];
+  for (const t of turns) {
+    if (t.who === 'you') out.push({ who: 'you', text: t.photo && t.text === 'A photo' ? '[a photo]' : t.text });
+    else if (t.block.kind === 'say') out.push({ who: 'beetle', text: t.block.text });
+    else if (t.block.kind === 'note') out.push({ who: 'beetle', text: `${t.block.title}. ${t.block.body}` });
+    else if (t.block.kind === 'panel') {
+      const p = t.block.panel;
+      const state = 'state' in t && t.state === 'done' ? 'confirmed by the owner' : 'up, waiting for the owner';
+      out.push({ who: 'beetle', text: `[Panel ${p.id}: ${p.title} — ${p.rows.map(r => `${r.label}: ${r.value}`).join(', ')} — ${state}]` });
+    }
+  }
+  return out;
+}
+
 export const turn = {
   you: (text: string, photo?: Photo): Turn => ({ id: id(), who: 'you', text, photo }),
   say: (text: string): Turn => ({ id: id(), who: 'beetle', block: { kind: 'say', text } }),

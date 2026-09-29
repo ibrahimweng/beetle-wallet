@@ -56,15 +56,16 @@ export function canEnter(step: Step, p: Progress): boolean {
   return ORDER.indexOf(step) <= ORDER.indexOf(nextStep(p));
 }
 
-/** The address of a step. */
+/** The address of a step. The whole way in is one screen, so every step
+    before home shares its address; the screen works out the stage itself. */
 export const routeOf: Record<Step, string> = {
-  welcome: '/welcome',
-  phone: '/phone',
-  code: '/code',
-  identity: '/identity',
-  confirm: '/confirm',
-  face: '/face',
-  passcode: '/passcode',
-  ready: '/ready',
+  welcome: '/way-in',
+  phone: '/way-in',
+  code: '/way-in',
+  identity: '/way-in',
+  confirm: '/way-in',
+  face: '/way-in',
+  passcode: '/way-in',
+  ready: '/way-in',
   home: '/home',
 };

@@ -7,7 +7,6 @@ import { Animated, Easing, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Display, Icon, Meta, Pane, colour } from '../src/design';
 import { useApp } from '../src/features/onboarding/store';
-import { landing, nextStep, routeOf } from '../src/features/onboarding/machine';
 
 const HOLD = 900;
 
@@ -28,7 +27,9 @@ export default function Boot() {
   }, [fill]);
   useEffect(() => {
     if (!ready || !held) return;
-    router.replace(routeOf[session ? landing(progress) : nextStep(progress)]);
+    /* a session goes home, unless the account was opened a moment ago and the
+       ready screen has not been seen; everything else is the way in */
+    router.replace(session && !progress.accountNumber ? '/home' : '/way-in');
   }, [ready, held, session, progress, router]);
   return (
     <View

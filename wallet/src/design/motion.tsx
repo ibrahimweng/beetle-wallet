@@ -93,7 +93,7 @@ export const Backdrop = ({ children }: { children: ReactNode }) => <Behind.Provi
    one. iOS cannot blur a view's own contents, so there the fade and the small
    scale carry the arrival by themselves. */
 const CAN_BLUR = Platform.OS !== 'ios';
-const blurred = (px: number) => {
+export const blurred = (px: number) => {
   'worklet';
   return CAN_BLUR ? { filter: [{ blur: px }] } : {};
 };

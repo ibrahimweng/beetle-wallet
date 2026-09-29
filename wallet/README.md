@@ -54,10 +54,10 @@ mocks in and says so on the code screen; a real `AuthService` and
 
 | Folder | What it is |
 |---|---|
-| `app/` | The routes, one file per screen, grouped by whether they come before or after the session. `expo-router` reads this folder as the map. |
+| `app/` | The routes: the loading screen, the way in as one screen, and home. `expo-router` reads this folder as the map. |
 | `src/design/` | The design system read off the Figma file: tokens, type, icons, motion, and the pieces every screen is made of |
 | `src/icons.ts` | The 95 glyphs, generated from `../src/icons.js` by `npm run icons`; never edited by hand |
-| `src/features/onboarding/` | The way in: the step machine (`machine.ts`), what is remembered and the session (`store.tsx`), the rules (`validation.ts`), the screen that takes digits (`DigitStep.tsx`), and the guards that keep a step from being reached by typing its address |
+| `src/features/onboarding/` | The way in: the step machine (`machine.ts`), what is remembered and the session (`store.tsx`), the rules (`validation.ts`), the one screen and its choreography (`WayIn.tsx`), what each stage of it shows (`views.tsx`, `stages.ts`), and the guard that keeps home for a session |
 | `src/features/home/` | What home shows for an account: nothing for a new one, the design's world for the demo one |
 | `src/services/` | `AuthService`, `IdentityService`, storage and hashing behind interfaces, with the mocks this build runs on |
 | `src/lib/` | Formatting: digit groups, naira and kobo, dates |
@@ -73,10 +73,19 @@ against that.
 
 ## How it moves
 
-Everything is in `src/design/motion.tsx`, the way every colour is in
-`tokens.ts`. A screen arrives out of a blur and leaves back into one: the one
-going softens and fades in 280ms, the next sharpens and fills in 520ms, and
-nothing slides in from the side. A press dips to 96% in 90ms and springs back
+The way in is one screen that never reloads. What changes as you go is the
+colour of the wash at the top, the glyph above the title, the stack of
+finished steps above that, the title, the line under it, what sits beneath
+and what waits at the bottom. A finished step's title travels up into the
+stack, shrinking as it goes, and the next title takes its place; content
+arrives from below out of a blur and leaves upward into one; the keypad and
+the button rise and drop like a keyboard. Going back runs the same movements
+the other way.
+
+Every duration and curve is in `src/design/motion.tsx`, the way every colour
+is in `tokens.ts`. Whatever arrives comes out of a blur, whatever leaves goes
+back into one: the thing going softens and fades in 280ms, the next sharpens
+and fills in 520ms, and nothing slides in from the side. A press dips to 96% in 90ms and springs back
 past full. A marker lands beside a step 140ms after the step's label has
 changed. A button's label changes through a blur rather than being swapped.
 The wash at the top of a step recedes while you type. The ticks on the ready

@@ -65,7 +65,7 @@ export default function Home() {
   if (!h.ledger.length) {
     return (
       <Screen dock={dock}>
-        <WalletHeader onSettings={() => app.signOut().then(() => router.replace('/welcome'))} onAlerts={next('Alerts')} />
+        <WalletHeader onSettings={() => app.signOut().then(() => router.replace('/way-in'))} onAlerts={next('Alerts')} />
         <Balance whole={naira(h.everyday)} kobo={kobo(h.everyday)} change="New account" />
         <View style={{ alignSelf: 'center', marginTop: 4 }}>
           <Button label="Receive" leading="receive-filled" badge size={40} full={false} onPress={next('Receiving')} />
@@ -138,7 +138,7 @@ export default function Home() {
       {insight('spend')}
       <View style={{ gap: 34 }}>{rows('yesterday', 2)}</View>
       {h.footer ? <Meta tone="tertiary">{h.footer}</Meta> : null}
-      <Pressable accessibilityRole="button" onPress={() => app.signOut().then(() => router.replace('/welcome'))} style={{ alignSelf: 'center', paddingVertical: 8 }}>
+      <Pressable accessibilityRole="button" onPress={() => app.signOut().then(() => router.replace('/way-in'))} style={{ alignSelf: 'center', paddingVertical: 8 }}>
         <Label tone="secondary">Sign out</Label>
       </Pressable>
     </Screen>

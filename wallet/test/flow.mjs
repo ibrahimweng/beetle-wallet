@@ -112,12 +112,19 @@ async function trace(name, ms, matches, { since = Date.now(), picture } = {}) {
     }
     const s = await page.evaluate(ms => {
       const out = {};
+      const look = el => ({ opacity: +getComputedStyle(el).opacity, blur: +((el.style.filter.match(/blur\(([\d.]+)px\)/) || [])[1] || 0) });
       for (const [key, match, deep] of ms) {
         let found = null;
-        for (const el of document.querySelectorAll('[style*="filter"]')) {
-          if (!(el.innerText || '').replace(/\s+/g, ' ').includes(match)) continue;
-          found = { opacity: +getComputedStyle(el).opacity, blur: +((el.style.filter.match(/blur\(([\d.]+)px\)/) || [])[1] || 0) };
-          if (!deep) break;
+        if (match.startsWith('[')) {
+          /* a selector: the element itself */
+          const el = document.querySelector(match);
+          found = el ? look(el) : null;
+        } else {
+          for (const el of document.querySelectorAll('[style*="filter"]')) {
+            if (!(el.innerText || '').replace(/\s+/g, ' ').includes(match)) continue;
+            found = look(el);
+            if (!deep) break;
+          }
         }
         out[key] = found;
       }
@@ -141,7 +148,7 @@ async function trace(name, ms, matches, { since = Date.now(), picture } = {}) {
   motion[name] = samples;
   return samples;
 }
-const firstAt = (samples, key, test) => samples.find(x => x[key] && test(x[key]));
+const firstAt = (samples, key, test, after = -1) => samples.find(x => x.t > after && x[key] && test(x[key]));
 const must = (ok, what) => {
   if (!ok) throw new Error(`The motion is not as the motion file says: ${what}`);
 };
@@ -167,12 +174,17 @@ try {
      softens out in 280ms, the number step sharpens in over 520ms */
   const tapped = Date.now();
   await tap('Open an account');
-  const change = await trace('welcome-to-number', 1400, [['welcome', 'Open an account', false], ['number', 'Your number', false]], { since: tapped, picture: { at: 120, name: 'welcome-leaving' } });
-  const gone = firstAt(change, 'welcome', w => w.opacity < 0.15);
-  must(gone && gone.t <= 600, 'the welcome should be gone within 600ms of the tap');
+  /* the welcome's buttons leave (the first thing on its way out), and the
+     new title arrives out of a blur */
+  const change = await trace('welcome-to-number', 1400, [['welcome', '[data-testid="leaving"]', false], ['number', '[data-testid="title"]', false]], { since: tapped, picture: { at: 120, name: 'welcome-leaving' } });
+  /* gone: faded to nothing, or already taken down after fading (the picture
+     mid-way can take longer than the fade itself) */
+  const seen = change.findIndex(x => x.welcome);
+  const gone = seen < 0 ? undefined : change.find((x, i) => i > seen && (!x.welcome || x.welcome.opacity < 0.15));
+  must(gone && gone.t <= 600, `the welcome should be gone within 600ms of the tap (samples: ${change.slice(0, 12).map(x => `${x.t}:${x.welcome ? x.welcome.opacity.toFixed(2) + '/' + x.welcome.blur.toFixed(1) : '-'}`).join(' ')})`);
   const soft = firstAt(change, 'number', n => n.blur > 1);
   must(soft, 'the number step should arrive out of a blur');
-  const sharp = firstAt(change, 'number', n => n.opacity > 0.98 && n.blur < 0.05);
+  const sharp = firstAt(change, 'number', n => n.opacity > 0.98 && n.blur < 0.05, soft.t);
   must(sharp && sharp.t <= 1400, 'the number step should be sharp and whole within 1.4s');
   console.log(`  welcome gone at ${gone.t}ms, number step first seen ${soft.number.blur.toFixed(1)}px soft at ${soft.t}ms, sharp at ${sharp.t}ms`);
   await see('I will text you six digits');
@@ -186,7 +198,7 @@ try {
   await type(NEW_PHONE.slice(10));
 
   await see('a moment ago');
-  at('/code');
+  at('/way-in');
   await shot('code');
   await type('111111');
   await see('did not match');
@@ -194,31 +206,31 @@ try {
   await type(CODE);
 
   await see('whichever you know');
-  at('/identity');
+  at('/way-in');
   await shot('identity');
   await type('12340000123');
   await see('Nothing came back');
   await shot('no-match');
   await tap('Try again');
   await see('whichever you know');
-  at('/identity');
+  at('/way-in');
   await type(NIN);
 
   await see('Ibrahim Musa');
-  at('/confirm');
+  at('/way-in');
   await shot('confirm');
   await tap('Yes, that is me');
   await shot('confirm-leaving', 120);
 
   await see('Hold still and look at the camera');
-  at('/face');
+  at('/way-in');
   await shot('face');
   await tap('Take it');
   await button('Hold still…').waitFor();
   await shot('face-checking', 100);
 
   await see('pick something nobody watching could guess');
-  at('/passcode');
+  at('/way-in');
   await shot('passcode');
   await type('111');
   await shot('passcode-typing', 300);
@@ -236,7 +248,7 @@ try {
   await type(PASSCODE);
 
   await arrives('Your account is ready');
-  at('/ready');
+  at('/way-in');
   const ticks = await trace('ready-ticks', 1300, [['ready', 'Your account is ready', false]], { picture: { at: 330, name: 'ready-landing' } });
   const early = ticks[0];
   const late = ticks[ticks.length - 1];
@@ -271,19 +283,19 @@ try {
   console.log('Signing out');
   await tap('Settings');
   await see('Open an account');
-  at('/welcome');
+  at('/way-in');
   /* and home, or a later step, is not for somebody who is not */
   await page.goto(`${base}/home`, { waitUntil: 'load' });
   await see('Open an account');
-  at('/welcome');
+  at('/way-in');
   await page.goto(`${base}/passcode`, { waitUntil: 'load' });
   await see('Open an account');
-  at('/welcome');
+  at('/way-in');
 
   console.log('Signing in');
   await tap('Sign in');
   await see('Welcome back');
-  at('/sign-in');
+  at('/way-in');
   await shot('sign-in');
   await type('09020000000');
   await see('I do not know this number yet');
@@ -291,7 +303,7 @@ try {
   await wipe(11);
   await type(DEMO_PHONE);
   await see('On a phone I already know');
-  at('/sign-in-code');
+  at('/way-in');
   await shot('sign-in-code');
   await type(CODE);
 

@@ -97,7 +97,7 @@ mocks in and says so on the code screen; a real `AuthService` and
 | `src/features/passcode/` | The gate before money moves: the passcode on its sheet over the chat (`Passcode.tsx`) and the check itself, with the tries and the lock (`check.ts`) |
 | `src/features/receive/` | Being paid: the account's details over the chat (`Receive.tsx`), money arriving (`arrival.ts`), and the clipboard |
 | `src/features/receipts/` | A receipt for every line in the day: the record and the frames' own figures (`receipts.ts`), the page (`ReceiptScreen.tsx`), the share sheet (`ShareSheet.tsx`); the card in the chat is `src/features/agent/ReceiptCard.tsx` |
-| `src/features/more/` | The bar at the foot of home (`Bar.tsx`) and More, the five actions up out of its plus (`More.tsx`), with the way each page asks Beetle something from its ask bar |
+| `src/features/more/` | The one foot every screen shares (`Foot.tsx`): the bar on home, Back and the ask bar — or Back and the page's button — on a page, morphing from the one to the other; and More, the actions up out of its plus (`More.tsx`), with the way each page asks Beetle something from its ask bar |
 | `src/features/activities/` | The record (`Activities.tsx`) in the frame's order (`rows.ts`), and the answer to a question about spending (`Answer.tsx`) |
 | `src/features/settings/` | Settings from the mark at the top left (`Settings.tsx`), Your details on its sheet (`Details.tsx`), what the pages set, kept per account (`prefs.ts`), and the pages: Lock and privacy, Spending limits and Past your own limit (`words.ts` holds the three words), Standing instructions and Set this up?, Devices, Not your phone, A new passcode, Virtual card |
 | `src/lab/` | The lab: which builds have it (`enabled.ts`), every feature and the places in it with the state each needs (`catalogue.ts`), the screen, and the tab that comes back to it |
@@ -318,23 +318,35 @@ with round 5. The lines the frames draw carry the frames' own figures
 its panel or its arrival knew, kept per account by `src/features/home/moves.ts`
 so the balance and the receipts hold across a restart.
 
-## The bar and More
+## The foot, the bar and More
 
-Home carries a bar at its foot, drawn the way Fuse draws its own: a white
-surface with its top corners rounded and a soft shadow above it, three bare
-glyphs at the left — Home, Activities, Settings, the one you are on in
-black — and the black plus to the side. It goes down as the card opens —
-the open chat has the shortcuts row instead — and comes back as the card
-closes. The plus opens More, from its frame: the screen behind goes soft
-under a real blur, and the actions come up out of the button, the nearest
-first, each with its own coloured glyph. The frame draws five; the bar
-carries Activities and Settings, so the sheet keeps Camera, Send money and
-Receive. The plus turns into a cross on the way in and back on the way out,
-and anywhere that is not an action closes it; closing runs the whole thing
-backwards before the screen goes. The pages whose frames carry the plus —
-Activities, Standing instructions, the card — open the same sheet; from
-there Send money and Receive go back to home, where the chat and the
-account's details are.
+Every screen shares one foot, over the stack, the way Fuse keeps its own
+(`src/features/more/Foot.tsx`). On home it is the bar, drawn the way Fuse
+draws its own: a white surface with its top corners rounded and a soft
+shadow above it, three bare glyphs at the left — Home, Activities,
+Settings, the one you are on in black — and the black plus to the side. It
+goes down as the card opens — the open chat has the shortcuts row instead
+— and comes back as the card closes. On a page that needs a way back it is
+Back and the ask bar, with the plus where the frame draws one (Activities,
+Standing instructions, the card), or Back and the page's one button (Past
+your own limit), so Back is always at the bottom left, beside a
+confirmation button too. Home to a page is one movement, as Fuse does it:
+the plus scales away, the three glyphs slide right and become the ask bar,
+and Back slides in from the left edge; back to home runs it in reverse.
+Each screen says what its foot holds while it has focus (`useFoot`), and
+the numbers are the frames' docks: 104 tall, the row 56 with 24 above and
+below, 16 in from either side, Back 44, the bar 48, the button 56. A screen
+that says nothing — the way in, the lab, the camera, a new passcode — has
+none, and the foot goes down out of the way.
+
+The plus opens More, from its frame: the screen behind goes soft under a
+real blur, and the actions come up out of the button, the nearest first,
+each with its own coloured glyph. The frame draws five; the bar carries
+Activities and Settings, so the sheet keeps Camera, Send money and
+Receive. The plus turns into a cross on the way in and back on the way
+out, and anywhere that is not an action closes it; closing runs the whole
+thing backwards before the screen goes. From a page, Send money and
+Receive go back to home, where the chat and the account's details are.
 
 ## Activities
 
@@ -428,12 +440,15 @@ The full receipt sends the amount up into the receipt, the bar's clock
 becomes the head of Activities, the mark becomes the word Settings. All of
 it is `src/design/journey.tsx`: a departure records where it started, the
 screen arriving takes it, and a screen opened any other way simply fades
-in.
+in. The foot keeps its own thread across the change: the plus scales away,
+the glyphs slide right into the ask bar and Back slides in from the left,
+in the same 340ms the screens fade in.
 
 `npm run flow` traces the moments that matter — the first screen change,
 the ticks, the balance, the card opening under a finger, the first-time
 dip, a title coming up from the row that opened it, a line growing into
-its receipt — and fails if they are not moving the way that file says.
+its receipt, Back sliding in as the bar becomes the ask bar — and fails if
+they are not moving the way that file says.
 
 ## What comes next
 

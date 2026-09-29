@@ -57,8 +57,8 @@ import { rowFrom, useMoves } from './moves';
 import { AskBar } from './AskBar';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { CLOSED_H, FOOT_BAND, WalletCard, useCardDrag, useCardTop } from './WalletCard';
-import { Bar, BAR_H } from '../more/Bar';
-import { More, moreTo, type MoreItem } from '../more/More';
+import { BAR_H, foot, useFoot } from '../more/Foot';
+import { moreTo, type MoreItem } from '../more/More';
 import { ReceiptPeek } from '../receipts/Peek';
 import { SavedPeek } from '../agent/SavedPeek';
 import type { SavedKind } from '../agent/AskPanel';
@@ -95,8 +95,6 @@ function HomeScreen() {
   const { height: H } = useWindowDimensions();
   const { closedH, haze } = useCardTop();
   const asked = useLocalSearchParams<{ chat?: string; receive?: string; say?: string; about?: string; send?: string; more?: string }>();
-  /** the More sheet over everything, from the bar's plus */
-  const [more, setMore] = useState(false);
   /** a line's receipt in a few words, grown out of the line */
   const [peek, setPeek] = useState<{ card: Card; at: Rect } | null>(null);
   const receding = useRecession();
@@ -527,20 +525,21 @@ function HomeScreen() {
 
   /* the lab opens home with More already up */
   useEffect(() => {
-    if (LAB && ok && asked.more === '1') setTimeout(() => setMore(true), 400);
+    if (LAB && ok && asked.more === '1') setTimeout(() => foot.openMore(), 400);
   }, [ok, asked.more]);
 
   /* what More's five do from home: the camera, the record and Settings on
      their own screens, sending and receiving in the card */
   const pickMore = useCallback(
     (item: MoreItem) => {
-      setMore(false);
       if (item === 'send') sendIn();
       else if (item === 'receive') openDetails();
       else moreTo(router, item);
     },
     [sendIn, openDetails, router],
   );
+  /* the foot is the bar here: it goes down as the card opens, and More comes up out of its plus */
+  useFoot({ kind: 'bar', open, hidden: opened, onPick: pickMore, veil: peek ? 'recede' : undefined });
 
   const send = () => {
     const text = draft.trim();
@@ -832,9 +831,6 @@ function HomeScreen() {
             </GestureDetector>
           </Animated.View>
         ) : null}
-        {/* the bar, while the card is closed: the open chat has the shortcuts row instead */}
-        {/* out of the way of a push up on the open chat, even while it is still on its way down */}
-        <Bar open={open} hidden={opened} onMore={() => setMore(true)} />
       </Animated.View>
       {/* the passcode, on its sheet over everything, before money moves */}
       {guard ? (
@@ -848,7 +844,6 @@ function HomeScreen() {
           onCancel={() => setGuard(null)}
         />
       ) : null}
-      {more ? <More onPick={pickMore} onClose={() => setMore(false)} /> : null}
       {peek ? <ReceiptPeek card={peek.card} at={peek.at} onClose={() => setPeek(null)} /> : null}
       {pick ? (
         <SavedPeek

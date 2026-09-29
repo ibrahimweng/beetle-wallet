@@ -7,10 +7,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ActionButton, Banner, Card, CardFace, Dock, Label, Meta, Meter, PageHead, PillRow, SayCard, Screen, Tools, colour, toast } from '../../design';
+import { Banner, Card, CardFace, Label, Meta, Meter, PageHead, PillRow, SayCard, Screen, Tools, colour, toast } from '../../design';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
-import { askHome, useMore } from '../more/More';
+import { askHome } from '../more/More';
+import { useFoot } from '../more/Foot';
 import { naira } from '../../lib/format';
 import { usePrefs } from './prefs';
 
@@ -22,7 +23,6 @@ export function CardScreen() {
   const ok = useSessionGuard();
   const account = app.session?.account;
   const { prefs, ready, set } = usePrefs(account?.accountNumber);
-  const { sheet, openMore } = useMore(router);
   const [shown, setShown] = useState(false);
   const hide = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(
@@ -31,19 +31,12 @@ export function CardScreen() {
     },
     [],
   );
+  /* the foot: Back, the ask bar with this page's question, and the plus the frame draws */
+  useFoot({ kind: 'ask', placeholder: 'Ask about this card', onAsk: q => askHome(router, q), onScan: () => router.push('/scan'), more: true });
   if (!ok || !account) return null;
-  const dock = (
-    <Dock
-      placeholder="Ask about this card"
-      onBack={() => router.back()}
-      onAsk={q => askHome(router, q)}
-      onScan={() => router.push('/scan')}
-      action={<ActionButton onPress={openMore} label="More" />}
-    />
-  );
   if (!ready)
     return (
-      <Screen dock={dock} still>
+      <Screen still>
         <View />
       </Screen>
     );
@@ -62,7 +55,7 @@ export function CardScreen() {
   const left = CARD.ceiling - CARD.spent;
   return (
     <View style={{ flex: 1 }}>
-      <Screen dock={dock} head={<PageHead lead title="Virtual card" sub="Made for one merchant, with its own limit" />}>
+      <Screen head={<PageHead lead title="Virtual card" sub="Made for one merchant, with its own limit" />}>
         <View style={{ gap: 12 }}>
           <CardFace only={CARD.only} number={shown ? CARD.full : CARD.hidden} name={`${account.firstName} ${account.lastName}`.toUpperCase()} expiry={CARD.expiry} frozen={prefs.cardFrozen} />
           <Tools
@@ -88,7 +81,6 @@ export function CardScreen() {
           <PillRow glyph="plus" label="Make another card" onPress={later('A second card', 5)} />
         </View>
       </Screen>
-      {sheet}
     </View>
   );
 }

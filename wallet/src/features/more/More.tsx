@@ -159,18 +159,3 @@ const s = StyleSheet.create({
 export function askHome(router: Router, q: string, about?: string) {
   router.dismissTo({ pathname: '/home', params: { say: `${q} #${Date.now()}`, ...(about ? { about } : {}) } });
 }
-
-/** More over any page that carries the plus: the sheet, and the way to open it. */
-export function useMore(router: Router) {
-  const [open, setOpen] = useState(false);
-  const sheet = open ? (
-    <More
-      onPick={item => {
-        setOpen(false);
-        moreTo(router, item);
-      }}
-      onClose={() => setOpen(false)}
-    />
-  ) : null;
-  return { sheet, openMore: () => setOpen(true) };
-}

@@ -122,6 +122,7 @@ async function trace(name, ms, matches, { since = Date.now(), picture } = {}) {
         blur: +((el.style.filter.match(/blur\(([\d.]+)px\)/) || [])[1] || 0),
         height: el.getBoundingClientRect().height,
         top: el.getBoundingClientRect().top,
+        left: el.getBoundingClientRect().left,
         size: parseFloat(getComputedStyle(el).fontSize),
       });
       for (const [key, match, deep] of ms) {
@@ -714,6 +715,21 @@ try {
   await tap('The demo account');
   await see('Pull down');
   await tap('Settings');
+  /* the foot is one for every screen: as the page arrives, Back slides in from the left
+     edge while the bar's glyphs become the ask bar and the plus scales away. Read the
+     moment the address changes, and again once the page has settled */
+  await page.waitForURL(/\/settings/);
+  const backEarly = await page.evaluate(() => {
+    const el = document.querySelector('[data-testid="foot"] [aria-label="Back"]');
+    return el ? { opacity: +getComputedStyle(el).opacity, left: el.getBoundingClientRect().left } : null;
+  });
+  const morph = await trace('foot-morph', 700, [['back', '[data-testid="foot"] [aria-label="Back"]', false], ['plus', '[data-testid="foot"] [aria-label="More"]', false]], { picture: { at: 60, name: 'foot-morph-mid' } });
+  const backThere = morph[morph.length - 1]?.back;
+  const plusGone = morph[morph.length - 1]?.plus;
+  must(backEarly && (backEarly.opacity < 0.9 || backEarly.left < 14), `Back should still be on its way in as the page arrives (${JSON.stringify(backEarly)})`);
+  must(backThere && backThere.opacity > 0.98 && backThere.left >= 14 && backThere.left <= 18, `Back should land at the bottom left (${JSON.stringify(backThere)})`);
+  must(plusGone && plusGone.height < 2, `the plus should scale away on a page without one (${JSON.stringify(plusGone)})`);
+  console.log(`  Back came in: ${Math.round(backEarly.left)} at ${backEarly.opacity.toFixed(2)} as the page arrived, ${Math.round(backThere.left)} at ${backThere.opacity.toFixed(2)} after`);
   await see('What keeps the money yours');
   at('/settings');
   await shot('settings', 500);

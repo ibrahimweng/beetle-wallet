@@ -6,10 +6,11 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ActionButton, Caption, Card, Dock, Head, Label, Meta, NoteRow, PageHead, PillRow, Row, Screen, Tap, Toggle } from '../../design';
+import { Caption, Card, Head, Label, Meta, NoteRow, PageHead, PillRow, Row, Screen, Tap, Toggle } from '../../design';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
-import { askHome, useMore } from '../more/More';
+import { askHome } from '../more/More';
+import { useFoot } from '../more/Foot';
 import { usePrefs, type Prefs } from './prefs';
 
 export const INSTRUCTIONS: { id: keyof Prefs['rules']; title: string; when: string; log: string }[] = [
@@ -24,26 +25,18 @@ export function Rules() {
   const ok = useSessionGuard();
   const account = app.session?.account;
   const { prefs, ready, set } = usePrefs(account?.accountNumber);
-  const { sheet, openMore } = useMore(router);
+  /* the foot: Back, the ask bar with this page's question, and the plus the frame draws */
+  useFoot({ kind: 'ask', placeholder: 'Ask me to set one up', onAsk: q => askHome(router, q), onScan: () => router.push('/scan'), more: true });
   if (!ok || !account) return null;
-  const dock = (
-    <Dock
-      placeholder="Ask me to set one up"
-      onBack={() => router.back()}
-      onAsk={q => askHome(router, q)}
-      onScan={() => router.push('/scan')}
-      action={<ActionButton onPress={openMore} label="More" />}
-    />
-  );
   if (!ready)
     return (
-      <Screen dock={dock} still>
+      <Screen still>
         <View />
       </Screen>
     );
   return (
     <View style={{ flex: 1 }}>
-      <Screen dock={dock} head={<PageHead lead title="Standing instructions" sub="What I can do without asking you first" />}>
+      <Screen head={<PageHead lead title="Standing instructions" sub="What I can do without asking you first" />}>
         <View style={{ gap: 12 }}>
           <Card style={s.tight} testID="tight">
             <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
@@ -93,7 +86,6 @@ export function Rules() {
           <PillRow glyph="plus" label="Add an instruction" to="/rule" />
         </View>
       </Screen>
-      {sheet}
     </View>
   );
 }

@@ -219,14 +219,22 @@ with Home, Activities and Settings slides to the right, and Back slides in
 from the left edge at the bottom left, so Back is always in the same
 place — beside a confirmation button too.
 
-- [ ] A question first: the frames' inner pages carry Back and the ask bar
+- [x] A question first: the frames' inner pages carry Back and the ask bar
       (and the plus on some); Fuse carries Back and the pill. Which does an
-      inner page's foot hold?
-- [ ] One foot for the whole app, in the root layout over the stack,
+      inner page's foot hold? — Back with the ask bar, morphing as Fuse does
+- [x] One foot for the whole app, in the root layout over the stack,
       morphing with the route: the pill sliding, Back sliding in from the
       left, the plus scaling away; the pages' own docks folding into it
-- [ ] The pages with a button at the foot keep Back beside it
-- [ ] The walk and the check updated
+      (src/features/more/Foot.tsx; each screen declares with useFoot)
+- [x] The pages with a button at the foot keep Back beside it
+- [x] The walk and the check updated
+
+Done. Notes: the foot lives over the stack, so it no longer recedes with a
+page that leads away; the glyphs' departures recede the screen with focus
+through the journey's own record of it. The docks' pieces keep their
+frame numbers, so the check measures them where it did. A screen that
+declares no foot — the way in, the lab, the camera, a new passcode — has
+none.
 
 ## Round 3 · Sending money, four taps
 

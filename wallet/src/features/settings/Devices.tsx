@@ -6,7 +6,8 @@
 import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Aside, Button, Card, DeviceRow, Dock, PageHead, Say, Screen, toast } from '../../design';
+import { Aside, Button, Card, DeviceRow, PageHead, Say, Screen, toast } from '../../design';
+import { useFoot } from '../more/Foot';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { askHome } from '../more/More';
@@ -19,17 +20,18 @@ export function Devices() {
   const ok = useSessionGuard();
   const account = app.session?.account;
   const { prefs, ready, set } = usePrefs(account?.accountNumber);
+  /* the foot: Back, and the ask bar with this page's question */
+  useFoot({ kind: 'ask', placeholder: 'Ask about a device', onAsk: q => askHome(router, q), onScan: () => router.push('/scan') });
   if (!ok || !account) return null;
-  const dock = <Dock placeholder="Ask about a device" onBack={() => router.back()} onAsk={q => askHome(router, q)} onScan={() => router.push('/scan')} />;
   if (!ready)
     return (
-      <Screen dock={dock} still>
+      <Screen still>
         <View />
       </Screen>
     );
   const only = prefs.othersSignedOut;
   return (
-    <Screen dock={dock} head={<PageHead lead title="Devices" sub="Everywhere this account is open" />}>
+    <Screen head={<PageHead lead title="Devices" sub="Everywhere this account is open" />}>
       <View style={{ gap: 16 }}>
         <Card style={s.group} testID="devices">
           <DeviceRow glyph="airtime" title="iPhone 13" where="Lagos · open now" tag="This one" />

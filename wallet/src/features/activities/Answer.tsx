@@ -6,7 +6,8 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Caption, Card, Display, Dock, Head, Icon, Label, Meta, PageHead, Row, Say, SayCard, Screen, Tap, colour, radius, toast } from '../../design';
+import { Caption, Card, Display, Head, Icon, Label, Meta, PageHead, Row, Say, SayCard, Screen, Tap, colour, radius, toast } from '../../design';
+import { useFoot } from '../more/Foot';
 import type { IconName } from '../../icons';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { askHome } from '../more/More';
@@ -31,13 +32,11 @@ const WENT: [IconName, string, string, number][] = [
 export function Answer() {
   const router = useRouter();
   const ok = useSessionGuard();
+  useFoot({ kind: 'ask', placeholder: 'Ask about this', onAsk: q => askHome(router, q), onScan: () => router.push('/scan') });
   if (!ok) return null;
   const later = (what: string) => () => toast(`${what} comes with round 6.`);
   return (
-    <Screen
-      dock={<Dock placeholder="Ask about this" onBack={() => router.back()} onAsk={q => askHome(router, q)} onScan={() => router.push('/scan')} />}
-      head={<PageHead title="Airtime and data" sub="You asked how much you spend on staying connected" />}
-    >
+    <Screen head={<PageHead title="Airtime and data" sub="You asked how much you spend on staying connected" />}>
       <View style={{ gap: 12 }}>
         <Say testID="say">₦18,900 on airtime and data last month. That is your highest month this year.</Say>
         {/* the figure, the six months, the terms and where the number came from, on one card */}

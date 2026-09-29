@@ -5,7 +5,8 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Aside, Card, Dock, FootNote, Head, PageHead, Screen, SettingRow, ToggleRow, colour } from '../../design';
+import { Aside, Card, FootNote, Head, PageHead, Screen, SettingRow, ToggleRow, colour } from '../../design';
+import { useFoot } from '../more/Foot';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { askHome } from '../more/More';
@@ -17,17 +18,18 @@ export function Lock() {
   const ok = useSessionGuard();
   const account = app.session?.account;
   const { prefs, ready, set } = usePrefs(account?.accountNumber);
+  /* the foot: Back, and the ask bar with this page's question */
+  useFoot({ kind: 'ask', placeholder: 'Ask me to lock something down', onAsk: q => askHome(router, q), onScan: () => router.push('/scan') });
   if (!ok || !account) return null;
-  const dock = <Dock placeholder="Ask me to lock something down" onBack={() => router.back()} onAsk={q => askHome(router, q)} onScan={() => router.push('/scan')} />;
   if (!ready)
     return (
-      <Screen dock={dock} still>
+      <Screen still>
         <View />
       </Screen>
     );
   const nextWait = () => set({ askAfter: ASK_AGAIN[(ASK_AGAIN.indexOf(prefs.askAfter) + 1) % ASK_AGAIN.length] ?? ASK_AGAIN[0]! });
   return (
-    <Screen dock={dock} head={<PageHead lead title="Lock and privacy" sub="What it takes to open this, and what shows once it is open" />}>
+    <Screen head={<PageHead lead title="Lock and privacy" sub="What it takes to open this, and what shows once it is open" />}>
       <Card style={s.group} testID="open-with">
         <ToggleRow glyph="faceid-filled" ink={colour.accent} title="Face ID" value={prefs.faceId} onChange={v => set({ faceId: v })} />
         <SettingRow glyph="key-filled" title="Passcode" value="6 digits" to="/newcode" />

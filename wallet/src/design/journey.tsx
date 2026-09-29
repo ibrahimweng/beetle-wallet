@@ -56,6 +56,9 @@ export function measure(ref: RefObject<View | null>): Promise<Rect> {
 
 type Journey = { recede: () => Promise<void>; t: SharedValue<number> };
 const Ctx = createContext<Journey | null>(null);
+/** The journey of the screen with focus, for things outside any screen — the foot — that lead away from it. */
+let current: Journey | null = null;
+export const recedeCurrent = () => current?.recede() ?? Promise.resolve();
 
 export function JourneyProvider({ children }: { children: ReactNode }) {
   const parent = useContext(Ctx);
@@ -77,6 +80,16 @@ export function JourneyProvider({ children }: { children: ReactNode }) {
     }, [still, t]),
   );
   const value = useMemo(() => ({ recede, t }), [recede, t]);
+  /* the screen with focus is the one the foot recedes */
+  useFocusEffect(
+    useCallback(() => {
+      if (parent) return undefined;
+      current = value;
+      return () => {
+        if (current === value) current = null;
+      };
+    }, [parent, value]),
+  );
   /* one journey per screen: a provider inside another leaves it to the outer */
   if (parent) return <>{children}</>;
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
@@ -119,7 +132,7 @@ export function useDeparture({ id, to, words, replace = false, anchor }: { id: s
     const rect = await measure(anchor ?? ref);
     setOrigin({ id, ...rect, words, at: Date.now() });
     if (!still) lit.value = withTiming(1, { duration: motion.press });
-    await (journey?.recede() ?? Promise.resolve());
+    await (journey ? journey.recede() : recedeCurrent());
     if (replace) router.replace(to as never);
     else router.push(to as never);
   }, [to, id, words, replace, still, lit, journey, router, anchor]);

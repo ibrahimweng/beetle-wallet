@@ -6,7 +6,8 @@
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Body, Button, Caption, Card, Dock, Head, Icon, Label, Meta, Receipt, Screen, Tap, colour, toast, Arrive, useDeparture } from '../../design';
+import { Body, Button, Caption, Card, Head, Icon, Label, Meta, Receipt, Screen, Tap, colour, toast, Arrive, useDeparture } from '../../design';
+import { useFoot } from '../more/Foot';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { holdingsFor } from '../home/account';
@@ -35,23 +36,24 @@ export function ReceiptScreen({ id }: { id: string }) {
     return receiptFor(row, { account, balanceNow, rows });
   }, [account, ready, moves, id]);
 
+  const askAbout = (q: string) => {
+    if (receipt) router.push({ pathname: '/home', params: { say: q, about: `${naira(receipt.amount)} ${receipt.line.replace(/^Sent to /, 'to ')}, ${receipt.when}` } });
+  };
+  /* the foot: Back, and the ask bar with the receipt's own question */
+  useFoot({ kind: 'ask', placeholder: receipt?.ask ?? 'Ask about this', onAsk: askAbout, onScan: () => router.push('/scan'), veil: sharing ? 'away' : undefined });
   if (!ok || !account) return null;
   const copy = async (text: string, what: string) => {
     toast((await copyText(text)) ? `${what} copied. Paste it anywhere.` : 'This build cannot reach the clipboard.');
   };
-  const askAbout = (q: string) => {
-    if (receipt) router.push({ pathname: '/home', params: { say: q, about: `${naira(receipt.amount)} ${receipt.line.replace(/^Sent to /, 'to ')}, ${receipt.when}` } });
-  };
-  const dock = <Dock placeholder={receipt?.ask ?? 'Ask about this'} onBack={() => router.back()} onAsk={askAbout} onScan={() => router.push('/scan')} />;
   if (!ready)
     return (
-      <Screen dock={dock} still>
+      <Screen still>
         <View />
       </Screen>
     );
   if (!receipt)
     return (
-      <Screen dock={dock}>
+      <Screen>
         <Head>No receipt for that</Head>
         <Body tone="tertiary">The line it belonged to is not in this day.</Body>
       </Screen>
@@ -60,7 +62,6 @@ export function ReceiptScreen({ id }: { id: string }) {
   return (
     <>
       <Screen
-        dock={dock}
         head={
           /* the frame's head: the title, 8, the day and the time, and 24 to the amount; the amount is what travels here, so the head only fades in */
           <Arrive carry={false} style={{ gap: 8, marginBottom: 4 }}>

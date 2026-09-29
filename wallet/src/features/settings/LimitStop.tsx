@@ -5,7 +5,8 @@
 import React, { useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Banner, BigStatus, BottomBar, Button, Caption, Card, ChoiceRow, PageHead, Row, Screen, Step, colour, radius, toast } from '../../design';
+import { Banner, BigStatus, Caption, Card, ChoiceRow, PageHead, Row, Screen, Step, colour, radius, toast } from '../../design';
+import { useFoot } from '../more/Foot';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { LAB } from '../../lab/enabled';
 import { typedState } from './words';
@@ -17,21 +18,16 @@ export function LimitStop() {
   /* the lab opens it mid-word, as the frame draws it */
   const [typed, setTyped] = useState(LAB && asked.typed === '1' ? 'Confirm this transa' : '');
   const input = useRef<TextInput>(null);
-  if (!ok) return null;
   const st = typedState(typed);
   const looked = (what: string) => () => {
     toast(`${what} Nothing was sent: this is what the line looks like.`);
     router.back();
   };
+  /* the foot: Back beside the one button, which waits for the last word */
+  useFoot({ kind: 'button', label: 'Send ₦120,000', disabled: !st.done, onPress: looked('And it would go.') });
+  if (!ok) return null;
   return (
-    <Screen
-      dock={
-        <BottomBar onBack={() => router.back()}>
-          <Button label="Send ₦120,000" disabled={!st.done} onPress={looked('And it would go.')} />
-        </BottomBar>
-      }
-      head={<PageHead title="Past your own limit" sub="Nothing has been sent" />}
-    >
+    <Screen head={<PageHead title="Past your own limit" sub="Nothing has been sent" />}>
       {/* the frame sets the banner 11 under the line, and the choice 16 under the card */}
       <View style={{ marginBottom: -8 }}>
         <BigStatus glyph="warn-filled" tone={colour.good} amount="₦120,000" line="₦20,000 over the ₦100,000 you set for one transfer" />

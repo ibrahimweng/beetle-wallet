@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ActionButton, Body, Dock, GlyphHead, HistoryRow, JourneyProvider, SayCard, Screen, Segments, colour, toast, type Rect } from '../../design';
+import { Body, GlyphHead, HistoryRow, JourneyProvider, SayCard, Screen, Segments, colour, toast, type Rect } from '../../design';
 import { ReceiptPeek } from '../receipts/Peek';
 import { receiptFor } from '../receipts/receipts';
 import type { ReceiptCard as Card } from '../agent/conversation';
@@ -17,7 +17,8 @@ import { useSessionGuard } from '../onboarding/useGuard';
 import { holdingsFor, type LedgerRow } from '../home/account';
 import { useMoves } from '../home/moves';
 import { naira, signed } from '../../lib/format';
-import { askHome, useMore } from '../more/More';
+import { askHome } from '../more/More';
+import { useFoot } from '../more/Foot';
 import { activityAmount, activityRows, type Segment } from './rows';
 
 const TONE: Record<LedgerRow['status'], string> = { pending: colour.accent, failed: colour.alert, reversed: colour.ink, done: colour.ink };
@@ -31,7 +32,8 @@ export function Activities() {
   const { moves, ready } = useMoves(account?.accountNumber);
   const [segment, setSegment] = useState<Segment>('All');
   const [peek, setPeek] = useState<{ card: Card; at: Rect } | null>(null);
-  const { sheet, openMore } = useMore(router);
+  /* the foot: Back, the ask bar with this page's question, and the plus the frame draws */
+  useFoot({ kind: 'ask', placeholder: 'Ask about any of these', onAsk: q => askHome(router, q), onScan: () => router.push('/scan'), more: true, veil: peek ? 'recede' : undefined });
   if (!ok || !account) return null;
   const h = holdingsFor(account);
   const ledger = [...moves, ...h.ledger];
@@ -40,18 +42,9 @@ export function Activities() {
     const rc = receiptFor(r, { account, balanceNow, rows: ledger });
     return { rowId: r.id, amount: naira(rc.amount), line: rc.line, status: rc.status, time: r.time };
   };
-  const dock = (
-    <Dock
-      placeholder="Ask about any of these"
-      onBack={() => router.back()}
-      onAsk={q => askHome(router, q)}
-      onScan={() => router.push('/scan')}
-      action={<ActionButton onPress={openMore} label="More" />}
-    />
-  );
   if (!ready)
     return (
-      <Screen dock={dock} still>
+      <Screen still>
         <View />
       </Screen>
     );
@@ -75,7 +68,7 @@ export function Activities() {
   return (
     <JourneyProvider>
       <View style={{ flex: 1 }}>
-        <Screen dock={dock} head={<GlyphHead glyph="clock" title="Activities" sub="Everything that moved, newest first" />}>
+        <Screen head={<GlyphHead glyph="clock" title="Activities" sub="Everything that moved, newest first" />}>
           {/* the frame puts 16 between the segments and the record, and 10 between a day's name and its lines, and between one day and the next */}
           <View style={{ gap: 16 }}>
             <Segments options={['All', 'In', 'Out']} value={segment} onChange={v => setSegment(v as Segment)} />
@@ -89,7 +82,6 @@ export function Activities() {
             </View>
           </View>
         </Screen>
-        {sheet}
         {peek ? <ReceiptPeek card={peek.card} at={peek.at} onClose={() => setPeek(null)} /> : null}
       </View>
     </JourneyProvider>

@@ -8,7 +8,8 @@ import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Constants from 'expo-constants';
-import { Arrive, Card, Dock, Icon, Meta, Row, Screen, SectionLabel, SettingRow, Tap, Title, colour, toast } from '../../design';
+import { Arrive, Card, Icon, Meta, Row, Screen, SectionLabel, SettingRow, Tap, Title, colour, toast } from '../../design';
+import { useFoot } from '../more/Foot';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { askHome } from '../more/More';
@@ -23,6 +24,8 @@ export function Settings() {
   const [details, setDetails] = useState(asked.details === '1');
   const account = app.session?.account;
   const { prefs } = usePrefs(account?.accountNumber);
+  /* the foot: Back, and the ask bar with this page's question */
+  useFoot({ kind: 'ask', placeholder: 'Ask me to change something', onAsk: q => router.push({ pathname: '/home', params: { say: q } }), onScan: () => router.push('/scan'), veil: details ? 'away' : undefined });
   if (!ok || !account) return null;
 
   const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
@@ -38,7 +41,6 @@ export function Settings() {
   return (
     <>
       <Screen
-        dock={<Dock placeholder="Ask me to change something" onBack={() => router.back()} onAsk={q => router.push({ pathname: '/home', params: { say: q } })} onScan={() => router.push('/scan')} />}
         head={
           <Arrive style={{ marginBottom: 4 }}>
             <Title>Settings</Title>

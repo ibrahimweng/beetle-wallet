@@ -5,7 +5,8 @@
 import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Aside, Button, Card, CapRow, Dock, Head, Label, Meta, NoteRow, PageHead, Screen, Usage } from '../../design';
+import { Aside, Button, Card, CapRow, Head, Label, Meta, NoteRow, PageHead, Screen, Usage } from '../../design';
+import { useFoot } from '../more/Foot';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { holdingsFor } from '../home/account';
@@ -22,11 +23,12 @@ export function Limits() {
   const ok = useSessionGuard();
   const account = app.session?.account;
   const { moves, ready } = useMoves(account?.accountNumber);
+  /* the foot: Back, and the ask bar with this page's question */
+  useFoot({ kind: 'ask', placeholder: 'Ask me to change a limit', onAsk: q => askHome(router, q), onScan: () => router.push('/scan') });
   if (!ok || !account) return null;
-  const dock = <Dock placeholder="Ask me to change a limit" onBack={() => router.back()} onAsk={q => askHome(router, q)} onScan={() => router.push('/scan')} />;
   if (!ready)
     return (
-      <Screen dock={dock} still>
+      <Screen still>
         <View />
       </Screen>
     );
@@ -34,7 +36,7 @@ export function Limits() {
   const left = Math.max(0, CAPS.day - out);
   const cap = (what: string) => () => askHome(router, `Change the cap for ${what}`);
   return (
-    <Screen dock={dock} head={<PageHead lead title="Spending limits" sub="What you set, and where today stands" />}>
+    <Screen head={<PageHead lead title="Spending limits" sub="What you set, and where today stands" />}>
       <Card style={{ paddingVertical: 16, paddingHorizontal: 16 }} testID="usage">
         <Usage out={naira(out)} of={naira(CAPS.day)} pct={(out / CAPS.day) * 100} note={`${naira(left)} left before I stop and ask you twice.`} />
       </Card>

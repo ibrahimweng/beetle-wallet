@@ -6,7 +6,8 @@
 import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Aside, Button, Card, DeviceRow, Dock, PageHead, Say, Screen } from '../../design';
+import { Aside, Button, Card, DeviceRow, PageHead, Say, Screen } from '../../design';
+import { useFoot } from '../more/Foot';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { askHome } from '../more/More';
@@ -19,11 +20,12 @@ export function LostPhone() {
   const ok = useSessionGuard();
   const account = app.session?.account;
   const { prefs, ready, set } = usePrefs(account?.accountNumber);
+  /* the foot: Back, and the ask bar with this page's question */
+  useFoot({ kind: 'ask', placeholder: 'Ask what freezing does', onAsk: q => askHome(router, q), onScan: () => router.push('/scan') });
   if (!ok || !account) return null;
-  const dock = <Dock placeholder="Ask what freezing does" onBack={() => router.back()} onAsk={q => askHome(router, q)} onScan={() => router.push('/scan')} />;
   if (!ready)
     return (
-      <Screen dock={dock} still>
+      <Screen still>
         <View />
       </Screen>
     );
@@ -32,7 +34,7 @@ export function LostPhone() {
     router.push('/newcode?from=frozen');
   };
   return (
-    <Screen dock={dock} head={<PageHead title="Not your phone" sub="Signed in on a device I do not know" />}>
+    <Screen head={<PageHead title="Not your phone" sub="Signed in on a device I do not know" />}>
       <View style={{ gap: 16 }}>
         <Card style={s.group} testID="devices">
           <DeviceRow glyph="freeze" title={prefs.frozen ? 'The money is frozen' : 'Freeze the money'} where="Nothing can leave" tag={prefs.frozen ? 'Done' : 'Do this'} />

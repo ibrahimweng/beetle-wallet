@@ -6,6 +6,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { Body, Head, Icon, Meta, Pane, Row, Tap, colour, dark } from '../../design';
 import { reader } from '../../services';
 import { handoff } from './handoff';
@@ -86,6 +87,7 @@ export function Scan() {
 
   return (
     <View style={s.screen}>
+      <StatusBar style="light" />
       {CameraView && (state === 'ready' || state === 'taking') ? (
         <CameraView
           ref={camera}

@@ -10,6 +10,7 @@
    so a finger can scrub it and the spring can finish it. */
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Image, LayoutChangeEvent, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { SharedValue, interpolate, runOnJS, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import { Caption, Icon, Label, Swap, Tap, blurred, colour, dark, keys, motion, settle as settleCurve, useStill } from '../../design';
@@ -20,7 +21,7 @@ const MARK = require('../../../assets/wallet-mark.png');
 
 /** The card's height when closed, as the frame draws it. */
 export const CLOSED_H = 352;
-/** The status bar's allowance at the top of the card. */
+/** The status bar's allowance at the top of the card, as the frame draws it. */
 const TOP = 52;
 const SIDE = 16;
 const HEADER_H = 36;
@@ -28,15 +29,20 @@ const HEADER_H = 36;
 export const HEAD_BAND = TOP + HEADER_H + 20;
 /** the room the ask bar takes at the foot of the open card: gap, bar, padding */
 export const FOOT_BAND = 20 + 48 + 20;
-/** how far down the figure and the chip sit when closed */
-const FIGURE_TOP = TOP + HEADER_H + 24 + 16 + 4;
-/** where they go: the figure after the mark, the chip after the figure */
+/** where the figure goes: after the mark */
 const FIGURE_LEFT = SIDE + 36 + 12 + 4;
-/** the header's row, the figure's smaller line height centred in it */
-const FIGURE_TOP_OPEN = TOP + (HEADER_H - 20) / 2;
-const CHIP_TOP_OPEN = TOP + (HEADER_H - 24) / 2;
 /** the drag has to travel this far before the card takes it */
 const SLACK = 10;
+
+/** The frame allows 52 for the status bar. A phone whose bar is taller —
+    one with the island — pushes the card's top down by the difference, and
+    everything in the card with it, so the header clears it. */
+export function useCardTop() {
+  const insets = useSafeAreaInsets();
+  const top = Math.max(TOP, Math.round(insets.top) + 2);
+  const extra = top - TOP;
+  return { top, extra, headBand: HEAD_BAND + extra, closedH: CLOSED_H + extra };
+}
 
 export type CardProps = {
   open: SharedValue<number>;
@@ -65,6 +71,11 @@ const clamp = (v: number, lo: number, hi: number) => {
 export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onSend, onReceive, onDollars, chat, foot }: CardProps) {
   const { width: W } = useWindowDimensions();
   const still = useStill();
+  const { top, extra, headBand, closedH } = useCardTop();
+  /* how far down the figure and the chip sit when closed, and where they go in the header */
+  const figureTop = top + HEADER_H + 24 + 16 + 4;
+  const figureTopOpen = top + (HEADER_H - 20) / 2;
+  const chipTopOpen = top + (HEADER_H - 24) / 2;
   const [opened, setOpened] = useState(false);
   /* the figure comes into focus rather than counting up */
   const focus = useSharedValue(still ? 1 : 0);
@@ -116,7 +127,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
         else if (dy > SLACK) state.fail();
       })
       .onUpdate(e => {
-        const travel = Math.max(1, openH.value - CLOSED_H);
+        const travel = Math.max(1, openH.value - closedH);
         open.value = clamp(startOpen.value + e.translationY / travel, 0, 1);
       })
       .onEnd(e => {
@@ -144,7 +155,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
   }, [opened]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ---- what moves ---- */
-  const card = useAnimatedStyle(() => ({ height: CLOSED_H + (openH.value - CLOSED_H) * open.value }));
+  const card = useAnimatedStyle(() => ({ height: closedH + (openH.value - closedH) * open.value }));
 
   /* the closed pieces soften and lift away in the first half */
   const going = useAnimatedStyle(() => {
@@ -171,7 +182,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
     const closedLeft = (W - w32.value) / 2;
     return {
       opacity: 0.3 + focus.value * 0.7,
-      transform: [{ translateX: interpolate(t, [0, 1], [closedLeft, FIGURE_LEFT]) }, { translateY: interpolate(t, [0, 1], [FIGURE_TOP, FIGURE_TOP_OPEN]) }],
+      transform: [{ translateX: interpolate(t, [0, 1], [closedLeft, FIGURE_LEFT]) }, { translateY: interpolate(t, [0, 1], [figureTop, figureTopOpen]) }],
       ...blurred((1 - focus.value) * 8),
     };
   });
@@ -192,7 +203,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
     const t = clamp((open.value - 0.5) / 0.5, 0, 1);
     return {
       opacity: t,
-      transform: [{ translateX: FIGURE_LEFT + w20.value + 8 }, { translateY: CHIP_TOP_OPEN + 20 * (1 - t) }],
+      transform: [{ translateX: FIGURE_LEFT + w20.value + 8 }, { translateY: chipTopOpen + 20 * (1 - t) }],
       ...blurred((1 - t) * motion.blur),
     };
   });
@@ -208,9 +219,9 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
       {/* the header band: frosted glass over the conversation, the mark, and the
           wallet's name until the figure takes its place */}
       <GestureDetector gesture={headPan}>
-        <View style={s.head}>
+        <View style={[s.head, { height: headBand, paddingTop: top }]}>
           <Animated.View style={[StyleSheet.absoluteFill, frost]} pointerEvents="none">
-            <Frost height={HEAD_BAND} />
+            <Frost height={headBand} />
           </Animated.View>
           <View style={s.headRow}>
             <Image source={MARK} style={{ width: 36, height: 36, borderRadius: 18 }} accessibilityLabel="Beetle" />
@@ -223,7 +234,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
 
       {/* the closed card, under the header */}
       <GestureDetector gesture={bodyPan}>
-        <Animated.View style={[s.closed, going]} pointerEvents={opened ? 'none' : 'auto'}>
+        <Animated.View style={[s.closed, { top: s.closed.top + extra }, going]} pointerEvents={opened ? 'none' : 'auto'}>
           <View style={{ alignItems: 'center', gap: 4 }}>
             <Caption style={{ color: dark.chipText }}>Total balance</Caption>
             {/* the figure is drawn once, below, and travels; the chip has its place here */}
@@ -248,7 +259,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
           </View>
         </Animated.View>
       </GestureDetector>
-      <Animated.View style={[s.grab, goingLate]} pointerEvents="none">
+      <Animated.View style={[s.grab, { top: s.grab.top + extra }, goingLate]} pointerEvents="none">
         <View style={s.grabber} />
         <Swap value={hint}>{h => <Caption style={{ color: '#ffffff' }}>{h}</Caption>}</Swap>
       </Animated.View>
@@ -290,7 +301,7 @@ const s = StyleSheet.create({
     borderBottomRightRadius: 36,
     overflow: 'hidden',
   },
-  head: { position: 'absolute', top: 0, left: 0, right: 0, height: HEAD_BAND, paddingTop: TOP, paddingHorizontal: SIDE, zIndex: 3, overflow: 'visible' },
+  head: { position: 'absolute', top: 0, left: 0, right: 0, paddingHorizontal: SIDE, zIndex: 3, overflow: 'visible' },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: HEADER_H },
   closed: { position: 'absolute', top: HEAD_BAND - 20 + 24, left: 0, right: 0, height: CLOSED_H - (HEAD_BAND - 20 + 24), paddingHorizontal: SIDE, alignItems: 'center', gap: 12 },
   actions: { flexDirection: 'row', justifyContent: 'center', gap: 24, alignSelf: 'stretch', paddingTop: 12 },

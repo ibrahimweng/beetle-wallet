@@ -1,0 +1,41 @@
+name: Phone
+
+# Every change to the app reaches the installed phone build on its own. A push
+# that touches wallet/ sends an over-the-air update to the "preview" channel,
+# which the APK checks when it opens. A new APK is only needed when something
+# native changes; run this workflow by hand with "build" ticked for that.
+
+on:
+  push:
+    branches: [main]
+    paths: ['wallet/**']
+  workflow_dispatch:
+    inputs:
+      build:
+        description: 'Also build a new APK'
+        type: boolean
+        default: false
+
+jobs:
+  phone:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: wallet
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: wallet/package-lock.json
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - run: npm ci --no-audit --no-fund
+      - name: Send the change to the installed app
+        run: eas update --branch preview --message "$(git log -1 --pretty=%s)" --non-interactive
+      - name: Build a new APK
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build }}
+        run: eas build --platform android --profile preview --non-interactive --no-wait

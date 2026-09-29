@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Beetle",
-    "slug": "beetle-wallet",
+    "slug": "wengs-test",
     "version": "0.1.0",
     "orientation": "portrait",
     "scheme": "beetle",
@@ -20,7 +20,13 @@
     },
     "android": {
       "package": "com.beetle.wallet",
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +43,19 @@
       ],
       "expo-status-bar",
       "expo-splash-screen"
-    ]
+    ],
+    "owner": "ibrahimweng",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1d14ce01-1e60-47d3-8e0d-76a08e93fba5"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1d14ce01-1e60-47d3-8e0d-76a08e93fba5"
+    }
   }
 }

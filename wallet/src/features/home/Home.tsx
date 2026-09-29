@@ -12,7 +12,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BackHandler, Keyboard, Platform, Pressable, TextInput, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import { Button, Filters, Head, Icon, Insight, Label, LedgerRow, Mark, Meta, Pane, Row as RowText, ScoreRow, Tap, Tile, colour, frame, keys, settle, space, toast, useStill } from '../../design';
 import type { Move } from '../../services';
 import { useApp } from '../onboarding/store';
@@ -26,7 +26,8 @@ import { samplePhoto } from '../scan/sample';
 import { LAB } from '../../lab/enabled';
 import { glance, holdingsFor, type LedgerRow as Row } from './account';
 import { AskBar } from './AskBar';
-import { CLOSED_H, WalletCard, useCardTop } from './WalletCard';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { CLOSED_H, FOOT_BAND, WalletCard, useCardDrag, useCardTop } from './WalletCard';
 import { chatPointedOut, markChatPointedOut } from './first';
 import { kobo, naira, signed } from '../../lib/format';
 
@@ -44,7 +45,7 @@ export function Home() {
   const ok = useSessionGuard();
   const still = useStill();
   const { height: H } = useWindowDimensions();
-  const { headBand } = useCardTop();
+  const { headBand, closedH } = useCardTop();
   const asked = useLocalSearchParams<{ chat?: string }>();
 
   const [filter, setFilter] = useState<Filter>('All');
@@ -261,6 +262,13 @@ export function Home() {
   const toCamera = () => router.push('/scan');
 
   const veilStyle = useAnimatedStyle(() => ({ top: openH.value }));
+  /* the day below the open card: a tap on it, or a push up on it, brings the card back up */
+  const showRef = useRef(show);
+  showRef.current = show;
+  const close = useCallback(() => showRef.current(false), []);
+  const veilPan = useCardDrag({ open, openH, closedH, only: 'close', settle: to => !to && close() });
+  const veilTap = useMemo(() => Gesture.Tap().onEnd(() => runOnJS(close)()), [close]);
+  const veilGesture = useMemo(() => Gesture.Exclusive(veilPan, veilTap), [veilPan, veilTap]);
 
   if (!ok || !app.session || !h || !account) return null;
   const ledger = [...moves, ...h.ledger];
@@ -356,7 +364,7 @@ export function Home() {
             }}
             onReceive={next('Receiving')}
             onDollars={() => askFor('What about dollars?')}
-            chat={<Chat talk={talk} active={opened} top={headBand + 20} />}
+            chat={<Chat talk={talk} active={opened} top={headBand + 20} bottom={FOOT_BAND + 8} />}
             foot={<AskBar ref={input} value={draft} onChange={setDraft} onSubmit={send} onCamera={toCamera} />}
           />
           <View style={{ paddingHorizontal: frame.sidePad, paddingTop: 32, gap: frame.columnGap }}>
@@ -427,10 +435,12 @@ export function Home() {
         </Pane>
       </Animated.ScrollView>
 
-      {/* the day below the open card: a tap on it brings the card back up */}
+      {/* the day below the open card: a tap on it, or a push up, brings the card back up */}
       {opened ? (
         <Animated.View style={[{ position: 'absolute', left: 0, right: 0, bottom: 0 }, veilStyle]}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Back to the day" onPress={() => show(false)} style={{ flex: 1 }} />
+          <GestureDetector gesture={veilGesture}>
+            <View accessibilityRole="button" accessibilityLabel="Back to the day" style={{ flex: 1 }} />
+          </GestureDetector>
         </Animated.View>
       ) : null}
     </View>

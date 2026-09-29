@@ -53,8 +53,8 @@ mocks in and says so on the code screen; a real `AuthService` and
 | Six digits | `123456` | `000000` has expired; any other six do not match, three of those and a fresh code is sent on its own |
 | Who you are | `1234 5678 900` comes back as Ibrahim Musa, born 14 June 1996 | eleven digits with `0000` in them match nothing; the rest come back as a name made from the digits |
 | Your face | on a phone, the device's own face check; on the web, a moment's wait | a face check that does not take, with try again; or do it later |
-| A passcode | six digits typed twice | the same digit six times, a run, a repeated pair, your year of birth, and the handful everybody picks |
-| Welcome back | `0803 214 4471` opens the account the design is drawn around, history and all; any number that opened an account on this device opens that one | a number nobody has opened an account with, with a way to open one |
+| A passcode | six digits typed twice; this build also lets `654321` and `123456` through, so trying it never means thinking one up | the same digit six times, a run, a repeated pair, your year of birth, and the handful everybody picks |
+| Welcome back | `0906 911 3588`, the owner's own number, opens the demo account, history and all; any number that opened an account on this device opens that one | a number nobody has opened an account with, with a way to open one |
 | The chat | "Send 20k to Sarah", "top up my light", "buy data", "what about dollars", "how much do I have"; the people it knows are Sarah Adeyemi, Chidi Okafor, Musa Danjuma and John Doe, by name or account number | more than the balance; a name it does not know; anything else, with what it can do |
 | A photo | on the phone, the camera and the device's own reader; on the web and in Expo Go, the sample slip, which reads as Sarah Adeyemi at GTBank, `0123 4567 89` | a photo with no ten-digit number on it |
 
@@ -64,7 +64,7 @@ mocks in and says so on the code screen; a real `AuthService` and
 |---|---|
 | `app/` | The routes: the loading screen, the lab, the way in as one screen, and home. `expo-router` reads this folder as the map. |
 | `src/design/` | The design system read off the Figma file: tokens, type, icons, motion, and the pieces every screen is made of |
-| `src/icons.ts` | The 95 glyphs, generated from `../src/icons.js` by `npm run icons`; never edited by hand |
+| `src/icons.ts` | The 95 glyphs, generated from `../src/icons.js` by `npm run icons`, which puts the line widths the file draws them at (0.075 of the box for a glyph, 0.10 for a bare mark) and round ends back on every stroked path; never edited by hand |
 | `src/features/onboarding/` | The way in: the step machine (`machine.ts`), what is remembered and the session (`store.tsx`), the rules (`validation.ts`), the one screen and its choreography (`WayIn.tsx`), what each stage of it shows (`views.tsx`, `stages.ts`), and the guard that keeps home for a session |
 | `src/features/home/` | Home: the card (`WalletCard.tsx`, closed and open and the drag between), the frosted band its header sits on (`Frost.tsx`), the screen around it with the day and the chats in it (`Home.tsx`), the ask bar in its two states (`AskBar.tsx`), what the day shows for an account (`account.ts`), and the once-only dip (`first.ts`) |
 | `src/features/agent/` | The chat: the conversation and what Beetle is waiting for (`conversation.tsx`), the list (`Chat.tsx`), the dark pieces it is drawn with — what was said, the panels, the dots (`Dark.tsx`) — and the chats filed in the day, Beetle's prompts among them (`chats.ts`) |
@@ -117,15 +117,17 @@ grabber that says pull down. Pull it and it becomes the chat: it grows until
 only the head of the day and its chips still show below it, while the figure
 glides up into the header, shrinking as it goes; the buttons soften away; the
 conversation arrives from below with the ask bar at the card's foot. The
-header is frosted glass: the conversation runs up under it and shows through,
-softened, so the chat has the whole card and the top of it reads as air. The
-head of the day below is the way back — a tap on it, a pull up on the
-header, or the phone's own back closes the chat. The first time on a phone,
-the card dips on its own with the words "Pull down to ask Beetle", once. The
-keyboard shrinks the open card rather than covering the bar. (The frost
-itself comes from `expo-blur`, which is in Expo Go and the web now and in
-any APK built after it was added; an older APK gets the same band in plain
-dark glass.)
+header and the foot are frosted glass: the conversation runs up under the
+one and down under the other and shows through, softened, thickest at the
+edge and thinning towards the chat, with no line anywhere — the figure and
+the bar read over a haze, and the card keeps its silhouette. The head of the
+day below is the way back — a tap on it, a push up on it, a push up on the
+header or on the chat once it has scrolled to its end, or the phone's own
+back closes the chat. The first time on a phone, the card dips on its own
+with the words "Pull down to ask Beetle", once. The keyboard shrinks the open
+card rather than covering the bar. (The blur itself comes from `expo-blur`,
+which is in Expo Go and the web now and in any APK built after it was added;
+an older APK gets the darkening without the blur.)
 
 The ask bar has two states off the frame: idle, with the grey petals of the
 mark, the placeholder and the camera; and active, the moment there is

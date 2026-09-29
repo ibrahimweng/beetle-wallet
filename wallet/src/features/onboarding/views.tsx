@@ -8,9 +8,34 @@ import React, { ReactNode, useEffect } from 'react';
 import { Platform, View } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
-import { AgentSay, Aside, Avatar, Body, Caption, Card, Display, Divider, Field, Icon, Label, Meta, More, Pips, Row as RowText, Swap, Tap, Tick, colour, motion, space, toast, useStill, washes } from '../../design';
+import {
+  AgentSay,
+  Aside,
+  Avatar,
+  Body,
+  Caption,
+  Card,
+  Display,
+  Divider,
+  Field,
+  Icon,
+  Label,
+  Meta,
+  More,
+  Pips,
+  Row as RowText,
+  Swap,
+  Tap,
+  Tick,
+  colour,
+  motion,
+  space,
+  toast,
+  useStill,
+  washes,
+} from '../../design';
 import type { IconName } from '../../icons';
-import { auth, identity, MOCK, MOCK_CODE } from '../../services';
+import { auth, identity, DEMO_PASSCODES, MOCK, MOCK_CODE } from '../../services';
 import { groupAccount, groupDigits, groupPhone, initialsOf, longDate } from '../../lib/format';
 import { checkPhone, passcodeProblem, PASSCODE_WORDS } from './validation';
 import type { useApp } from './store';
@@ -136,15 +161,13 @@ function DigitBody({ c, groups, secret = false, max = 11, footer }: { c: Ctx; gr
 
 /* A key on the pad: one more digit, or one fewer, and the moment the last
    one lands the stage takes it from there. */
-const typing =
-  (c: Ctx, max: number, full: (d: string) => void) =>
-  (key: string) => {
-    if (c.busy) return;
-    const d = key === 'del' ? c.digits.slice(0, -1) : (c.digits + key).slice(0, max);
-    c.setDigits(d);
-    c.setNote(null);
-    if (d.length === max) full(d);
-  };
+const typing = (c: Ctx, max: number, full: (d: string) => void) => (key: string) => {
+  if (c.busy) return;
+  const d = key === 'del' ? c.digits.slice(0, -1) : (c.digits + key).slice(0, max);
+  c.setDigits(d);
+  c.setNote(null);
+  if (d.length === max) full(d);
+};
 
 /* ---- the stages ---- */
 
@@ -449,7 +472,7 @@ function passcode(c: Ctx): StageView {
   const again = c.first !== null;
   const full = async (d: string) => {
     if (c.first === null) {
-      const problem = passcodeProblem(d, { birthYear });
+      const problem = MOCK && DEMO_PASSCODES.includes(d) ? null : passcodeProblem(d, { birthYear });
       if (problem) {
         c.setNote({ text: PASSCODE_WORDS[problem], tone: 'bad' });
         c.bump();
@@ -487,7 +510,20 @@ function passcode(c: Ctx): StageView {
     title: again ? 'Once more' : 'A passcode',
     sub: again ? 'The same six, to be sure.' : 'Six digits. These are what send your money, so pick something nobody watching could guess.',
     bodyKey: 'passcode',
-    body: <DigitBody c={c} groups={[6]} max={6} secret footer={<Aside>Not your year of birth, and not 123456.</Aside>} />,
+    body: (
+      <DigitBody
+        c={c}
+        groups={[6]}
+        max={6}
+        secret
+        footer={
+          <>
+            <Aside>Not your year of birth, and not 123456.</Aside>
+            {MOCK ? <Caption tone="tertiary">This build lets {DEMO_PASSCODES.join(' and ')} through all the same.</Caption> : null}
+          </>
+        }
+      />
+    ),
     keypad: typing(c, 6, full),
     back: again
       ? () => {

@@ -8,10 +8,10 @@
    from below. Pulled back up on its header, it runs the same movements the
    other way. Everything is drawn against one number, `open`, from 0 to 1,
    so a finger can scrub it and the spring can finish it. */
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { Image, LayoutChangeEvent, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector, type PanGesture } from 'react-native-gesture-handler';
 import Animated, { SharedValue, interpolate, runOnJS, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import { Caption, Icon, Label, Swap, Tap, blurred, colour, dark, keys, motion, settle as settleCurve, useStill } from '../../design';
 import { Frost } from './Frost';
@@ -33,6 +33,87 @@ export const FOOT_BAND = 20 + 48 + 20;
 const FIGURE_LEFT = SIDE + 36 + 12 + 4;
 /** the drag has to travel this far before the card takes it */
 const SLACK = 10;
+
+/** The drag that opens and closes the card, for whoever holds it: the card's
+    own header and body, the chat once it has scrolled to its end, and the
+    day below the open card. A downward pull from the top of the page opens;
+    an upward push closes; a sideways move is somebody else's. */
+export function useCardDrag({
+  open,
+  openH,
+  closedH,
+  scrollY,
+  settle,
+  gate,
+  only,
+}: {
+  open: SharedValue<number>;
+  openH: SharedValue<number>;
+  closedH: number;
+  /** the page's scroll offset: the card only opens from the top */
+  scrollY?: SharedValue<number>;
+  settle: (opened: boolean) => void;
+  /** takes the drag only while this is true — the chat at its end */
+  gate?: SharedValue<boolean>;
+  /** only ever closes: the day below the open card */
+  only?: 'close';
+}): PanGesture {
+  const startY = useSharedValue(0);
+  const startX = useSharedValue(0);
+  const startOpen = useSharedValue(0);
+  return useMemo(
+    () =>
+      Gesture.Pan()
+        .manualActivation(true)
+        .onTouchesDown(e => {
+          const t = e.allTouches[0];
+          if (!t) return;
+          startY.value = t.y;
+          startX.value = t.x;
+          startOpen.value = only === 'close' ? 1 : open.value;
+        })
+        .onTouchesMove((e, state) => {
+          const t = e.allTouches[0];
+          if (!t) return;
+          const dy = t.y - startY.value;
+          const dx = t.x - startX.value;
+          if (Math.abs(dx) > 14 && Math.abs(dx) > Math.abs(dy)) {
+            state.fail();
+            return;
+          }
+          if (startOpen.value < 0.5) {
+            /* closed: a pull down from the top of the page opens it */
+            if (scrollY && scrollY.value > 2) state.fail();
+            else if (dy > SLACK) state.activate();
+            else if (dy < -SLACK) state.fail();
+          } else if (gate && !gate.value) state.fail();
+          else if (dy < -SLACK) state.activate();
+          else if (dy > SLACK) state.fail();
+        })
+        .onUpdate(e => {
+          const travel = Math.max(1, openH.value - closedH);
+          open.value = clamp(startOpen.value + e.translationY / travel, 0, 1);
+        })
+        .onEnd(e => {
+          const v = e.velocityY;
+          const opening = startOpen.value < 0.5;
+          const to = v > 400 ? 1 : v < -400 ? 0 : open.value > (opening ? 0.35 : 0.65) ? 1 : 0;
+          open.value = withSpring(to, keys);
+          runOnJS(settle)(to === 1);
+        })
+        .onFinalize((_, success) => {
+          if (!success && startOpen.value !== open.value) {
+            open.value = withSpring(startOpen.value < 0.5 ? 0 : 1, keys);
+          }
+        }),
+    [closedH, only], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+}
+
+/** What the chat inside the card is handed: the drag that closes the card
+    once the chat has scrolled to its end, and the flag it keeps for that. */
+export type CardGestures = { pan: PanGesture; atEnd: SharedValue<boolean> };
+export const CardGesturesContext = React.createContext<CardGestures | null>(null);
 
 /** The frame allows 52 for the status bar. A phone whose bar is taller —
     one with the island — pushes the card's top down by the difference, and
@@ -96,54 +177,15 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
   };
 
   /* ---- the drag ---- */
-  const startY = useSharedValue(0);
-  const startX = useSharedValue(0);
-  const startOpen = useSharedValue(0);
-  const drag = () =>
-    Gesture.Pan()
-      .manualActivation(true)
-      .onTouchesDown(e => {
-        const t = e.allTouches[0];
-        if (!t) return;
-        startY.value = t.y;
-        startX.value = t.x;
-        startOpen.value = open.value;
-      })
-      .onTouchesMove((e, state) => {
-        const t = e.allTouches[0];
-        if (!t) return;
-        const dy = t.y - startY.value;
-        const dx = t.x - startX.value;
-        if (Math.abs(dx) > 14 && Math.abs(dx) > Math.abs(dy)) {
-          state.fail();
-          return;
-        }
-        if (startOpen.value < 0.5) {
-          /* closed: a pull down from the top of the page opens it */
-          if (scrollY.value > 2) state.fail();
-          else if (dy > SLACK) state.activate();
-          else if (dy < -SLACK) state.fail();
-        } else if (dy < -SLACK) state.activate();
-        else if (dy > SLACK) state.fail();
-      })
-      .onUpdate(e => {
-        const travel = Math.max(1, openH.value - closedH);
-        open.value = clamp(startOpen.value + e.translationY / travel, 0, 1);
-      })
-      .onEnd(e => {
-        const v = e.velocityY;
-        const opening = startOpen.value < 0.5;
-        const to = v > 400 ? 1 : v < -400 ? 0 : open.value > (opening ? 0.35 : 0.65) ? 1 : 0;
-        open.value = withSpring(to, keys);
-        runOnJS(settle)(to === 1);
-      })
-      .onFinalize((_, success) => {
-        if (!success && startOpen.value !== open.value) {
-          open.value = withSpring(startOpen.value < 0.5 ? 0 : 1, keys);
-        }
-      });
-  const headPan = React.useMemo(drag, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const bodyPan = React.useMemo(drag, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const settleRef = React.useRef(settle);
+  settleRef.current = settle;
+  const settled = React.useCallback((to: boolean) => settleRef.current(to), []);
+  const headPan = useCardDrag({ open, openH, closedH, scrollY, settle: settled });
+  const bodyPan = useCardDrag({ open, openH, closedH, scrollY, settle: settled });
+  /* the chat closes the card too, once it has scrolled to its end */
+  const atEnd = useSharedValue(true);
+  const chatPan = useCardDrag({ open, openH, closedH, settle: settled, gate: atEnd });
+  const gestures = useMemo(() => ({ pan: chatPan, atEnd }), [chatPan, atEnd]);
 
   /* keep the React side in step with a spring that was started elsewhere */
   const seen = useDerivedValue(() => open.value > 0.5);
@@ -210,10 +252,14 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
 
   return (
     <Animated.View style={[s.card, card]} testID="card">
-      {/* the open card: the conversation, running up under the header, and the bar at its foot */}
+      {/* the open card: the conversation, running up under the header and down
+          under the bar, and the bar at its foot on its own haze */}
       <Animated.View style={[s.opened, coming]} pointerEvents={opened ? 'auto' : 'none'}>
-        <View style={{ flex: 1 }}>{chat}</View>
-        <View style={s.foot}>{foot}</View>
+        <CardGesturesContext.Provider value={gestures}>{chat}</CardGesturesContext.Provider>
+      </Animated.View>
+      <Animated.View style={[s.foot, coming]} pointerEvents={opened ? 'box-none' : 'none'}>
+        <Frost height={FOOT_BAND + 40} side="bottom" />
+        <View style={s.bar}>{foot}</View>
       </Animated.View>
 
       {/* the header band: frosted glass over the conversation, the mark, and the
@@ -310,7 +356,8 @@ const s = StyleSheet.create({
   grab: { position: 'absolute', top: CLOSED_H - 20 - 32, left: 0, right: 0, alignItems: 'center', gap: 12, zIndex: 2 },
   grabber: { width: 27, height: 4, borderRadius: 2, backgroundColor: dark.grabber },
   opened: { position: 'absolute', top: 0, left: SIDE, right: SIDE, bottom: 0 },
-  foot: { height: FOOT_BAND, paddingTop: 20, paddingBottom: 20 },
+  foot: { position: 'absolute', left: 0, right: 0, bottom: 0, height: FOOT_BAND + 40 },
+  bar: { position: 'absolute', left: SIDE, right: SIDE, bottom: 20, height: 48 },
   figure: { position: 'absolute', top: 0, left: 0, flexDirection: 'row', alignItems: 'flex-start', zIndex: 4 },
   figureText: { color: '#ffffff', fontWeight: '700', fontSize: 32, lineHeight: 40, letterSpacing: -1.06 },
   koboText: { color: dark.kobo, fontWeight: '600', fontSize: 20, lineHeight: 24, marginTop: 8, marginLeft: 1 },

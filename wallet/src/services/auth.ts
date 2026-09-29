@@ -29,9 +29,9 @@ export interface AuthService {
   signIn(phone: string, token: string): Promise<Session | null>;
 }
 
-/** The number the design is drawn around. Signing in with it opens the demo
-    account, history and all. */
-export const DEMO_PHONE = '08032144471';
+/** The owner's own number. Signing in with it opens the demo account, history
+    and all. */
+export const DEMO_PHONE = '09069113588';
 export const DEMO_ACCOUNT: Account = {
   accountNumber: '0102445788',
   phone: DEMO_PHONE,
@@ -43,6 +43,10 @@ export const DEMO_ACCOUNT: Account = {
 
 /** The code this build accepts. A real service sends one by text. */
 export const MOCK_CODE = '123456';
+/** The passcodes this build lets through although the rules would refuse
+    them, so that trying the app never means thinking one up: the code
+    forwards, and backwards. A real build refuses both. */
+export const DEMO_PASSCODES = ['123456', '654321'];
 const ACCOUNTS_KEY = 'beetle.accounts.v1';
 
 /* The mock keeps the accounts opened on this device, so signing out and back

@@ -57,9 +57,10 @@ await mkdir(SHOTS, { recursive: true });
 /* What this build accepts: see src/services. */
 const CODE = '123456';
 const NIN = '12345678900';
-const DEMO_PHONE = '08032144471';
+const DEMO_PHONE = '09069113588';
 const NEW_PHONE = '08123456789';
-const PASSCODE = '402917';
+/* the owner's passcode: the code backwards, which this build lets through */
+const PASSCODE = '654321';
 
 const b = await launch();
 const ctx = await b.newContext({ viewport: { width: 393, height: 852 }, deviceScaleFactor: 2 });
@@ -279,7 +280,7 @@ try {
   await type(PASSCODE);
   await see('The same six, to be sure');
   await shot('passcode-again');
-  await type('402918');
+  await type('654322');
   await see('They did not match');
   await shot('passcode-mismatch');
   await type(PASSCODE);
@@ -412,6 +413,17 @@ try {
     if (!samples) await page.waitForTimeout(900);
     return samples;
   };
+  /* a push up closes it: on the chat once it is at its end, or on the day below */
+  const pushUp = async (x, y) => {
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    for (let i = 1; i <= 12; i++) {
+      await page.mouse.move(x, y - i * 26);
+      await page.waitForTimeout(30);
+    }
+    await page.mouse.up();
+    await page.waitForTimeout(900);
+  };
   const opening = await pull('card-opening', true);
   const first = opening[0];
   const last = opening[opening.length - 1];
@@ -445,10 +457,10 @@ try {
   await see('is with Sarah Adeyemi');
   await see('₦575,320');
   await shot('chat-transfer-sent', 500);
-  /* a tap on the day below brings the card back up, and the day has the
-     transfer in it, and the chat that made it, filed at the top */
-  await tap('Back to the day');
-  await page.waitForTimeout(900);
+  /* a push up on the chat, now at its end, brings the card back up; the day
+     has the transfer in it, and the chat that made it, filed at the top */
+  await pushUp(196, 520);
+  must((await page.locator('[data-testid="card"]').boundingBox())?.height < 420, 'a push up on the chat should close the card');
   await see('GTBank · sent');
   await see('Send 20k to Sarah');
   await shot('home-after-transfer');
@@ -465,8 +477,9 @@ try {
   await see('Beetle Transfers');
   await page.waitForTimeout(700);
   await shot('chat-reopened');
-  await tap('Back to the day');
-  await page.waitForTimeout(700);
+  /* and a push up on the day below closes it too */
+  await pushUp(196, 780);
+  must((await page.locator('[data-testid="card"]').boundingBox())?.height < 420, 'a push up on the day below should close the card');
   /* and Beetle's own prompt opens with the thing it wants handled */
   await tap('Your usual top up');
   await see('Beetle Bills');
@@ -554,11 +567,12 @@ try {
   /* the first time: the card dips on its own, with the words that say why, then settles */
   await tap('The first time');
   await arrives('Money health');
-  const dip = await trace('first-time-dip', 3400, [['card', '[data-testid="card"]', false]], { picture: { at: 2150, name: 'home-first-dip' } });
+  const dip = await trace('first-time-dip', 3900, [['card', '[data-testid="card"]', false]], { picture: { at: 2150, name: 'home-first-dip' } });
   const deepest = Math.max(...dip.map(x => x.card?.height ?? 0));
   const settled = dip[dip.length - 1]?.card?.height ?? 0;
-  must(deepest >= 370, `the card should dip on the first visit (deepest ${deepest}px)`);
-  must(settled < 360, `and settle back (${settled}px)`);
+  const closed = dip[0]?.card?.height ?? 0;
+  must(deepest >= closed + 18, `the card should dip on the first visit (deepest ${deepest}px from ${closed}px)`);
+  must(settled < closed + 16, `and settle back (${settled}px, from ${closed}px)`);
   must((await page.getByText('Pull down to ask Beetle').count()) > 0, 'the grabber should say what the pull is for');
   console.log(`  the card dipped to ${Math.round(deepest)}px and settled at ${Math.round(settled)}px`);
 } catch (e) {

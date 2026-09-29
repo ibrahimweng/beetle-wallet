@@ -43,7 +43,10 @@ export function beetlePrompt(): Chat {
 /** The title a chat gets: what you first asked, or what Beetle opened with. */
 export function titleOf(turns: Turn[]): string {
   const yours = turns.find(t => t.who === 'you');
-  if (yours && yours.who === 'you') return yours.text.length > 40 ? yours.text.slice(0, 38).trimEnd() + '…' : yours.text;
+  if (yours && yours.who === 'you') {
+    const text = yours.photo && yours.text === 'A photo' ? 'A photo of an account number' : yours.text;
+    return text.length > 40 ? text.slice(0, 38).trimEnd() + '…' : text;
+  }
   const first = turns.find(t => t.who === 'beetle');
   const text = first && first.who === 'beetle' && first.block.kind === 'say' ? first.block.text : 'A chat';
   return text.length > 40 ? text.slice(0, 38).trimEnd() + '…' : text;
@@ -56,7 +59,10 @@ export function detailOf(turns: Turn[]): string {
     if (t.who !== 'beetle') continue;
     if (t.block.kind === 'say') return t.block.text.length > 56 ? t.block.text.slice(0, 54).trimEnd() + '…' : t.block.text;
     if (t.block.kind === 'note') return t.block.title;
-    if ('state' in t) return `${t.block.panel.title} · ${t.state === 'done' ? 'done' : 'waiting'}`;
+    if ('state' in t) {
+      const thing = t.block.panel.action?.label ?? t.block.panel.title;
+      return t.state === 'done' ? `${thing} · done` : `${thing}, waiting for you`;
+    }
   }
   return '';
 }

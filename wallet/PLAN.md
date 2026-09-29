@@ -1,0 +1,229 @@
+# The plan — Beetle, the whole app
+
+Everything between where the app is and the whole of it. Each item is checked
+off only when it is built, checked against its frame, and walked in the
+running bundle, never when it is written. The rounds go in order; nothing in a
+later round starts before the round it depends on is done.
+
+The home screen in the app is the one to keep: the black card with the balance,
+Send and Receive, the pull down into the chat, the day under it. The file's
+older home (225:3) is not used. Everything else is built from the frame named
+beside it, with its sizes and its words.
+
+## The rule for every screen
+
+1. **Frame first.** Open the frame. Save its picture to `test/figma/<key>.png`
+   and its layer numbers to `test/figma/<key>.xml` (what the file says each
+   piece measures and where it sits). Both are committed, so the checks run
+   without Figma.
+2. **Build from the numbers.** Sizes, spacing, radii, type sizes and weights
+   come from the frame and from `src/design/tokens.ts`, which was read off the
+   frames. Nothing is judged by eye and no row is invented. Spacing stays on
+   the file's own grid (4), and where the frame's figure is odd (21 of card
+   padding) the odd figure is kept, not rounded.
+3. **Register it.** A route under `app/`, a place in the lab (`src/lab/catalogue.ts`)
+   with the state it needs, and a line in this file.
+4. **Check it.** `npm run figma` opens the screen and measures it against the
+   frame: every named piece within 2 pixels of where the frame puts it and how
+   big the frame draws it; type at the frame's size and weight; the words the
+   frame carries all present (a figure that now comes from live state, or a
+   line reworded on purpose, is listed in `test/figma/allowed.json` with why).
+   It also lays the frame and the screen side by side into `shots/figma/` for a
+   look — the look and feel have to read as the same screen.
+5. **Walk it.** `npm run flow` reaches the screen the way a person would and
+   photographs it, including the states that say no.
+6. **Count the taps.** Every process from home ends within four taps. The
+   count is written beside the flow below and the walk asserts it.
+
+The motion is the one language throughout (`src/design/motion.tsx`): things
+arrive out of a blur and leave into one, a press dips and springs back, the
+same curves everywhere. The More sheet moves the way the frame and the
+earlier work set: the screen behind blurs, the items come up out of the
+button, the plus turns into a cross.
+
+## What every round ends with
+
+Typecheck, unit tests, the bundle, the Figma check, the walk, the README,
+one commit on main, the Phone workflow's update to Expo Go, the artifact,
+screenshots to the owner.
+
+---
+
+## Round 0 · The check itself
+
+- [ ] `test/figma/` — the frame's picture and numbers for every screen built
+      so far (the way in, home, the chat, the passcode, the receive pane), and
+      for each new screen as it comes
+- [ ] `test/figma.mjs` — opens each screen through the lab, measures the
+      named pieces against the frame's numbers, checks the frame's words are
+      on the screen, and composes the side-by-side picture
+- [ ] `test/figma/allowed.json` — the differences allowed on purpose, each
+      with a reason
+- [ ] `npm run figma` in `verify` and in the Tests workflow
+- [ ] A first pass over what is already built: the passcode pane, the
+      receive pane, the shortcuts, Settings' rows, the icon sizes and stroke
+      widths, the type — anything off the frame fixed
+
+## Round 1 · Chats that carry on, and receipts
+
+A chat lasts an hour from its last message. Closing the card keeps it; a pull
+down within the hour continues it; after the hour the next pull down starts a
+new one. A chat reopened from the day becomes the one that carries on. An
+unread prompt from Beetle waits in the day and never takes the pull down.
+
+- [ ] Chats carry `lastAt`; the hour rule in `src/features/agent/chats.ts`,
+      with a unit test; the rule holds across a restart
+- [ ] "New" at the top right of the open card — a word with a small glyph, in
+      the header, arriving with the open pieces — files the chat and starts a
+      fresh one with Beetle's greeting
+- [ ] Receipts — `src/features/receipts/`: the record (what moved, to whom,
+      from where, fee, total, balance after, when, the session id), kept per
+      account, one for every line the day already shows
+- [ ] The receipt card in the chat: after the passcode the panel becomes a
+      summarized card (the amount, where it went, when, Successful) and a tap
+      opens the full receipt
+- [ ] The receipt screen, `/receipt/[id]`, from the frames: a transfer
+      (donesend 239:7829), data bought (done 239:8418), a bill paid (power
+      490:13497), money in (donein 490:12465); the `Receipt` piece itself in
+      the design system with the frame's two columns, dashed rules, and the
+      session line with its copy button
+- [ ] Share receipt (the share sheet 472:10886, 472:11590, 490:13595, 490:12558)
+- [ ] The dock the frame gives the receipt screen: back, "Ask about this
+      transfer", the camera — asking opens home's chat with the receipt named
+- [ ] Every line in the day opens its receipt; an arrival gets one too
+- [ ] "Something wrong with this?" opens the What went wrong screen (round 7);
+      until then the row is there and says the round it lands in
+- [ ] The mark at the top left opens Settings (272:8208): the page, the Plus
+      card, the three sections, Your details (name, number, account number,
+      member since) and Sign out working; home's own Sign out link goes
+- [ ] Lab places: a chat that carries on, New, a receipt in the chat, each
+      receipt kind, Settings
+
+Taps: a transfer from the chat is pull down (1), type, Send this (2), Confirm
+(3), the passcode (4).
+
+## Round 2 · The bar, the More sheet, Activities, Settings in full
+
+The non-chat interface is a click through. The bottom bar carries Home,
+Activities and Camera, and a single More button to the side, as the frame
+draws it. The bar shows on home with the card closed and on the screens the
+frames give a bar to; the open chat has the shortcuts row instead.
+
+- [ ] The bottom bar — Home, Activities, Camera, and the black plus to the
+      side; arrives and leaves with the frames' motion; hidden while the card
+      is open
+- [ ] The More sheet (actions 204:85): Camera, Send money, Receive, History,
+      Settings, each with its coloured glyph, right aligned above the button;
+      the screen behind blurs; the items come up out of the button and settle;
+      the plus turns into a cross; anywhere else closes it; closing runs
+      backwards before the screen goes
+- [ ] Activities (history 501:14267): everything that moved, newest first,
+      All / In / Out, today and yesterday, each row to its receipt; the
+      answer to a spending question (answer 218:84)
+- [ ] Settings in full: Lock and privacy (lock 271:8211), Spending limits
+      (limits 223:206) and Past your own limit (limitstop 224:2), Standing
+      instructions (rules 207:136) and Set this up (rule 207:101), Devices
+      (devices 224:53), Keys and recovery (lostphone 957:20438, newcode
+      957:20481), Your details, Notifications, Saved people, Cards (card
+      218:2), Contact support and Give feedback (into the chat), Sign out
+- [ ] Beetle Plus: the card on Settings opens the chat asking about it
+- [ ] Lab places for each
+
+Taps: More (1), History (2), a line (3) is a receipt. More (1), Settings (2),
+a row (3).
+
+## Round 3 · Sending money, four taps
+
+- [ ] Send on the card, and Send money in the More sheet, open the send form
+      (pay 332:9851): the amount, who to, the reference, from, arrives, the
+      fee, and Slide to send
+- [ ] Who to: a saved person (the people the account has paid), an account
+      number typed (typed 209:209), or one read off a photo (scan 209:2,
+      found 205:2) — the reader already in the app
+- [ ] Slide to send, then the passcode (confirm 239:7762), Face ID first
+      where enrolled and Face ID missed (noface 331:9488)
+- [ ] All done (donesend 239:7829) and Share (472:10886), already built in
+      round 1, reached from here
+- [ ] The states of a transfer, from the receipt and from the day: Still on
+      its way (pending 206:2), It did not go (failed 206:77), It came back
+      (reversed 206:153), Not enough (short 208:88), Check this number
+      (misread 957:20338), I sent it wrong (alreadygone 957:20392)
+- [ ] What went wrong? (wrong 206:225), Asking for it back (recall 207:2),
+      Change the amount (amend 222:148)
+- [ ] The ledger's three unsettled rows on home open their own states
+- [ ] Lab places for each state
+
+Taps: Send (1), a saved person (2), the amount and slide (3), the passcode
+(4). With a photo: Send (1), the camera (2), take it (3), slide and passcode
+(4) — the passcode is the fourth tap because the slide is a drag.
+
+## Round 4 · Being paid, and asking
+
+- [ ] Receive on the card, and in the More sheet, opens Receive (332:9555):
+      bank transfer, from a card, ask someone, in dollars
+- [ ] Three ways to be paid (ways 222:199) and Your code (mycode 221:2), the
+      code drawn for real
+- [ ] Ask someone: Request (225:1606), the typed and photographed ways in
+      (typedask 225:1928, foundreq 225:1551), Request sent (sent 239:8294)
+- [ ] Money in (donein 490:12465) and its share, from round 1, reached from
+      the day and from an arrival
+- [ ] The receive pane built earlier folds into these frames; nothing exists
+      twice
+
+Taps: Receive (1), bank transfer (2), copy (3). Receive (1), ask someone (2),
+who and how much (3), send the request (4).
+
+## Round 5 · Bills, data and the services drawer
+
+- [ ] Bills (217:67) and Pay a bill (powerpay 217:2), the passcode, Bill paid
+      (power 490:13497) and its share (490:13595)
+- [ ] A bill from a photo: Scan a bill (222:97), What I read (meter 210:2),
+      Confirm (confirmmeter 210:71)
+- [ ] All services (215:2), Buy data (airtime 215:170 and buy 221:165), the
+      typed and photographed ways in (typedbuy 225:2973, foundsvc 225:2620),
+      Confirm (confirmbuy 239:8474), All done (done 239:8418), Share (472:11590)
+- [ ] Borrow (loan 217:181) and Virtual card (card 218:2)
+- [ ] The shortcuts under the open chat and the insight cards on home hand
+      these to the chat, as now; the click-through versions reach the same
+      receipts
+
+Taps: More (1), Services (2), Buy data (3), confirm with the passcode (4).
+
+## Round 6 · Dollars, putting money away, money health
+
+- [ ] Dollars (279:8211), Convert (279:8299), Converted (296:8850); the
+      dollars chip on the card opens Dollars
+- [ ] Pay from your dollars (payfrom 301:9464, paydollars 301:9565)
+- [ ] Holiday, the goal (219:2), the rule that feeds it (saverule 224:122),
+      Paused (204:2); No goal yet (emptygoal 964:21229)
+- [ ] Money health (223:2), from the row on home
+- [ ] Draft (222:2), from the button
+
+## Round 7 · When it goes wrong, and what runs on its own
+
+- [ ] Checking (973:20644) and I will not do this one (973:20699), as states
+      of the chat
+- [ ] Your dispute (disputeopen 959:20338) and The dispute is closed
+      (disputeend 959:20393), from What went wrong
+- [ ] You are offline (nonetwork 959:20420), shown when the network is not
+      there, and the chat's own line for it
+- [ ] Standing instructions in full: the rules that run, the one a receipt
+      offers ("Rent again next month?"), pausing one
+
+## Round 8 · Finishing setting up, and the first day
+
+- [ ] Where you live (finish 316:9491), A photo of an ID (idcard 316:9538),
+      Where your money comes from (income 317:9488), Everything is on (full
+      317:9528); the limits these turn on
+- [ ] The first home (firsthome 964:20807), The first question (firstask
+      964:21033), Nothing yet (emptyactivity 964:21113) — the new account's
+      day, which the app already shows in part
+
+## Kept out on purpose
+
+- The file's older home (225:3): the card and the day in the app are the
+  home to keep.
+- The dock at the foot of home: the ask bar lives in the card. Other screens
+  keep the dock their frames give them.
+- The prototype in `mobile/` is a mirror of the frames to read from, not code
+  to move over: the app is built on its own design system and motion.

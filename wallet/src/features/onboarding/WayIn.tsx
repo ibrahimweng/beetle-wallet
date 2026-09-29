@@ -18,14 +18,15 @@ import Animated, { interpolateColor, runOnJS, useAnimatedStyle, useSharedValue, 
 import {
   Body,
   Button,
+  Caption,
   Display,
   Head,
   Icon,
   Keypad,
+  Label,
   Meta,
   Pane,
   Pop,
-  Row as RowText,
   Swap,
   Tick,
   Wash,
@@ -55,7 +56,8 @@ const GLYPH = 32;
 const GLYPH_GAP = 8;
 const ROW_H = 24;
 const ROW_GAP = 16;
-const STACK_GAP = 20;
+/** from the last row's words to the glyph: the row's own 8 below, and 4 */
+const STACK_GAP = 12;
 const ROW_INSET = 36;
 /** from the title's top to the top of the row it becomes */
 const ROW_DY = -(STACK_GAP + ROW_H + GLYPH + GLYPH_GAP);
@@ -194,28 +196,47 @@ export function WayIn() {
     <Pane leaving={leaving} style={{ flex: 1, backgroundColor: colour.surface }}>
       <WashFade wash={view.wash} receded={!!view.keypad && digits.length > 0} />
       <BackChevron onPress={view.back} />
-      <View style={{ flex: 1, paddingHorizontal: SIDE, justifyContent: 'flex-end', paddingBottom: 28, gap: STACK_GAP }}>
+      <Hint text={view.hint} />
+      {/* the column ends where the frames end it: on the dock's top, 12 above
+          the keypad's first row and the bar's block alike, and 36 above the
+          welcome's two ways in. The 12 between the band and what sits under
+          it belongs to the body, so a stage with nothing there adds nothing */}
+      <View style={{ flex: 1, paddingHorizontal: SIDE, justifyContent: 'flex-end', paddingBottom: bottomKind === 'welcome' ? 36 : 12 }}>
         <Stack rows={rows} above={view.above} aboveKey={view.above ? stage : 'none'} dir={dir} />
-        <HeadBand icon={view.icon} tint={view.tint} title={view.title} small={!!view.small} sub={view.sub} stage={stage} move={titleMove} dir={dir} />
+        <HeadBand
+          icon={view.icon}
+          iconSize={view.iconSize}
+          tint={view.tint}
+          title={view.title}
+          small={!!view.small}
+          inline={!!view.inline}
+          subBody={!!view.subBody}
+          sub={view.sub}
+          stage={stage}
+          move={titleMove}
+          dir={dir}
+        />
         <Slot id={view.bodyKey} from={dir * 24} to={dir * -24}>
-          {view.body}
+          {view.body ? <View style={{ paddingTop: STACK_GAP }}>{view.body}</View> : null}
         </Slot>
       </View>
       <Slot id={`bottom:${bottomKind}`} from={120} to={120} delay={120} spring>
         {bottomKind === 'keypad' ? (
           <View style={{ paddingHorizontal: SIDE, opacity: busy ? 0.5 : 1 }}>
             <Keypad onKey={k => keyRef.current?.(k)} />
-            <View style={{ height: 24 }} />
+            {/* the frames give the pad 16 below its last row; the row's own cell holds 4 of it */}
+            <View style={{ height: 20 }} />
           </View>
         ) : bottomKind === 'bar' && view.bar ? (
           <BarBlock bar={view.bar} />
         ) : bottomKind === 'welcome' ? (
-          <View style={{ paddingHorizontal: SIDE, paddingBottom: 36 }}>
+          <View style={{ paddingHorizontal: SIDE, paddingBottom: 20 }}>
             <Button label="Open an account" onPress={() => go('number')} />
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 16 }}>
-              <Body tone="tertiary">Already have one?</Body>
+            {/* the frame's row: 44 tall, 8 under the button, the words 14 on 20 */}
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 8, height: 44 }}>
+              <Meta tone="tertiary">Already have one?</Meta>
               <Pressable onPress={() => go('signin')} accessibilityRole="button">
-                <RowText tone="accent">Sign in</RowText>
+                <Label tone="accent">Sign in</Label>
               </Pressable>
             </View>
           </View>
@@ -301,6 +322,24 @@ function BackChevron({ onPress }: { onPress?: () => void }) {
         <Icon name="back" size={22} />
       </Pressable>
     </Animated.View>
+  );
+}
+
+/* A line for the demo build, at the top where the frames keep nothing but
+   the way back: which digits this build lets through. */
+function Hint({ text }: { text?: string }) {
+  return (
+    <View pointerEvents="none" style={{ position: 'absolute', top: 52, left: 60, right: 60, height: 44, justifyContent: 'center', zIndex: 2 }}>
+      <Swap value={text ?? ''}>
+        {shown =>
+          shown ? (
+            <Caption tone="tertiary" style={{ textAlign: 'center' }}>
+              {shown}
+            </Caption>
+          ) : null
+        }
+      </Swap>
+    </View>
   );
 }
 
@@ -391,36 +430,60 @@ function StackRow({ row, mode, onGone }: { row: Row; mode: Shown['mode']; onGone
 
 function HeadBand({
   icon,
+  iconSize = GLYPH,
   tint,
   title,
   small,
+  inline,
+  subBody,
   sub,
   stage,
   move,
   dir,
 }: {
   icon: IconName | 'tick';
+  /** the welcome's mark is 40 where every other glyph is 32 */
+  iconSize?: number;
   tint?: string;
   title: string;
   small: boolean;
+  /** the ready screen: the tick beside the title, the line indented under it */
+  inline: boolean;
+  /** the welcome's line is 16 on 24 where the others are 14 on 20 */
+  subBody: boolean;
   sub: string;
   stage: Stage;
   move: TitleMove;
   dir: Dir;
 }) {
+  const line = (shown: string) => (subBody ? <Body tone="secondary">{shown}</Body> : <Meta tone="secondary">{shown}</Meta>);
+  if (inline)
+    return (
+      <View style={{ gap: 4, marginTop: STACK_GAP }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <Tick on size={22} />
+          <View style={{ flex: 1 }}>
+            <TitleTrack title={title} small={small} stage={stage} move={move} dir={dir} />
+          </View>
+        </View>
+        <View style={{ marginLeft: 34 }}>
+          <Swap value={sub}>{line}</Swap>
+        </View>
+      </View>
+    );
   return (
-    <View style={{ gap: GLYPH_GAP }}>
-      <Glyph icon={icon} tint={tint} />
+    <View style={{ gap: GLYPH_GAP, marginTop: STACK_GAP }}>
+      <Glyph icon={icon} tint={tint} size={iconSize} />
       <TitleTrack title={title} small={small} stage={stage} move={move} dir={dir} />
-      <Swap value={sub}>{shown => <Meta tone="secondary">{shown}</Meta>}</Swap>
+      <Swap value={sub}>{line}</Swap>
     </View>
   );
 }
 
 /* The glyph above the title. A new one lands a beat after the old has gone. */
 type GlyphLayer = { key: string; icon: IconName | 'tick'; tint?: string; out: boolean };
-function Glyph({ icon, tint }: { icon: IconName | 'tick'; tint?: string }) {
-  const key = `${icon}|${tint ?? ''}`;
+function Glyph({ icon, tint, size = GLYPH }: { icon: IconName | 'tick'; tint?: string; size?: number }) {
+  const key = `${icon}|${tint ?? ''}|${size}`;
   const [layers, setLayers] = useState<GlyphLayer[]>(() => [{ key, icon, tint, out: false }]);
   useEffect(() => {
     setLayers(current => {
@@ -431,15 +494,15 @@ function Glyph({ icon, tint }: { icon: IconName | 'tick'; tint?: string }) {
   }, [key, icon, tint]);
   const drop = useCallback((k: string) => setLayers(current => current.filter(l => !(l.out && l.key === k))), []);
   return (
-    <View style={{ width: GLYPH, height: GLYPH }}>
+    <View style={{ width: size, height: size }}>
       {layers.map(l => (
-        <GlyphLayerView key={l.key} layer={l} onGone={() => drop(l.key)} />
+        <GlyphLayerView key={l.key} layer={l} size={size} onGone={() => drop(l.key)} />
       ))}
     </View>
   );
 }
 
-function GlyphLayerView({ layer, onGone }: { layer: GlyphLayer; onGone: () => void }) {
+function GlyphLayerView({ layer, size, onGone }: { layer: GlyphLayer; size: number; onGone: () => void }) {
   const still = useStill();
   const t = useSharedValue(1);
   const gone = useRef(onGone);
@@ -451,7 +514,7 @@ function GlyphLayerView({ layer, onGone }: { layer: GlyphLayer; onGone: () => vo
     });
   }, [layer.out]); // eslint-disable-line react-hooks/exhaustive-deps
   const fading = useAnimatedStyle(() => ({ opacity: t.value, ...blurred((1 - t.value) * 4) }));
-  const glyph = layer.icon === 'tick' ? <Tick on size={GLYPH} /> : <Icon name={layer.icon} size={GLYPH} colour={layer.tint} />;
+  const glyph = layer.icon === 'tick' ? <Tick on size={size} /> : <Icon name={layer.icon} size={size} colour={layer.tint} />;
   return <Animated.View style={[{ position: 'absolute', top: 0, left: 0 }, fading]}>{layer.out ? glyph : <Pop>{glyph}</Pop>}</Animated.View>;
 }
 

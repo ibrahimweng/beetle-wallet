@@ -46,6 +46,8 @@ jobs:
         run: npm run typecheck && npm test
       - name: The way in runs in a browser, from the loading screen to home
         run: npm run bundle && npm run flow
+      - name: Every screen is drawn to its frame
+        run: npm run figma
       - uses: actions/upload-artifact@v4
         if: always()
         with:

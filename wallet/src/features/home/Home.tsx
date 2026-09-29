@@ -47,7 +47,7 @@ import { clock, detailOf, titleOf, useChats, type Chat as ChatRecord } from '../
 import { transferPanel, PEOPLE } from '../../services/agent';
 import { handoff } from '../scan/handoff';
 import { samplePhoto } from '../scan/sample';
-import { PasscodePane, lockedFor } from '../passcode';
+import { PasscodeSheet, lockedFor } from '../passcode';
 import { ReceivePane, SAMPLE_ARRIVAL, arrivalChat, arrivalLine, arrivalMove, type Arrival } from '../receive';
 import { LAB } from '../../lab/enabled';
 import { glance, holdingsFor, type LedgerRow as Row } from './account';
@@ -55,7 +55,7 @@ import { AskBar } from './AskBar';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { CLOSED_H, FOOT_BAND, WalletCard, useCardDrag, useCardTop } from './WalletCard';
 import { chatPointedOut, markChatPointedOut } from './first';
-import { kobo, naira, signed } from '../../lib/format';
+import { groupAccount, kobo, naira, signed } from '../../lib/format';
 
 const next = (what: string) => () => toast(`${what} is the next flow to build.`);
 
@@ -541,16 +541,6 @@ export function Home() {
                     setTimeout(() => arriveRef.current(SAMPLE_ARRIVAL), 1400);
                   }}
                 />
-              ) : guard ? (
-                <PasscodePane
-                  key={guard.panelId}
-                  amount={naira(Math.abs(guard.panel.move?.amount ?? guard.panel.action?.amount ?? 0))}
-                  title={whereTo(guard.panel)}
-                  sub={feeLine(guard.panel)}
-                  verify={app.checkPasscode}
-                  onDone={guardDone}
-                  onCancel={() => setGuard(null)}
-                />
               ) : undefined
             }
             foot={<AskBar ref={input} value={draft} onChange={setDraft} onSubmit={send} onCamera={toCamera} />}
@@ -682,6 +672,18 @@ export function Home() {
           </GestureDetector>
         </Animated.View>
       ) : null}
+      {/* the passcode, on its sheet over everything, before money moves */}
+      {guard ? (
+        <PasscodeSheet
+          key={guard.panelId}
+          amount={naira(Math.abs(guard.panel.move?.amount ?? guard.panel.action?.amount ?? 0))}
+          name={whoFor(guard.panel).name}
+          detail={whoFor(guard.panel).detail}
+          verify={app.checkPasscode}
+          onDone={guardDone}
+          onCancel={() => setGuard(null)}
+        />
+      ) : null}
     </View>
   );
 }
@@ -712,18 +714,12 @@ function Shortcuts({ items }: { items: { glyph: IconName; label: string; onPress
   );
 }
 
-/** Where the money is going, for the passcode pane. */
-function whereTo(panel: Panel): string {
-  if (panel.tool === 'transfer') return `To ${panel.rows[0]?.value ?? 'them'} at ${panel.rows[1]?.value ?? 'their bank'}`;
-  return panel.move ? `${panel.move.name} · ${panel.move.detail}` : panel.title;
-}
-
-/** What the passcode pane says under where the money is going: the fee, if any. */
-function feeLine(panel: Panel): string | undefined {
-  if (!panel.action) return undefined;
-  const amount = Math.abs(panel.move?.amount ?? panel.action.amount);
-  const fee = panel.action.amount - amount;
-  return fee > 0 ? `plus ${naira(fee)} fee` : 'No fee';
+/** Who the money is going to, for the row on the passcode sheet: the person
+    with their bank and account for a transfer, what it is for otherwise. */
+function whoFor(panel: Panel): { name: string; detail?: string } {
+  if (panel.person) return { name: panel.person.name, detail: `${panel.person.bank} · ${groupAccount(panel.person.number)}` };
+  if (panel.move) return { name: panel.move.name, detail: panel.move.detail };
+  return { name: panel.title };
 }
 
 /* A chat in the day: the mark, what it was about, what it came to, and

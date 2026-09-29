@@ -1,0 +1,797 @@
+{
+  "welcome": {
+    "frame": "welcome",
+    "place": "Welcome",
+    "wait": "Already have one?",
+    "pieces": [
+      {
+        "name": "Save",
+        "find": {
+          "text": "Save"
+        }
+      },
+      {
+        "name": "Send",
+        "find": {
+          "text": "Send"
+        }
+      },
+      {
+        "name": "Spend",
+        "find": {
+          "text": "Spend"
+        }
+      },
+      {
+        "name": "Ask",
+        "find": {
+          "text": "Ask"
+        }
+      },
+      {
+        "name": "Beetle",
+        "find": {
+          "text": "Beetle"
+        }
+      },
+      {
+        "name": "A bank that answers when you a",
+        "find": {
+          "text": "A bank that answers"
+        }
+      },
+      {
+        "name": "Button · Open an account",
+        "find": {
+          "button": "Open an account"
+        }
+      },
+      {
+        "name": "Already have one?",
+        "find": {
+          "text": "Already have one?"
+        }
+      },
+      {
+        "name": "Sign in",
+        "find": {
+          "button": "Sign in"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      }
+    ]
+  },
+  "number": {
+    "frame": "number",
+    "place": "Your number",
+    "wait": "I will text you",
+    "pieces": [
+      {
+        "name": "Your number",
+        "find": {
+          "text": "Your number"
+        }
+      },
+      {
+        "name": "I will text you six digits t",
+        "find": {
+          "text": "I will text you"
+        }
+      },
+      {
+        "name": "Row · 0803 214 4471",
+        "find": {
+          "testid": "field"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Key",
+        "nth": 0,
+        "find": {
+          "button": "1",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 1,
+        "find": {
+          "button": "2",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 2,
+        "find": {
+          "button": "3",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 3,
+        "find": {
+          "button": "4",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 6,
+        "find": {
+          "button": "7",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 9,
+        "find": {
+          "button": "0",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 10,
+        "find": {
+          "button": "Delete",
+          "child": 0
+        }
+      }
+    ]
+  },
+  "code": {
+    "frame": "code",
+    "place": "Six digits",
+    "wait": "I did not get it",
+    "pieces": [
+      {
+        "name": "Your number",
+        "find": {
+          "text": "Your number"
+        }
+      },
+      {
+        "name": "Six digits, sent to 0803 214",
+        "find": {
+          "text": "Six digits, sent to"
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 0,
+        "find": {
+          "testid": "pips"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "I did not get it",
+        "find": {
+          "text": "I did not get it"
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 0,
+        "find": {
+          "button": "1",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 9,
+        "find": {
+          "button": "0",
+          "child": 0
+        }
+      }
+    ]
+  },
+  "passcode": {
+    "frame": "passcode",
+    "place": "A passcode",
+    "wait": "Not your year of birth",
+    "pieces": [
+      {
+        "name": "Your number",
+        "find": {
+          "text": "Your number"
+        }
+      },
+      {
+        "name": "Who you are",
+        "find": {
+          "text": "Who you are"
+        }
+      },
+      {
+        "name": "Your face",
+        "find": {
+          "text": "Your face"
+        }
+      },
+      {
+        "name": "A passcode",
+        "find": {
+          "text": "A passcode"
+        }
+      },
+      {
+        "name": "Six digits. These are what s",
+        "find": {
+          "text": "Six digits. These are what"
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 0,
+        "find": {
+          "testid": "pips"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Not your year of birth, and ",
+        "find": {
+          "text": "Not your year of birth"
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 0,
+        "find": {
+          "button": "1",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 9,
+        "find": {
+          "button": "0",
+          "child": 0
+        }
+      }
+    ]
+  },
+  "ready": {
+    "frame": "ready",
+    "place": "Ready",
+    "wait": "Take me in",
+    "settle": 2200,
+    "pieces": [
+      {
+        "name": "Your number",
+        "find": {
+          "text": "Your number"
+        }
+      },
+      {
+        "name": "A passcode",
+        "find": {
+          "text": "A passcode"
+        }
+      },
+      {
+        "name": "Your account is ready",
+        "find": {
+          "text": "Your account is ready"
+        }
+      },
+      {
+        "name": "Card",
+        "nth": 0,
+        "find": {
+          "text": "Receive money from any",
+          "up": 2
+        }
+      },
+      {
+        "name": "Receive money from any Nigeria",
+        "find": {
+          "text": "Receive money from any"
+        }
+      },
+      {
+        "name": "Send up to ₦50,000 a day",
+        "find": {
+          "text": "Send up to ₦50,000"
+        }
+      },
+      {
+        "name": "Hold dollars",
+        "find": {
+          "text": "Hold dollars"
+        }
+      },
+      {
+        "name": "Card",
+        "nth": 1,
+        "find": {
+          "text": "Finish setting up",
+          "up": 2
+        }
+      },
+      {
+        "name": "Finish setting up",
+        "find": {
+          "text": "Finish setting up"
+        }
+      },
+      {
+        "name": "Button · Take me in",
+        "find": {
+          "button": "Take me in"
+        }
+      }
+    ]
+  },
+  "signin": {
+    "frame": "signin",
+    "place": "Welcome back",
+    "wait": "Your number, and then",
+    "pieces": [
+      {
+        "name": "Welcome back",
+        "find": {
+          "text": "Welcome back"
+        }
+      },
+      {
+        "name": "Your number, and then six di",
+        "find": {
+          "text": "Your number, and then"
+        }
+      },
+      {
+        "name": "Row · 0803 214 4471",
+        "find": {
+          "testid": "field"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Key",
+        "nth": 0,
+        "find": {
+          "button": "1",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 10,
+        "find": {
+          "button": "Delete",
+          "child": 0
+        }
+      }
+    ]
+  },
+  "home-card": {
+    "frame": "home",
+    "root": "1205:18237",
+    "place": "The demo account",
+    "wait": "Pull down",
+    "settle": 1600,
+    "pieces": [
+      {
+        "name": "Frame 2",
+        "find": {
+          "label": "Beetle"
+        }
+      },
+      {
+        "name": "Wallet",
+        "find": {
+          "text": "Wallet"
+        }
+      },
+      {
+        "name": "Total balance",
+        "find": {
+          "text": "Total balance"
+        }
+      },
+      {
+        "name": "₦595,320",
+        "find": {
+          "testid": "balance"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Chip · +9% this month",
+        "find": {
+          "testid": "chip"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Icon",
+        "nth": 0,
+        "find": {
+          "testid": "send-disc"
+        }
+      },
+      {
+        "name": "Send",
+        "find": {
+          "text": "Send"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Icon",
+        "nth": 1,
+        "find": {
+          "testid": "receive-disc"
+        }
+      },
+      {
+        "name": "Receive",
+        "find": {
+          "text": "Receive"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Frame 26",
+        "find": {
+          "testid": "grabber"
+        }
+      },
+      {
+        "name": "Pull down",
+        "find": {
+          "text": "Pull down"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      }
+    ],
+    "skipWords": [
+      "~ 340 USD"
+    ],
+    "picture": "home-card"
+  },
+  "home-open": {
+    "frame": "home",
+    "root": "1201:17925",
+    "place": "A transfer, mid-way",
+    "wait": "Beetle Transfers",
+    "settle": 2600,
+    "pieces": [
+      {
+        "name": "Frame 2",
+        "find": {
+          "label": "Beetle"
+        }
+      },
+      {
+        "name": "₦595,320",
+        "find": {
+          "testid": "balance"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Chip · +9% this month",
+        "find": {
+          "testid": "chip-open"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Tool panel",
+        "find": {
+          "testid": "panel"
+        },
+        "only": [
+          "x",
+          "w"
+        ]
+      },
+      {
+        "name": "Icon",
+        "nth": 0,
+        "within": "Tool panel",
+        "withinFind": {
+          "testid": "panel"
+        },
+        "find": {
+          "testid": "panel-icon"
+        }
+      },
+      {
+        "name": "Beetle Transfers",
+        "within": "Tool panel",
+        "withinFind": {
+          "testid": "panel"
+        },
+        "find": {
+          "text": "Beetle Transfers"
+        }
+      },
+      {
+        "name": "Status pill",
+        "within": "Tool panel",
+        "withinFind": {
+          "testid": "panel"
+        },
+        "find": {
+          "testid": "pill"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · Recipient",
+        "within": "Tool panel",
+        "withinFind": {
+          "testid": "panel"
+        },
+        "find": {
+          "text": "Recipient",
+          "up": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · Arrives",
+        "within": "Tool panel",
+        "withinFind": {
+          "testid": "panel"
+        },
+        "find": {
+          "text": "Arrives",
+          "up": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Button",
+        "within": "Tool panel",
+        "withinFind": {
+          "testid": "panel"
+        },
+        "find": {
+          "button": "Confirm ₦20,000"
+        }
+      },
+      {
+        "name": "Component 1",
+        "find": {
+          "testid": "ask-bar"
+        },
+        "only": [
+          "x",
+          "w",
+          "h"
+        ]
+      }
+    ],
+    "skipWords": [
+      "~ 340 USD"
+    ],
+    "picture": "home-open"
+  },
+  "confirm": {
+    "frame": "confirm",
+    "place": "The passcode",
+    "wait": "Enter your passcode",
+    "settle": 1800,
+    "pieces": [
+      {
+        "name": "Sheet",
+        "find": {
+          "testid": "passcode"
+        }
+      },
+      {
+        "name": "Box",
+        "find": {
+          "testid": "passcode-grabber"
+        }
+      },
+      {
+        "name": "₦20,000",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "text": "₦20,000"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Chip · SA",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "text": "SA",
+          "up": 1
+        },
+        "only": [
+          "y",
+          "w",
+          "h"
+        ]
+      },
+      {
+        "name": "Sarah Adeyemi",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "text": "Sarah Adeyemi"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "GTBank · 0234 5678 90",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "text": "GTBank ·"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Enter your passcode",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "text": "Enter your passcode"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Or tap the face to use Face ID.",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "testid": "note"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row",
+        "nth": 1,
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "testid": "pips"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Passcode keypad",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "testid": "keypad"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Nothing moves until the four",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "text": "Nothing moves"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      }
+    ],
+    "skipWords": [
+      "Face ID first",
+      "Reply, or just keep typing"
+    ]
+  }
+}

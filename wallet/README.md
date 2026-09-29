@@ -40,6 +40,23 @@ every screen. It needs a Chromium (`npx playwright install chromium`, or set
 | `npm test` | the rules of the way in: what counts as a Nigerian number, what a passcode may not be, where each step leads, how the mock services answer; the scripted Beetle; the model against a fake API; the gate before money moves |
 | `npm run bundle` | the same JavaScript the phone runs, exported for the web into `dist/` |
 | `npm run flow` | from the lab to the welcome and on to home, then out and back in as the demo account, with the doors that should be shut tried on the way; the card pulled down and traced as it opens, money sent by asking and let through by the passcode, the account's details opened and copied, a photo taken with the browser's stand-in camera and read, money arriving, a shortcut, the model screen, and the lab's places opened on their own; every screen photographed into `shots/` |
+| `npm run figma` | every built screen against its Figma frame: each named piece where the frame puts it, within two of the frame's figure or of that figure snapped to the 4-point grid; the frame's words on the screen; what is off on purpose listed with its reason; the frame and the screen side by side in `shots/figma/` |
+
+## On the frame
+
+Every screen is built from its frame in the Figma file and held to it.
+`test/figma/<key>.xml` is the frame's layer listing as the file reports it,
+`<key>.png` its picture, and `test/figma/screens.json` says which lab place
+shows the screen and which pieces to measure. `npm run figma` opens each
+screen, waits for it to stop moving, and compares every piece's place and
+size with the frame's. The frames carry odd numbers — a row 42 tall, a
+column starting at 346.4 — and the app keeps every size and gap on the
+4-point grid, so a piece counts when it is within two of the frame's figure
+or of that figure snapped to the grid. What is off on purpose is in
+`test/figma/allowed.json` with its reason — a number that is the account's
+own, a frame whose spacing is the odd one out among its siblings, a line
+reworded for six digits — and nothing else passes. `shots/figma/<key>.png`
+lays the frame and the screen side by side with the verdict beside them.
 
 ## What this build accepts
 
@@ -72,7 +89,7 @@ mocks in and says so on the code screen; a real `AuthService` and
 | `src/features/home/` | Home: the card (`WalletCard.tsx`, closed and open and the drag between), the haze at its head and its foot (`Frost.tsx`), the screen around it with the day and the chats in it (`Home.tsx`), the ask bar in its two states (`AskBar.tsx`), what the day shows for an account (`account.ts`), and the once-only dip (`first.ts`) |
 | `src/features/agent/` | The chat: the conversation and what Beetle is waiting for (`conversation.tsx`), the list (`Chat.tsx`), the dark pieces it is drawn with — what was said, the panels, the dots (`Dark.tsx`) — and the chats filed in the day, Beetle's prompts among them (`chats.ts`) |
 | `src/features/scan/` | The camera screen with every way it can go wrong, the photo's way back to the chat, and the sample slip |
-| `src/features/passcode/` | The gate before money moves: the passcode pane over the chat (`Passcode.tsx`) and the check itself, with the tries and the lock (`check.ts`) |
+| `src/features/passcode/` | The gate before money moves: the passcode on its sheet over the chat (`Passcode.tsx`) and the check itself, with the tries and the lock (`check.ts`) |
 | `src/features/receive/` | Being paid: the account's details over the chat (`Receive.tsx`), money arriving (`arrival.ts`), and the clipboard |
 | `src/lab/` | The lab: which builds have it (`enabled.ts`), every feature and the places in it with the state each needs (`catalogue.ts`), the screen, and the tab that comes back to it |
 | `src/services/` | `AuthService`, `IdentityService`, `AgentService` (Beetle: the model in `model.ts` where there is a key, the script in `agent.ts` where there is not), `ReaderService` (the device's text reader, or a stand-in), storage and hashing behind interfaces, with the mocks this build runs on |
@@ -146,12 +163,15 @@ black disc with an arrow where the camera was.
 
 Beetle answers with words and with panels: what it checked and what it found,
 each row landing after the last, and one thing to do about it. Press a
-panel's button and the passcode comes up over the chat — the chat recedes
-behind it, the amount and where it is going at the top, the six dots and the
-pad under them — and the money moves only when the code is right (on a
-phone with a face enrolled, the face is asked first and the pad is the way
-past it). A wrong code shakes the dots and says how many tries are left; the
-third wrong one shuts the gate for thirty seconds. Then the panel says Sent,
+panel's button and the passcode comes up on a sheet over the chat, as the
+frame draws it — the screen behind turned down and out of focus, the amount
+and who it is going to at the top, the six dots and the big pad under them,
+a line at the foot saying nothing moves until the last digit lands — and the
+money moves only when the code is right (on a phone with a face enrolled,
+the face is asked first and the pad is the way past it). A wrong code shakes
+the dots and says how many tries are left; the third wrong one shuts the
+gate for thirty seconds. A tap on the chat behind the sheet, or a pull down
+on it, puts it away with nothing moved. Then the panel says Sent,
 Beetle says where the money is, and the day below has the line. The amount
 on a panel can be corrected by tapping it.
 

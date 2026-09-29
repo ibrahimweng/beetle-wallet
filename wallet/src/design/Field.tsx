@@ -7,7 +7,7 @@ import { colour } from './tokens';
 
 export function Field({ value, caret = true }: { value: string; caret?: boolean }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, height: 46 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, height: 46 }} testID="field">
       <Display>{value}</Display>
       {caret ? <View style={{ width: 2, height: 30, backgroundColor: colour.accent }} /> : null}
     </View>

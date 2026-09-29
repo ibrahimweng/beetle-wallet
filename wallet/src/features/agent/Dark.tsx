@@ -133,14 +133,15 @@ export function ToolPanel({
   }, [landed, state, panel.rows.length]); // eslint-disable-line react-hooks/exhaustive-deps
   const live = state !== 'running' || landed >= panel.rows.length;
   return (
-    <View style={{ backgroundColor: dark.panel, borderWidth: 1, borderColor: dark.edge, borderRadius: 24, overflow: 'hidden', paddingBottom: 12 }}>
+    <View style={{ backgroundColor: dark.panel, borderWidth: 1, borderColor: dark.edge, borderRadius: 24, overflow: 'hidden', paddingBottom: 12 }} testID="panel">
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, height: 48, paddingHorizontal: 12, backgroundColor: dark.edge, borderBottomWidth: 1, borderBottomColor: dark.edgeStrong }}>
-        <View style={{ width: 32, height: 32, borderRadius: 12, backgroundColor: dark.edgeStrong, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ width: 32, height: 32, borderRadius: 12, backgroundColor: dark.edgeStrong, alignItems: 'center', justifyContent: 'center' }} testID="panel-icon">
           <Icon name={panel.icon} size={16} colour="#ffffff" />
         </View>
         <Label style={{ flex: 1, color: '#ffffff' }}>{panel.title}</Label>
         <View
           style={{ flexDirection: 'row', alignItems: 'center', gap: 8, height: 24, paddingHorizontal: 8, borderRadius: 12, backgroundColor: dark.edge, borderWidth: 1, borderColor: dark.edgeStrong }}
+          testID="pill"
         >
           <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#34c759' }} />
           <Swap value={statusWord(panel, state)}>{w => <Caption style={{ color: dark.pillText, fontWeight: '600' }}>{w}</Caption>}</Swap>

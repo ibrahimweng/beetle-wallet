@@ -1,0 +1,112 @@
+<frame id="272:8208" name="Settings" x="573" y="80" width="393" height="852">
+  <frame id="272:8209" name="Page" x="0" y="0" width="393" height="1181.800048828125">
+    <frame id="272:8210" name="Content" x="20" y="72" width="353" height="1109.800048828125">
+      <text id="272:8211" name="Settings" x="0" y="0" width="129" height="40" />
+      <frame id="272:8212" name="Card" x="0" y="64" width="353" height="87.19999694824219">
+        <frame id="272:8213" name="Icon" x="16" y="23.599998474121094" width="40" height="40">
+          <instance id="564:15261" name="Glyph · chat-solid" x="10" y="10" width="20" height="20" />
+        </frame>
+        <frame id="272:8216" name="Column" x="68" y="12.999998092651367" width="225" height="61.20000076293945">
+          <text id="272:8217" name="Get Beetle Plus" x="0" y="0" width="117" height="24" />
+          <text id="272:8218" name="No transfer fees and instant" x="0" y="28" width="186" height="40" />
+        </frame>
+        <frame id="272:8219" name="Icon" x="305" y="27.599998474121094" width="32" height="32">
+          <instance id="564:15264" name="Glyph · check" x="8" y="8" width="16" height="16" />
+        </frame>
+      </frame>
+      <frame id="272:8222" name="Column" x="0" y="171.19921875" width="353" height="347.20001220703125">
+        <text id="272:8223" name="What keeps the money yours" x="0" y="1" width="213" height="24" />
+        <frame id="272:8224" name="Column" x="0" y="34.20000076293945" width="353" height="320">
+          <frame id="272:8225" name="Row · Lock and privacy" x="0" y="0" width="353" height="64">
+            <instance id="564:15267" name="Glyph · faceid" x="4" y="18" width="28" height="28" />
+            <text id="272:8230" name="Lock and privacy" x="48" y="21.399999618530273" width="127" height="24" />
+            <text id="272:8231" name="Face ID" x="276.8999938964844" y="23" width="49" height="20" />
+            <instance id="564:15272" name="Glyph · check" x="337.5" y="24" width="16" height="16" />
+          </frame>
+          <frame id="272:8234" name="Row · Spending limits" x="0" y="64" width="353" height="64">
+            <instance id="564:15275" name="Glyph · dollar" x="4" y="18" width="28" height="28" />
+            <text id="272:8238" name="Spending limits" x="46.099998474121094" y="20" width="161.6999969482422" height="24" />
+            <text id="272:8239" name="₦100,000 a day" x="221.89999389648438" y="22" width="101" height="20" />
+            <instance id="564:15279" name="Glyph · check" x="337" y="24" width="16" height="16" />
+          </frame>
+          <frame id="272:8242" name="Row · Standing instruction" x="0" y="128" width="353" height="64">
+            <frame id="272:8243" name="Glyph" x="5" y="19" width="26" height="26" />
+            <text id="272:8248" name="Standing instructions" x="48" y="21.399999618530273" width="161" height="24" />
+            <text id="272:8249" name="3 running" x="265.8999938964844" y="23" width="62" height="20" />
+            <instance id="564:15282" name="Glyph · check" x="337.5" y="24" width="16" height="16" />
+          </frame>
+          <frame id="272:8252" name="Row · Devices" x="0" y="192" width="353" height="64">
+            <instance id="564:15285" name="Glyph · ring" x="4" y="18" width="28" height="28" />
+            <text id="272:8257" name="Devices" x="48" y="21.399999618530273" width="60" height="24" />
+            <text id="272:8258" name="3 signed in" x="256" y="23" width="71" height="20" />
+            <instance id="564:15290" name="Glyph · check" x="337.5" y="24" width="16" height="16" />
+          </frame>
+          <frame id="272:8261" name="Row · Keys and recovery" x="0" y="256" width="353" height="64">
+            <instance id="564:15293" name="Glyph · waste" x="4" y="18" width="28" height="28" />
+            <text id="272:8266" name="Keys and recovery" x="48" y="21.399999618530273" width="138" height="24" />
+            <text id="272:8267" name="Set up" x="283.20001220703125" y="23" width="42" height="20" />
+            <instance id="564:15298" name="Glyph · check" x="337.5" y="24" width="16" height="16" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="272:8270" name="Column" x="0" y="538.3984375" width="353" height="283.20001220703125">
+        <text id="272:8271" name="Your account" x="0" y="1" width="97" height="24" />
+        <frame id="272:8272" name="Column" x="0" y="34.20000076293945" width="353" height="256">
+          <frame id="272:8273" name="Row · Your details" x="0" y="0" width="353" height="64">
+            <frame id="272:8274" name="Glyph" x="4" y="19" width="26" height="26" />
+            <text id="272:8278" name="Your details" x="46" y="20" width="275" height="24" />
+            <instance id="564:15301" name="Glyph · check" x="337" y="24" width="16" height="16" />
+          </frame>
+          <frame id="272:8281" name="Row · Notifications" x="0" y="64" width="353" height="64">
+            <frame id="272:8282" name="Glyph" x="4" y="19" width="26" height="26" />
+            <text id="272:8286" name="Notifications" x="46" y="20" width="275" height="24" />
+            <instance id="564:15304" name="Glyph · check" x="337" y="24" width="16" height="16" />
+          </frame>
+          <frame id="272:8289" name="Row · Saved people" x="0" y="128" width="353" height="64">
+            <instance id="564:15307" name="Glyph · gift" x="4" y="18" width="28" height="28" />
+            <text id="272:8296" name="Saved people" x="48" y="20" width="273" height="24" />
+            <instance id="564:15314" name="Glyph · check" x="337" y="24" width="16" height="16" />
+          </frame>
+          <frame id="272:8299" name="Row · Cards" x="0" y="192" width="353" height="64">
+            <instance id="564:15317" name="Glyph · star" x="4" y="18" width="28" height="28" />
+            <text id="272:8304" name="Cards" x="48" y="21.399999618530273" width="45" height="24" />
+            <text id="272:8305" name="1 virtual" x="275.3999938964844" y="23" width="51" height="20" />
+            <instance id="564:15322" name="Glyph · check" x="337.5" y="24" width="16" height="16" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="272:8308" name="Column" x="0" y="841.6015625" width="353" height="219.1999969482422">
+        <text id="272:8309" name="About" x="0" y="1" width="45" height="24" />
+        <frame id="272:8310" name="Column" x="0" y="34.20000076293945" width="353" height="192">
+          <frame id="272:8311" name="Row · Contact support" x="0" y="0" width="353" height="64">
+            <instance id="564:15325" name="Glyph · qr" x="4" y="18" width="28" height="28" />
+            <text id="272:8314" name="Contact support" x="48" y="20" width="273" height="24" />
+            <instance id="564:15328" name="Glyph · check" x="337" y="24" width="16" height="16" />
+          </frame>
+          <frame id="272:8317" name="Row · Give feedback" x="0" y="64" width="353" height="64">
+            <instance id="564:15331" name="Glyph · laptop" x="4" y="18" width="28" height="28" />
+            <text id="272:8320" name="Give feedback" x="48" y="20" width="273" height="24" />
+            <instance id="564:15334" name="Glyph · check" x="337" y="24" width="16" height="16" />
+          </frame>
+          <frame id="272:8323" name="Row · Sign out" x="0" y="128" width="353" height="64">
+            <instance id="564:15337" name="Glyph · home" x="4" y="18" width="28" height="28" />
+            <text id="272:8328" name="Sign out" x="48" y="20" width="62" height="24" />
+          </frame>
+        </frame>
+      </frame>
+      <text id="272:8329" name="Version 1.0.4" x="134.5" y="1090.800048828125" width="83" height="20" />
+    </frame>
+  </frame>
+  <frame id="272:8330" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="272:8331" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="272:8332" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="564:15342" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="272:8335" name="Ask bar" x="52" y="4" width="309" height="48">
+        <instance id="273:8205" name="Mark · 32" x="8" y="8" width="32" height="32" />
+        <text id="272:8340" name="Ask me to change something" x="48" y="16" width="175" height="16" />
+        <instance id="564:15345" name="Glyph · camera" x="231" y="15" width="18" height="18" />
+      </frame>
+    </frame>
+  </frame>
+</frame>

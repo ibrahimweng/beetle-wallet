@@ -13,8 +13,9 @@
     "test": "vitest run",
     "bundle": "expo export --platform web --output-dir dist",
     "flow": "node test/flow.mjs dist",
+    "figma": "node test/figma.mjs dist",
     "artifact": "node artifact/build.mjs",
-    "verify": "npm run typecheck && npm test && npm run bundle && npm run flow"
+    "verify": "npm run typecheck && npm test && npm run bundle && npm run flow && npm run figma"
   },
   "dependencies": {
     "@infinitered/react-native-mlkit-text-recognition": "^5.0.1",

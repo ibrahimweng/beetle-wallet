@@ -14,4 +14,5 @@ export * from './StepTrail';
 export * from './Wash';
 export * from './Home';
 export * from './Kit';
+export * from './Sheet';
 export * from './motion';

@@ -5,7 +5,7 @@
    without knowing which step they belong to. The rules and the mock
    services are the same ones the separate screens used. */
 import React, { ReactNode, useEffect } from 'react';
-import { Platform, View } from 'react-native';
+import { Platform, StyleProp, View, ViewStyle } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import {
@@ -16,7 +16,6 @@ import {
   Caption,
   Card,
   Display,
-  Divider,
   Field,
   Icon,
   Label,
@@ -60,6 +59,14 @@ export type StageView = {
   body: ReactNode;
   /** a stage that takes digits gets the keypad */
   keypad?: (key: string) => void;
+  /** the welcome's mark is 40, the other glyphs 32 */
+  iconSize?: number;
+  /** the ready screen puts its tick beside the title */
+  inline?: boolean;
+  /** the welcome's line is body size */
+  subBody?: boolean;
+  /** a line at the top for the demo build: which digits it lets through */
+  hint?: string;
   /** the black button at the bottom */
   bar?: Bar;
   /** the welcome's two ways in, instead of a bar */
@@ -123,10 +130,10 @@ function Shake({ n, children }: { n: number; children: ReactNode }) {
 }
 
 /* The line under the field: what went wrong, or what is happening. */
-function NoteLine({ note }: { note: Note }) {
+function NoteLine({ note, style }: { note: Note; style?: StyleProp<ViewStyle> }) {
   const tone = note?.tone === 'bad' ? 'bad' : note?.tone === 'accent' ? 'accent' : 'secondary';
   return (
-    <View style={{ minHeight: 20 }}>
+    <View style={[{ minHeight: 20 }, style]}>
       <Swap value={note?.text ?? ''}>
         {shown =>
           shown ? (
@@ -142,18 +149,21 @@ function NoteLine({ note }: { note: Note }) {
 
 /* What a stage that takes digits shows under its title. */
 function DigitBody({ c, groups, secret = false, max = 11, footer }: { c: Ctx; groups: number[]; secret?: boolean; max?: number; footer?: ReactNode }) {
+  /* the frames set 12 between the field and what follows it, and nothing
+     between the dots and the row under them, which carries its own room;
+     the line under either has room only when there is something to say */
   return (
-    <View style={{ gap: 20 }}>
+    <View style={{ gap: secret ? 0 : 12 }}>
       <Shake n={c.shake}>
         {secret ? (
-          <View style={{ height: 24, justifyContent: 'center' }}>
+          <View style={{ height: 14, justifyContent: 'center' }}>
             <Pips of={max} filled={c.digits.length} align="left" />
           </View>
         ) : (
           <Field value={groupDigits(c.digits, groups) || ' '} caret={!c.busy} />
         )}
       </Shake>
-      <NoteLine note={c.note} />
+      {c.note ? <NoteLine note={c.note} style={secret ? { marginTop: 8 } : undefined} /> : null}
       {footer}
     </View>
   );
@@ -174,14 +184,20 @@ const typing = (c: Ctx, max: number, full: (d: string) => void) => (key: string)
 function welcome(c: Ctx): StageView {
   return {
     icon: 'mark',
+    iconSize: 40,
+    small: true,
+    subBody: true,
     wash: washes.start,
     title: 'Beetle',
     sub: 'A bank that answers when you ask it something. Opening one takes about a minute, and all it needs is your number and your NIN.',
+    /* the frame's rows: 42 tall, the glyph 28 with 7 above and below, and 20
+       under the last to the mark; on the grid that is 44, and 8 here with
+       the band's own 12 */
     above: (
-      <View style={{ gap: 4, paddingBottom: 12 }}>
+      <View style={{ paddingBottom: 8 }}>
         {WORDS.map((w, i) => (
-          <View key={w.word} style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View style={{ width: 36 }}>{i === c.words ? <Icon name={w.icon} size={22} colour={colour.accent} /> : null}</View>
+          <View key={w.word} style={{ flexDirection: 'row', alignItems: 'center', height: 44 }}>
+            <View style={{ width: 36 }}>{i === c.words ? <Icon name={w.icon} size={28} colour={colour.accent} /> : null}</View>
             <Display tone={i === c.words ? 'ink' : 'tertiary'}>{w.word}</Display>
           </View>
         ))}
@@ -286,15 +302,18 @@ function code(
         c={c}
         groups={[6]}
         max={6}
+        secret
         footer={
           <>
-            {c.wait > 0 ? <Caption tone="tertiary">Send it again in {c.wait}s</Caption> : <More label="I did not get it" onPress={() => resend()} />}
-            {MOCK ? <Caption tone="tertiary">This build accepts {MOCK_CODE}. Nothing is texted.</Caption> : null}
+            <View style={{ height: 38, justifyContent: 'center' }}>
+              {c.wait > 0 ? <Caption tone="tertiary">Send it again in {c.wait}s</Caption> : <More label="I did not get it" onPress={() => resend()} />}
+            </View>
           </>
         }
       />
     ),
     keypad: typing(c, 6, full),
+    hint: MOCK ? `This build accepts ${MOCK_CODE}. Nothing is texted.` : undefined,
     back: o.back,
   };
 }
@@ -517,14 +536,15 @@ function passcode(c: Ctx): StageView {
         max={6}
         secret
         footer={
-          <>
+          /* the frame's row: 8 under the dots, and the line's 20 to the dock */
+          <View style={{ paddingTop: 8 }}>
             <Aside>Not your year of birth, and not 123456.</Aside>
-            {MOCK ? <Caption tone="tertiary">This build lets {DEMO_PASSCODES.join(' and ')} through all the same.</Caption> : null}
-          </>
+          </View>
         }
       />
     ),
     keypad: typing(c, 6, full),
+    hint: MOCK ? `This build lets ${DEMO_PASSCODES.join(' and ')} through all the same.` : undefined,
     back: again
       ? () => {
           c.setFirst(null);
@@ -548,27 +568,27 @@ function ready(c: Ctx): StageView {
     icon: 'tick',
     title: 'Your account is ready',
     small: true,
+    inline: true,
     sub: `Your number is ${number}, and money can reach it now.`,
     bodyKey: 'ready',
     body: (
-      <View style={{ gap: 20 }}>
-        <Card style={{ paddingVertical: 4, gap: 0 }}>
+      <View style={{ gap: 12, paddingTop: 4 }}>
+        {/* the frame's card: 4 above the first row, the rows 50 with a rule
+            drawn inside each but the last, nothing below */}
+        <Card style={{ paddingTop: 4, paddingBottom: 0, paddingHorizontal: 16, gap: 0 }}>
           {CAN.map((can, i) => (
-            <React.Fragment key={can.text}>
-              {i ? <Divider /> : null}
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3, height: 50 }}>
-                <Tick on={can.on} size={24} delay={motion.markWait + 90 * (i + 1)} />
-                <Meta tone={can.on ? 'ink' : 'tertiary'} style={{ flex: 1 }}>
-                  {can.text}
-                </Meta>
-              </View>
-            </React.Fragment>
+            <View key={can.text} style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3, height: 50, borderBottomWidth: i < CAN.length - 1 ? 1 : 0, borderBottomColor: colour.rule }}>
+              <Tick on={can.on} size={20} delay={motion.markWait + 90 * (i + 1)} />
+              <Meta tone={can.on ? 'ink' : 'tertiary'} style={{ flex: 1 }}>
+                {can.text}
+              </Meta>
+            </View>
           ))}
         </Card>
         <Tap accessibilityRole="button" onPress={() => toast('Finishing up is the next flow to build.')}>
-          <Card outline style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3, paddingVertical: space.s3, borderRadius: 16 }}>
+          <Card outline style={{ flexDirection: 'row', alignItems: 'center', gap: space.s4, paddingVertical: space.s3, paddingHorizontal: space.s4, borderRadius: 16 }}>
             <Icon name="shield-filled" size={24} colour={colour.ink} />
-            <View style={{ flex: 1, gap: 2 }}>
+            <View style={{ flex: 1 }}>
               <Label>Finish setting up</Label>
               <Caption tone="tertiary">Two minutes, and the last two come on</Caption>
             </View>

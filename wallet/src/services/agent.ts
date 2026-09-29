@@ -29,6 +29,8 @@ export type Panel = {
   action?: { label: string; amount: number };
   /** the line the ledger gets once it is confirmed */
   move?: Move;
+  /** who a transfer is to, for the row on the passcode sheet */
+  person?: Person;
 };
 
 export type Move = { name: string; detail: string; amount: number; icon: IconName; kind: 'transfer' | 'bill' | 'airtime' | 'service' | 'in' };
@@ -177,6 +179,7 @@ export function transferPanel(to: Person, amount: number): Panel {
       { label: 'Arrives', value: amount > 50_000 ? 'Under a minute' : 'In a moment' },
     ],
     action: { label: `Confirm ${naira(amount)}`, amount: amount + fee },
+    person: to,
     move: { name: to.name, detail: `${to.bank} · sent`, amount: -amount, icon: 'send', kind: 'transfer' },
   };
 }

@@ -200,7 +200,7 @@ export const GUARD: Feature = {
   id: 'guard',
   title: 'Before money moves',
   folder: 'src/features/passcode',
-  sub: 'The passcode over the chat, and the face where the phone has one enrolled.',
+  sub: 'The passcode on its sheet over the chat, and the face where the phone has one enrolled.',
   places: [
     {
       id: 'guard-passcode',

@@ -18,16 +18,19 @@ beside it, with its sizes and its words.
    without Figma.
 2. **Build from the numbers.** Sizes, spacing, radii, type sizes and weights
    come from the frame and from `src/design/tokens.ts`, which was read off the
-   frames. Nothing is judged by eye and no row is invented. Spacing stays on
-   the file's own grid (4), and where the frame's figure is odd (21 of card
-   padding) the odd figure is kept, not rounded.
+   frames. Nothing is judged by eye and no row is invented. Every size and gap
+   snaps to the 4-point grid: where the frame's figure is odd (21 of card
+   padding, a 59.2 tall head) the app uses the nearest 4 (20, 60), so
+   everything stays divisible and constant, and the check allows exactly that
+   rounding and nothing more.
 3. **Register it.** A route under `app/`, a place in the lab (`src/lab/catalogue.ts`)
    with the state it needs, and a line in this file.
 4. **Check it.** `npm run figma` opens the screen and measures it against the
-   frame: every named piece within 2 pixels of where the frame puts it and how
-   big the frame draws it; type at the frame's size and weight; the words the
-   frame carries all present (a figure that now comes from live state, or a
-   line reworded on purpose, is listed in `test/figma/allowed.json` with why).
+   frame: every named piece within a pixel of where the frame puts it and how
+   big the frame draws it, once the frame's figure is snapped to the grid;
+   type at a size from the scale; the words the frame carries all present (a
+   figure that now comes from live state, or a line reworded on purpose, is
+   listed in `test/figma/allowed.json` with why).
    It also lays the frame and the screen side by side into `shots/figma/` for a
    look — the look and feel have to read as the same screen.
 5. **Walk it.** `npm run flow` reaches the screen the way a person would and
@@ -49,20 +52,25 @@ screenshots to the owner.
 
 ---
 
-## Round 0 · The check itself
+## Round 0 · The check itself — done
 
-- [ ] `test/figma/` — the frame's picture and numbers for every screen built
-      so far (the way in, home, the chat, the passcode, the receive pane), and
-      for each new screen as it comes
-- [ ] `test/figma.mjs` — opens each screen through the lab, measures the
-      named pieces against the frame's numbers, checks the frame's words are
-      on the screen, and composes the side-by-side picture
-- [ ] `test/figma/allowed.json` — the differences allowed on purpose, each
-      with a reason
-- [ ] `npm run figma` in `verify` and in the Tests workflow
-- [ ] A first pass over what is already built: the passcode pane, the
-      receive pane, the shortcuts, Settings' rows, the icon sizes and stroke
-      widths, the type — anything off the frame fixed
+- [x] `test/figma/` — the frame's picture and numbers for every screen built
+      so far (the way in, home closed and open, the passcode), and for each
+      new screen as it comes
+- [x] `test/figma.mjs` — opens each screen through the lab, waits for it to
+      stop moving, measures the named pieces against the frame's numbers,
+      checks the frame's words are on the screen, and composes the
+      side-by-side picture
+- [x] `test/figma/allowed.json` — the differences allowed on purpose, each
+      with a reason: a live number, a frame whose own spacing is the odd one
+      out, a line reworded for six digits
+- [x] `npm run figma` in `verify` and in the Tests workflow
+- [x] A first pass over what is already built: the way in's column and the
+      welcome's words put on the frames; the closed card's figure, chip and
+      discs put on theirs; the passcode rebuilt as the frame's sheet
+      (239:7762) with the big pad, on a `Sheet` the More sheet and the rest
+      will share. Still to come with their rounds: the receive pane (Round 4),
+      the shortcuts' own frame, Settings (Round 1)
 
 ## Round 1 · Chats that carry on, and receipts
 

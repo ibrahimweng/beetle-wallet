@@ -624,7 +624,8 @@ try {
   await see('Enter your passcode');
   at('/home');
   await shot('lab-passcode', 700);
-  await tap('Not now');
+  /* the screen behind the sheet, tapped above it, puts it away */
+  await button('Close').click({ position: { x: 196, y: 90 } });
   await button('Confirm ₦20,000').waitFor();
   await tap('Back to the lab');
   await see('Beetle Lab');

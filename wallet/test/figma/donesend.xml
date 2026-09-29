@@ -1,0 +1,102 @@
+<instance id="239:7829" name="DoneSend" x="1066" y="2721" width="393" height="852">
+  <frame id="I239:7829;474:666" name="Page" x="0" y="0" width="393" height="904.02001953125">
+    <frame id="I239:7829;474:667" name="Content" x="20" y="72" width="353" height="832.02001953125">
+      <instance id="I239:7829;660:20312" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="I239:7829;474:671" name="Row" x="0" y="79.19999694824219" width="353" height="67">
+        <frame id="I239:7829;474:672" name="Icon" x="0" y="7.5" width="52" height="52">
+          <instance id="I239:7829;568:1187" name="Glyph · check" x="14" y="14" width="24" height="24" />
+        </frame>
+        <frame id="I239:7829;474:675" name="Column" x="68" y="0" width="165" height="67">
+          <text id="I239:7829;474:676" name="₦20,000" x="0" y="0" width="133" height="40" />
+          <text id="I239:7829;474:677" name="Sent to Sarah Adeyemi" x="0" y="40" width="147" height="20" />
+        </frame>
+        <frame id="I239:7829;474:678" name="Chip · Successful" x="249" y="18.5" width="104" height="30">
+          <frame id="I239:7829;474:679" name="Box" x="12" y="11.5" width="7" height="7" />
+          <text id="I239:7829;474:680" name="Successful" x="27" y="7" width="65" height="16" />
+        </frame>
+      </frame>
+      <frame id="I239:7829;474:681" name="Card" x="0" y="166.1999969482422" width="353" height="433.80999755859375">
+        <frame id="I239:7829;474:682" name="Row" x="21" y="21" width="311" height="61.20000076293945">
+          <frame id="I239:7829;474:683" name="Column" x="0" y="0" width="147.5" height="61.20000076293945">
+            <text id="I239:7829;474:684" name="To" x="0" y="0" width="14" height="16" />
+            <text id="I239:7829;474:685" name="Sarah Adeyemi" x="0" y="20" width="115" height="24" />
+            <text id="I239:7829;474:686" name="GTBank · 0234 5678 90" x="0" y="48" width="89" height="32" />
+          </frame>
+          <frame id="I239:7829;474:687" name="Column" x="163.5" y="0" width="147.5" height="61.20000076293945">
+            <text id="I239:7829;474:688" name="From" x="0" y="0" width="29" height="16" />
+            <text id="I239:7829;474:689" name="Everyday" x="0" y="20" width="71" height="24" />
+            <text id="I239:7829;474:690" name="0102 4457 88" x="0" y="48" width="80" height="16" />
+          </frame>
+        </frame>
+        <frame id="I239:7829;474:691" name="Column" x="21" y="102.19999694824219" width="311" height="42.20000076293945">
+          <text id="I239:7829;474:692" name="Narration" x="0" y="0" width="53" height="16" />
+          <text id="I239:7829;474:693" name="Rent part payment" x="0" y="20" width="142" height="24" />
+        </frame>
+        <frame id="I239:7829;474:694" name="Box" x="21" y="164.39999389648438" width="311" height="1" />
+        <frame id="I239:7829;474:695" name="Column" x="21" y="185.39999389648438" width="311" height="63.20000076293945">
+          <frame id="I239:7829;474:696" name="Row" x="0" y="0" width="311" height="42.20000076293945">
+            <frame id="I239:7829;474:697" name="Column" x="0" y="0" width="147.5" height="42.20000076293945">
+              <text id="I239:7829;474:698" name="Amount" x="0" y="0" width="44" height="16" />
+              <text id="I239:7829;474:699" name="₦20,000.00" x="0" y="20" width="80" height="20" />
+            </frame>
+            <frame id="I239:7829;474:700" name="Column" x="163.5" y="0" width="147.5" height="42.20000076293945">
+              <text id="I239:7829;474:701" name="Fee" x="0" y="0" width="21" height="16" />
+              <text id="I239:7829;474:702" name="₦26.88" x="0" y="20" width="50" height="20" />
+            </frame>
+          </frame>
+          <text id="I239:7829;909:2304" name="Transfers under ₦10,000 carr" x="0" y="50.20000076293945" width="203" height="16" />
+        </frame>
+        <frame id="I239:7829;474:704" name="Row" x="21" y="268.5999755859375" width="311" height="42.20000076293945">
+          <frame id="I239:7829;474:705" name="Column" x="0" y="0" width="147.5" height="42.20000076293945">
+            <text id="I239:7829;474:706" name="Total charged" x="0" y="0" width="78" height="16" />
+            <text id="I239:7829;474:707" name="₦20,026.88" x="0" y="20" width="80" height="20" />
+          </frame>
+          <frame id="I239:7829;474:708" name="Column" x="163.5" y="0" width="147.5" height="42.20000076293945">
+            <text id="I239:7829;474:709" name="Balance after" x="0" y="0" width="75" height="16" />
+            <text id="I239:7829;474:710" name="₦659,320.75" x="0" y="20" width="88" height="20" />
+          </frame>
+        </frame>
+        <frame id="I239:7829;474:711" name="Box" x="21" y="330.79998779296875" width="311" height="1" />
+        <frame id="I239:7829;474:712" name="Row" x="21" y="351.79998779296875" width="311" height="37">
+          <frame id="I239:7829;474:713" name="Column" x="0" y="0" width="263" height="37">
+            <text id="I239:7829;474:714" name="Session ID" x="0" y="0" width="60" height="16" />
+            <text id="I239:7829;474:715" name="000016 260828 142204 471803 92" x="0" y="20" width="241" height="40" />
+          </frame>
+          <frame id="I239:7829;474:716" name="Icon" x="279" y="2.5" width="32" height="32">
+            <instance id="I239:7829;570:1780" name="Glyph · copy-pages" x="8" y="8" width="16" height="16" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="I239:7829;474:720" name="Button" x="0" y="620.010009765625" width="353" height="56">
+        <frame id="I239:7829;474:721" name="Icon" x="101.9000015258789" y="12" width="32" height="32">
+          <instance id="I239:7829;570:1784" name="Glyph · share" x="6" y="6" width="20" height="20" />
+        </frame>
+        <text id="I239:7829;474:725" name="Share receipt" x="141.89999389648438" y="16" width="103" height="24" />
+      </frame>
+      <frame id="I239:7829;474:726" name="Card" x="0" y="696.010009765625" width="353" height="72">
+        <instance id="I239:7829;568:1190" name="Glyph · mark" x="16" y="20" width="32" height="32" />
+        <text id="I239:7829;474:731" name="She has it. Rent again next mo" x="60" y="16" width="146" height="40" />
+        <frame id="I239:7829;474:732" name="Chip · Set it up" x="218" y="17" width="103.19999694824219" height="38">
+          <text id="I239:7829;474:733" name="Set it up" x="16" y="9" width="57" height="20" />
+          <instance id="I239:7829;568:1195" name="Glyph · check" x="81" y="13" width="12" height="12" />
+        </frame>
+      </frame>
+      <frame id="I239:7829;474:736" name="Row · Something wrong with" x="0" y="788.010009765625" width="353" height="44">
+        <text id="I239:7829;474:737" name="Something wrong with this?" x="72.5" y="12" width="188" height="20" />
+        <instance id="I239:7829;568:1198" name="Glyph · check" x="268.5" y="16" width="12" height="12" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="I239:7829;474:740" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="I239:7829;474:741" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="I239:7829;474:742" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="I239:7829;568:1201" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="I239:7829;474:745" name="Ask bar" x="52" y="4" width="309" height="48">
+        <instance id="I239:7829;568:1204" name="Glyph · mark" x="8" y="8" width="32" height="32" />
+        <text id="I239:7829;474:750" name="Ask about this transfer" x="48" y="14" width="223" height="20" />
+        <instance id="I239:7829;568:1209" name="Glyph · camera" x="279" y="15" width="18" height="18" />
+      </frame>
+    </frame>
+  </frame>
+</instance>

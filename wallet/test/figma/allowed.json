@@ -1,0 +1,17 @@
+{
+  "code": [
+    { "text": "Six digits, sent to 0803 214", "why": "the number is the one typed a step before" }
+  ],
+  "ready": [
+    { "piece": "Button · Take me in", "why": "the frame insets this one button 34 where every other frame's runs from 20; the build keeps 20" },
+    { "text": "Your number is 0102 4457 88,", "why": "the account number is the account's own" }
+  ],
+  "signin": [
+    { "piece": "Welcome back", "why": "this frame puts 11 and 16 between the title, its line and the field where the number frame puts 8 and 12; the build keeps 8 and 12, so the title sits 7 higher" }
+  ],
+  "confirm": [
+    { "text": "GTBank · 0234 5678 90", "why": "the account is the person's own" },
+    { "text": "Or tap the face to use Face ID.", "why": "said only on a phone with a face enrolled; the web has none, and says 'Six digits, the ones you chose.'" },
+    { "text": "Nothing moves until the four", "why": "the passcode is six digits, as the way in sets it; the line says 'sixth'" }
+  ]
+}

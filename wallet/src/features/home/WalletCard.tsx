@@ -324,19 +324,19 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
             <Swap value={line ?? 'Total balance'}>{w => <Caption style={{ color: line ? colour.good : dark.chipText }}>{w}</Caption>}</Swap>
             {/* the figure is drawn once, below, and travels; the chip has its place here */}
             <View style={{ height: 40 }} />
-            <Tap accessibilityRole="button" accessibilityLabel="Your dollars" onPress={onDollars} style={s.chip}>
+            <Tap accessibilityRole="button" accessibilityLabel="Your dollars" onPress={onDollars} style={s.chip} testID="chip">
               <Caption style={[s.chipText, { color: dark.chipText }]}>{dollars}</Caption>
             </Tap>
           </View>
           <View style={s.actions}>
             <Tap accessibilityRole="button" accessibilityLabel="Send" onPress={onSend} style={s.action}>
-              <View style={s.disc}>
+              <View style={s.disc} testID="send-disc">
                 <Icon name="send" size={16} colour={colour.ink} />
               </View>
               <Label style={{ color: '#ffffff' }}>Send</Label>
             </Tap>
             <Tap accessibilityRole="button" accessibilityLabel="Receive" onPress={onReceive} style={s.action}>
-              <View style={s.disc}>
+              <View style={s.disc} testID="receive-disc">
                 <Icon name="down" size={16} colour={colour.ink} />
               </View>
               <Label style={{ color: '#ffffff' }}>Receive</Label>
@@ -345,7 +345,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
         </Animated.View>
       </GestureDetector>
       <Animated.View style={[s.grab, { top: s.grab.top + extra }, goingLate]} pointerEvents="none">
-        <View style={s.grabber} />
+        <View style={s.grabber} testID="grabber" />
         <Swap value={hint}>{h => <Caption style={{ color: '#ffffff' }}>{h}</Caption>}</Swap>
       </Animated.View>
 
@@ -359,7 +359,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
         </Animated.Text>
       </Animated.View>
       <Animated.View style={[s.chipWrap, chipOpen]} pointerEvents={opened ? 'auto' : 'none'}>
-        <Tap accessibilityRole="button" accessibilityLabel="Your dollars" onPress={onDollars} style={s.chip}>
+        <Tap accessibilityRole="button" accessibilityLabel="Your dollars" onPress={onDollars} style={s.chip} testID="chip-open">
           <Caption style={[s.chipText, { color: dark.chipTextOpen }]}>{dollars}</Caption>
         </Tap>
       </Animated.View>
@@ -389,7 +389,7 @@ const s = StyleSheet.create({
   head: { position: 'absolute', top: 0, left: 0, right: 0, paddingHorizontal: SIDE, zIndex: 3, overflow: 'visible' },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: HEADER_H },
   closed: { position: 'absolute', top: HEAD_BAND - 20 + 24, left: 0, right: 0, height: CLOSED_H - (HEAD_BAND - 20 + 24), paddingHorizontal: SIDE, alignItems: 'center', gap: 12 },
-  actions: { flexDirection: 'row', justifyContent: 'center', gap: 24, alignSelf: 'stretch', paddingTop: 12 },
+  actions: { flexDirection: 'row', justifyContent: 'center', gap: 24, alignSelf: 'stretch' },
   action: { alignItems: 'center', gap: 8 },
   disc: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center' },
   grab: { position: 'absolute', top: CLOSED_H - 20 - 32, left: 0, right: 0, alignItems: 'center', gap: 12, zIndex: 2 },

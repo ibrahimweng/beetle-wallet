@@ -1,0 +1,72 @@
+<frame id="306:9534" name="Ready" x="3531" y="80" width="393" height="852">
+  <frame id="306:9535" name="Page" x="0" y="0" width="393" height="852">
+    <frame id="306:9536" name="Content" x="20" y="137.80078125" width="353" height="596.2000122070312">
+      <frame id="306:9537" name="Row · Your number" x="0" y="24" width="353" height="40">
+        <instance id="564:15723" name="Glyph · phone-filled" x="0" y="8" width="24" height="24" />
+        <text id="306:9542" name="Your number" x="36" y="8" width="94" height="24" />
+      </frame>
+      <frame id="306:9543" name="Row · Who you are" x="0" y="64" width="353" height="40">
+        <instance id="564:15728" name="Glyph · id-filled" x="0" y="8" width="24" height="24" />
+        <text id="306:9549" name="Who you are" x="36" y="8" width="92" height="24" />
+      </frame>
+      <frame id="306:9550" name="Row · Your face" x="0" y="104" width="353" height="40">
+        <instance id="564:15734" name="Glyph · faceid-filled" x="0" y="8" width="24" height="24" />
+        <text id="306:9555" name="Your face" x="36" y="8" width="70" height="24" />
+      </frame>
+      <frame id="306:9556" name="Row · A passcode" x="0" y="144" width="353" height="40">
+        <instance id="564:15739" name="Glyph · lock-filled" x="0" y="8" width="24" height="24" />
+        <text id="306:9561" name="A passcode" x="36" y="8" width="86" height="24" />
+      </frame>
+      <frame id="306:9562" name="Row" x="0" y="184" width="353" height="67.19999694824219">
+        <frame id="306:9563" name="Icon" x="0" y="4" width="21.799999237060547" height="26">
+          <instance id="564:15744" name="Glyph · check" x="4.900000095367432" y="7" width="12.000000953674316" height="12.000000953674316" />
+        </frame>
+        <frame id="306:9566" name="Column" x="33.79999923706055" y="4" width="319.20001220703125" height="63.20000076293945">
+          <text id="306:9567" name="Your account is ready" x="0" y="0" width="202" height="24" />
+          <text id="306:9568" name="Your number is 0102 4457 88," x="0" y="28" width="304" height="40" />
+        </frame>
+      </frame>
+      <frame id="306:9569" name="Column" x="0" y="251.1999969482422" width="353" height="345">
+        <frame id="306:9570" name="Card" x="0" y="20" width="353" height="254">
+          <frame id="306:9571" name="Row · Receive money from a" x="16" y="4" width="321" height="50">
+            <frame id="306:9572" name="Icon" x="0" y="15" width="20" height="20">
+              <instance id="564:15747" name="Glyph · check" x="4" y="4" width="12" height="12" />
+            </frame>
+            <text id="306:9575" name="Receive money from any Nigeria" x="32" y="15" width="289" height="20" />
+          </frame>
+          <frame id="306:9576" name="Row · Send up to ₦50,000 a" x="16" y="54" width="321" height="50">
+            <frame id="306:9577" name="Icon" x="0" y="15" width="20" height="20">
+              <instance id="564:15750" name="Glyph · check" x="4" y="4" width="12" height="12" />
+            </frame>
+            <text id="306:9580" name="Send up to ₦50,000 a day" x="32" y="15" width="289" height="20" />
+          </frame>
+          <frame id="306:9581" name="Row · Buy airtime, data an" x="16" y="104" width="321" height="50">
+            <frame id="306:9582" name="Icon" x="0" y="15" width="20" height="20">
+              <instance id="564:15753" name="Glyph · check" x="4" y="4" width="12" height="12" />
+            </frame>
+            <text id="306:9585" name="Buy airtime, data and pay bill" x="32" y="15" width="289" height="20" />
+          </frame>
+          <frame id="306:9586" name="Row · Hold dollars" x="16" y="154" width="321" height="50">
+            <frame id="306:9587" name="Box" x="0" y="15" width="20" height="20" />
+            <text id="306:9588" name="Hold dollars" x="32" y="15" width="289" height="20" />
+          </frame>
+          <frame id="306:9589" name="Row · Send up to ₦1,000,00" x="16" y="204" width="321" height="50">
+            <frame id="306:9590" name="Box" x="0" y="15" width="20" height="20" />
+            <text id="306:9591" name="Send up to ₦1,000,000 a day" x="32" y="15" width="289" height="20" />
+          </frame>
+        </frame>
+        <frame id="306:9592" name="Card" x="0" y="286" width="353" height="61">
+          <instance id="564:15756" name="Glyph · shield-filled" x="16" y="18.5" width="29" height="24" />
+          <frame id="306:9596" name="Column" x="57" y="13" width="256" height="35">
+            <text id="306:9597" name="Finish setting up" x="0" y="0" width="112" height="20" />
+            <text id="306:9598" name="Two minutes, and the last tw" x="0" y="24" width="221" height="16" />
+          </frame>
+          <instance id="564:15760" name="Glyph · chevron" x="325" y="22.5" width="16" height="16" />
+        </frame>
+      </frame>
+    </frame>
+  </frame>
+  <frame id="306:9601" name="Dock" x="0" y="740" width="393" height="112">
+    <instance id="577:18409" name="Button · Take me in" x="34" y="32" width="339" height="56" />
+  </frame>
+</frame>

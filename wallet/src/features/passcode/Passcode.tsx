@@ -1,29 +1,32 @@
-/* The passcode over the chat, before money moves. The chat recedes behind
-   it; the amount and where it is going sit at the top, the six dots and the
-   pad under them, the way out at the foot. A wrong code shakes the dots and
-   says how many tries are left; the third wrong one shuts the gate for half
-   a minute and says so. The right one lands a tick where the dots were, and
-   the pane goes, and the money moves. On a phone with a face enrolled the
-   face is asked first, and the pad is the way past it. */
+/* The passcode before money moves, on a sheet over the chat as the frame
+   draws it: the amount and who it is going to at the top, the six dots and
+   the big pad under them, and a line at the foot saying nothing moves until
+   the last digit lands. A wrong code shakes the dots and says how many
+   tries are left; the third wrong one shuts the gate for half a minute and
+   says so. The right one lands a tick where the dots were, the sheet goes,
+   and the money moves. On a phone with a face enrolled the face is asked
+   first, and the pad is the way past it. A tap on the chat behind, or a
+   pull down on the sheet, puts it away with nothing moved. */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
-import { Caption, Icon, Keypad, Label, Meta, Pane, Pips, Pop, Row, Swap, Tap, colour, dark, motion, useStill } from '../../design';
+import { Avatar, Display, Head, Icon, Keypad, Meta, Pips, Pop, Row, Sheet, Swap, colour, useStill } from '../../design';
+import { initialsOf } from '../../lib/format';
 import { checkCode, checkFace, faceAvailable, lockedFor, refusal } from './check';
 
-export function PasscodePane({
+export function PasscodeSheet({
   amount,
-  title,
-  sub,
+  name,
+  detail,
   verify,
   onDone,
   onCancel,
 }: {
   amount: string;
-  /** where it is going */
-  title: string;
-  /** the fee, or what the panel said */
-  sub?: string;
+  /** who it is going to */
+  name: string;
+  /** their bank and account, or what it is for */
+  detail?: string;
   /** the device's own check of six digits */
   verify: (code: string) => Promise<boolean>;
   onDone: () => void;
@@ -37,19 +40,13 @@ export function PasscodePane({
   const [shake, setShake] = useState(0);
   const done = useRef(false);
 
-  /* the way through once the code is right: the tick lands, then the pane goes */
+  /* the way through once the code is right: the tick lands, then the sheet goes */
   const through = useCallback(() => {
     if (done.current) return;
     done.current = true;
     setState('right');
-    setTimeout(
-      () => {
-        setState('leaving');
-        setTimeout(onDone, still ? 0 : motion.leave);
-      },
-      still ? 0 : 420,
-    );
-  }, [onDone, still]);
+    setTimeout(() => setState('leaving'), still ? 0 : 420);
+  }, [still]);
 
   const tryFace = useCallback(async () => {
     setNote({ text: 'Looking…' });
@@ -58,7 +55,7 @@ export function PasscodePane({
     else setNote({ text: 'The face did not take. The passcode works too.' });
   }, [through]);
 
-  /* a phone with a face enrolled is asked for it first, once the pane is there */
+  /* a phone with a face enrolled is asked for it first, once the sheet is there */
   useEffect(() => {
     let live = true;
     faceAvailable().then(can => {
@@ -101,47 +98,53 @@ export function PasscodePane({
     );
   };
 
+  const line = note?.text ?? (face ? 'Or tap the face to use Face ID.' : 'Six digits, the ones you chose.');
   return (
-    <Pane leaving={state === 'leaving'} style={StyleSheet.absoluteFill}>
-      <ScrollView contentContainerStyle={s.body} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" bounces={false}>
-        <View style={{ alignItems: 'center', gap: 6 }}>
-          <Animated.Text style={s.amount} accessibilityRole="header">
-            {amount}
-          </Animated.Text>
-          <Row style={{ color: dark.text, textAlign: 'center' }}>{title}</Row>
-          {sub ? <Meta style={{ color: dark.label }}>{sub}</Meta> : null}
-        </View>
-        <View style={{ alignItems: 'center', gap: 4 }}>
-          <Label style={{ color: '#ffffff' }}>Enter your passcode</Label>
-          <View style={{ minHeight: 20 }}>
-            <Swap value={note?.text ?? (face ? 'Or use your face.' : 'Nothing moves until the sixth digit lands.')}>
-              {shown => (
-                <Meta style={{ color: note?.bad ? colour.badBright : dark.textSoft, textAlign: 'center' }} accessibilityLiveRegion="polite">
-                  {shown}
-                </Meta>
-              )}
-            </Swap>
+    <Sheet leaving={state === 'leaving'} onGone={onDone} onDismiss={onCancel} testID="passcode">
+      {/* the frame's column: the amount, 12, the person with 4 between their
+          name and their bank; 24 to the ask and 8 to the line under it; 24 to
+          the dots, 24 to the pad, 24 to the foot */}
+      <View style={{ alignItems: 'center', gap: 12 }}>
+        <Display accessibilityRole="header">{amount}</Display>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <Avatar initials={initialsOf(name)} size={40} />
+          <View style={{ gap: 4 }}>
+            <Row>{name}</Row>
+            {detail ? <Meta tone="secondary">{detail}</Meta> : null}
           </View>
         </View>
-        <View style={{ height: 28, justifyContent: 'center' }}>
-          {state === 'right' || state === 'leaving' ? (
-            <Pop delay={0} style={{ alignSelf: 'center' }}>
-              <View style={s.tick} accessibilityLabel="Confirmed">
-                <Icon name="check" size={14} colour={colour.textInverse} />
-              </View>
-            </Pop>
-          ) : (
-            <Shake n={shake}>
-              <Pips filled={digits.length} tone="dark" />
-            </Shake>
+      </View>
+      <View style={{ alignItems: 'center', gap: 8, marginTop: 24 }}>
+        <Head>Enter your passcode</Head>
+        <Swap value={line}>
+          {shown => (
+            <Meta tone={note?.bad ? 'bad' : 'secondary'} style={{ textAlign: 'center' }} accessibilityLiveRegion="polite" testID="note">
+              {shown}
+            </Meta>
           )}
-        </View>
-        <Keypad tone="dark" onKey={k => void key(k)} onFace={face ? () => void tryFace() : undefined} />
-        <Tap accessibilityRole="button" accessibilityLabel="Not now" onPress={onCancel} style={{ alignSelf: 'center', paddingVertical: 6, paddingHorizontal: 12 }}>
-          <Caption style={{ color: dark.textSoft }}>Not now</Caption>
-        </Tap>
-      </ScrollView>
-    </Pane>
+        </Swap>
+      </View>
+      <View style={{ height: 14, marginTop: 24, alignItems: 'center', justifyContent: 'center' }}>
+        {state === 'right' || state === 'leaving' ? (
+          <Pop delay={0}>
+            <View style={s.tick} accessibilityLabel="Confirmed">
+              <Icon name="check" size={14} colour={colour.textInverse} />
+            </View>
+          </Pop>
+        ) : (
+          <Shake n={shake}>
+            <Pips filled={digits.length} />
+          </Shake>
+        )}
+      </View>
+      <View style={{ marginTop: 24 }}>
+        <Keypad big onKey={k => void key(k)} onFace={face ? () => void tryFace() : undefined} />
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 8, marginTop: 24 }}>
+        <Icon name="lock" size={16} colour={colour.textTertiary} />
+        <Meta tone="secondary">Nothing moves until the sixth digit lands.</Meta>
+      </View>
+    </Sheet>
   );
 }
 
@@ -158,8 +161,6 @@ function Shake({ n, children }: { n: number; children: React.ReactNode }) {
 }
 
 const s = StyleSheet.create({
-  body: { flexGrow: 1, justifyContent: 'center', gap: 20, paddingVertical: 12 },
-  amount: { color: '#ffffff', fontWeight: '700', fontSize: 32, lineHeight: 40, letterSpacing: -1.06 },
   tick: {
     width: 28,
     height: 28,

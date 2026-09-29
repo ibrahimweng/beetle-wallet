@@ -79,7 +79,7 @@ export function ActionRow(p: Parameters<typeof ListRow>[0]) {
 /* A line of small print beside a lock, the way the frames reassure. */
 export function Aside({ glyph = 'lock', children }: { glyph?: IconName; children: ReactNode }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s3 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s2 }}>
       <Icon name={glyph} size={16} colour={colour.textTertiary} />
       <Meta tone="secondary" style={{ flex: 1 }}>
         {children}

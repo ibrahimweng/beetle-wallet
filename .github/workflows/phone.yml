@@ -35,7 +35,7 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
       - run: npm ci --no-audit --no-fund
       - name: Send the change to the installed app
-        run: eas update --branch preview --message "$(git log -1 --pretty=%s)" --non-interactive
+        run: eas update --branch preview --environment preview --message "$(git log -1 --pretty=%s)" --non-interactive
       - name: Build a new APK
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.build }}
-        run: eas build --platform android --profile preview --non-interactive --no-wait
+        run: eas build --platform android --profile preview --environment preview --non-interactive --no-wait

@@ -66,8 +66,8 @@ mocks in and says so on the code screen; a real `AuthService` and
 | `src/design/` | The design system read off the Figma file: tokens, type, icons, motion, and the pieces every screen is made of |
 | `src/icons.ts` | The 95 glyphs, generated from `../src/icons.js` by `npm run icons`; never edited by hand |
 | `src/features/onboarding/` | The way in: the step machine (`machine.ts`), what is remembered and the session (`store.tsx`), the rules (`validation.ts`), the one screen and its choreography (`WayIn.tsx`), what each stage of it shows (`views.tsx`, `stages.ts`), and the guard that keeps home for a session |
-| `src/features/home/` | Home: the card (`WalletCard.tsx`, closed and open and the drag between), the screen around it (`Home.tsx`), the ask bar that moves between the dock and the card, what the day shows for an account (`account.ts`), and the once-only dip (`first.ts`) |
-| `src/features/agent/` | The chat: the conversation and what Beetle is waiting for (`conversation.tsx`), the list (`Chat.tsx`), and the dark pieces it is drawn with — what was said, the panels, the dots (`Dark.tsx`) |
+| `src/features/home/` | Home: the card (`WalletCard.tsx`, closed and open and the drag between), the frosted band its header sits on (`Frost.tsx`), the screen around it with the day and the chats in it (`Home.tsx`), the ask bar in its two states (`AskBar.tsx`), what the day shows for an account (`account.ts`), and the once-only dip (`first.ts`) |
+| `src/features/agent/` | The chat: the conversation and what Beetle is waiting for (`conversation.tsx`), the list (`Chat.tsx`), the dark pieces it is drawn with — what was said, the panels, the dots (`Dark.tsx`) — and the chats filed in the day, Beetle's prompts among them (`chats.ts`) |
 | `src/features/scan/` | The camera screen with every way it can go wrong, the photo's way back to the chat, and the sample slip |
 | `src/lab/` | The lab: which builds have it (`enabled.ts`), every feature and the places in it with the state each needs (`catalogue.ts`), the screen, and the tab that comes back to it |
 | `src/services/` | `AuthService`, `IdentityService`, `AgentService` (the scripted Beetle), `ReaderService` (the device's text reader, or a stand-in), storage and hashing behind interfaces, with the mocks this build runs on |
@@ -113,19 +113,37 @@ there.
 ## Home and the chat
 
 The black card at the top holds the balance, Send and Receive, and a
-grabber that says pull down. Pull it and it becomes the chat: it grows to two
-thirds of the screen while the figure glides up into the header, shrinking as
-it goes; the buttons soften away; a hairline and the conversation arrive from
-below; and the ask bar rises out of the dock into the card's foot. The head of
-the day stays showing below it as the way back — a tap on it, a pull up on
-the header, or the phone's own back closes the chat. The first time on a
-phone, the card dips on its own with the words "Pull down to ask Beetle",
-once. The keyboard shrinks the open card rather than covering the bar.
+grabber that says pull down. Pull it and it becomes the chat: it grows until
+only the head of the day and its chips still show below it, while the figure
+glides up into the header, shrinking as it goes; the buttons soften away; the
+conversation arrives from below with the ask bar at the card's foot. The
+header is frosted glass: the conversation runs up under it and shows through,
+softened, so the chat has the whole card and the top of it reads as air. The
+head of the day below is the way back — a tap on it, a pull up on the
+header, or the phone's own back closes the chat. The first time on a phone,
+the card dips on its own with the words "Pull down to ask Beetle", once. The
+keyboard shrinks the open card rather than covering the bar. (The frost
+itself comes from `expo-blur`, which is in Expo Go and the web now and in
+any APK built after it was added; an older APK gets the same band in plain
+dark glass.)
+
+The ask bar has two states off the frame: idle, with the grey petals of the
+mark, the placeholder and the camera; and active, the moment there is
+something typed, with a hairline round the bar, the words in semibold, and a
+black disc with an arrow where the camera was.
 
 Beetle answers with words and with panels: what it checked and what it found,
 each row landing after the last, and one thing to do about it. Confirm a
 transfer and the panel says Sent, Beetle says where the money is, and the day
 below has the line. The amount on a panel can be corrected by tapping it.
+
+Every chat is part of the day. Closing the card files the conversation at
+the top of Today — what you asked, what it came to, when — and opening the
+card again starts a new one, Beetle opening with something it noticed. A
+chat's row picks it back up where it was, panels and all. Beetle starts
+chats too: when something needs handling, its prompt is there in the day
+with a dot, waiting to be opened. The Chats chip shows only those; All has
+them with everything else. They are kept on the phone, per account.
 
 The camera at the end of the ask bar reads an account number off whatever it
 sees — a slip, a screen, a card. On a phone with the build that carries it,

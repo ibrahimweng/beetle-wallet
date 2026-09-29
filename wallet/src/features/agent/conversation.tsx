@@ -28,6 +28,10 @@ export type Conversation = {
   preload(turns: Turn[], pending?: Pending): void;
   /** Beetle opening, before anything has been asked */
   open(text: string): void;
+  /** a chat from the day, picked up where it was left */
+  load(turns: Turn[], pending: Pending): void;
+  /** the slate wiped for a new chat */
+  reset(): void;
 };
 
 let n = 0;
@@ -133,8 +137,14 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
   );
 
   const open = useCallback((text: string) => add({ id: id(), who: 'beetle', block: { kind: 'say', text } }), [add]);
+  const load = useCallback((list: Turn[], p: Pending) => preload(list, p), [preload]);
+  const reset = useCallback(() => {
+    setTurns([]);
+    setThinking(false);
+    keep(null);
+  }, [keep]);
 
-  return useMemo(() => ({ turns, thinking, pending, ask, ready, confirm, edit, preload, open }), [turns, thinking, pending, ask, ready, confirm, edit, preload, open]);
+  return useMemo(() => ({ turns, thinking, pending, ask, ready, confirm, edit, preload, open, load, reset }), [turns, thinking, pending, ask, ready, confirm, edit, preload, open, load, reset]);
 }
 
 export const turn = {

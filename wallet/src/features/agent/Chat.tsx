@@ -7,7 +7,10 @@ import { Pane } from '../../design';
 import { Said, Thinking, ToolPanel, Yours } from './Dark';
 import type { Conversation } from './conversation';
 
-export function Chat({ talk, active }: { talk: Conversation; active: boolean }) {
+/** A panel stops short of the right edge, as the frame draws it. */
+const PANEL_INSET = 60;
+
+export function Chat({ talk, active, top = 0 }: { talk: Conversation; active: boolean; /** room left at the top, for the band the header sits on */ top?: number }) {
   const list = useRef<ScrollView>(null);
   const count = talk.turns.length + (talk.thinking ? 1 : 0);
   useEffect(() => {
@@ -19,7 +22,7 @@ export function Chat({ talk, active }: { talk: Conversation; active: boolean }) 
     <ScrollView
       ref={list}
       style={{ flex: 1 }}
-      contentContainerStyle={{ gap: 24, paddingBottom: 8 }}
+      contentContainerStyle={{ gap: 24, paddingBottom: 8, paddingTop: top }}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       scrollEnabled={active}
@@ -33,14 +36,16 @@ export function Chat({ talk, active }: { talk: Conversation; active: boolean }) 
         else {
           const panel = t.block.panel;
           body = (
-            <ToolPanel
-              panel={panel}
-              state={'state' in t ? t.state : 'ready'}
-              quick={'quick' in t && !!t.quick}
-              onReady={() => talk.ready(panel.id)}
-              onAction={() => talk.confirm(panel.id)}
-              onEdit={row => talk.edit(panel.id, row)}
-            />
+            <View style={{ marginRight: PANEL_INSET }}>
+              <ToolPanel
+                panel={panel}
+                state={'state' in t ? t.state : 'ready'}
+                quick={'quick' in t && !!t.quick}
+                onReady={() => talk.ready(panel.id)}
+                onAction={() => talk.confirm(panel.id)}
+                onEdit={row => talk.edit(panel.id, row)}
+              />
+            </View>
           );
         }
         return <Pane key={t.id}>{body}</Pane>;

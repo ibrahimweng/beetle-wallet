@@ -220,6 +220,8 @@ const DATA: Panel = {
 
 /** Ask about the same panel again and it comes back fresh, with its own id. */
 const fresh = (p: Panel): Panel => ({ ...p, id: nextId(p.tool), rows: p.rows.map(r => ({ ...r })) });
+export const powerPanel = () => fresh(POWER);
+export const dataPanel = () => fresh(DATA);
 
 const say = (text: string): Block => ({ kind: 'say', text });
 

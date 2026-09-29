@@ -13,6 +13,7 @@ import { Image, LayoutChangeEvent, StyleSheet, View, useWindowDimensions } from 
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { SharedValue, interpolate, runOnJS, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import { Caption, Icon, Label, Swap, Tap, blurred, colour, dark, keys, motion, settle as settleCurve, useStill } from '../../design';
+import { Frost } from './Frost';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const MARK = require('../../../assets/wallet-mark.png');
@@ -52,6 +53,8 @@ export type CardProps = {
   onReceive: () => void;
   onDollars: () => void;
   chat: ReactNode;
+  /** the ask bar, at the foot of the open card */
+  foot: ReactNode;
 };
 
 const clamp = (v: number, lo: number, hi: number) => {
@@ -59,7 +62,7 @@ const clamp = (v: number, lo: number, hi: number) => {
   return Math.min(hi, Math.max(lo, v));
 };
 
-export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onSend, onReceive, onDollars, chat }: CardProps) {
+export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onSend, onReceive, onDollars, chat, foot }: CardProps) {
   const { width: W } = useWindowDimensions();
   const still = useStill();
   const [opened, setOpened] = useState(false);
@@ -154,6 +157,8 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
     return { opacity: t, transform: [{ translateY: 20 * (1 - t) }], ...blurred((1 - t) * motion.blur) };
   });
   const wallet = useAnimatedStyle(() => ({ opacity: 1 - clamp((open.value - 0.2) / 0.3, 0, 1) }));
+  /* the glass under the header only means anything once there is a conversation under it */
+  const frost = useAnimatedStyle(() => ({ opacity: clamp((open.value - 0.4) / 0.4, 0, 1) }));
   /* the grabber and its words stay while the card only dips, and go once it is really opening */
   const goingLate = useAnimatedStyle(() => {
     const t = clamp((open.value - 0.3) / 0.3, 0, 1);
@@ -194,9 +199,19 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
 
   return (
     <Animated.View style={[s.card, card]} testID="card">
-      {/* the header band: the mark, and the wallet's name until the figure takes its place */}
+      {/* the open card: the conversation, running up under the header, and the bar at its foot */}
+      <Animated.View style={[s.opened, coming]} pointerEvents={opened ? 'auto' : 'none'}>
+        <View style={{ flex: 1 }}>{chat}</View>
+        <View style={s.foot}>{foot}</View>
+      </Animated.View>
+
+      {/* the header band: frosted glass over the conversation, the mark, and the
+          wallet's name until the figure takes its place */}
       <GestureDetector gesture={headPan}>
         <View style={s.head}>
+          <Animated.View style={[StyleSheet.absoluteFill, frost]} pointerEvents="none">
+            <Frost height={HEAD_BAND} />
+          </Animated.View>
           <View style={s.headRow}>
             <Image source={MARK} style={{ width: 36, height: 36, borderRadius: 18 }} accessibilityLabel="Beetle" />
             <Animated.View style={wallet}>
@@ -238,12 +253,6 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
         <Swap value={hint}>{h => <Caption style={{ color: '#ffffff' }}>{h}</Caption>}</Swap>
       </Animated.View>
 
-      {/* the open card: a hairline under the header, and the conversation */}
-      <Animated.View style={[s.opened, coming]} pointerEvents={opened ? 'auto' : 'none'}>
-        <View style={s.divider} />
-        <View style={{ flex: 1, marginTop: 20 }}>{chat}</View>
-      </Animated.View>
-
       {/* the figure, in whichever place `open` says */}
       <Animated.View style={[s.figure, figure]} pointerEvents="none">
         <Animated.Text style={[s.figureText, figureText]} numberOfLines={1} testID="balance">
@@ -274,11 +283,6 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
   );
 }
 
-/** The page under the card starts 32 below it. */
-export function PageGap() {
-  return <View style={{ height: 32 }} />;
-}
-
 const s = StyleSheet.create({
   card: {
     backgroundColor: dark.card,
@@ -286,7 +290,7 @@ const s = StyleSheet.create({
     borderBottomRightRadius: 36,
     overflow: 'hidden',
   },
-  head: { position: 'absolute', top: 0, left: 0, right: 0, height: HEAD_BAND, paddingTop: TOP, paddingHorizontal: SIDE, zIndex: 3 },
+  head: { position: 'absolute', top: 0, left: 0, right: 0, height: HEAD_BAND, paddingTop: TOP, paddingHorizontal: SIDE, zIndex: 3, overflow: 'visible' },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: HEADER_H },
   closed: { position: 'absolute', top: HEAD_BAND - 20 + 24, left: 0, right: 0, height: CLOSED_H - (HEAD_BAND - 20 + 24), paddingHorizontal: SIDE, alignItems: 'center', gap: 12 },
   actions: { flexDirection: 'row', justifyContent: 'center', gap: 24, alignSelf: 'stretch', paddingTop: 12 },
@@ -294,8 +298,8 @@ const s = StyleSheet.create({
   disc: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center' },
   grab: { position: 'absolute', top: CLOSED_H - 20 - 32, left: 0, right: 0, alignItems: 'center', gap: 12, zIndex: 2 },
   grabber: { width: 27, height: 4, borderRadius: 2, backgroundColor: dark.grabber },
-  opened: { position: 'absolute', top: HEAD_BAND, left: SIDE, right: SIDE, bottom: FOOT_BAND },
-  divider: { height: 1, backgroundColor: dark.divider },
+  opened: { position: 'absolute', top: 0, left: SIDE, right: SIDE, bottom: 0 },
+  foot: { height: FOOT_BAND, paddingTop: 20, paddingBottom: 20 },
   figure: { position: 'absolute', top: 0, left: 0, flexDirection: 'row', alignItems: 'flex-start', zIndex: 4 },
   figureText: { color: '#ffffff', fontWeight: '700', fontSize: 32, lineHeight: 40, letterSpacing: -1.06 },
   koboText: { color: dark.kobo, fontWeight: '600', fontSize: 20, lineHeight: 24, marginTop: 8, marginLeft: 1 },

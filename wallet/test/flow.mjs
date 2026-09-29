@@ -376,51 +376,65 @@ try {
 
   console.log('Pulling the card down');
   /* the day scrolls back to the top; a pull on the card from there opens the
-     chat: the card grows to two thirds of the screen while the figure glides
-     up into the header, shrinking from 32 to 20 */
-  await toTop();
-  await page.waitForTimeout(400);
-  const grab = await page.getByText('Pull down', { exact: true }).first().boundingBox();
-  must(grab, 'the grabber should be on the card');
-  const gx = grab.x + grab.width / 2;
-  const gy = grab.y;
-  const pulled = Date.now();
-  /* the finger and the trace run together, so the drag itself is in the samples */
-  const finger = (async () => {
-    await page.mouse.move(gx, gy);
-    await page.mouse.down();
-    for (let i = 1; i <= 14; i++) {
-      await page.mouse.move(gx, gy + i * 20);
-      await page.waitForTimeout(40);
-    }
-    await page.mouse.up();
-  })();
-  const opening = await trace(
-    'card-opening',
-    1500,
-    [
-      ['card', '[data-testid="card"]', false],
-      ['figure', '[data-testid="balance"]', false],
-    ],
-    { since: pulled, picture: { at: 420, name: 'home-pulling' } },
-  );
-  await finger;
+     chat: the card grows until only the head of the day and its chips show
+     below it, while the figure glides up into the header, shrinking from 32
+     to 20 */
+  const pull = async (name, traced) => {
+    await toTop();
+    await page.waitForTimeout(400);
+    const grab = await page.getByText('Pull down', { exact: true }).first().boundingBox();
+    must(grab, 'the grabber should be on the card');
+    const gx = grab.x + grab.width / 2;
+    const gy = grab.y;
+    const pulled = Date.now();
+    /* the finger and the trace run together, so the drag itself is in the samples */
+    const finger = (async () => {
+      await page.mouse.move(gx, gy);
+      await page.mouse.down();
+      for (let i = 1; i <= 16; i++) {
+        await page.mouse.move(gx, gy + i * 22);
+        await page.waitForTimeout(40);
+      }
+      await page.mouse.up();
+    })();
+    const samples = traced
+      ? await trace(
+          name,
+          1500,
+          [
+            ['card', '[data-testid="card"]', false],
+            ['figure', '[data-testid="balance"]', false],
+          ],
+          { since: pulled, picture: { at: 420, name: 'home-pulling' } },
+        )
+      : null;
+    await finger;
+    if (!samples) await page.waitForTimeout(900);
+    return samples;
+  };
+  const opening = await pull('card-opening', true);
   const first = opening[0];
   const last = opening[opening.length - 1];
   must(first && first.card && first.card.height < 420, `the card should start closed (${first?.card?.height}px)`);
-  must(last && last.card && last.card.height >= 520, `the card should open to two thirds of the screen (${last?.card?.height}px)`);
+  must(last && last.card && last.card.height >= 640, `the card should open until only the head of the day and its chips show (${last?.card?.height}px)`);
   must(last.figure && last.figure.size <= 21, `the figure should have shrunk into the header (${last.figure?.size}px)`);
   const grew = opening.map(x => Math.round(x.card?.height ?? 0));
   must(new Set(grew).size >= 4, `the card should grow through the drag, not jump (${grew.join(' ')})`);
   console.log(`  card ${grew[0]} → ${grew[grew.length - 1]}px, figure ${opening[0].figure?.size} → ${last.figure.size}px`);
-  /* the reading in dollars sits after the figure in the header now */
+  /* the reading in dollars sits after the figure in the header now, and the
+     head of the day with its chips still shows under the card */
   const chip = await page.getByRole('button', { name: 'Your dollars', exact: true }).filter({ visible: true }).last().boundingBox();
   must(chip && chip.x > 150 && chip.y < 80, `the dollars chip should sit after the figure in the header (at ${chip?.x},${chip?.y})`);
+  const chipsRow = await page.getByRole('button', { name: 'Chats', exact: true }).boundingBox();
+  must(chipsRow && chipsRow.y > last.card.height && chipsRow.y + chipsRow.height <= 852, `the chips should show under the open card (at ${chipsRow?.y})`);
   await shot('home-chat-open');
 
   console.log('Sending money by asking');
+  /* typing turns the bar active: the ring, and the send disc where the camera was */
   await page.getByLabel('Ask Beetle').fill('Send 20k to Sarah');
-  await page.keyboard.press('Enter');
+  await button('Send this').waitFor();
+  await shot('chat-typing', 350);
+  await tap('Send this');
   await see('Send 20k to Sarah');
   await see('Beetle Transfers');
   await shot('chat-transfer-running', 250);
@@ -431,13 +445,39 @@ try {
   await see('is with Sarah Adeyemi');
   await see('₦575,320');
   await shot('chat-transfer-sent', 500);
-  /* a tap on the day below brings the card back up, and the day has the transfer in it */
+  /* a tap on the day below brings the card back up, and the day has the
+     transfer in it, and the chat that made it, filed at the top */
   await tap('Back to the day');
   await page.waitForTimeout(900);
   await see('GTBank · sent');
+  await see('Send 20k to Sarah');
   await shot('home-after-transfer');
 
+  console.log('The chats in the day');
+  /* under their own chip: the one just filed, and the one Beetle started */
+  await tap('Chats');
+  await page.waitForTimeout(400);
+  await see('Your usual top up');
+  must((await page.getByText('Money health').filter({ visible: true }).count()) === 0, 'the Chats chip should show chats only');
+  await shot('home-chats');
+  /* a chat's row picks it back up where it was, panels and all */
+  await tap('Send 20k to Sarah');
+  await see('Beetle Transfers');
+  await page.waitForTimeout(700);
+  await shot('chat-reopened');
+  await tap('Back to the day');
+  await page.waitForTimeout(700);
+  /* and Beetle's own prompt opens with the thing it wants handled */
+  await tap('Your usual top up');
+  await see('Beetle Bills');
+  await shot('chat-prompt', 900);
+  await tap('Back to the day');
+  await page.waitForTimeout(700);
+  await tap('All');
+
   console.log('Reading a photo');
+  /* the camera is on the bar, which lives in the open card now */
+  await pull('card-again', false);
   await tap('Show me a photo');
   at('/scan');
   await page.waitForTimeout(600);
@@ -497,6 +537,12 @@ try {
   await see('Nothing has moved yet');
   at('/home');
   await shot('lab-home-new', 400);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  await tap('A prompt from Beetle');
+  await see('Beetle Bills');
+  at('/home');
+  await shot('lab-prompt', 900);
   await tap('Back to the lab');
   await see('Beetle Lab');
   await tap('A transfer, mid-way');

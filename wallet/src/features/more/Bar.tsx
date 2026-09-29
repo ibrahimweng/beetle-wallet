@@ -15,7 +15,7 @@ import type { IconName } from '../../icons';
 
 export const BAR_H = 56 + 2 * frame.dockPad;
 
-export function Bar({ open, onMore }: { open: SharedValue<number>; onMore: () => void }) {
+export function Bar({ open, hidden = false, onMore }: { open: SharedValue<number>; hidden?: boolean; onMore: () => void }) {
   const going = useAnimatedStyle(() => ({ transform: [{ translateY: open.value * (BAR_H + 16) }] }));
   /* the pages arrive from their glyphs: the record's clock from this one, Settings from the gear */
   const activities = useDeparture({ id: 'bar:activities', to: '/activities' });
@@ -33,7 +33,7 @@ export function Bar({ open, onMore }: { open: SharedValue<number>; onMore: () =>
     </Tap>
   );
   return (
-    <Animated.View style={[s.bar, going]} testID="bar">
+    <Animated.View style={[s.bar, going]} pointerEvents={hidden ? 'none' : 'auto'} testID="bar">
       <View style={s.items}>
         {item('home-filled', 'Home', true)}
         {item('clock-drawn', 'Activities', false, activities)}

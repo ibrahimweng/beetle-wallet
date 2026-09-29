@@ -816,7 +816,8 @@ function HomeScreen() {
           </Animated.View>
         ) : null}
         {/* the bar, while the card is closed: the open chat has the shortcuts row instead */}
-        <Bar open={open} onMore={() => setMore(true)} />
+        {/* out of the way of a push up on the open chat, even while it is still on its way down */}
+        <Bar open={open} hidden={opened} onMore={() => setMore(true)} />
       </Animated.View>
       {/* the passcode, on its sheet over everything, before money moves */}
       {guard ? (

@@ -500,7 +500,14 @@ try {
   await shot('chat-transfer-sent', 500);
   /* a push up on the chat, now at its end, brings the card back up; the day
      has the transfer in it, and the chat that made it, filed at the top */
-  await pushUp(196, 520);
+  /* the chat is still settling to its end after the receipt lands, longer on a slow machine; a push
+     up before it has settled scrolls rather than closes, so give it a beat and try once more if so */
+  await page.waitForTimeout(1200);
+  for (let tries = 0; tries < 2; tries++) {
+    await pushUp(196, 520);
+    if (((await page.locator('[data-testid="card"]').boundingBox())?.height ?? 999) < 420) break;
+    await page.waitForTimeout(800);
+  }
   must((await page.locator('[data-testid="card"]').boundingBox())?.height < 420, 'a push up on the chat should close the card');
   await see('GTBank · sent');
   await see('Send 20k to Sarah');

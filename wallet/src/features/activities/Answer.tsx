@@ -34,8 +34,10 @@ export function Answer() {
   if (!ok) return null;
   const later = (what: string) => () => toast(`${what} comes with round 6.`);
   return (
-    <Screen dock={<Dock placeholder="Ask about this" onBack={() => router.back()} onAsk={q => askHome(router, q)} onScan={() => router.push('/scan')} />}>
-      <PageHead title="Airtime and data" sub="You asked how much you spend on staying connected" />
+    <Screen
+      dock={<Dock placeholder="Ask about this" onBack={() => router.back()} onAsk={q => askHome(router, q)} onScan={() => router.push('/scan')} />}
+      head={<PageHead title="Airtime and data" sub="You asked how much you spend on staying connected" />}
+    >
       <View style={{ gap: 12 }}>
         <Say testID="say">₦18,900 on airtime and data last month. That is your highest month this year.</Say>
         {/* the figure, the six months, the terms and where the number came from, on one card */}

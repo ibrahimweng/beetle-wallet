@@ -12,15 +12,7 @@ import { colour, radius } from './tokens';
 
 type Who = 'You' | 'You · typed' | 'Beetle';
 
-export function Bubble({
-  who = 'Beetle',
-  title,
-  children,
-}: {
-  who?: Who;
-  title?: string;
-  children: React.ReactNode;
-}) {
+export function Bubble({ who = 'Beetle', title, children }: { who?: Who; title?: string; children: React.ReactNode }) {
   const mine = who !== 'Beetle';
   if (mine) {
     return (

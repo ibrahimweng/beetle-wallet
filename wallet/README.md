@@ -285,12 +285,13 @@ account's details are.
 
 ## Activities
 
-See all on the day and Activities on the bar open the record, from its
-frame: everything that moved, newest first, All / In / Out
+See all on the day and Activities on the bar open the record, titled as
+they call it, from its frame: everything that moved, newest first, All / In / Out
 to narrow it, today and yesterday, and what Beetle makes of it at the foot.
 What is still on its way, did not go or came back stands first with its
 status glyph and a chevron — their own screens come with round 3 — and what
-settled follows on the grey square, each line to its receipt. What you moved
+settled follows on the grey square, each line growing into its receipt in
+a few words, with the full one a tap further. What you moved
 into your own goal is not in it: that money is still yours. "Where your
 money went" on the day opens the answer, from its frame: what was asked as
 the head, Beetle's line, the figure with its change and the six months
@@ -358,9 +359,28 @@ screen land one after another, and the balance on home comes into focus
 rather than counting up. All of it runs on one family of curves, and all of
 it stops for anyone who has asked their phone to reduce motion.
 
+Between screens the thread is kept, the way Fuse keeps it. Fuse hardly
+ever pushes a page: the thing you tapped stays where it is, the rest
+recedes under a blur, and the next thing grows out of it. So a line in the
+day, or in Activities, does not open a page: it grows in place into its
+receipt in a few words — the amount, who and what, when, that it went
+through — while the day recedes, and a tap anywhere else folds it back.
+Where Beetle does need a page, the thing you tapped lights and stays lit,
+the screen it is on recedes — dimmer, softer, a touch smaller — and the
+next page's head arrives from the tapped thing's own place, carrying its
+words up and growing into the title, with the body following out of a
+blur a beat later; on the way back the screen comes forward again and the
+thing you left from pulses once. A Settings row becomes its page's title,
+The full receipt sends the amount up into the receipt, the bar's clock
+becomes the head of Activities, the mark becomes the word Settings. All of
+it is `src/design/journey.tsx`: a departure records where it started, the
+screen arriving takes it, and a screen opened any other way simply fades
+in.
+
 `npm run flow` traces the moments that matter — the first screen change,
 the ticks, the balance, the card opening under a finger, the first-time
-dip — and fails if they are not moving the way that file says.
+dip, a title coming up from the row that opened it, a line growing into
+its receipt — and fails if they are not moving the way that file says.
 
 ## What comes next
 

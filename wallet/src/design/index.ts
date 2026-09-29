@@ -19,3 +19,4 @@ export * from './Receipt';
 export * from './Rows';
 export * from './motion';
 export * from './Pieces';
+export * from './journey';

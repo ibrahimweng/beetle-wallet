@@ -5341,7 +5341,7 @@
         "name": "Glyph · lock-filled",
         "find": {
           "text": "A new passcode",
-          "up": 1,
+          "up": 2,
           "child": 0
         }
       },

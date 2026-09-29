@@ -13,6 +13,7 @@ import { Caption, Display, Head, Label, Meta, Row } from './text';
 import { IconName } from '../icons';
 import { colour, frame, radius, space } from './tokens';
 import { Tap, Resolve } from './motion';
+import { measure, useDeparture, type Rect } from './journey';
 
 /* The head of the first-day home, which its frame still draws the earlier
    way: the wallet bar sits under the status bar rather than at the top of the
@@ -279,6 +280,7 @@ export function Tile({
   plain = false,
   go = false,
   onPress,
+  to,
 }: {
   lead: ReactNode;
   title: string;
@@ -289,11 +291,15 @@ export function Tile({
   /* and it ends in a filled circle rather than a bare chevron */
   go?: boolean;
   onPress?: () => void;
+  /** the page the tile leads to: it lights, the day recedes, the page arrives from it */
+  to?: string;
 }) {
+  const j = useDeparture({ id: `tile:${title}`, to, words: title });
   return (
     <Tap
+      ref={j.ref}
       accessibilityRole="button"
-      onPress={onPress}
+      onPress={to ? j.onPress : onPress}
       style={{
         flexDirection: 'row',
         alignItems: 'center',
@@ -419,16 +425,43 @@ export function Filters({ options, value, onChange }: { options: string[]; value
   );
 }
 
-export function LedgerRow({ glyph, name, detail, amount, good, onPress }: { glyph: IconName; name: string; detail: string; amount: string; good?: boolean; onPress?: () => void }) {
+export function LedgerRow({
+  glyph,
+  name,
+  detail,
+  amount,
+  good,
+  onPress,
+  onOpen,
+  journey,
+}: {
+  glyph: IconName;
+  name: string;
+  detail: string;
+  amount: string;
+  good?: boolean;
+  onPress?: () => void;
+  /** opened in place: given where the row is, so its receipt can grow out of it */
+  onOpen?: (at: Rect) => void;
+  /** the row's id on a journey, so it pulses when its receipt is left */
+  journey?: string;
+}) {
+  const j = useDeparture({ id: journey ?? `row:${name}` });
   return (
     <Tap
+      ref={j.ref}
       accessibilityRole="button"
-      onPress={onPress}
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: space.s5,
-      }}
+      accessibilityLabel={name}
+      onPress={() => (onOpen ? void measure(j.ref).then(onOpen) : onPress?.())}
+      style={[
+        {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: space.s5,
+          borderRadius: 16,
+        },
+        j.style,
+      ]}
     >
       <Icon name={glyph} size={20} />
       <View style={{ flex: 1, gap: 2 }}>
@@ -454,6 +487,7 @@ export function Insight({
   onAction,
   onDismiss,
   children,
+  to,
 }: {
   kicker: string;
   body?: string;
@@ -461,7 +495,10 @@ export function Insight({
   onAction?: () => void;
   onDismiss?: () => void;
   children?: ReactNode;
+  /** the page the action leads to */
+  to?: string;
 }) {
+  const j = useDeparture({ id: `insight:${kicker}`, to });
   return (
     /* the frames set one of these close under the line above it, not a column
        gap away */
@@ -486,8 +523,9 @@ export function Insight({
       {action ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s2 }}>
           <Pressable
+            ref={j.ref}
             accessibilityRole="button"
-            onPress={onAction}
+            onPress={to ? j.onPress : onAction}
             style={{
               flex: 1,
               flexDirection: 'row',

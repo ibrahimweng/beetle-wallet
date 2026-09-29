@@ -12,14 +12,19 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Body, Head, Title } from './text';
+import { Arrive } from './journey';
 
+/* The title arrives from the thing that opened the page, growing into its
+   size; the line under it comes with the body. */
 export function PageHead({ title, sub, lead = false }: { title: string; sub?: string; lead?: boolean }) {
   const T = lead ? Title : Head;
   return (
     /* the big one sets its line two under the title where the small one
        leaves eight: at 32 the box already carries the room */
     <View style={{ gap: lead ? 2 : 8, marginTop: lead ? -9 : 0, marginBottom: lead ? -4 : -3 }}>
-      <T>{title}</T>
+      <Arrive testID="head">
+        <T>{title}</T>
+      </Arrive>
       {sub ? <Body tone="tertiary">{sub}</Body> : null}
     </View>
   );

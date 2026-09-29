@@ -29,8 +29,7 @@ export function Devices() {
     );
   const only = prefs.othersSignedOut;
   return (
-    <Screen dock={dock}>
-      <PageHead lead title="Devices" sub="Everywhere this account is open" />
+    <Screen dock={dock} head={<PageHead lead title="Devices" sub="Everywhere this account is open" />}>
       <View style={{ gap: 16 }}>
         <Card style={s.group} testID="devices">
           <DeviceRow glyph="airtime" title="iPhone 13" where="Lagos · open now" tag="This one" />

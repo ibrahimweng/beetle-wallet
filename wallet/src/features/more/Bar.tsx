@@ -10,15 +10,18 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
-import { ActionButton, Icon, Tap, colour, frame } from '../../design';
+import { ActionButton, Icon, Tap, colour, frame, useDeparture } from '../../design';
 import type { IconName } from '../../icons';
 
 export const BAR_H = 56 + 2 * frame.dockPad;
 
-export function Bar({ open, onActivities, onSettings, onMore }: { open: SharedValue<number>; onActivities: () => void; onSettings: () => void; onMore: () => void }) {
+export function Bar({ open, onMore }: { open: SharedValue<number>; onMore: () => void }) {
   const going = useAnimatedStyle(() => ({ transform: [{ translateY: open.value * (BAR_H + 16) }] }));
-  const item = (glyph: IconName | 'clock-drawn', label: string, on: boolean, onPress?: () => void) => (
-    <Tap accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ selected: on }} onPress={onPress} scale={0.9} style={s.item}>
+  /* the pages arrive from their glyphs: the record's clock from this one, Settings from the gear */
+  const activities = useDeparture({ id: 'bar:activities', to: '/activities' });
+  const settings = useDeparture({ id: 'bar:settings', to: '/settings' });
+  const item = (glyph: IconName | 'clock-drawn', label: string, on: boolean, j?: ReturnType<typeof useDeparture>) => (
+    <Tap ref={j?.ref} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ selected: on }} onPress={j?.onPress} scale={0.9} style={s.item}>
       {glyph === 'clock-drawn' ? (
         <View style={[s.disc, { backgroundColor: on ? colour.ink : colour.textTertiary }]}>
           <View style={s.handUp} />
@@ -33,8 +36,8 @@ export function Bar({ open, onActivities, onSettings, onMore }: { open: SharedVa
     <Animated.View style={[s.bar, going]} testID="bar">
       <View style={s.items}>
         {item('home-filled', 'Home', true)}
-        {item('clock-drawn', 'Activities', false, onActivities)}
-        {item('gear', 'Settings', false, onSettings)}
+        {item('clock-drawn', 'Activities', false, activities)}
+        {item('gear', 'Settings', false, settings)}
       </View>
       <ActionButton onPress={onMore} label="More" />
     </Animated.View>

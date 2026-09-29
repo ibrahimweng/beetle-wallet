@@ -8,7 +8,10 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ActionButton, Body, Dock, GlyphHead, HistoryRow, SayCard, Screen, Segments, colour, toast } from '../../design';
+import { ActionButton, Body, Dock, GlyphHead, HistoryRow, JourneyProvider, SayCard, Screen, Segments, colour, toast, type Rect } from '../../design';
+import { ReceiptPeek } from '../receipts/Peek';
+import { receiptFor } from '../receipts/receipts';
+import type { ReceiptCard as Card } from '../agent/conversation';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { holdingsFor, type LedgerRow } from '../home/account';
@@ -27,10 +30,16 @@ export function Activities() {
   const account = app.session?.account;
   const { moves, ready } = useMoves(account?.accountNumber);
   const [segment, setSegment] = useState<Segment>('All');
+  const [peek, setPeek] = useState<{ card: Card; at: Rect } | null>(null);
   const { sheet, openMore } = useMore(router);
   if (!ok || !account) return null;
   const h = holdingsFor(account);
   const ledger = [...moves, ...h.ledger];
+  const balanceNow = h.everyday + moves.reduce((a, r) => a + r.amount, 0);
+  const cardFor = (r: LedgerRow): Card => {
+    const rc = receiptFor(r, { account, balanceNow, rows: ledger });
+    return { rowId: r.id, amount: naira(rc.amount), line: rc.line, status: rc.status, time: r.time };
+  };
   const dock = (
     <Dock
       placeholder="Ask about any of these"
@@ -56,29 +65,33 @@ export function Activities() {
         name={r.name}
         detail={`${r.detail} · ${r.time}`}
         amount={activityAmount(r, signed, naira)}
-        onPress={() => (r.status === 'done' ? router.push(`/receipt/${r.id}`) : toast(`${ROUND[r.status]} has its screen in round 3.`))}
+        journey={`row:${r.id}`}
+        onOpen={r.status === 'done' ? at => setPeek({ card: cardFor(r), at }) : undefined}
+        onPress={() => toast(`${ROUND[r.status]} has its screen in round 3.`)}
       />
     ));
   const today = rows('today');
   const yesterday = rows('yesterday');
   return (
-    <View style={{ flex: 1 }}>
-      <Screen dock={dock}>
-        <GlyphHead glyph="clock" title="History" sub="Everything that moved, newest first" />
-        {/* the frame puts 16 between the segments and the record, and 10 between a day's name and its lines, and between one day and the next */}
-        <View style={{ gap: 16 }}>
-          <Segments options={['All', 'In', 'Out']} value={segment} onChange={v => setSegment(v as Segment)} />
-          <View style={{ gap: 10 }}>
-            {today.length ? <Body tone="secondary">Today</Body> : null}
-            {today.length ? <View>{today}</View> : null}
-            {yesterday.length ? <Body tone="secondary">Yesterday</Body> : null}
-            {yesterday.length ? <View>{yesterday}</View> : null}
-            {!today.length && !yesterday.length ? <Body tone="tertiary">Nothing {segment === 'In' ? 'came in' : segment === 'Out' ? 'went out' : 'moved'} yet.</Body> : null}
-            {h.footer ? <SayCard testID="footer">{h.footer}</SayCard> : null}
+    <JourneyProvider>
+      <View style={{ flex: 1 }}>
+        <Screen dock={dock} head={<GlyphHead glyph="clock" title="Activities" sub="Everything that moved, newest first" />}>
+          {/* the frame puts 16 between the segments and the record, and 10 between a day's name and its lines, and between one day and the next */}
+          <View style={{ gap: 16 }}>
+            <Segments options={['All', 'In', 'Out']} value={segment} onChange={v => setSegment(v as Segment)} />
+            <View style={{ gap: 10 }}>
+              {today.length ? <Body tone="secondary">Today</Body> : null}
+              {today.length ? <View>{today}</View> : null}
+              {yesterday.length ? <Body tone="secondary">Yesterday</Body> : null}
+              {yesterday.length ? <View>{yesterday}</View> : null}
+              {!today.length && !yesterday.length ? <Body tone="tertiary">Nothing {segment === 'In' ? 'came in' : segment === 'Out' ? 'went out' : 'moved'} yet.</Body> : null}
+              {h.footer ? <SayCard testID="footer">{h.footer}</SayCard> : null}
+            </View>
           </View>
-        </View>
-      </Screen>
-      {sheet}
-    </View>
+        </Screen>
+        {sheet}
+        {peek ? <ReceiptPeek card={peek.card} at={peek.at} onClose={() => setPeek(null)} /> : null}
+      </View>
+    </JourneyProvider>
   );
 }

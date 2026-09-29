@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, type PanGesture } from 'react-native-gesture-handler';
 import Animated, { SharedValue, interpolate, runOnJS, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import { Caption, Icon, Label, Swap, Tap, blurred, colour, dark, keys, motion, settle as settleCurve, soft, useStill } from '../../design';
+import { useDeparture } from '../../design/journey';
 import { Frost } from './Frost';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -144,7 +145,6 @@ export type CardProps = {
   kobo: string;
   dollars: string;
   /** the mark at the top left: Settings */
-  onSettings?: () => void;
   /** New, at the top right of the open card: this chat filed, a fresh one */
   onNew?: () => void;
   hint: string;
@@ -167,7 +167,9 @@ const clamp = (v: number, lo: number, hi: number) => {
   return Math.min(hi, Math.max(lo, v));
 };
 
-export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onSend, onReceive, onDollars, onSettings, onNew, chat, foot, over, flash }: CardProps) {
+export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onSend, onReceive, onDollars, onNew, chat, foot, over, flash }: CardProps) {
+  /* the mark is the way to Settings: the title arrives from it */
+  const mark = useDeparture({ id: 'mark', to: '/settings', words: 'Settings' });
   const { width: W } = useWindowDimensions();
   const still = useStill();
   const { top, extra, headBand, closedH, haze, hazeSolid } = useCardTop();
@@ -313,7 +315,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
             <Frost height={haze} solid={hazeSolid} />
           </Animated.View>
           <View style={s.headRow}>
-            <Tap accessibilityRole="button" accessibilityLabel="Settings" onPress={onSettings} testID="mark">
+            <Tap ref={mark.ref} accessibilityRole="button" accessibilityLabel="Settings" onPress={mark.onPress} testID="mark">
               <Image source={MARK} style={{ width: 36, height: 36, borderRadius: 18 }} />
             </Tap>
             <Animated.View style={wallet}>

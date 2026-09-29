@@ -32,8 +32,7 @@ export function LostPhone() {
     router.push('/newcode?from=frozen');
   };
   return (
-    <Screen dock={dock}>
-      <PageHead title="Not your phone" sub="Signed in on a device I do not know" />
+    <Screen dock={dock} head={<PageHead title="Not your phone" sub="Signed in on a device I do not know" />}>
       <View style={{ gap: 16 }}>
         <Card style={s.group} testID="devices">
           <DeviceRow glyph="freeze" title={prefs.frozen ? 'The money is frozen' : 'Freeze the money'} where="Nothing can leave" tag={prefs.frozen ? 'Done' : 'Do this'} />

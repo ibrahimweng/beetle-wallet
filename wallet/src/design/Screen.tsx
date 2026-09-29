@@ -9,18 +9,26 @@ import { IconName } from '../icons';
 import { colour, frame, radius, space } from './tokens';
 import { Pane, Tap } from './motion';
 import { Wash } from './Wash';
+import { JourneyProvider, useRecession } from './journey';
+import Animated from 'react-native-reanimated';
 
 /* The column and the dock arrive together, out of a blur, and when the screen
-   is `leaving` they go back into one before the next screen comes. */
-export function Screen({
-  children,
-  dock,
-  still = false,
-  wash,
-  sink = false,
-  leaving = false,
-}: {
+   is `leaving` they go back into one before the next screen comes. The
+   `head` sits above the pane and arrives on its own: from the thing that
+   opened the screen, where there was one (see journey.tsx). When something
+   on the screen leads away, the whole of it recedes until it is come back to. */
+export function Screen(props: ScreenProps) {
+  return (
+    <JourneyProvider>
+      <Body {...props} />
+    </JourneyProvider>
+  );
+}
+
+type ScreenProps = {
   children: ReactNode;
+  /* the page's head, arriving on its own ahead of the pane */
+  head?: ReactNode;
   dock?: ReactNode;
   still?: boolean;
   /* on its way out: see useLeave */
@@ -29,20 +37,26 @@ export function Screen({
   wash?: { tone: string; height?: number };
   /* the way-in frames hang their column off the dock rather than the status bar */
   sink?: boolean;
-}) {
+};
+
+function Body({ children, head, dock, still = false, wash, sink = false, leaving = false }: ScreenProps) {
+  const receding = useRecession();
   return (
     <View style={s.screen}>
       {wash ? <Wash tone={wash.tone} height={wash.height} /> : null}
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={[s.body, sink && s.sunk]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        {still ? (
-          children
-        ) : (
-          <Pane leaving={leaving} style={{ gap: frame.columnGap }}>
-            {children}
-          </Pane>
-        )}
-      </ScrollView>
-      {still ? dock : <Pane leaving={leaving}>{dock}</Pane>}
+      <Animated.View style={[{ flex: 1 }, receding]}>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={[s.body, sink && s.sunk]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          {head}
+          {still ? (
+            children
+          ) : (
+            <Pane leaving={leaving} delay={head ? 60 : 0} style={{ gap: frame.columnGap }}>
+              {children}
+            </Pane>
+          )}
+        </ScrollView>
+        {still ? dock : <Pane leaving={leaving}>{dock}</Pane>}
+      </Animated.View>
     </View>
   );
 }

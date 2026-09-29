@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Aside, Icon, Keypad, Meta, Pips, Row, Title, Wash, colour, toast, washes } from '../../design';
+import { Arrive, Aside, Icon, Keypad, Meta, Pips, Row, Title, Wash, colour, toast, washes } from '../../design';
 import type { IconName } from '../../icons';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -86,7 +86,9 @@ export function NewCode() {
         ) : null}
         <View style={{ gap: 8 }}>
           <Icon name="lock-filled" size={32} colour={washes.newcode.tone} />
-          <Title>{first ? 'Once more' : 'A new passcode'}</Title>
+          <Arrive>
+            <Title>{first ? 'Once more' : 'A new passcode'}</Title>
+          </Arrive>
           <Meta tone="secondary">{first ? 'The same six, to be sure.' : 'Six digits. These are what send your money, so pick something nobody watching could guess.'}</Meta>
         </View>
         <View style={{ height: 14, justifyContent: 'center', marginTop: 8 }}>

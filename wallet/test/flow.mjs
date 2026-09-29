@@ -121,6 +121,7 @@ async function trace(name, ms, matches, { since = Date.now(), picture } = {}) {
         opacity: +getComputedStyle(el).opacity,
         blur: +((el.style.filter.match(/blur\(([\d.]+)px\)/) || [])[1] || 0),
         height: el.getBoundingClientRect().height,
+        top: el.getBoundingClientRect().top,
         size: parseFloat(getComputedStyle(el).fontSize),
       });
       for (const [key, match, deep] of ms) {
@@ -708,8 +709,18 @@ try {
   await see('Member since');
   await shot('settings-details', 900);
   await tap('Done');
-  /* every row leads somewhere: Lock and privacy, and its switches kept on the phone */
+  /* every row leads somewhere: Lock and privacy, and its switches kept on the phone. The page's
+     title arrives from the row's own place, carrying its words up, and the row pulses on the way back */
+  const lockRow = await button('Lock and privacy').boundingBox();
   await tap('Lock and privacy');
+  const journey = await trace('journey-lock', 1100, [['head', '[data-testid="head"]']], { picture: { at: 140, name: 'journey-lock-mid' } });
+  const heads = journey.map(x => x.head).filter(h => h && h.opacity > 0.01);
+  must(heads.length > 3, 'the title should be on the way');
+  must(
+    heads[0].top > heads[heads.length - 1].top + 60 && heads[0].top > (lockRow?.y ?? 0) - 120,
+    `the title should travel up from the row (from ${Math.round(heads[0].top)} to ${Math.round(heads[heads.length - 1].top)}, the row at ${Math.round(lockRow?.y ?? 0)})`,
+  );
+  console.log(`  the title came up from ${Math.round(heads[0].top)} to ${Math.round(heads[heads.length - 1].top)}, the row being at ${Math.round(lockRow?.y ?? 0)}`);
   await see('What other people can see');
   at('/lock');
   await shot('settings-lock', 500);
@@ -847,7 +858,29 @@ try {
   must((await page.getByText('Pagrin Limited').filter({ visible: true }).count()) === 1, 'In should keep the salary');
   must((await page.getByText('Ikeja Electric').filter({ visible: true }).count()) === 0, 'and drop what went out');
   await tap('All');
+  /* a line grows into its receipt in a few words, the rest receding; the full receipt arrives from the amount */
+  await button('Ikeja Electric').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);
+  const ikejaRow = await button('Ikeja Electric').boundingBox();
   await tap('Ikeja Electric');
+  const peeked = await trace('peek-open', 800, [['card', '[data-testid="peek-card"]']], { picture: { at: 120, name: 'peek-mid' } });
+  const cards = peeked.map(x => x.card).filter(Boolean);
+  must(
+    cards.length > 3 && cards[cards.length - 1].height > cards[0].height + 40,
+    `the card should grow out of the line (${Math.round(cards[0]?.height ?? 0)} to ${Math.round(cards[cards.length - 1]?.height ?? 0)})`,
+  );
+  must(Math.abs((cards[0]?.top ?? 0) - (ikejaRow?.y ?? 0)) < 6, 'and start where the line is');
+  await shot('peek', 300);
+  await tap('The full receipt');
+  const arrived = await trace('journey-receipt', 1200, [['amount', '[data-testid="amount"]']]);
+  const amounts = arrived.map(x => x.amount).filter(a => a && a.opacity > 0.01);
+  must(
+    amounts.length > 3 && amounts[0].top > amounts[amounts.length - 1].top + 40,
+    `the amount should travel up from the card (${Math.round(amounts[0]?.top ?? 0)} to ${Math.round(amounts[amounts.length - 1]?.top ?? 0)})`,
+  );
+  console.log(
+    `  the line grew from ${Math.round(cards[0].height)} to ${Math.round(cards[cards.length - 1].height)}, and the amount came up from ${Math.round(amounts[0].top)} to ${Math.round(amounts[amounts.length - 1].top)}`,
+  );
   await see('Copy the token');
   at('/receipt/l11');
   await tap('Set it up');
@@ -856,6 +889,7 @@ try {
   await see('Copy the token');
   await tap('Back');
   await see('Everything that moved');
+  must((await page.locator('[data-testid="peek"]').count()) === 0, 'the peek should be gone once its receipt is left');
   await tap('Sarah Adeyemi');
   await see('has its screen in round 3');
   await tap('More');

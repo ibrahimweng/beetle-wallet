@@ -30,8 +30,8 @@ export function LimitStop() {
           <Button label="Send ₦120,000" disabled={!st.done} onPress={looked('And it would go.')} />
         </BottomBar>
       }
+      head={<PageHead title="Past your own limit" sub="Nothing has been sent" />}
     >
-      <PageHead title="Past your own limit" sub="Nothing has been sent" />
       {/* the frame sets the banner 11 under the line, and the choice 16 under the card */}
       <View style={{ marginBottom: -8 }}>
         <BigStatus glyph="warn-filled" tone={colour.good} amount="₦120,000" line="₦20,000 over the ₦100,000 you set for one transfer" />

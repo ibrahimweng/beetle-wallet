@@ -9,6 +9,7 @@ import { Icon } from './Icon';
 import { IconName } from '../icons';
 import { colour } from './tokens';
 import { AnimatedPressable, Swap, useTap } from './motion';
+import { useDeparture } from './journey';
 
 export type ButtonTone = 'black' | 'grey' | 'white' | 'blue';
 export type ButtonSize = 40 | 44 | 48 | 56;
@@ -40,9 +41,12 @@ export function Button({
   style,
   disabled,
   badge = false,
+  to,
 }: {
   label: string;
   onPress?: () => void;
+  /** the page the button leads to: the screen recedes and the page arrives from the button */
+  to?: string;
   tone?: ButtonTone;
   size?: ButtonSize;
   leading?: IconName;
@@ -61,12 +65,14 @@ export function Button({
   /* It gives a little under the finger and springs back, so the press is
      answered before the screen it asks for arrives. */
   const tap = useTap();
+  const j = useDeparture({ id: `button:${label}`, to, words: label });
   return (
     <AnimatedPressable
+      ref={j.ref}
       accessibilityRole="button"
       accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}
-      onPress={onPress}
+      onPress={to ? j.onPress : onPress}
       onPressIn={tap.onPressIn}
       onPressOut={tap.onPressOut}
       style={[

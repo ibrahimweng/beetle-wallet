@@ -202,6 +202,10 @@
     {
       "text": "Ask about any of these",
       "why": "the ask bar's words are its placeholder, not text on the page"
+    },
+    {
+      "text": "History",
+      "why": "the page is titled Activities, as the bar and the day call it"
     }
   ],
   "answer": [

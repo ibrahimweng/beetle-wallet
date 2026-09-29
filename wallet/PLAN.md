@@ -154,6 +154,73 @@ History and Settings.
 Taps: More (1), History (2), a line (3) is a receipt. More (1), Settings (2),
 a row (3).
 
+## Round 2.5 · Continuity
+
+Fuse hardly ever pushes a page: the thing you tapped stays where it is,
+the rest recedes under a blur, and the next thing grows out of it. Where
+Beetle needs a page, the thread is kept: the thing you tapped lights and
+stays lit, the screen recedes, the next page's head arrives from the
+tapped thing's own place carrying its words, the body follows out of a
+blur, and on the way back the thing you left from pulses once.
+
+- [x] The kit (src/design/journey.tsx): the origin store, departures that
+      light and recede, arrivals that carry the words, the screen's own
+      recession, the pulse on the way back
+- [x] The peek: a line in the day or in Activities grows into its receipt
+      summary in place, the rest receding; The full receipt carries the
+      amount into the page
+- [x] The journeys: the mark and the bar to Settings and Activities, See
+      all, the card tile, the spend insight, the chat's receipt card,
+      Settings' rows to their pages, Passcode to the new one, Show me what
+      that looks like, Add an instruction, the receipt's offer
+- [x] The record's page titled Activities, as the bar and the day call it
+- [x] The walk traces a journey and the peek mid-motion; README; the check
+
+Done. The bar, the chat, the day, Activities and every Settings page lead
+away through src/design/journey.tsx; a screen opened from the lab or a
+link simply fades in.
+
+## Round 2.6 · What Beetle asks for before money moves
+
+A request that does not carry everything a transaction needs gets asked
+for the rest, in a panel in the chat with the fields it needs, pre-filled
+with what was said; a request naming someone or something paid before
+skips the asking. Then the confirm panel, the six-digit passcode, the
+receipt.
+
+- [ ] Questions first: one panel with the missing fields or one question
+      at a time; data by plan or typed amount
+- [ ] Knowledge: the networks by prefix (MTN, Airtel, Glo, 9mobile) and the
+      network shown as the number is typed; the discos (Ikeja, Eko, AEDC,
+      JED, KEDCO, IBEDC, EEDC, PHED, BEDC, KAEDCO, YEDC); prepaid or
+      postpaid and the meter number; data plans per network; a lookup that
+      returns the name on a meter; the beneficiaries kept per account —
+      people paid, numbers topped up, meters paid
+- [ ] The ask panel: amount, number with the network badge, plan chips,
+      meter with its kind and disco; a small line under it — Someone you
+      have paid before, A number you have topped up, A meter you have paid —
+      that blurs the screen and lists the recent ones (the peek); picking
+      one fills the panel and it processes
+- [ ] The scripted Beetle and the model's tools ask the same way, and take
+      a repeat
+- [ ] Lab places, the walk through each ask to the receipt, README
+
+## Round 2.7 · Back, always at the bottom left
+
+As Fuse does it: on a page that needs a way back, the plus goes, the pill
+with Home, Activities and Settings slides to the right, and Back slides in
+from the left edge at the bottom left, so Back is always in the same
+place — beside a confirmation button too.
+
+- [ ] A question first: the frames' inner pages carry Back and the ask bar
+      (and the plus on some); Fuse carries Back and the pill. Which does an
+      inner page's foot hold?
+- [ ] One foot for the whole app, in the root layout over the stack,
+      morphing with the route: the pill sliding, Back sliding in from the
+      left, the plus scaling away; the pages' own docks folding into it
+- [ ] The pages with a button at the foot keep Back beside it
+- [ ] The walk and the check updated
+
 ## Round 3 · Sending money, four taps
 
 - [ ] Send on the card, and Send money in the More sheet, open the send form

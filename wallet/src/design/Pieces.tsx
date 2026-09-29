@@ -15,6 +15,7 @@ import { Body, Caption, Display, Head, Label, Meta, Row, Title } from './text';
 import type { IconName } from '../icons';
 import { colour, radius } from './tokens';
 import { Tap, keys, useStill } from './motion';
+import { measure, useArrival, useDeparture, type Rect } from './journey';
 
 /* ---- a page's head with a glyph beside the title ---- */
 
@@ -22,16 +23,25 @@ import { Tap, keys, useStill } from './motion';
    and the line under both. The box and the title's box share the top of the
    column, so nothing is pulled up here the way the plain head is. */
 export function GlyphHead({ glyph, title, sub }: { glyph: IconName; title: string; sub: string }) {
+  /* opened from the bar, the glyph arrives from the bar's own; from words, the title carries them; otherwise the head fades in */
+  const a = useArrival();
+  const target = !a.from ? 'all' : a.from.words ? 'title' : 'glyph';
+  const box = (
+    <View style={s.box40} testID="head-glyph">
+      <Icon name={glyph} size={22} colour={colour.ink} />
+    </View>
+  );
+  const on = (which: string) => (target === which ? { ref: a.ref, onLayout: a.onLayout, style: a.style } : {});
   return (
-    <View style={{ gap: 8, marginBottom: -5 }}>
+    <Animated.View {...on('all')} style={[{ gap: 8, marginBottom: -5 }, target === 'all' ? a.style : null]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <View style={s.box40} testID="head-glyph">
-          <Icon name={glyph} size={22} colour={colour.ink} />
-        </View>
-        <Title>{title}</Title>
+        <Animated.View {...on('glyph')}>{box}</Animated.View>
+        <Animated.View {...on('title')}>
+          <Title>{title}</Title>
+        </Animated.View>
       </View>
       <Body tone="tertiary">{sub}</Body>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -144,9 +154,10 @@ export function Step({ n, done, children, right }: { n: number; done?: boolean; 
 
 /* One way out, on its own grey card: a glyph on a white 32 square, the title
    over its line, a chevron at the end, 62 tall. */
-export function ChoiceRow({ glyph, title, sub, onPress, testID }: { glyph: IconName; title: string; sub: string; onPress?: () => void; testID?: string }) {
+export function ChoiceRow({ glyph, title, sub, onPress, to, testID }: { glyph: IconName; title: string; sub: string; onPress?: () => void; to?: string; testID?: string }) {
+  const j = useDeparture({ id: `choice:${title}`, to, words: title });
   return (
-    <Tap accessibilityRole="button" accessibilityLabel={title} onPress={onPress} style={s.choice} testID={testID}>
+    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={title} onPress={to ? j.onPress : onPress} style={[s.choice, j.style]} testID={testID}>
       <View style={[s.box32, { backgroundColor: colour.surface }]}>
         <Icon name={glyph} size={16} colour={colour.ink} />
       </View>
@@ -268,6 +279,8 @@ export function HistoryRow({
   amount,
   status = false,
   onPress,
+  onOpen,
+  journey,
 }: {
   glyph: IconName;
   tone?: string;
@@ -276,9 +289,21 @@ export function HistoryRow({
   amount: string;
   status?: boolean;
   onPress?: () => void;
+  /** opened in place: given where the row is, so the detail can grow out of it */
+  onOpen?: (at: Rect) => void;
+  /** the row's id on a journey, so it pulses when its receipt is left */
+  journey?: string;
 }) {
+  const j = useDeparture({ id: journey ?? `row:${name}` });
   return (
-    <Tap accessibilityRole="button" accessibilityLabel={name} onPress={onPress} style={status ? s.statusRow : s.doneRow} testID={status ? 'status-row' : 'done-row'}>
+    <Tap
+      ref={j.ref}
+      accessibilityRole="button"
+      accessibilityLabel={name}
+      onPress={() => (onOpen ? void measure(j.ref).then(onOpen) : onPress?.())}
+      style={[status ? s.statusRow : s.doneRow, j.style]}
+      testID={status ? 'status-row' : 'done-row'}
+    >
       {status ? (
         <Icon name={glyph} size={28} colour={tone ?? colour.ink} />
       ) : (
@@ -298,9 +323,10 @@ export function HistoryRow({
 
 /* ---- a grey pill with a glyph and a few words ---- */
 
-export function PillRow({ glyph, label, onPress, testID }: { glyph: IconName; label: string; onPress?: () => void; testID?: string }) {
+export function PillRow({ glyph, label, onPress, to, testID }: { glyph: IconName; label: string; onPress?: () => void; to?: string; testID?: string }) {
+  const j = useDeparture({ id: `pill:${label}`, to, words: label });
   return (
-    <Tap accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={s.pill} testID={testID}>
+    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={label} onPress={to ? j.onPress : onPress} style={s.pill} testID={testID}>
       <Icon name={glyph} size={18} colour={colour.ink} />
       <Label>{label}</Label>
     </Tap>
@@ -396,8 +422,8 @@ const s = StyleSheet.create({
   segments: { flexDirection: 'row', alignSelf: 'center', padding: 4, gap: 4, borderRadius: 24, backgroundColor: colour.surface2 },
   segment: { height: 40, paddingHorizontal: 24, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   segmentOn: { backgroundColor: colour.surface },
-  statusRow: { flexDirection: 'row', alignItems: 'center', height: 64, paddingLeft: 5, gap: 16 },
-  doneRow: { flexDirection: 'row', alignItems: 'center', height: 70, gap: 12 },
+  statusRow: { flexDirection: 'row', alignItems: 'center', height: 64, paddingLeft: 5, gap: 16, borderRadius: 16 },
+  doneRow: { flexDirection: 'row', alignItems: 'center', height: 70, gap: 12, borderRadius: 16 },
   pill: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, height: 48, borderRadius: radius.pill, backgroundColor: colour.surface2 },
   face: { borderRadius: radius.card, padding: 20, gap: 16, height: 194 },
   faceMark: { width: 24, height: 24, borderRadius: 7, backgroundColor: colour.surface, alignItems: 'center', justifyContent: 'center' },

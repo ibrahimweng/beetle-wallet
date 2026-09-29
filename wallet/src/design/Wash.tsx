@@ -36,12 +36,7 @@ export function Wash({ tone, height = 220 }: { tone: string; height?: number }) 
       />
       {/* the ellipse is narrower than the phone, so the corners keep less colour */}
       <LinearGradient
-        colors={[
-          'rgba(255,255,255,0.34)',
-          'rgba(255,255,255,0)',
-          'rgba(255,255,255,0)',
-          'rgba(255,255,255,0.34)',
-        ]}
+        colors={['rgba(255,255,255,0.34)', 'rgba(255,255,255,0)', 'rgba(255,255,255,0)', 'rgba(255,255,255,0.34)']}
         locations={[0, 0.3, 0.7, 1]}
         start={{ x: 0, y: 0.5 }}
         end={{ x: 1, y: 0.5 }}

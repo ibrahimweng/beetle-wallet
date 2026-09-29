@@ -6,7 +6,7 @@
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Body, Button, Caption, Card, Dock, Head, Icon, Label, Meta, Receipt, Screen, Tap, colour, toast } from '../../design';
+import { Body, Button, Caption, Card, Dock, Head, Icon, Label, Meta, Receipt, Screen, Tap, colour, toast, Arrive, useDeparture } from '../../design';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { holdingsFor } from '../home/account';
@@ -59,12 +59,16 @@ export function ReceiptScreen({ id }: { id: string }) {
   const later = (what: string) => () => toast(`${what} comes with round 7.`);
   return (
     <>
-      <Screen dock={dock}>
-        {/* the frame's head: the title, 8, the day and the time, and 24 to the amount */}
-        <View style={{ gap: 8, marginBottom: 4 }}>
-          <Head>{receipt.head}</Head>
-          <Body tone="tertiary">{receipt.when}</Body>
-        </View>
+      <Screen
+        dock={dock}
+        head={
+          /* the frame's head: the title, 8, the day and the time, and 24 to the amount; the amount is what travels here, so the head only fades in */
+          <Arrive carry={false} style={{ gap: 8, marginBottom: 4 }}>
+            <Head>{receipt.head}</Head>
+            <Body tone="tertiary">{receipt.when}</Body>
+          </Arrive>
+        }
+      >
         <Receipt
           amount={naira(receipt.amount)}
           line={receipt.line}
@@ -78,7 +82,7 @@ export function ReceiptScreen({ id }: { id: string }) {
           head={receipt.token ? <Token token={receipt.token} onCopy={() => void copy(receipt.token ?? '', 'The token')} /> : undefined}
         />
         <Button label="Share receipt" leading="share" badge onPress={() => setSharing(true)} />
-        <Nudge text={receipt.nudge.text} action={receipt.nudge.action} onPress={() => router.push({ pathname: '/rule', params: { offer: receipt.kind === 'in' ? 'salary' : 'ikeja' } })} />
+        <Nudge text={receipt.nudge.text} action={receipt.nudge.action} to={`/rule?offer=${receipt.kind === 'in' ? 'salary' : 'ikeja'}`} />
         <Tap accessibilityRole="button" accessibilityLabel={receipt.wrong} onPress={later('What went wrong')} style={s.wrong}>
           <Label tone="accent">{receipt.wrong}</Label>
           <Icon name="chevron" size={12} colour={colour.accent} />
@@ -102,12 +106,13 @@ function Token({ token, onCopy }: { token: string; onCopy: () => void }) {
 }
 
 /* What Beetle offers under the slip: its mark, a line, and a chip to take it up. */
-function Nudge({ text, action, onPress }: { text: string; action: string; onPress: () => void }) {
+function Nudge({ text, action, to }: { text: string; action: string; to: string }) {
+  const j = useDeparture({ id: 'nudge', to, words: action });
   return (
     <Card style={s.nudge} testID="nudge">
       <Icon name="mark" size={32} colour={colour.accent} />
       <Meta style={{ flex: 1 }}>{text}</Meta>
-      <Tap accessibilityRole="button" accessibilityLabel={action} onPress={onPress} style={s.chip}>
+      <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={action} onPress={j.onPress} style={s.chip}>
         <Label>{action}</Label>
         <Icon name="chevron" size={12} colour={colour.ink} />
       </Tap>

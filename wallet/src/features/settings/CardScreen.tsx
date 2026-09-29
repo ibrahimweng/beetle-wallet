@@ -62,8 +62,7 @@ export function CardScreen() {
   const left = CARD.ceiling - CARD.spent;
   return (
     <View style={{ flex: 1 }}>
-      <Screen dock={dock}>
-        <PageHead lead title="Virtual card" sub="Made for one merchant, with its own limit" />
+      <Screen dock={dock} head={<PageHead lead title="Virtual card" sub="Made for one merchant, with its own limit" />}>
         <View style={{ gap: 12 }}>
           <CardFace only={CARD.only} number={shown ? CARD.full : CARD.hidden} name={`${account.firstName} ${account.lastName}`.toUpperCase()} expiry={CARD.expiry} frozen={prefs.cardFrozen} />
           <Tools

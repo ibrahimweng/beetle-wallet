@@ -43,8 +43,7 @@ export function Rules() {
     );
   return (
     <View style={{ flex: 1 }}>
-      <Screen dock={dock}>
-        <PageHead lead title="Standing instructions" sub="What I can do without asking you first" />
+      <Screen dock={dock} head={<PageHead lead title="Standing instructions" sub="What I can do without asking you first" />}>
         <View style={{ gap: 12 }}>
           <Card style={s.tight} testID="tight">
             <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
@@ -91,7 +90,7 @@ export function Rules() {
               Taking a loan on your behalf
             </NoteRow>
           </View>
-          <PillRow glyph="plus" label="Add an instruction" onPress={() => router.push('/rule')} />
+          <PillRow glyph="plus" label="Add an instruction" to="/rule" />
         </View>
       </Screen>
       {sheet}

@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Constants from 'expo-constants';
-import { Card, Dock, Icon, Meta, Row, Screen, SectionLabel, SettingRow, Tap, Title, colour, toast } from '../../design';
+import { Arrive, Card, Dock, Icon, Meta, Row, Screen, SectionLabel, SettingRow, Tap, Title, colour, toast } from '../../design';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { askHome } from '../more/More';
@@ -26,7 +26,6 @@ export function Settings() {
   if (!ok || !account) return null;
 
   const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
-  const go = (path: string) => () => router.push(path as never);
   const ask = (q: string) => () => askHome(router, q);
   const signOut = () => void app.signOut().then(() => router.replace('/way-in'));
   const section = (label: string, rows: React.ReactNode) => (
@@ -40,8 +39,12 @@ export function Settings() {
     <>
       <Screen
         dock={<Dock placeholder="Ask me to change something" onBack={() => router.back()} onAsk={q => router.push({ pathname: '/home', params: { say: q } })} onScan={() => router.push('/scan')} />}
+        head={
+          <Arrive style={{ marginBottom: 4 }}>
+            <Title>Settings</Title>
+          </Arrive>
+        }
       >
-        <Title style={{ marginBottom: 4 }}>Settings</Title>
         <Tap accessibilityRole="button" accessibilityLabel="Get Beetle Plus" onPress={ask('What does Beetle Plus give me?')} testID="plus">
           <Card outline style={s.plus}>
             <View style={s.plusMark}>
@@ -61,11 +64,11 @@ export function Settings() {
           {section(
             'What keeps the money yours',
             <>
-              <SettingRow glyph="faceid-filled" ink={colour.accent} title="Lock and privacy" value={prefs.faceId ? 'Face ID' : 'Passcode'} onPress={go('/lock')} />
-              <SettingRow glyph="shield-filled" ink={colour.good} title="Spending limits" value="₦100,000 a day" onPress={go('/limits')} />
-              <SettingRow glyph="list-filled" ink={colour.violet} title="Standing instructions" value={`${rulesRunning(prefs)} running`} onPress={go('/rules')} />
-              <SettingRow glyph="laptop-filled" title="Devices" value={prefs.othersSignedOut ? '1 signed in' : '3 signed in'} onPress={go('/devices')} />
-              <SettingRow glyph="key-filled" title="Keys and recovery" value="Set up" onPress={go('/lostphone')} />
+              <SettingRow glyph="faceid-filled" ink={colour.accent} title="Lock and privacy" value={prefs.faceId ? 'Face ID' : 'Passcode'} to="/lock" />
+              <SettingRow glyph="shield-filled" ink={colour.good} title="Spending limits" value="₦100,000 a day" to="/limits" />
+              <SettingRow glyph="list-filled" ink={colour.violet} title="Standing instructions" value={`${rulesRunning(prefs)} running`} to="/rules" />
+              <SettingRow glyph="laptop-filled" title="Devices" value={prefs.othersSignedOut ? '1 signed in' : '3 signed in'} to="/devices" />
+              <SettingRow glyph="key-filled" title="Keys and recovery" value="Set up" to="/lostphone" />
             </>,
           )}
           {section(
@@ -74,7 +77,7 @@ export function Settings() {
               <SettingRow glyph="person-filled" ink={colour.accent} title="Your details" onPress={() => setDetails(true)} />
               <SettingRow glyph="bell-filled" ink={colour.warn} title="Notifications" onPress={() => toast('Notifications have no frame yet; what they carry is set under Lock and privacy.')} />
               <SettingRow glyph="gift-filled" title="Saved people" onPress={later('Saved people', 3)} />
-              <SettingRow glyph="card-filled" title="Cards" value="1 virtual" onPress={go('/card')} />
+              <SettingRow glyph="card-filled" title="Cards" value="1 virtual" to="/card" />
             </>,
           )}
           {section(

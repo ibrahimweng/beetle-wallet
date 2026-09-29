@@ -49,8 +49,7 @@ export function Rule() {
     router.dismissTo('/rules');
   };
   return (
-    <Screen>
-      <PageHead title="Set this up?" sub="Nothing is saved until you say yes" />
+    <Screen head={<PageHead title="Set this up?" sub="Nothing is saved until you say yes" />}>
       <Card style={{ paddingTop: 8, paddingBottom: 4, paddingHorizontal: 16, gap: 0 }} testID="facts">
         <Facts rows={offer.facts} />
       </Card>

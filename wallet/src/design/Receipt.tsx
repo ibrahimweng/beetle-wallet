@@ -10,6 +10,7 @@ import React, { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Icon } from './Icon';
 import { Caption, Display, Label, Meta, Row } from './text';
+import { Arrive } from './journey';
 import { Card } from './Screen';
 import { colour, space } from './tokens';
 import { Tap } from './motion';
@@ -138,7 +139,9 @@ export function Receipt({
           <Icon name="check" size={24} colour={colour.textInverse} />
         </View>
         <View style={{ flex: 1 }}>
-          <Display tone={good ? 'good' : 'ink'}>{amount}</Display>
+          <Arrive testID="amount">
+            <Display tone={good ? 'good' : 'ink'}>{amount}</Display>
+          </Arrive>
           <Meta tone="secondary">{line}</Meta>
         </View>
         <Pill testID="receipt-status">{status}</Pill>

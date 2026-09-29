@@ -27,11 +27,10 @@ export function Lock() {
     );
   const nextWait = () => set({ askAfter: ASK_AGAIN[(ASK_AGAIN.indexOf(prefs.askAfter) + 1) % ASK_AGAIN.length] ?? ASK_AGAIN[0]! });
   return (
-    <Screen dock={dock}>
-      <PageHead lead title="Lock and privacy" sub="What it takes to open this, and what shows once it is open" />
+    <Screen dock={dock} head={<PageHead lead title="Lock and privacy" sub="What it takes to open this, and what shows once it is open" />}>
       <Card style={s.group} testID="open-with">
         <ToggleRow glyph="faceid-filled" ink={colour.accent} title="Face ID" value={prefs.faceId} onChange={v => set({ faceId: v })} />
-        <SettingRow glyph="key-filled" title="Passcode" value="6 digits" onPress={() => router.push('/newcode')} />
+        <SettingRow glyph="key-filled" title="Passcode" value="6 digits" to="/newcode" />
         <SettingRow glyph="clock-filled" title="Ask again after" value={prefs.askAfter} onPress={nextWait} />
       </Card>
       {/* the frame puts 16 under the first card, not the column's 20 */}

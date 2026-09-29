@@ -1,13 +1,15 @@
 /* The receipt in the chat, on the dark card, in a few words: the amount,
    who it went to, when, and that it went through. A tap opens the full one. */
-import React from 'react';
+import React, { useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Caption, Head, Icon, Label, Meta, Tap, colour, dark } from '../../design';
+import { Caption, Head, Icon, Label, Meta, Tap, colour, dark, useDeparture } from '../../design';
 import type { ReceiptCard as Card } from './conversation';
 
-export function ReceiptCard({ card, onPress }: { card: Card; onPress?: () => void }) {
+export function ReceiptCard({ card, to }: { card: Card; to: string }) {
+  const amount = useRef<View>(null);
+  const j = useDeparture({ id: `chat-receipt:${card.rowId}`, to, words: card.amount, anchor: amount });
   return (
-    <Tap accessibilityRole="button" accessibilityLabel="Receipt" onPress={onPress} style={s.card} testID="receipt-card">
+    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel="Receipt" onPress={j.onPress} style={s.card} testID="receipt-card">
       <View style={s.head}>
         <View style={s.disc}>
           <Icon name="receipt" size={16} colour="#ffffff" />
@@ -19,7 +21,7 @@ export function ReceiptCard({ card, onPress }: { card: Card; onPress?: () => voi
         </View>
       </View>
       <View style={s.body}>
-        <View style={{ flex: 1, gap: 2 }}>
+        <View ref={amount} style={{ flex: 1, gap: 2 }}>
           <Head style={{ color: '#ffffff' }}>{card.amount}</Head>
           <Meta style={{ color: dark.text }}>{card.line}</Meta>
         </View>

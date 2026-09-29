@@ -34,8 +34,7 @@ export function Limits() {
   const left = Math.max(0, CAPS.day - out);
   const cap = (what: string) => () => askHome(router, `Change the cap for ${what}`);
   return (
-    <Screen dock={dock}>
-      <PageHead lead title="Spending limits" sub="What you set, and where today stands" />
+    <Screen dock={dock} head={<PageHead lead title="Spending limits" sub="What you set, and where today stands" />}>
       <Card style={{ paddingVertical: 16, paddingHorizontal: 16 }} testID="usage">
         <Usage out={naira(out)} of={naira(CAPS.day)} pct={(out / CAPS.day) * 100} note={`${naira(left)} left before I stop and ask you twice.`} />
       </Card>
@@ -58,7 +57,7 @@ export function Limits() {
           </NoteRow>
           <Meta tone="secondary">Two deliberate things, so a bad minute cannot carry you past a line you drew on a good one.</Meta>
         </View>
-        <Button label="Show me what that looks like" tone="grey" size={48} trailing="chevron" onPress={() => router.push('/limitstop')} />
+        <Button label="Show me what that looks like" tone="grey" size={48} trailing="chevron" to="/limitstop" />
       </Card>
       <View style={{ marginTop: -4 }}>
         <Aside glyph="clock">Raising a cap takes a day to come into force. Lowering one is immediate. That way nobody talks you into a bigger number in the moment.</Aside>

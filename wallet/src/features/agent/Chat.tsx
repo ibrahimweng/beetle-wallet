@@ -19,7 +19,6 @@ export function Chat({
   top = 0,
   bottom = 8,
   confirm,
-  onReceipt,
 }: {
   talk: Conversation;
   active: boolean;
@@ -31,7 +30,6 @@ export function Chat({
       the passcode; the conversation's own confirm otherwise */
   confirm?: (panelId: string) => void;
   /** a receipt card tapped: the full receipt */
-  onReceipt?: (rowId: string) => void;
 }) {
   const list = useRef<ScrollView>(null);
   const count = talk.turns.length + (talk.thinking ? 1 : 0);
@@ -84,7 +82,7 @@ export function Chat({
           const card = t.block.card;
           body = (
             <View style={{ marginRight: PANEL_INSET }}>
-              <ReceiptCard card={card} onPress={() => onReceipt?.(card.rowId)} />
+              <ReceiptCard card={card} to={`/receipt/${card.rowId}`} />
             </View>
           );
         } else {

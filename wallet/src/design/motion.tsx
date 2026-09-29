@@ -15,8 +15,8 @@
    while JavaScript is busy putting the next one together. (No DOM animation
    library can be used here: on a phone there are no DOM nodes to animate.) */
 import React, { ReactNode, useCallback, useEffect, useState } from 'react';
-import { GestureResponderEvent, Platform, Pressable, PressableProps, StyleProp, ViewStyle } from 'react-native';
-import Animated, { Easing, runOnJS, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
+import { GestureResponderEvent, Platform, Pressable, PressableProps, StyleProp, View, ViewStyle } from 'react-native';
+import Animated, { AnimatedStyle, Easing, runOnJS, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 
 export const motion = {
   /** A press landing. */
@@ -313,10 +313,11 @@ export const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 /* Anything you can tap. A drop-in for Pressable that dips under the finger
    and springs back, so the press is answered before whatever it asks for
    arrives. Use it wherever a tap leads somewhere. */
-export function Tap({ style, scale, children, ...rest }: PressableProps & { scale?: number; style?: StyleProp<ViewStyle> }) {
+export function Tap({ style, scale, children, ref, ...rest }: PressableProps & { scale?: number; style?: StyleProp<AnimatedStyle<ViewStyle>>; ref?: React.Ref<View> }) {
   const tap = useTap(scale);
   return (
     <AnimatedPressable
+      ref={ref}
       {...rest}
       onPressIn={(e: GestureResponderEvent) => {
         tap.onPressIn();

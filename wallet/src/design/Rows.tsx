@@ -10,6 +10,7 @@ import { Body, Meta, Row } from './text';
 import type { IconName } from '../icons';
 import { colour } from './tokens';
 import { Tap, keys, useStill } from './motion';
+import { useDeparture } from './journey';
 
 export function SectionLabel({ children }: { children: string }) {
   return <Body tone="tertiary">{children}</Body>;
@@ -21,6 +22,7 @@ export function SettingRow({
   title,
   value,
   onPress,
+  to,
   testID,
 }: {
   glyph: IconName;
@@ -29,10 +31,13 @@ export function SettingRow({
   title: string;
   value?: string;
   onPress?: () => void;
+  /** the page the row leads to: the row lights, the page arrives from it, and it pulses on the way back */
+  to?: string;
   testID?: string;
 }) {
+  const j = useDeparture({ id: `row:${title}`, to, words: title });
   return (
-    <Tap accessibilityRole="button" accessibilityLabel={title} onPress={onPress} style={s.row} testID={testID}>
+    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={title} onPress={to ? j.onPress : onPress} style={[s.row, j.style]} testID={testID}>
       <Icon name={glyph} size={28} colour={ink ?? colour.ink} />
       <Row style={{ flex: 1 }}>{title}</Row>
       {value ? <Meta tone="secondary">{value}</Meta> : null}
@@ -74,7 +79,7 @@ export function ToggleRow({ glyph, ink, title, value, onChange, testID }: { glyp
 }
 
 const s = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', height: 64, paddingLeft: 4, gap: 16 },
+  row: { flexDirection: 'row', alignItems: 'center', height: 64, paddingLeft: 4, gap: 16, borderRadius: 16 },
   track: { width: 52, height: 32, borderRadius: 16, padding: 3 },
   knob: { width: 26, height: 26, borderRadius: 13, backgroundColor: colour.surface },
 });

@@ -59,6 +59,10 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { CLOSED_H, FOOT_BAND, WalletCard, useCardDrag, useCardTop } from './WalletCard';
 import { Bar, BAR_H } from '../more/Bar';
 import { More, moreTo, type MoreItem } from '../more/More';
+import { ReceiptPeek } from '../receipts/Peek';
+import { receiptFor } from '../receipts/receipts';
+import { JourneyProvider, useDeparture, useRecession, type Rect } from '../../design/journey';
+import type { ReceiptCard as Card } from '../agent/conversation';
 import { chatPointedOut, markChatPointedOut } from './first';
 import { groupAccount, kobo, naira, signed } from '../../lib/format';
 
@@ -74,6 +78,14 @@ type Filter = 'All' | 'Insights' | 'In' | 'Out' | 'Chats';
 const FILTERS: Filter[] = ['All', 'Insights', 'In', 'Out', 'Chats'];
 
 export function Home() {
+  return (
+    <JourneyProvider>
+      <HomeScreen />
+    </JourneyProvider>
+  );
+}
+
+function HomeScreen() {
   const router = useRouter();
   const app = useApp();
   const ok = useSessionGuard();
@@ -83,6 +95,12 @@ export function Home() {
   const asked = useLocalSearchParams<{ chat?: string; receive?: string; say?: string; about?: string; send?: string; more?: string }>();
   /** the More sheet over everything, from the bar's plus */
   const [more, setMore] = useState(false);
+  /** a line's receipt in a few words, grown out of the line */
+  const [peek, setPeek] = useState<{ card: Card; at: Rect } | null>(null);
+  const receding = useRecession();
+  const seeAll = useDeparture({ id: 'see-all', to: '/activities', words: 'Activities' });
+  /* back from a receipt: the peek it was opened from has done its job */
+  useFocusEffect(useCallback(() => setPeek(null), []));
 
   const [filter, setFilter] = useState<Filter>('All');
   const [put, setPut] = useState<string[]>([]);
@@ -551,6 +569,10 @@ export function Home() {
   if (!ok || !app.session || !h || !account) return null;
   const ledger = [...moves, ...h.ledger];
   const away = (k: string) => setPut(p => [...p, k]);
+  const cardFor = (r: (typeof ledger)[number]): Card => {
+    const rc = receiptFor(r, { account, balanceNow: balance, rows: ledger });
+    return { rowId: r.id, amount: naira(rc.amount), line: rc.line, status: rc.status, time: r.time };
+  };
   const rows = (day: 'today' | 'yesterday', from = 0, to = 99) =>
     filter === 'Chats'
       ? []
@@ -564,7 +586,8 @@ export function Home() {
               detail={`${r.detail}${r.detail.includes(':') ? '' : ` · ${r.time}`}`}
               amount={signed(r.amount)}
               good={r.amount > 0}
-              onPress={() => router.push(`/receipt/${r.id}`)}
+              journey={`row:${r.id}`}
+              onOpen={at => setPeek({ card: cardFor(r), at })}
             />
           ));
   const insight = (id: string, extra?: { onDismiss?: boolean }) => {
@@ -576,7 +599,8 @@ export function Home() {
         kicker={i.kicker}
         body={i.body}
         action={i.action}
-        onAction={() => (id === 'spend' ? router.push('/answer') : askFor(i.action))}
+        to={id === 'spend' ? '/answer' : undefined}
+        onAction={() => askFor(i.action)}
         onDismiss={extra?.onDismiss ? () => away(id) : undefined}
       />
     );
@@ -600,10 +624,10 @@ export function Home() {
     <View style={{ gap: space.s2 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', height: 28 }}>
         <Head style={{ flex: 1 }}>Activities</Head>
-        <Pressable accessibilityRole="button" onPress={() => router.push('/activities')} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+        <Tap ref={seeAll.ref} accessibilityRole="button" onPress={seeAll.onPress} style={[{ flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 8 }, seeAll.style]}>
           <Label style={{ color: colour.accentDeep }}>See all</Label>
           <Icon name="chevron" size={12} colour={colour.accentDeep} />
-        </Pressable>
+        </Tap>
       </View>
       <Meta tone={empty ? 'tertiary' : 'secondary'}>{sub}</Meta>
     </View>
@@ -618,180 +642,182 @@ export function Home() {
     <View style={{ flex: 1, backgroundColor: colour.surface }}>
       {/* the card at the top is black, so the clock and the battery go light here */}
       <StatusBar style="light" />
-      <Animated.ScrollView
-        ref={page}
-        onScroll={onScroll}
-        scrollEventThrottle={16}
-        scrollEnabled={!opened}
-        bounces={false}
-        overScrollMode="never"
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingBottom: BAR_H + 16 }}
-      >
-        <Pane style={{ gap: 0 }}>
-          <WalletCard
-            open={open}
-            openH={openH}
-            scrollY={scrollY}
-            onSettle={to => {
-              if (to === openedRef.current) return;
-              if (to) {
-                setOpened(true);
-                begin();
-              } else show(false);
-            }}
-            whole={naira(balance)}
-            kobo={kobo(balance)}
-            dollars={`~ ${Math.round(balance / rate).toLocaleString('en-NG')} USD`}
-            hint={hint}
-            onSend={sendIn}
-            onReceive={openDetails}
-            onSettings={() => router.push('/settings')}
-            onNew={startNew}
-            flash={flash}
-            onDollars={() => askFor('What about dollars?')}
-            chat={<Chat talk={talk} active={opened} top={haze + 8} bottom={FOOT_BAND - 8} confirm={confirmWithPasscode} onReceipt={id => router.push(`/receipt/${id}`)} />}
-            over={
-              details && account ? (
-                <ReceivePane
-                  account={account}
-                  onDone={closeDetails}
-                  onPretend={() => {
-                    closeDetails();
-                    setTimeout(() => arriveRef.current(SAMPLE_ARRIVAL), 1400);
-                  }}
-                />
-              ) : undefined
-            }
-            foot={<AskBar ref={input} value={draft} onChange={setDraft} onSubmit={send} onCamera={toCamera} />}
-          />
-          <View
-            style={{
-              paddingHorizontal: frame.sidePad,
-              paddingTop: 32,
-              gap: frame.columnGap,
-            }}
-          >
-            {empty ? (
-              <>
-                {dayHead('Nothing to notice yet.')}
-                {chips}
-                <Animated.View style={[{ gap: frame.columnGap }, dayStyle]}>
-                  {todayChats.length ? (
-                    <>
+      {/* everything that recedes when something here leads away; the sheets over it stay sharp */}
+      <Animated.View style={[{ flex: 1 }, receding]}>
+        <Animated.ScrollView
+          ref={page}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          scrollEnabled={!opened}
+          bounces={false}
+          overScrollMode="never"
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: BAR_H + 16 }}
+        >
+          <Pane style={{ gap: 0 }}>
+            <WalletCard
+              open={open}
+              openH={openH}
+              scrollY={scrollY}
+              onSettle={to => {
+                if (to === openedRef.current) return;
+                if (to) {
+                  setOpened(true);
+                  begin();
+                } else show(false);
+              }}
+              whole={naira(balance)}
+              kobo={kobo(balance)}
+              dollars={`~ ${Math.round(balance / rate).toLocaleString('en-NG')} USD`}
+              hint={hint}
+              onSend={sendIn}
+              onReceive={openDetails}
+              onNew={startNew}
+              flash={flash}
+              onDollars={() => askFor('What about dollars?')}
+              chat={<Chat talk={talk} active={opened} top={haze + 8} bottom={FOOT_BAND - 8} confirm={confirmWithPasscode} />}
+              over={
+                details && account ? (
+                  <ReceivePane
+                    account={account}
+                    onDone={closeDetails}
+                    onPretend={() => {
+                      closeDetails();
+                      setTimeout(() => arriveRef.current(SAMPLE_ARRIVAL), 1400);
+                    }}
+                  />
+                ) : undefined
+              }
+              foot={<AskBar ref={input} value={draft} onChange={setDraft} onSubmit={send} onCamera={toCamera} />}
+            />
+            <View
+              style={{
+                paddingHorizontal: frame.sidePad,
+                paddingTop: 32,
+                gap: frame.columnGap,
+              }}
+            >
+              {empty ? (
+                <>
+                  {dayHead('Nothing to notice yet.')}
+                  {chips}
+                  <Animated.View style={[{ gap: frame.columnGap }, dayStyle]}>
+                    {todayChats.length ? (
+                      <>
+                        <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
+                          Today
+                        </Meta>
+                        <View style={{ gap: 34 }}>{todayChats}</View>
+                      </>
+                    ) : filter === 'Chats' ? (
+                      <Meta tone="tertiary">No chats yet. Pull the card down to start one.</Meta>
+                    ) : null}
+                    {filter === 'Chats' ? null : (
+                      <>
+                        <Tile
+                          onPress={later('Ways to be paid', 4)}
+                          lead={
+                            <View
+                              style={{
+                                width: 48,
+                                height: 48,
+                                borderRadius: 24,
+                                backgroundColor: colour.ink,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <Head tone="inverse">₦</Head>
+                            </View>
+                          }
+                          title="Nothing has moved yet"
+                          sub="Your first transfer shows up here"
+                        />
+                        <View style={{ alignSelf: 'center', marginTop: 4 }}>
+                          <Button label="Receive" leading="receive-filled" badge size={40} full={false} onPress={openDetails} />
+                        </View>
+                      </>
+                    )}
+                  </Animated.View>
+                </>
+              ) : (
+                <>
+                  {dayHead('What I noticed, and every naira that moved.')}
+                  {chips}
+                  <Animated.View style={[{ gap: frame.columnGap }, dayStyle]}>
+                    <View style={{ gap: 8 }}>
                       <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
                         Today
                       </Meta>
-                      <View style={{ gap: 34 }}>{todayChats}</View>
-                    </>
-                  ) : filter === 'Chats' ? (
-                    <Meta tone="tertiary">No chats yet. Pull the card down to start one.</Meta>
-                  ) : null}
-                  {filter === 'Chats' ? null : (
-                    <>
-                      <Tile
-                        onPress={later('Ways to be paid', 4)}
-                        lead={
-                          <View
-                            style={{
-                              width: 48,
-                              height: 48,
-                              borderRadius: 24,
-                              backgroundColor: colour.ink,
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
-                          >
-                            <Head tone="inverse">₦</Head>
-                          </View>
-                        }
-                        title="Nothing has moved yet"
-                        sub="Your first transfer shows up here"
-                      />
-                      <View style={{ alignSelf: 'center', marginTop: 4 }}>
-                        <Button label="Receive" leading="receive-filled" badge size={40} full={false} onPress={openDetails} />
-                      </View>
-                    </>
-                  )}
-                </Animated.View>
-              </>
-            ) : (
-              <>
-                {dayHead('What I noticed, and every naira that moved.')}
-                {chips}
-                <Animated.View style={[{ gap: frame.columnGap }, dayStyle]}>
-                  <View style={{ gap: 8 }}>
-                    <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
-                      Today
-                    </Meta>
-                    {h.health !== null && filter !== 'Chats' ? <ScoreRow score={h.health} title="Money health" sub={h.healthMove} onPress={later('Money health', 6)} /> : null}
-                  </View>
-                  {todayChats.length ? <View style={{ gap: 34 }}>{todayChats}</View> : filter === 'Chats' ? <Meta tone="tertiary">No chats yet. Pull the card down to start one.</Meta> : null}
-                  {insight('topup', { onDismiss: true })}
-                  <View style={{ gap: 34 }}>{rows('today', 0, 4)}</View>
-                  {insight('data')}
-                  <View style={{ gap: 34 }}>{rows('today', 4)}</View>
-                  {insight('changes')}
-                  {h.ledger.length && filter !== 'Chats' ? (
-                    <>
-                      <Meta tone="secondary">Yesterday</Meta>
-                      <Tile onPress={() => router.push('/card')} plain go lead={<Mark glyph="card" />} title="Your card is ready" sub="Spend online anywhere" />
-                      <View style={{ gap: 34 }}>{rows('yesterday', 0, 2)}</View>
-                      {insight('spend')}
-                      <View style={{ gap: 34 }}>{rows('yesterday', 2)}</View>
-                    </>
-                  ) : null}
-                  {h.footer && filter !== 'Chats' ? <Meta tone="tertiary">{h.footer}</Meta> : null}
-                </Animated.View>
-              </>
-            )}
-          </View>
-        </Pane>
-      </Animated.ScrollView>
-
-      {/* the day below the open card: a tap on it, or a push up, brings the card back up */}
-      {opened ? (
-        <Animated.View style={[{ position: 'absolute', left: 0, right: 0, bottom: 0 }, veilStyle]}>
-          <GestureDetector gesture={veilGesture}>
-            <View accessibilityRole="button" accessibilityLabel="Back to the day" style={{ flex: 1 }}>
-              {/* the shortcuts under the chips: each hands its thing to the chat
-                  above; a push up that starts on one still closes the card */}
-              <Animated.View
-                style={[
-                  {
-                    position: 'absolute',
-                    left: frame.sidePad,
-                    right: frame.sidePad,
-                    top: SHORTCUTS_TOP,
-                    height: SHORTCUTS_H,
-                  },
-                  shortcutsStyle,
-                ]}
-              >
-                <Shortcuts
-                  items={[
-                    {
-                      glyph: 'power',
-                      label: 'Bills',
-                      onPress: () => askFor('Top up my light'),
-                    },
-                    {
-                      glyph: 'data',
-                      label: 'Data',
-                      onPress: () => askFor('Buy data'),
-                    },
-                    { glyph: 'down', label: 'Receive', onPress: openDetails },
-                    { glyph: 'camera', label: 'Photo', onPress: toCamera },
-                  ]}
-                />
-              </Animated.View>
+                      {h.health !== null && filter !== 'Chats' ? <ScoreRow score={h.health} title="Money health" sub={h.healthMove} onPress={later('Money health', 6)} /> : null}
+                    </View>
+                    {todayChats.length ? <View style={{ gap: 34 }}>{todayChats}</View> : filter === 'Chats' ? <Meta tone="tertiary">No chats yet. Pull the card down to start one.</Meta> : null}
+                    {insight('topup', { onDismiss: true })}
+                    <View style={{ gap: 34 }}>{rows('today', 0, 4)}</View>
+                    {insight('data')}
+                    <View style={{ gap: 34 }}>{rows('today', 4)}</View>
+                    {insight('changes')}
+                    {h.ledger.length && filter !== 'Chats' ? (
+                      <>
+                        <Meta tone="secondary">Yesterday</Meta>
+                        <Tile to="/card" plain go lead={<Mark glyph="card" />} title="Your card is ready" sub="Spend online anywhere" />
+                        <View style={{ gap: 34 }}>{rows('yesterday', 0, 2)}</View>
+                        {insight('spend')}
+                        <View style={{ gap: 34 }}>{rows('yesterday', 2)}</View>
+                      </>
+                    ) : null}
+                    {h.footer && filter !== 'Chats' ? <Meta tone="tertiary">{h.footer}</Meta> : null}
+                  </Animated.View>
+                </>
+              )}
             </View>
-          </GestureDetector>
-        </Animated.View>
-      ) : null}
-      {/* the bar, while the card is closed: the open chat has the shortcuts row instead */}
-      <Bar open={open} onActivities={() => router.push('/activities')} onSettings={() => router.push('/settings')} onMore={() => setMore(true)} />
+          </Pane>
+        </Animated.ScrollView>
+
+        {/* the day below the open card: a tap on it, or a push up, brings the card back up */}
+        {opened ? (
+          <Animated.View style={[{ position: 'absolute', left: 0, right: 0, bottom: 0 }, veilStyle]}>
+            <GestureDetector gesture={veilGesture}>
+              <View accessibilityRole="button" accessibilityLabel="Back to the day" style={{ flex: 1 }}>
+                {/* the shortcuts under the chips: each hands its thing to the chat
+                  above; a push up that starts on one still closes the card */}
+                <Animated.View
+                  style={[
+                    {
+                      position: 'absolute',
+                      left: frame.sidePad,
+                      right: frame.sidePad,
+                      top: SHORTCUTS_TOP,
+                      height: SHORTCUTS_H,
+                    },
+                    shortcutsStyle,
+                  ]}
+                >
+                  <Shortcuts
+                    items={[
+                      {
+                        glyph: 'power',
+                        label: 'Bills',
+                        onPress: () => askFor('Top up my light'),
+                      },
+                      {
+                        glyph: 'data',
+                        label: 'Data',
+                        onPress: () => askFor('Buy data'),
+                      },
+                      { glyph: 'down', label: 'Receive', onPress: openDetails },
+                      { glyph: 'camera', label: 'Photo', onPress: toCamera },
+                    ]}
+                  />
+                </Animated.View>
+              </View>
+            </GestureDetector>
+          </Animated.View>
+        ) : null}
+        {/* the bar, while the card is closed: the open chat has the shortcuts row instead */}
+        <Bar open={open} onMore={() => setMore(true)} />
+      </Animated.View>
       {/* the passcode, on its sheet over everything, before money moves */}
       {guard ? (
         <PasscodeSheet
@@ -805,6 +831,7 @@ export function Home() {
         />
       ) : null}
       {more ? <More onPick={pickMore} onClose={() => setMore(false)} /> : null}
+      {peek ? <ReceiptPeek card={peek.card} at={peek.at} onClose={() => setPeek(null)} /> : null}
     </View>
   );
 }

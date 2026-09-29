@@ -17,9 +17,7 @@ const tones = {
 } as const;
 
 const make = (name: string, base: object) => {
-  const Face = ({ tone = 'ink', style, ...rest }: Props) => (
-    <Text {...rest} style={[base, { color: tones[tone] }, style]} />
-  );
+  const Face = ({ tone = 'ink', style, ...rest }: Props) => <Text {...rest} style={[base, { color: tones[tone] }, style]} />;
   Face.displayName = name;
   return Face;
 };

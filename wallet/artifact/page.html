@@ -103,9 +103,20 @@
     .keys h1 { font-size: 22px; }
     .steps li { grid-template-columns: 1fr; gap: 2px; padding: 12px 0; }
   }
+  /* just the phone: the bar and the keys go, the phone takes the whole page,
+     and one small pill brings the rest back */
+  body.alone .top, body.alone .keys, body.alone .keys-toggle { display: none !important; }
+  body.alone main { display: block; padding: 0; }
+  body.alone .stage { display: flex; justify-content: center; align-items: center; min-height: 100dvh; }
+  .back-pill { display: none; position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); right: 12px; z-index: 5; }
+  body.alone .back-pill { display: inline-block; }
+  @media (max-width: 899px) {
+    body.alone .phone-wrap { height: 100dvh; }
+  }
   @media (prefers-reduced-motion: reduce) { .keys { transition: none; } }
 </style>
 
+<button class="btn back-pill" id="notAlone" type="button" aria-label="Show the keys again">Keys</button>
 <header class="top">
   <div class="name">{{MARK}} Beetle</div>
   <span class="spacer"></span>
@@ -133,9 +144,9 @@
     </ol>
     <div class="actions">
       <button class="btn primary" id="startOver2" type="button">Start over</button>
-      <a href="app.html" target="_blank" rel="noopener">Open the phone on its own</a>
+      <button class="btn" id="alone" type="button">Just the phone</button>
     </div>
-    <p class="blocked" id="blocked">The phone could not load inside this page. Open it on its own with the link above.</p>
+    <p class="blocked" id="blocked">The phone could not load inside this page. Reload the page to try again.</p>
     <p class="fine">Close the app halfway and open it again and you land on the step you left. Start over forgets everything this browser kept.</p>
   </aside>
 </main>
@@ -151,7 +162,7 @@
     /* the phone is drawn at its real size and shrunk to fit the height there is */
     function fit() {
       if (!wide.matches) { wrap.style.setProperty('--scale', '1'); return; }
-      var room = window.innerHeight - 84 - 32;
+      var room = document.body.classList.contains('alone') ? window.innerHeight - 32 : window.innerHeight - 84 - 32;
       var s = Math.max(0.55, Math.min(1, room / 872));
       wrap.style.setProperty('--scale', String(s));
     }
@@ -186,6 +197,18 @@
     }
     document.getElementById('startOver').addEventListener('click', startOver);
     document.getElementById('startOver2').addEventListener('click', startOver);
+
+    /* just the phone: the page gives the phone the whole window; #phone on
+       the link opens it that way from the start */
+    function alone(on) {
+      document.body.classList.toggle('alone', on);
+      try { history.replaceState(null, '', on ? '#phone' : location.pathname + location.search); } catch (e) { /* the address is not ours to change here */ }
+      fit();
+    }
+    document.getElementById('alone').addEventListener('click', function () { alone(true); });
+    document.getElementById('notAlone').addEventListener('click', function () { alone(false); });
+    window.addEventListener('keydown', function (e) { if (e.key === 'Escape') alone(false); });
+    if (location.hash === '#phone') alone(true);
 
     /* if the page is not allowed to frame the app, say so */
     setTimeout(function () {

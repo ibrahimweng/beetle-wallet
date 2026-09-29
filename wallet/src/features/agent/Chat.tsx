@@ -7,6 +7,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Pane } from '../../design';
 import { CardGesturesContext } from '../home/WalletCard';
 import { Said, Thinking, Thoughts, ToolPanel, Yours } from './Dark';
+import { ReceiptCard } from './ReceiptCard';
 import type { Conversation } from './conversation';
 
 /** A panel stops short of the right edge, as the frame draws it. */
@@ -18,6 +19,7 @@ export function Chat({
   top = 0,
   bottom = 8,
   confirm,
+  onReceipt,
 }: {
   talk: Conversation;
   active: boolean;
@@ -28,6 +30,8 @@ export function Chat({
   /** a panel's button, where something stands between it and the move —
       the passcode; the conversation's own confirm otherwise */
   confirm?: (panelId: string) => void;
+  /** a receipt card tapped: the full receipt */
+  onReceipt?: (rowId: string) => void;
 }) {
   const list = useRef<ScrollView>(null);
   const count = talk.turns.length + (talk.thinking ? 1 : 0);
@@ -76,7 +80,14 @@ export function Chat({
         else if (t.block.kind === 'say') body = <Said>{'shown' in t && t.shown !== undefined ? t.shown : t.block.text}</Said>;
         else if (t.block.kind === 'note') body = <Said title={t.block.title}>{t.block.body}</Said>;
         else if (t.block.kind === 'thought') body = <Thoughts lines={t.block.lines} live={false} />;
-        else {
+        else if (t.block.kind === 'receipt') {
+          const card = t.block.card;
+          body = (
+            <View style={{ marginRight: PANEL_INSET }}>
+              <ReceiptCard card={card} onPress={() => onReceipt?.(card.rowId)} />
+            </View>
+          );
+        } else {
           const panel = t.block.panel;
           body = (
             <View style={{ marginRight: PANEL_INSET }}>

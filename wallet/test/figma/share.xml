@@ -1,0 +1,65 @@
+<instance id="472:10886" name="Share" x="1559" y="2721" width="393" height="852">
+  <instance id="I472:10886;468:388" name="DoneSend" x="0" y="0" width="393" height="852" />
+  <frame id="I472:10886;469:571" name="Scrim" x="0" y="0" width="393" height="852" />
+  <frame id="I472:10886;469:572" name="Sheet" x="10" y="248.009765625" width="373" height="599">
+    <frame id="I472:10886;469:573" name="Box" x="164.5" y="14" width="44" height="5" />
+    <frame id="I472:10886;469:574" name="Column" x="20" y="27" width="333" height="148">
+      <frame id="I472:10886;469:575" name="Icon" x="134.5" y="4" width="64" height="64">
+        <instance id="I472:10886;570:1788" name="Glyph · share" x="18" y="18" width="28.000001907348633" height="28.000001907348633" />
+      </frame>
+      <frame id="I472:10886;727:18269" name="Frame 4" x="29" y="84" width="275" height="60">
+        <text id="I472:10886;469:579" name="Share this receipt" x="0" y="0" width="275" height="24" />
+        <text id="I472:10886;469:580" name="₦20,000 to Sarah Adeyemi, 7:55" x="0" y="36" width="275" height="24" />
+      </frame>
+    </frame>
+    <frame id="I472:10886;469:581" name="Column" x="20" y="183" width="333" height="288">
+      <frame id="I472:10886;469:582" name="Row" x="0" y="0" width="333" height="72">
+        <frame id="I472:10886;469:583" name="Icon" x="0" y="16" width="40" height="40">
+          <instance id="I472:10886;568:1320" name="Glyph · loan" x="10" y="10" width="20" height="20" />
+        </frame>
+        <frame id="I472:10886;469:586" name="Column" x="52" y="14.399999618530273" width="253" height="43.20000076293945">
+          <text id="I472:10886;469:587" name="WhatsApp" x="0" y="0" width="79" height="24" />
+          <text id="I472:10886;469:588" name="The picture, ready to send" x="0" y="28" width="171" height="20" />
+        </frame>
+        <instance id="I472:10886;568:1323" name="Glyph · check" x="317" y="28" width="16" height="16" />
+      </frame>
+      <frame id="I472:10886;469:591" name="Row" x="0" y="72" width="333" height="72">
+        <frame id="I472:10886;469:592" name="Icon" x="0" y="16" width="40" height="40">
+          <instance id="I472:10886;568:1326" name="Glyph · camera" x="10" y="10" width="20" height="20" />
+        </frame>
+        <frame id="I472:10886;469:596" name="Column" x="52" y="14.399999618530273" width="253" height="43.20000076293945">
+          <text id="I472:10886;469:597" name="Save to photos" x="0" y="0" width="112" height="24" />
+          <text id="I472:10886;469:598" name="It stays on this phone" x="0" y="28" width="138" height="20" />
+        </frame>
+        <instance id="I472:10886;568:1330" name="Glyph · check" x="317" y="28" width="16" height="16" />
+      </frame>
+      <frame id="I472:10886;469:601" name="Row" x="0" y="144" width="333" height="72">
+        <frame id="I472:10886;469:602" name="Icon" x="0" y="16" width="40" height="40">
+          <instance id="I472:10886;568:1333" name="Glyph · star-solid" x="10" y="10" width="20" height="20" />
+        </frame>
+        <frame id="I472:10886;469:606" name="Column" x="52" y="14.399999618530273" width="253" height="43.20000076293945">
+          <text id="I472:10886;469:607" name="Save as PDF" x="0" y="0" width="92" height="24" />
+          <text id="I472:10886;469:608" name="The full record, for an offi" x="0" y="28" width="180" height="20" />
+        </frame>
+        <instance id="I472:10886;568:1337" name="Glyph · check" x="317" y="28" width="16" height="16" />
+      </frame>
+      <frame id="I472:10886;469:611" name="Row" x="0" y="216" width="333" height="72">
+        <frame id="I472:10886;469:612" name="Icon" x="0" y="16" width="40" height="40">
+          <instance id="I472:10886;570:1792" name="Glyph · more" x="10" y="10" width="20" height="20" />
+        </frame>
+        <frame id="I472:10886;469:618" name="Column" x="52" y="14.399999618530273" width="253" height="43.20000076293945">
+          <text id="I472:10886;469:619" name="Somewhere else" x="0" y="0" width="124" height="24" />
+          <text id="I472:10886;469:620" name="Messages, mail, anywhere you" x="0" y="28" width="237" height="20" />
+        </frame>
+        <instance id="I472:10886;568:1340" name="Glyph · check" x="317" y="28" width="16" height="16" />
+      </frame>
+    </frame>
+    <frame id="I472:10886;469:623" name="Row · Your balance is left" x="20" y="479" width="333" height="48">
+      <instance id="I472:10886;568:1343" name="Glyph · data" x="4" y="12" width="16" height="16" />
+      <text id="I472:10886;469:627" name="Your balance is left off eve" x="28" y="12" width="299" height="40" />
+    </frame>
+    <frame id="I472:10886;469:628" name="Button · Done" x="126.20500183105469" y="535" width="120.58999633789062" height="50">
+      <text id="I472:10886;469:629" name="Done" x="40" y="17" width="41" height="24" />
+    </frame>
+  </frame>
+</instance>

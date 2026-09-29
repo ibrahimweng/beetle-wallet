@@ -14,7 +14,11 @@ export type Turn =
   | { id: string; who: 'beetle'; block: Extract<Block, { kind: 'say' | 'note' }>; /** the part said so far, while the words stream in */ shown?: string }
   | { id: string; who: 'beetle'; block: { kind: 'panel'; panel: Panel }; state: PanelState; quick?: boolean }
   /** what Beetle said it was doing, kept above the answer once it is done */
-  | { id: string; who: 'beetle'; block: { kind: 'thought'; lines: string[] } };
+  | { id: string; who: 'beetle'; block: { kind: 'thought'; lines: string[] } }
+  /** the receipt for what a panel moved, in a few words; the full one is a tap away */
+  | { id: string; who: 'beetle'; block: { kind: 'receipt'; card: ReceiptCard } };
+
+export type ReceiptCard = { rowId: string; amount: string; line: string; status: string; time: string };
 
 /** Beetle at work: the lines so far, the last one still going. */
 export type Thinking = { lines: string[] } | null;
@@ -34,6 +38,8 @@ export type Conversation = {
   preload(turns: Turn[], pending?: Pending): void;
   /** Beetle opening, before anything has been asked */
   open(text: string): void;
+  /** something Beetle is told, as a note in the chat: a receipt a question is about */
+  note(title: string, body: string): void;
   /** a chat from the day, picked up where it was left */
   load(turns: Turn[], pending: Pending): void;
   /** the slate wiped for a new chat */
@@ -56,7 +62,7 @@ const clock = () => {
     than a couple of seconds however much it says. */
 const wordPace = (words: number) => Math.min(60, Math.max(26, 2200 / Math.max(1, words)));
 
-export function useConversation(context: () => Omit<Context, 'pending'>, onMove: (move: Move) => void, opening?: string): Conversation {
+export function useConversation(context: () => Omit<Context, 'pending'>, onMove: (move: Move) => string | void, opening?: string): Conversation {
   const still = useStill();
   const [turns, setTurns] = useState<Turn[]>(() => (opening ? [{ id: id(), who: 'beetle', block: { kind: 'say', text: opening } }] : []));
   const [thinking, setThinking] = useState<Thinking>(null);
@@ -153,15 +159,22 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
       if (!turn || turn.who !== 'beetle' || !('state' in turn) || turn.state === 'done') return;
       const panel = turn.block.panel;
       patchPanel(panelId, t => ({ ...t, state: 'done' }));
-      if (panel.move) onMove({ ...panel.move, detail: `${panel.move.detail} · ${clock()}` });
+      const at = clock();
+      const move = panel.move;
+      const rowId = move ? onMove({ ...move, detail: `${move.detail} · ${at}` }) : undefined;
       keep(null);
       const what =
         panel.tool === 'transfer'
-          ? `Done. ${naira(-(panel.move?.amount ?? 0))} is with ${panel.rows[0]?.value ?? 'them'}. It left your account at ${clock()}.`
+          ? `Done. ${naira(-(panel.move?.amount ?? 0))} is with ${panel.rows[0]?.value ?? 'them'}. It left your account at ${at}.`
           : panel.tool === 'pay'
             ? `Paid. The units land on the meter in a moment.`
             : `Done. The data is on your line.`;
-      setTimeout(() => add({ id: id(), who: 'beetle', block: { kind: 'say', text: what } }), BEAT);
+      /* the receipt lands first, then the word about it */
+      if (move && rowId) {
+        const card: ReceiptCard = { rowId, amount: naira(Math.abs(move.amount)), line: receiptLine(move), status: 'Successful', time: at };
+        setTimeout(() => add({ id: id(), who: 'beetle', block: { kind: 'receipt', card } }), BEAT);
+        setTimeout(() => add({ id: id(), who: 'beetle', block: { kind: 'say', text: what } }), BEAT * 2);
+      } else setTimeout(() => add({ id: id(), who: 'beetle', block: { kind: 'say', text: what } }), BEAT);
     },
     [turns, patchPanel, onMove, keep, add],
   );
@@ -185,6 +198,7 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
   );
 
   const open = useCallback((text: string) => add({ id: id(), who: 'beetle', block: { kind: 'say', text } }), [add]);
+  const note = useCallback((title: string, body: string) => add({ id: id(), who: 'beetle', block: { kind: 'note', title, body } }), [add]);
   const load = useCallback((list: Turn[], p: Pending) => preload(list, p), [preload]);
   const reset = useCallback(() => {
     setTurns([]);
@@ -192,8 +206,14 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
     keep(null);
   }, [keep]);
 
-  return useMemo(() => ({ turns, thinking, pending, ask, ready, confirm, edit, preload, open, load, reset }), [turns, thinking, pending, ask, ready, confirm, edit, preload, open, load, reset]);
+  return useMemo(
+    () => ({ turns, thinking, pending, ask, ready, confirm, edit, preload, open, note, load, reset }),
+    [turns, thinking, pending, ask, ready, confirm, edit, preload, open, note, load, reset],
+  );
 }
+
+/** The line on a receipt card: who it went to, or came from. */
+export const receiptLine = (move: Move) => (move.kind === 'transfer' ? `To ${move.name}` : move.kind === 'in' ? `From ${move.name}` : move.name);
 
 /** The conversation as lines, for a Beetle with a memory of its own: what
     you said, what it said, and what each panel was and came to. */
@@ -203,6 +223,7 @@ export function transcriptOf(turns: Turn[]): { who: 'you' | 'beetle'; text: stri
     if (t.who === 'you') out.push({ who: 'you', text: t.photo && t.text === 'A photo' ? '[a photo]' : t.text });
     else if (t.block.kind === 'say') out.push({ who: 'beetle', text: t.block.text });
     else if (t.block.kind === 'note') out.push({ who: 'beetle', text: `${t.block.title}. ${t.block.body}` });
+    else if (t.block.kind === 'receipt') out.push({ who: 'beetle', text: `[Receipt: ${t.block.card.amount} ${t.block.card.line}, ${t.block.card.status} at ${t.block.card.time}]` });
     else if (t.block.kind === 'panel') {
       const p = t.block.panel;
       const state = 'state' in t && t.state === 'done' ? 'confirmed by the owner' : 'up, waiting for the owner';
@@ -218,4 +239,5 @@ export const turn = {
   thought: (lines: string[]): Turn => ({ id: id(), who: 'beetle', block: { kind: 'thought', lines } }),
   note: (title: string, body: string): Turn => ({ id: id(), who: 'beetle', block: { kind: 'note', title, body } }),
   panel: (panel: Panel, state: PanelState = 'ready'): Turn => ({ id: id(), who: 'beetle', block: { kind: 'panel', panel }, state }),
+  receipt: (card: ReceiptCard): Turn => ({ id: id(), who: 'beetle', block: { kind: 'receipt', card } }),
 };

@@ -1,17 +1,180 @@
 {
   "code": [
-    { "text": "Six digits, sent to 0803 214", "why": "the number is the one typed a step before" }
+    {
+      "text": "Six digits, sent to 0803 214",
+      "why": "the number is the one typed a step before"
+    }
   ],
   "ready": [
-    { "piece": "Button · Take me in", "why": "the frame insets this one button 34 where every other frame's runs from 20; the build keeps 20" },
-    { "text": "Your number is 0102 4457 88,", "why": "the account number is the account's own" }
+    {
+      "piece": "Button · Take me in",
+      "why": "the frame insets this one button 34 where every other frame's runs from 20; the build keeps 20"
+    },
+    {
+      "text": "Your number is 0102 4457 88,",
+      "why": "the account number is the account's own"
+    }
   ],
   "signin": [
-    { "piece": "Welcome back", "why": "this frame puts 11 and 16 between the title, its line and the field where the number frame puts 8 and 12; the build keeps 8 and 12, so the title sits 7 higher" }
+    {
+      "piece": "Welcome back",
+      "why": "this frame puts 11 and 16 between the title, its line and the field where the number frame puts 8 and 12; the build keeps 8 and 12, so the title sits 7 higher"
+    }
   ],
   "confirm": [
-    { "text": "GTBank · 0234 5678 90", "why": "the account is the person's own" },
-    { "text": "Or tap the face to use Face ID.", "why": "said only on a phone with a face enrolled; the web has none, and says 'Six digits, the ones you chose.'" },
-    { "text": "Nothing moves until the four", "why": "the passcode is six digits, as the way in sets it; the line says 'sixth'" }
+    {
+      "text": "GTBank · 0234 5678 90",
+      "why": "the account is the person's own"
+    },
+    {
+      "text": "Or tap the face to use Face ID.",
+      "why": "said only on a phone with a face enrolled; the web has none, and says 'Six digits, the ones you chose.'"
+    },
+    {
+      "text": "Nothing moves until the four",
+      "why": "the passcode is six digits, as the way in sets it; the line says 'sixth'"
+    }
+  ],
+  "donesend": [
+    {
+      "text": "Ask about this transfer",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    },
+    {
+      "piece": "Chip · Successful",
+      "why": "the chip is as wide as its word; the frame draws the same chip 104 and 90 wide on two pages"
+    },
+    {
+      "piece": "Chip · Cleared",
+      "why": "the chip is as wide as its word"
+    },
+    {
+      "piece": "GTBank · 0234 5678 90",
+      "why": "the frame boxes this line at 89 wide so it wraps; the build gives it the column, and it fits on one line"
+    }
+  ],
+  "done": [
+    {
+      "text": "Ask about this",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    },
+    {
+      "piece": "Chip · Successful",
+      "why": "the chip is as wide as its word; the frame draws the same chip 104 and 90 wide on two pages"
+    },
+    {
+      "piece": "Chip · Cleared",
+      "why": "the chip is as wide as its word"
+    }
+  ],
+  "power": [
+    {
+      "text": "Ask about this payment",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    },
+    {
+      "piece": "Chip · Successful",
+      "why": "the chip is as wide as its word; the frame draws the same chip 104 and 90 wide on two pages"
+    },
+    {
+      "piece": "Chip · Cleared",
+      "why": "the chip is as wide as its word"
+    },
+    {
+      "piece": "Ikeja Electric",
+      "why": "this frame puts 12 between the amount and its line where the All done frames put none; the build keeps none"
+    },
+    {
+      "pieces": [
+        "Amount",
+        "₦8,000.00",
+        "Fee",
+        "Free",
+        "Total charged",
+        "Balance after",
+        "₦39,654.51",
+        "Ikeja reference",
+        "IKJ 4457 8891 2208",
+        "Icon",
+        "Card",
+        "Button",
+        "Pay this every month, without ",
+        "Chip · Set it up",
+        "The token did not work?"
+      ],
+      "why": "two of the four receipt frames put 24 between the slip's blocks, the other two 20; the build keeps 20, so everything after the first block sits a little higher"
+    }
+  ],
+  "donein": [
+    {
+      "text": "Ask about this payment",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    },
+    {
+      "piece": "Chip · Successful",
+      "why": "the chip is as wide as its word; the frame draws the same chip 104 and 90 wide on two pages"
+    },
+    {
+      "piece": "Chip · Cleared",
+      "why": "the chip is as wide as its word"
+    },
+    {
+      "piece": "Zenith Bank · 1014 2288 31",
+      "why": "the frame boxes this line at 111 wide so it wraps; the build gives it the column"
+    },
+    {
+      "piece": "From Pagrin Limited",
+      "why": "this frame puts 12 between the amount and its line where the All done frames put none; the build keeps none"
+    },
+    {
+      "pieces": [
+        "They wrote",
+        "August salary",
+        "Amount",
+        "₦640,000.00",
+        "Fee",
+        "None on money in",
+        "Total credited",
+        "Balance after",
+        "₦679,654.51",
+        "Session ID",
+        "000015 260827 164004 118220 77",
+        "Icon",
+        "Card",
+        "Button",
+        "Put ₦50,000 away before it goe",
+        "Chip · Set it up",
+        "Expecting more than this?"
+      ],
+      "why": "two of the four receipt frames put 24 between the slip's blocks, the other two 20; the build keeps 20, so everything after the first block sits a little higher"
+    }
+  ],
+  "share": [
+    {
+      "piece": "Box",
+      "why": "the grabber is 4 tall on every sheet of this build; this frame draws it 5"
+    },
+    {
+      "piece": "Button · Done",
+      "why": "the frame draws Done 50 tall where every other small button is 48"
+    },
+    {
+      "piece": "Sheet",
+      "why": "every sheet in this build sits 10 off the bottom, as the passcode frame draws it; this frame draws 5"
+    },
+    {
+      "text": "Your balance is left off eve",
+      "why": "the layer is named for an older line; the frame's picture reads 'Your balance and the full account numbers are left off every copy that leaves the phone', which the build says"
+    }
+  ],
+  "settings": [
+    {
+      "text": "No transfer fees and instant",
+      "why": "the layer is named for an older line; the frame's picture reads 'Higher daily limits and a human when you need one', which the build says"
+    },
+    {
+      "text": "Version 1.0.4",
+      "why": "the version is the build's own"
+    }
   ]
 }

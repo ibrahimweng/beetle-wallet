@@ -1,5 +1,6 @@
-/* Dock — 104 tall, 24 above and below its row. The ask bar is 48 tall at the
-   pill radius, and the design ends it with a camera rather than a send
+/* Dock — 104 tall, 24 above and below its row, which the frames set 16 in
+   from either side and 56 tall: the back arrow 44, the ask bar 48 at the
+   pill radius. The design ends the bar with a camera rather than a send
    arrow: you type, or you point it at something. */
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
@@ -43,7 +44,7 @@ export function Dock({
       {hole ? (
         <View style={{ flex: 1, height: frame.askBarHeight }} />
       ) : (
-        <View style={s.bar}>
+        <View style={s.bar} testID="dock-bar">
           <Icon name="mark" size={32} colour={colour.accent} />
           <TextInput
             style={s.input}
@@ -115,7 +116,8 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.s2,
-    paddingHorizontal: frame.sidePad,
+    height: 56 + 2 * frame.dockPad,
+    paddingHorizontal: 16,
     paddingVertical: frame.dockPad,
     backgroundColor: colour.surface,
   },

@@ -326,7 +326,10 @@ try {
   at('/home');
 
   console.log('Signing out');
-  await toBottom();
+  /* the mark at the top left opens Settings, and Sign out is there */
+  await tap('Settings');
+  await see('What keeps the money yours');
+  at('/settings');
   await tap('Sign out');
   await see('Open an account');
   at('/way-in');
@@ -488,6 +491,8 @@ try {
   await type(PASSCODE);
   await see('is with Sarah Adeyemi');
   await see('₦575,320');
+  /* and the receipt lands in the chat, in a few words */
+  await see('The full receipt');
   await shot('chat-transfer-sent', 500);
   /* a push up on the chat, now at its end, brings the card back up; the day
      has the transfer in it, and the chat that made it, filed at the top */
@@ -627,6 +632,77 @@ try {
   /* the screen behind the sheet, tapped above it, puts it away */
   await button('Close').click({ position: { x: 196, y: 90 } });
   await button('Confirm ₦20,000').waitFor();
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* a chat that carries on: the one filed a quarter of an hour ago comes
+     back with the pull down, and New at the top right starts another */
+  await tap('A chat that carries on');
+  await see('Done. ₦20,000 is with Sarah Adeyemi.');
+  at('/home');
+  await shot('lab-carry', 900);
+  await tap('New chat');
+  /* the old chat's words leave the card; its row in the day keeps them */
+  const inCard = page.locator('[data-testid="card"]').getByText('Done. ₦20,000 is with Sarah Adeyemi.');
+  await inCard.first().waitFor({ state: 'hidden' });
+  await shot('lab-new', 900);
+  must((await inCard.count()) === 0, 'New should start a fresh chat');
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* a receipt lands in the chat after the passcode, in a few words; a tap on it opens the page */
+  await tap('A receipt in the chat');
+  await see('The full receipt');
+  await shot('lab-receipt-card', 900);
+  await tap('Receipt');
+  await see('All done');
+  await see('Balance after');
+  must(page.url().includes('/receipt/'), 'the card should open the receipt page');
+  await shot('receipt-live', 500);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* the receipt pages from the frames: a transfer, its session id copied, its share sheet, what Beetle offers */
+  await tap('A transfer');
+  await see('Rent part payment');
+  at('/receipt/l08');
+  await shot('receipt-transfer', 500);
+  await tap('Copy it');
+  await page.getByText(/copied\. Paste it anywhere\.|cannot reach the clipboard/).first().waitFor();
+  await tap('Share receipt');
+  await see('Share this receipt');
+  await shot('receipt-share', 900);
+  await tap('Done');
+  await page.getByText('Share this receipt').first().waitFor({ state: 'hidden' });
+  await tap('Set it up');
+  await see('comes with round 7');
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  await tap('A bill paid');
+  await see('Copy the token');
+  at('/receipt/l11');
+  await shot('receipt-bill', 500);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  await tap('Money in');
+  await see('None on money in');
+  at('/receipt/l10');
+  await shot('receipt-in', 500);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* Settings, from the mark at the top left of home: Your details on its sheet, and Sign out */
+  await tap('The demo account');
+  await see('Pull down');
+  await tap('Settings');
+  await see('What keeps the money yours');
+  at('/settings');
+  await shot('settings', 500);
+  await tap('Your details');
+  await see('Member since');
+  await shot('settings-details', 900);
+  await tap('Done');
+  await tap('Lock and privacy');
+  await see('comes with round 2');
+  await tap('Sign out');
+  await see('Open an account');
+  at('/way-in');
   await tap('Back to the lab');
   await see('Beetle Lab');
   /* money arriving: the caption on the card says what came, the balance is

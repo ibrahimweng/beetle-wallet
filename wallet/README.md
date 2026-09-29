@@ -39,7 +39,7 @@ every screen. It needs a Chromium (`npx playwright install chromium`, or set
 | `npm run typecheck` | it compiles, with `strict` and `noUncheckedIndexedAccess` on |
 | `npm test` | the rules of the way in: what counts as a Nigerian number, what a passcode may not be, where each step leads, how the mock services answer; the scripted Beetle; the model against a fake API; the gate before money moves |
 | `npm run bundle` | the same JavaScript the phone runs, exported for the web into `dist/` |
-| `npm run flow` | from the lab to the welcome and on to home, then out and back in as the demo account, with the doors that should be shut tried on the way; the card pulled down and traced as it opens, money sent by asking and let through by the passcode, the account's details opened and copied, a photo taken with the browser's stand-in camera and read, money arriving, a shortcut, the model screen, and the lab's places opened on their own; every screen photographed into `shots/` |
+| `npm run flow` | from the lab to the welcome and on to home, then out and back in as the demo account, with the doors that should be shut tried on the way; the card pulled down and traced as it opens, money sent by asking and let through by the passcode, the account's details opened and copied, a photo taken with the browser's stand-in camera and read, money arriving, a shortcut, the model screen, a chat carried on and New, the receipt card and the receipt pages with the share sheet, Settings with Your details and Sign out, and the lab's places opened on their own; every screen photographed into `shots/` |
 | `npm run figma` | every built screen against its Figma frame: each named piece where the frame puts it, within two of the frame's figure or of that figure snapped to the 4-point grid; the frame's words on the screen; what is off on purpose listed with its reason; the frame and the screen side by side in `shots/figma/` |
 
 ## On the frame
@@ -86,11 +86,13 @@ mocks in and says so on the code screen; a real `AuthService` and
 | `src/design/` | The design system read off the Figma file: tokens, type, icons, motion, and the pieces every screen is made of |
 | `src/icons.ts` | The 95 glyphs, generated from `../src/icons.js` by `npm run icons`, which puts the line widths the file draws them at (0.075 of the box for a glyph, 0.10 for a bare mark) and round ends back on every stroked path; never edited by hand |
 | `src/features/onboarding/` | The way in: the step machine (`machine.ts`), what is remembered and the session (`store.tsx`), the rules (`validation.ts`), the one screen and its choreography (`WayIn.tsx`), what each stage of it shows (`views.tsx`, `stages.ts`), and the guard that keeps home for a session |
-| `src/features/home/` | Home: the card (`WalletCard.tsx`, closed and open and the drag between), the haze at its head and its foot (`Frost.tsx`), the screen around it with the day and the chats in it (`Home.tsx`), the ask bar in its two states (`AskBar.tsx`), what the day shows for an account (`account.ts`), and the once-only dip (`first.ts`) |
-| `src/features/agent/` | The chat: the conversation and what Beetle is waiting for (`conversation.tsx`), the list (`Chat.tsx`), the dark pieces it is drawn with — what was said, the panels, the dots (`Dark.tsx`) — and the chats filed in the day, Beetle's prompts among them (`chats.ts`) |
+| `src/features/home/` | Home: the card (`WalletCard.tsx`, closed and open and the drag between), the haze at its head and its foot (`Frost.tsx`), the screen around it with the day and the chats in it (`Home.tsx`), the ask bar in its two states (`AskBar.tsx`), what the day shows for an account (`account.ts`), what moved on this phone since (`moves.ts`), and the once-only dip (`first.ts`) |
+| `src/features/agent/` | The chat: the conversation and what Beetle is waiting for (`conversation.tsx`), the list (`Chat.tsx`), the dark pieces it is drawn with — what was said, the panels, the dots (`Dark.tsx`) — and the chats filed in the day, Beetle's prompts among them (`chats.ts`), with the hour they carry on for (`hour.ts`) |
 | `src/features/scan/` | The camera screen with every way it can go wrong, the photo's way back to the chat, and the sample slip |
 | `src/features/passcode/` | The gate before money moves: the passcode on its sheet over the chat (`Passcode.tsx`) and the check itself, with the tries and the lock (`check.ts`) |
 | `src/features/receive/` | Being paid: the account's details over the chat (`Receive.tsx`), money arriving (`arrival.ts`), and the clipboard |
+| `src/features/receipts/` | A receipt for every line in the day: the record and the frames' own figures (`receipts.ts`), the page (`ReceiptScreen.tsx`), the share sheet (`ShareSheet.tsx`); the card in the chat is `src/features/agent/ReceiptCard.tsx` |
+| `src/features/settings/` | Settings from the mark at the top left (`Settings.tsx`), and Your details on its sheet (`Details.tsx`) |
 | `src/lab/` | The lab: which builds have it (`enabled.ts`), every feature and the places in it with the state each needs (`catalogue.ts`), the screen, and the tab that comes back to it |
 | `src/services/` | `AuthService`, `IdentityService`, `AgentService` (Beetle: the model in `model.ts` where there is a key, the script in `agent.ts` where there is not), `ReaderService` (the device's text reader, or a stand-in), storage and hashing behind interfaces, with the mocks this build runs on |
 | `src/lib/` | Formatting: digit groups, naira and kobo, dates |
@@ -172,8 +174,10 @@ the face is asked first and the pad is the way past it). A wrong code shakes
 the dots and says how many tries are left; the third wrong one shuts the
 gate for thirty seconds. A tap on the chat behind the sheet, or a pull down
 on it, puts it away with nothing moved. Then the panel says Sent,
-Beetle says where the money is, and the day below has the line. The amount
-on a panel can be corrected by tapping it.
+Beetle says where the money is, and the day below has the line, and a
+receipt lands in the chat in a few words — the amount, who it went to,
+when, Successful — with the full one a tap away. The amount on a panel can
+be corrected by tapping it.
 
 Under the open card, below the chips, a row of shortcuts: Bills, Data,
 Receive and Photo, each a quick way into what the chat above can do. (The
@@ -225,12 +229,42 @@ SDK supports; `npm test` drives it against a fake API to check the request,
 the tool loop, the steps, the panels and the fallback.
 
 Every chat is part of the day. Closing the card files the conversation at
-the top of Today — what you asked, what it came to, when — and opening the
-card again starts a new one, Beetle opening with something it noticed. A
-chat's row picks it back up where it was, panels and all. Beetle starts
+the top of Today — what you asked, what it came to, when. A chat carries on
+for an hour from its last message: a pull down within the hour picks it up
+where it was, and after the hour the next pull down starts a new one,
+Beetle opening with something it noticed. New, at the top right of the open
+card, files the chat and starts a fresh one at once. A chat's row in the day
+picks it back up where it was, panels and all, and it becomes the one that
+carries on. Beetle starts
 chats too: when something needs handling, its prompt is there in the day
 with a dot, waiting to be opened. The Chats chip shows only those; All has
 them with everything else. They are kept on the phone, per account.
+
+## Receipts
+
+Every line in the day opens its receipt, and so does the card in the chat.
+The page is the frame's: the title with the day and the time, the amount on
+its tick with the status chip, the slip — who and where in two columns, what
+was written, a dashed rule before the money, the fee and what it was for,
+the total and the balance after, the session id with a button to copy it —
+then Share receipt, what Beetle offers about it, and the way to say
+something is wrong. A bill's meter token sits above the slip with its own
+copy button. The dock is the way back, an ask bar that opens home's chat
+with the receipt named, and the camera. Share receipt opens the frame's
+sheet: WhatsApp and Somewhere else hand the words to the phone, with the
+balance and the full account numbers left off; the picture and the PDF come
+with round 5. The lines the frames draw carry the frames' own figures
+(`src/features/receipts/receipts.ts`); a line this phone added carries what
+its panel or its arrival knew, kept per account by `src/features/home/moves.ts`
+so the balance and the receipts hold across a restart.
+
+## Settings
+
+The mark at the top left of home opens Settings, from its frame: the Plus
+card, and three groups of rows — what keeps the money yours, your account,
+about — with what each is set to at its end. Your details opens a sheet with
+the name, the number, the account number to copy and when the account was
+opened; Sign out signs out. The rest say which round they come with.
 
 The camera at the end of the ask bar reads an account number off whatever it
 sees — a slip, a screen, a card. On a phone with the build that carries it,
@@ -271,6 +305,6 @@ dip — and fails if they are not moving the way that file says.
 
 ## What comes next
 
-Finishing setting up (the ID card and the income question that turn the last
-two limits on), a server for the model's key, the receipt behind a line in
-the day, and the shortcuts as the frame ends up drawing them.
+The rounds in `PLAN.md`, the bottom bar and the More sheet next; finishing
+setting up (the ID card and the income question that turn the last two
+limits on); a server for the model's key.

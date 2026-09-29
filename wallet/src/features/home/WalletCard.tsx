@@ -143,6 +143,10 @@ export type CardProps = {
   whole: string;
   kobo: string;
   dollars: string;
+  /** the mark at the top left: Settings */
+  onSettings?: () => void;
+  /** New, at the top right of the open card: this chat filed, a fresh one */
+  onNew?: () => void;
   hint: string;
   onSend: () => void;
   onReceive: () => void;
@@ -163,7 +167,7 @@ const clamp = (v: number, lo: number, hi: number) => {
   return Math.min(hi, Math.max(lo, v));
 };
 
-export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onSend, onReceive, onDollars, chat, foot, over, flash }: CardProps) {
+export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onSend, onReceive, onDollars, onSettings, onNew, chat, foot, over, flash }: CardProps) {
   const { width: W } = useWindowDimensions();
   const still = useStill();
   const { top, extra, headBand, closedH, haze, hazeSolid } = useCardTop();
@@ -309,9 +313,19 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
             <Frost height={haze} solid={hazeSolid} />
           </Animated.View>
           <View style={s.headRow}>
-            <Image source={MARK} style={{ width: 36, height: 36, borderRadius: 18 }} accessibilityLabel="Beetle" />
+            <Tap accessibilityRole="button" accessibilityLabel="Settings" onPress={onSettings} testID="mark">
+              <Image source={MARK} style={{ width: 36, height: 36, borderRadius: 18 }} />
+            </Tap>
             <Animated.View style={wallet}>
               <Label style={{ color: '#ffffff' }}>Wallet</Label>
+            </Animated.View>
+            <View style={{ flex: 1 }} />
+            {/* New, at the top right once the card is the chat: this one is filed and a fresh one opens */}
+            <Animated.View style={coming} pointerEvents={opened ? 'auto' : 'none'}>
+              <Tap accessibilityRole="button" accessibilityLabel="New chat" onPress={onNew} style={s.newChat} testID="new">
+                <Icon name="plus" size={16} colour="#ffffff" />
+                <Label style={{ color: '#ffffff' }}>New</Label>
+              </Tap>
             </Animated.View>
           </View>
         </View>
@@ -388,6 +402,7 @@ const s = StyleSheet.create({
   },
   head: { position: 'absolute', top: 0, left: 0, right: 0, paddingHorizontal: SIDE, zIndex: 3, overflow: 'visible' },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: HEADER_H },
+  newChat: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 36, paddingHorizontal: 4 },
   closed: { position: 'absolute', top: HEAD_BAND - 20 + 24, left: 0, right: 0, height: CLOSED_H - (HEAD_BAND - 20 + 24), paddingHorizontal: SIDE, alignItems: 'center', gap: 12 },
   actions: { flexDirection: 'row', justifyContent: 'center', gap: 24, alignSelf: 'stretch' },
   action: { alignItems: 'center', gap: 8 },

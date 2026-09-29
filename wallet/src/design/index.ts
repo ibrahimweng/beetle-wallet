@@ -15,4 +15,6 @@ export * from './Wash';
 export * from './Home';
 export * from './Kit';
 export * from './Sheet';
+export * from './Receipt';
+export * from './Rows';
 export * from './motion';

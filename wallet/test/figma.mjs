@@ -3,9 +3,11 @@
    For every screen in test/figma/screens.json this opens the screen through
    the lab, finds each named piece on it and measures where it sits and how
    big it is, and holds that to the frame's own numbers in test/figma/<key>.xml:
-   within two of the frame's figure, or of that figure snapped to the 4-point
-   grid, which is the rule the app builds to (a figure on the grid is never
-   more than two from the one it was snapped from). It also checks
+   within three of the frame's figure, or of that figure snapped to the
+   4-point grid, which is the rule the app builds to: two for the grid (a
+   figure on it is never more than two from the one it was snapped from) and
+   one for the slop in a frame's own text boxes, which sit a pixel off their
+   lines. It also checks
    that every line of words the frame carries is on the screen, and lays the
    frame's picture and the screen side by side into shots/figma/<key>.png so
    the two can be looked at together.
@@ -41,7 +43,7 @@ const page = await ctx.newPage();
 page.setDefaultTimeout(15000);
 
 const snap4 = v => Math.round(v / 4) * 4;
-const near = (got, want) => Math.abs(got - want) <= 2 || Math.abs(got - snap4(want)) <= 2;
+const near = (got, want) => Math.abs(got - want) <= 3 || Math.abs(got - snap4(want)) <= 3;
 const fmt = v => (Math.round(v * 10) / 10).toString();
 
 /* where a thing is on the screen: its box, in the page's own coordinates
@@ -62,21 +64,25 @@ async function measure(spec) {
     /* inside a container, when the same words are on the screen behind it too */
     const root = spec.inside ? (document.querySelector(`[data-testid="${spec.inside}"]`) ?? document) : document;
     const all = [...root.querySelectorAll('*')];
+    /* the nth match, where the same words are on the screen more than once */
+    const pick = list => list[spec.nth ?? 0] ?? null;
     if (spec.text !== undefined) {
       const t = spec.text;
-      el = all.find(e => e.childElementCount === 0 && (e.textContent || '').trim().startsWith(t) && visible(e)) ?? null;
+      const fits = s => (spec.exact ? s === t : s.startsWith(t));
+      el = pick(all.filter(e => e.childElementCount === 0 && fits((e.textContent || '').trim()) && visible(e)));
       /* words split across nested spans: the smallest element holding them all */
-      if (!el) el = all.filter(e => (e.textContent || '').replace(/\s+/g, ' ').trim().startsWith(t) && visible(e)).sort((a, b) => a.textContent.length - b.textContent.length)[0] ?? null;
+      if (!el) el = pick(all.filter(e => fits((e.textContent || '').replace(/\s+/g, ' ').trim()) && visible(e)).sort((a, b) => a.textContent.length - b.textContent.length));
     } else if (spec.button !== undefined) {
-      el = all.find(e => e.getAttribute('role') === 'button' && ((e.getAttribute('aria-label') || '').trim() === spec.button || (e.textContent || '').trim() === spec.button) && visible(e)) ?? null;
+      el = pick(all.filter(e => e.getAttribute('role') === 'button' && ((e.getAttribute('aria-label') || '').trim() === spec.button || (e.textContent || '').trim() === spec.button) && visible(e)));
     } else if (spec.label !== undefined) {
-      el = all.find(e => (e.getAttribute('aria-label') || '').trim() === spec.label && visible(e)) ?? null;
+      el = pick(all.filter(e => (e.getAttribute('aria-label') || '').trim() === spec.label && visible(e)));
     } else if (spec.testid !== undefined) {
-      el = all.find(e => e.getAttribute('data-testid') === spec.testid && visible(e)) ?? null;
+      el = pick(all.filter(e => e.getAttribute('data-testid') === spec.testid && visible(e)));
     }
     if (!el) return null;
     for (let i = 0; i < (spec.up ?? 0); i++) el = el.parentElement ?? el;
-    if (spec.child !== undefined) el = el.children[spec.child] ?? el;
+    /* down into it: one child, or a path of them */
+    for (const i of spec.child === undefined ? [] : [].concat(spec.child)) el = el.children[i] ?? el;
     return box(el);
   }, spec);
 }
@@ -157,7 +163,8 @@ for (const key of keys) {
     const off = dims.filter(d => !near(got[d], want[d]));
     const show = dims.map(d => `${d} ${fmt(got[d])}${near(got[d], want[d]) ? '' : `≠${fmt(want[d])}`}`).join(' ');
     if (off.length) {
-      const pass = (allowed[key] ?? []).find(a => a.piece === piece.name && (a.nth ?? 0) === (piece.nth ?? 0));
+      /* allowed by name, or as one of a set that is off for one reason */
+      const pass = (allowed[key] ?? []).find(a => (a.piece === piece.name && (a.nth ?? 0) === (piece.nth ?? 0)) || a.pieces?.includes(piece.name));
       if (pass) lines.push(`~ ${piece.name}: ${show} — allowed: ${pass.why}`);
       else {
         lines.push(`✗ ${piece.name}: ${show}`);

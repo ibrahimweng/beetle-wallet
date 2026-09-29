@@ -47,8 +47,12 @@ export function Screen({
   );
 }
 
-export function Card({ children, style, outline = false }: { children: ReactNode; style?: StyleProp<ViewStyle>; outline?: boolean }) {
-  return <View style={[s.card, outline ? s.outline : null, style]}>{children}</View>;
+export function Card({ children, style, outline = false, testID }: { children: ReactNode; style?: StyleProp<ViewStyle>; outline?: boolean; testID?: string }) {
+  return (
+    <View style={[s.card, outline ? s.outline : null, style]} testID={testID}>
+      {children}
+    </View>
+  );
 }
 
 export function Divider() {

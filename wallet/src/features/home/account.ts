@@ -15,6 +15,13 @@ export type LedgerRow = {
   amount: number;
   status: 'done' | 'pending' | 'failed' | 'reversed';
   kind: 'transfer' | 'service' | 'airtime' | 'saving' | 'in' | 'bill' | 'card';
+  /** what its receipt needs beyond the line, where the line was added on this phone */
+  fee?: number;
+  reference?: string;
+  person?: { bank: string; number: string };
+  session?: string;
+  /** the balance once it had moved */
+  after?: number;
 };
 
 export type Insight = { id: string; kicker: string; body: string; action: string };

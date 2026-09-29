@@ -72,40 +72,42 @@ screenshots to the owner.
       will share. Still to come with their rounds: the receive pane (Round 4),
       the shortcuts' own frame, Settings (Round 1)
 
-## Round 1 · Chats that carry on, and receipts
+## Round 1 · Chats that carry on, and receipts — done
 
 A chat lasts an hour from its last message. Closing the card keeps it; a pull
 down within the hour continues it; after the hour the next pull down starts a
 new one. A chat reopened from the day becomes the one that carries on. An
 unread prompt from Beetle waits in the day and never takes the pull down.
 
-- [ ] Chats carry `lastAt`; the hour rule in `src/features/agent/chats.ts`,
+- [x] Chats carry `lastAt`; the hour rule in `src/features/agent/chats.ts`,
       with a unit test; the rule holds across a restart
-- [ ] "New" at the top right of the open card — a word with a small glyph, in
+- [x] "New" at the top right of the open card — a word with a small glyph, in
       the header, arriving with the open pieces — files the chat and starts a
       fresh one with Beetle's greeting
-- [ ] Receipts — `src/features/receipts/`: the record (what moved, to whom,
+- [x] Receipts — `src/features/receipts/`: the record (what moved, to whom,
       from where, fee, total, balance after, when, the session id), kept per
       account, one for every line the day already shows
-- [ ] The receipt card in the chat: after the passcode the panel becomes a
+- [x] The receipt card in the chat: after the passcode the panel becomes a
       summarized card (the amount, where it went, when, Successful) and a tap
       opens the full receipt
-- [ ] The receipt screen, `/receipt/[id]`, from the frames: a transfer
+- [x] The receipt screen, `/receipt/[id]`, from the frames: a transfer
       (donesend 239:7829), data bought (done 239:8418), a bill paid (power
       490:13497), money in (donein 490:12465); the `Receipt` piece itself in
       the design system with the frame's two columns, dashed rules, and the
       session line with its copy button
-- [ ] Share receipt (the share sheet 472:10886, 472:11590, 490:13595, 490:12558)
-- [ ] The dock the frame gives the receipt screen: back, "Ask about this
+- [x] Share receipt (the share sheet 472:10886, 472:11590, 490:13595, 490:12558):
+      WhatsApp and Somewhere else through the phone; the picture and the PDF
+      come with round 5
+- [x] The dock the frame gives the receipt screen: back, "Ask about this
       transfer", the camera — asking opens home's chat with the receipt named
-- [ ] Every line in the day opens its receipt; an arrival gets one too
-- [ ] "Something wrong with this?" opens the What went wrong screen (round 7);
+- [x] Every line in the day opens its receipt; an arrival gets one too
+- [x] "Something wrong with this?" opens the What went wrong screen (round 7);
       until then the row is there and says the round it lands in
-- [ ] The mark at the top left opens Settings (272:8208): the page, the Plus
+- [x] The mark at the top left opens Settings (272:8208): the page, the Plus
       card, the three sections, Your details (name, number, account number,
       member since) and Sign out working; home's own Sign out link goes
-- [ ] Lab places: a chat that carries on, New, a receipt in the chat, each
-      receipt kind, Settings
+- [x] Lab places: a chat that carries on (with New), a receipt in the chat,
+      each receipt kind, the share sheet, Settings, Your details
 
 Taps: a transfer from the chat is pull down (1), type, Send this (2), Confirm
 (3), the passcode (4).

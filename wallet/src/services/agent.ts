@@ -33,7 +33,17 @@ export type Panel = {
   person?: Person;
 };
 
-export type Move = { name: string; detail: string; amount: number; icon: IconName; kind: 'transfer' | 'bill' | 'airtime' | 'service' | 'in' };
+export type Move = {
+  name: string;
+  detail: string;
+  amount: number;
+  icon: IconName;
+  kind: 'transfer' | 'bill' | 'airtime' | 'service' | 'in';
+  /** what its receipt needs beyond the line: the fee, who, what was written */
+  fee?: number;
+  person?: Person;
+  reference?: string;
+};
 
 export type Block =
   | { kind: 'say'; text: string }
@@ -180,7 +190,7 @@ export function transferPanel(to: Person, amount: number): Panel {
     ],
     action: { label: `Confirm ${naira(amount)}`, amount: amount + fee },
     person: to,
-    move: { name: to.name, detail: `${to.bank} · sent`, amount: -amount, icon: 'send', kind: 'transfer' },
+    move: { name: to.name, detail: `${to.bank} · sent`, amount: -amount, icon: 'send', kind: 'transfer', fee, person: to },
   };
 }
 

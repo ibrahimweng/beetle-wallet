@@ -39,6 +39,7 @@ export function Sheet({
   onGone,
   onDismiss,
   testID = 'sheet',
+  foot = 24,
 }: {
   children: ReactNode;
   /** the screen sending it back; onGone once it has gone */
@@ -47,6 +48,8 @@ export function Sheet({
   /** the person sending it back, by the screen behind or a pull down */
   onDismiss: () => void;
   testID?: string;
+  /** the room under the content: 24 on most sheets, 14 on the share sheet */
+  foot?: number;
 }) {
   const still = useStill();
   const t = useSharedValue(still ? 1 : 0);
@@ -110,7 +113,7 @@ export function Sheet({
           <View style={s.wash} />
         </Animated.View>
       </Pressable>
-      <Animated.View style={[s.panel, rising]} testID={testID}>
+      <Animated.View style={[s.panel, { paddingBottom: foot }, rising]} testID={testID}>
         <GestureDetector gesture={pan}>
           <View style={s.head} hitSlop={{ bottom: 20 }}>
             <View style={s.grabber} testID={`${testID}-grabber`} />
@@ -135,7 +138,6 @@ const s = StyleSheet.create({
     borderRadius: RADIUS,
     backgroundColor: colour.surface,
     paddingHorizontal: 20,
-    paddingBottom: 24,
   },
   head: { height: 32, paddingTop: 16, alignItems: 'center' },
   grabber: { width: 44, height: 4, borderRadius: 2, backgroundColor: colour.ruleStrong },

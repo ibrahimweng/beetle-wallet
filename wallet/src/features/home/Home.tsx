@@ -6,8 +6,10 @@
    first time on this phone, the card dips on its own so the pull is found.
    Nothing here leaves anyone stuck: the header pulls back up, a tap on the
    day below closes the chat, and so does the phone's own back. Closing the
-   card files the chat in the day; opening it again starts a new one, and
-   a chat's row in the day picks it back up where it was. */
+   card files the chat in the day; a pull down within the hour carries it
+   on, after the hour a new one starts, New at the top right starts one at
+   once, and a chat's row in the day picks it back up where it was. The
+   mark at the top left opens Settings; a line in the day opens its receipt. */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler, Keyboard, Platform, Pressable, TextInput, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -43,14 +45,15 @@ import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { Chat } from '../agent/Chat';
 import { transcriptOf, turn, useConversation, type Turn } from '../agent/conversation';
-import { clock, detailOf, titleOf, useChats, type Chat as ChatRecord } from '../agent/chats';
+import { clock, detailOf, titleOf, toCarryOn, useChats, type Chat as ChatRecord } from '../agent/chats';
 import { transferPanel, PEOPLE } from '../../services/agent';
 import { handoff } from '../scan/handoff';
 import { samplePhoto } from '../scan/sample';
 import { PasscodeSheet, lockedFor } from '../passcode';
 import { ReceivePane, SAMPLE_ARRIVAL, arrivalChat, arrivalLine, arrivalMove, type Arrival } from '../receive';
 import { LAB } from '../../lab/enabled';
-import { glance, holdingsFor, type LedgerRow as Row } from './account';
+import { glance, holdingsFor } from './account';
+import { rowFrom, useMoves } from './moves';
 import { AskBar } from './AskBar';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { CLOSED_H, FOOT_BAND, WalletCard, useCardDrag, useCardTop } from './WalletCard';
@@ -75,11 +78,10 @@ export function Home() {
   const still = useStill();
   const { height: H } = useWindowDimensions();
   const { closedH, haze } = useCardTop();
-  const asked = useLocalSearchParams<{ chat?: string; receive?: string }>();
+  const asked = useLocalSearchParams<{ chat?: string; receive?: string; say?: string; about?: string }>();
 
   const [filter, setFilter] = useState<Filter>('All');
   const [put, setPut] = useState<string[]>([]);
-  const [moves, setMoves] = useState<Row[]>([]);
   const [draft, setDraft] = useState('');
   const [hint, setHint] = useState('Pull down');
   const [opened, setOpened] = useState(false);
@@ -118,6 +120,7 @@ export function Home() {
   });
 
   const account = app.session?.account;
+  const { moves, add: addMove } = useMoves(account?.accountNumber);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
   const balance = (h?.everyday ?? 0) + moves.reduce((a, r) => a + r.amount, 0);
   const rate = h?.rate ?? 1552;
@@ -133,29 +136,24 @@ export function Home() {
     }),
     [account, balance, rate],
   );
-  const onMove = useCallback((m: Move) => {
-    const id = `m${Date.now()}`;
-    const time = m.detail.slice(-5);
-    setMoves(list => [
-      {
-        id,
-        day: 'today',
-        time,
-        icon: m.icon,
-        name: m.name,
-        detail: m.detail,
-        amount: m.amount,
-        status: 'done',
-        kind: m.kind,
-      },
-      ...list,
-    ]);
-  }, []);
+  /* a line added to the day, by a panel or an arrival: it carries what its
+     receipt needs, and its id is what the receipt is found by */
+  const seq = useRef(16);
+  const onMove = useCallback(
+    (m: Move) => {
+      const row = rowFrom(m, balance, ++seq.current);
+      addMove(row);
+      return row.id;
+    },
+    [balance, addMove],
+  );
   const talk = useConversation(context, onMove);
   turnsRef.current = talk.turns;
   const pendingRef = useRef(talk.pending);
   pendingRef.current = talk.pending;
   const { chats, file, read } = useChats(account?.accountNumber, !!account?.demo);
+  const chatsRef = useRef(chats);
+  chatsRef.current = chats;
   /** the chat the card holds, if it came from the day */
   const current = useRef<ChatRecord | null>(null);
   /** the last chat was filed; the next opening starts afresh */
@@ -176,6 +174,7 @@ export function Home() {
     return noticed ?? `Hello ${account?.firstName ?? 'there'}. I can send money, top up, buy data, and read an account number off a photo. What do you need?`;
   }, [h, chats.length, account]);
 
+  /* a fresh chat, or the one within the hour picked up where it was left */
   const begin = useCallback(
     (opening?: string) => {
       let empty = turnsRef.current.length === 0;
@@ -185,32 +184,44 @@ export function Home() {
         stale.current = false;
         empty = true;
       }
-      if (empty) talk.open(opening ?? greeting());
-      else if (opening) talk.open(opening);
+      if (empty) {
+        const again = toCarryOn(chatsRef.current);
+        if (again) {
+          talk.load(again.turns, again.pending);
+          current.current = again;
+          if (opening) talk.open(opening);
+        } else talk.open(opening ?? greeting());
+      } else if (opening) talk.open(opening);
     },
     [talk, greeting],
   );
 
-  /* the card closing files the chat, if anything was said in it */
-  const fileCurrent = useCallback(() => {
-    const turns = turnsRef.current;
-    const cur = current.current;
-    const asked = turns.some(t => t.who === 'you');
-    if (cur || asked) {
-      file({
-        id: cur?.id ?? `chat-${Date.now().toString(36)}`,
-        startedBy: cur?.startedBy ?? 'you',
-        title: cur?.title ?? titleOf(turns),
-        detail: detailOf(turns),
-        time: clock(),
-        day: 'today',
-        turns,
-        pending: pendingRef.current,
-        unread: false,
-      });
-    }
-    stale.current = true;
-  }, [file]);
+  /* the card closing files the chat, if anything was said in it; a chat
+     ended by New is filed too, and never carries on */
+  const fileCurrent = useCallback(
+    (opts: { ended?: boolean } = {}) => {
+      const turns = turnsRef.current;
+      const cur = current.current;
+      const asked = turns.some(t => t.who === 'you');
+      if (cur || asked) {
+        file({
+          id: cur?.id ?? `chat-${Date.now().toString(36)}`,
+          startedBy: cur?.startedBy ?? 'you',
+          title: cur?.title ?? titleOf(turns),
+          detail: detailOf(turns),
+          time: clock(),
+          day: 'today',
+          turns,
+          pending: pendingRef.current,
+          unread: false,
+          lastAt: Date.now(),
+          ended: opts.ended,
+        });
+      }
+      stale.current = true;
+    },
+    [file],
+  );
 
   const show = useCallback(
     (to: boolean, opts: { greet?: boolean; opening?: string } = {}) => {
@@ -228,6 +239,16 @@ export function Home() {
     },
     [open, begin, fileCurrent],
   );
+
+  /* New, at the top right of the open card: the chat so far is filed and
+     ended, and Beetle opens a fresh one */
+  const startNew = useCallback(() => {
+    fileCurrent({ ended: true });
+    talk.reset();
+    current.current = null;
+    stale.current = false;
+    talk.open(greeting());
+  }, [fileCurrent, talk, greeting]);
 
   /* a panel's button: the passcode stands between it and the move, unless
      the gate is shut, in which case Beetle says how long for */
@@ -365,6 +386,42 @@ export function Home() {
     }
     staged.current = true;
     if (asked.chat === 'open') show(true);
+    if (asked.chat === 'carry') {
+      /* a chat filed a quarter of an hour ago: the pull down picks it up */
+      const panel = transferPanel(PEOPLE[0]!, 20_000);
+      file({
+        id: 'chat-carry',
+        startedBy: 'you',
+        title: 'Send 20k to Sarah',
+        detail: 'Done. ₦20,000 is with Sarah Adeyemi.',
+        time: clock(),
+        day: 'today',
+        turns: [
+          turn.you('Send 20k to Sarah'),
+          turn.say('₦20,000 to Sarah Adeyemi at GTBank. Here is what I have; the amount is yours to change.'),
+          turn.panel(panel, 'done'),
+          turn.say('Done. ₦20,000 is with Sarah Adeyemi.'),
+        ],
+        pending: null,
+        unread: false,
+        lastAt: Date.now() - 15 * 60 * 1000,
+      });
+      setTimeout(() => show(true), 250);
+    }
+    if (asked.chat === 'sent') {
+      /* a transfer just through the passcode: the panel done, the receipt, and Beetle's word */
+      const panel = transferPanel(PEOPLE[0]!, 20_000);
+      const at = clock();
+      const rowId = onMove({ ...panel.move!, detail: `${panel.move!.detail} · ${at}` }) as string;
+      talk.preload([
+        turn.you('Send 20k to Sarah'),
+        turn.say('₦20,000 to Sarah Adeyemi at GTBank. Here is what I have; the amount is yours to change.'),
+        turn.panel(panel, 'done'),
+        turn.receipt({ rowId, amount: naira(20_000), line: 'To Sarah Adeyemi', status: 'Successful', time: at }),
+        turn.say(`Done. ₦20,000 is with Sarah Adeyemi. It left your account at ${at}.`),
+      ]);
+      show(true, { greet: false });
+    }
     if (asked.chat === 'transfer') {
       const sarah = PEOPLE[0]!;
       const list: Turn[] = [
@@ -390,7 +447,21 @@ export function Home() {
       show(true, { greet: false });
       setTimeout(() => setGuard({ panelId: panel.id, panel }), 700);
     }
-  }, [ok, asked.chat, show, talk, chats, reopen]);
+  }, [ok, asked.chat, show, talk, chats, reopen, file, onMove]);
+
+  /* a question brought from a receipt: the chat opens with the receipt named, and asks it */
+  const said = useRef(false);
+  useEffect(() => {
+    if (!ok || !asked.say || said.current) return;
+    said.current = true;
+    const q = asked.say;
+    const about = asked.about;
+    show(true);
+    setTimeout(() => {
+      if (about) talk.note('About this receipt', about);
+      void talk.ask({ text: q });
+    }, 300);
+  }, [ok, asked.say, asked.about, show, talk]);
 
   const send = () => {
     const text = draft.trim();
@@ -449,7 +520,7 @@ export function Home() {
               detail={`${r.detail}${r.detail.includes(':') ? '' : ` · ${r.time}`}`}
               amount={signed(r.amount)}
               good={r.amount > 0}
-              onPress={next('The receipt')}
+              onPress={() => router.push(`/receipt/${r.id}`)}
             />
           ));
   const insight = (id: string, extra?: { onDismiss?: boolean }) => {
@@ -528,9 +599,11 @@ export function Home() {
               setTimeout(() => input.current?.focus(), 380);
             }}
             onReceive={openDetails}
+            onSettings={() => router.push('/settings')}
+            onNew={startNew}
             flash={flash}
             onDollars={() => askFor('What about dollars?')}
-            chat={<Chat talk={talk} active={opened} top={haze + 8} bottom={FOOT_BAND - 8} confirm={confirmWithPasscode} />}
+            chat={<Chat talk={talk} active={opened} top={haze + 8} bottom={FOOT_BAND - 8} confirm={confirmWithPasscode} onReceipt={id => router.push(`/receipt/${id}`)} />}
             over={
               details && account ? (
                 <ReceivePane
@@ -625,9 +698,6 @@ export function Home() {
                 </Animated.View>
               </>
             )}
-            <Pressable accessibilityRole="button" onPress={() => app.signOut().then(() => router.replace('/way-in'))} style={{ alignSelf: 'center', paddingVertical: 8 }}>
-              <Label tone="secondary">Sign out</Label>
-            </Pressable>
           </View>
         </Pane>
       </Animated.ScrollView>

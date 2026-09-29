@@ -1,7 +1,9 @@
 /* The chats: every conversation, whoever started it. One you start is filed
    when the card closes; one Beetle starts is there already, waiting, and is
    how it prompts you when something needs handling. They live in the day
-   with everything else, and under their own chip. */
+   with everything else, and under their own chip. A chat carries on for an
+   hour from its last message: a pull down within the hour picks it up, and
+   after that the next pull down starts a new one. */
 import { useCallback, useEffect, useState } from 'react';
 import { powerPanel, storage, type Pending } from '../../services';
 import { turn, type Turn } from './conversation';
@@ -19,11 +21,17 @@ export type Chat = {
   pending: Pending;
   /** started by Beetle and not yet opened */
   unread?: boolean;
+  /** when it was last touched, for the hour it carries on for */
+  lastAt?: number;
+  /** a new chat was started after it, so it never carries on */
+  ended?: boolean;
 };
 
 const key = (account: string) => `beetle.chats.${account}.v1`;
 
 export const clock = (d = new Date()) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
+export { HOUR, carriesOn, toCarryOn } from './hour';
 
 /** What Beetle has to say to the demo account this morning, before it is asked. */
 export function beetlePrompt(): Chat {
@@ -60,6 +68,7 @@ export function detailOf(turns: Turn[]): string {
     if (t.block.kind === 'say') return t.block.text.length > 56 ? t.block.text.slice(0, 54).trimEnd() + '…' : t.block.text;
     if (t.block.kind === 'note') return t.block.title;
     if (t.block.kind === 'thought') continue;
+    if (t.block.kind === 'receipt') return `${t.block.card.amount} ${t.block.card.line.replace(/^To /, 'to ').replace(/^From /, 'from ')}, ${t.block.card.status.toLowerCase()}`;
     if ('state' in t) {
       const thing = t.block.panel.action?.label ?? t.block.panel.title;
       return t.state === 'done' ? `${thing} · done` : `${thing}, waiting for you`;

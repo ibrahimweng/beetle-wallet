@@ -168,6 +168,96 @@ export const ASK: Feature = {
       href: '/home?chat=thinking',
       seed: demo,
     },
+    {
+      id: 'ask-carry',
+      icon: 'clock-filled',
+      title: 'A chat that carries on',
+      sub: 'One filed a quarter of an hour ago, picked up by the pull down; New at the top right starts another',
+      href: '/home?chat=carry',
+      seed: demo,
+    },
+  ],
+};
+
+export const RECEIPTS: Feature = {
+  id: 'receipts',
+  title: 'Receipts',
+  folder: 'src/features/receipts',
+  sub: 'A receipt for every line in the day: the card in the chat, the page, and sharing it.',
+  places: [
+    {
+      id: 'receipt-chat',
+      icon: 'receipt',
+      title: 'A receipt in the chat',
+      sub: 'A transfer just through the passcode: the panel done, the card, a tap to the page',
+      href: '/home?chat=sent',
+      seed: demo,
+    },
+    {
+      id: 'receipt-transfer',
+      icon: 'send',
+      title: 'A transfer',
+      sub: '₦20,000 to Sarah Adeyemi, on its page, from the All done frame',
+      href: '/receipt/l08',
+      seed: demo,
+    },
+    {
+      id: 'receipt-data',
+      icon: 'data',
+      title: 'Data bought',
+      sub: '5GB for Mum, from the frame',
+      href: '/receipt/l07',
+      seed: demo,
+    },
+    {
+      id: 'receipt-bill',
+      icon: 'power',
+      title: 'A bill paid',
+      sub: 'Ikeja Electric, with the meter token to copy, from the frame',
+      href: '/receipt/l11',
+      seed: demo,
+    },
+    {
+      id: 'receipt-in',
+      icon: 'bank',
+      title: 'Money in',
+      sub: 'The salary from Pagrin Limited, from the frame',
+      href: '/receipt/l10',
+      seed: demo,
+    },
+    {
+      id: 'receipt-share',
+      icon: 'share',
+      title: 'Share receipt',
+      sub: 'The share sheet over the transfer, from the frame',
+      href: '/receipt/l08?share=1',
+      seed: demo,
+    },
+  ],
+};
+
+export const SETTINGS: Feature = {
+  id: 'settings',
+  title: 'Settings',
+  folder: 'src/features/settings',
+  sub: 'From the mark at the top left of home: what keeps the money yours, your account, about.',
+  places: [
+    {
+      id: 'settings-page',
+      icon: 'settings-filled',
+      title: 'Settings',
+      sub: 'The page from the frame; Your details and Sign out work, the rest say which round they come with',
+      href: '/settings',
+      seed: demo,
+    },
+    {
+      id: 'settings-details',
+      icon: 'person-filled',
+      title: 'Your details',
+      sub: 'Name, number, account number to copy, member since, on a sheet',
+      href: '/settings?details=1',
+      seed: demo,
+    },
   ],
 };
 
@@ -255,4 +345,4 @@ export const MODEL: Feature = {
   ],
 };
 
-export const FEATURES: Feature[] = [WAY_IN, HOME, ASK, SCAN, GUARD, RECEIVE, MODEL];
+export const FEATURES: Feature[] = [WAY_IN, HOME, ASK, SCAN, GUARD, RECEIVE, RECEIPTS, SETTINGS, MODEL];

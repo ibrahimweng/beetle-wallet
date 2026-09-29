@@ -64,6 +64,8 @@ const PASSCODE = '654321';
 
 const b = await launch();
 const ctx = await b.newContext({ viewport: { width: 393, height: 852 }, deviceScaleFactor: 2 });
+/* the details pane copies the account number; a browser has to be told that is allowed */
+await ctx.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {});
 const page = await ctx.newPage();
 page.setDefaultTimeout(15000);
 const errors = [];
@@ -503,7 +505,12 @@ try {
   await see('0102 4457 88');
   await shot('receive', 900);
   await tap('Copy the number');
-  await see('copied. Paste it anywhere.');
+  /* the browser may still refuse the clipboard on a machine with none; the
+     pane says so either way, and that is what is checked */
+  const copied = page.getByText('copied. Paste it anywhere.').filter({ visible: true }).first();
+  const refused = page.getByText('cannot reach the clipboard').filter({ visible: true }).first();
+  await Promise.race([copied.waitFor(), refused.waitFor()]);
+  console.log(`  the number was ${(await copied.count()) ? 'copied' : 'not copied: this browser has no clipboard to give'}`);
   await tap('Done');
   await page.waitForTimeout(900);
   const afterDetails = await page.locator('[data-testid="card"]').boundingBox();

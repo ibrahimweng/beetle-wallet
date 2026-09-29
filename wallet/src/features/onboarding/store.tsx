@@ -25,6 +25,9 @@ type Actions = {
   signOut(): Promise<void>;
   /** Does what was typed match the passcode kept on this device? */
   checkPasscode(code: string): Promise<boolean>;
+  /** Put the app in a state: how far the way in has got, and who is signed
+      in. The lab uses it to open a place with the way there already walked. */
+  seed(progress: Progress, session: Session | null): Promise<void>;
 };
 
 type App = { ready: boolean; session: Session | null; progress: Progress } & Actions;
@@ -115,6 +118,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         if (!raw) return false;
         const { hash, salt } = JSON.parse(raw) as { hash: string; salt: string };
         return (await hashPasscode(code, salt)) === hash;
+      },
+      async seed(p, s) {
+        await replaceProgress(p);
+        await keepSession(s);
       },
     }),
     [patch, replaceProgress, keepSession],

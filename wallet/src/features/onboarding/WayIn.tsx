@@ -13,14 +13,39 @@
    What each stage shows is in views.tsx. This file is the choreography. */
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LayoutChangeEvent, Pressable, StyleProp, View, ViewStyle } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, { interpolateColor, runOnJS, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
-import { Body, Button, Display, Head, Icon, Keypad, Meta, Pane, Pop, Row as RowText, Swap, Tick, Wash, away, blurred, colour, keys, motion, settle, soft, standard, useLeave, useStill } from '../../design';
+import {
+  Body,
+  Button,
+  Display,
+  Head,
+  Icon,
+  Keypad,
+  Meta,
+  Pane,
+  Pop,
+  Row as RowText,
+  Swap,
+  Tick,
+  Wash,
+  away,
+  blurred,
+  colour,
+  keys,
+  motion,
+  settle,
+  soft,
+  standard,
+  useLeave,
+  useStill,
+} from '../../design';
 import type { IconName } from '../../icons';
 import { useApp } from './store';
 import { useFocused } from './useGuard';
-import { initialStage, rowsFor, type Row, type Stage } from './stages';
+import { initialStage, isStage, rowsFor, type Row, type Stage } from './stages';
 import { buildView, type Bar, type Ctx, type Note } from './views';
+import { LAB } from '../../lab/enabled';
 
 /* The geometry the glide is written against: a 32 glyph, 8 under it, the
    title 40 tall; the stack 20 above the band, its rows 24 tall with 16
@@ -44,6 +69,8 @@ export function WayIn() {
   const still = useStill();
   const focused = useFocused();
   const { leaving, leave } = useLeave();
+  /* the lab opens the screen at a stage of its choosing; nothing else can */
+  const asked = useLocalSearchParams<{ stage?: string; phone?: string }>();
 
   const [stage, setStage] = useState<Stage | null>(null);
   const [dir, setDir] = useState<Dir>(1);
@@ -66,8 +93,12 @@ export function WayIn() {
 
   /* where to start, once what the device knows has been read back */
   useEffect(() => {
-    if (app.ready && stage === null) setStage(initialStage(app.progress, app.session));
-  }, [app.ready, stage, app.progress, app.session]);
+    if (!app.ready || stage !== null) return;
+    if (LAB && isStage(asked.stage)) {
+      if (asked.stage === 'signcode' && asked.phone) setPhoneIn(asked.phone);
+      setStage(asked.stage);
+    } else setStage(initialStage(app.progress, app.session));
+  }, [app.ready, stage, app.progress, app.session, asked.stage, asked.phone]);
 
   /* a session that has seen the ready screen belongs at home */
   useEffect(() => {
@@ -290,9 +321,25 @@ function Stack({ rows, above, aboveKey, dir }: { rows: Row[]; above: ReactNode; 
       if (have === want) return current;
       const last = rows[rows.length - 1];
       const keep = alive.map(r => ({ ...r, mode: 'still' as const }));
-      if (last && rows.length === alive.length + 1 && rows.slice(0, -1).map(r => r.label).join('|') === have) return [...keep, { row: last, mode: 'in' }];
+      if (
+        last &&
+        rows.length === alive.length + 1 &&
+        rows
+          .slice(0, -1)
+          .map(r => r.label)
+          .join('|') === have
+      )
+        return [...keep, { row: last, mode: 'in' }];
       const going = alive[alive.length - 1];
-      if (going && alive.length === rows.length + 1 && alive.slice(0, -1).map(r => r.row.label).join('|') === want) return [...keep.slice(0, -1), { ...going, mode: 'out' }];
+      if (
+        going &&
+        alive.length === rows.length + 1 &&
+        alive
+          .slice(0, -1)
+          .map(r => r.row.label)
+          .join('|') === want
+      )
+        return [...keep.slice(0, -1), { ...going, mode: 'out' }];
       return rows.map(row => ({ row, mode: 'still' as const }));
     });
   }, [rows]);
@@ -342,7 +389,25 @@ function StackRow({ row, mode, onGone }: { row: Row; mode: Shown['mode']; onGone
 
 /* ---- the head band: glyph, title, line ---- */
 
-function HeadBand({ icon, tint, title, small, sub, stage, move, dir }: { icon: IconName | 'tick'; tint?: string; title: string; small: boolean; sub: string; stage: Stage; move: TitleMove; dir: Dir }) {
+function HeadBand({
+  icon,
+  tint,
+  title,
+  small,
+  sub,
+  stage,
+  move,
+  dir,
+}: {
+  icon: IconName | 'tick';
+  tint?: string;
+  title: string;
+  small: boolean;
+  sub: string;
+  stage: Stage;
+  move: TitleMove;
+  dir: Dir;
+}) {
   return (
     <View style={{ gap: GLYPH_GAP }}>
       <Glyph icon={icon} tint={tint} />
@@ -387,11 +452,7 @@ function GlyphLayerView({ layer, onGone }: { layer: GlyphLayer; onGone: () => vo
   }, [layer.out]); // eslint-disable-line react-hooks/exhaustive-deps
   const fading = useAnimatedStyle(() => ({ opacity: t.value, ...blurred((1 - t.value) * 4) }));
   const glyph = layer.icon === 'tick' ? <Tick on size={GLYPH} /> : <Icon name={layer.icon} size={GLYPH} colour={layer.tint} />;
-  return (
-    <Animated.View style={[{ position: 'absolute', top: 0, left: 0 }, fading]}>
-      {layer.out ? glyph : <Pop>{glyph}</Pop>}
-    </Animated.View>
-  );
+  return <Animated.View style={[{ position: 'absolute', top: 0, left: 0 }, fading]}>{layer.out ? glyph : <Pop>{glyph}</Pop>}</Animated.View>;
 }
 
 /* The title, and where it goes when the stage changes. Up: it glides into
@@ -494,7 +555,23 @@ function GhostTitle({ ghost, onDone }: { ghost: Ghost; onDone: () => void }) {
    above it never jumps. The bottom of the screen uses the same slot with the
    keypad's spring, going down instead of up. */
 type Snap = { key: string; node: ReactNode };
-function Slot({ id, children, from = 24, to = -24, delay = 160, spring = false, style }: { id: string; children: ReactNode; from?: number; to?: number; delay?: number; spring?: boolean; style?: StyleProp<ViewStyle> }) {
+function Slot({
+  id,
+  children,
+  from = 24,
+  to = -24,
+  delay = 160,
+  spring = false,
+  style,
+}: {
+  id: string;
+  children: ReactNode;
+  from?: number;
+  to?: number;
+  delay?: number;
+  spring?: boolean;
+  style?: StyleProp<ViewStyle>;
+}) {
   const still = useStill();
   const [shownId, setShownId] = useState(id);
   const [leaving, setLeaving] = useState<Snap | null>(null);

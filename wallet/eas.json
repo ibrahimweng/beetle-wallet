@@ -13,6 +13,9 @@
     },
     "production": {
       "channel": "production",
+      "env": {
+        "EXPO_PUBLIC_LAB": "0"
+      },
       "android": {
         "buildType": "app-bundle"
       }

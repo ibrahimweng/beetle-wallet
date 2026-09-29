@@ -5,7 +5,10 @@ import type { TrailStep } from '../../design';
 import { nextStep, type Progress, type Step } from './machine';
 import { FACE, NUMBER, PASS, WHO } from './steps';
 
-export type Stage = 'welcome' | 'number' | 'code' | 'identity' | 'confirm' | 'nomatch' | 'face' | 'passcode' | 'ready' | 'signin' | 'signcode';
+export const STAGES = ['welcome', 'number', 'code', 'identity', 'confirm', 'nomatch', 'face', 'passcode', 'ready', 'signin', 'signcode'] as const;
+export type Stage = (typeof STAGES)[number];
+
+export const isStage = (s: unknown): s is Stage => typeof s === 'string' && (STAGES as readonly string[]).includes(s);
 
 export type Row = TrailStep;
 

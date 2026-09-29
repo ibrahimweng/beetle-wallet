@@ -1,10 +1,11 @@
 /* The whole way in, driven through a browser against the exported web bundle,
-   which is the same JavaScript the phone runs. It opens an account from the
-   first loading screen to home, comes back to find the session kept, signs
-   out, tries the doors that should be shut, and signs back in with the number
-   the design is drawn around. Every screen on the way is photographed,
-   including the ones that say no. Anything the page logs as an error fails
-   the run.
+   which is the same JavaScript the phone runs. It opens on the lab, picks the
+   welcome, opens an account from there to home, comes back to find the
+   session kept, signs out, tries the doors that should be shut, signs back in
+   with the number the design is drawn around, and then uses the lab to open
+   a step deep in the way in and home on its own. Every screen on the way is
+   photographed, including the ones that say no. Anything the page logs as an
+   error fails the run.
 
      npx expo export --platform web --output-dir dist
      node test/flow.mjs dist            # the pictures land in shots/
@@ -80,7 +81,8 @@ async function shot(name, settle = 700) {
   steps.push({ file, at: page.url().slice(base.length) || '/', t: Date.now() - t0 });
   console.log(`  ${file}`);
 }
-const see = text => page.getByText(text).first().waitFor();
+/* the words, where they can be seen: a screen underneath the one showing keeps its words in the page, hidden */
+const see = text => page.getByText(text).filter({ visible: true }).first().waitFor();
 /* the moment a screen's words are in the page at all, before it has arrived —
    what a trace of the arrival has to start from */
 const arrives = text => page.waitForFunction(t => (document.body.innerText || '').includes(t), text, { polling: 16, timeout: 15000 });
@@ -163,11 +165,19 @@ const toBottom = () =>
   });
 
 try {
-  console.log('Opening an account');
+  console.log('The lab');
+  /* this build opens on the lab; the welcome is its first place */
   await page.goto(`${base}/`, { waitUntil: 'load' });
   await page.getByText('Beetle', { exact: true }).first().waitFor();
   await shot('boot', 250);
+  await see('Beetle Lab');
+  at('/lab');
+  await shot('lab');
+  await tap('Welcome');
+
+  console.log('Opening an account');
   await see('Open an account');
+  at('/way-in');
   await shot('welcome');
 
   /* the whole change traced from the tap, with a frame mid-way: the welcome
@@ -176,12 +186,26 @@ try {
   await tap('Open an account');
   /* the welcome's buttons leave (the first thing on its way out), and the
      new title arrives out of a blur */
-  const change = await trace('welcome-to-number', 1400, [['welcome', '[data-testid="leaving"]', false], ['number', '[data-testid="title"]', false]], { since: tapped, picture: { at: 120, name: 'welcome-leaving' } });
+  const change = await trace(
+    'welcome-to-number',
+    1400,
+    [
+      ['welcome', '[data-testid="leaving"]', false],
+      ['number', '[data-testid="title"]', false],
+    ],
+    { since: tapped, picture: { at: 120, name: 'welcome-leaving' } },
+  );
   /* gone: faded to nothing, or already taken down after fading (the picture
      mid-way can take longer than the fade itself) */
   const seen = change.findIndex(x => x.welcome);
   const gone = seen < 0 ? undefined : change.find((x, i) => i > seen && (!x.welcome || x.welcome.opacity < 0.15));
-  must(gone && gone.t <= 600, `the welcome should be gone within 600ms of the tap (samples: ${change.slice(0, 12).map(x => `${x.t}:${x.welcome ? x.welcome.opacity.toFixed(2) + '/' + x.welcome.blur.toFixed(1) : '-'}`).join(' ')})`);
+  must(
+    gone && gone.t <= 600,
+    `the welcome should be gone within 600ms of the tap (samples: ${change
+      .slice(0, 12)
+      .map(x => `${x.t}:${x.welcome ? x.welcome.opacity.toFixed(2) + '/' + x.welcome.blur.toFixed(1) : '-'}`)
+      .join(' ')})`,
+  );
   const soft = firstAt(change, 'number', n => n.blur > 1);
   must(soft, 'the number step should arrive out of a blur');
   const sharp = firstAt(change, 'number', n => n.opacity > 0.98 && n.blur < 0.05, soft.t);
@@ -235,7 +259,10 @@ try {
   await type('111');
   await shot('passcode-typing', 300);
   await type('111');
-  await page.getByText(/too easy to guess|Not the same digit six times/).first().waitFor();
+  await page
+    .getByText(/too easy to guess|Not the same digit six times/)
+    .first()
+    .waitFor();
   await shot('passcode-weak');
   await type(PASSCODE);
   await see('The same six, to be sure');
@@ -255,7 +282,10 @@ try {
   must(early && early.pending >= 2, `the ticks should still be on their way at ${early?.t}ms (${early?.pending} pending)`);
   must(late && late.pending === 0, `every tick should have landed by ${late?.t}ms (${late?.pending} pending: ${late?.what?.join('; ')})`);
   const landed = ticks.map(x => x.pending);
-  must(landed.every((v, i) => i === 0 || v <= landed[i - 1]), 'the ticks should land one after another, never un-land');
+  must(
+    landed.every((v, i) => i === 0 || v <= landed[i - 1]),
+    'the ticks should land one after another, never un-land',
+  );
   must(new Set(landed).size >= 3, `the ticks should land one after another, not all at once (${landed.join(' ')})`);
   console.log(`  ${early.pending} marks on their way at ${early.t}ms, the last landed by ${ticks.find(x => x.pending === 0).t}ms (${ticks.map(x => `${x.t}:${x.pending}`).join(' ')})`);
   await shot('ready');
@@ -268,15 +298,15 @@ try {
   await shot('home-new-bottom');
 
   console.log('Coming back');
-  /* opening the app again starts at the loading screen, which reads the
-     session back and goes straight home */
+  /* opening the app again starts at the loading screen, which in this build
+     goes to the lab; the session was kept, so the way in is not for somebody
+     who is already in, and sends them home */
   await page.goto(`${base}/`, { waitUntil: 'load' });
   await page.getByText('Beetle', { exact: true }).first().waitFor();
   await shot('boot-again', 250);
-  await see('Nothing has moved yet');
-  at('/home');
-  /* a step of the way in is not for somebody who is already in */
-  await page.goto(`${base}/phone`, { waitUntil: 'load' });
+  await see('Beetle Lab');
+  at('/lab');
+  await page.goto(`${base}/way-in`, { waitUntil: 'load' });
   await see('Nothing has moved yet');
   at('/home');
 
@@ -288,11 +318,14 @@ try {
   await page.goto(`${base}/home`, { waitUntil: 'load' });
   await see('Open an account');
   at('/way-in');
+  /* and an address that is not a screen goes back to the start */
   await page.goto(`${base}/passcode`, { waitUntil: 'load' });
-  await see('Open an account');
-  at('/way-in');
+  await see('Beetle Lab');
+  at('/lab');
 
   console.log('Signing in');
+  await page.goto(`${base}/way-in`, { waitUntil: 'load' });
+  await see('Open an account');
   await tap('Sign in');
   await see('Welcome back');
   at('/way-in');
@@ -312,7 +345,13 @@ try {
   const balance = await trace('home-balance', 1100, [['balance', '595,320', true]], { picture: { at: 220, name: 'home-resolving' } });
   const blurry = firstAt(balance, 'balance', b => b.blur > 1);
   const clear = firstAt(balance, 'balance', b => b.blur < 0.05 && b.opacity > 0.98);
-  must(blurry, `the balance should resolve from a blur (first samples: ${balance.slice(0, 4).map(x => JSON.stringify(x)).join(' ')})`);
+  must(
+    blurry,
+    `the balance should resolve from a blur (first samples: ${balance
+      .slice(0, 4)
+      .map(x => JSON.stringify(x))
+      .join(' ')})`,
+  );
   must(clear && clear.t <= 1100, 'the balance should be clear within 1.1s');
   console.log(`  balance ${blurry.balance.blur.toFixed(1)}px soft at ${blurry.t}ms, clear at ${clear.t}ms`);
   await shot('home');
@@ -321,6 +360,32 @@ try {
   await tap('All');
   await toBottom();
   await shot('home-bottom');
+
+  console.log('A place on its own');
+  /* the tab on the edge brings the lab back; a step deep in the way in opens
+     with the way there already walked, and home opens signed in */
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  at('/lab');
+  await tap('Your face');
+  await see('Hold still and look at the camera');
+  at('/way-in');
+  await see('Your number');
+  await see('Who you are');
+  await shot('lab-face');
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  at('/lab');
+  await tap('Ready');
+  await arrives('Your account is ready');
+  at('/way-in');
+  await shot('lab-ready');
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  await tap('A new account');
+  await see('Nothing has moved yet');
+  at('/home');
+  await shot('lab-home-new', 400);
 } catch (e) {
   await page.screenshot({ path: join(SHOTS, '00-failed.png') }).catch(() => {});
   const text = await page.evaluate(() => document.body.innerText || '').catch(() => '');

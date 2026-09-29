@@ -13,6 +13,10 @@ opening an account (number, six digits by text, NIN or BVN, the record that
 comes back, a face, a passcode typed twice, the account being ready), signing
 in, and home in both of its states.
 
+Each feature is a folder under `src/features/`, and every build but the
+production one opens on the **lab**, a screen that lists them so each can be
+tried on its own. See [the lab](#the-lab).
+
 ## Running it
 
 ```
@@ -33,7 +37,7 @@ every screen. It needs a Chromium (`npx playwright install chromium`, or set
 | `npm run typecheck` | it compiles, with `strict` and `noUncheckedIndexedAccess` on |
 | `npm test` | the rules of the way in: what counts as a Nigerian number, what a passcode may not be, where each step leads, how the mock services answer |
 | `npm run bundle` | the same JavaScript the phone runs, exported for the web into `dist/` |
-| `npm run flow` | from the loading screen to home, then out and back in as the demo account, with the doors that should be shut tried on the way; every screen photographed into `shots/` |
+| `npm run flow` | from the lab to the welcome and on to home, then out and back in as the demo account, with the doors that should be shut tried on the way, and a step deep in the way in opened on its own from the lab; every screen photographed into `shots/` |
 
 ## What this build accepts
 
@@ -54,11 +58,12 @@ mocks in and says so on the code screen; a real `AuthService` and
 
 | Folder | What it is |
 |---|---|
-| `app/` | The routes: the loading screen, the way in as one screen, and home. `expo-router` reads this folder as the map. |
+| `app/` | The routes: the loading screen, the lab, the way in as one screen, and home. `expo-router` reads this folder as the map. |
 | `src/design/` | The design system read off the Figma file: tokens, type, icons, motion, and the pieces every screen is made of |
 | `src/icons.ts` | The 95 glyphs, generated from `../src/icons.js` by `npm run icons`; never edited by hand |
 | `src/features/onboarding/` | The way in: the step machine (`machine.ts`), what is remembered and the session (`store.tsx`), the rules (`validation.ts`), the one screen and its choreography (`WayIn.tsx`), what each stage of it shows (`views.tsx`, `stages.ts`), and the guard that keeps home for a session |
 | `src/features/home/` | What home shows for an account: nothing for a new one, the design's world for the demo one |
+| `src/lab/` | The lab: which builds have it (`enabled.ts`), every feature and the places in it with the state each needs (`catalogue.ts`), the screen, and the tab that comes back to it |
 | `src/services/` | `AuthService`, `IdentityService`, storage and hashing behind interfaces, with the mocks this build runs on |
 | `src/lib/` | Formatting: digit groups, naira and kobo, dates |
 | `test/` | The unit tests, and the browser walk of the way in |
@@ -70,6 +75,34 @@ are kept in the device's secure store (`expo-secure-store`), with a plain
 fallback on the web where there is none. The passcode itself is never kept:
 a random salt and a SHA-256 of salt and code are, and `checkPasscode` compares
 against that.
+
+## The lab
+
+A feature is built and tried on its own before it is joined to the rest, so
+every build but the production one opens on the lab instead of the app. It
+lists each feature, and inside each the places worth opening: every stage of
+the way in, and home as a new account and as the demo one. Tap a place and
+the app is put in the state that place needs — the steps before it done, a
+session where one is wanted — and opens there. The passcode step is one tap
+away, not six. A small dark tab on the right edge of every other screen comes
+back to the lab; so do the phone's own back gesture and the browser's back.
+
+The lab also says which build it is (the update it is running and when it was
+sent) and can fetch the latest one on the spot, instead of waiting for the
+next open. "Forget everything on this phone" clears the session and the way
+in.
+
+Which builds have it is decided in `src/lab/enabled.ts`: every build except
+one on the `production` update channel, so the preview APK, Expo Go, the web
+export and a development build all open on it and the production build never
+does. `EXPO_PUBLIC_LAB=0` or `=1` at export time overrides that either way,
+and `eas.json` sets it to `0` for the production profile as well.
+
+To add a feature: make its folder under `src/features/`, give it a route
+under `app/`, and add it to `FEATURES` in `src/lab/catalogue.ts` with the
+places to open and the state each needs. `npm test` checks the catalogue —
+every stage of the way in listed once, each seeded with exactly the way
+there.
 
 ## How it moves
 

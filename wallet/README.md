@@ -66,7 +66,7 @@ mocks in and says so on the code screen; a real `AuthService` and
 | `src/design/` | The design system read off the Figma file: tokens, type, icons, motion, and the pieces every screen is made of |
 | `src/icons.ts` | The 95 glyphs, generated from `../src/icons.js` by `npm run icons`, which puts the line widths the file draws them at (0.075 of the box for a glyph, 0.10 for a bare mark) and round ends back on every stroked path; never edited by hand |
 | `src/features/onboarding/` | The way in: the step machine (`machine.ts`), what is remembered and the session (`store.tsx`), the rules (`validation.ts`), the one screen and its choreography (`WayIn.tsx`), what each stage of it shows (`views.tsx`, `stages.ts`), and the guard that keeps home for a session |
-| `src/features/home/` | Home: the card (`WalletCard.tsx`, closed and open and the drag between), the frosted band its header sits on (`Frost.tsx`), the screen around it with the day and the chats in it (`Home.tsx`), the ask bar in its two states (`AskBar.tsx`), what the day shows for an account (`account.ts`), and the once-only dip (`first.ts`) |
+| `src/features/home/` | Home: the card (`WalletCard.tsx`, closed and open and the drag between), the haze at its head and its foot (`Frost.tsx`), the screen around it with the day and the chats in it (`Home.tsx`), the ask bar in its two states (`AskBar.tsx`), what the day shows for an account (`account.ts`), and the once-only dip (`first.ts`) |
 | `src/features/agent/` | The chat: the conversation and what Beetle is waiting for (`conversation.tsx`), the list (`Chat.tsx`), the dark pieces it is drawn with — what was said, the panels, the dots (`Dark.tsx`) — and the chats filed in the day, Beetle's prompts among them (`chats.ts`) |
 | `src/features/scan/` | The camera screen with every way it can go wrong, the photo's way back to the chat, and the sample slip |
 | `src/lab/` | The lab: which builds have it (`enabled.ts`), every feature and the places in it with the state each needs (`catalogue.ts`), the screen, and the tab that comes back to it |
@@ -117,17 +117,22 @@ grabber that says pull down. Pull it and it becomes the chat: it grows until
 only the head of the day and its chips still show below it, while the figure
 glides up into the header, shrinking as it goes; the buttons soften away; the
 conversation arrives from below with the ask bar at the card's foot. The
-header and the foot are frosted glass: the conversation runs up under the
-one and down under the other and shows through, softened, thickest at the
-edge and thinning towards the chat, with no line anywhere — the figure and
-the bar read over a haze, and the card keeps its silhouette. The head of the
+header and the foot are a haze: the conversation runs up under the one and
+down under the other and shows through, softened and darkened, near solid at
+the card's edge and thinning to nothing — the top haze ends under the mark
+and the foot haze at the middle of the ask bar, so a bubble on its way out
+simply dims until it is gone, with no line anywhere; the figure keeps its
+contrast, the bar sits over the tail of the conversation, and the card keeps
+its silhouette. (Each sheet of the blur is masked by a gradient so its own end
+fades — a `MaskedView` on the phone, CSS on the web.) The head of the
 day below is the way back — a tap on it, a push up on it, a push up on the
 header or on the chat once it has scrolled to its end, or the phone's own
 back closes the chat. The first time on a phone, the card dips on its own
 with the words "Pull down to ask Beetle", once. The keyboard shrinks the open
-card rather than covering the bar. (The blur itself comes from `expo-blur`,
-which is in Expo Go and the web now and in any APK built after it was added;
-an older APK gets the darkening without the blur.)
+card rather than covering the bar. (The blur itself comes from `expo-blur` and its mask from
+`@react-native-masked-view/masked-view`, both in Expo Go and the web now and
+in any APK built after they were added; an older APK gets the darkening
+without the blur.)
 
 The ask bar has two states off the frame: idle, with the grey petals of the
 mark, the placeholder and the camera; and active, the moment there is

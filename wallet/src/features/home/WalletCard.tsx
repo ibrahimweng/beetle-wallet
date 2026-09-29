@@ -4,8 +4,8 @@
    reading in dollars, Send and Receive, and a grabber that says pull down.
    Pulled down, it grows to two thirds of the screen and turns into the chat:
    the balance glides up into the header, shrinking as it goes, the buttons
-   and the grabber soften away, and a hairline and the conversation arrive
-   from below. Pulled back up on its header, it runs the same movements the
+   and the grabber soften away, and the conversation arrives from below,
+   running under a haze at the head and the foot. Pulled back up on its header, it runs the same movements the
    other way. Everything is drawn against one number, `open`, from 0 to 1,
    so a finger can scrub it and the spring can finish it. */
 import React, { ReactNode, useEffect, useMemo, useState } from 'react';
@@ -29,6 +29,12 @@ const HEADER_H = 36;
 export const HEAD_BAND = TOP + HEADER_H + 20;
 /** the room the ask bar takes at the foot of the open card: gap, bar, padding */
 export const FOOT_BAND = 20 + 48 + 20;
+/** the mark in the header, as the frame draws it */
+const MARK_SIZE = 36;
+/** how far past its line a haze still thins, so its end is never seen */
+const HAZE_FEATHER = 12;
+/** the foot haze: the card's edge up to the middle of the bar, and the feather */
+export const FOOT_HAZE = 20 + 24 + HAZE_FEATHER;
 /** where the figure goes: after the mark */
 const FIGURE_LEFT = SIDE + 36 + 12 + 4;
 /** the drag has to travel this far before the card takes it */
@@ -122,7 +128,9 @@ export function useCardTop() {
   const insets = useSafeAreaInsets();
   const top = Math.max(TOP, Math.round(insets.top) + 2);
   const extra = top - TOP;
-  return { top, extra, headBand: HEAD_BAND + extra, closedH: CLOSED_H + extra };
+  /* the top haze: the card's edge down to under the mark, and the feather;
+     near solid as far as the figure reaches, so the figure keeps its contrast */
+  return { top, extra, headBand: HEAD_BAND + extra, closedH: CLOSED_H + extra, haze: top + MARK_SIZE + HAZE_FEATHER, hazeSolid: top + 26 };
 }
 
 export type CardProps = {
@@ -152,7 +160,7 @@ const clamp = (v: number, lo: number, hi: number) => {
 export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onSend, onReceive, onDollars, chat, foot }: CardProps) {
   const { width: W } = useWindowDimensions();
   const still = useStill();
-  const { top, extra, headBand, closedH } = useCardTop();
+  const { top, extra, headBand, closedH, haze, hazeSolid } = useCardTop();
   /* how far down the figure and the chip sit when closed, and where they go in the header */
   const figureTop = top + HEADER_H + 24 + 16 + 4;
   const figureTopOpen = top + (HEADER_H - 20) / 2;
@@ -258,7 +266,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
         <CardGesturesContext.Provider value={gestures}>{chat}</CardGesturesContext.Provider>
       </Animated.View>
       <Animated.View style={[s.foot, coming]} pointerEvents={opened ? 'box-none' : 'none'}>
-        <Frost height={FOOT_BAND + 40} side="bottom" />
+        <Frost height={FOOT_HAZE} side="bottom" solid={20} />
         <View style={s.bar}>{foot}</View>
       </Animated.View>
 
@@ -267,7 +275,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
       <GestureDetector gesture={headPan}>
         <View style={[s.head, { height: headBand, paddingTop: top }]}>
           <Animated.View style={[StyleSheet.absoluteFill, frost]} pointerEvents="none">
-            <Frost height={headBand} />
+            <Frost height={haze} solid={hazeSolid} />
           </Animated.View>
           <View style={s.headRow}>
             <Image source={MARK} style={{ width: 36, height: 36, borderRadius: 18 }} accessibilityLabel="Beetle" />
@@ -356,7 +364,7 @@ const s = StyleSheet.create({
   grab: { position: 'absolute', top: CLOSED_H - 20 - 32, left: 0, right: 0, alignItems: 'center', gap: 12, zIndex: 2 },
   grabber: { width: 27, height: 4, borderRadius: 2, backgroundColor: dark.grabber },
   opened: { position: 'absolute', top: 0, left: SIDE, right: SIDE, bottom: 0 },
-  foot: { position: 'absolute', left: 0, right: 0, bottom: 0, height: FOOT_BAND + 40 },
+  foot: { position: 'absolute', left: 0, right: 0, bottom: 0, height: FOOT_BAND },
   bar: { position: 'absolute', left: SIDE, right: SIDE, bottom: 20, height: 48 },
   figure: { position: 'absolute', top: 0, left: 0, flexDirection: 'row', alignItems: 'flex-start', zIndex: 4 },
   figureText: { color: '#ffffff', fontWeight: '700', fontSize: 32, lineHeight: 40, letterSpacing: -1.06 },

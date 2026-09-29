@@ -45,7 +45,7 @@ export function Home() {
   const ok = useSessionGuard();
   const still = useStill();
   const { height: H } = useWindowDimensions();
-  const { headBand, closedH } = useCardTop();
+  const { closedH, haze } = useCardTop();
   const asked = useLocalSearchParams<{ chat?: string }>();
 
   const [filter, setFilter] = useState<Filter>('All');
@@ -368,7 +368,7 @@ export function Home() {
             }}
             onReceive={next('Receiving')}
             onDollars={() => askFor('What about dollars?')}
-            chat={<Chat talk={talk} active={opened} top={headBand + 20} bottom={FOOT_BAND + 8} />}
+            chat={<Chat talk={talk} active={opened} top={haze + 8} bottom={FOOT_BAND - 8} />}
             foot={<AskBar ref={input} value={draft} onChange={setDraft} onSubmit={send} onCamera={toCamera} />}
           />
           <View style={{ paddingHorizontal: frame.sidePad, paddingTop: 32, gap: frame.columnGap }}>

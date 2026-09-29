@@ -1,0 +1,59 @@
+<frame id="224:2" name="LimitStop" x="2052" y="80" width="393" height="852">
+  <frame id="224:3" name="Page" x="0" y="0" width="393" height="718.7999877929688">
+    <frame id="224:4" name="Content" x="20" y="72" width="353" height="646.7999877929688">
+      <instance id="660:18124" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="224:8" name="Column" x="0" y="75.19999694824219" width="353" height="139">
+        <instance id="564:15439" name="Glyph · warn-filled" x="0" y="0" width="56" height="56" />
+        <frame id="224:12" name="Column" x="0" y="72" width="351.20001220703125" height="67">
+          <text id="224:13" name="₦120,000" x="0" y="0" width="148" height="40" />
+          <text id="224:14" name="₦20,000 over the ₦100,000 yo" x="0" y="52" width="332" height="20" />
+        </frame>
+      </frame>
+      <frame id="224:15" name="Card" x="0" y="230.1999969482422" width="353" height="78.4000015258789">
+        <instance id="564:15443" name="Glyph · warn-filled" x="16" y="27.200000762939453" width="24" height="24" />
+        <text id="224:19" name="This is your limit, not the ba" x="52" y="15.200000762939453" width="252" height="48" />
+      </frame>
+      <frame id="224:20" name="Card" x="0" y="324.6000061035156" width="353" height="244.1999969482422">
+        <frame id="224:21" name="Row · Your passcode" x="16" y="16" width="321" height="28">
+          <frame id="224:22" name="Icon" x="0" y="0" width="28" height="28">
+            <instance id="564:15447" name="Glyph · check" x="6" y="6" width="16" height="16" />
+          </frame>
+          <text id="224:25" name="Your passcode" x="40" y="3.4000000953674316" width="113" height="24" />
+          <text id="224:26" name="Done" x="295" y="8" width="31" height="16" />
+        </frame>
+        <frame id="224:27" name="Column" x="16" y="60" width="321" height="168.1999969482422">
+          <frame id="224:28" name="Row · Now type the words i" x="0" y="16" width="321" height="28">
+            <frame id="224:29" name="Chip · 2" x="0" y="0" width="28" height="28">
+              <text id="224:30" name="2" x="9.300000190734863" y="6" width="9" height="20" />
+            </frame>
+            <text id="224:31" name="Now type the words in full" x="40" y="-10" width="175" height="48" />
+          </frame>
+          <frame id="224:32" name="Group" x="0" y="56" width="321" height="111.19999694824219">
+            <frame id="224:33" name="Card" x="40" y="0" width="281" height="57.20000076293945">
+              <text id="224:34" name="Confirm this transa" x="16" y="4.600000381469727" width="140.60000610351562" height="48" />
+              <frame id="224:35" name="Box" x="156.60000610351562" y="18.600000381469727" width="2" height="20" />
+              <text id="224:36" name="ction" x="158.60000610351562" y="16.600000381469727" width="39" height="24" />
+            </frame>
+            <text id="224:37" name="Five letters to go. Exactly " x="40" y="65.19999694824219" width="258" height="32" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="224:38" name="Card" x="0" y="584.800048828125" width="353" height="62">
+        <frame id="224:39" name="Icon" x="16" y="15" width="32" height="32">
+          <instance id="564:15450" name="Glyph · send" x="8" y="8" width="16" height="16" />
+        </frame>
+        <frame id="224:42" name="Column" x="60" y="13.5" width="249" height="35">
+          <text id="224:43" name="Send ₦100,000 instead" x="0" y="0" width="157" height="20" />
+          <text id="224:44" name="The rest tomorrow, no typing" x="0" y="24" width="164" height="16" />
+        </frame>
+        <instance id="564:15453" name="Glyph · chevron" x="321" y="23" width="16" height="16" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="224:47" name="Dock" x="0" y="740" width="393" height="112">
+    <frame id="224:48" name="Back" x="20" y="38" width="44" height="44">
+      <instance id="564:15456" name="Glyph · back" x="11" y="11" width="22" height="22" />
+    </frame>
+    <instance id="577:18297" name="Button · Send ₦120,000" x="72" y="32" width="301" height="56" />
+  </frame>
+</frame>

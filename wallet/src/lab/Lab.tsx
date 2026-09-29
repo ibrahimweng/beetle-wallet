@@ -12,6 +12,7 @@ import { Caption, Card, Display, Divider, Head, Icon, Label, Meta, More, Row, Sc
 import { useApp } from '../features/onboarding/store';
 import { storage } from '../services';
 import { movesKey } from '../features/home/moves';
+import { prefsKey } from '../features/settings/prefs';
 import { FEATURES, type Place } from './catalogue';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -40,7 +41,10 @@ export function Lab() {
     try {
       for (const key of p.forget ?? []) await storage.remove(key);
       /* a place starts the day as the frames draw it: what moved on this phone since is forgotten */
-      if (p.seed.session) await storage.remove(movesKey(p.seed.session.account.accountNumber));
+      if (p.seed.session) {
+        await storage.remove(movesKey(p.seed.session.account.accountNumber));
+        await storage.remove(prefsKey(p.seed.session.account.accountNumber));
+      }
       await app.seed(p.seed.progress, p.seed.session);
       router.push(p.href);
     } finally {

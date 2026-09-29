@@ -7,7 +7,8 @@
    63, so the words themselves line up with the top of the screen rather than
    the box around them. Both variants give 5 back at the bottom for the same
    reason: the line under the title carries more box than ink, and the frames
-   space what follows from the ink. */
+   space what follows from the ink: half of them put the next block 143
+   down, the other half 147, and the build's 145 is within reach of both. */
 import React from 'react';
 import { View } from 'react-native';
 import { Body, Head, Title } from './text';
@@ -17,7 +18,7 @@ export function PageHead({ title, sub, lead = false }: { title: string; sub?: st
   return (
     /* the big one sets its line two under the title where the small one
        leaves eight: at 32 the box already carries the room */
-    <View style={{ gap: lead ? 2 : 8, marginTop: lead ? -9 : 0, marginBottom: -5 }}>
+    <View style={{ gap: lead ? 2 : 8, marginTop: lead ? -9 : 0, marginBottom: lead ? -4 : -3 }}>
       <T>{title}</T>
       {sub ? <Body tone="tertiary">{sub}</Body> : null}
     </View>

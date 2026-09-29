@@ -1,0 +1,106 @@
+<frame id="207:136" name="Rules" x="573" y="80" width="393" height="852">
+  <frame id="207:137" name="Page" x="0" y="0" width="393" height="972.4000244140625">
+    <frame id="207:138" name="Content" x="20" y="72" width="353" height="900.3999633789062">
+      <instance id="660:18112" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="207:142" name="Card" x="0" y="71.19999694824219" width="353" height="179.1999969482422">
+        <frame id="207:143" name="Row" x="17" y="16" width="319" height="101.19999694824219">
+          <frame id="207:144" name="Column" x="0" y="0" width="255" height="101.19999694824219">
+            <text id="207:145" name="Money is tight this month" x="0" y="0" width="194" height="24" />
+            <text id="207:146" name="Turn this on and I stop movi" x="0" y="32" width="255" height="80" />
+          </frame>
+          <frame id="207:147" name="Box" x="267" y="0" width="52" height="32">
+            <frame id="207:148" name="Box" x="2" y="2" width="26" height="26" />
+          </frame>
+        </frame>
+        <frame id="207:149" name="Box" x="17" y="129.1999969482422" width="319" height="32">
+          <text id="207:150" name="You can also just tell me, a" x="0" y="13.5" width="195" height="16" />
+        </frame>
+      </frame>
+      <frame id="207:151" name="Column" x="0" y="262.3999938964844" width="353" height="408.79998779296875">
+        <frame id="207:152" name="Card" x="0" y="0" width="353" height="146.39999389648438">
+          <frame id="207:153" name="Row" x="16" y="16" width="321" height="70.4000015258789">
+            <frame id="207:154" name="Column" x="0" y="0" width="257" height="70.4000015258789">
+              <text id="207:155" name="Move ₦20,000 to Holiday on pay" x="0" y="0" width="221" height="48" />
+              <text id="207:156" name="The day your salary lands." x="0" y="50.400001525878906" width="169" height="20" />
+            </frame>
+            <frame id="207:157" name="Box" x="269" y="0" width="52" height="32">
+              <frame id="207:158" name="Box" x="24" y="2" width="26" height="26" />
+            </frame>
+          </frame>
+          <frame id="207:159" name="Row · Moved 4 times · ₦80," x="16" y="98.4000015258789" width="321" height="32">
+            <text id="207:160" name="Moved 4 times · ₦80,000 put as" x="0" y="10" width="271" height="20" />
+            <text id="207:161" name="See log" x="271" y="10" width="50" height="20" />
+          </frame>
+        </frame>
+        <frame id="207:162" name="Card" x="0" y="154.39999389648438" width="353" height="123.19999694824219">
+          <frame id="207:163" name="Row" x="16" y="16" width="321" height="47.20000076293945">
+            <frame id="207:164" name="Column" x="0" y="0" width="257" height="47.20000076293945">
+              <text id="207:165" name="Top up Ikeja Electric" x="0" y="0" width="153" height="24" />
+              <text id="207:166" name="When it lands, up to ₦10,000" x="0" y="32" width="224" height="20" />
+            </frame>
+            <frame id="207:167" name="Box" x="269" y="0" width="52" height="32">
+              <frame id="207:168" name="Box" x="24" y="2" width="26" height="26" />
+            </frame>
+          </frame>
+          <frame id="207:169" name="Row · Paid 3 times · ₦22,4" x="16" y="75.19999694824219" width="321" height="32">
+            <text id="207:170" name="Paid 3 times · ₦22,400" x="0" y="10" width="271" height="20" />
+            <text id="207:171" name="See log" x="271" y="10" width="50" height="20" />
+          </frame>
+        </frame>
+        <frame id="207:172" name="Card" x="0" y="285.5999755859375" width="353" height="123.19999694824219">
+          <frame id="207:173" name="Row" x="16" y="16" width="321" height="47.20000076293945">
+            <frame id="207:174" name="Column" x="0" y="0" width="257" height="47.20000076293945">
+              <text id="207:175" name="Buy 5GB when my data runs out" x="0" y="0" width="244" height="24" />
+              <text id="207:176" name="Once a month at most." x="0" y="32" width="148" height="20" />
+            </frame>
+            <frame id="207:177" name="Box" x="269" y="0" width="52" height="32">
+              <frame id="207:178" name="Box" x="24" y="2" width="26" height="26" />
+            </frame>
+          </frame>
+          <frame id="207:179" name="Row · Bought twice · ₦5,00" x="16" y="75.19999694824219" width="321" height="32">
+            <text id="207:180" name="Bought twice · ₦5,000" x="0" y="10" width="271" height="20" />
+            <text id="207:181" name="See log" x="271" y="10" width="50" height="20" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="207:182" name="Column" x="0" y="683.199951171875" width="353" height="155.1999969482422">
+        <text id="207:183" name="I will always ask first" x="0" y="0" width="148" height="23.199996948242188" />
+        <frame id="207:184" name="Row · Paying anyone you ha" x="0" y="35.19999694824219" width="353" height="32">
+          <frame id="207:185" name="Icon" x="0" y="0" width="32" height="32">
+            <instance id="564:15155" name="Glyph · lock" x="8" y="8" width="16" height="16" />
+          </frame>
+          <text id="207:189" name="Paying anyone you have not p" x="44" y="6" width="257" height="20" />
+        </frame>
+        <frame id="207:190" name="Row · Anything over ₦20,00" x="0" y="79.19999694824219" width="353" height="32">
+          <frame id="207:191" name="Icon" x="0" y="0" width="32" height="32">
+            <instance id="564:15159" name="Glyph · lock" x="8" y="8" width="16" height="16" />
+          </frame>
+          <text id="207:195" name="Anything over ₦20,000" x="44" y="6" width="148" height="20" />
+        </frame>
+        <frame id="207:196" name="Row · Taking a loan on you" x="0" y="123.19999694824219" width="353" height="32">
+          <frame id="207:197" name="Icon" x="0" y="0" width="32" height="32">
+            <instance id="564:15163" name="Glyph · lock" x="8" y="8" width="16" height="16" />
+          </frame>
+          <text id="207:201" name="Taking a loan on your behalf" x="44" y="6" width="181" height="20" />
+        </frame>
+      </frame>
+      <frame id="207:202" name="Card" x="0" y="850.3999633789062" width="353" height="50">
+        <instance id="564:15167" name="Glyph · plus" x="101.5" y="16" width="18" height="18" />
+        <text id="207:205" name="Add an instruction" x="127.5" y="15" width="124" height="20" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="207:206" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="207:207" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="207:208" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="564:15170" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="207:211" name="Ask bar" x="52" y="4" width="245" height="48">
+        <instance id="235:6282" name="Mark · 32" x="8" y="8" width="32" height="32" />
+        <text id="207:216" name="Ask me to set one up" x="48" y="16" width="107" height="16" />
+        <instance id="564:15173" name="Glyph · camera" x="163" y="15" width="18" height="18" />
+      </frame>
+      <instance id="577:18249" name="Action button" x="305" y="0" width="56" height="56" />
+    </frame>
+  </frame>
+</frame>

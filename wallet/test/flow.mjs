@@ -164,6 +164,9 @@ const must = (ok, what) => {
 };
 
 /* The screen scrolls inside the page, so the bottom needs the list itself moved. */
+/* a switch on the page, once it reads as on or off */
+const switched = (name, on) =>
+  page.waitForFunction(([n, w]) => [...document.querySelectorAll(`[role="switch"][aria-label="${n}"]`)].pop()?.getAttribute('aria-checked') === w, [name, String(on)], { timeout: 5000 });
 const toTop = () =>
   page.evaluate(() => {
     for (const el of document.querySelectorAll('div')) {
@@ -665,14 +668,21 @@ try {
   at('/receipt/l08');
   await shot('receipt-transfer', 500);
   await tap('Copy it');
-  await page.getByText(/copied\. Paste it anywhere\.|cannot reach the clipboard/).first().waitFor();
+  await page
+    .getByText(/copied\. Paste it anywhere\.|cannot reach the clipboard/)
+    .first()
+    .waitFor();
   await tap('Share receipt');
   await see('Share this receipt');
   await shot('receipt-share', 900);
   await tap('Done');
   await page.getByText('Share this receipt').first().waitFor({ state: 'hidden' });
+  /* what Beetle offers on the receipt leads to the instruction, offered */
   await tap('Set it up');
-  await see('comes with round 7');
+  await see('Nothing is saved until you say yes');
+  at('/rule');
+  await tap('Not now');
+  await see('Rent part payment');
   await tap('Back to the lab');
   await see('Beetle Lab');
   await tap('A bill paid');
@@ -698,11 +708,160 @@ try {
   await see('Member since');
   await shot('settings-details', 900);
   await tap('Done');
+  /* every row leads somewhere: Lock and privacy, and its switches kept on the phone */
   await tap('Lock and privacy');
-  await see('comes with round 2');
+  await see('What other people can see');
+  at('/lock');
+  await shot('settings-lock', 500);
+  await page.getByRole('switch', { name: 'Hide my balance' }).click();
+  await switched('Hide my balance', false);
+  await tap('Back');
+  await see('What keeps the money yours');
+  await tap('Lock and privacy');
+  await see('What other people can see');
+  await switched('Hide my balance', false);
+  await tap('Passcode');
+  await see('A new passcode');
+  at('/newcode');
+  await shot('settings-newcode', 500);
+  await type('246810');
+  await see('Once more');
+  await type('246810');
+  await see('Your passcode is new');
+  await see('What other people can see');
+  await tap('Back');
+  /* Spending limits, and what the line looks like */
+  await tap('Spending limits');
+  await see('Your caps');
+  at('/limits');
+  await shot('settings-limits', 500);
+  await tap('Show me what that looks like');
+  await see('Now type the words in full');
+  at('/limitstop');
+  await page.getByLabel('Type the three words').fill('Confirm this transa');
+  await see('Five letters to go');
+  await shot('settings-limitstop', 500);
+  must((await button('Send ₦120,000').getAttribute('aria-disabled')) === 'true', 'the button should wait for the last letter');
+  await page.getByLabel('Type the three words').fill('Confirm this transaction');
+  await see('That is it. It can go now.');
+  await tap('Send ₦120,000');
+  await see('And it would go');
+  await see('Your caps');
+  await tap('Back');
+  /* Standing instructions, and one offered */
+  await tap('Standing instructions');
+  await see('I will always ask first');
+  at('/rules');
+  await shot('settings-rules', 500);
+  await page.getByRole('switch', { name: 'Top up Ikeja Electric' }).click();
+  await tap('Back');
+  await see('2 running');
+  await tap('Standing instructions');
+  await tap('Add an instruction');
+  await see('Nothing is saved until you say yes');
+  at('/rule');
+  await shot('settings-rule', 500);
+  await tap('Set it up');
+  await see('Set up. It sits in Standing instructions');
+  at('/rules');
+  await switched('Top up Ikeja Electric', true);
+  await tap('Back');
+  await see('3 running');
+  /* Devices, and the odd one signed out */
+  await tap('Devices');
+  await see('Everywhere this account is open');
+  at('/devices');
+  await shot('settings-devices', 500);
+  await tap('Sign out everywhere else');
+  await see('Only this phone is signed in now');
+  must((await page.getByText('Chrome on Windows').count()) === 0, 'the odd one should be gone');
+  await tap('Back');
+  await see('1 signed in');
+  /* Keys and recovery: the phone that is not yours, the freeze, the new passcode */
+  await tap('Keys and recovery');
+  await see('Signed in on a device I do not know');
+  at('/lostphone');
+  await shot('settings-lostphone', 500);
+  await tap('Freeze it, then prove it is me');
+  await see('Frozen');
+  await see('A new passcode');
+  await type('357913');
+  await see('Once more');
+  await type('357913');
+  await see('the money is yours again');
+  at('/home');
+  await see('Pull down');
+  /* the card, from its row and from the day's tile */
+  await tap('Settings');
+  await tap('Cards');
+  await see('Made for one merchant');
+  at('/card');
+  await shot('settings-card', 500);
+  await tap('Reveal');
+  await see('5399 8123 4567 4471');
+  await tap('Freeze');
+  await see('This card is frozen');
+  await tap('Unfreeze');
+  await page.getByText('This card is frozen').first().waitFor({ state: 'hidden' });
+  await tap('Rules');
+  await see('I will always ask first');
+  await tap('Back');
+  await tap('Back');
+  await see('What keeps the money yours');
+  /* Contact support goes to the chat */
+  await tap('Contact support');
+  await see('I need a human to look at something');
+  at('/home');
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  await tap('The demo account');
+  await see('Pull down');
+  await tap('Settings');
+  await see('What keeps the money yours');
   await tap('Sign out');
   await see('Open an account');
   at('/way-in');
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* the bar at the foot of home, More up out of its plus, and the record */
+  await tap('The bar');
+  await see('Pull down');
+  await button('More').waitFor();
+  await shot('home-bar', 900);
+  await tap('More');
+  await see('Send money');
+  await shot('home-more', 900);
+  await tap('History');
+  await see('Everything that moved');
+  at('/activities');
+  await shot('activities', 700);
+  await tap('In');
+  must((await page.getByText('Pagrin Limited').filter({ visible: true }).count()) === 1, 'In should keep the salary');
+  must((await page.getByText('Ikeja Electric').filter({ visible: true }).count()) === 0, 'and drop what went out');
+  await tap('All');
+  await tap('Ikeja Electric');
+  await see('Copy the token');
+  at('/receipt/l11');
+  await tap('Set it up');
+  await see('Nothing is saved until you say yes');
+  await tap('Not now');
+  await see('Copy the token');
+  await tap('Back');
+  await see('Everything that moved');
+  await tap('Sarah Adeyemi');
+  await see('has its screen in round 3');
+  await tap('More');
+  await see('Send money');
+  await tap('Send money');
+  await see('Who should I send to');
+  at('/home');
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* the answer to a question about spending, from home's insight */
+  await tap('The answer');
+  await see('Where it went');
+  at('/answer');
+  await shot('answer', 500);
   await tap('Back to the lab');
   await see('Beetle Lab');
   /* money arriving: the caption on the card says what came, the balance is

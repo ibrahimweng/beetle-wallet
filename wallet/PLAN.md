@@ -119,25 +119,34 @@ Activities and Camera, and a single More button to the side, as the frame
 draws it. The bar shows on home with the card closed and on the screens the
 frames give a bar to; the open chat has the shortcuts row instead.
 
-- [ ] The bottom bar — Home, Activities, Camera, and the black plus to the
-      side; arrives and leaves with the frames' motion; hidden while the card
-      is open
-- [ ] The More sheet (actions 204:85): Camera, Send money, Receive, History,
+- [x] The bottom bar — Home, Activities, Camera, and the black plus to the
+      side; goes down as the card opens and comes back as it closes
+- [x] The More sheet (actions 204:85): Camera, Send money, Receive, History,
       Settings, each with its coloured glyph, right aligned above the button;
       the screen behind blurs; the items come up out of the button and settle;
       the plus turns into a cross; anywhere else closes it; closing runs
-      backwards before the screen goes
-- [ ] Activities (history 501:14267): everything that moved, newest first,
-      All / In / Out, today and yesterday, each row to its receipt; the
-      answer to a spending question (answer 218:84)
-- [ ] Settings in full: Lock and privacy (lock 271:8211), Spending limits
+      backwards before the screen goes; the same sheet from the plus on
+      Activities, Standing instructions and the card
+- [x] Activities (history 501:14267): everything that moved, newest first,
+      All / In / Out, today and yesterday, each settled row to its receipt,
+      the other states waiting on round 3; the answer to a spending question
+      (answer 218:84) from the day's insight
+- [x] Settings in full: Lock and privacy (lock 271:8211), Spending limits
       (limits 223:206) and Past your own limit (limitstop 224:2), Standing
       instructions (rules 207:136) and Set this up (rule 207:101), Devices
       (devices 224:53), Keys and recovery (lostphone 957:20438, newcode
-      957:20481), Your details, Notifications, Saved people, Cards (card
-      218:2), Contact support and Give feedback (into the chat), Sign out
-- [ ] Beetle Plus: the card on Settings opens the chat asking about it
-- [ ] Lab places for each
+      957:20481), Your details, Notifications (no frame; says so), Saved
+      people (round 3), Cards (card 218:2), Contact support and Give feedback
+      (into the chat), Sign out; what the pages set is kept per account
+- [x] Beetle Plus: the card on Settings opens the chat asking about it
+- [x] Lab places for each, the Figma check on all twelve frames, the walk
+      through every page
+
+Done. Notes: two frames (lock, answer) box their head at 59 and let its
+second line run under the first card; the build gives the line its room and
+the check anchors those screens on the card. The card frame's root layer is
+itself named Card. The bar and More overlap on Camera and History /
+Activities — a question for the design, raised in the round's report.
 
 Taps: More (1), History (2), a line (3) is a receipt. More (1), Settings (2),
 a row (3).

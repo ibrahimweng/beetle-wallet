@@ -1,0 +1,63 @@
+<frame id="957:20438" name="LostPhone" x="80" y="80" width="393" height="852">
+  <frame id="957:20439" name="Page" x="0" y="0" width="393" height="671.2000122070312">
+    <frame id="957:20440" name="Content" x="20" y="72" width="353" height="599.2000122070312">
+      <instance id="957:20441" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="957:20442" name="Card" x="0" y="75.19999694824219" width="353" height="226">
+        <frame id="957:20443" name="Row" x="16" y="4" width="321" height="74">
+          <frame id="957:20444" name="Icon" x="0" y="17" width="40" height="40">
+            <instance id="957:20445" name="Glyph · card" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="957:20446" name="Column" x="52" y="16.899999618530273" width="201.60000610351562" height="40.20000076293945">
+            <text id="957:20447" name="Freeze the money" x="0" y="0" width="136" height="24" />
+            <text id="957:20448" name="Nothing can leave" x="0" y="28" width="102" height="16" />
+          </frame>
+          <frame id="957:20449" name="Chip · This one" x="265.6000061035156" y="25" width="55.400001525878906" height="24">
+            <text id="957:20450" name="Do this" x="12" y="5" width="42" height="16" />
+          </frame>
+        </frame>
+        <frame id="957:20451" name="Row" x="16" y="78" width="321" height="74">
+          <frame id="957:20452" name="Icon" x="0" y="17" width="40" height="40">
+            <instance id="957:20453" name="Glyph · card" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="957:20454" name="Column" x="52" y="16.899999618530273" width="269" height="40.20000076293945">
+            <text id="957:20455" name="Infinix Hot 40" x="0" y="0" width="104" height="24" />
+            <text id="957:20456" name="Ikeja · signing in now" x="0" y="28" width="118" height="16" />
+          </frame>
+        </frame>
+        <frame id="957:20457" name="Row" x="16" y="152" width="321" height="74">
+          <frame id="957:20458" name="Icon" x="0" y="17" width="40" height="40">
+            <instance id="957:20459" name="Glyph · card" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="957:20460" name="Column" x="52" y="16.899999618530273" width="198.39999389648438" height="40.20000076293945">
+            <text id="957:20461" name="iPhone 13" x="0" y="0" width="75" height="24" />
+            <text id="957:20462" name="Lagos · seen 09:14" x="0" y="28" width="108" height="16" />
+          </frame>
+          <frame id="957:20463" name="Chip · Odd one" x="262.3999938964844" y="25" width="58.599998474121094" height="24">
+            <text id="957:20464" name="Yours" x="12" y="5" width="34" height="16" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="957:20465" name="Row" x="0" y="317.20001220703125" width="353" height="140">
+        <instance id="957:20466" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="957:20467" name="Card" x="44" y="0" width="309" height="128" />
+      </frame>
+      <instance id="957:20468" name="Button · Sign out everywhere else" x="58.349998474121094" y="473.20001220703125" width="236.3000030517578" height="56" />
+      <frame id="957:20469" name="Row · Signing a device out" x="0" y="545.2000122070312" width="353" height="54">
+        <instance id="957:20470" name="Glyph · lock" x="0" y="0" width="16" height="16" />
+        <text id="957:20471" name="Signing a device out never t" x="24" y="0" width="327" height="60" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="957:20472" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="957:20473" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="957:20474" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="957:20475" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="957:20476" name="Ask bar" x="52" y="4" width="309" height="48">
+        <instance id="957:20477" name="Mark · 32" x="8" y="8" width="32" height="32" />
+        <text id="957:20478" name="Ask what freezing does" x="48" y="14" width="223" height="20" />
+        <instance id="957:20479" name="Glyph · camera" x="279" y="15" width="18" height="18" />
+      </frame>
+    </frame>
+  </frame>
+</frame>

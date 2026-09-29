@@ -236,17 +236,69 @@ export const RECEIPTS: Feature = {
   ],
 };
 
+export const MORE: Feature = {
+  id: 'more',
+  title: 'The bar and More',
+  folder: 'src/features/more',
+  sub: 'The bar at the foot of home — Home, Activities, Camera, and the plus — and the five actions that rise out of it.',
+  places: [
+    {
+      id: 'more-bar',
+      icon: 'home-filled',
+      title: 'The bar',
+      sub: 'Home with the card closed: the pill and the plus at the foot',
+      href: '/home',
+      seed: demo,
+    },
+    {
+      id: 'more-sheet',
+      icon: 'plus',
+      title: 'More',
+      sub: 'The five actions up out of the plus, the screen soft behind them, from the frame',
+      href: '/home?more=1',
+      seed: demo,
+    },
+  ],
+};
+
+export const ACTIVITIES: Feature = {
+  id: 'activities',
+  title: 'Activities',
+  folder: 'src/features/activities',
+  sub: 'Everything that moved, and the answer to a question about spending.',
+  places: [
+    {
+      id: 'activities-page',
+      icon: 'history-filled',
+      title: 'Activities',
+      sub: 'The record, newest first, All / In / Out, each line to its receipt, from the frame',
+      href: '/activities',
+      seed: demo,
+    },
+    {
+      id: 'activities-answer',
+      icon: 'chart',
+      title: 'The answer',
+      sub: 'Airtime and data last month: the figure, the months, where it went, from the frame',
+      href: '/answer',
+      seed: demo,
+    },
+  ],
+};
+
+const settingsPage = (id: string, icon: IconName, title: string, sub: string, href: string): Place => ({ id, icon, title, sub, href, seed: demo });
+
 export const SETTINGS: Feature = {
   id: 'settings',
   title: 'Settings',
   folder: 'src/features/settings',
-  sub: 'From the mark at the top left of home: what keeps the money yours, your account, about.',
+  sub: 'From the mark at the top left of home: what keeps the money yours, your account, about, and every page a row leads to.',
   places: [
     {
       id: 'settings-page',
       icon: 'settings-filled',
       title: 'Settings',
-      sub: 'The page from the frame; Your details and Sign out work, the rest say which round they come with',
+      sub: 'The page from the frame; every row leads somewhere',
       href: '/settings',
       seed: demo,
     },
@@ -258,6 +310,15 @@ export const SETTINGS: Feature = {
       href: '/settings?details=1',
       seed: demo,
     },
+    settingsPage('settings-lock', 'faceid-filled', 'Lock and privacy', 'Face ID, the passcode, the wait, and what other people can see', '/lock'),
+    settingsPage('settings-limits', 'shield-filled', 'Spending limits', 'Where today stands, the three caps, what happens at the line', '/limits'),
+    settingsPage('settings-limitstop', 'warn-filled', 'Past your own limit', 'The passcode done and the three words half typed, as the frame draws it', '/limitstop?typed=1'),
+    settingsPage('settings-rules', 'list-filled', 'Standing instructions', 'Money is tight, the three instructions with their switches and logs', '/rules'),
+    settingsPage('settings-rule', 'plus', 'Set this up?', 'A standing instruction offered, from a receipt or the list', '/rule'),
+    settingsPage('settings-devices', 'laptop-filled', 'Devices', 'Three signed in, one that does not belong, and the button', '/devices'),
+    settingsPage('settings-lostphone', 'lock-filled', 'Not your phone', 'A device the account has never seen: freeze, then prove it is you', '/lostphone'),
+    settingsPage('settings-newcode', 'key-filled', 'A new passcode', 'Six digits on the keypad, after the freeze', '/newcode?from=frozen'),
+    settingsPage('settings-card', 'card-filled', 'Virtual card', 'The face, Reveal, Freeze, Fund, Rules, and how much of its ceiling has gone', '/card'),
   ],
 };
 
@@ -345,4 +406,4 @@ export const MODEL: Feature = {
   ],
 };
 
-export const FEATURES: Feature[] = [WAY_IN, HOME, ASK, SCAN, GUARD, RECEIVE, RECEIPTS, SETTINGS, MODEL];
+export const FEATURES: Feature[] = [WAY_IN, HOME, MORE, ASK, SCAN, GUARD, RECEIVE, RECEIPTS, ACTIVITIES, SETTINGS, MODEL];

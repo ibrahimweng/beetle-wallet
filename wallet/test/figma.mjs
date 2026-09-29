@@ -15,6 +15,10 @@
    Not every difference is a fault: a figure that comes from live state, a
    piece the app draws in another place on purpose, a line reworded. Those
    are in test/figma/allowed.json, each with why, and nothing else passes.
+   A screen can be anchored on one piece: every other piece is then held to
+   the frame from that piece's own corner, for a frame whose head box clips
+   a line the build gives room to; the anchor's own offset is reported, and
+   needs its reason in allowed.json like anything else.
 
      node test/figma.mjs dist            # every screen
      node test/figma.mjs dist welcome    # one
@@ -70,8 +74,11 @@ async function measure(spec) {
       const t = spec.text;
       const fits = s => (spec.exact ? s === t : s.startsWith(t));
       el = pick(all.filter(e => e.childElementCount === 0 && fits((e.textContent || '').trim()) && visible(e)));
-      /* words split across nested spans: the smallest element holding them all */
-      if (!el) el = pick(all.filter(e => fits((e.textContent || '').replace(/\s+/g, ' ').trim()) && visible(e)).sort((a, b) => a.textContent.length - b.textContent.length));
+      /* words split across nested spans: the innermost element holding them all */
+      if (!el) {
+        const holding = all.filter(e => fits((e.textContent || '').replace(/\s+/g, ' ').trim()) && visible(e));
+        el = pick(holding.filter(e => !holding.some(o => o !== e && e.contains(o))).sort((a, b) => a.textContent.length - b.textContent.length));
+      }
     } else if (spec.button !== undefined) {
       el = pick(all.filter(e => e.getAttribute('role') === 'button' && ((e.getAttribute('aria-label') || '').trim() === spec.button || (e.textContent || '').trim() === spec.button) && visible(e)));
     } else if (spec.label !== undefined) {
@@ -133,6 +140,27 @@ for (const key of keys) {
   const appShot = join(OUT, `${key}-app.png`);
   await page.screenshot({ path: appShot });
 
+  /* the corner everything is measured from: the frame's, or the anchor's */
+  let corner = { x: 0, y: 0 };
+  if (s.anchor) {
+    const want = find(frame, s.anchor.name, s.anchor.nth ?? 0);
+    const got = await measure(s.anchor.find);
+    if (!want || !got) {
+      lines.push(`✗ anchor ${s.anchor.name}: ${want ? 'not on the screen' : 'not in the frame'}`);
+      bad++;
+    } else {
+      corner = { x: got.x - want.x, y: got.y - want.y };
+      const off = Math.round(corner.y) || Math.round(corner.x);
+      const pass = (allowed[key] ?? []).find(a => a.anchor);
+      if (!off) lines.push(`✓ anchored on ${s.anchor.name}, where the frame has it`);
+      else if (pass) lines.push(`~ anchored on ${s.anchor.name}: ${fmt(corner.y)} lower, ${fmt(corner.x)} right of the frame — allowed: ${pass.why}`);
+      else {
+        lines.push(`✗ anchored on ${s.anchor.name}: ${fmt(corner.y)} lower, ${fmt(corner.x)} right of the frame`);
+        bad++;
+      }
+    }
+  }
+
   /* the pieces */
   for (const piece of s.pieces ?? []) {
     const want = find(frame, piece.name, piece.nth ?? 0, piece.within, piece.withinNth ?? 0);
@@ -142,7 +170,7 @@ for (const key of keys) {
       continue;
     }
     let got = await measure(piece.withinFind?.testid ? { ...piece.find, inside: piece.withinFind.testid } : piece.find);
-    let origin = { x: 0, y: 0 };
+    let origin = piece.fixed ? { x: 0, y: 0 } : { ...corner };
     if (piece.within) {
       const box = find(frame, piece.within, piece.withinNth ?? 0);
       const appBox = piece.withinFind ? await measure(piece.withinFind) : null;
@@ -154,8 +182,13 @@ for (const key of keys) {
       origin = { x: appBox.x - box.x, y: appBox.y - box.y };
     }
     if (!got) {
-      lines.push(`✗ ${piece.name}: not on the screen`);
-      bad++;
+      /* a figure that is live, or a line the build words otherwise, is allowed by name */
+      const pass = (allowed[key] ?? []).find(a => (a.piece === piece.name && (a.nth ?? 0) === (piece.nth ?? 0)) || a.pieces?.includes(piece.name));
+      if (pass) lines.push(`~ ${piece.name}: not on the screen — allowed: ${pass.why}`);
+      else {
+        lines.push(`✗ ${piece.name}: not on the screen`);
+        bad++;
+      }
       continue;
     }
     got = { x: got.x - origin.x, y: got.y - origin.y, w: got.w, h: got.h };

@@ -1,0 +1,79 @@
+<frame id="957:20481" name="NewCode" x="573" y="80" width="393" height="852">
+  <frame id="957:20482" name="Page" x="0" y="0" width="393" height="852">
+    <frame id="957:20483" name="Group" x="0" y="0" width="393" height="189" />
+    <frame id="957:20484" name="Content" x="20" y="189" width="353" height="327">
+      <frame id="957:20485" name="Row · Your number" x="0" y="24" width="353" height="40">
+        <instance id="957:20486" name="Glyph · phone-filled" x="0" y="8" width="24" height="24" />
+        <text id="957:20487" name="Frozen" x="36" y="8" width="50" height="24" />
+      </frame>
+      <frame id="957:20488" name="Row · Who you are" x="0" y="64" width="353" height="40">
+        <instance id="957:20489" name="Glyph · id-filled" x="0" y="8" width="24" height="24" />
+        <text id="957:20490" name="Your number" x="36" y="8" width="94" height="24" />
+      </frame>
+      <frame id="957:20491" name="Row · Your face" x="0" y="104" width="353" height="40">
+        <instance id="957:20492" name="Glyph · faceid-filled" x="0" y="8" width="24" height="24" />
+        <text id="957:20493" name="Your face" x="36" y="8" width="70" height="24" />
+      </frame>
+      <frame id="957:20494" name="Column" x="0" y="144" width="353" height="141">
+        <instance id="957:20495" name="Glyph · lock-filled" x="0" y="4" width="32" height="32" />
+        <text id="957:20496" name="A new passcode" x="0" y="44" width="247" height="40" />
+        <text id="957:20497" name="Six digits. These are what s" x="0" y="92" width="339" height="40" />
+      </frame>
+      <frame id="957:20498" name="Row" x="0" y="285" width="184" height="14">
+        <frame id="957:20499" name="Dot" x="0" y="0" width="14" height="14" />
+        <frame id="957:20500" name="Dot" x="34" y="0" width="14" height="14" />
+        <frame id="957:20501" name="Dot" x="68" y="0" width="14" height="14" />
+        <frame id="957:20502" name="Dot" x="102" y="0" width="14" height="14" />
+        <frame id="957:20503" name="Dot" x="136" y="0" width="14" height="14" />
+        <frame id="957:20504" name="Dot" x="170" y="0" width="14" height="14" />
+      </frame>
+      <frame id="957:20505" name="Row · Not your year of bir" x="0" y="299" width="353" height="28">
+        <instance id="957:20506" name="Glyph · lock" x="0" y="10" width="16" height="16" />
+        <text id="957:20507" name="Not your year of birth, and " x="24" y="10" width="298" height="20" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="957:20508" name="Dock" x="0" y="516" width="393" height="336">
+    <frame id="957:20509" name="Row" x="20" y="16" width="353" height="68">
+      <frame id="957:20510" name="Key" x="58.5" y="0" width="68" height="68">
+        <text id="957:20511" name="1" x="27.5" y="22" width="10" height="24" />
+      </frame>
+      <frame id="957:20512" name="Key" x="142.5" y="0" width="68" height="68">
+        <text id="957:20513" name="2" x="27.5" y="22" width="13" height="24" />
+      </frame>
+      <frame id="957:20514" name="Key" x="226.5" y="0" width="68" height="68">
+        <text id="957:20515" name="3" x="27.5" y="22" width="14" height="24" />
+      </frame>
+    </frame>
+    <frame id="957:20516" name="Row" x="20" y="92" width="353" height="68">
+      <frame id="957:20517" name="Key" x="58.5" y="0" width="68" height="68">
+        <text id="957:20518" name="4" x="27.5" y="22" width="14" height="24" />
+      </frame>
+      <frame id="957:20519" name="Key" x="142.5" y="0" width="68" height="68">
+        <text id="957:20520" name="5" x="27.5" y="22" width="13" height="24" />
+      </frame>
+      <frame id="957:20521" name="Key" x="226.5" y="0" width="68" height="68">
+        <text id="957:20522" name="6" x="27.5" y="22" width="14" height="24" />
+      </frame>
+    </frame>
+    <frame id="957:20523" name="Row" x="20" y="168" width="353" height="68">
+      <frame id="957:20524" name="Key" x="58.5" y="0" width="68" height="68">
+        <text id="957:20525" name="7" x="27.5" y="22" width="12" height="24" />
+      </frame>
+      <frame id="957:20526" name="Key" x="142.5" y="0" width="68" height="68">
+        <text id="957:20527" name="8" x="27.5" y="22" width="14" height="24" />
+      </frame>
+      <frame id="957:20528" name="Key" x="226.5" y="0" width="68" height="68">
+        <text id="957:20529" name="9" x="27.5" y="22" width="14" height="24" />
+      </frame>
+    </frame>
+    <frame id="957:20530" name="Group" x="20" y="244" width="353" height="68">
+      <frame id="957:20531" name="Key" x="142.5" y="0" width="68" height="68">
+        <text id="957:20532" name="0" x="27.5" y="22" width="14" height="24" />
+      </frame>
+      <frame id="957:20533" name="Key" x="226.5" y="0" width="68" height="68">
+        <instance id="957:20534" name="Glyph · del" x="20" y="20" width="28" height="28" />
+      </frame>
+    </frame>
+  </frame>
+</frame>

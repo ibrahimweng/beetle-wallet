@@ -1,0 +1,29 @@
+<frame id="204:85" name="Actions" x="573" y="80" width="393" height="852">
+  <instance id="232:5710" name="Home behind" x="0" y="0" width="393" height="2520.60009765625" />
+  <frame id="204:86" name="Actions" x="0" y="0" width="393" height="852">
+    <frame id="204:87" name="Scrim" x="0" y="0" width="393" height="852" />
+    <frame id="204:88" name="Column" x="174.099609375" y="428" width="198.89999389648438" height="324">
+      <frame id="204:89" name="Action" x="44.899993896484375" y="0" width="154" height="52">
+        <text id="204:90" name="Camera" x="0" y="14" width="74" height="24" />
+        <instance id="1233:16069" name="Glyph · camera-filled" x="106" y="6" width="40" height="40" />
+      </frame>
+      <frame id="204:98" name="Action" x="0" y="68" width="198.89999389648438" height="52">
+        <text id="204:99" name="Send money" x="0" y="14" width="117" height="24" />
+        <instance id="564:15184" name="Glyph · spinner-track" x="152.89999389648438" y="6" width="40" height="40" />
+      </frame>
+      <frame id="204:103" name="Action" x="46.09999084472656" y="136" width="152.8000030517578" height="52">
+        <text id="204:104" name="Receive" x="0" y="14" width="74" height="24" />
+        <instance id="564:15188" name="Glyph · eye" x="106" y="6" width="40" height="40" />
+      </frame>
+      <frame id="204:107" name="Action" x="54.09999084472656" y="204" width="144.8000030517578" height="52">
+        <text id="204:108" name="History" x="0" y="14" width="69" height="24" />
+        <instance id="564:15191" name="Glyph · copy" x="98.80000305175781" y="6" width="40" height="40" />
+      </frame>
+      <frame id="204:112" name="Action" x="42.09999084472656" y="272" width="156.8000030517578" height="52">
+        <text id="204:113" name="Settings" x="0" y="14" width="79" height="24" />
+        <instance id="564:15195" name="Glyph · star-solid" x="111" y="6" width="40" height="40" />
+      </frame>
+    </frame>
+    <instance id="577:18254" name="Action button" x="319" y="770" width="56" height="56" />
+  </frame>
+</frame>

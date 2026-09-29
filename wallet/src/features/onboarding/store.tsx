@@ -25,6 +25,8 @@ type Actions = {
   signOut(): Promise<void>;
   /** Does what was typed match the passcode kept on this device? */
   checkPasscode(code: string): Promise<boolean>;
+  /** A new passcode in place of the old one, hashed the same way. */
+  setPasscode(code: string): Promise<void>;
   /** Put the app in a state: how far the way in has got, and who is signed
       in. The lab uses it to open a place with the way there already walked. */
   seed(progress: Progress, session: Session | null): Promise<void>;
@@ -118,6 +120,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         if (!raw) return false;
         const { hash, salt } = JSON.parse(raw) as { hash: string; salt: string };
         return (await hashPasscode(code, salt)) === hash;
+      },
+      async setPasscode(code) {
+        const salt = await randomSalt();
+        const hash = await hashPasscode(code, salt);
+        await secure.set(PASSCODE_KEY, JSON.stringify({ hash, salt }));
       },
       async seed(p, s) {
         await replaceProgress(p);

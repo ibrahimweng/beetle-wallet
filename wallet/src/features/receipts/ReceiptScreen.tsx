@@ -78,7 +78,7 @@ export function ReceiptScreen({ id }: { id: string }) {
           head={receipt.token ? <Token token={receipt.token} onCopy={() => void copy(receipt.token ?? '', 'The token')} /> : undefined}
         />
         <Button label="Share receipt" leading="share" badge onPress={() => setSharing(true)} />
-        <Nudge text={receipt.nudge.text} action={receipt.nudge.action} onPress={later('Standing instructions')} />
+        <Nudge text={receipt.nudge.text} action={receipt.nudge.action} onPress={() => router.push({ pathname: '/rule', params: { offer: receipt.kind === 'in' ? 'salary' : 'ikeja' } })} />
         <Tap accessibilityRole="button" accessibilityLabel={receipt.wrong} onPress={later('What went wrong')} style={s.wrong}>
           <Label tone="accent">{receipt.wrong}</Label>
           <Icon name="chevron" size={12} colour={colour.accent} />

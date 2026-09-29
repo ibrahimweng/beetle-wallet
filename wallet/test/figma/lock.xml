@@ -1,0 +1,71 @@
+<frame id="271:8211" name="Lock" x="1066" y="80" width="393" height="852">
+  <frame id="271:8212" name="Page" x="0" y="0" width="393" height="802.5999755859375">
+    <frame id="271:8213" name="Content" x="20" y="72" width="353" height="730.5999755859375">
+      <instance id="660:18118" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="271:8217" name="Card" x="0" y="75.19999694824219" width="353" height="196">
+        <frame id="271:8218" name="Row · Face ID" x="16" y="4" width="321" height="64">
+          <instance id="564:15356" name="Glyph · faceid" x="4" y="18" width="28" height="28" />
+          <text id="271:8223" name="Face ID" x="48" y="21.399999618530273" width="56" height="24" />
+          <frame id="271:8224" name="Box" x="269" y="17" width="52" height="32">
+            <frame id="271:8225" name="Box" x="24" y="2" width="26" height="26" />
+          </frame>
+        </frame>
+        <frame id="271:8226" name="Row · Passcode" x="16" y="68" width="321" height="64">
+          <instance id="564:15361" name="Glyph · waste" x="4" y="18" width="28" height="28" />
+          <text id="271:8231" name="Passcode" x="48" y="21.399999618530273" width="73" height="24" />
+          <text id="271:8232" name="6 digits" x="245.60000610351562" y="23" width="49" height="20" />
+          <instance id="564:15366" name="Glyph · check" x="305.5" y="24" width="16" height="16" />
+        </frame>
+        <frame id="271:8235" name="Row · Ask again after" x="16" y="132" width="321" height="64">
+          <instance id="564:15369" name="Glyph · copy" x="4" y="18" width="28" height="28" />
+          <text id="271:8239" name="Ask again after" x="48" y="21.399999618530273" width="113" height="24" />
+          <text id="271:8240" name="2 minutes" x="230.39999389648438" y="23" width="64" height="20" />
+          <instance id="564:15373" name="Glyph · check" x="305.5" y="24" width="16" height="16" />
+        </frame>
+      </frame>
+      <frame id="271:8243" name="Column" x="0" y="287.20001220703125" width="353" height="236">
+        <text id="271:8244" name="What other people can see" x="0" y="0" width="250" height="24" />
+        <frame id="271:8245" name="Card" x="0" y="36" width="353" height="196">
+          <frame id="271:8246" name="Row · Hide my balance" x="16" y="4" width="321" height="64">
+            <instance id="564:15376" name="Glyph · data" x="4" y="18" width="28" height="28" />
+            <text id="271:8250" name="Hide my balance" x="48" y="21.399999618530273" width="124" height="24" />
+            <frame id="271:8251" name="Box" x="269" y="17" width="52" height="32">
+              <frame id="271:8252" name="Box" x="24" y="2" width="26" height="26" />
+            </frame>
+          </frame>
+          <frame id="271:8253" name="Row · Hide it in screensho" x="16" y="68" width="321" height="64">
+            <instance id="564:15380" name="Glyph · camera-solid" x="4" y="18" width="28" height="28" />
+            <text id="271:8257" name="Hide it in screenshots" x="48" y="21.399999618530273" width="162" height="24" />
+            <frame id="271:8258" name="Box" x="269" y="17" width="52" height="32">
+              <frame id="271:8259" name="Box" x="24" y="2" width="26" height="26" />
+            </frame>
+          </frame>
+          <frame id="271:8260" name="Row · Amounts in notificat" x="16" y="132" width="321" height="64">
+            <frame id="271:8261" name="Glyph" x="5" y="19" width="26" height="26" />
+            <text id="271:8265" name="Amounts in notifications" x="48" y="21.3984375" width="122" height="48" />
+            <frame id="271:8266" name="Box" x="269" y="17" width="52" height="32">
+              <frame id="271:8267" name="Box" x="2" y="2" width="26" height="26" />
+            </frame>
+          </frame>
+        </frame>
+      </frame>
+      <frame id="271:8268" name="Row · With this on, your b" x="0" y="539.2000122070312" width="353" height="54">
+        <instance id="564:15384" name="Glyph · data" x="0" y="0" width="16" height="16" />
+        <text id="271:8272" name="With this on, your balance i" x="24" y="0" width="327" height="60" />
+      </frame>
+      <instance id="653:18040" name="Card" x="0" y="609.2000122070312" width="321" height="96" />
+    </frame>
+  </frame>
+  <frame id="271:8276" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="271:8277" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="271:8278" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="564:15388" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="271:8281" name="Ask bar" x="52" y="4" width="309" height="48">
+        <instance id="273:8209" name="Mark · 32" x="8" y="8" width="32" height="32" />
+        <text id="271:8286" name="Ask me to lock something down" x="48" y="16" width="175" height="16" />
+        <instance id="564:15391" name="Glyph · camera" x="231" y="15" width="18" height="18" />
+      </frame>
+    </frame>
+  </frame>
+</frame>

@@ -57,10 +57,12 @@ import { rowFrom, useMoves } from './moves';
 import { AskBar } from './AskBar';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { CLOSED_H, FOOT_BAND, WalletCard, useCardDrag, useCardTop } from './WalletCard';
+import { Bar, BAR_H } from '../more/Bar';
+import { More, moreTo, type MoreItem } from '../more/More';
 import { chatPointedOut, markChatPointedOut } from './first';
 import { groupAccount, kobo, naira, signed } from '../../lib/format';
 
-const next = (what: string) => () => toast(`${what} is the next flow to build.`);
+const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
 
 /** What stays showing under the open card: the gap, the head of the day, its
     chips, and the row of shortcuts under them. */
@@ -78,7 +80,9 @@ export function Home() {
   const still = useStill();
   const { height: H } = useWindowDimensions();
   const { closedH, haze } = useCardTop();
-  const asked = useLocalSearchParams<{ chat?: string; receive?: string; say?: string; about?: string }>();
+  const asked = useLocalSearchParams<{ chat?: string; receive?: string; say?: string; about?: string; send?: string; more?: string }>();
+  /** the More sheet over everything, from the bar's plus */
+  const [more, setMore] = useState(false);
 
   const [filter, setFilter] = useState<Filter>('All');
   const [put, setPut] = useState<string[]>([]);
@@ -370,7 +374,12 @@ export function Home() {
   /* the lab opens it somewhere along the way */
   const staged = useRef(false);
   useEffect(() => {
-    if (!LAB || !ok || staged.current || !asked.receive) return;
+    if (!ok || staged.current || !asked.receive) return;
+    if (asked.receive.startsWith('details-')) {
+      setTimeout(openDetails, 300);
+      return;
+    }
+    if (!LAB) return;
     staged.current = true;
     if (asked.receive === 'details') setTimeout(openDetails, 300);
     if (asked.receive === 'arrival') setTimeout(() => arriveRef.current(SAMPLE_ARRIVAL), 1400);
@@ -449,12 +458,16 @@ export function Home() {
     }
   }, [ok, asked.chat, show, talk, chats, reopen, file, onMove]);
 
-  /* a question brought from a receipt: the chat opens with the receipt named, and asks it */
-  const said = useRef(false);
+  /* a question brought from a receipt, or from a Settings row: the chat
+     opens, with the receipt named where there is one, and asks it. Once per
+     asking: the same words brought again carry a fresh stamp. */
+  const said = useRef('');
   useEffect(() => {
-    if (!ok || !asked.say || said.current) return;
-    said.current = true;
-    const q = asked.say;
+    if (!ok || !asked.say) return;
+    const stamp = `${asked.say}|${asked.about ?? ''}`;
+    if (said.current === stamp) return;
+    said.current = stamp;
+    const q = asked.say.replace(/ #\d+$/, '');
     const about = asked.about;
     show(true);
     setTimeout(() => {
@@ -462,6 +475,37 @@ export function Home() {
       void talk.ask({ text: q });
     }, 300);
   }, [ok, asked.say, asked.about, show, talk]);
+
+  /* Send money, from the card or from More: the chat opens asking who to */
+  const sendIn = useCallback(() => {
+    show(true, {
+      opening: 'Who should I send to, and how much? A name I know, or an account number — or show me a photo of one.',
+    });
+    setTimeout(() => input.current?.focus(), 380);
+  }, [show]);
+  const sent = useRef('');
+  useEffect(() => {
+    if (!ok || !asked.send || sent.current === asked.send) return;
+    sent.current = asked.send;
+    setTimeout(sendIn, 300);
+  }, [ok, asked.send, sendIn]);
+
+  /* the lab opens home with More already up */
+  useEffect(() => {
+    if (LAB && ok && asked.more === '1') setTimeout(() => setMore(true), 400);
+  }, [ok, asked.more]);
+
+  /* what More's five do from home: the camera, the record and Settings on
+     their own screens, sending and receiving in the card */
+  const pickMore = useCallback(
+    (item: MoreItem) => {
+      setMore(false);
+      if (item === 'send') sendIn();
+      else if (item === 'receive') openDetails();
+      else moreTo(router, item);
+    },
+    [sendIn, openDetails, router],
+  );
 
   const send = () => {
     const text = draft.trim();
@@ -526,7 +570,16 @@ export function Home() {
   const insight = (id: string, extra?: { onDismiss?: boolean }) => {
     const i = h.insights.find(x => x.id === id);
     if (!i || put.includes(id) || filter === 'In' || filter === 'Out' || filter === 'Chats') return null;
-    return <Insight kicker={i.kicker} body={i.body} action={i.action} onAction={() => askFor(i.action)} onDismiss={extra?.onDismiss ? () => away(id) : undefined} />;
+    /* where the money went has its own page; the others hand their thing to Beetle */
+    return (
+      <Insight
+        kicker={i.kicker}
+        body={i.body}
+        action={i.action}
+        onAction={() => (id === 'spend' ? router.push('/answer') : askFor(i.action))}
+        onDismiss={extra?.onDismiss ? () => away(id) : undefined}
+      />
+    );
   };
   /* an insight's button hands the thing to Beetle */
   const askFor = (action: string) => {
@@ -547,7 +600,7 @@ export function Home() {
     <View style={{ gap: space.s2 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', height: 28 }}>
         <Head style={{ flex: 1 }}>Activities</Head>
-        <Pressable accessibilityRole="button" onPress={next('History')} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+        <Pressable accessibilityRole="button" onPress={() => router.push('/activities')} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
           <Label style={{ color: colour.accentDeep }}>See all</Label>
           <Icon name="chevron" size={12} colour={colour.accentDeep} />
         </Pressable>
@@ -574,7 +627,7 @@ export function Home() {
         overScrollMode="never"
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={{ paddingBottom: BAR_H + 16 }}
       >
         <Pane style={{ gap: 0 }}>
           <WalletCard
@@ -592,12 +645,7 @@ export function Home() {
             kobo={kobo(balance)}
             dollars={`~ ${Math.round(balance / rate).toLocaleString('en-NG')} USD`}
             hint={hint}
-            onSend={() => {
-              show(true, {
-                opening: 'Who should I send to, and how much? A name I know, or an account number — or show me a photo of one.',
-              });
-              setTimeout(() => input.current?.focus(), 380);
-            }}
+            onSend={sendIn}
             onReceive={openDetails}
             onSettings={() => router.push('/settings')}
             onNew={startNew}
@@ -643,7 +691,7 @@ export function Home() {
                   {filter === 'Chats' ? null : (
                     <>
                       <Tile
-                        onPress={next('Ways to be paid')}
+                        onPress={later('Ways to be paid', 4)}
                         lead={
                           <View
                             style={{
@@ -677,7 +725,7 @@ export function Home() {
                     <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
                       Today
                     </Meta>
-                    {h.health !== null && filter !== 'Chats' ? <ScoreRow score={h.health} title="Money health" sub={h.healthMove} onPress={next('Money health')} /> : null}
+                    {h.health !== null && filter !== 'Chats' ? <ScoreRow score={h.health} title="Money health" sub={h.healthMove} onPress={later('Money health', 6)} /> : null}
                   </View>
                   {todayChats.length ? <View style={{ gap: 34 }}>{todayChats}</View> : filter === 'Chats' ? <Meta tone="tertiary">No chats yet. Pull the card down to start one.</Meta> : null}
                   {insight('topup', { onDismiss: true })}
@@ -688,7 +736,7 @@ export function Home() {
                   {h.ledger.length && filter !== 'Chats' ? (
                     <>
                       <Meta tone="secondary">Yesterday</Meta>
-                      <Tile onPress={next('The card')} plain go lead={<Mark glyph="card" />} title="Your card is ready" sub="Spend online anywhere" />
+                      <Tile onPress={() => router.push('/card')} plain go lead={<Mark glyph="card" />} title="Your card is ready" sub="Spend online anywhere" />
                       <View style={{ gap: 34 }}>{rows('yesterday', 0, 2)}</View>
                       {insight('spend')}
                       <View style={{ gap: 34 }}>{rows('yesterday', 2)}</View>
@@ -742,6 +790,8 @@ export function Home() {
           </GestureDetector>
         </Animated.View>
       ) : null}
+      {/* the bar, while the card is closed: the open chat has the shortcuts row instead */}
+      <Bar open={open} onActivities={() => router.push('/activities')} onCamera={toCamera} onMore={() => setMore(true)} />
       {/* the passcode, on its sheet over everything, before money moves */}
       {guard ? (
         <PasscodeSheet
@@ -754,6 +804,7 @@ export function Home() {
           onCancel={() => setGuard(null)}
         />
       ) : null}
+      {more ? <More onPick={pickMore} onClose={() => setMore(false)} /> : null}
     </View>
   );
 }

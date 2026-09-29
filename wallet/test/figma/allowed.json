@@ -176,5 +176,107 @@
       "text": "Version 1.0.4",
       "why": "the version is the build's own"
     }
+  ],
+  "actions": [
+    {
+      "piece": "History",
+      "why": "the word is 4 wider in the web's font, and the row is set from its right edge"
+    }
+  ],
+  "history": [
+    {
+      "text": "Ask about any of these",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    }
+  ],
+  "answer": [
+    {
+      "anchor": true,
+      "why": "the line under the title wraps in the web's font where the frame's SF Pro keeps it to one, so everything below sits a line lower here; on the phone it is one line"
+    }
+  ],
+  "lock": [
+    {
+      "text": "Ask me to lock something down",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    },
+    {
+      "piece": "Card",
+      "nth": 2,
+      "why": "the frame draws this one card 321 wide where every other runs the column's 353; the build keeps the column"
+    },
+    {
+      "anchor": true,
+      "why": "the frame boxes the head at 59 and its second line runs under the first card; the build gives the line its room, so everything below sits 24 lower"
+    }
+  ],
+  "limits": [
+    {
+      "text": "Ask me to change a limit",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    },
+    {
+      "piece": "₦64,000",
+      "why": "the figure is the day's own: what has left today"
+    },
+    {
+      "text": "₦64,000",
+      "why": "the figure is the day's own: what has left today"
+    },
+    {
+      "piece": "₦36,000 left before I stop a",
+      "why": "the figure is the day's own"
+    },
+    {
+      "text": "₦36,000 left before I stop a",
+      "why": "the figure is the day's own"
+    },
+    {
+      "piece": "Confirm this transaction",
+      "why": "the words before it are 4 narrower in the web's font"
+    }
+  ],
+  "limitstop": [],
+  "rules": [
+    {
+      "text": "Ask me to set one up",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    },
+    {
+      "piece": "The day your salary lands.",
+      "why": "the frame puts 3 under a two-line title where it puts 8 under the one-line ones; the build keeps 8"
+    }
+  ],
+  "rule": [],
+  "devices": [
+    {
+      "text": "Ask about a device",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    },
+    {
+      "piece": "Button · Sign out everywhere else",
+      "why": "the label is 4 wider in the web's font, and the button is as wide as its label"
+    }
+  ],
+  "lostphone": [
+    {
+      "text": "Ask what freezing does",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    },
+    {
+      "text": "Signing a device out never t",
+      "why": "the layer is named for the Devices line; the frame's picture reads 'Freezing stops money leaving. It does not stop money arriving, and it never touches what you already have', which the build says"
+    }
+  ],
+  "newcode": [],
+  "card": [
+    {
+      "text": "Ask about this card",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    },
+    {
+      "text": "IBRAHIM WENG",
+      "why": "the holder is the account's own: IBRAHIM MUSA on the demo account"
+    }
   ]
 }

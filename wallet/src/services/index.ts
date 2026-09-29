@@ -5,6 +5,7 @@ import { MockIdentityService, type IdentityService } from './identity';
 import { MlKitReader, type ReaderService } from './reader';
 import { ScriptedAgent, type AgentService } from './agent';
 import { Beetle, ModelAgent } from './model';
+import { MockMeters, type MeterService } from './nigeria';
 
 export const auth: AuthService = new MockAuthService();
 export const identity: IdentityService = new MockIdentityService();
@@ -12,6 +13,8 @@ export const identity: IdentityService = new MockIdentityService();
 export const reader: ReaderService = new MlKitReader();
 /* Beetle is the model where there is a key for it, and the script where there is not */
 export const agent: AgentService = new Beetle(new ModelAgent(reader), new ScriptedAgent(reader));
+/* whose a meter is: the companies' look-ups, stood in for here */
+export const meters: MeterService = new MockMeters();
 export const MOCK = true;
 
 export * from './auth';
@@ -21,3 +24,4 @@ export * from './crypto';
 export * from './reader';
 export * from './agent';
 export * from './model';
+export * from './nigeria';

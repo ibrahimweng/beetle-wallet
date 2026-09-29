@@ -37,9 +37,9 @@ every screen. It needs a Chromium (`npx playwright install chromium`, or set
 | Command | What it proves |
 |---|---|
 | `npm run typecheck` | it compiles, with `strict` and `noUncheckedIndexedAccess` on |
-| `npm test` | the rules of the way in: what counts as a Nigerian number, what a passcode may not be, where each step leads, how the mock services answer; the scripted Beetle; the model against a fake API; the gate before money moves; the hour a chat carries on for; the receipts' figures; the order of the record; the three words past a limit |
+| `npm test` | the rules of the way in: what counts as a Nigerian number, what a passcode may not be, where each step leads, how the mock services answer; the scripted Beetle and what it asks for; the model against a fake API, its ask panel and its tools; what Beetle knows of the country — the networks by prefix, the plans, the companies, the meters, what was paid before; the gate before money moves; the hour a chat carries on for; the receipts' figures; the order of the record; the three words past a limit |
 | `npm run bundle` | the same JavaScript the phone runs, exported for the web into `dist/` |
-| `npm run flow` | from the lab to the welcome and on to home, then out and back in as the demo account, with the doors that should be shut tried on the way; the card pulled down and traced as it opens, money sent by asking and let through by the passcode, the account's details opened and copied, a photo taken with the browser's stand-in camera and read, money arriving, a shortcut, the model screen, a chat carried on and New, the receipt card and the receipt pages with the share sheet, Settings with every row followed — the switches kept, a new passcode, the three words past a limit, an instruction offered and set up, the other devices signed out, the phone that is not yours frozen, the card revealed and frozen — the bar and More, the record narrowed to In and a line opened, and the lab's places opened on their own; every screen photographed into `shots/` |
+| `npm run flow` | from the lab to the welcome and on to home, then out and back in as the demo account, with the doors that should be shut tried on the way; the card pulled down and traced as it opens, money sent by asking and let through by the passcode, the account's details opened and copied, a photo taken with the browser's stand-in camera and read, money arriving, a shortcut, the model screen, a chat carried on and New, the receipt card and the receipt pages with the share sheet, Settings with every row followed — the switches kept, a new passcode, the three words past a limit, an instruction offered and set up, the other devices signed out, the phone that is not yours frozen, the card revealed and frozen — the bar and More, the record narrowed to In and a line opened, the four asks — a transfer with no amount, data for a new number, airtime by the slider, a bill from a new meter and from one paid before — each filled from the panel or from the list of what was paid before and taken through the passcode to its receipt, and the lab's places opened on their own; every screen photographed into `shots/` |
 | `npm run figma` | every built screen — twenty-seven of them — against its Figma frame: each named piece where the frame puts it, within three of the frame's figure or of that figure snapped to the 4-point grid; the frame's words on the screen; what is off on purpose listed with its reason; the frame and the screen side by side in `shots/figma/` |
 
 ## On the frame
@@ -92,7 +92,7 @@ mocks in and says so on the code screen; a real `AuthService` and
 | `src/icons.ts` | The 95 glyphs, generated from `../src/icons.js` by `npm run icons`, which puts the line widths the file draws them at (0.075 of the box for a glyph, 0.10 for a bare mark) and round ends back on every stroked path; never edited by hand |
 | `src/features/onboarding/` | The way in: the step machine (`machine.ts`), what is remembered and the session (`store.tsx`), the rules (`validation.ts`), the one screen and its choreography (`WayIn.tsx`), what each stage of it shows (`views.tsx`, `stages.ts`), and the guard that keeps home for a session |
 | `src/features/home/` | Home: the card (`WalletCard.tsx`, closed and open and the drag between), the haze at its head and its foot (`Frost.tsx`), the screen around it with the day and the chats in it (`Home.tsx`), the ask bar in its two states (`AskBar.tsx`), what the day shows for an account (`account.ts`), what moved on this phone since (`moves.ts`), and the once-only dip (`first.ts`) |
-| `src/features/agent/` | The chat: the conversation and what Beetle is waiting for (`conversation.tsx`), the list (`Chat.tsx`), the dark pieces it is drawn with — what was said, the panels, the dots (`Dark.tsx`) — and the chats filed in the day, Beetle's prompts among them (`chats.ts`), with the hour they carry on for (`hour.ts`) |
+| `src/features/agent/` | The chat: the conversation and what Beetle is waiting for (`conversation.tsx`), the list (`Chat.tsx`), the dark pieces it is drawn with — what was said, the panels, the dots (`Dark.tsx`) — the ask panel with its fields (`AskPanel.tsx`) and the list of what was paid before that grows out of it (`SavedPeek.tsx`), and the chats filed in the day, Beetle's prompts among them (`chats.ts`), with the hour they carry on for (`hour.ts`) |
 | `src/features/scan/` | The camera screen with every way it can go wrong, the photo's way back to the chat, and the sample slip |
 | `src/features/passcode/` | The gate before money moves: the passcode on its sheet over the chat (`Passcode.tsx`) and the check itself, with the tries and the lock (`check.ts`) |
 | `src/features/receive/` | Being paid: the account's details over the chat (`Receive.tsx`), money arriving (`arrival.ts`), and the clipboard |
@@ -101,7 +101,7 @@ mocks in and says so on the code screen; a real `AuthService` and
 | `src/features/activities/` | The record (`Activities.tsx`) in the frame's order (`rows.ts`), and the answer to a question about spending (`Answer.tsx`) |
 | `src/features/settings/` | Settings from the mark at the top left (`Settings.tsx`), Your details on its sheet (`Details.tsx`), what the pages set, kept per account (`prefs.ts`), and the pages: Lock and privacy, Spending limits and Past your own limit (`words.ts` holds the three words), Standing instructions and Set this up?, Devices, Not your phone, A new passcode, Virtual card |
 | `src/lab/` | The lab: which builds have it (`enabled.ts`), every feature and the places in it with the state each needs (`catalogue.ts`), the screen, and the tab that comes back to it |
-| `src/services/` | `AuthService`, `IdentityService`, `AgentService` (Beetle: the model in `model.ts` where there is a key, the script in `agent.ts` where there is not), `ReaderService` (the device's text reader, or a stand-in), storage and hashing behind interfaces, with the mocks this build runs on |
+| `src/services/` | `AuthService`, `IdentityService`, `AgentService` (Beetle: the model in `model.ts` where there is a key, the script in `agent.ts` where there is not), what Beetle knows of the country (`nigeria.ts`: the networks by prefix, the data plans, the electricity companies, what a meter number looks like, a `MeterService` that says whose a meter is, and the people, lines and meters paid before), `ReaderService` (the device's text reader, or a stand-in), storage and hashing behind interfaces, with the mocks this build runs on |
 | `src/lib/` | Formatting: digit groups, naira and kobo, dates |
 | `test/` | The unit tests, and the browser walk of the way in |
 | `artifact/` | `npm run artifact` packages the exported bundle as a page that can be hosted anywhere, even inside another page: the phone in a frame with the keys to the mocks beside it |
@@ -246,6 +246,59 @@ carries on. Beetle starts
 chats too: when something needs handling, its prompt is there in the day
 with a dot, waiting to be opened. The Chats chip shows only those; All has
 them with everything else. They are kept on the phone, per account.
+
+## What Beetle asks for
+
+Money does not move on half an ask. A request that carries everything the
+thing needs — "send 20k to Sarah", "2GB for mum", "pay my light bill" —
+goes straight to the panel to confirm. One that does not gets an ask panel
+in the chat: the same dark card as the panels, with the fields the thing
+needs, what was said already in them and the rest empty (the user's
+choice: one panel with the missing fields, not one question at a time).
+A transfer needs who and how much; data needs the number and the plan;
+airtime needs the number and the amount; a bill needs prepaid or postpaid,
+the company, the meter number and the amount. The pill reads Needs a bit
+until every field is in, then Ready; Continue hands it all back to Beetle,
+which says what it is doing, and the panel to confirm lands under it, then
+the passcode, then the receipt card. Words work as well as fields: an
+amount, a number, a plan, a company typed into the ask bar go into the
+panel that is up, and a question in the middle — the balance, dollars — is
+answered without losing it.
+
+What Beetle knows (`src/services/nigeria.ts`) fills in what it can. A
+phone number shows its network as it is typed, read off its first four
+digits — MTN, Airtel, Glo, 9mobile — and a number that does not start like
+one is said so. Data is typed as a size or an amount ("5gb", "2000"), or
+picked from the three likeliest plans as chips under the field, with All
+plans a tap away; a plan on the wrong network is refused. Airtime has an
+amount field and a slider under it, ₦100 to ₦10,000 in hundreds, its
+stops spaced evenly so the small amounts get as much room as the big
+ones; when the number is already known it sits compact with Change beside
+it. A bill's meter is looked up as soon as it reads right and the company
+and the kind are known, and the name and address on it appear under the
+field; a meter the company does not know is said so. Prepaid amounts say
+about how many units they buy. Nothing over the balance goes through.
+
+Under the fields a small line — Someone you have paid before, A number you
+have topped up, A meter you have paid — blurs the screen and lists them,
+the list growing out of the line the way a receipt grows out of its row:
+the people the day and the ledger show paid (with their bank and account,
+when, how many times), the lines topped up (with the network and the last
+plan or amount), the meters paid (the company, the kind, the number). A
+tap fills the panel and the list folds back. The list is built from what
+moved on this phone, the day the frames draw, and what the demo account
+paid in earlier months; a repeat needs no asking: "data for mum" is Mum's
+MTN line and the 5GB she had last time, "airtime for dad" is Dad's ₦1,000,
+"pay my light bill" or "the usual" is the Ikeja Electric meter and the
+₦8,000 it usually takes, "mum's flat" the postpaid one at Eko. Both
+Beetles ask the same way: the script reads the words; the model has
+`find_line`, `find_meter`, `list_plans`, `lookup_meter` and `ask_for`,
+which puts up or fills the same panel, and `prepare_data`,
+`prepare_airtime` and `prepare_bill` once nothing is missing. The lab has
+a place for each ask, and the walk fills them from the panel and from the
+list and takes them through the passcode to the receipt. The ask panel has
+no frame of its own; its sub-cards, chips (the frame's 112×62, two lines)
+and the initials row are read off the Pay a bill and Buy data frames.
 
 ## Receipts
 

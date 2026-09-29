@@ -16,6 +16,7 @@ vi.mock('expo-crypto', () => ({
 import { Beetle, ModelAgent, ModelError, TOOLS, type ModelConfig } from '@/services/model';
 import { ScriptedAgent, type Context } from '@/services/agent';
 import { MockReader } from '@/services/reader';
+import { MockMeters } from '@/services/nigeria';
 import { DEMO_ACCOUNT } from '@/services/auth';
 
 const cfg: ModelConfig = { key: 'sk-test', baseUrl: 'https://model.test', from: 'phone' };
@@ -198,6 +199,87 @@ describe('Beetle with a model behind it', () => {
     expect(first).toContain('0123456789');
     expect(r.reading?.numbers).toEqual(['0123456789']);
     expect(r.blocks.map(b => b.kind)).toEqual(['say', 'panel']);
+  });
+
+  it('puts up the ask panel for what is missing, and the panel to confirm once it is filled', async () => {
+    const api = fakeApi([
+      {
+        content: [use('t1', 'find_line', { query: 'my sister', saying: "I'm looking for her line…" })],
+        stop_reason: 'tool_use',
+      },
+      {
+        content: [use('t2', 'ask_for', { tool: 'data', who: null, amount: null, number: null, plan_id: null, disco: null, meter_kind: null, meter: null, saying: "I'm putting the fields up…" })],
+        stop_reason: 'tool_use',
+      },
+      { content: [text('I do not have a number for her yet. Fill in the number and the plan.')], stop_reason: 'end_turn' },
+    ]);
+    const agent = new ModelAgent(new MockReader(0), async () => cfg, api.fetchFn);
+    const r = await agent.ask({ text: 'data for my sister' }, ctx());
+    expect(r.blocks.map(b => b.kind)).toEqual(['say', 'ask']);
+    const ask = r.blocks.find(b => b.kind === 'ask');
+    expect(ask && ask.kind === 'ask' && ask.ask).toMatchObject({ tool: 'data', fields: ['number', 'plan'] });
+    expect(r.pending).toMatchObject({ need: 'ask', ask: { tool: 'data' } });
+    const results = api.requests.slice(1).map(q => {
+      const m = q.body.messages as { content: { content: string }[] }[];
+      return JSON.parse(m[m.length - 1]!.content[0]!.content);
+    });
+    expect(results[0]).toMatchObject({ found: false });
+    expect(results[1]).toMatchObject({ ok: true, missing: ['number', 'plan'] });
+
+    /* the owner fills the panel and continues: the model is told, and prepares the data */
+    const api2 = fakeApi([
+      {
+        content: [use('t3', 'prepare_data', { number: '08123456789', plan_id: 'airtel-2gb-30d', saying: "I'm finding the 2GB plan…" })],
+        stop_reason: 'tool_use',
+      },
+      { content: [text('2GB for 30 days on 0812 345 6789, ₦1,800.')], stop_reason: 'end_turn' },
+    ]);
+    const agent2 = new ModelAgent(new MockReader(0), async () => cfg, api2.fetchFn);
+    const pending = r.pending!;
+    const r2 = await agent2.ask({ answers: { askId: pending.need === 'ask' ? pending.ask.id : '', values: { number: '08123456789', plan: 'airtel-2gb-30d' } } }, ctx({ pending }));
+    const first = (api2.requests[0]?.body.messages as { content: string }[])[0]!.content;
+    expect(first).toContain('pressed Continue');
+    expect(first).toContain('08123456789');
+    const system = api2.requests[0]?.body.system as { text: string }[];
+    expect(system[1]?.text).toContain('An ask panel');
+    expect(r2.blocks.map(b => b.kind)).toEqual(['say', 'fill', 'panel']);
+    expect(r2.blocks.find(b => b.kind === 'fill')).toMatchObject({ done: true });
+    expect(r2.pending).toBeNull();
+  });
+
+  it('knows the lines, the meters and the plans, and refuses a plan on the wrong network', async () => {
+    const api = fakeApi([
+      {
+        content: [
+          use('t1', 'find_line', { query: 'mum', saying: 'Looking…' }),
+          use('t2', 'find_meter', { query: 'my light', saying: 'Looking…' }),
+          use('t3', 'list_plans', { network: 'Glo', saying: 'Looking…' }),
+          use('t4', 'prepare_data', { number: '08032144471', plan_id: 'airtel-2gb-30d', saying: 'Preparing…' }),
+          use('t5', 'lookup_meter', { disco: 'jos', meter_kind: 'prepaid', meter: '12345670000', saying: 'Looking…' }),
+        ],
+        stop_reason: 'tool_use',
+      },
+      { content: [text('Done.')], stop_reason: 'end_turn' },
+    ]);
+    const agent = new ModelAgent(
+      new MockReader(0),
+      async () => cfg,
+      api.fetchFn,
+      () => new Date(),
+      new MockMeters(0),
+    );
+    await agent.ask({ text: 'things' }, ctx());
+    const m = api.requests[1]?.body.messages as { content: { content: string }[] }[];
+    const results = m[m.length - 1]!.content.map(c => JSON.parse(c.content));
+    expect(results[0]).toMatchObject({ found: true, label: 'Mum', network: 'MTN', usual_plan: { plan_id: 'mtn-5gb-30d' } });
+    expect(results[1]).toMatchObject({ found: true, label: 'Home', company: 'Ikeja Electric', meter: '44578891', usual_amount: 8000 });
+    expect(results[2].plans.length).toBeGreaterThan(3);
+    expect(results[3]).toMatchObject({ ok: false });
+    expect(results[3].reason).toContain('MTN');
+    expect(results[4]).toMatchObject({ found: false });
+    const system = api.requests[0]?.body.system as { text: string }[];
+    expect(system[1]?.text).toContain('Lines topped up');
+    expect(system[1]?.text).toContain('Meters paid');
   });
 
   it('says plainly when the key is refused', async () => {

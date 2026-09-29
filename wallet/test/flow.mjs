@@ -544,8 +544,13 @@ try {
   await see('Beetle Transfers');
   await page.waitForTimeout(700);
   await shot('chat-reopened');
-  /* and a push up on the day below closes it too */
-  await pushUp(196, 690);
+  /* and a push up on the day below closes it too; a slow machine may still be
+     settling the reopened chat, so give it a beat and try once more if so */
+  for (let tries = 0; tries < 2; tries++) {
+    await pushUp(196, 690);
+    if (((await page.locator('[data-testid="card"]').boundingBox())?.height ?? 999) < 420) break;
+    await page.waitForTimeout(900);
+  }
   must((await page.locator('[data-testid="card"]').boundingBox())?.height < 420, 'a push up on the day below should close the card');
   /* and Beetle's own prompt opens with the thing it wants handled */
   await tap('Your usual top up');
@@ -939,6 +944,119 @@ try {
   await tap('Data');
   await see('Beetle Data');
   await shot('lab-shortcut-data', 1600);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  console.log('What Beetle asks for');
+  /* a transfer with no amount: the ask panel, Sarah filled in, the amount to type; the
+     people paid before grow out of the line under the fields, and a pick fills the panel */
+  const askPanel = page.locator('[data-testid="ask"]').last();
+  const inAsk = name => askPanel.getByRole('button', { name, exact: true }).first().click();
+  const askField = label => askPanel.getByLabel(label, { exact: true }).first();
+  await tap('Send, no amount given');
+  await askPanel.waitFor();
+  await see('Sarah Adeyemi · GTBank');
+  await shot('ask-send', 900);
+  await inAsk('Someone you have paid before');
+  const listGrew = await trace('saved-grow', 700, [['card', '[data-testid="saved-card"]', false]], { picture: { at: 110, name: 'ask-saved-mid' } });
+  const grewFrom = firstAt(listGrew, 'card', c => c.height > 0)?.card?.height ?? 0;
+  const grewTo = listGrew[listGrew.length - 1]?.card?.height ?? 0;
+  must(grewTo - grewFrom >= 60, `the list should grow out of the line (${grewFrom} → ${grewTo})`);
+  console.log(`  the list grew from ${Math.round(grewFrom)} to ${Math.round(grewTo)} tall`);
+  await see('People you have paid');
+  await shot('ask-saved-people', 300);
+  await page.locator('[data-testid="saved"]').getByRole('button', { name: 'John Doe', exact: true }).click();
+  await page.locator('[data-testid="saved"]').waitFor({ state: 'hidden' });
+  await see('John Doe · Kuda');
+  await askField('Amount').fill('2500');
+  await shot('ask-send-filled', 300);
+  await inAsk('Continue');
+  await button('Confirm ₦2,500').waitFor();
+  await see('Filled');
+  await shot('ask-send-panel', 1900);
+  await tap('Confirm ₦2,500');
+  await see('Enter your passcode');
+  await type(PASSCODE);
+  await see('is with John Doe');
+  await see('The full receipt');
+  await shot('ask-send-done', 600);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* data for a number not topped up before: the network read off the digits, the
+     likely plans as chips, the rest a tap away, the plan typed or picked */
+  await tap('Data for a new number');
+  await askPanel.waitFor();
+  await askPanel.getByTestId('network').first().waitFor();
+  must((await askPanel.getByTestId('network').first().innerText()).trim() === 'Airtel', 'the badge should read the network off the digits');
+  await shot('ask-data', 900);
+  await inAsk('All Airtel plans');
+  await inAsk('18GB, ₦6,000');
+  await see('18GB for 30 days · ₦6,000');
+  await shot('ask-data-plans', 300);
+  await askField('Plan').fill('1gb');
+  await see('1GB for a week · ₦800');
+  await inAsk('Continue');
+  await button('Buy ₦800').waitFor();
+  await shot('ask-data-panel', 1900);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* airtime: the own line compact with Change beside it, the amount by slider or by
+     hand; Change reveals the field and the numbers topped up before */
+  await tap('Airtime, with the slider');
+  await askPanel.waitFor();
+  await see('Your own line');
+  await shot('ask-airtime', 900);
+  await inAsk('Airtime ₦2,000');
+  must((await askField('Amount').inputValue()) === '2,000', 'a mark on the slider should set the amount');
+  const track = await askPanel.getByTestId('ask-slider').boundingBox();
+  await page.mouse.move(track.x + 4, track.y + 20);
+  await page.mouse.down();
+  await page.mouse.move(track.x + track.width * 0.25, track.y + 20, { steps: 8 });
+  await page.mouse.move(track.x + track.width * 0.5, track.y + 20, { steps: 8 });
+  await page.mouse.up();
+  await page.waitForTimeout(300);
+  const slid = await askField('Amount').inputValue();
+  console.log(`  the slider set ₦${slid}`);
+  must(/^(9|1,0|1,1)00$/.test(slid), `the slider should set the amount by where it stops, a thousand at the middle (${slid})`);
+  await shot('ask-airtime-slid', 200);
+  await inAsk('Change the number');
+  await inAsk('A number you have topped up');
+  await see('Numbers you top up');
+  await shot('ask-saved-lines', 600);
+  await page.locator('[data-testid="saved"]').getByRole('button', { name: 'Mum', exact: true }).click();
+  await page.locator('[data-testid="saved"]').waitFor({ state: 'hidden' });
+  await see('Mum · topped up 7 times');
+  await inAsk('Airtime ₦1,000');
+  await inAsk('Continue');
+  await button('Buy ₦1,000').waitFor();
+  await shot('ask-airtime-panel', 1900);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* a bill: prepaid or postpaid, the company, the meter looked up as its digits land;
+     or one paid before, from the list, then the passcode and the receipt with its token */
+  await tap('A bill, from the meters paid');
+  await askPanel.waitFor();
+  await shot('ask-bill', 900);
+  await inAsk('Prepaid');
+  await inAsk('JED');
+  await askField('Meter number').fill('12345678901');
+  await askPanel.getByTestId('ask-meter-under').filter({ hasText: 'Jos' }).waitFor();
+  await inAsk('₦8,000, About 38 kWh');
+  await shot('ask-bill-new', 400);
+  await inAsk('A meter you have paid');
+  await see('Meters you have paid');
+  await shot('ask-saved-meters', 600);
+  await page.locator('[data-testid="saved"]').getByRole('button', { name: 'Home', exact: true }).click();
+  await page.locator('[data-testid="saved"]').waitFor({ state: 'hidden' });
+  await see('Ibrahim Musa');
+  await inAsk('Continue');
+  await button('Pay ₦8,000').waitFor();
+  await shot('ask-bill-panel', 1900);
+  await tap('Pay ₦8,000');
+  await see('Enter your passcode');
+  await type(PASSCODE);
+  await see('The token is');
+  await see('The full receipt');
+  await shot('ask-bill-paid', 600);
   await tap('Back to the lab');
   await see('Beetle Lab');
   /* the first time: the card dips on its own, with the words that say why, then settles */

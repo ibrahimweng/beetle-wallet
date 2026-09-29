@@ -69,7 +69,8 @@ export function detailOf(turns: Turn[]): string {
     if (t.block.kind === 'note') return t.block.title;
     if (t.block.kind === 'thought') continue;
     if (t.block.kind === 'receipt') return `${t.block.card.amount} ${t.block.card.line.replace(/^To /, 'to ').replace(/^From /, 'from ')}, ${t.block.card.status.toLowerCase()}`;
-    if ('state' in t) {
+    if (t.block.kind === 'ask') return 'state' in t && t.state === 'done' ? `${t.block.ask.title} · filled in` : `${t.block.ask.title}, waiting for you`;
+    if (t.block.kind === 'panel' && 'state' in t) {
       const thing = t.block.panel.action?.label ?? t.block.panel.title;
       return t.state === 'done' ? `${thing} · done` : `${thing}, waiting for you`;
     }

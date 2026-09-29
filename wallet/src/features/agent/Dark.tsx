@@ -94,7 +94,7 @@ export type PanelState = 'running' | 'ready' | 'done';
 export function statusWord(panel: Panel, state: PanelState): string {
   if (state === 'running') return 'Running';
   if (state === 'ready') return panel.action ? 'Ready' : 'Read';
-  return panel.tool === 'transfer' ? 'Sent' : panel.tool === 'pay' ? 'Paid' : panel.tool === 'data' ? 'Bought' : 'Done';
+  return panel.tool === 'transfer' ? 'Sent' : panel.tool === 'pay' ? 'Paid' : panel.tool === 'data' || panel.tool === 'airtime' ? 'Bought' : 'Done';
 }
 
 /** The rows land one after another: each is on its way for a moment, then

@@ -188,22 +188,29 @@ with what was said; a request naming someone or something paid before
 skips the asking. Then the confirm panel, the six-digit passcode, the
 receipt.
 
-- [ ] Questions first: one panel with the missing fields or one question
-      at a time; data by plan or typed amount
-- [ ] Knowledge: the networks by prefix (MTN, Airtel, Glo, 9mobile) and the
+- [x] Questions first: one panel with the missing fields (the answer);
+      data typed as a size or an amount with the likely plans as chips and
+      all of them a tap away; airtime with a slider and a small Change
+      beside a number already known
+- [x] Knowledge: the networks by prefix (MTN, Airtel, Glo, 9mobile) and the
       network shown as the number is typed; the discos (Ikeja, Eko, AEDC,
       JED, KEDCO, IBEDC, EEDC, PHED, BEDC, KAEDCO, YEDC); prepaid or
       postpaid and the meter number; data plans per network; a lookup that
       returns the name on a meter; the beneficiaries kept per account —
-      people paid, numbers topped up, meters paid
-- [ ] The ask panel: amount, number with the network badge, plan chips,
+      people paid, numbers topped up, meters paid (src/services/nigeria.ts)
+- [x] The ask panel: amount, number with the network badge, plan chips,
       meter with its kind and disco; a small line under it — Someone you
       have paid before, A number you have topped up, A meter you have paid —
       that blurs the screen and lists the recent ones (the peek); picking
       one fills the panel and it processes
-- [ ] The scripted Beetle and the model's tools ask the same way, and take
+- [x] The scripted Beetle and the model's tools ask the same way, and take
       a repeat
-- [ ] Lab places, the walk through each ask to the receipt, README
+- [x] Lab places, the walk through each ask to the receipt, README
+
+Done. Notes: the ask panel has no frame; its sub-cards, chips and initials
+row follow the Pay a bill and Buy data frames. A linear airtime slider
+cramped ₦100–₦1,000 into a tenth of it, so its stops are spaced evenly.
+"Top up" alone is airtime now; "top up my light" is still the meter.
 
 ## Round 2.7 · Back, always at the bottom left
 

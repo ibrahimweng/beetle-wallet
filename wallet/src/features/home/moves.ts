@@ -30,6 +30,7 @@ export function rowFrom(m: Move, balanceBefore: number, seq: number, at = new Da
     fee: m.fee,
     reference: m.reference,
     person: m.person ? { bank: m.person.bank, number: m.person.number } : undefined,
+    target: m.target,
     session: sessionId(at, seq),
     after: Math.round((balanceBefore + m.amount) * 100) / 100,
   };

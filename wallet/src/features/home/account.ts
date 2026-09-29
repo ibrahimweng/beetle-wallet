@@ -3,6 +3,7 @@
    the day the frames show. This is the shape the real account service will
    fill; until then it is derived here. */
 import type { Account } from '../../services/auth';
+import type { Target } from '../../services/nigeria';
 import type { IconName } from '../../icons';
 
 export type LedgerRow = {
@@ -19,6 +20,8 @@ export type LedgerRow = {
   fee?: number;
   reference?: string;
   person?: { bank: string; number: string };
+  /** the line or the meter it went to */
+  target?: Target;
   session?: string;
   /** the balance once it had moved */
   after?: number;
@@ -44,11 +47,33 @@ export const DEMO_LEDGER: LedgerRow[] = [
   { id: 'l04', day: 'today', time: '12:00', icon: 'data', name: 'Netflix', detail: 'Monthly Subscription', amount: -3500, status: 'done', kind: 'service' },
   { id: 'l05', day: 'today', time: '10:45', icon: 'send', name: 'John Doe', detail: 'Grocery Shopping', amount: -8000, status: 'done', kind: 'transfer' },
   { id: 'l06', day: 'today', time: '09:14', icon: 'send', name: 'Sarah Adeyemi', detail: 'Flat deposit', amount: -50000, status: 'done', kind: 'transfer' },
-  { id: 'l07', day: 'today', time: '08:02', icon: 'data', name: 'MTN', detail: '5GB for Mum', amount: -2500, status: 'done', kind: 'airtime' },
+  {
+    id: 'l07',
+    day: 'today',
+    time: '08:02',
+    icon: 'data',
+    name: 'MTN',
+    detail: '5GB for Mum',
+    amount: -2500,
+    status: 'done',
+    kind: 'airtime',
+    target: { kind: 'line', number: '08032144471', network: 'MTN', label: 'Mum', plan: 'mtn-5gb-30d' },
+  },
   { id: 'l08', day: 'today', time: '07:55', icon: 'send', name: 'Sarah Adeyemi', detail: 'Rent part payment', amount: -20000, status: 'done', kind: 'transfer' },
   { id: 'l09', day: 'today', time: '07:30', icon: 'pot', name: 'Holiday goal', detail: 'Round ups', amount: -280, status: 'done', kind: 'saving' },
   { id: 'l10', day: 'yesterday', time: '16:40', icon: 'bank', name: 'Pagrin Limited', detail: 'August salary', amount: 640000, status: 'done', kind: 'in' },
-  { id: 'l11', day: 'yesterday', time: '11:22', icon: 'power', name: 'Ikeja Electric', detail: 'Meter 4457 8891', amount: -8000, status: 'done', kind: 'bill' },
+  {
+    id: 'l11',
+    day: 'yesterday',
+    time: '11:22',
+    icon: 'power',
+    name: 'Ikeja Electric',
+    detail: 'Meter 4457 8891',
+    amount: -8000,
+    status: 'done',
+    kind: 'bill',
+    target: { kind: 'meter', disco: 'ikeja', meterKind: 'prepaid', meter: '44578891', name: 'Ibrahim Musa', label: 'Home' },
+  },
   { id: 'l12', day: 'yesterday', time: '09:00', icon: 'data', name: 'Netflix', detail: 'Virtual card', amount: -5200, status: 'done', kind: 'card' },
 ];
 

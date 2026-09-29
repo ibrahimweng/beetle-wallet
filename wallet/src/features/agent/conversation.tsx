@@ -1,18 +1,26 @@
 /* The conversation: what was said, in order, and what Beetle is still
    waiting for. Asking adds your turn, then Beetle's answer arrives a block at
-   a time, the way somebody says one thing and then the next. Confirming a
-   panel moves the money — through whoever is told about the move — and
-   Beetle says so. */
+   a time, the way somebody says one thing and then the next. An ask panel
+   is Beetle's question with the fields in it: what you fill goes into it,
+   and Continue hands it back. Confirming a panel moves the money — through
+   whoever is told about the move — and Beetle says so. */
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { agent, type Ask, type Block, type Context, type Move, type Panel, type PanelRow, type Pending, type Photo } from '../../services';
+import { agent, type Ask, type AskFound, type AskPanel, type AskValues, type Block, type Context, type Move, type Panel, type PanelRow, type Pending, type Photo } from '../../services';
+import { askMissing } from '../../services/agent';
 import { naira } from '../../lib/format';
 import { useStill } from '../../design';
 import type { PanelState } from './Dark';
+
+/** An ask panel: open for filling, busy while Beetle looks at what was
+    filled, done once the panel to confirm has followed. */
+export type AskState = 'open' | 'busy' | 'done';
 
 export type Turn =
   | { id: string; who: 'you'; text: string; photo?: Photo }
   | { id: string; who: 'beetle'; block: Extract<Block, { kind: 'say' | 'note' }>; /** the part said so far, while the words stream in */ shown?: string }
   | { id: string; who: 'beetle'; block: { kind: 'panel'; panel: Panel }; state: PanelState; quick?: boolean }
+  /** the fields a thing still needs */
+  | { id: string; who: 'beetle'; block: { kind: 'ask'; ask: AskPanel }; state: AskState }
   /** what Beetle said it was doing, kept above the answer once it is done */
   | { id: string; who: 'beetle'; block: { kind: 'thought'; lines: string[] } }
   /** the receipt for what a panel moved, in a few words; the full one is a tap away */
@@ -34,6 +42,10 @@ export type Conversation = {
   confirm(panelId: string): void;
   /** a row that can be corrected was tapped */
   edit(panelId: string, row: PanelRow): void;
+  /** an ask panel's fields, as they are filled */
+  fill(askId: string, values: AskValues, found?: AskFound): void;
+  /** an ask panel's Continue: what is in it goes to Beetle */
+  answer(askId: string): Promise<void>;
   /** a conversation already under way, for the lab */
   preload(turns: Turn[], pending?: Pending): void;
   /** Beetle opening, before anything has been asked */
@@ -62,20 +74,31 @@ const clock = () => {
     than a couple of seconds however much it says. */
 const wordPace = (words: number) => Math.min(60, Math.max(26, 2200 / Math.max(1, words)));
 
+type AskTurn = Extract<Turn, { who: 'beetle'; block: { kind: 'ask' } }>;
+export const isAsk = (t: Turn): t is AskTurn => t.who === 'beetle' && t.block.kind === 'ask';
+type PanelTurn = Extract<Turn, { who: 'beetle'; block: { kind: 'panel' } }>;
+export const isPanel = (t: Turn): t is PanelTurn => t.who === 'beetle' && t.block.kind === 'panel';
+
 export function useConversation(context: () => Omit<Context, 'pending'>, onMove: (move: Move) => string | void, opening?: string): Conversation {
   const still = useStill();
   const [turns, setTurns] = useState<Turn[]>(() => (opening ? [{ id: id(), who: 'beetle', block: { kind: 'say', text: opening } }] : []));
   const [thinking, setThinking] = useState<Thinking>(null);
   const [pending, setPending] = useState<Pending>(null);
   const pendingRef = useRef<Pending>(null);
+  const turnsRef = useRef<Turn[]>([]);
+  turnsRef.current = turns;
   const keep = useCallback((p: Pending) => {
     pendingRef.current = p;
     setPending(p);
   }, []);
 
   const add = useCallback((turn: Turn) => setTurns(t => [...t, turn]), []);
-  const patchPanel = useCallback((panelId: string, change: (turn: Extract<Turn, { who: 'beetle'; state: PanelState }>) => Turn) => {
-    setTurns(t => t.map(x => (x.who === 'beetle' && 'state' in x && x.block.panel.id === panelId ? change(x) : x)));
+  const patchPanel = useCallback((panelId: string, change: (turn: PanelTurn) => Turn) => {
+    setTurns(t => t.map(x => (isPanel(x) && x.block.panel.id === panelId ? change(x) : x)));
+  }, []);
+  const patchAsk = useCallback((askId: string, change: (turn: AskTurn) => AskTurn) => {
+    setTurns(t => t.map(x => (isAsk(x) && x.block.ask.id === askId ? change(x) : x)));
+    turnsRef.current = turnsRef.current.map(x => (isAsk(x) && x.block.ask.id === askId ? change(x) : x));
   }, []);
 
   /* a sentence arriving a word at a time, at reading speed; the next block
@@ -98,10 +121,17 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
     [],
   );
 
-  const ask = useCallback(
+  /* what Beetle is waiting for, with an ask panel's fields as they are now */
+  const pendingNow = useCallback((): Pending => {
+    const p = pendingRef.current;
+    if (p?.need !== 'ask') return p;
+    const t = turnsRef.current.find(x => isAsk(x) && x.block.ask.id === p.ask.id);
+    return t && isAsk(t) ? { need: 'ask', ask: t.block.ask } : p;
+  }, []);
+
+  /* the ask goes to Beetle, and its answer arrives a block at a time */
+  const deliver = useCallback(
     async (a: Ask) => {
-      const text = (a.text ?? '').trim();
-      add({ id: id(), who: 'you', text: text || (a.photo ? 'A photo' : ''), photo: a.photo });
       setThinking({ lines: [] });
       const lines: string[] = [];
       const onStep = (line: string) => {
@@ -109,7 +139,7 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
         setThinking({ lines: [...lines] });
       };
       try {
-        const reply = await agent.ask({ text: text || undefined, photo: a.photo }, { ...context(), pending: pendingRef.current }, onStep);
+        const reply = await agent.ask(a, { ...context(), pending: pendingNow() }, onStep);
         /* the steps stay, dimmed, above what they led to */
         if (lines.length) {
           setThinking({ lines: [...lines] });
@@ -118,7 +148,7 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
         }
         setThinking(null);
         for (const [i, block] of reply.blocks.entries()) {
-          if (i) await wait(BEAT);
+          if (i && block.kind !== 'fill') await wait(BEAT);
           if (block.kind === 'say' && !still) {
             const turnId = id();
             add({ id: turnId, who: 'beetle', block, shown: '' });
@@ -139,7 +169,14 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
               const move = panel.move ? { ...panel.move, amount: -block.amount } : undefined;
               return { ...turn, block: { kind: 'panel', panel: { ...panel, rows, action, move } } };
             });
-          } else if (block.kind === 'panel') add({ id: id(), who: 'beetle', block, state: 'running' });
+          } else if (block.kind === 'fill') {
+            patchAsk(block.askId, turn => ({
+              ...turn,
+              state: block.done ? 'done' : 'open',
+              block: { kind: 'ask', ask: { ...turn.block.ask, values: block.values, found: block.found ?? turn.block.ask.found, note: block.note } },
+            }));
+          } else if (block.kind === 'ask') add({ id: id(), who: 'beetle', block, state: 'open' });
+          else if (block.kind === 'panel') add({ id: id(), who: 'beetle', block, state: 'running' });
           else add({ id: id(), who: 'beetle', block });
         }
         keep(reply.pending);
@@ -148,15 +185,51 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
         add({ id: id(), who: 'beetle', block: { kind: 'say', text: 'I could not answer that just now. Check the network and ask again.' } });
       }
     },
-    [add, context, keep, patchPanel, stream, still],
+    [add, context, keep, patchPanel, patchAsk, pendingNow, stream, still],
+  );
+
+  const ask = useCallback(
+    async (a: Ask) => {
+      const text = (a.text ?? '').trim();
+      add({ id: id(), who: 'you', text: text || (a.photo ? 'A photo' : ''), photo: a.photo });
+      await deliver({ text: text || undefined, photo: a.photo });
+    },
+    [add, deliver],
+  );
+
+  const fill = useCallback(
+    (askId: string, values: AskValues, found?: AskFound) => {
+      patchAsk(askId, turn => ({
+        ...turn,
+        block: {
+          kind: 'ask',
+          ask: { ...turn.block.ask, values: { ...turn.block.ask.values, ...values }, found: found ? { ...turn.block.ask.found, ...found } : turn.block.ask.found, note: undefined },
+        },
+      }));
+    },
+    [patchAsk],
+  );
+
+  const answer = useCallback(
+    async (askId: string) => {
+      const t = turnsRef.current.find(x => isAsk(x) && x.block.ask.id === askId);
+      if (!t || !isAsk(t) || t.state !== 'open') return;
+      const asked = t.block.ask;
+      if (askMissing(asked).length) return;
+      patchAsk(askId, turn => ({ ...turn, state: 'busy' }));
+      await deliver({ answers: { askId, values: asked.values } });
+      /* still waiting on something: back to filling */
+      patchAsk(askId, turn => (turn.state === 'busy' ? { ...turn, state: 'open' } : turn));
+    },
+    [deliver, patchAsk],
   );
 
   const ready = useCallback((panelId: string) => patchPanel(panelId, t => (t.state === 'running' ? { ...t, state: 'ready' } : t)), [patchPanel]);
 
   const confirm = useCallback(
     (panelId: string) => {
-      const turn = turns.find(t => t.who === 'beetle' && 'state' in t && t.block.panel.id === panelId);
-      if (!turn || turn.who !== 'beetle' || !('state' in turn) || turn.state === 'done') return;
+      const turn = turns.find(t => isPanel(t) && t.block.panel.id === panelId);
+      if (!turn || !isPanel(turn) || turn.state === 'done') return;
       const panel = turn.block.panel;
       patchPanel(panelId, t => ({ ...t, state: 'done' }));
       const at = clock();
@@ -167,8 +240,12 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
         panel.tool === 'transfer'
           ? `Done. ${naira(-(panel.move?.amount ?? 0))} is with ${panel.rows[0]?.value ?? 'them'}. It left your account at ${at}.`
           : panel.tool === 'pay'
-            ? `Paid. The units land on the meter in a moment.`
-            : `Done. The data is on your line.`;
+            ? panel.move?.reference
+              ? `Paid. The token is ${panel.move.reference}; it is on the receipt too, and in your messages.`
+              : 'Paid. It is on the account already.'
+            : panel.tool === 'airtime'
+              ? 'Done. The airtime is on the line.'
+              : 'Done. The data is on the line.';
       /* the receipt lands first, then the word about it */
       if (move && rowId) {
         const card: ReceiptCard = { rowId, amount: naira(Math.abs(move.amount)), line: receiptLine(move), status: 'Successful', time: at };
@@ -181,8 +258,8 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
 
   const edit = useCallback(
     (panelId: string, row: PanelRow) => {
-      const turn = turns.find(t => t.who === 'beetle' && 'state' in t && t.block.panel.id === panelId);
-      if (!turn || turn.who !== 'beetle' || !('state' in turn)) return;
+      const turn = turns.find(t => isPanel(t) && t.block.panel.id === panelId);
+      if (!turn || !isPanel(turn)) return;
       keep({ need: 'amount-for', panel: turn.block.panel });
       add({ id: id(), who: 'beetle', block: { kind: 'say', text: `${row.label} is ${row.value}. What should it be?` } });
     },
@@ -191,7 +268,9 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
 
   const preload = useCallback(
     (list: Turn[], p: Pending = null) => {
-      setTurns(list.map(t => (t.who === 'beetle' && 'state' in t ? { ...t, quick: true } : t)));
+      const next = list.map(t => (isPanel(t) ? { ...t, quick: true } : t));
+      turnsRef.current = next;
+      setTurns(next);
       keep(p);
     },
     [keep],
@@ -201,19 +280,27 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
   const note = useCallback((title: string, body: string) => add({ id: id(), who: 'beetle', block: { kind: 'note', title, body } }), [add]);
   const load = useCallback((list: Turn[], p: Pending) => preload(list, p), [preload]);
   const reset = useCallback(() => {
+    turnsRef.current = [];
     setTurns([]);
     setThinking(null);
     keep(null);
   }, [keep]);
 
   return useMemo(
-    () => ({ turns, thinking, pending, ask, ready, confirm, edit, preload, open, note, load, reset }),
-    [turns, thinking, pending, ask, ready, confirm, edit, preload, open, note, load, reset],
+    () => ({ turns, thinking, pending, ask, ready, confirm, edit, fill, answer, preload, open, note, load, reset }),
+    [turns, thinking, pending, ask, ready, confirm, edit, fill, answer, preload, open, note, load, reset],
   );
 }
 
 /** The line on a receipt card: who it went to, or came from. */
-export const receiptLine = (move: Move) => (move.kind === 'transfer' ? `To ${move.name}` : move.kind === 'in' ? `From ${move.name}` : move.name);
+export const receiptLine = (move: Move) =>
+  move.kind === 'transfer'
+    ? `To ${move.name}`
+    : move.kind === 'in'
+      ? `From ${move.name}`
+      : move.kind === 'airtime' && move.target?.kind === 'line'
+        ? `${move.name} · ${move.target.label ?? move.detail}`
+        : move.name;
 
 /** The conversation as lines, for a Beetle with a memory of its own: what
     you said, what it said, and what each panel was and came to. */
@@ -224,7 +311,15 @@ export function transcriptOf(turns: Turn[]): { who: 'you' | 'beetle'; text: stri
     else if (t.block.kind === 'say') out.push({ who: 'beetle', text: t.block.text });
     else if (t.block.kind === 'note') out.push({ who: 'beetle', text: `${t.block.title}. ${t.block.body}` });
     else if (t.block.kind === 'receipt') out.push({ who: 'beetle', text: `[Receipt: ${t.block.card.amount} ${t.block.card.line}, ${t.block.card.status} at ${t.block.card.time}]` });
-    else if (t.block.kind === 'panel') {
+    else if (t.block.kind === 'ask') {
+      const a = t.block.ask;
+      const filled = Object.entries(a.values)
+        .filter(([, v]) => v !== undefined && v !== '')
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(', ');
+      const state = 'state' in t && t.state === 'done' ? 'answered' : 'waiting to be filled';
+      out.push({ who: 'beetle', text: `[Ask panel ${a.id} for ${a.tool}: ${filled || 'nothing filled'}; missing ${askMissing(a).join(', ') || 'nothing'} — ${state}]` });
+    } else if (t.block.kind === 'panel') {
       const p = t.block.panel;
       const state = 'state' in t && t.state === 'done' ? 'confirmed by the owner' : 'up, waiting for the owner';
       out.push({ who: 'beetle', text: `[Panel ${p.id}: ${p.title} — ${p.rows.map(r => `${r.label}: ${r.value}`).join(', ')} — ${state}]` });
@@ -239,5 +334,6 @@ export const turn = {
   thought: (lines: string[]): Turn => ({ id: id(), who: 'beetle', block: { kind: 'thought', lines } }),
   note: (title: string, body: string): Turn => ({ id: id(), who: 'beetle', block: { kind: 'note', title, body } }),
   panel: (panel: Panel, state: PanelState = 'ready'): Turn => ({ id: id(), who: 'beetle', block: { kind: 'panel', panel }, state }),
+  ask: (ask: AskPanel, state: AskState = 'open'): Turn => ({ id: id(), who: 'beetle', block: { kind: 'ask', ask }, state }),
   receipt: (card: ReceiptCard): Turn => ({ id: id(), who: 'beetle', block: { kind: 'receipt', card } }),
 };

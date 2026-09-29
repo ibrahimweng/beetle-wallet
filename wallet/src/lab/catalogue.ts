@@ -176,6 +176,38 @@ export const ASK: Feature = {
       href: '/home?chat=carry',
       seed: demo,
     },
+    {
+      id: 'ask-send',
+      icon: 'up',
+      title: 'Send, no amount given',
+      sub: '"Send something to Sarah": the panel with Sarah filled in and the amount to type, and the people paid before under it',
+      href: '/home?chat=ask-send',
+      seed: demo,
+    },
+    {
+      id: 'ask-data',
+      icon: 'data',
+      title: 'Data for a new number',
+      sub: '"Data for 0812 345 6789": Airtel from the digits, the plan to type or pick, the rest a tap away',
+      href: '/home?chat=ask-data',
+      seed: demo,
+    },
+    {
+      id: 'ask-airtime',
+      icon: 'airtime',
+      title: 'Airtime, with the slider',
+      sub: '"Airtime": your own line with Change beside it, and the amount by slider or by hand',
+      href: '/home?chat=ask-airtime',
+      seed: demo,
+    },
+    {
+      id: 'ask-bill',
+      icon: 'power',
+      title: 'A bill, from the meters paid',
+      sub: '"Pay a bill": prepaid or postpaid, the company, the meter looked up as it is typed, or one you have paid before',
+      href: '/home?chat=ask-bill',
+      seed: demo,
+    },
   ],
 };
 

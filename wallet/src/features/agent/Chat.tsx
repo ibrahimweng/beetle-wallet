@@ -4,14 +4,18 @@
 import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { Pane } from '../../design';
+import { Pane, type Rect } from '../../design';
+import type { AskPanel, Beneficiaries } from '../../services';
 import { CardGesturesContext } from '../home/WalletCard';
+import { AskPanelView, type SavedKind } from './AskPanel';
 import { Said, Thinking, Thoughts, ToolPanel, Yours } from './Dark';
 import { ReceiptCard } from './ReceiptCard';
-import type { Conversation } from './conversation';
+import { isAsk, isPanel, type Conversation } from './conversation';
 
 /** A panel stops short of the right edge, as the frame draws it. */
 const PANEL_INSET = 60;
+/** An ask panel, with fields to fill, keeps more of the width. */
+const ASK_INSET = 32;
 
 export function Chat({
   talk,
@@ -19,6 +23,8 @@ export function Chat({
   top = 0,
   bottom = 8,
   confirm,
+  saved,
+  onSaved,
 }: {
   talk: Conversation;
   active: boolean;
@@ -29,7 +35,10 @@ export function Chat({
   /** a panel's button, where something stands between it and the move —
       the passcode; the conversation's own confirm otherwise */
   confirm?: (panelId: string) => void;
-  /** a receipt card tapped: the full receipt */
+  /** the people, lines and meters paid before, for the ask panels */
+  saved?: Beneficiaries;
+  /** an ask panel's line under its fields: the list of them, grown from the line */
+  onSaved?: (ask: AskPanel, kind: SavedKind, at: Rect) => void;
 }) {
   const list = useRef<ScrollView>(null);
   const count = talk.turns.length + (talk.thinking ? 1 : 0);
@@ -85,14 +94,29 @@ export function Chat({
               <ReceiptCard card={card} to={`/receipt/${card.rowId}`} />
             </View>
           );
-        } else {
+        } else if (isAsk(t)) {
+          const ask = t.block.ask;
+          body = (
+            <View style={{ marginRight: ASK_INSET }}>
+              <AskPanelView
+                ask={ask}
+                state={t.state}
+                saved={saved}
+                onFill={(values, found) => talk.fill(ask.id, values, found)}
+                onContinue={() => void talk.answer(ask.id)}
+                onSaved={onSaved ? (kind, at) => onSaved(ask, kind, at) : undefined}
+                onFocus={() => setTimeout(() => list.current?.scrollToEnd({ animated: true }), 350)}
+              />
+            </View>
+          );
+        } else if (isPanel(t)) {
           const panel = t.block.panel;
           body = (
             <View style={{ marginRight: PANEL_INSET }}>
               <ToolPanel
                 panel={panel}
-                state={'state' in t ? t.state : 'ready'}
-                quick={'quick' in t && !!t.quick}
+                state={t.state}
+                quick={!!t.quick}
                 onReady={() => talk.ready(panel.id)}
                 onAction={() => (confirm ?? talk.confirm)(panel.id)}
                 onEdit={row => talk.edit(panel.id, row)}

@@ -40,11 +40,11 @@ import {
   useStill,
 } from '../../design';
 import type { IconName } from '../../icons';
-import type { Move, Panel } from '../../services';
+import { DEMO_SAVED, beneficiariesOf, ownLine, type AskPanel, type Beneficiary, type Move, type Panel } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { Chat } from '../agent/Chat';
-import { transcriptOf, turn, useConversation, type Turn } from '../agent/conversation';
+import { isPanel, transcriptOf, turn, useConversation, type Turn } from '../agent/conversation';
 import { clock, detailOf, titleOf, toCarryOn, useChats, type Chat as ChatRecord } from '../agent/chats';
 import { transferPanel, PEOPLE } from '../../services/agent';
 import { handoff } from '../scan/handoff';
@@ -60,6 +60,8 @@ import { CLOSED_H, FOOT_BAND, WalletCard, useCardDrag, useCardTop } from './Wall
 import { Bar, BAR_H } from '../more/Bar';
 import { More, moreTo, type MoreItem } from '../more/More';
 import { ReceiptPeek } from '../receipts/Peek';
+import { SavedPeek } from '../agent/SavedPeek';
+import type { SavedKind } from '../agent/AskPanel';
 import { receiptFor } from '../receipts/receipts';
 import { JourneyProvider, useDeparture, useRecession, type Rect } from '../../design/journey';
 import type { ReceiptCard as Card } from '../agent/conversation';
@@ -146,6 +148,13 @@ function HomeScreen() {
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
   const balance = (h?.everyday ?? 0) + moves.reduce((a, r) => a + r.amount, 0);
   const rate = h?.rate ?? 1552;
+  /* everyone and everything paid before: what moved on this phone, the day, and what was saved from earlier */
+  const saved = useMemo(
+    () => beneficiariesOf([...moves, ...(h?.ledger ?? [])], account?.demo ? DEMO_SAVED : { lines: [], meters: [] }, PEOPLE, account ? ownLine(account.phone) : null),
+    [moves, h, account],
+  );
+  /** an ask panel's list of them, grown from the line under its fields */
+  const [pick, setPick] = useState<{ ask: AskPanel; kind: SavedKind; at: Rect } | null>(null);
 
   /* ---- the conversation, and the chats it becomes ---- */
   const turnsRef = useRef<Turn[]>([]);
@@ -155,8 +164,9 @@ function HomeScreen() {
       balance,
       rate,
       transcript: transcriptOf(turnsRef.current),
+      saved,
     }),
-    [account, balance, rate],
+    [account, balance, rate, saved],
   );
   /* a line added to the day, by a panel or an arrival: it carries what its
      receipt needs, and its id is what the receipt is found by */
@@ -276,8 +286,8 @@ function HomeScreen() {
      the gate is shut, in which case Beetle says how long for */
   const confirmWithPasscode = useCallback(
     (panelId: string) => {
-      const t = turnsRef.current.find(x => x.who === 'beetle' && 'state' in x && x.block.panel.id === panelId);
-      if (!t || t.who !== 'beetle' || !('state' in t) || t.state === 'done') return;
+      const t = turnsRef.current.find(x => isPanel(x) && x.block.panel.id === panelId);
+      if (!t || !isPanel(t) || t.state === 'done') return;
       const panel = t.block.panel;
       if (!panel.action) {
         talk.confirm(panelId);
@@ -467,6 +477,13 @@ function HomeScreen() {
     if (asked.chat === 'thinking') {
       show(true, { greet: false });
       setTimeout(() => void talk.ask({ text: 'Send 20k to Sarah' }), 700);
+    }
+    /* the asks: a transfer with no amount, data for a number not topped up before, airtime with the slider, a bill from the meters paid */
+    const asksFor: Record<string, string> = { 'ask-send': 'Send something to Sarah', 'ask-data': 'Data for 0812 345 6789', 'ask-airtime': 'Airtime', 'ask-bill': 'Pay a bill' };
+    const asking = asksFor[asked.chat];
+    if (asking) {
+      show(true, { greet: false });
+      setTimeout(() => void talk.ask({ text: asking }), 500);
     }
     if (asked.chat === 'confirm') {
       const panel = transferPanel(PEOPLE[0]!, 20_000);
@@ -676,7 +693,7 @@ function HomeScreen() {
               onNew={startNew}
               flash={flash}
               onDollars={() => askFor('What about dollars?')}
-              chat={<Chat talk={talk} active={opened} top={haze + 8} bottom={FOOT_BAND - 8} confirm={confirmWithPasscode} />}
+              chat={<Chat talk={talk} active={opened} top={haze + 8} bottom={FOOT_BAND - 8} confirm={confirmWithPasscode} saved={saved} onSaved={(ask, kind, at) => setPick({ ask, kind, at })} />}
               over={
                 details && account ? (
                   <ReceivePane
@@ -833,6 +850,19 @@ function HomeScreen() {
       ) : null}
       {more ? <More onPick={pickMore} onClose={() => setMore(false)} /> : null}
       {peek ? <ReceiptPeek card={peek.card} at={peek.at} onClose={() => setPeek(null)} /> : null}
+      {pick ? (
+        <SavedPeek
+          kind={pick.kind}
+          list={pick.kind === 'person' ? saved.people : pick.kind === 'line' ? saved.lines.filter(l => !l.own) : saved.meters}
+          at={pick.at}
+          onPick={b => {
+            const { values, found } = pickedValues(b, pick.ask);
+            talk.fill(pick.ask.id, values, found);
+            setPick(null);
+          }}
+          onClose={() => setPick(null)}
+        />
+      ) : null}
     </View>
   );
 }
@@ -861,6 +891,13 @@ function Shortcuts({ items }: { items: { glyph: IconName; label: string; onPress
       ))}
     </View>
   );
+}
+
+/** What a pick from the list puts into the ask panel. */
+function pickedValues(b: Beneficiary, ask: AskPanel): { values: Parameters<ReturnType<typeof useConversation>['fill']>[1]; found?: Parameters<ReturnType<typeof useConversation>['fill']>[2] } {
+  if (b.kind === 'person') return { values: { who: b.name }, found: { person: { name: b.name, bank: b.bank, number: b.number } } };
+  if (b.kind === 'line') return { values: { number: b.number, plan: ask.tool === 'data' ? b.plan : undefined, amount: ask.tool === 'airtime' ? (b.amount ?? ask.values.amount) : ask.values.amount } };
+  return { values: { disco: b.disco, meterKind: b.meterKind, meter: b.meter, amount: ask.values.amount ?? b.amount }, found: { meter: { name: b.name, address: '' } } };
 }
 
 /** Who the money is going to, for the row on the passcode sheet: the person

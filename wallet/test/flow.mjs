@@ -448,6 +448,24 @@ try {
   await shot('chat-typing', 350);
   await tap('Send this');
   await see('Send 20k to Sarah');
+  /* Beetle says what it is doing, in its own voice, while it works... */
+  await see("I'm finding Sarah's account");
+  await shot('chat-thinking', 0);
+  await see("I'm checking the fee");
+  /* ...and then the answer's words stream in, at reading speed, before the panel lands */
+  const growing = [];
+  const t1 = Date.now();
+  while (Date.now() - t1 < 2600) {
+    growing.push(await page.evaluate(() => (document.body.innerText.match(/₦20,000 to Sarah Adeyemi[^\n]*/) || [''])[0].length));
+    await page.waitForTimeout(50);
+  }
+  const lengths = growing.filter(n => n > 0);
+  must(new Set(lengths).size >= 5, `the words should stream in rather than land whole (${[...new Set(lengths)].join(' ')})`);
+  must(
+    lengths.every((n, i) => i === 0 || n >= lengths[i - 1]),
+    'the words should only ever add up',
+  );
+  console.log(`  the sentence grew through ${new Set(lengths).size} lengths`);
   await see('Beetle Transfers');
   await shot('chat-transfer-running', 250);
   await button('Confirm ₦20,000').waitFor();
@@ -556,6 +574,11 @@ try {
   await see('Beetle Bills');
   at('/home');
   await shot('lab-prompt', 900);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  await tap('Beetle thinking');
+  await see("I'm finding Sarah's account");
+  await shot('lab-thinking', 0);
   await tap('Back to the lab');
   await see('Beetle Lab');
   await tap('A transfer, mid-way');

@@ -6,7 +6,7 @@ import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Pane } from '../../design';
 import { CardGesturesContext } from '../home/WalletCard';
-import { Said, Thinking, ToolPanel, Yours } from './Dark';
+import { Said, Thinking, Thoughts, ToolPanel, Yours } from './Dark';
 import type { Conversation } from './conversation';
 
 /** A panel stops short of the right edge, as the frame draws it. */
@@ -69,8 +69,9 @@ export function Chat({
       {talk.turns.map(t => {
         let body: React.ReactNode;
         if (t.who === 'you') body = <Yours photo={!!t.photo}>{t.text}</Yours>;
-        else if (t.block.kind === 'say') body = <Said>{t.block.text}</Said>;
+        else if (t.block.kind === 'say') body = <Said>{'shown' in t && t.shown !== undefined ? t.shown : t.block.text}</Said>;
         else if (t.block.kind === 'note') body = <Said title={t.block.title}>{t.block.body}</Said>;
+        else if (t.block.kind === 'thought') body = <Thoughts lines={t.block.lines} live={false} />;
         else {
           const panel = t.block.panel;
           body = (
@@ -88,11 +89,7 @@ export function Chat({
         }
         return <Pane key={t.id}>{body}</Pane>;
       })}
-      {talk.thinking ? (
-        <Pane>
-          <Thinking />
-        </Pane>
-      ) : null}
+      {talk.thinking ? <Pane key="thinking">{talk.thinking.lines.length ? <Thoughts lines={talk.thinking.lines} live /> : <Thinking />}</Pane> : null}
       {!talk.turns.length && !talk.thinking ? <View style={{ height: 8 }} /> : null}
     </ScrollView>
   );

@@ -59,6 +59,7 @@ export function detailOf(turns: Turn[]): string {
     if (t.who !== 'beetle') continue;
     if (t.block.kind === 'say') return t.block.text.length > 56 ? t.block.text.slice(0, 54).trimEnd() + '…' : t.block.text;
     if (t.block.kind === 'note') return t.block.title;
+    if (t.block.kind === 'thought') continue;
     if ('state' in t) {
       const thing = t.block.panel.action?.label ?? t.block.panel.title;
       return t.state === 'done' ? `${thing} · done` : `${thing}, waiting for you`;

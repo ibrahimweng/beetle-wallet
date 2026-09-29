@@ -53,8 +53,12 @@ export type Context = {
 
 export type Reply = { blocks: Block[]; pending: Pending; reading?: Reading };
 
+/** A line of what the model is doing while it works, in its own voice, for
+    the screen to show as it happens. Only the asks that take time have any. */
+export type OnStep = (line: string) => void;
+
 export interface AgentService {
-  ask(ask: Ask, ctx: Context): Promise<Reply>;
+  ask(ask: Ask, ctx: Context, onStep?: OnStep): Promise<Reply>;
 }
 
 /* ---- what the scripted one knows ---- */
@@ -231,15 +235,32 @@ export class ScriptedAgent implements AgentService {
     private readonly delay = 500,
   ) {}
 
-  async ask(ask: Ask, ctx: Context): Promise<Reply> {
+  /** A step said, and the time it takes: the waits scale with the delay, so
+      a quick test sees none of them. */
+  private async step(onStep: OnStep | undefined, line: string, beat: number) {
+    onStep?.(line);
+    await wait(this.delay * beat);
+  }
+
+  private async transfer(onStep: OnStep | undefined, to: Person) {
+    await this.step(onStep, `I'm finding ${to.name.split(' ')[0]}'s account at ${to.bank}…`, 1.4);
+    await this.step(onStep, "I'm checking the fee and how fast it lands…", 1.2);
+  }
+
+  async ask(ask: Ask, ctx: Context, onStep?: OnStep): Promise<Reply> {
     await wait(this.delay);
     const text = (ask.text ?? '').trim();
     const first = ctx.account.firstName;
 
     /* a photo: read it, and go on from what it says */
     if (ask.photo) {
+      onStep?.("I'm reading the photo…");
       const reading = await this.reader.read(ask.photo.uri);
       const number = reading.numbers[0];
+      if (number) {
+        await this.step(onStep, `I'm looking up ${groupAccount(number)}…`, 1);
+        await this.step(onStep, "I'm checking whose it is…", 0.8);
+      }
       if (!number) {
         return {
           blocks: [say('I looked, but I could not make out an account number on that. Try again with the number filling the photo, or type it.')],
@@ -269,10 +290,14 @@ export class ScriptedAgent implements AgentService {
       return { blocks: [{ kind: 'amend', panelId: ctx.pending.panel.id, amount }, say(`${naira(amount)} it is.`)], pending: null };
     }
     /* the rest of a transfer it was waiting on */
-    if (ctx.pending?.need === 'amount' && amount)
+    if (ctx.pending?.need === 'amount' && amount) {
+      await this.transfer(onStep, ctx.pending.to);
       return { blocks: [say(`${naira(amount)} to ${ctx.pending.to.name.split(' ')[0]}. Here is what I have.`), { kind: 'panel', panel: transferPanel(ctx.pending.to, amount) }], pending: null };
-    if (ctx.pending?.need === 'who' && person)
+    }
+    if (ctx.pending?.need === 'who' && person) {
+      await this.transfer(onStep, person);
       return { blocks: [say(`${naira(ctx.pending.amount)} to ${person.name}. Here is what I have.`), { kind: 'panel', panel: transferPanel(person, ctx.pending.amount) }], pending: null };
+    }
 
     if (/\b(hi|hello|hey|good (morning|afternoon|evening))\b/.test(lower) && lower.length < 24) {
       return { blocks: [say(`Hello ${first}. I can send money, top up, buy data, and read an account number off a photo. What do you need?`)], pending: null };
@@ -281,6 +306,7 @@ export class ScriptedAgent implements AgentService {
       if (person && amount) {
         if (amount > ctx.balance)
           return { blocks: [say(`That is more than the ${naira(ctx.balance)} you have. How much should I send ${person.name.split(' ')[0]} instead?`)], pending: { need: 'amount', to: person } };
+        await this.transfer(onStep, person);
         return {
           blocks: [say(`${naira(amount)} to ${person.name} at ${person.bank}. Here is what I have; the amount is yours to change.`), { kind: 'panel', panel: transferPanel(person, amount) }],
           pending: null,
@@ -290,9 +316,13 @@ export class ScriptedAgent implements AgentService {
       return { blocks: [say(`${naira(amount!)} — to whom? A name I know, or the account number.`)], pending: { need: 'who', amount: amount! } };
     }
     if (/\b(top ?up|electric|light|nepa|ikeja|meter|power|bill)\b/.test(lower)) {
+      await this.step(onStep, "I'm pulling up your Ikeja Electric meter…", 1.4);
+      await this.step(onStep, "I'm checking what it usually costs…", 1);
       return { blocks: [say('Your usual: Ikeja Electric, meter 4457 8891. The last one was ₦8,000, about three weeks ago.'), { kind: 'panel', panel: fresh(POWER) }], pending: null };
     }
     if (/\b(data|gb|mtn|internet|airtime)\b/.test(lower)) {
+      await this.step(onStep, "I'm looking at your line…", 1.2);
+      await this.step(onStep, "I'm finding the plan you had last time…", 1);
       return { blocks: [say('The same 5GB as last time is ₦2,500, and it usually runs out about now.'), { kind: 'panel', panel: fresh(DATA) }], pending: null };
     }
     if (/\b(dollar|dollars|usd|\$)/.test(lower)) {

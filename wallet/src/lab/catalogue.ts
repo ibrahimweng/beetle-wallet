@@ -91,6 +91,7 @@ export const ASK: Feature = {
     { id: 'ask-open', icon: 'mark', title: 'The chat, open', sub: 'Home with the card already pulled down', href: '/home?chat=open', seed: demo },
     { id: 'ask-transfer', icon: 'send', title: 'A transfer, mid-way', sub: '"Send 20k to Sarah", the panel filling in', href: '/home?chat=transfer', seed: demo },
     { id: 'ask-prompt', icon: 'power', title: 'A prompt from Beetle', sub: 'A chat Beetle started, waiting in the day, opened', href: '/home?chat=prompt', seed: demo },
+    { id: 'ask-thinking', icon: 'clock', title: 'Beetle thinking', sub: '"Send 20k to Sarah" asked live: the steps, then the words, then the panel', href: '/home?chat=thinking', seed: demo },
   ],
 };
 

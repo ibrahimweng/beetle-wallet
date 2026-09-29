@@ -35,13 +35,42 @@ export function Yours({ photo = false, children }: { photo?: boolean; children: 
   );
 }
 
-/* Three dots, taking turns, while the answer is on its way. */
+/* Three dots, taking turns, while the answer is on its way and Beetle has
+   not yet said what it is doing. */
 export function Thinking() {
   return (
     <View style={{ flexDirection: 'row', gap: 5, paddingVertical: 16, paddingHorizontal: 16, alignItems: 'center' }}>
       {[0, 1, 2].map(i => (
         <Dot key={i} delay={i * 160} />
       ))}
+    </View>
+  );
+}
+
+/* What Beetle says it is doing, in its own voice, a line at a time: the
+   line under way turns its mark, a line done has landed its tick. Once the
+   answer is there the same lines stay above it, dimmed — what it did, kept. */
+export function Thoughts({ lines, live }: { lines: string[]; live: boolean }) {
+  return (
+    <View style={{ paddingHorizontal: 16, paddingVertical: 8, gap: 10, opacity: live ? 1 : 0.62 }}>
+      {lines.map((line, i) => {
+        const last = i === lines.length - 1;
+        const working = live && last;
+        return (
+          <View key={`${i}:${line}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            {working ? (
+              <Spinning>
+                <Icon name="step-work" size={16} />
+              </Spinning>
+            ) : (
+              <Pop delay={0}>
+                <Icon name="step-done" size={16} />
+              </Pop>
+            )}
+            <Caption style={{ color: working ? dark.text : dark.textSoft, flex: 1 }}>{line}</Caption>
+          </View>
+        );
+      })}
     </View>
   );
 }

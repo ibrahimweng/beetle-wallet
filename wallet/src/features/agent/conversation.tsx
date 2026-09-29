@@ -6,16 +6,22 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { agent, type Ask, type Block, type Context, type Move, type Panel, type PanelRow, type Pending, type Photo } from '../../services';
 import { naira } from '../../lib/format';
+import { useStill } from '../../design';
 import type { PanelState } from './Dark';
 
 export type Turn =
   | { id: string; who: 'you'; text: string; photo?: Photo }
-  | { id: string; who: 'beetle'; block: Extract<Block, { kind: 'say' | 'note' }> }
-  | { id: string; who: 'beetle'; block: { kind: 'panel'; panel: Panel }; state: PanelState; quick?: boolean };
+  | { id: string; who: 'beetle'; block: Extract<Block, { kind: 'say' | 'note' }>; /** the part said so far, while the words stream in */ shown?: string }
+  | { id: string; who: 'beetle'; block: { kind: 'panel'; panel: Panel }; state: PanelState; quick?: boolean }
+  /** what Beetle said it was doing, kept above the answer once it is done */
+  | { id: string; who: 'beetle'; block: { kind: 'thought'; lines: string[] } };
+
+/** Beetle at work: the lines so far, the last one still going. */
+export type Thinking = { lines: string[] } | null;
 
 export type Conversation = {
   turns: Turn[];
-  thinking: boolean;
+  thinking: Thinking;
   pending: Pending;
   ask(ask: Ask): Promise<void>;
   /** the panel's rows have all landed */
@@ -46,9 +52,14 @@ const clock = () => {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 };
 
+/** How long a word takes to arrive: reading speed, and no sentence longer
+    than a couple of seconds however much it says. */
+const wordPace = (words: number) => Math.min(60, Math.max(26, 2200 / Math.max(1, words)));
+
 export function useConversation(context: () => Omit<Context, 'pending'>, onMove: (move: Move) => void, opening?: string): Conversation {
+  const still = useStill();
   const [turns, setTurns] = useState<Turn[]>(() => (opening ? [{ id: id(), who: 'beetle', block: { kind: 'say', text: opening } }] : []));
-  const [thinking, setThinking] = useState(false);
+  const [thinking, setThinking] = useState<Thinking>(null);
   const [pending, setPending] = useState<Pending>(null);
   const pendingRef = useRef<Pending>(null);
   const keep = useCallback((p: Pending) => {
@@ -61,16 +72,53 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
     setTurns(t => t.map(x => (x.who === 'beetle' && 'state' in x && x.block.panel.id === panelId ? change(x) : x)));
   }, []);
 
+  /* a sentence arriving a word at a time, at reading speed; the next block
+     waits for the last word */
+  const stream = useCallback(
+    (turnId: string, text: string) =>
+      new Promise<void>(resolve => {
+        const words = text.split(' ');
+        const pace = wordPace(words.length);
+        let i = 0;
+        const tick = () => {
+          i++;
+          const done = i >= words.length;
+          setTurns(t => t.map(x => (x.id === turnId && x.who === 'beetle' && x.block.kind === 'say' ? { ...x, shown: done ? undefined : words.slice(0, i).join(' ') } : x)));
+          if (done) resolve();
+          else setTimeout(tick, pace);
+        };
+        setTimeout(tick, pace);
+      }),
+    [],
+  );
+
   const ask = useCallback(
     async (a: Ask) => {
       const text = (a.text ?? '').trim();
       add({ id: id(), who: 'you', text: text || (a.photo ? 'A photo' : ''), photo: a.photo });
-      setThinking(true);
+      setThinking({ lines: [] });
+      const lines: string[] = [];
+      const onStep = (line: string) => {
+        lines.push(line);
+        setThinking({ lines: [...lines] });
+      };
       try {
-        const reply = await agent.ask({ text: text || undefined, photo: a.photo }, { ...context(), pending: pendingRef.current });
-        setThinking(false);
+        const reply = await agent.ask({ text: text || undefined, photo: a.photo }, { ...context(), pending: pendingRef.current }, onStep);
+        /* the steps stay, dimmed, above what they led to */
+        if (lines.length) {
+          setThinking({ lines: [...lines] });
+          await wait(still ? 0 : 360);
+          add({ id: id(), who: 'beetle', block: { kind: 'thought', lines: [...lines] } });
+        }
+        setThinking(null);
         for (const [i, block] of reply.blocks.entries()) {
           if (i) await wait(BEAT);
+          if (block.kind === 'say' && !still) {
+            const turnId = id();
+            add({ id: turnId, who: 'beetle', block, shown: '' });
+            await stream(turnId, block.text);
+            continue;
+          }
           if (block.kind === 'amend') {
             patchPanel(block.panelId, turn => {
               const panel = turn.block.panel;
@@ -90,11 +138,11 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
         }
         keep(reply.pending);
       } catch {
-        setThinking(false);
+        setThinking(null);
         add({ id: id(), who: 'beetle', block: { kind: 'say', text: 'I could not answer that just now. Check the network and ask again.' } });
       }
     },
-    [add, context, keep, patchPanel],
+    [add, context, keep, patchPanel, stream, still],
   );
 
   const ready = useCallback((panelId: string) => patchPanel(panelId, t => (t.state === 'running' ? { ...t, state: 'ready' } : t)), [patchPanel]);
@@ -140,7 +188,7 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
   const load = useCallback((list: Turn[], p: Pending) => preload(list, p), [preload]);
   const reset = useCallback(() => {
     setTurns([]);
-    setThinking(false);
+    setThinking(null);
     keep(null);
   }, [keep]);
 
@@ -150,6 +198,7 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
 export const turn = {
   you: (text: string, photo?: Photo): Turn => ({ id: id(), who: 'you', text, photo }),
   say: (text: string): Turn => ({ id: id(), who: 'beetle', block: { kind: 'say', text } }),
+  thought: (lines: string[]): Turn => ({ id: id(), who: 'beetle', block: { kind: 'thought', lines } }),
   note: (title: string, body: string): Turn => ({ id: id(), who: 'beetle', block: { kind: 'note', title, body } }),
   panel: (panel: Panel, state: PanelState = 'ready'): Turn => ({ id: id(), who: 'beetle', block: { kind: 'panel', panel }, state }),
 };

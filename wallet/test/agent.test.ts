@@ -102,3 +102,26 @@ describe('the scripted Beetle', () => {
     expect(a.id).not.toBe(b.id);
   });
 });
+
+describe('what it says while it works', () => {
+  const steps = async (text: string) => {
+    const lines: string[] = [];
+    await agent.ask({ text }, ctx(), (l: string) => lines.push(l));
+    return lines;
+  };
+  it('thinks aloud, in the first person, only where it takes time', async () => {
+    const transfer = await steps('Send 20k to Sarah');
+    expect(transfer.length).toBe(2);
+    for (const l of transfer) expect(l).toMatch(/^I'm /);
+    expect(transfer[0]).toContain('Sarah');
+    expect(await steps('how much do I have')).toEqual([]);
+    expect(await steps('hello')).toEqual([]);
+    expect((await steps('top up my light')).length).toBe(2);
+  });
+  it('reads a photo aloud too', async () => {
+    const lines: string[] = [];
+    await agent.ask({ photo: { uri: 'file:///slip.jpg' } }, ctx(), (l: string) => lines.push(l));
+    expect(lines[0]).toBe("I'm reading the photo…");
+    expect(lines).toHaveLength(3);
+  });
+});

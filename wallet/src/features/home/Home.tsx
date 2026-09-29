@@ -251,6 +251,10 @@ export function Home() {
       show(true, { greet: false });
       samplePhoto().then(photo => talk.ask({ photo }));
     }
+    if (asked.chat === 'thinking') {
+      show(true, { greet: false });
+      setTimeout(() => void talk.ask({ text: 'Send 20k to Sarah' }), 700);
+    }
   }, [ok, asked.chat, show, talk, chats, reopen]);
 
   const send = () => {

@@ -139,6 +139,16 @@ each row landing after the last, and one thing to do about it. Confirm a
 transfer and the panel says Sent, Beetle says where the money is, and the day
 below has the line. The amount on a panel can be corrected by tapping it.
 
+Where an ask takes time — a transfer, a photo, a bill, data — Beetle says
+what it is doing while it does it, in its own voice, a line at a time in the
+chat ("I'm finding Sarah's account at GTBank…"), each line landing its tick
+as the next begins; the lines stay above the answer, dimmed, once it is
+there. The answer's words then arrive at reading speed, and the panel lands
+when the sentence is done. A quick answer — the balance, a greeting — shows
+none of that. The scripted Beetle reports its steps through `onStep` on
+`AgentService.ask`, which is where a real model's own reasoning will come
+through.
+
 Every chat is part of the day. Closing the card files the conversation at
 the top of Today — what you asked, what it came to, when — and opening the
 card again starts a new one, Beetle opening with something it noticed. A

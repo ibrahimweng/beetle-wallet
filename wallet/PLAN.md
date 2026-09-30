@@ -238,28 +238,36 @@ none.
 
 ## Round 3 · Sending money, four taps
 
-- [ ] Send on the card, and Send money in the More sheet, open the send form
+- [x] Send on the card, and Send money in the More sheet, open the send form
       (pay 332:9851): the amount, who to, the reference, from, arrives, the
-      fee, and Slide to send
-- [ ] Who to: a saved person (the people the account has paid), an account
+      fee, and Slide to send — the slide is the foot's own kind, beside Back
+- [x] Who to: a saved person (the people the account has paid), an account
       number typed (typed 209:209), or one read off a photo (scan 209:2,
       found 205:2) — the reader already in the app
-- [ ] Slide to send, then the passcode (confirm 239:7762), Face ID first
+- [x] Slide to send, then the passcode (confirm 239:7762), Face ID first
       where enrolled and Face ID missed (noface 331:9488)
-- [ ] All done (donesend 239:7829) and Share (472:10886), already built in
+- [x] All done (donesend 239:7829) and Share (472:10886), already built in
       round 1, reached from here
-- [ ] The states of a transfer, from the receipt and from the day: Still on
+- [x] The states of a transfer, from the receipt and from the day: Still on
       its way (pending 206:2), It did not go (failed 206:77), It came back
       (reversed 206:153), Not enough (short 208:88), Check this number
       (misread 957:20338), I sent it wrong (alreadygone 957:20392)
-- [ ] What went wrong? (wrong 206:225), Asking for it back (recall 207:2),
-      Change the amount (amend 222:148)
-- [ ] The ledger's three unsettled rows on home open their own states
-- [ ] Lab places for each state
+- [x] What went wrong? (wrong 206:225), Asking for it back (recall 207:2),
+      Change the amount (amend 222:148) — its Use button in the foot beside
+      Back, as every page keeps its one button
+- [x] The ledger's three unsettled rows open their own states — from
+      Activities, where they stand; home's day shows what settled
+- [x] Lab places for each state
 
 Taps: Send (1), a saved person (2), the amount and slide (3), the passcode
 (4). With a photo: Send (1), the camera (2), take it (3), slide and passcode
 (4) — the passcode is the fourth tap because the slide is a drag.
+
+Decided with the user: both ways, each with its frame — the page from Send
+and More, the chat's panel for a typed ask; the fee is the receipts' rule
+(nothing under ₦10,000, then the banks' own with the tax) everywhere; the
+gate shuts for thirty seconds and the line says so; a transfer sent from
+the page is a line in the day with its receipt, and no chat is filed for it.
 
 ## Round 4 · Being paid, and asking
 

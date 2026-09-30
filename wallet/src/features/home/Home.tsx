@@ -9,7 +9,8 @@
    card files the chat in the day; a pull down within the hour carries it
    on, after the hour a new one starts, New at the top right starts one at
    once, and a chat's row in the day picks it back up where it was. The
-   mark at the top left opens Settings; a line in the day opens its receipt. */
+   mark at the top left opens Settings; a line in the day opens its
+   receipt; Send on the card opens the Send money page. */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler, Keyboard, Platform, Pressable, TextInput, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -94,7 +95,7 @@ function HomeScreen() {
   const still = useStill();
   const { height: H } = useWindowDimensions();
   const { closedH, haze } = useCardTop();
-  const asked = useLocalSearchParams<{ chat?: string; receive?: string; say?: string; about?: string; send?: string; more?: string }>();
+  const asked = useLocalSearchParams<{ chat?: string; receive?: string; say?: string; about?: string; more?: string; face?: string }>();
   /** a line's receipt in a few words, grown out of the line */
   const [peek, setPeek] = useState<{ card: Card; at: Rect } | null>(null);
   const receding = useRecession();
@@ -509,34 +510,19 @@ function HomeScreen() {
     }, 300);
   }, [ok, asked.say, asked.about, show, talk]);
 
-  /* Send money, from the card or from More: the chat opens asking who to */
-  const sendIn = useCallback(() => {
-    show(true, {
-      opening: 'Who should I send to, and how much? A name I know, or an account number — or show me a photo of one.',
-    });
-    setTimeout(() => input.current?.focus(), 380);
-  }, [show]);
-  const sent = useRef('');
-  useEffect(() => {
-    if (!ok || !asked.send || sent.current === asked.send) return;
-    sent.current = asked.send;
-    setTimeout(sendIn, 300);
-  }, [ok, asked.send, sendIn]);
-
   /* the lab opens home with More already up */
   useEffect(() => {
     if (LAB && ok && asked.more === '1') setTimeout(() => foot.openMore(), 400);
   }, [ok, asked.more]);
 
-  /* what More's five do from home: the camera, the record and Settings on
-     their own screens, sending and receiving in the card */
+  /* what More's three do from home: the camera and Send money on their own
+     screens, receiving in the card */
   const pickMore = useCallback(
     (item: MoreItem) => {
-      if (item === 'send') sendIn();
-      else if (item === 'receive') openDetails();
+      if (item === 'receive') openDetails();
       else moreTo(router, item);
     },
-    [sendIn, openDetails, router],
+    [openDetails, router],
   );
   /* the foot is the bar here: it goes down as the card opens, and More comes up out of its plus */
   useFoot({ kind: 'bar', open, hidden: opened, onPick: pickMore, veil: peek ? 'recede' : undefined });
@@ -687,7 +673,6 @@ function HomeScreen() {
               kobo={kobo(balance)}
               dollars={`~ ${Math.round(balance / rate).toLocaleString('en-NG')} USD`}
               hint={hint}
-              onSend={sendIn}
               onReceive={openDetails}
               onNew={startNew}
               flash={flash}
@@ -842,6 +827,7 @@ function HomeScreen() {
           verify={app.checkPasscode}
           onDone={guardDone}
           onCancel={() => setGuard(null)}
+          faceMissed={LAB && asked.face === 'missed'}
         />
       ) : null}
       {peek ? <ReceiptPeek card={peek.card} at={peek.at} onClose={() => setPeek(null)} /> : null}

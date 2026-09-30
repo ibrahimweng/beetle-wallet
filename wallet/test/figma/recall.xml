@@ -1,0 +1,80 @@
+<frame id="207:2" name="Recall" x="1066" y="80" width="393" height="852">
+  <frame id="207:3" name="Page" x="0" y="0" width="393" height="802.4000244140625">
+    <frame id="207:4" name="Content" x="20" y="72" width="353" height="730.4000244140625">
+      <instance id="660:18103" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="207:8" name="MCP panel" x="0" y="75.19999694824219" width="353" height="242">
+        <frame id="207:9" name="Row · Beetle Recall" x="1" y="0" width="351" height="48">
+          <frame id="207:10" name="Icon" x="12" y="8" width="32" height="32">
+            <instance id="564:15096" name="Glyph · up" x="8" y="8" width="16" height="16" />
+          </frame>
+          <text id="207:13" name="Beetle Recall" x="52" y="14" width="200" height="20" />
+          <instance id="671:21164" name="Chip · Running" x="260" y="12" width="79" height="24" />
+        </frame>
+        <frame id="207:17" name="Column" x="1" y="48" width="351" height="192">
+          <instance id="671:21167" name="Row · You reported it" x="12" y="4" width="327" height="44" />
+          <instance id="671:21174" name="Row · Sent to GTBank" x="12" y="48" width="327" height="44" />
+          <instance id="671:21181" name="Row · Sarah asked to appro" x="12" y="92" width="327" height="44" />
+          <instance id="671:21188" name="Row · Her answer" x="12" y="136" width="327" height="44" />
+        </frame>
+      </frame>
+      <frame id="207:41" name="Card" x="0" y="333.20001220703125" width="353" height="229.1999969482422">
+        <text id="207:42" name="What this is and is not" x="16" y="18" width="162" height="15.199996948242188" />
+        <frame id="207:43" name="Column" x="16" y="45.19999694824219" width="319" height="112">
+          <frame id="207:44" name="Row · I have asked GTBank." x="0" y="0" width="319" height="30">
+            <frame id="207:45" name="Icon" x="0" y="0" width="32" height="32">
+              <instance id="564:15114" name="Glyph · check" x="8" y="8" width="16" height="16" />
+            </frame>
+            <text id="207:48" name="I have asked GTBank. That part" x="44" y="0" width="275" height="20" />
+          </frame>
+          <frame id="207:49" name="Row · I cannot take it bac" x="0" y="38" width="319" height="36">
+            <frame id="207:50" name="Icon" x="0" y="0" width="32" height="32">
+              <instance id="564:15117" name="Glyph · lock" x="8" y="8" width="16" height="16" />
+            </frame>
+            <text id="207:54" name="I cannot take it back. It is" x="44" y="0" width="271" height="40" />
+          </frame>
+          <frame id="207:55" name="Row · If she says no, no b" x="0" y="82" width="319" height="30">
+            <frame id="207:56" name="Icon" x="0" y="0" width="32" height="32">
+              <instance id="564:15121" name="Glyph · lock" x="8" y="8" width="16" height="16" />
+            </frame>
+            <text id="207:60" name="If she says no, no bank can fo" x="44" y="0" width="275" height="20" />
+          </frame>
+        </frame>
+        <text id="207:61" name="After that it is a formal di" x="16" y="169.1999969482422" width="293" height="40" />
+      </frame>
+      <frame id="207:62" name="Card" x="0" y="578.4000244140625" width="353" height="152">
+        <frame id="207:63" name="Row" x="16" y="4" width="321" height="72">
+          <frame id="207:64" name="Icon" x="0" y="16" width="40" height="40">
+            <instance id="564:15125" name="Glyph · loan" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="207:67" name="Column" x="52" y="14.399999618530273" width="241" height="43.20000076293945">
+            <text id="207:68" name="Message Sarah" x="0" y="0" width="117" height="24" />
+            <text id="207:69" name="Most of these end here, in a" x="0" y="28" width="222" height="20" />
+          </frame>
+          <instance id="564:15128" name="Glyph · check" x="305" y="28" width="16" height="16" />
+        </frame>
+        <frame id="207:72" name="Row" x="16" y="76" width="321" height="72">
+          <frame id="207:73" name="Icon" x="0" y="16" width="40" height="40">
+            <instance id="564:15131" name="Glyph · up" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="207:76" name="Column" x="52" y="14.399999618530273" width="241" height="43.20000076293945">
+            <text id="207:77" name="Open a dispute" x="0" y="0" width="116" height="24" />
+            <text id="207:78" name="If she has not answered by F" x="0" y="28" width="216" height="20" />
+          </frame>
+          <instance id="564:15134" name="Glyph · check" x="305" y="28" width="16" height="16" />
+        </frame>
+      </frame>
+    </frame>
+  </frame>
+  <frame id="207:81" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="207:82" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="207:83" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="564:15137" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="207:86" name="Ask bar" x="52" y="4" width="309" height="48">
+        <instance id="235:6278" name="Mark · 32" x="8" y="8" width="32" height="32" />
+        <text id="207:91" name="Ask what happens next" x="48" y="14" width="223" height="20" />
+        <instance id="564:15140" name="Glyph · camera" x="279" y="15" width="18" height="18" />
+      </frame>
+    </frame>
+  </frame>
+</frame>

@@ -1,0 +1,64 @@
+<frame id="222:148" name="Amend" x="1559" y="80" width="393" height="852">
+  <frame id="222:149" name="Page" x="0" y="0" width="393" height="824">
+    <frame id="222:150" name="Content" x="20" y="72" width="353" height="752">
+      <instance id="660:18106" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="222:154" name="Column" x="0" y="71.19999694824219" width="353" height="99.19999694824219">
+        <text id="222:155" name="I read" x="157.39999389648438" y="0" width="32" height="16" />
+        <text id="222:156" name="₦200,000" x="139.1999969482422" y="24" width="73" height="24" />
+        <text id="222:157" name="₦20,000" x="103.19999694824219" y="54.20000076293945" width="132" height="40" />
+      </frame>
+      <frame id="222:158" name="Column" x="0" y="182.39999389648438" width="353" height="344">
+        <frame id="222:159" name="Row" x="45.5" y="0" width="262" height="74">
+          <frame id="222:160" name="Key" x="0" y="0" width="74" height="74">
+            <text id="222:161" name="1" x="30.5" y="25" width="10" height="24" />
+          </frame>
+          <frame id="222:162" name="Key" x="94" y="0" width="74" height="74">
+            <text id="222:163" name="2" x="30.5" y="25" width="13" height="24" />
+          </frame>
+          <frame id="222:164" name="Key" x="188" y="0" width="74" height="74">
+            <text id="222:165" name="3" x="30.5" y="25" width="14" height="24" />
+          </frame>
+        </frame>
+        <frame id="222:166" name="Row" x="45.5" y="90" width="262" height="74">
+          <frame id="222:167" name="Key" x="0" y="0" width="74" height="74">
+            <text id="222:168" name="4" x="30.5" y="25" width="14" height="24" />
+          </frame>
+          <frame id="222:169" name="Key" x="94" y="0" width="74" height="74">
+            <text id="222:170" name="5" x="30.5" y="25" width="13" height="24" />
+          </frame>
+          <frame id="222:171" name="Key" x="188" y="0" width="74" height="74">
+            <text id="222:172" name="6" x="30.5" y="25" width="14" height="24" />
+          </frame>
+        </frame>
+        <frame id="222:173" name="Row" x="45.5" y="180" width="262" height="74">
+          <frame id="222:174" name="Key" x="0" y="0" width="74" height="74">
+            <text id="222:175" name="7" x="30.5" y="25" width="12" height="24" />
+          </frame>
+          <frame id="222:176" name="Key" x="94" y="0" width="74" height="74">
+            <text id="222:177" name="8" x="30.5" y="25" width="14" height="24" />
+          </frame>
+          <frame id="222:178" name="Key" x="188" y="0" width="74" height="74">
+            <text id="222:179" name="9" x="30.5" y="25" width="14" height="24" />
+          </frame>
+        </frame>
+        <frame id="222:180" name="Row" x="45.5" y="270" width="262" height="74">
+          <frame id="222:181" name="Key" x="0" y="0" width="74" height="74">
+            <text id="222:182" name="000" x="17.600000381469727" y="25" width="39" height="24" />
+          </frame>
+          <frame id="222:183" name="Key" x="94" y="0" width="74" height="74">
+            <text id="222:184" name="0" x="30.5" y="25" width="14" height="24" />
+          </frame>
+          <frame id="222:185" name="Key" x="188" y="0" width="74" height="74">
+            <instance id="564:15151" name="Glyph · del" x="21" y="21" width="32" height="32" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="222:189" name="Row" x="0" y="538.4000244140625" width="353" height="93.5999984741211">
+        <instance id="235:6110" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="653:18026" name="Card" x="44" y="0" width="309" height="104" />
+      </frame>
+      <instance id="577:18231" name="Button · Use ₦20,000" x="100.0999984741211" y="644" width="152.89999389648438" height="56" />
+      <text id="222:198" name="What if it is more than I ha" x="81.5999984741211" y="723" width="199" height="20" />
+    </frame>
+  </frame>
+</frame>

@@ -1,0 +1,35 @@
+<frame id="206:2" name="Pending" x="1559" y="80" width="393" height="852">
+  <frame id="206:3" name="Page" x="0" y="0" width="393" height="852.5999755859375">
+    <frame id="206:4" name="Content" x="20" y="72" width="353" height="780.5999755859375">
+      <instance id="660:18091" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="206:8" name="Column" x="0" y="75.19999694824219" width="353" height="139">
+        <instance id="564:14987" name="Glyph · grid" x="0" y="0" width="56" height="56" />
+        <frame id="206:12" name="Column" x="0" y="72" width="176" height="67">
+          <text id="206:13" name="₦20,000" x="0" y="0" width="132" height="40" />
+          <text id="206:14" name="to Sarah Adeyemi · GTBank" x="0" y="52" width="177" height="20" />
+        </frame>
+      </frame>
+      <frame id="206:15" name="Card" x="0" y="230.1999969482422" width="353" height="78.4000015258789">
+        <instance id="564:14991" name="Glyph · pot" x="16" y="27.200000762939453" width="24" height="24" />
+        <text id="206:19" name="Do not send it again. This one" x="52" y="15.200000762939453" width="248" height="48" />
+      </frame>
+      <frame id="206:20" name="Card" x="0" y="324.6000061035156" width="353" height="168">
+        <instance id="671:21141" name="Row · Left your account" x="16" y="16" width="321" height="44" />
+        <instance id="671:21148" name="Row · GTBank has it" x="16" y="64" width="321" height="44" />
+        <instance id="671:21155" name="Row · Reaching Sarah" x="16" y="112" width="321" height="44" />
+      </frame>
+      <frame id="206:38" name="Row" x="0" y="508.6000061035156" width="353" height="93.5999984741211">
+        <instance id="235:6078" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="653:18014" name="Card" x="44" y="0" width="309" height="104" />
+      </frame>
+      <frame id="206:45" name="Card" x="0" y="618.2000122070312" width="353" height="162.39999389648438">
+        <frame id="206:46" name="Row" x="16" y="16" width="319" height="70.4000015258789">
+          <instance id="235:6082" name="Mark · 32" x="0" y="0" width="32" height="32" />
+          <instance id="653:18016" name="Card" x="44" y="0" width="275" height="80" />
+        </frame>
+        <instance id="577:18198" name="Button · Yes, tell me" x="16" y="98.4000015258789" width="319" height="48" />
+      </frame>
+    </frame>
+  </frame>
+  <instance id="238:7868" name="Dock · Ask about this transfer" x="0" y="748" width="393" height="104" />
+</frame>

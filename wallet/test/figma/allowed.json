@@ -297,5 +297,136 @@
       "text": "IBRAHIM WENG",
       "why": "the holder is the account's own: IBRAHIM MUSA on the demo account"
     }
+  ],
+  "send": [
+    {
+      "text": "Free",
+      "why": "the fee follows the receipts' rule — nothing under ₦10,000, ₦26.88 to ₦50,000 — so the page and its receipt agree; the frame prints Free on ₦50,000"
+    },
+    {
+      "text": "Flat deposit",
+      "why": "the reference is typed in a field, and a field's words are not in the page's text"
+    }
+  ],
+  "amend": [
+    {
+      "piece": "Button · Use ₦20,000",
+      "why": "the button sits in the foot beside Back, where every page keeps its one button; the frame draws it under the bubble"
+    },
+    {
+      "piece": "What if it is more than I ha",
+      "why": "the link sits where the frame's button was, above the foot, since the button is in the foot"
+    }
+  ],
+  "short": [
+    {
+      "text": "Ask me about this",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    }
+  ],
+  "misread": [
+    {
+      "text": "Ask me about this",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    },
+    {
+      "text": "short of the ₦20,000 you ask",
+      "why": "the layer keeps the Not enough frame's name; the frame's picture reads 'and I am not sure of the last digit', which the build says"
+    },
+    {
+      "text": "The rest when your salary la",
+      "why": "the layer keeps the Not enough frame's name; the frame's picture reads 'Someone you have never paid', which the build says"
+    },
+    {
+      "pieces": [
+        "It is 0234 5678 90",
+        "Sarah Adeyemi, who you have paid before"
+      ],
+      "why": "the line under runs to two in the web's font and one in the frame's, so the words sit 12 higher"
+    },
+    {
+      "piece": "Column",
+      "nth": 3,
+      "why": "the same column, taller for the line that wraps"
+    }
+  ],
+  "pending": [],
+  "failed": [
+    {
+      "text": "Ask why this failed",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    },
+    {
+      "text": "₦20,000",
+      "why": "the figures are the line's own: Chidi Okafor's ₦12,000 through Access Bank at 13:40, as the day draws it"
+    }
+  ],
+  "reversed": [
+    {
+      "text": "14:22",
+      "why": "the times are the line's own: Musa Danjuma's, back at 11:15 after leaving at 09:15"
+    },
+    {
+      "text": "16:22",
+      "why": "the times are the line's own"
+    },
+    {
+      "text": "REV-40118-2290",
+      "why": "the reference is the line's own"
+    },
+    {
+      "text": "Try Sarah again",
+      "why": "the name is the line's own: Try Musa again"
+    }
+  ],
+  "wrong": [
+    {
+      "text": "Tell me what happened",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    },
+    {
+      "text": "Today, 14:22",
+      "why": "the time is the line's own: 07:55"
+    },
+    {
+      "pieces": [
+        "I did not make this payment"
+      ],
+      "why": "its line under runs to two in the frame's font and one in the web's, so the words sit 5 lower in the frame"
+    }
+  ],
+  "recall": [
+    {
+      "text": "Ask what happens next",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    },
+    {
+      "text": "If she says no, no bank can fo",
+      "why": "Beetle says they for everyone it has not been told about: 'If they say no, no bank can force them.'"
+    },
+    {
+      "text": "If she has not answered by F",
+      "why": "the same: 'If Sarah has not answered by Friday'"
+    }
+  ],
+  "alreadygone": [
+    {
+      "text": "Ask about the cover",
+      "why": "the ask bar's words are its placeholder, not text on the page"
+    },
+    {
+      "text": "Your balance is exactly what i",
+      "why": "the layer keeps the It did not go frame's name; the frame's picture reads 'This one is mine. You are covered.', which the build says"
+    }
+  ],
+  "facemissed": [
+    {
+      "text": "Three wrong tries locks the passcode for",
+      "why": "this build's gate shuts for thirty seconds, so trying a wrong code never costs an hour; the line says 'for half a minute'"
+    },
+    {
+      "piece": "Three wrong tries locks the passcode for",
+      "why": "the frame centres the two lines on an 18-tall row, so they start 11 above it; the build gives the lines their room, and the sheet stands 20 taller for it"
+    }
   ]
 }

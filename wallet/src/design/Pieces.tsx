@@ -4,13 +4,17 @@
    device, a cap, what is out today against the line, a meter, the All / In /
    Out segments, a line of the record, a page head with a glyph, a grey pill
    with a glyph in it, the card's face and its tools, and Beetle saying
-   something on a page, on its own or in a white card. */
+   something on a page, on its own or in a white card — with a button under
+   it where the card offers something. The transfer states add a ring that
+   turns while money is on its way, the steps it has taken, a tool at work
+   on a light panel, and a few ways out on one card. */
 import React, { ReactNode, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from './Icon';
 import { Bubble } from './Bubble';
+import { Button } from './Button';
 import { Body, Caption, Display, Head, Label, Meta, Row, Title } from './text';
 import type { IconName } from '../icons';
 import { colour, radius } from './tokens';
@@ -61,11 +65,21 @@ export function Say({ children, style, testID }: { children: ReactNode; style?: 
 
 /* The same, in a white card with a hairline: what Beetle noticed about the
    page, at its foot. The frame's card is 104 tall around an 80 bubble, 16
-   above it and 8 under. */
-export function SayCard({ children, testID }: { children: ReactNode; testID?: string }) {
+   above it and 8 under. Where the card offers something, a 48 button sits
+   under the bubble: the frames box the bubble's row at 70 whatever the
+   bubble's height and put the button 13 under the box, so a two-line bubble
+   runs 3 short of the button and a one-line one leaves 27. */
+export function SayCard({ children, action, onAction, disabled = false, testID }: { children: ReactNode; action?: string; onAction?: () => void; disabled?: boolean; testID?: string }) {
   return (
-    <View style={s.sayCard} testID={testID}>
-      <Say>{children}</Say>
+    <View style={[s.sayCard, action ? s.sayCardOffer : null]} testID={testID}>
+      {action ? (
+        <View style={{ height: 70, overflow: 'visible' }}>
+          <Say>{children}</Say>
+        </View>
+      ) : (
+        <Say>{children}</Say>
+      )}
+      {action ? <Button label={action} size={48} onPress={onAction} disabled={disabled} style={{ marginTop: 13 }} /> : null}
     </View>
   );
 }
@@ -75,15 +89,23 @@ export function SayCard({ children, testID }: { children: ReactNode; testID?: st
 /* What a rule comes to: the label in grey, what it is set to at the end of
    the line, 56 a row. The last row's value can be quiet, where the frame
    greys the condition. */
-export function Facts({ rows }: { rows: { label: string; value: string; quiet?: boolean }[] }) {
+export function Facts({
+  rows,
+  inset = 12,
+  testID,
+}: {
+  rows: { label: string; value: string; quiet?: boolean; /** the figure in a colour: what is short, in amber */ tone?: string }[];
+  /** what the figure keeps from the right edge */ inset?: number;
+  testID?: string;
+}) {
   return (
-    <View>
+    <View testID={testID}>
       {rows.map(r => (
         <View key={r.label} style={s.fact}>
           <Body tone="secondary" style={{ flex: 1 }}>
             {r.label}
           </Body>
-          <Row tone={r.quiet ? 'secondary' : 'ink'} style={{ textAlign: 'right', paddingRight: 12 }}>
+          <Row tone={r.quiet ? 'secondary' : 'ink'} style={[{ textAlign: 'right', paddingRight: inset }, r.tone ? { color: r.tone } : null]}>
             {r.value}
           </Row>
         </View>
@@ -106,10 +128,25 @@ export function FootNote({ title, sub, style }: { title: string; sub: string; st
 }
 
 /* The one line that says where the money stands, filled in its tone with
-   the words in white and a 24 glyph before them, 78 tall. */
-export function Banner({ text, glyph, tone = colour.warn, ink = colour.textInverse, testID }: { text: string; glyph?: IconName; tone?: string; ink?: string; testID?: string }) {
+   the words in white and a 24 glyph before them, 78 tall — or 56, tight
+   around two lines, where a frame draws it so. */
+export function Banner({
+  text,
+  glyph,
+  tone = colour.warn,
+  ink = colour.textInverse,
+  tight = false,
+  testID,
+}: {
+  text: string;
+  glyph?: IconName;
+  tone?: string;
+  ink?: string;
+  tight?: boolean;
+  testID?: string;
+}) {
   return (
-    <View style={[s.banner, { backgroundColor: tone }]} testID={testID}>
+    <View style={[s.banner, { backgroundColor: tone }, tight ? s.bannerTight : null]} testID={testID}>
       <View style={{ width: 24, height: 24 }}>{glyph ? <Icon name={glyph} size={24} colour={ink} /> : null}</View>
       <Row tone="inverse" style={{ flex: 1 }}>
         {text}
@@ -120,10 +157,22 @@ export function Banner({ text, glyph, tone = colour.warn, ink = colour.textInver
 
 /* A 56 glyph, the figure under it, and the line under that: how a screen
    that stopped something opens. */
-export function BigStatus({ glyph, tone, amount, line }: { glyph: IconName; tone: string; amount: string; line: string }) {
+export function BigStatus({
+  glyph,
+  tone,
+  amount,
+  line,
+  lead,
+}: {
+  glyph?: IconName;
+  tone?: string;
+  amount: string;
+  line: string;
+  /** something drawn in the glyph's place: the ring that turns */ lead?: ReactNode;
+}) {
   return (
     <View style={{ gap: 16 }} testID="status">
-      <Icon name={glyph} size={56} colour={tone} />
+      {lead ?? (glyph ? <Icon name={glyph} size={56} colour={tone ?? colour.ink} /> : null)}
       <View style={{ gap: 12 }}>
         <Display>{amount}</Display>
         <Meta tone="secondary">{line}</Meta>
@@ -164,6 +213,100 @@ export function ChoiceRow({ glyph, title, sub, onPress, to, testID }: { glyph: I
       <View style={{ flex: 1, gap: 4 }}>
         <Label>{title}</Label>
         <Caption tone="secondary">{sub}</Caption>
+      </View>
+      <Icon name="chevron" size={16} colour={colour.textTertiary} />
+    </Tap>
+  );
+}
+
+/* A ring that turns while money is on its way: the grey track and a
+   quarter of it in the accent, going round. */
+export function Ring({ size = 56, tone = colour.accent }: { size?: number; tone?: string }) {
+  const still = useStill();
+  const r = useSharedValue(0);
+  useEffect(() => {
+    if (!still) r.value = withRepeat(withTiming(360, { duration: 1400, easing: Easing.linear }), -1, false);
+  }, [still, r]);
+  const spin = useAnimatedStyle(() => ({ transform: [{ rotate: `${r.value}deg` }] }));
+  const ring = { position: 'absolute' as const, width: size, height: size, borderRadius: size / 2, borderWidth: 4 };
+  return (
+    <View style={{ width: size, height: size }} testID="ring">
+      <View style={[ring, { borderColor: colour.rule }]} />
+      <Animated.View style={[ring, { borderColor: 'transparent', borderTopColor: tone }, spin]} />
+    </View>
+  );
+}
+
+/* The steps a thing has taken, 44 a row: a 22 disc, green with a tick once
+   the step is done and an empty ring until then, the step in grey, and when
+   it happened — or what is waited for — at the end. A hairline between
+   the rows, and a little room between them where a frame gives it. */
+export function StepRows({ rows, gap = 0, testID }: { rows: { label: string; value: string; done: boolean }[]; gap?: number; testID?: string }) {
+  return (
+    <View style={{ gap }} testID={testID}>
+      {rows.map((r, i) => (
+        <View key={r.label} style={[s.stepRow, i ? s.hairTop : null]} testID="step-row">
+          <View style={[s.disc22, r.done ? { backgroundColor: colour.good } : { borderWidth: 1.5, borderColor: colour.ruleStrong }]}>
+            {r.done ? <Icon name="check" size={12} colour={colour.textInverse} /> : null}
+          </View>
+          <Meta tone="secondary" style={{ flex: 1 }}>
+            {r.label}
+          </Meta>
+          {r.done ? <Label>{r.value}</Label> : <Meta tone="secondary">{r.value}</Meta>}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/* A tool at work, in daylight: the chat's panel drawn on a white card with a
+   hairline — a 32 square with the tool's glyph, its name, and a chip saying
+   it is running, on a grey band 48 tall — with its steps under. */
+export function LightPanel({ glyph, title, status, rows, testID }: { glyph: IconName; title: string; status: string; rows: { label: string; value: string; done: boolean }[]; testID?: string }) {
+  return (
+    <View style={s.panel} testID={testID}>
+      <View style={s.panelHead}>
+        <View style={[s.box32, { backgroundColor: colour.surface }]}>
+          <Icon name={glyph} size={16} colour={colour.ink} />
+        </View>
+        <Label style={{ flex: 1 }}>{title}</Label>
+        <View style={s.status} testID="panel-status">
+          <View style={s.dot} />
+          <Caption style={{ fontWeight: '600' }}>{status}</Caption>
+        </View>
+      </View>
+      <View style={{ paddingTop: 4, paddingBottom: 12, paddingHorizontal: 12 }}>
+        <StepRows rows={rows} />
+      </View>
+    </View>
+  );
+}
+
+/* A few ways out on one grey card, 72 a row: a glyph on a white 40 square,
+   the title over its line, a chevron at the end, and a hairline between
+   the rows. Each row can lead to a page the way a choice on its own does. */
+export type Way = { glyph: IconName; title: string; sub: string; onPress?: () => void; to?: string; testID?: string };
+
+export function ChoiceList({ items, testID }: { items: Way[]; testID?: string }) {
+  return (
+    <View style={s.choices} testID={testID}>
+      {items.map((it, i) => (
+        <BigChoice key={it.title} {...it} first={i === 0} />
+      ))}
+    </View>
+  );
+}
+
+function BigChoice({ glyph, title, sub, onPress, to, first, testID }: Way & { first: boolean }) {
+  const j = useDeparture({ id: `choice:${title}`, to, words: title });
+  return (
+    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={title} onPress={to ? j.onPress : onPress} style={[s.bigChoice, first ? null : s.hairTop, j.style]} testID={testID}>
+      <View style={[s.box40, { backgroundColor: colour.surface }]}>
+        <Icon name={glyph} size={20} colour={colour.ink} />
+      </View>
+      <View style={{ flex: 1, gap: 4 }}>
+        <Row>{title}</Row>
+        <Meta tone="secondary">{sub}</Meta>
       </View>
       <Icon name="chevron" size={16} colour={colour.textTertiary} />
     </Tap>
@@ -270,7 +413,7 @@ export function Segments({ options, value, onChange }: { options: string[]; valu
 /* A line of the record. One that settled has its glyph on a grey square and
    its figure in black, 70 tall. One still on its way, or that did not go, or
    that came back, has its status glyph bare and coloured, its figure in grey,
-   and a chevron, 64 tall. */
+   and a chevron, 64 tall, and leads to its own page. */
 export function HistoryRow({
   glyph,
   tone,
@@ -281,6 +424,7 @@ export function HistoryRow({
   onPress,
   onOpen,
   journey,
+  to,
 }: {
   glyph: IconName;
   tone?: string;
@@ -293,14 +437,16 @@ export function HistoryRow({
   onOpen?: (at: Rect) => void;
   /** the row's id on a journey, so it pulses when its receipt is left */
   journey?: string;
+  /** the page a line that is not done leads to; its title arrives from the line's own words */
+  to?: string;
 }) {
-  const j = useDeparture({ id: journey ?? `row:${name}` });
+  const j = useDeparture({ id: journey ?? `row:${name}`, to, words: to ? detail.split(' · ')[0] : undefined });
   return (
     <Tap
       ref={j.ref}
       accessibilityRole="button"
       accessibilityLabel={name}
-      onPress={() => (onOpen ? void measure(j.ref).then(onOpen) : onPress?.())}
+      onPress={() => (onOpen ? void measure(j.ref).then(onOpen) : to ? void j.onPress() : onPress?.())}
       style={[status ? s.statusRow : s.doneRow, j.style]}
       testID={status ? 'status-row' : 'done-row'}
     >
@@ -412,6 +558,17 @@ const s = StyleSheet.create({
   box32: { width: 32, height: 32, borderRadius: 10, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },
   disc28: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   sayCard: { backgroundColor: colour.surface, borderWidth: 1, borderColor: colour.rule, borderRadius: radius.card, paddingTop: 15, paddingBottom: 7, paddingHorizontal: 15 },
+  sayCardOffer: { paddingBottom: 15 },
+  bannerTight: { minHeight: 56, paddingVertical: 4 },
+  disc22: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+  stepRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 44 },
+  hairTop: { borderTopWidth: 1, borderTopColor: colour.rule },
+  panel: { backgroundColor: colour.surface, borderWidth: 1, borderColor: colour.rule, borderRadius: 20, overflow: 'hidden' },
+  panelHead: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 48, paddingHorizontal: 12, backgroundColor: colour.surface2 },
+  status: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 24, paddingHorizontal: 10, borderRadius: 12, backgroundColor: colour.surface, borderWidth: 1, borderColor: colour.rule },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colour.accent },
+  choices: { backgroundColor: colour.surface2, borderRadius: radius.card, paddingVertical: 4, paddingHorizontal: 16 },
+  bigChoice: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 72 },
   fact: { flexDirection: 'row', alignItems: 'center', height: 56, gap: 16 },
   footNote: { gap: 4, backgroundColor: colour.accentWash, borderRadius: radius.md, paddingVertical: 12, paddingHorizontal: 16 },
   banner: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 78, borderRadius: radius.card, paddingLeft: 16, paddingRight: 48, paddingVertical: 12 },

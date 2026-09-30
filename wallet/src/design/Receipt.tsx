@@ -46,7 +46,8 @@ function Cell({ field, wide }: { field: ReceiptField; wide: boolean }) {
     <View style={[s.cell, wide && s.wide]}>
       <Caption tone="secondary">{label}</Caption>
       {money(value) ? <Label>{value}</Label> : <Row>{value}</Row>}
-      {note && !money(value) ? <Caption tone="tertiary">{note}</Caption> : null}
+      {/* a money field's note — the fee's, even where the fee is Free — goes under the pair, not in the cell */}
+      {note && !MONEY.includes(label) ? <Caption tone="tertiary">{note}</Caption> : null}
     </View>
   );
 }
@@ -125,7 +126,7 @@ export function Receipt({
       return;
     }
     pair.push(f);
-    if (f[2] && money(f[1])) notes.push(f[2]);
+    if (f[2] && MONEY.includes(f[0])) notes.push(f[2]);
     if (pair.length === 2) flush(`p${i}`);
   });
   flush('last');

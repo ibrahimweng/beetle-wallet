@@ -2,7 +2,8 @@
    screen recedes under a blur and the list grows out of the line that
    asked for it, the way a receipt grows out of its row. A tap on one fills
    the ask panel and the list folds back; a tap anywhere else folds it back
-   with nothing picked. */
+   with nothing picked. The Send money page adds two rows under the people:
+   a number to type, and the camera. */
 import React, { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
@@ -10,6 +11,7 @@ import { Avatar, Caption, Icon, Label, Tap, colour, lift, settle, useStill, type
 import { discoById, groupMeter, groupPhoneNumber, networkInfo, planById, planName, type Beneficiary } from '../../services';
 import { groupAccount, initialsOf, naira } from '../../lib/format';
 import type { SavedKind } from './AskPanel';
+import type { IconName } from '../../icons';
 
 type BlurModule = typeof import('expo-blur');
 const blur: BlurModule | null = (() => {
@@ -25,14 +27,30 @@ const ROW_H = 56;
 const AWAY = 190;
 const TITLE: Record<SavedKind, string> = { person: 'People you have paid', line: 'Numbers you top up', meter: 'Meters you have paid' };
 
-export function SavedPeek({ kind, list, at, onPick, onClose }: { kind: SavedKind; list: Beneficiary[]; at: Rect; onPick: (b: Beneficiary) => void; onClose: () => void }) {
+export type Extra = { glyph: IconName; label: string; onPress: () => void };
+
+export function SavedPeek({
+  kind,
+  list,
+  at,
+  extras = [],
+  onPick,
+  onClose,
+}: {
+  kind: SavedKind;
+  list: Beneficiary[];
+  at: Rect;
+  /** other ways to say who, under the list */ extras?: Extra[];
+  onPick: (b: Beneficiary) => void;
+  onClose: () => void;
+}) {
   const still = useStill();
   const { width: W, height: H } = useWindowDimensions();
   const t = useSharedValue(still ? 1 : 0);
   const [leaving, setLeaving] = useState(false);
   const going = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rows = list.slice(0, 5);
-  const cardH = 16 + 32 + 12 + rows.length * ROW_H + 8;
+  const cardH = 16 + 32 + 12 + (rows.length + extras.length) * ROW_H + 8;
   const top = Math.max(24, Math.min(at.y, H - cardH - 24));
   const left = 20;
   const width = W - 40;
@@ -80,6 +98,14 @@ export function SavedPeek({ kind, list, at, onPick, onClose }: { kind: SavedKind
           <View>
             {rows.map(b => (
               <SavedRow key={b.id} b={b} onPress={() => leave(() => onPick(b))} />
+            ))}
+            {extras.map(x => (
+              <Tap key={x.label} accessibilityRole="button" accessibilityLabel={x.label} onPress={() => leave(x.onPress)} style={s.row} scale={0.98}>
+                <View style={[s.mark, { backgroundColor: colour.surface2 }]}>
+                  <Icon name={x.glyph} size={18} colour={colour.ink} />
+                </View>
+                <Label style={{ flex: 1 }}>{x.label}</Label>
+              </Tap>
             ))}
           </View>
         </Animated.View>

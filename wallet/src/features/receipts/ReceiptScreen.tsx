@@ -1,8 +1,9 @@
 /* The receipt on its own page, from the frames: the head with the day and
    the time, the amount on its tick, the slip, a button to share it, what
-   Beetle offers about it, and the way to say something is wrong. The dock
-   is the way back, the ask bar to ask about it, and the camera. A bill's
-   token sits above the slip with a button to copy it. */
+   Beetle offers about it, and the way to say something is wrong, which for
+   a transfer opens What went wrong?. The dock is the way back, the ask bar
+   to ask about it, and the camera. A bill's token sits above the slip with
+   a button to copy it. */
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -41,6 +42,8 @@ export function ReceiptScreen({ id }: { id: string }) {
   };
   /* the foot: Back, and the ask bar with the receipt's own question */
   useFoot({ kind: 'ask', placeholder: receipt?.ask ?? 'Ask about this', onAsk: askAbout, onScan: () => router.push('/scan'), veil: sharing ? 'away' : undefined });
+  /* something wrong with a transfer: What went wrong? arrives from the line */
+  const wrong = useDeparture({ id: 'wrong', to: `/wrong/${id}`, words: receipt?.wrong });
   if (!ok || !account) return null;
   const copy = async (text: string, what: string) => {
     toast((await copyText(text)) ? `${what} copied. Paste it anywhere.` : 'This build cannot reach the clipboard.');
@@ -84,7 +87,13 @@ export function ReceiptScreen({ id }: { id: string }) {
         />
         <Button label="Share receipt" leading="share" badge onPress={() => setSharing(true)} />
         <Nudge text={receipt.nudge.text} action={receipt.nudge.action} to={`/rule?offer=${receipt.kind === 'in' ? 'salary' : 'ikeja'}`} />
-        <Tap accessibilityRole="button" accessibilityLabel={receipt.wrong} onPress={later('What went wrong')} style={s.wrong}>
+        <Tap
+          ref={wrong.ref}
+          accessibilityRole="button"
+          accessibilityLabel={receipt.wrong}
+          onPress={receipt.kind === 'transfer' ? wrong.onPress : later('What went wrong')}
+          style={[s.wrong, wrong.style]}
+        >
           <Label tone="accent">{receipt.wrong}</Label>
           <Icon name="chevron" size={12} colour={colour.accent} />
         </Tap>

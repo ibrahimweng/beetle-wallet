@@ -19,6 +19,6 @@ describe('reading a photo', () => {
     expect(r.real).toBe(false);
     const read = await new MockReader(0).read();
     expect(read.real).toBe(false);
-    expect(read.numbers).toEqual(['0123456789']);
+    expect(read.numbers).toEqual(['0234567890']);
   });
 });

@@ -39,8 +39,8 @@ every screen. It needs a Chromium (`npx playwright install chromium`, or set
 | `npm run typecheck` | it compiles, with `strict` and `noUncheckedIndexedAccess` on |
 | `npm test` | the rules of the way in: what counts as a Nigerian number, what a passcode may not be, where each step leads, how the mock services answer; the scripted Beetle and what it asks for; the model against a fake API, its ask panel and its tools; what Beetle knows of the country — the networks by prefix, the plans, the companies, the meters, what was paid before; the gate before money moves; the hour a chat carries on for; the receipts' figures; the order of the record; the three words past a limit |
 | `npm run bundle` | the same JavaScript the phone runs, exported for the web into `dist/` |
-| `npm run flow` | from the lab to the welcome and on to home, then out and back in as the demo account, with the doors that should be shut tried on the way; the card pulled down and traced as it opens, money sent by asking and let through by the passcode, the account's details opened and copied, a photo taken with the browser's stand-in camera and read, money arriving, a shortcut, the model screen, a chat carried on and New, the receipt card and the receipt pages with the share sheet, Settings with every row followed — the switches kept, a new passcode, the three words past a limit, an instruction offered and set up, the other devices signed out, the phone that is not yours frozen, the card revealed and frozen — the bar and More, the record narrowed to In and a line opened, the four asks — a transfer with no amount, data for a new number, airtime by the slider, a bill from a new meter and from one paid before — each filled from the panel or from the list of what was paid before and taken through the passcode to its receipt, and the lab's places opened on their own; every screen photographed into `shots/` |
-| `npm run figma` | every built screen — twenty-seven of them — against its Figma frame: each named piece where the frame puts it, within three of the frame's figure or of that figure snapped to the 4-point grid; the frame's words on the screen; what is off on purpose listed with its reason; the frame and the screen side by side in `shots/figma/` |
+| `npm run flow` | from the lab to the welcome and on to home, then out and back in as the demo account, with the doors that should be shut tried on the way; the card pulled down and traced as it opens, money sent by asking and let through by the passcode, the account's details opened and copied, a photo taken with the browser's stand-in camera and read, money arriving, a shortcut, the model screen, a chat carried on and New, the receipt card and the receipt pages with the share sheet, Settings with every row followed — the switches kept, a new passcode, the three words past a limit, an instruction offered and set up, the other devices signed out, the phone that is not yours frozen, the card revealed and frozen — the bar and More, the record narrowed to In and a line opened, the four asks — a transfer with no amount, data for a new number, airtime by the slider, a bill from a new meter and from one paid before — each filled from the panel or from the list of what was paid before and taken through the passcode to its receipt; money sent from the Send money page in its four taps — who from the people paid before, the amount on the keypad page, a reference typed, the slide, the passcode, the receipt, and the line in the day — then filled from a message, from a photo, past the balance to Not enough, and from a digit the reader was not sure of; every state of a transfer and every way out of it; the face that did not take; and the lab's places opened on their own; every screen photographed into `shots/` |
+| `npm run figma` | every built screen — thirty-eight of them — against its Figma frame: each named piece where the frame puts it, within three of the frame's figure or of that figure snapped to the 4-point grid; the frame's words on the screen; what is off on purpose listed with its reason; the frame and the screen side by side in `shots/figma/` |
 
 ## On the frame
 
@@ -78,16 +78,18 @@ mocks in and says so on the code screen; a real `AuthService` and
 | A passcode | six digits typed twice; this build also lets `654321` and `123456` through, so trying it never means thinking one up | the same digit six times, a run, a repeated pair, your year of birth, and the handful everybody picks |
 | Welcome back | `0906 911 3588`, the owner's own number, opens the demo account, history and all; any number that opened an account on this device opens that one | a number nobody has opened an account with, with a way to open one |
 | The chat | "Send 20k to Sarah", "top up my light", "buy data", "what about dollars", "how much do I have"; the people it knows are Sarah Adeyemi, Chidi Okafor, Musa Danjuma and John Doe, by name or account number | more than the balance; a name it does not know; anything else, with what it can do |
-| Before money moves | the passcode set on the way in, or `654321` and `123456` in this build; the face, on a phone with one enrolled | three wrong tries shut the gate for thirty seconds and Beetle says so |
+| Send money | Send on the card, or Send money in More: someone paid before, a ten-digit number typed, or one read off a photo; any amount up to what Everyday holds; a reference; Slide to send, then the passcode | more than the balance: Not enough, with three ways to close it; a digit the reader was not sure of: Check this number, with both readings |
+| The fee | nothing under ₦10,000; ₦26.88 up to ₦50,000 and ₦53.75 above, the banks' own with the tax on it, on the page, in the chat's panel and on the receipt alike | |
+| Before money moves | the passcode set on the way in, or `654321` and `123456` in this build; the face, on a phone with one enrolled | three wrong tries shut the gate for thirty seconds and Beetle says so; a face that does not take says so in red, and the face key tries again |
 | Being paid | Receive on the card: the account number to copy or share; "have ₦50,000 arrive from Sarah" sets off an arrival in this build | nothing here can take money out |
 | Beetle's model | a key kept on the phone from the lab's model screen, or one in the build, puts Claude behind Beetle; without one the script answers | a key that is refused, or no network: the script answers, with a note saying why |
-| A photo | on the phone, the camera and the device's own reader; on the web and in Expo Go, the sample slip, which reads as Sarah Adeyemi at GTBank, `0123 4567 89` | a photo with no ten-digit number on it |
+| A photo | on the phone, the camera and the device's own reader; on the web and in Expo Go, the sample slip, which reads as Sarah Adeyemi at GTBank, `0234 5678 90` | a photo with no ten-digit number on it; on the Send money page, a reading the reader is not sure of stops at Check this number |
 
 ## How it is put together
 
 | Folder | What it is |
 |---|---|
-| `app/` | The routes: the loading screen, the lab, the way in as one screen, home, a receipt, Activities and the answer, Settings and the pages its rows lead to. `expo-router` reads this folder as the map. |
+| `app/` | The routes: the loading screen, the lab, the way in as one screen, home, Send money and the pages around it, a receipt, a transfer's state pages, Activities and the answer, Settings and the pages its rows lead to. `expo-router` reads this folder as the map. |
 | `src/design/` | The design system read off the Figma file: tokens, type, icons, motion, and the pieces every screen is made of |
 | `src/icons.ts` | The 95 glyphs, generated from `../src/icons.js` by `npm run icons`, which puts the line widths the file draws them at (0.075 of the box for a glyph, 0.10 for a bare mark) and round ends back on every stroked path; never edited by hand |
 | `src/features/onboarding/` | The way in: the step machine (`machine.ts`), what is remembered and the session (`store.tsx`), the rules (`validation.ts`), the one screen and its choreography (`WayIn.tsx`), what each stage of it shows (`views.tsx`, `stages.ts`), and the guard that keeps home for a session |
@@ -96,8 +98,10 @@ mocks in and says so on the code screen; a real `AuthService` and
 | `src/features/scan/` | The camera screen with every way it can go wrong, the photo's way back to the chat, and the sample slip |
 | `src/features/passcode/` | The gate before money moves: the passcode on its sheet over the chat (`Passcode.tsx`) and the check itself, with the tries and the lock (`check.ts`) |
 | `src/features/receive/` | Being paid: the account's details over the chat (`Receive.tsx`), money arriving (`arrival.ts`), and the clipboard |
+| `src/features/send/` | Sending money: the page (`Send.tsx`), the keypad page for the amount (`Amend.tsx`), Not enough (`Short.tsx`), Check this number (`Misread.tsx`), and what the pages hand back to the one under them (`hand.ts`) |
+| `src/features/transfers/` | A transfer that is not done: Still on its way, It did not go and It came back (`Transfer.tsx`), What went wrong? (`Wrong.tsx`), Asking for it back (`Recall.tsx`), I sent it wrong (`AlreadyGone.tsx`), what each says about a line (`states.ts`) |
 | `src/features/receipts/` | A receipt for every line in the day: the record and the frames' own figures (`receipts.ts`), the page (`ReceiptScreen.tsx`), the share sheet (`ShareSheet.tsx`); the card in the chat is `src/features/agent/ReceiptCard.tsx` |
-| `src/features/more/` | The one foot every screen shares (`Foot.tsx`): the bar on home, Back and the ask bar — or Back and the page's button — on a page, morphing from the one to the other; and More, the actions up out of its plus (`More.tsx`), with the way each page asks Beetle something from its ask bar |
+| `src/features/more/` | The one foot every screen shares (`Foot.tsx`): the bar on home, Back and the ask bar — or Back and the page's button, or Back and Slide to send — on a page, morphing from the one to the other; and More, the actions up out of its plus (`More.tsx`), with the way each page asks Beetle something from its ask bar |
 | `src/features/activities/` | The record (`Activities.tsx`) in the frame's order (`rows.ts`), and the answer to a question about spending (`Answer.tsx`) |
 | `src/features/settings/` | Settings from the mark at the top left (`Settings.tsx`), Your details on its sheet (`Details.tsx`), what the pages set, kept per account (`prefs.ts`), and the pages: Lock and privacy, Spending limits and Past your own limit (`words.ts` holds the three words), Standing instructions and Set this up?, Devices, Not your phone, A new passcode, Virtual card |
 | `src/lab/` | The lab: which builds have it (`enabled.ts`), every feature and the places in it with the state each needs (`catalogue.ts`), the screen, and the tab that comes back to it |
@@ -300,6 +304,74 @@ list and takes them through the passcode to the receipt. The ask panel has
 no frame of its own; its sub-cards, chips (the frame's 112×62, two lines)
 and the initials row are read off the Pay a bill and Buy data frames.
 
+## Sending money
+
+Send on the card and Send money in More open the Send money page, from
+its frame (`src/features/send/Send.tsx`): the amount, who it is going to,
+a reference, and from where, when it lands and the fee, each on its own
+white card in one grey one, Beetle saying where things stand above them,
+and Slide to send at the foot beside Back. Four taps: Send, who, the
+amount, and the passcode — the slide is a drag. A tap on the person opens
+the people paid before, the list growing out of the card the way the ask
+panel's does, with a number to type and the camera under them; a typed
+number becomes somebody at its tenth digit, and a photo goes through the
+reader and comes back as the person on it. A tap on the amount opens
+Change the amount, from its frame: what was read where something was
+read, the figure, a keypad with 000 on it so a round figure is three
+taps, and Use it — in the foot beside Back, where every page keeps its
+one button, with What if it is more than I have? under the bubble. The
+reference is typed in place. The fee is the receipts' rule: nothing
+under ₦10,000, the banks' own with the tax on it above. The slide's knob
+follows the finger; let go past four fifths of the way and it lands at
+the end and the passcode comes up, before that and it springs back; until
+there is someone and an amount the pill is the pale grey. After the
+passcode the line goes into the day — home's day and Activities see it
+the moment it is added — and its receipt opens, with Back to home.
+
+Past the balance the slide leads to Not enough, from its frame: what is
+short, the three figures, and three ways to close it — from the Holiday
+goal (round 6), what there is now with the rest on payday, which puts
+that amount on the page, or asking someone who owes you (round 4). A
+digit the reader was not sure of leads to Check this number, from its
+frame: the number as read, where it came from, the other reading in
+amber, Beetle's word that it will not choose on its own, and the three
+ways — the one, the other, or typing it — each going back onto the page.
+The stand-in reader is sure of the sample slip; the lab opens Check this
+number on a slip it is not sure of. A typed ask in the chat keeps the
+chat's own panel (the user's choice: both ways, each with its frame); the
+page's "You typed" column is what a message brings when it is handed
+over, and the lab opens the page filled from one.
+
+## When a transfer is not done
+
+A line still on its way, that did not go or that came back opens its own
+page from Activities, its title coming up from the line's words
+(`src/features/transfers/`). Still on its way: the ring turning, the
+warning not to send it again, the three steps with the last one waiting,
+Beetle's word on when it comes back on its own, and a message offered
+for the moment it lands. It did not go: the red mark, the green word that
+the balance is whole, whose afternoon it is, try again now — which opens
+the Send money page filled — or another way (round 6), and the offer to
+keep trying. It came back: the black mark, when it left and came back and
+why, the reference, and the account number to check or the same again,
+both on the page. The figures are the line's own: the day's failed
+transfer is Chidi Okafor's, the returned one Musa Danjuma's.
+
+A receipt's "Something wrong with this?" opens What went wrong?, from its
+frame: the three things that can be wrong with a payment, Beetle's word
+on which it can do itself and which only a bank can, and the payment. The
+wrong person leads to Asking for it back: Beetle Recall at work on a
+light panel — reported, sent to the bank, the person asked to approve,
+their answer still to come — what this is and is not, and a message or a
+dispute (round 7). Where Beetle read the number off a photo, the wrong
+person leads instead to I sent it wrong: the digit was Beetle's own, so
+the money comes back today as a line in the day with its receipt, or the
+bank is asked to recall it. Beetle says they for everyone it has not been
+told about. The passcode sheet, from the Face ID missed frame: a face
+that did not take says so in red, the face key tries again, and from
+then the foot says what three wrong tries cost — thirty seconds in this
+build, and the line says so.
+
 ## Receipts
 
 Every line in the day opens its receipt, and so does the card in the chat.
@@ -329,13 +401,15 @@ goes down as the card opens — the open chat has the shortcuts row instead
 — and comes back as the card closes. On a page that needs a way back it is
 Back and the ask bar, with the plus where the frame draws one (Activities,
 Standing instructions, the card), or Back and the page's one button (Past
-your own limit), so Back is always at the bottom left, beside a
-confirmation button too. Home to a page is one movement, as Fuse does it:
+your own limit, Change the amount), or Back and Slide to send (Send
+money), so Back is always at the bottom left, beside a confirmation
+button too. Home to a page is one movement, as Fuse does it:
 the plus scales away, the three glyphs slide right and become the ask bar,
 and Back slides in from the left edge; back to home runs it in reverse.
 Each screen says what its foot holds while it has focus (`useFoot`), and
 the numbers are the frames' docks: 104 tall, the row 56 with 24 above and
-below, 16 in from either side, Back 44, the bar 48, the button 56. A screen
+below, 16 in from either side, Back 44, the bar 48, the button 56; the
+slide is 60 tall and 20 in, as the Send money frame draws it. A screen
 that says nothing — the way in, the lab, the camera, a new passcode — has
 none, and the foot goes down out of the way.
 
@@ -345,8 +419,9 @@ each with its own coloured glyph. The frame draws five; the bar carries
 Activities and Settings, so the sheet keeps Camera, Send money and
 Receive. The plus turns into a cross on the way in and back on the way
 out, and anywhere that is not an action closes it; closing runs the whole
-thing backwards before the screen goes. From a page, Send money and
-Receive go back to home, where the chat and the account's details are.
+thing backwards before the screen goes. Send money opens the Send money
+page from anywhere; from a page, Receive goes back to home, where the
+account's details are.
 
 ## Activities
 
@@ -354,7 +429,7 @@ See all on the day and Activities on the bar open the record, titled as
 they call it, from its frame: everything that moved, newest first, All / In / Out
 to narrow it, today and yesterday, and what Beetle makes of it at the foot.
 What is still on its way, did not go or came back stands first with its
-status glyph and a chevron — their own screens come with round 3 — and what
+status glyph and a chevron, and opens its own page, and what
 settled follows on the grey square, each line growing into its receipt in
 a few words, with the full one a tap further. What you moved
 into your own goal is not in it: that money is still yours. "Where your
@@ -437,7 +512,10 @@ words up and growing into the title, with the body following out of a
 blur a beat later; on the way back the screen comes forward again and the
 thing you left from pulses once. A Settings row becomes its page's title,
 The full receipt sends the amount up into the receipt, the bar's clock
-becomes the head of Activities, the mark becomes the word Settings. All of
+becomes the head of Activities, the mark becomes the word Settings, Send
+on the card becomes Send money, the amount on the page becomes the head
+of the keypad page, a line still on its way becomes the head of its own
+page, and Something wrong with this? becomes What went wrong?. All of
 it is `src/design/journey.tsx`: a departure records where it started, the
 screen arriving takes it, and a screen opened any other way simply fades
 in. The foot keeps its own thread across the change: the plus scales away,
@@ -452,6 +530,6 @@ they are not moving the way that file says.
 
 ## What comes next
 
-The rounds in `PLAN.md`, sending money in four taps next; finishing
+The rounds in `PLAN.md`, being paid and asking next; finishing
 setting up (the ID card and the income question that turn the last two
 limits on); a server for the model's key.

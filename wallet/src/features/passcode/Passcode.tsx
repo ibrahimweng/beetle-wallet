@@ -5,14 +5,19 @@
    tries are left; the third wrong one shuts the gate for half a minute and
    says so. The right one lands a tick where the dots were, the sheet goes,
    and the money moves. On a phone with a face enrolled the face is asked
-   first, and the pad is the way past it. A tap on the chat behind, or a
-   pull down on the sheet, puts it away with nothing moved. */
+   first, and the pad is the way past it; a face that did not take says so
+   in red, with the face key there to try again, and from then the foot
+   says what three wrong tries cost. A tap on the chat behind, or a pull
+   down on the sheet, puts it away with nothing moved. */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import { Avatar, Display, Head, Icon, Keypad, Meta, Pips, Pop, Row, Sheet, Swap, colour, useStill } from '../../design';
 import { initialsOf } from '../../lib/format';
 import { checkCode, checkFace, faceAvailable, lockedFor, refusal } from './check';
+
+/** The frame's words for a face that did not take. */
+const MISSED = 'Face ID did not catch you. Tap the face to try again.';
 
 export function PasscodeSheet({
   amount,
@@ -21,6 +26,7 @@ export function PasscodeSheet({
   verify,
   onDone,
   onCancel,
+  faceMissed = false,
 }: {
   amount: string;
   /** who it is going to */
@@ -31,11 +37,15 @@ export function PasscodeSheet({
   verify: (code: string) => Promise<boolean>;
   onDone: () => void;
   onCancel: () => void;
+  /** opened as if the face had just been missed: the lab's place for the frame */
+  faceMissed?: boolean;
 }) {
   const still = useStill();
   const [digits, setDigits] = useState('');
-  const [note, setNote] = useState<{ text: string; bad?: boolean } | null>(null);
-  const [face, setFace] = useState(false);
+  const [note, setNote] = useState<{ text: string; bad?: boolean } | null>(faceMissed ? { text: MISSED, bad: true } : null);
+  const [face, setFace] = useState(!!faceMissed);
+  /* a face missed or a code refused: the foot turns to the warning */
+  const [warned, setWarned] = useState(!!faceMissed);
   const [state, setState] = useState<'typing' | 'checking' | 'right' | 'leaving'>('typing');
   const [shake, setShake] = useState(0);
   const done = useRef(false);
@@ -52,7 +62,10 @@ export function PasscodeSheet({
     setNote({ text: 'Looking…' });
     const ok = await checkFace();
     if (ok) through();
-    else setNote({ text: 'The face did not take. The passcode works too.' });
+    else {
+      setNote({ text: MISSED, bad: true });
+      setWarned(true);
+    }
   }, [through]);
 
   /* a phone with a face enrolled is asked for it first, once the sheet is there */
@@ -89,6 +102,7 @@ export function PasscodeSheet({
     }
     setShake(n => n + 1);
     setNote({ text: refusal(verdict), bad: true });
+    setWarned(true);
     setTimeout(
       () => {
         setDigits('');
@@ -140,9 +154,13 @@ export function PasscodeSheet({
       <View style={{ marginTop: 24 }}>
         <Keypad big onKey={k => void key(k)} onFace={face ? () => void tryFace() : undefined} />
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 8, marginTop: 24 }}>
-        <Icon name="lock" size={16} colour={colour.textTertiary} />
-        <Meta tone="secondary">Nothing moves until the sixth digit lands.</Meta>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, paddingHorizontal: 8, marginTop: 24 }}>
+        <View style={{ marginTop: 2 }}>
+          <Icon name="lock" size={16} colour={colour.textTertiary} />
+        </View>
+        <Meta tone="secondary" style={{ flex: 1 }}>
+          {warned ? 'Three wrong tries locks the passcode for half a minute.' : 'Nothing moves until the sixth digit lands.'}
+        </Meta>
       </View>
     </Sheet>
   );

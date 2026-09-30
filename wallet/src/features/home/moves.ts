@@ -1,6 +1,8 @@
 /* What moved on this phone since the day the frames draw: every line a
-   panel or an arrival added to the day, kept per account, so the balance
-   and the receipts hold across a restart. */
+   panel, the Send money page or an arrival added to the day, kept per
+   account, so the balance and the receipts hold across a restart. Every
+   screen that holds the list sees a line the moment any of them adds it:
+   home's day picks up what the Send money page moved. */
 import { useCallback, useEffect, useState } from 'react';
 import { storage, type Move } from '../../services';
 import type { LedgerRow } from './account';
@@ -31,34 +33,56 @@ export function rowFrom(m: Move, balanceBefore: number, seq: number, at = new Da
     reference: m.reference,
     person: m.person ? { bank: m.person.bank, number: m.person.number } : undefined,
     target: m.target,
+    read: m.read,
     session: sessionId(at, seq),
     after: Math.round((balanceBefore + m.amount) * 100) / 100,
   };
 }
 
+/* one list per account, shared by every screen holding it */
+const kept = new Map<string, LedgerRow[]>();
+const listeners = new Set<(account: string) => void>();
+
+/** The list as this phone last had it, forgotten: the lab starts a place afresh. */
+export function forgetMoves(account: string) {
+  kept.delete(account);
+}
+
 export function useMoves(account: string | undefined) {
-  const [moves, setMoves] = useState<LedgerRow[]>([]);
-  const [ready, setReady] = useState(false);
+  const [moves, setMoves] = useState<LedgerRow[]>(() => (account && kept.get(account)) || []);
+  const [ready, setReady] = useState(() => !!account && kept.has(account));
   useEffect(() => {
     if (!account) return;
     let live = true;
-    storage.get<LedgerRow[]>(movesKey(account)).then(kept => {
-      if (!live) return;
-      setMoves(kept ?? []);
+    const listen = (a: string) => {
+      if (a === account && live) setMoves(kept.get(a) ?? []);
+    };
+    listeners.add(listen);
+    const have = kept.get(account);
+    if (have) {
+      setMoves(have);
       setReady(true);
-    });
+    } else {
+      storage.get<LedgerRow[]>(movesKey(account)).then(list => {
+        if (!live) return;
+        if (!kept.has(account)) kept.set(account, list ?? []);
+        setMoves(kept.get(account) ?? []);
+        setReady(true);
+      });
+    }
     return () => {
       live = false;
+      listeners.delete(listen);
     };
   }, [account]);
 
   const add = useCallback(
     (row: LedgerRow) => {
-      setMoves(list => {
-        const next = [row, ...list];
-        if (account) void storage.set(movesKey(account), next);
-        return next;
-      });
+      if (!account) return;
+      const next = [row, ...(kept.get(account) ?? [])];
+      kept.set(account, next);
+      void storage.set(movesKey(account), next);
+      listeners.forEach(l => l(account));
     },
     [account],
   );

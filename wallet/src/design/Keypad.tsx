@@ -8,7 +8,12 @@
    by 352, cells 100 across, keys of 76 with 16 between the rows — because
    that is the one you use with the phone in one hand. Measured off the
    passcode sheet: discs at 68 to 144 across and 424 to 500 down, the next
-   row 92 lower. */
+   row 92 lower.
+
+   For an amount it is 282 by 344: keys of 74 with 20 between the columns
+   and 16 between the rows, and 000 where the face key would be, so a round
+   figure is three taps. Measured off the Change the amount frame: keys at
+   66, 160 and 254 across and 254, 344, 434 and 524 down. */
 import React from 'react';
 import { View } from 'react-native';
 import { Icon } from './Icon';
@@ -20,16 +25,31 @@ import { Tap } from './motion';
 export type PadTone = 'light' | 'dark';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'face', '0', 'del'] as const;
+const AMOUNT_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '000', '0', 'del'] as const;
 
 /* The face key sits in the bottom left where the frame leaves a gap, and is
-   only drawn when the screen has something for it to do. */
-export function Keypad({ onKey, onFace, big = false, tone = 'light' }: { onKey: (k: string) => void; onFace?: () => void; big?: boolean; tone?: PadTone }) {
-  const cell = big ? { w: 100, h: 76, key: 76, gap: 16 } : { w: 84, h: 76, key: 68, gap: 0 };
+   only drawn when the screen has something for it to do; on the amount pad
+   the 000 key sits there instead. */
+export function Keypad({
+  onKey,
+  onFace,
+  big = false,
+  zeros = false,
+  tone = 'light',
+}: {
+  onKey: (k: string) => void;
+  onFace?: () => void;
+  big?: boolean;
+  /** the amount pad, with 000 */ zeros?: boolean;
+  tone?: PadTone;
+}) {
+  const cell = zeros ? { w: 94, h: 74, key: 74, gap: 16 } : big ? { w: 100, h: 76, key: 76, gap: 16 } : { w: 84, h: 76, key: 68, gap: 0 };
+  const keys: readonly string[] = zeros ? AMOUNT_KEYS : KEYS;
   const ink = tone === 'dark' ? '#ffffff' : colour.ink;
   const disc = tone === 'dark' ? dark.edge : colour.surface2;
   return (
     <View style={{ width: cell.w * 3, alignSelf: 'center', flexDirection: 'row', flexWrap: 'wrap', rowGap: cell.gap }} testID="keypad">
-      {KEYS.map((k, i) => {
+      {keys.map((k, i) => {
         const live = k === 'face' ? !!onFace : !!k;
         return (
           <Tap

@@ -723,7 +723,15 @@ try {
     const el = document.querySelector('[data-testid="foot"] [aria-label="Back"]');
     return el ? { opacity: +getComputedStyle(el).opacity, left: el.getBoundingClientRect().left } : null;
   });
-  const morph = await trace('foot-morph', 700, [['back', '[data-testid="foot"] [aria-label="Back"]', false], ['plus', '[data-testid="foot"] [aria-label="More"]', false]], { picture: { at: 60, name: 'foot-morph-mid' } });
+  const morph = await trace(
+    'foot-morph',
+    700,
+    [
+      ['back', '[data-testid="foot"] [aria-label="Back"]', false],
+      ['plus', '[data-testid="foot"] [aria-label="More"]', false],
+    ],
+    { picture: { at: 60, name: 'foot-morph-mid' } },
+  );
   const backThere = morph[morph.length - 1]?.back;
   const plusGone = morph[morph.length - 1]?.plus;
   must(backEarly && (backEarly.opacity < 0.9 || backEarly.left < 14), `Back should still be on its way in as the page arrives (${JSON.stringify(backEarly)})`);
@@ -929,13 +937,17 @@ try {
   await tap('Back');
   await see('Everything that moved');
   must((await page.locator('[data-testid="peek"]').count()) === 0, 'the peek should be gone once its receipt is left');
+  /* a line still on its way opens its own page, its title coming up from the line's words */
   await tap('Sarah Adeyemi');
-  await see('has its screen in round 3');
+  await see('Do not send it again');
+  at('/transfer/l01');
+  await tap('Back');
+  await see('Everything that moved');
   await tap('More');
   await see('Send money');
   await tap('Send money');
-  await see('Who should I send to');
-  at('/home');
+  await see('Nothing moves until you slide');
+  at('/send');
   await tap('Back to the lab');
   await see('Beetle Lab');
   /* the answer to a question about spending, from home's insight */
@@ -1084,6 +1096,193 @@ try {
   await see('The token is');
   await see('The full receipt');
   await shot('ask-bill-paid', 600);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  console.log('Sending money');
+  /* Send money, from the card, in the four taps: who from the people paid before, the
+     amount on the keypad page, a reference typed in place, the slide, the passcode, and
+     the receipt, with the line in the day after */
+  const slideToSend = async () => {
+    const knob = await page.getByTestId('slide-knob').boundingBox();
+    const pill = await page.getByTestId('slide').boundingBox();
+    await page.mouse.move(knob.x + 25, knob.y + 25);
+    await page.mouse.down();
+    await page.mouse.move(knob.x + 60, knob.y + 25, { steps: 6 });
+    await page.mouse.move(pill.x + pill.width - 16, knob.y + 25, { steps: 12 });
+    await page.mouse.up();
+  };
+  const inSaved = name => page.locator('[data-testid="saved"]').getByRole('button', { name, exact: true }).click();
+  /* from the card's own Send, so the receipt's Back lands on home and the day has the line */
+  await tap('The demo account');
+  await see('Pull down');
+  await tap('Send');
+  await see('Nothing moves until you slide');
+  at('/send');
+  const slideFill = () => page.getByTestId('slide').evaluate(el => getComputedStyle(el).backgroundColor);
+  must((await slideFill()) === 'rgb(245, 245, 247)', `the slide should wait, in the pale grey, for someone and an amount (${await slideFill()})`);
+  await shot('send-empty', 900);
+  await tap('Who is it for?');
+  await see('People you have paid');
+  await see('Point the camera at one');
+  await shot('send-people', 600);
+  await inSaved('John Doe');
+  await page.locator('[data-testid="saved"]').waitFor({ state: 'hidden' });
+  await see('Kuda · 3012 3456 78');
+  await tap('The amount');
+  await see('Change the amount');
+  at('/amend');
+  await tap('2');
+  await tap('5');
+  await tap('000');
+  await see('₦25,000');
+  await wipe(1);
+  await see('₦2,500');
+  await shot('send-amend', 400);
+  await tap('Use ₦2,500');
+  await see('Kuda · 3012 3456 78');
+  at('/send');
+  await page.getByLabel('Reference', { exact: true }).fill('Lunch');
+  await see('Check it, then slide');
+  must((await slideFill()) === 'rgb(0, 0, 0)', 'the slide should be black once there is someone and an amount');
+  await shot('send-filled', 500);
+  await slideToSend();
+  await see('Enter your passcode');
+  await shot('send-passcode', 600);
+  await type(PASSCODE);
+  await see('Sent to John Doe');
+  must(page.url().includes('/receipt/'), 'the passcode should lead to the receipt');
+  await see('Lunch');
+  await shot('send-receipt', 900);
+  await tap('Back');
+  await see('Pull down');
+  at('/home');
+  await see('Kuda · sent');
+  await shot('send-home-after', 900);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* the three parts filled from a message, as the frame draws it, sent the same way */
+  await tap('Filled from a message');
+  await see('send Sarah 50k for the flat deposit');
+  await shot('send-message', 900);
+  await slideToSend();
+  await see('Enter your passcode');
+  await type(PASSCODE);
+  await see('Sent to Sarah Adeyemi');
+  await see('Flat deposit');
+  await shot('send-message-receipt', 900);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* who from a photo: the camera from the list, the sample slip, and the person read off it */
+  await tap('Send money');
+  await see('Nothing moves until you slide');
+  await tap('Who is it for?');
+  await inSaved('Point the camera at one');
+  /* the camera screen offers the sample slip whatever state the camera is in */
+  const sample = page.getByRole('button', { name: /sample photo/ }).first();
+  await sample.waitFor();
+  at('/scan');
+  await sample.click();
+  await see('Read off the photo');
+  await see('Sarah Adeyemi');
+  at('/send');
+  await shot('send-photo', 900);
+  /* past the balance: the slide leads to Not enough, and what there is can go now */
+  await tap('The amount');
+  await see('Change the amount');
+  await tap('9');
+  await tap('000');
+  await tap('000');
+  await see('₦9,000,000');
+  await tap('Use ₦9,000,000');
+  await see('more than Everyday holds');
+  await shot('send-over', 400);
+  await slideToSend();
+  await see('Not enough in Everyday');
+  at('/short');
+  await shot('send-short', 900);
+  await page
+    .getByRole('button', { name: /^Send ₦[\d,]+ now$/ })
+    .first()
+    .click();
+  await see('What Everyday holds');
+  at('/send');
+  await shot('send-short-taken', 600);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* a digit the reader was not sure of: both readings, and the one chosen goes onto the page */
+  await tap('Check this number');
+  await see('and I am not sure of the last digit');
+  at('/misread');
+  await shot('send-misread', 900);
+  await tap('It is 0234 5678 90');
+  await see('checked by you');
+  at('/send');
+  await shot('send-misread-taken', 600);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  console.log('When a transfer is not done');
+  await tap('Still on its way');
+  await see('Do not send it again');
+  at('/transfer/l01');
+  await shot('transfer-pending', 1200);
+  await tap('Yes, tell me');
+  await see('I will tell you');
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  await tap('It did not go');
+  await see('Your balance is exactly what it was');
+  at('/transfer/l02');
+  await shot('transfer-failed', 900);
+  await tap('Try again now');
+  await see('Chidi Okafor');
+  await see('The same as before');
+  at('/send');
+  await shot('transfer-failed-again', 600);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  await tap('It came back');
+  await see('Account could not be credited');
+  at('/transfer/l03');
+  await shot('transfer-reversed', 900);
+  await tap('Try Musa again');
+  await see('Musa Danjuma');
+  at('/send');
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  await tap('What went wrong?');
+  await see('The payment');
+  at('/wrong/l08');
+  await shot('transfer-wrong', 900);
+  await tap('It went to the wrong person');
+  await see('Beetle Recall');
+  at('/recall/l08');
+  await shot('transfer-recall', 900);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  await tap('I sent it wrong');
+  await see('You are covered');
+  at('/alreadygone/l08');
+  await shot('transfer-alreadygone', 900);
+  await tap('Take ₦20,000 back');
+  await see('Money in');
+  await see('Cover for a number read wrong');
+  must(page.url().includes('/receipt/'), 'the cover should have its receipt');
+  await shot('transfer-cover', 900);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* a receipt's way to say something is wrong leads to What went wrong? */
+  await tap('A transfer');
+  await see('Something wrong with this?');
+  await tap('Something wrong with this?');
+  await see('Tell me which and I start it now');
+  at('/wrong/l08');
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* the face that did not take: the line in red, the face key, and what three wrong tries cost */
+  await tap('Face ID missed');
+  await see('Face ID did not catch you');
+  await see('for half a minute');
+  await shot('passcode-face-missed', 900);
   await tap('Back to the lab');
   await see('Beetle Lab');
   /* the first time: the card dips on its own, with the words that say why, then settles */

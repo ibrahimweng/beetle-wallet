@@ -6009,5 +6009,3485 @@
         }
       }
     ]
+  },
+  "send": {
+    "frame": "send",
+    "place": "Filled from a message",
+    "wait": "send Sarah 50k",
+    "settle": 1400,
+    "pieces": [
+      {
+        "name": "Page head",
+        "find": {
+          "testid": "head",
+          "up": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "You typed",
+        "find": {
+          "text": "You typed"
+        }
+      },
+      {
+        "name": "send Sarah 50k for the flat de",
+        "find": {
+          "text": "send Sarah 50k"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Mark · 32",
+        "find": {
+          "testid": "say",
+          "child": 0
+        }
+      },
+      {
+        "name": "Card",
+        "find": {
+          "testid": "say",
+          "child": [
+            1,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Card",
+        "nth": 1,
+        "find": {
+          "testid": "send-card"
+        }
+      },
+      {
+        "name": "Card",
+        "nth": 2,
+        "find": {
+          "testid": "send-amount"
+        }
+      },
+      {
+        "name": "₦50,000",
+        "find": {
+          "text": "₦50,000",
+          "exact": true
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "I took this from your messag",
+        "find": {
+          "text": "I took this from your message",
+          "nth": 0
+        },
+        "nth": 0,
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "I took this from your messag",
+        "find": {
+          "text": "I took this from your message",
+          "nth": 1
+        },
+        "nth": 1,
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Card",
+        "nth": 3,
+        "find": {
+          "testid": "send-who"
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 1,
+        "find": {
+          "testid": "send-who",
+          "child": 0
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Chip · SA",
+        "find": {
+          "text": "SA",
+          "up": 1
+        }
+      },
+      {
+        "name": "SA",
+        "find": {
+          "text": "SA",
+          "exact": true
+        },
+        "only": [
+          "x"
+        ]
+      },
+      {
+        "name": "Column",
+        "nth": 1,
+        "find": {
+          "text": "Sarah Adeyemi",
+          "up": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Sarah Adeyemi",
+        "find": {
+          "text": "Sarah Adeyemi"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "GTBank · 0234 5678 90",
+        "find": {
+          "text": "GTBank ·"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 0,
+        "find": {
+          "testid": "send-who",
+          "child": [
+            0,
+            2
+          ]
+        }
+      },
+      {
+        "name": "The only Sarah you have paid",
+        "find": {
+          "text": "The only Sarah you have paid"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Card",
+        "nth": 4,
+        "find": {
+          "testid": "send-ref"
+        }
+      },
+      {
+        "name": "Row · Reference",
+        "find": {
+          "testid": "send-ref",
+          "child": 0
+        }
+      },
+      {
+        "name": "Reference",
+        "find": {
+          "text": "Reference",
+          "exact": true
+        },
+        "only": [
+          "x",
+          "y"
+        ]
+      },
+      {
+        "name": "Flat deposit",
+        "find": {
+          "label": "Reference"
+        },
+        "only": [
+          "y"
+        ]
+      },
+      {
+        "name": "Card",
+        "nth": 5,
+        "find": {
+          "testid": "send-rows"
+        }
+      },
+      {
+        "name": "Row · From",
+        "find": {
+          "button": "From"
+        }
+      },
+      {
+        "name": "From",
+        "find": {
+          "text": "From",
+          "exact": true
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Everyday · ₦595,320",
+        "find": {
+          "text": "Everyday ·"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 1,
+        "find": {
+          "button": "From",
+          "child": 2
+        }
+      },
+      {
+        "name": "Row · Arrives",
+        "find": {
+          "button": "Arrives"
+        }
+      },
+      {
+        "name": "Arrives",
+        "find": {
+          "text": "Arrives",
+          "exact": true
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "In a few seconds",
+        "find": {
+          "text": "In a few seconds"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 2,
+        "find": {
+          "button": "Arrives",
+          "child": 2
+        }
+      },
+      {
+        "name": "Row · Fee",
+        "find": {
+          "text": "Fee",
+          "exact": true,
+          "up": 1
+        }
+      },
+      {
+        "name": "Fee",
+        "find": {
+          "text": "Fee",
+          "exact": true
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · Nothing moves until ",
+        "find": {
+          "text": "Nothing moves until you slide",
+          "up": 1
+        }
+      },
+      {
+        "name": "Glyph · lock",
+        "find": {
+          "text": "Nothing moves until you slide",
+          "up": 1,
+          "child": 0
+        }
+      },
+      {
+        "name": "Nothing moves until you slid",
+        "find": {
+          "text": "Nothing moves until you slide"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Back",
+        "find": {
+          "button": "Back"
+        }
+      },
+      {
+        "name": "Slide to confirm",
+        "find": {
+          "testid": "slide"
+        }
+      },
+      {
+        "name": "Knob",
+        "find": {
+          "testid": "slide-knob"
+        }
+      },
+      {
+        "name": "Glyph · up",
+        "find": {
+          "testid": "slide-knob",
+          "child": 0
+        }
+      },
+      {
+        "name": "Slide to send ₦50,000",
+        "find": {
+          "text": "Slide to send",
+          "up": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      }
+    ]
+  },
+  "amend": {
+    "frame": "amend",
+    "place": "Change the amount",
+    "wait": "I read",
+    "settle": 1400,
+    "pieces": [
+      {
+        "name": "Page head",
+        "find": {
+          "testid": "head",
+          "up": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "I read",
+        "find": {
+          "text": "I read",
+          "exact": true
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "₦200,000",
+        "find": {
+          "text": "₦200,000",
+          "exact": true
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "₦20,000",
+        "find": {
+          "text": "₦20,000",
+          "exact": true
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Key",
+        "nth": 0,
+        "find": {
+          "button": "1",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 1,
+        "find": {
+          "button": "2",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 2,
+        "find": {
+          "button": "3",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 3,
+        "find": {
+          "button": "4",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 4,
+        "find": {
+          "button": "5",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 5,
+        "find": {
+          "button": "6",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 6,
+        "find": {
+          "button": "7",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 7,
+        "find": {
+          "button": "8",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 8,
+        "find": {
+          "button": "9",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 9,
+        "find": {
+          "button": "000",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 10,
+        "find": {
+          "button": "0",
+          "child": 0
+        }
+      },
+      {
+        "name": "Key",
+        "nth": 11,
+        "find": {
+          "button": "Delete",
+          "child": 0
+        }
+      },
+      {
+        "name": "Mark · 32",
+        "find": {
+          "testid": "say",
+          "child": 0
+        }
+      },
+      {
+        "name": "Card",
+        "find": {
+          "testid": "say",
+          "child": [
+            1,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Button · Use ₦20,000",
+        "find": {
+          "button": "Use ₦20,000"
+        }
+      },
+      {
+        "name": "What if it is more than I ha",
+        "find": {
+          "text": "What if it is more than I have?"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      }
+    ]
+  },
+  "short": {
+    "frame": "short",
+    "place": "Not enough in Everyday",
+    "wait": "short of the",
+    "settle": 1400,
+    "pieces": [
+      {
+        "name": "Page head",
+        "find": {
+          "testid": "head",
+          "up": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Glyph · pot",
+        "find": {
+          "testid": "status",
+          "child": 0
+        }
+      },
+      {
+        "name": "₦7,520",
+        "find": {
+          "text": "₦7,520",
+          "exact": true,
+          "nth": 0
+        },
+        "nth": 0,
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "short of the ₦20,000 you ask",
+        "find": {
+          "text": "short of the ₦20,000 you asked for"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · You asked for",
+        "find": {
+          "text": "You asked for",
+          "up": 1
+        }
+      },
+      {
+        "name": "You asked for",
+        "find": {
+          "text": "You asked for"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "₦20,000",
+        "find": {
+          "text": "₦20,000",
+          "exact": true
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · In Everyday",
+        "find": {
+          "text": "In Everyday",
+          "up": 1
+        }
+      },
+      {
+        "name": "In Everyday",
+        "find": {
+          "text": "In Everyday"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "₦12,480",
+        "find": {
+          "text": "₦12,480",
+          "exact": true
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · Short by",
+        "find": {
+          "text": "Short by",
+          "up": 1
+        }
+      },
+      {
+        "name": "Short by",
+        "find": {
+          "text": "Short by"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "₦7,520",
+        "find": {
+          "text": "₦7,520",
+          "exact": true,
+          "nth": 1
+        },
+        "nth": 1,
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Mark · 32",
+        "find": {
+          "testid": "say",
+          "child": 0
+        }
+      },
+      {
+        "name": "Card",
+        "find": {
+          "testid": "say",
+          "child": [
+            1,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Card",
+        "nth": 1,
+        "find": {
+          "testid": "ways"
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 1,
+        "find": {
+          "button": "Move it from Holiday"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 0,
+        "find": {
+          "button": "Move it from Holiday",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · alert",
+        "find": {
+          "button": "Move it from Holiday",
+          "child": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Column",
+        "nth": 3,
+        "find": {
+          "button": "Move it from Holiday",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Move it from Holiday",
+        "find": {
+          "text": "Move it from Holiday"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "₦48,000 is sitting there",
+        "find": {
+          "text": "₦48,000 is sitting there"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 0,
+        "find": {
+          "button": "Move it from Holiday",
+          "child": 2
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 2,
+        "find": {
+          "button": "Send ₦12,480 now"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 1,
+        "find": {
+          "button": "Send ₦12,480 now",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · up",
+        "find": {
+          "button": "Send ₦12,480 now",
+          "child": [
+            0,
+            0
+          ]
+        },
+        "nth": 0
+      },
+      {
+        "name": "Column",
+        "nth": 4,
+        "find": {
+          "button": "Send ₦12,480 now",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Send ₦12,480 now",
+        "find": {
+          "text": "Send ₦12,480 now"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "The rest when your salary la",
+        "find": {
+          "text": "The rest when your salary lands"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 1,
+        "find": {
+          "button": "Send ₦12,480 now",
+          "child": 2
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 3,
+        "find": {
+          "button": "Ask Musa for ₦7,520"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 2,
+        "find": {
+          "button": "Ask Musa for ₦7,520",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · up",
+        "find": {
+          "button": "Ask Musa for ₦7,520",
+          "child": [
+            0,
+            0
+          ]
+        },
+        "nth": 1
+      },
+      {
+        "name": "Column",
+        "nth": 5,
+        "find": {
+          "button": "Ask Musa for ₦7,520",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Ask Musa for ₦7,520",
+        "find": {
+          "text": "Ask Musa for ₦7,520"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "He owes you from the rent",
+        "find": {
+          "text": "He owes you from the rent"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 2,
+        "find": {
+          "button": "Ask Musa for ₦7,520",
+          "child": 2
+        }
+      },
+      {
+        "name": "Back",
+        "find": {
+          "button": "Back"
+        }
+      },
+      {
+        "name": "Ask bar",
+        "find": {
+          "testid": "dock-bar"
+        }
+      },
+      {
+        "name": "Mark · 32",
+        "nth": 1,
+        "find": {
+          "testid": "dock-bar",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · camera",
+        "find": {
+          "label": "Scan something",
+          "child": 0
+        }
+      }
+    ]
+  },
+  "misread": {
+    "frame": "misread",
+    "place": "Check this number",
+    "wait": "not sure of the last digit",
+    "settle": 1400,
+    "pieces": [
+      {
+        "name": "Page head",
+        "find": {
+          "testid": "head",
+          "up": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Glyph · pot",
+        "find": {
+          "testid": "status",
+          "child": 0
+        }
+      },
+      {
+        "name": "0234 5678 90",
+        "find": {
+          "text": "0234 5678 90",
+          "exact": true,
+          "nth": 0
+        },
+        "nth": 0,
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · You asked for",
+        "find": {
+          "text": "From the photo",
+          "up": 1
+        }
+      },
+      {
+        "name": "From the photo",
+        "find": {
+          "text": "From the photo"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Sarah A. · GTBank",
+        "find": {
+          "text": "Sarah A. · GTBank"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · In Everyday",
+        "find": {
+          "text": "I read",
+          "exact": true,
+          "up": 1
+        }
+      },
+      {
+        "name": "I read",
+        "find": {
+          "text": "I read",
+          "exact": true
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "0234 5678 90",
+        "find": {
+          "text": "0234 5678 90",
+          "exact": true,
+          "nth": 1
+        },
+        "nth": 1,
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · Short by",
+        "find": {
+          "text": "Or maybe",
+          "up": 1
+        }
+      },
+      {
+        "name": "Or maybe",
+        "find": {
+          "text": "Or maybe"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "0234 5678 96",
+        "find": {
+          "text": "0234 5678 96",
+          "exact": true
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Mark · 32",
+        "find": {
+          "testid": "say",
+          "child": 0
+        }
+      },
+      {
+        "name": "Card",
+        "find": {
+          "testid": "say",
+          "child": [
+            1,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Card",
+        "nth": 1,
+        "find": {
+          "testid": "ways"
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 1,
+        "find": {
+          "button": "It is 0234 5678 90"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 0,
+        "find": {
+          "button": "It is 0234 5678 90",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · alert",
+        "find": {
+          "button": "It is 0234 5678 90",
+          "child": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Column",
+        "nth": 3,
+        "find": {
+          "button": "It is 0234 5678 90",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "It is 0234 5678 90",
+        "find": {
+          "text": "It is 0234 5678 90"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Sarah Adeyemi, who you have paid before",
+        "find": {
+          "text": "Sarah Adeyemi, who you have paid before"
+        },
+        "only": [
+          "x",
+          "y"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 0,
+        "find": {
+          "button": "It is 0234 5678 90",
+          "child": 2
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 2,
+        "find": {
+          "button": "It is 0234 5678 96"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 1,
+        "find": {
+          "button": "It is 0234 5678 96",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · up",
+        "find": {
+          "button": "It is 0234 5678 96",
+          "child": [
+            0,
+            0
+          ]
+        },
+        "nth": 0
+      },
+      {
+        "name": "Column",
+        "nth": 4,
+        "find": {
+          "button": "It is 0234 5678 96",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "It is 0234 5678 96",
+        "find": {
+          "text": "It is 0234 5678 96"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "The rest when your salary la",
+        "find": {
+          "text": "Someone you have never paid"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 1,
+        "find": {
+          "button": "It is 0234 5678 96",
+          "child": 2
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 3,
+        "find": {
+          "button": "Let me type it"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 2,
+        "find": {
+          "button": "Let me type it",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · up",
+        "find": {
+          "button": "Let me type it",
+          "child": [
+            0,
+            0
+          ]
+        },
+        "nth": 1
+      },
+      {
+        "name": "Column",
+        "nth": 5,
+        "find": {
+          "button": "Let me type it",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Let me type it",
+        "find": {
+          "text": "Let me type it"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Neither one is right",
+        "find": {
+          "text": "Neither one is right"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 2,
+        "find": {
+          "button": "Let me type it",
+          "child": 2
+        }
+      },
+      {
+        "name": "Back",
+        "find": {
+          "button": "Back"
+        }
+      },
+      {
+        "name": "Ask bar",
+        "find": {
+          "testid": "dock-bar"
+        }
+      },
+      {
+        "name": "Mark · 32",
+        "nth": 1,
+        "find": {
+          "testid": "dock-bar",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · camera",
+        "find": {
+          "label": "Scan something",
+          "child": 0
+        }
+      }
+    ]
+  },
+  "pending": {
+    "frame": "pending",
+    "place": "Still on its way",
+    "wait": "Do not send it again",
+    "settle": 1600,
+    "pieces": [
+      {
+        "name": "Page head",
+        "find": {
+          "testid": "head",
+          "up": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Glyph · grid",
+        "find": {
+          "testid": "ring"
+        }
+      },
+      {
+        "name": "₦20,000",
+        "find": {
+          "text": "₦20,000",
+          "exact": true,
+          "nth": 0
+        },
+        "nth": 0,
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "to Sarah Adeyemi · GTBank",
+        "find": {
+          "text": "to Sarah Adeyemi · GTBank"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Card",
+        "nth": 0,
+        "find": {
+          "testid": "banner"
+        }
+      },
+      {
+        "name": "Glyph · pot",
+        "nth": 0,
+        "find": {
+          "testid": "banner",
+          "child": 0
+        }
+      },
+      {
+        "name": "Do not send it again. This one",
+        "find": {
+          "text": "Do not send it again"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Card",
+        "nth": 1,
+        "find": {
+          "testid": "steps"
+        }
+      },
+      {
+        "name": "Row · Left your account",
+        "find": {
+          "text": "Left your account",
+          "up": 1
+        }
+      },
+      {
+        "name": "Row · GTBank has it",
+        "find": {
+          "text": "GTBank has it",
+          "up": 1
+        }
+      },
+      {
+        "name": "Row · Reaching Sarah",
+        "find": {
+          "text": "Reaching Sarah",
+          "up": 1
+        }
+      },
+      {
+        "name": "Mark · 32",
+        "find": {
+          "testid": "say",
+          "child": 0
+        }
+      },
+      {
+        "name": "Card",
+        "find": {
+          "testid": "say",
+          "child": [
+            1,
+            0
+          ]
+        },
+        "nth": 2
+      },
+      {
+        "name": "Card",
+        "nth": 3,
+        "find": {
+          "testid": "offer"
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 1,
+        "find": {
+          "testid": "offer",
+          "child": 0
+        }
+      },
+      {
+        "name": "Mark · 32",
+        "nth": 1,
+        "find": {
+          "testid": "offer",
+          "child": [
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Card",
+        "nth": 4,
+        "find": {
+          "testid": "offer",
+          "child": [
+            0,
+            0,
+            1,
+            0
+          ]
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Button · Yes, tell me",
+        "find": {
+          "button": "Yes, tell me"
+        }
+      },
+      {
+        "name": "Dock · Ask about this transfer",
+        "find": {
+          "testid": "foot"
+        }
+      }
+    ]
+  },
+  "failed": {
+    "frame": "failed",
+    "place": "It did not go",
+    "wait": "Your balance is exactly",
+    "settle": 1400,
+    "pieces": [
+      {
+        "name": "Page head",
+        "find": {
+          "testid": "head",
+          "up": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Glyph · pot",
+        "nth": 0,
+        "find": {
+          "testid": "status",
+          "child": 0
+        }
+      },
+      {
+        "name": "₦20,000",
+        "find": {
+          "text": "₦12,000",
+          "exact": true,
+          "nth": 0
+        },
+        "nth": 0,
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "still in your account",
+        "find": {
+          "text": "still in your account"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Card",
+        "nth": 0,
+        "find": {
+          "testid": "banner"
+        }
+      },
+      {
+        "name": "Glyph · pot",
+        "nth": 1,
+        "find": {
+          "testid": "banner",
+          "child": 0
+        }
+      },
+      {
+        "name": "Your balance is exactly what i",
+        "find": {
+          "text": "Your balance is exactly what it was"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Mark · 32",
+        "find": {
+          "testid": "say",
+          "child": 0
+        }
+      },
+      {
+        "name": "Card",
+        "find": {
+          "testid": "say",
+          "child": [
+            1,
+            0
+          ]
+        },
+        "nth": 1,
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Card",
+        "nth": 2,
+        "find": {
+          "testid": "ways"
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 1,
+        "find": {
+          "button": "Try again now"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 0,
+        "find": {
+          "button": "Try again now",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · up",
+        "find": {
+          "button": "Try again now",
+          "child": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Column",
+        "nth": 2,
+        "find": {
+          "button": "Try again now",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Try again now",
+        "find": {
+          "text": "Try again now"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "It may have cleared already",
+        "find": {
+          "text": "It may have cleared already"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 0,
+        "find": {
+          "button": "Try again now",
+          "child": 2
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 2,
+        "find": {
+          "button": "Send it another way"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 1,
+        "find": {
+          "button": "Send it another way",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · airtime",
+        "find": {
+          "button": "Send it another way",
+          "child": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Column",
+        "nth": 3,
+        "find": {
+          "button": "Send it another way",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Send it another way",
+        "find": {
+          "text": "Send it another way"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Through your Zenith account",
+        "find": {
+          "text": "Through your Zenith account"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 1,
+        "find": {
+          "button": "Send it another way",
+          "child": 2
+        }
+      },
+      {
+        "name": "Card",
+        "nth": 3,
+        "find": {
+          "testid": "offer"
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 3,
+        "find": {
+          "testid": "offer",
+          "child": 0
+        }
+      },
+      {
+        "name": "Mark · 32",
+        "nth": 1,
+        "find": {
+          "testid": "offer",
+          "child": [
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Card",
+        "nth": 4,
+        "find": {
+          "testid": "offer",
+          "child": [
+            0,
+            0,
+            1,
+            0
+          ]
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Button · Do that",
+        "find": {
+          "button": "Do that"
+        }
+      },
+      {
+        "name": "Back",
+        "find": {
+          "button": "Back"
+        }
+      },
+      {
+        "name": "Ask bar",
+        "find": {
+          "testid": "dock-bar"
+        }
+      },
+      {
+        "name": "Mark · 32",
+        "nth": 2,
+        "find": {
+          "testid": "dock-bar",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · camera",
+        "find": {
+          "label": "Scan something",
+          "child": 0
+        }
+      }
+    ]
+  },
+  "reversed": {
+    "frame": "reversed",
+    "place": "It came back",
+    "wait": "Account could not be credited",
+    "settle": 1400,
+    "pieces": [
+      {
+        "name": "Page head",
+        "find": {
+          "testid": "head",
+          "up": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Glyph · alert-red",
+        "find": {
+          "testid": "status",
+          "child": 0
+        }
+      },
+      {
+        "name": "₦20,000",
+        "find": {
+          "text": "₦20,000",
+          "exact": true,
+          "nth": 0
+        },
+        "nth": 0,
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "back in Everyday",
+        "find": {
+          "text": "back in Everyday"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · Left",
+        "find": {
+          "text": "Left",
+          "exact": true,
+          "up": 1
+        }
+      },
+      {
+        "name": "Left",
+        "find": {
+          "text": "Left",
+          "exact": true
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · Came back",
+        "find": {
+          "text": "Came back",
+          "exact": true,
+          "up": 1
+        }
+      },
+      {
+        "name": "Came back",
+        "find": {
+          "text": "Came back",
+          "exact": true
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · Why",
+        "find": {
+          "text": "Why",
+          "exact": true,
+          "up": 1
+        }
+      },
+      {
+        "name": "Why",
+        "find": {
+          "text": "Why",
+          "exact": true
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Account could not be credited",
+        "find": {
+          "text": "Account could not be credited"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · Reference",
+        "find": {
+          "text": "Reference",
+          "exact": true,
+          "up": 1
+        }
+      },
+      {
+        "name": "Reference",
+        "find": {
+          "text": "Reference",
+          "exact": true
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Mark · 32",
+        "find": {
+          "testid": "say",
+          "child": 0
+        }
+      },
+      {
+        "name": "Card",
+        "find": {
+          "testid": "say",
+          "child": [
+            1,
+            0
+          ]
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Card",
+        "nth": 1,
+        "find": {
+          "testid": "ways"
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 1,
+        "find": {
+          "button": "Check the account number"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 0,
+        "find": {
+          "button": "Check the account number",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · globe",
+        "find": {
+          "button": "Check the account number",
+          "child": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Column",
+        "nth": 3,
+        "find": {
+          "button": "Check the account number",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Check the account number",
+        "find": {
+          "text": "Check the account number"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "One digit is usually all it ",
+        "find": {
+          "text": "One digit is usually all it is"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 0,
+        "find": {
+          "button": "Check the account number",
+          "child": 2
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 2,
+        "find": {
+          "button": "Try Musa again"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 1,
+        "find": {
+          "button": "Try Musa again",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · up",
+        "find": {
+          "button": "Try Musa again",
+          "child": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Column",
+        "nth": 4,
+        "find": {
+          "button": "Try Musa again",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Try Sarah again",
+        "find": {
+          "text": "Try Musa again"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Same amount, same account",
+        "find": {
+          "text": "Same amount, same account"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 1,
+        "find": {
+          "button": "Try Musa again",
+          "child": 2
+        }
+      },
+      {
+        "name": "Dock · Ask about this",
+        "find": {
+          "testid": "foot"
+        }
+      }
+    ]
+  },
+  "wrong": {
+    "frame": "wrong",
+    "place": "What went wrong?",
+    "wait": "The payment",
+    "settle": 1400,
+    "pieces": [
+      {
+        "name": "Page head",
+        "find": {
+          "testid": "head",
+          "up": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Card",
+        "nth": 0,
+        "find": {
+          "testid": "ways"
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 0,
+        "find": {
+          "button": "It went to the wrong person"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 0,
+        "find": {
+          "button": "It went to the wrong person",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · person",
+        "find": {
+          "button": "It went to the wrong person",
+          "child": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Column",
+        "nth": 0,
+        "find": {
+          "button": "It went to the wrong person",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "It went to the wrong person",
+        "find": {
+          "text": "It went to the wrong person"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "I ask their bank to send it ",
+        "find": {
+          "text": "I ask their bank to send it back"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 0,
+        "find": {
+          "button": "It went to the wrong person",
+          "child": 2
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 1,
+        "find": {
+          "button": "They say it never arrived"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 1,
+        "find": {
+          "button": "They say it never arrived",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · globe",
+        "find": {
+          "button": "They say it never arrived",
+          "child": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Column",
+        "nth": 1,
+        "find": {
+          "button": "They say it never arrived",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "They say it never arrived",
+        "find": {
+          "text": "They say it never arrived"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "I make GTBank trace it",
+        "find": {
+          "text": "I make GTBank trace it"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 1,
+        "find": {
+          "button": "They say it never arrived",
+          "child": 2
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 2,
+        "find": {
+          "button": "I did not make this payment"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 2,
+        "find": {
+          "button": "I did not make this payment",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · card-solid",
+        "find": {
+          "button": "I did not make this payment",
+          "child": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Column",
+        "nth": 2,
+        "find": {
+          "button": "I did not make this payment",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "w"
+        ]
+      },
+      {
+        "name": "I did not make this payment",
+        "find": {
+          "text": "I did not make this payment"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "I freeze the account first, ",
+        "find": {
+          "text": "I freeze the account first"
+        },
+        "only": [
+          "x"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 2,
+        "find": {
+          "button": "I did not make this payment",
+          "child": 2
+        }
+      },
+      {
+        "name": "Mark · 32",
+        "find": {
+          "testid": "say",
+          "child": 0
+        }
+      },
+      {
+        "name": "Card",
+        "find": {
+          "testid": "say",
+          "child": [
+            1,
+            0
+          ]
+        },
+        "nth": 1,
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Card",
+        "nth": 2,
+        "find": {
+          "testid": "payment"
+        }
+      },
+      {
+        "name": "The payment",
+        "find": {
+          "text": "The payment"
+        },
+        "only": [
+          "x",
+          "y"
+        ]
+      },
+      {
+        "name": "Row · Amount",
+        "find": {
+          "text": "Amount",
+          "exact": true,
+          "up": 1
+        }
+      },
+      {
+        "name": "Amount",
+        "find": {
+          "text": "Amount",
+          "exact": true
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "₦20,000",
+        "find": {
+          "text": "₦20,000",
+          "exact": true
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · To",
+        "find": {
+          "text": "To",
+          "exact": true,
+          "up": 1
+        }
+      },
+      {
+        "name": "To",
+        "find": {
+          "text": "To",
+          "exact": true
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Sarah Adeyemi · GTBank",
+        "find": {
+          "text": "Sarah Adeyemi · GTBank"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · Sent",
+        "find": {
+          "text": "Sent",
+          "exact": true,
+          "up": 1
+        }
+      },
+      {
+        "name": "Sent",
+        "find": {
+          "text": "Sent",
+          "exact": true
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Back",
+        "find": {
+          "button": "Back"
+        }
+      },
+      {
+        "name": "Ask bar",
+        "find": {
+          "testid": "dock-bar"
+        }
+      },
+      {
+        "name": "Mark · 32",
+        "nth": 1,
+        "find": {
+          "testid": "dock-bar",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · camera",
+        "find": {
+          "label": "Scan something",
+          "child": 0
+        }
+      }
+    ]
+  },
+  "recall": {
+    "frame": "recall",
+    "place": "Asking for it back",
+    "wait": "Beetle Recall",
+    "settle": 1400,
+    "pieces": [
+      {
+        "name": "Page head",
+        "find": {
+          "testid": "head",
+          "up": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "MCP panel",
+        "find": {
+          "testid": "recall"
+        }
+      },
+      {
+        "name": "Row · Beetle Recall",
+        "find": {
+          "text": "Beetle Recall",
+          "up": 1
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 0,
+        "find": {
+          "text": "Beetle Recall",
+          "up": 1,
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · up",
+        "nth": 0,
+        "find": {
+          "text": "Beetle Recall",
+          "up": 1,
+          "child": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Beetle Recall",
+        "find": {
+          "text": "Beetle Recall"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Chip · Running",
+        "find": {
+          "testid": "panel-status"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Column",
+        "nth": 0,
+        "find": {
+          "testid": "recall",
+          "child": 1
+        }
+      },
+      {
+        "name": "Row · You reported it",
+        "find": {
+          "text": "You reported it",
+          "up": 1
+        }
+      },
+      {
+        "name": "Row · Sent to GTBank",
+        "find": {
+          "text": "Sent to GTBank",
+          "up": 1
+        }
+      },
+      {
+        "name": "Row · Sarah asked to appro",
+        "find": {
+          "text": "Sarah asked to approve",
+          "up": 1
+        }
+      },
+      {
+        "name": "Row · Her answer",
+        "find": {
+          "text": "Sarah's answer",
+          "up": 1
+        }
+      },
+      {
+        "name": "Card",
+        "nth": 0,
+        "find": {
+          "testid": "what"
+        }
+      },
+      {
+        "name": "What this is and is not",
+        "find": {
+          "text": "What this is and is not"
+        },
+        "only": [
+          "x",
+          "y"
+        ]
+      },
+      {
+        "name": "Row · I have asked GTBank.",
+        "find": {
+          "text": "I have asked GTBank",
+          "up": 1
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 1,
+        "find": {
+          "text": "I have asked GTBank",
+          "up": 1,
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 0,
+        "find": {
+          "text": "I have asked GTBank",
+          "up": 1,
+          "child": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "I have asked GTBank. That part",
+        "find": {
+          "text": "I have asked GTBank"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · I cannot take it bac",
+        "find": {
+          "text": "I cannot take it back",
+          "up": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Glyph · lock",
+        "nth": 0,
+        "find": {
+          "text": "I cannot take it back",
+          "up": 1,
+          "child": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "I cannot take it back. It is",
+        "find": {
+          "text": "I cannot take it back. It is"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · If she says no, no b",
+        "find": {
+          "text": "If they say no",
+          "up": 1
+        }
+      },
+      {
+        "name": "Glyph · lock",
+        "nth": 1,
+        "find": {
+          "text": "If they say no",
+          "up": 1,
+          "child": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "After that it is a formal di",
+        "find": {
+          "text": "After that it is a formal dispute"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Card",
+        "nth": 1,
+        "find": {
+          "testid": "ways"
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 0,
+        "find": {
+          "button": "Message Sarah"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 4,
+        "find": {
+          "button": "Message Sarah",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · loan",
+        "find": {
+          "button": "Message Sarah",
+          "child": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Column",
+        "nth": 2,
+        "find": {
+          "button": "Message Sarah",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Message Sarah",
+        "find": {
+          "text": "Message Sarah"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Most of these end here, in a",
+        "find": {
+          "text": "Most of these end here"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 1,
+        "find": {
+          "button": "Message Sarah",
+          "child": 2
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 1,
+        "find": {
+          "button": "Open a dispute"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 5,
+        "find": {
+          "button": "Open a dispute",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · up",
+        "find": {
+          "button": "Open a dispute",
+          "child": [
+            0,
+            0
+          ]
+        },
+        "nth": 1
+      },
+      {
+        "name": "Column",
+        "nth": 3,
+        "find": {
+          "button": "Open a dispute",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Open a dispute",
+        "find": {
+          "text": "Open a dispute"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "If she has not answered by F",
+        "find": {
+          "text": "If Sarah has not answered"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 2,
+        "find": {
+          "button": "Open a dispute",
+          "child": 2
+        }
+      },
+      {
+        "name": "Back",
+        "find": {
+          "button": "Back"
+        }
+      },
+      {
+        "name": "Ask bar",
+        "find": {
+          "testid": "dock-bar"
+        }
+      },
+      {
+        "name": "Mark · 32",
+        "find": {
+          "testid": "dock-bar",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · camera",
+        "find": {
+          "label": "Scan something",
+          "child": 0
+        }
+      }
+    ]
+  },
+  "alreadygone": {
+    "frame": "alreadygone",
+    "place": "I sent it wrong",
+    "wait": "You are covered",
+    "settle": 1400,
+    "pieces": [
+      {
+        "name": "Page head",
+        "find": {
+          "testid": "head",
+          "up": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Glyph · pot",
+        "nth": 0,
+        "find": {
+          "testid": "status",
+          "child": 0
+        }
+      },
+      {
+        "name": "₦20,000",
+        "find": {
+          "text": "₦20,000",
+          "exact": true,
+          "nth": 0
+        },
+        "nth": 0,
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "went to the wrong account",
+        "find": {
+          "text": "went to the wrong account"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Card",
+        "nth": 0,
+        "find": {
+          "testid": "banner"
+        }
+      },
+      {
+        "name": "Glyph · pot",
+        "nth": 1,
+        "find": {
+          "testid": "banner",
+          "child": 0
+        }
+      },
+      {
+        "name": "Your balance is exactly what i",
+        "find": {
+          "text": "This one is mine"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Mark · 32",
+        "find": {
+          "testid": "say",
+          "child": 0
+        }
+      },
+      {
+        "name": "Card",
+        "find": {
+          "testid": "say",
+          "child": [
+            1,
+            0
+          ]
+        },
+        "nth": 1,
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Card",
+        "nth": 2,
+        "find": {
+          "testid": "ways"
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 1,
+        "find": {
+          "button": "Take ₦20,000 back"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 0,
+        "find": {
+          "button": "Take ₦20,000 back",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · up",
+        "find": {
+          "button": "Take ₦20,000 back",
+          "child": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Column",
+        "nth": 2,
+        "find": {
+          "button": "Take ₦20,000 back",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Take ₦20,000 back",
+        "find": {
+          "text": "Take ₦20,000 back"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Paid by us today, not in days",
+        "find": {
+          "text": "Paid by us today, not in days"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 0,
+        "find": {
+          "button": "Take ₦20,000 back",
+          "child": 2
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 2,
+        "find": {
+          "button": "Ask GTBank to recall it"
+        }
+      },
+      {
+        "name": "Icon",
+        "nth": 1,
+        "find": {
+          "button": "Ask GTBank to recall it",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · airtime",
+        "find": {
+          "button": "Ask GTBank to recall it",
+          "child": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Column",
+        "nth": 3,
+        "find": {
+          "button": "Ask GTBank to recall it",
+          "child": 1
+        },
+        "only": [
+          "x",
+          "y",
+          "w"
+        ]
+      },
+      {
+        "name": "Ask GTBank to recall it",
+        "find": {
+          "text": "Ask GTBank to recall it"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "We do this to recover our side",
+        "find": {
+          "text": "We do this to recover our side"
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Glyph · check",
+        "nth": 1,
+        "find": {
+          "button": "Ask GTBank to recall it",
+          "child": 2
+        }
+      },
+      {
+        "name": "Card",
+        "nth": 3,
+        "find": {
+          "testid": "offer"
+        }
+      },
+      {
+        "name": "Row",
+        "nth": 3,
+        "find": {
+          "testid": "offer",
+          "child": 0
+        }
+      },
+      {
+        "name": "Mark · 32",
+        "nth": 1,
+        "find": {
+          "testid": "offer",
+          "child": [
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "Card",
+        "nth": 4,
+        "find": {
+          "testid": "offer",
+          "child": [
+            0,
+            0,
+            1,
+            0
+          ]
+        },
+        "only": [
+          "x",
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Button · Do that",
+        "find": {
+          "button": "Do that"
+        }
+      },
+      {
+        "name": "Back",
+        "find": {
+          "button": "Back"
+        }
+      },
+      {
+        "name": "Ask bar",
+        "find": {
+          "testid": "dock-bar"
+        }
+      },
+      {
+        "name": "Mark · 32",
+        "nth": 2,
+        "find": {
+          "testid": "dock-bar",
+          "child": 0
+        }
+      },
+      {
+        "name": "Glyph · camera",
+        "find": {
+          "label": "Scan something",
+          "child": 0
+        }
+      }
+    ]
+  },
+  "facemissed": {
+    "frame": "facemissed",
+    "place": "Face ID missed",
+    "wait": "Face ID did not catch you",
+    "settle": 1800,
+    "pieces": [
+      {
+        "name": "Sheet",
+        "find": {
+          "testid": "passcode"
+        },
+        "only": [
+          "x",
+          "w"
+        ]
+      },
+      {
+        "name": "Box",
+        "find": {
+          "testid": "passcode-grabber"
+        },
+        "only": [
+          "x",
+          "w",
+          "h"
+        ]
+      },
+      {
+        "name": "₦20,000",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "text": "₦20,000"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Chip · SA",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "text": "SA",
+          "up": 1
+        },
+        "only": [
+          "y",
+          "w",
+          "h"
+        ]
+      },
+      {
+        "name": "Sarah Adeyemi",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "text": "Sarah Adeyemi"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "GTBank · 0234 5678 90",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "text": "GTBank ·"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Enter your passcode",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "text": "Enter your passcode"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Face ID did not catch you. Tap the face ",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "testid": "note"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "testid": "pips"
+        },
+        "only": [
+          "y",
+          "h"
+        ],
+        "nth": 1
+      },
+      {
+        "name": "Passcode keypad",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "testid": "keypad"
+        },
+        "only": [
+          "y",
+          "h"
+        ]
+      },
+      {
+        "name": "Row · Nothing moves until ",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "text": "Three wrong tries",
+          "up": 1
+        },
+        "only": [
+          "x",
+          "y"
+        ]
+      },
+      {
+        "name": "Glyph · lock",
+        "within": "Content",
+        "withinNth": 1,
+        "withinFind": {
+          "testid": "passcode-content"
+        },
+        "find": {
+          "text": "Three wrong tries",
+          "up": 1,
+          "child": 0
+        },
+        "only": [
+          "x",
+          "w",
+          "h"
+        ]
+      },
+      {
+        "name": "Three wrong tries locks the passcode for",
+        "find": {
+          "text": "Three wrong tries"
+        },
+        "only": [
+          "x",
+          "y"
+        ]
+      }
+    ],
+    "skipWords": [
+      "Face ID first",
+      "Reply, or just keep typing"
+    ]
   }
 }

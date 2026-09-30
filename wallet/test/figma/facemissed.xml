@@ -1,0 +1,51 @@
+<instance id="331:9488" name="NoFace" x="573" y="80" width="393" height="852">
+  <frame id="I331:9488;761:2113" name="Page" x="0" y="0" width="393" height="706.7999877929688">
+    <frame id="I331:9488;761:2114" name="Content" x="20" y="72" width="353" height="634.7999877929688">
+      <instance id="I331:9488;761:2115" name="Group" x="0" y="0" width="353" height="44" />
+      <instance id="I331:9488;761:2116" name="Card" x="160.8000030517578" y="60" width="192.1999969482422" height="47.199989318847656" />
+      <frame id="I331:9488;761:2117" name="Row" x="0" y="123.19998931884766" width="353" height="93.5999984741211">
+        <instance id="I331:9488;761:2118" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="I331:9488;761:2119" name="Card" x="44" y="0" width="309" height="104" />
+      </frame>
+      <instance id="I331:9488;761:2120" name="Tool panel" x="0" y="232.79998779296875" width="353" height="350" />
+      <frame id="I331:9488;761:2121" name="Row · Face ID first. Nothi" x="0" y="598.7999877929688" width="353" height="36">
+        <instance id="I331:9488;761:2122" name="Glyph · lock" x="0" y="0" width="16" height="16" />
+        <text id="I331:9488;761:2123" name="Face ID first. Nothing leave" x="24" y="0" width="275" height="40" />
+      </frame>
+    </frame>
+  </frame>
+  <instance id="I331:9488;761:2124" name="Dock · Reply, or just keep typing" x="0" y="748" width="393" height="104" />
+  <frame id="I331:9488;761:2144" name="Scrim" x="0" y="0" width="393" height="852" />
+  <frame id="I331:9488;761:2146" name="Sheet" x="10" y="152.79998779296875" width="373" height="689.2000122070312">
+    <frame id="I331:9488;761:2147" name="Box" x="164.5" y="16" width="44" height="5" />
+    <frame id="I331:9488;239:7438" name="Content" x="20" y="33" width="333" height="632.2000122070312">
+      <frame id="I331:9488;239:7444" name="Column" x="0" y="0" width="333" height="100.19999694824219">
+        <text id="I331:9488;239:7445" name="₦20,000" x="110.05000305175781" y="0" width="133" height="40" />
+        <frame id="I331:9488;239:7446" name="Row" x="67.4000015258789" y="52" width="218.3000030517578" height="43.20000076293945">
+          <frame id="I331:9488;239:7447" name="Chip · SA" x="0" y="1.6000003814697266" width="40" height="40">
+            <text id="I331:9488;239:7448" name="SA" x="10.5" y="12" width="20" height="20" />
+          </frame>
+          <frame id="I331:9488;239:7449" name="Column" x="52" y="0" width="166.3000030517578" height="43.20000076293945">
+            <text id="I331:9488;239:7450" name="Sarah Adeyemi" x="0" y="0" width="115" height="24" />
+            <text id="I331:9488;239:7451" name="GTBank · 0234 5678 90" x="0" y="28" width="157" height="20" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="I331:9488;239:7452" name="Column" x="0" y="124.19999694824219" width="333" height="52">
+        <text id="I331:9488;239:7453" name="Enter your passcode" x="70.5" y="0" width="192" height="24" />
+        <text id="I331:9488;239:7454" name="Face ID did not catch you. Tap the face " x="0" y="32" width="333" height="20" />
+      </frame>
+      <frame id="I331:9488;239:7455" name="Row" x="0" y="200.1999969482422" width="333" height="14">
+        <frame id="I331:9488;239:7456" name="Dot" x="108.5" y="0" width="14" height="14" />
+        <frame id="I331:9488;239:7457" name="Dot" x="142.5" y="0" width="14" height="14" />
+        <frame id="I331:9488;239:7458" name="Dot" x="176.5" y="0" width="14" height="14" />
+        <frame id="I331:9488;239:7459" name="Dot" x="210.5" y="0" width="14" height="14" />
+      </frame>
+      <instance id="I331:9488;239:7460" name="Passcode keypad" x="0" y="238.1999969482422" width="333" height="352" />
+      <frame id="I331:9488;239:7461" name="Row · Nothing moves until " x="0" y="614.2000122070312" width="333" height="18">
+        <instance id="I331:9488;568:1138" name="Glyph · lock" x="8" y="1" width="16" height="16" />
+        <text id="I331:9488;239:7465" name="Three wrong tries locks the passcode for" x="32" y="-11" width="293" height="40" />
+      </frame>
+    </frame>
+  </frame>
+</instance>

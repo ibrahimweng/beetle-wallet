@@ -22,6 +22,8 @@ export type LedgerRow = {
   person?: { bank: string; number: string };
   /** the line or the meter it went to */
   target?: Target;
+  /** who it went to was read off a photo */
+  read?: 'photo';
   session?: string;
   /** the balance once it had moved */
   after?: number;

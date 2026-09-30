@@ -45,12 +45,13 @@ const AWAY = 190;
 
 type Router = ReturnType<typeof useRouter>;
 
-/** Where each action goes from a page that is not home: the camera on its
-    own screen; sending and receiving back on home, where the chat and the
+/** Where each action goes from a page that is not home: the camera and
+    Send money on their own screens; receiving back on home, where the
     account's details are. */
 export function moreTo(router: Router, item: MoreItem) {
   if (item === 'camera') router.push('/scan');
-  else router.dismissTo({ pathname: '/home', params: item === 'send' ? { send: String(Date.now()) } : { receive: `details-${Date.now()}` } });
+  else if (item === 'send') router.push('/send');
+  else router.dismissTo({ pathname: '/home', params: { receive: `details-${Date.now()}` } });
 }
 
 export function More({ onPick, onClose }: { onPick: (item: MoreItem) => void; onClose: () => void }) {

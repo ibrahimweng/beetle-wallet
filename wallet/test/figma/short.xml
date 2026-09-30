@@ -1,0 +1,77 @@
+<frame id="208:88" name="Short" x="1066" y="80" width="393" height="852">
+  <frame id="208:89" name="Page" x="0" y="0" width="393" height="860.7999877929688">
+    <frame id="208:90" name="Content" x="20" y="72" width="353" height="788.7999877929688">
+      <instance id="660:18088" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="208:94" name="Column" x="0" y="71.19999694824219" width="353" height="139">
+        <instance id="564:14950" name="Glyph · pot" x="0" y="0" width="56" height="56" />
+        <frame id="208:98" name="Column" x="0" y="72" width="235" height="67">
+          <text id="208:99" name="₦7,520" x="0" y="0" width="107" height="40" />
+          <text id="208:100" name="short of the ₦20,000 you ask" x="0" y="52" width="226" height="20" />
+        </frame>
+      </frame>
+      <frame id="208:101" name="Column" x="0" y="222.1999969482422" width="353" height="168">
+        <frame id="208:102" name="Row · You asked for" x="0" y="0" width="353" height="56">
+          <text id="208:103" name="You asked for" x="0" y="16" width="279.20001220703125" height="24" />
+          <text id="208:104" name="₦20,000" x="279.20001220703125" y="16" width="66" height="24" />
+        </frame>
+        <frame id="208:105" name="Row · In Everyday" x="0" y="56" width="353" height="56">
+          <text id="208:106" name="In Everyday" x="0" y="16" width="280" height="24" />
+          <text id="208:107" name="₦12,480" x="280" y="16" width="65" height="24" />
+        </frame>
+        <frame id="208:108" name="Row · Short by" x="0" y="112" width="353" height="56">
+          <text id="208:109" name="Short by" x="0" y="16" width="292" height="24" />
+          <text id="208:110" name="₦7,520" x="292" y="16" width="53" height="24" />
+        </frame>
+      </frame>
+      <frame id="208:111" name="Row" x="0" y="402.20001220703125" width="353" height="70.4000015258789">
+        <instance id="235:6074" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="653:18009" name="Card" x="44" y="0" width="309" height="80" />
+      </frame>
+      <frame id="208:118" name="Card" x="0" y="484.6000061035156" width="353" height="224">
+        <frame id="208:119" name="Row" x="16" y="4" width="321" height="72">
+          <frame id="208:120" name="Icon" x="0" y="16" width="40" height="40">
+            <instance id="564:14954" name="Glyph · alert" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="208:124" name="Column" x="52" y="14.399999618530273" width="241" height="43.20000076293945">
+            <text id="208:125" name="Move it from Holiday" x="0" y="0" width="157" height="24" />
+            <text id="208:126" name="₦48,000 is sitting there" x="0" y="28" width="152" height="20" />
+          </frame>
+          <instance id="564:14958" name="Glyph · check" x="305" y="28" width="16" height="16" />
+        </frame>
+        <frame id="208:129" name="Row" x="16" y="76" width="321" height="72">
+          <frame id="208:130" name="Icon" x="0" y="16" width="40" height="40">
+            <instance id="564:14961" name="Glyph · up" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="208:133" name="Column" x="52" y="14.399999618530273" width="241" height="43.20000076293945">
+            <text id="208:134" name="Send ₦12,480 now" x="0" y="0" width="143" height="24" />
+            <text id="208:135" name="The rest when your salary la" x="0" y="28" width="205" height="20" />
+          </frame>
+          <instance id="564:14964" name="Glyph · check" x="305" y="28" width="16" height="16" />
+        </frame>
+        <frame id="208:138" name="Row" x="16" y="148" width="321" height="72">
+          <frame id="208:139" name="Icon" x="0" y="16" width="40" height="40">
+            <instance id="564:14967" name="Glyph · up" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="208:142" name="Column" x="52" y="14.399999618530273" width="241" height="43.20000076293945">
+            <text id="208:143" name="Ask Musa for ₦7,520" x="0" y="0" width="157" height="24" />
+            <text id="208:144" name="He owes you from the rent" x="0" y="28" width="171" height="20" />
+          </frame>
+          <instance id="564:14970" name="Glyph · check" x="305" y="28" width="16" height="16" />
+        </frame>
+      </frame>
+      <instance id="653:18011" name="Card" x="0" y="720.5999755859375" width="321" height="64" />
+    </frame>
+  </frame>
+  <frame id="208:150" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="208:151" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="208:152" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="564:14973" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="208:155" name="Ask bar" x="52" y="4" width="309" height="48">
+        <instance id="235:6254" name="Mark · 32" x="8" y="8" width="32" height="32" />
+        <text id="208:160" name="Ask me about this" x="48" y="14" width="223" height="20" />
+        <instance id="564:14976" name="Glyph · camera" x="279" y="15" width="18" height="18" />
+      </frame>
+    </frame>
+  </frame>
+</frame>

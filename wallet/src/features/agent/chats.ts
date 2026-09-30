@@ -3,7 +3,9 @@
    how it prompts you when something needs handling. They live in the day
    with everything else, and under their own chip. A chat carries on for an
    hour from its last message: a pull down within the hour picks it up, and
-   after that the next pull down starts a new one. */
+   after that the next pull down starts a new one. Every screen holding the
+   list sees a chat the moment any of them files it: the Send money page
+   files what it sent, and home's day has it. */
 import { useCallback, useEffect, useState } from 'react';
 import { powerPanel, storage, type Pending } from '../../services';
 import { turn, type Turn } from './conversation';
@@ -28,6 +30,15 @@ export type Chat = {
 };
 
 const key = (account: string) => `beetle.chats.${account}.v1`;
+
+/* one list per account, shared by every screen holding it */
+const kept = new Map<string, Chat[]>();
+const listeners = new Set<(account: string) => void>();
+
+/** The list as this phone last had it, forgotten: the lab starts a place afresh. */
+export function forgetChats(account: string) {
+  kept.delete(account);
+}
 
 export const clock = (d = new Date()) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
@@ -79,25 +90,39 @@ export function detailOf(turns: Turn[]): string {
 }
 
 export function useChats(account: string | undefined, demo: boolean) {
-  const [chats, setChats] = useState<Chat[]>([]);
-  const [ready, setReady] = useState(false);
+  const [chats, setChats] = useState<Chat[]>(() => (account && kept.get(account)) || []);
+  const [ready, setReady] = useState(() => !!account && kept.has(account));
   useEffect(() => {
     if (!account) return;
     let live = true;
-    storage.get<Chat[]>(key(account)).then(kept => {
-      if (!live) return;
-      setChats(kept ?? (demo ? [beetlePrompt()] : []));
+    const listen = (a: string) => {
+      if (a === account && live) setChats(kept.get(a) ?? []);
+    };
+    listeners.add(listen);
+    const have = kept.get(account);
+    if (have) {
+      setChats(have);
       setReady(true);
-    });
+    } else {
+      storage.get<Chat[]>(key(account)).then(list => {
+        if (!live) return;
+        if (!kept.has(account)) kept.set(account, list ?? (demo ? [beetlePrompt()] : []));
+        setChats(kept.get(account) ?? []);
+        setReady(true);
+      });
+    }
     return () => {
       live = false;
+      listeners.delete(listen);
     };
   }, [account, demo]);
 
   const put = useCallback(
     (next: Chat[]) => {
-      setChats(next);
-      if (account) void storage.set(key(account), next);
+      if (!account) return;
+      kept.set(account, next);
+      void storage.set(key(account), next);
+      listeners.forEach(l => l(account));
     },
     [account],
   );
@@ -105,17 +130,19 @@ export function useChats(account: string | undefined, demo: boolean) {
   /** A chat filed, or filed again with what was added to it. It goes to the top. */
   const file = useCallback(
     (chat: Chat) => {
-      put([chat, ...chats.filter(c => c.id !== chat.id)]);
+      const now = (account && kept.get(account)) || [];
+      put([chat, ...now.filter(c => c.id !== chat.id)]);
     },
-    [chats, put],
+    [account, put],
   );
 
   const read = useCallback(
     (id: string) => {
-      if (!chats.some(c => c.id === id && c.unread)) return;
-      put(chats.map(c => (c.id === id ? { ...c, unread: false } : c)));
+      const now = (account && kept.get(account)) || [];
+      if (!now.some(c => c.id === id && c.unread)) return;
+      put(now.map(c => (c.id === id ? { ...c, unread: false } : c)));
     },
-    [chats, put],
+    [account, put],
   );
 
   return { chats, ready, file, read };

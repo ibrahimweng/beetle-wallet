@@ -3,7 +3,8 @@
    the left, the black plus at the right, on a white surface with its top
    corners rounded and a soft shadow above. On a page that needs a way
    back it becomes Back and the ask bar — or Back and the page's one
-   button — so Back is always at the bottom left. The change is one
+   button, or Back and Slide to send — so Back is always at the bottom
+   left. The change is one
    movement: the plus scales away, the three glyphs slide right and become
    the bar, and Back slides in from the left edge; on the way back it runs
    in reverse. Each screen says what its foot holds (`useFoot`), and the
@@ -11,12 +12,14 @@
    nothing has none. More, up out of the plus, lives here too, since the
    plus does. The dock's numbers are the frames': 104 tall, the row 56 and
    24 above and below, 16 in from either side, Back 44, the bar 48, the
-   button 56. */
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+   button 56; the slide is 60 tall and 20 in, as the Send money frame
+   draws it. */
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Keyboard, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useNavigation, usePathname, useRouter } from 'expo-router';
-import Animated, { SharedValue, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { ActionButton, Button, Icon, Tap, blurred, colour, frame, motion, settle, useDeparture, useStill } from '../../design';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { SharedValue, runOnJS, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
+import { ActionButton, Body, Button, Icon, Row, Tap, blurred, colour, frame, keys, motion, settle, useDeparture, useStill } from '../../design';
 import type { IconName } from '../../icons';
 import { More, moreTo, type MoreItem } from './More';
 
@@ -33,6 +36,8 @@ export type FootSpec =
   | { kind: 'ask'; placeholder: string; onAsk: (q: string) => void; onScan?: () => void; more?: boolean; onPick?: (item: MoreItem) => void; veil?: Veil }
   /** a page with one thing to do: Back beside its button */
   | { kind: 'button'; label: string; onPress: () => void; disabled?: boolean; veil?: Veil }
+  /** money about to move: Back beside Slide to send, with the figure under the words */
+  | { kind: 'slide'; label: string; amount: string; onSlide: () => void; disabled?: boolean; veil?: Veil }
   | { kind: 'none' };
 
 /* ---- what the screen with focus declared ---- */
@@ -61,6 +66,8 @@ const shapeOf = (s: FootSpec) => {
       return `ask|${s.placeholder}|${s.more ? 1 : 0}|${s.veil ?? ''}`;
     case 'button':
       return `button|${s.label}|${s.disabled ? 1 : 0}|${s.veil ?? ''}`;
+    case 'slide':
+      return `slide|${s.label}|${s.amount}|${s.disabled ? 1 : 0}|${s.veil ?? ''}`;
     default:
       return 'none';
   }
@@ -101,6 +108,14 @@ export function useFoot(spec: FootSpec) {
         onPress: () => {
           const n = latest.current;
           if (n.kind === 'button') n.onPress();
+        },
+      };
+    } else if (s.kind === 'slide') {
+      wrapped = {
+        ...s,
+        onSlide: () => {
+          const n = latest.current;
+          if (n.kind === 'slide') n.onSlide();
         },
       };
     } else if (s.kind === 'bar') {
@@ -171,17 +186,19 @@ export function Foot() {
   }, [cur, pathname]);
 
   const kind = spec.kind;
-  const page = kind === 'ask' || kind === 'button';
+  const page = kind === 'ask' || kind === 'button' || kind === 'slide';
+  const button = kind === 'button' || kind === 'slide';
   const hasAction = kind === 'bar' || (kind === 'ask' && !!spec.more);
   const open = kind === 'bar' ? spec.open : undefined;
   const barHidden = kind === 'bar' && !!spec.hidden;
   const veil = kind === 'none' ? undefined : spec.veil;
   const away = kind === 'none' || veil === 'away';
 
-  /* 0 the bar, 1 a page; 1 where a plus stays; 1 for a button rather than the ask bar; 1 gone */
+  /* 0 the bar, 1 a page; 1 where a plus stays; 1 for a button rather than the ask bar; 1 for the slide's extra height; 1 gone */
   const t = useSharedValue(page ? 1 : 0);
   const a = useSharedValue(hasAction ? 1 : 0);
-  const b = useSharedValue(kind === 'button' ? 1 : 0);
+  const b = useSharedValue(button ? 1 : 0);
+  const sl = useSharedValue(kind === 'slide' ? 1 : 0);
   const hide = useSharedValue(away ? 1 : 0);
   const dim = useSharedValue(veil === 'recede' ? 1 : 0);
   const kb = useSharedValue(0);
@@ -202,10 +219,11 @@ export function Foot() {
     if (kind !== 'none') {
       go(t, page ? 1 : 0);
       go(a, hasAction ? 1 : 0);
-      go(b, kind === 'button' ? 1 : 0);
+      go(b, button ? 1 : 0);
+      go(sl, kind === 'slide' ? 1 : 0);
     }
     hide.value = still ? (away ? 1 : 0) : withTiming(away ? 1 : 0, { duration: motion.screen, easing: settle });
-  }, [kind, page, hasAction, away, still, t, a, b, hide]);
+  }, [kind, page, button, hasAction, away, still, t, a, b, sl, hide]);
   /* under a peek's blur the foot recedes with the rest, and comes forward again after */
   useEffect(() => {
     const v = veil === 'recede' ? 1 : 0;
@@ -265,7 +283,7 @@ export function Foot() {
     const pad = 16 + 4 * b.value;
     const left = pad + 44 + 8;
     const width = W - left - pad - a.value * (56 + 8);
-    const height = 44 + (4 + 8 * b.value) * t.value;
+    const height = 44 + (4 + 8 * b.value + 4 * sl.value) * t.value;
     return {
       left: PILL_LEFT + (left - PILL_LEFT) * t.value,
       width: PILL_W + (width - PILL_W) * t.value,
@@ -303,7 +321,7 @@ export function Foot() {
               <Glyphs home={pathname === '/home'} />
             </Animated.View>
           ) : null}
-          {barUp && kind !== 'button' ? (
+          {barUp && !button ? (
             <Animated.View style={[StyleSheet.absoluteFill, barStyle]} pointerEvents={kind === 'ask' ? 'auto' : 'none'}>
               <AskField
                 placeholder={spec.kind === 'ask' ? spec.placeholder : 'Ask, or show me a photo'}
@@ -315,6 +333,11 @@ export function Foot() {
           {kind === 'button' ? (
             <Animated.View style={[StyleSheet.absoluteFill, buttonStyle]}>
               <Button label={spec.label} disabled={spec.disabled} onPress={spec.onPress} />
+            </Animated.View>
+          ) : null}
+          {kind === 'slide' ? (
+            <Animated.View style={[StyleSheet.absoluteFill, buttonStyle]}>
+              <Slide label={spec.label} amount={spec.amount} disabled={!!spec.disabled} onSlide={spec.onSlide} />
             </Animated.View>
           ) : null}
         </Animated.View>
@@ -385,6 +408,65 @@ function AskField({ placeholder, onAsk, onScan }: { placeholder: string; onAsk: 
   );
 }
 
+/* Slide to send, as the Send money frame draws it: a black pill 60 tall
+   with a white 50 knob at its left end and the words beside it, the figure
+   under them. The knob follows the finger; let go past four fifths of the
+   way and it lands at the end and the money goes to the passcode, let go
+   before that and it springs back. Until there is someone and an amount
+   the pill is the pale grey and the knob stays put. */
+const KNOB = 50;
+
+function Slide({ label, amount, disabled, onSlide }: { label: string; amount: string; disabled: boolean; onSlide: () => void }) {
+  const still = useStill();
+  const [width, setWidth] = useState(0);
+  const x = useSharedValue(0);
+  /* how far the knob can go: the pill's width less the knob and 4 either side */
+  const max = Math.max(1, width - KNOB - 8);
+  const fire = () => onSlide();
+  const pan = useMemo(
+    () =>
+      Gesture.Pan()
+        .enabled(!disabled)
+        .activeOffsetX([6, 6])
+        .failOffsetY([-24, 24])
+        .onUpdate(e => {
+          x.value = Math.min(max, Math.max(0, e.translationX));
+        })
+        .onEnd(() => {
+          if (x.value >= max * 0.8) {
+            x.value = withTiming(max, { duration: 120, easing: settle });
+            runOnJS(fire)();
+            /* the passcode takes the foot away; the knob is home again by the time it is back */
+            x.value = withDelay(600, withSpring(0, keys));
+          } else x.value = withSpring(0, keys);
+        }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [disabled, max, still],
+  );
+  const knob = useAnimatedStyle(() => ({ transform: [{ translateX: x.value }] }));
+  const words = useAnimatedStyle(() => ({ opacity: 1 - Math.min(1, (x.value / max) * 1.6) }));
+  return (
+    <View
+      style={[s.slide, disabled ? s.slideOff : null]}
+      onLayout={e => setWidth(e.nativeEvent.layout.width)}
+      testID="slide"
+      accessibilityRole="adjustable"
+      accessibilityLabel={`${label} ${amount}`}
+      accessibilityState={{ disabled }}
+    >
+      <Animated.View style={[s.slideWords, words]} pointerEvents="none">
+        <Row tone={disabled ? 'tertiary' : 'inverse'}>{label}</Row>
+        <Body tone={disabled ? 'tertiary' : 'inverse'}>{amount}</Body>
+      </Animated.View>
+      <GestureDetector gesture={pan}>
+        <Animated.View style={[s.knob, knob]} testID="slide-knob">
+          <Icon name="slide-arrow" size={20} colour={disabled ? colour.textTertiary : colour.ink} />
+        </Animated.View>
+      </GestureDetector>
+    </View>
+  );
+}
+
 const s = StyleSheet.create({
   surface: {
     position: 'absolute',
@@ -419,4 +501,9 @@ const s = StyleSheet.create({
   /* minWidth 0 or the field refuses to give the camera its room */
   input: { flex: 1, minWidth: 0, fontSize: 16, color: colour.ink, padding: 0 },
   plus: { position: 'absolute', right: 16, top: frame.dockPad, width: 56, height: 56 },
+  slide: { flex: 1, height: 60, borderRadius: 30, backgroundColor: colour.ink, justifyContent: 'center' },
+  slideOff: { backgroundColor: colour.surface2 },
+  /* the words start 12 past the knob's resting place */
+  slideWords: { position: 'absolute', left: 4 + KNOB + 12, right: 16 },
+  knob: { position: 'absolute', left: 4, top: 5, width: KNOB, height: KNOB, borderRadius: KNOB / 2, backgroundColor: colour.surface, alignItems: 'center', justifyContent: 'center' },
 });

@@ -2,13 +2,13 @@
    All / In / Out to narrow it, today and yesterday, and what Beetle makes of
    it at the foot. What is still on its way, did not go or came back stands
    first, with its status glyph and a chevron; what settled follows on the
-   grey square. A settled line opens its receipt; the other states have
-   their own frames in round 3. The dock is the way back, the ask bar, and
-   the plus for More. */
+   grey square. A settled line opens its receipt; one still on its way, that
+   did not go or that came back opens its own page. The dock is the way
+   back, the ask bar, and the plus for More. */
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Body, GlyphHead, HistoryRow, JourneyProvider, SayCard, Screen, Segments, colour, toast, type Rect } from '../../design';
+import { Body, GlyphHead, HistoryRow, JourneyProvider, SayCard, Screen, Segments, colour, type Rect } from '../../design';
 import { ReceiptPeek } from '../receipts/Peek';
 import { receiptFor } from '../receipts/receipts';
 import type { ReceiptCard as Card } from '../agent/conversation';
@@ -22,7 +22,6 @@ import { useFoot } from '../more/Foot';
 import { activityAmount, activityRows, type Segment } from './rows';
 
 const TONE: Record<LedgerRow['status'], string> = { pending: colour.accent, failed: colour.alert, reversed: colour.ink, done: colour.ink };
-const ROUND: Record<LedgerRow['status'], string> = { pending: 'A transfer still on its way', failed: 'A transfer that did not go', reversed: 'A transfer that came back', done: '' };
 
 export function Activities() {
   const app = useApp();
@@ -60,7 +59,7 @@ export function Activities() {
         amount={activityAmount(r, signed, naira)}
         journey={`row:${r.id}`}
         onOpen={r.status === 'done' ? at => setPeek({ card: cardFor(r), at }) : undefined}
-        onPress={() => toast(`${ROUND[r.status]} has its screen in round 3.`)}
+        to={r.status === 'done' ? undefined : `/transfer/${r.id}`}
       />
     ));
   const today = rows('today');

@@ -11,7 +11,8 @@ import * as Updates from 'expo-updates';
 import { Caption, Card, Display, Divider, Head, Icon, Label, Meta, More, Row, Screen, Tap, colour, space } from '../design';
 import { useApp } from '../features/onboarding/store';
 import { storage } from '../services';
-import { movesKey } from '../features/home/moves';
+import { forgetMoves, movesKey } from '../features/home/moves';
+import { forgetChats } from '../features/agent/chats';
 import { prefsKey } from '../features/settings/prefs';
 import { FEATURES, type Place } from './catalogue';
 
@@ -44,6 +45,8 @@ export function Lab() {
       if (p.seed.session) {
         await storage.remove(movesKey(p.seed.session.account.accountNumber));
         await storage.remove(prefsKey(p.seed.session.account.accountNumber));
+        forgetMoves(p.seed.session.account.accountNumber);
+        forgetChats(p.seed.session.account.accountNumber);
       }
       await app.seed(p.seed.progress, p.seed.session);
       router.push(p.href);

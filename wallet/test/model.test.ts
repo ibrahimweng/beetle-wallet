@@ -109,7 +109,7 @@ describe('Beetle with a model behind it', () => {
           use('t2', 'prepare_transfer', {
             name: 'Sarah Adeyemi',
             bank: 'GTBank',
-            number: '0123456789',
+            number: '0234567890',
             amount: 20000,
             saying: "I'm checking the fee…",
           }),
@@ -117,7 +117,7 @@ describe('Beetle with a model behind it', () => {
         stop_reason: 'tool_use',
       },
       {
-        content: [text('₦20,000 to Sarah at GTBank, ₦25 fee, lands in a moment.\n\nConfirm when you are ready.')],
+        content: [text('₦20,000 to Sarah at GTBank, ₦26.88 fee, lands in a moment.\n\nConfirm when you are ready.')],
         stop_reason: 'end_turn',
       },
     ]);
@@ -127,7 +127,7 @@ describe('Beetle with a model behind it', () => {
     expect(steps).toEqual(["I'm finding Sarah's account…", "I'm checking the fee…"]);
     expect(r.blocks.map(b => b.kind)).toEqual(['say', 'say', 'panel']);
     const panel = r.blocks.find(b => b.kind === 'panel');
-    expect(panel && panel.kind === 'panel' && panel.panel.rows.map(x => x.value)).toEqual(['Sarah Adeyemi', 'GTBank', '₦20,000', '₦25', 'In a moment']);
+    expect(panel && panel.kind === 'panel' && panel.panel.rows.map(x => x.value)).toEqual(['Sarah Adeyemi', 'GTBank', '₦20,000', '₦26.88', 'In a moment']);
     /* what the tools answered went back as results, in one message each round */
     const second = api.requests[1]?.body.messages as { role: string; content: unknown }[];
     expect(second.map(m => m.role)).toEqual(['user', 'assistant', 'user']);
@@ -137,7 +137,7 @@ describe('Beetle with a model behind it', () => {
       found: true,
       name: 'Sarah Adeyemi',
       bank: 'GTBank',
-      number: '0123456789',
+      number: '0234567890',
     });
     const third = api.requests[2]?.body.messages as { role: string; content: unknown }[];
     const prepared = JSON.parse((third[4]!.content as { content: string }[])[0]!.content) as {
@@ -145,7 +145,7 @@ describe('Beetle with a model behind it', () => {
       fee: number;
       total: number;
     };
-    expect(prepared).toMatchObject({ ok: true, fee: 25, total: 20025 });
+    expect(prepared).toMatchObject({ ok: true, fee: 26.88, total: 20026.88 });
   });
 
   it('tells the model when a transfer is more than the balance, and about people it does not know', async () => {
@@ -159,7 +159,7 @@ describe('Beetle with a model behind it', () => {
           use('t2', 'prepare_transfer', {
             name: 'Sarah Adeyemi',
             bank: 'GTBank',
-            number: '0123456789',
+            number: '0234567890',
             amount: 900000,
             saying: 'Checking…',
           }),
@@ -182,7 +182,7 @@ describe('Beetle with a model behind it', () => {
   it('reads a photo on the device and hands the words to the model', async () => {
     const api = fakeApi([
       {
-        content: [use('t1', 'identify_account', { number: '0123456789', saying: "I'm checking whose it is…" })],
+        content: [use('t1', 'identify_account', { number: '0234567890', saying: "I'm checking whose it is…" })],
         stop_reason: 'tool_use',
       },
       {
@@ -196,8 +196,8 @@ describe('Beetle with a model behind it', () => {
     expect(steps[0]).toBe("I'm reading the photo…");
     const first = (api.requests[0]?.body.messages as { content: string }[])[0]!.content;
     expect(first).toContain('The owner sent a photo');
-    expect(first).toContain('0123456789');
-    expect(r.reading?.numbers).toEqual(['0123456789']);
+    expect(first).toContain('0234 5678 90');
+    expect(r.reading?.numbers).toEqual(['0234567890']);
     expect(r.blocks.map(b => b.kind)).toEqual(['say', 'panel']);
   });
 

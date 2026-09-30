@@ -211,6 +211,72 @@ export const ASK: Feature = {
   ],
 };
 
+export const SEND: Feature = {
+  id: 'send',
+  title: 'Sending money',
+  folder: 'src/features/send',
+  sub: 'The Send money page in four taps — who, how much, slide, the passcode — and what can stand in the way.',
+  places: [
+    {
+      id: 'send-empty',
+      icon: 'send',
+      title: 'Send money',
+      sub: 'The page as Send on the card opens it: who, how much, a reference, and Slide to send',
+      href: '/send',
+      seed: demo,
+    },
+    {
+      id: 'send-filled',
+      icon: 'send-filled',
+      title: 'Filled from a message',
+      sub: '"send Sarah 50k for the flat deposit" read into its three parts, from the frame',
+      href: '/send?demo=1',
+      seed: demo,
+    },
+    {
+      id: 'send-amend',
+      icon: 'dial',
+      title: 'Change the amount',
+      sub: 'The keypad with 000 on it, what was read, and Use it, from the frame',
+      href: '/amend?read=200000&amount=20000',
+      seed: demo,
+    },
+    {
+      id: 'send-short',
+      icon: 'warn-filled',
+      title: 'Not enough in Everyday',
+      sub: '₦7,520 short of ₦20,000, and three ways to close it, from the frame',
+      href: '/short?asked=20000&have=12480',
+      seed: demo,
+    },
+    {
+      id: 'send-misread',
+      icon: 'camera',
+      title: 'Check this number',
+      sub: 'A last digit the reader was not sure of: both readings, and the choice, from the frame',
+      href: '/misread?demo=1',
+      seed: demo,
+    },
+  ],
+};
+
+const state = (id: string, icon: IconName, title: string, sub: string, href: string): Place => ({ id, icon, title, sub, href, seed: demo });
+
+export const TRANSFERS: Feature = {
+  id: 'transfers',
+  title: 'When a transfer is not done',
+  folder: 'src/features/transfers',
+  sub: 'Still on its way, did not go, came back; what went wrong, asking for it back, and a number Beetle read wrong.',
+  places: [
+    state('transfer-pending', 'wait-filled', 'Still on its way', 'The ring turning, the three steps, and a message offered for when it lands, from the frame', '/transfer/l01'),
+    state('transfer-failed', 'alert', 'It did not go', 'The balance whole, whose afternoon it is, try again or another way, from the frame', '/transfer/l02'),
+    state('transfer-reversed', 'undo-filled', 'It came back', 'When it left and came back, why, the reference, and the number to check, from the frame', '/transfer/l03'),
+    state('transfer-wrong', 'warn-filled', 'What went wrong?', 'The three things that can be wrong with a payment, and the payment, from the frame', '/wrong/l08'),
+    state('transfer-recall', 'undo-filled', 'Asking for it back', 'Beetle Recall at work, what it is and is not, a message or a dispute, from the frame', '/recall/l08'),
+    state('transfer-alreadygone', 'alert', 'I sent it wrong', 'A digit Beetle read wrong: the cover today, or the bank asked to recall it, from the frame', '/alreadygone/l08'),
+  ],
+};
+
 export const RECEIPTS: Feature = {
   id: 'receipts',
   title: 'Receipts',
@@ -393,6 +459,14 @@ export const GUARD: Feature = {
       href: '/home?chat=confirm',
       seed: demo,
     },
+    {
+      id: 'guard-face-missed',
+      icon: 'faceid',
+      title: 'Face ID missed',
+      sub: 'The face did not take: the line in red, the face key to try again, and what three wrong tries cost, from the frame',
+      href: '/home?chat=confirm&face=missed',
+      seed: demo,
+    },
   ],
 };
 
@@ -438,4 +512,4 @@ export const MODEL: Feature = {
   ],
 };
 
-export const FEATURES: Feature[] = [WAY_IN, HOME, MORE, ASK, SCAN, GUARD, RECEIVE, RECEIPTS, ACTIVITIES, SETTINGS, MODEL];
+export const FEATURES: Feature[] = [WAY_IN, HOME, MORE, ASK, SEND, TRANSFERS, SCAN, GUARD, RECEIVE, RECEIPTS, ACTIVITIES, SETTINGS, MODEL];

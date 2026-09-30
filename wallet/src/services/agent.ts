@@ -85,6 +85,8 @@ export type Move = {
   reference?: string;
   /** the line or the meter it went to, so a repeat is a repeat */
   target?: Target;
+  /** who it went to was read off a photo: a wrong digit is then Beetle's own */
+  read?: 'photo';
 };
 
 /* ---- what Beetle asks for ---- */
@@ -164,7 +166,7 @@ export interface AgentService {
 
 /** The people the demo account has paid, and where. */
 export const PEOPLE: Person[] = [
-  { name: 'Sarah Adeyemi', bank: 'GTBank', number: '0123456789' },
+  { name: 'Sarah Adeyemi', bank: 'GTBank', number: '0234567890' },
   { name: 'Chidi Okafor', bank: 'Access Bank', number: '0234567891' },
   { name: 'Musa Danjuma', bank: 'Zenith Bank', number: '2034567890' },
   { name: 'John Doe', bank: 'Kuda', number: '3012345678' },
@@ -244,8 +246,12 @@ export function personIn(text: string, people = PEOPLE): Person | null {
   );
 }
 
-/** ₦10 up to five thousand, ₦25 up to fifty, ₦50 above: the usual scale. */
-export const feeFor = (amount: number) => (amount <= 5_000 ? 10 : amount <= 50_000 ? 25 : 50);
+/** Nothing under ₦10,000 — Beetle carries those — then the banks' own ₦25
+    with the tax on it up to ₦50,000, and ₦50 with the tax above, which is
+    what the receipts print. */
+export const feeFor = (amount: number) => (amount < 10_000 ? 0 : amount <= 50_000 ? 26.88 : 53.75);
+/** The fee as a row says it: Free, or the figure with its kobo. */
+export const feeLabel = (fee: number) => (fee ? '₦' + fee.toFixed(2) : 'Free');
 
 /** Who an account number belongs to. The demo knows its own people; for any
     other number the words around it on the slip are the best guess. */
@@ -276,7 +282,7 @@ export function transferPanel(to: Person, amount: number): Panel {
       { label: 'Recipient', value: to.name },
       { label: 'Bank', value: to.bank },
       { label: 'Amount', value: naira(amount), editable: true },
-      { label: 'Fee', value: naira(fee) },
+      { label: 'Fee', value: feeLabel(fee) },
       { label: 'Arrives', value: amount > 50_000 ? 'Under a minute' : 'In a moment' },
     ],
     action: { label: `Confirm ${naira(amount)}`, amount: amount + fee },
@@ -380,7 +386,7 @@ export function billPanelFor(meter: Meter, amount: number): Panel {
       { label: 'Name', value: meter.name },
       { label: 'Amount', value: naira(amount), editable: true },
       prepaid ? { label: 'Units', value: `About ${unitsFor(amount)} kWh` } : { label: 'Settles', value: 'The account, at once' },
-      { label: 'Fee', value: naira(0) },
+      { label: 'Fee', value: 'Free' },
     ],
     action: { label: `Pay ${naira(amount)}`, amount },
     move: {

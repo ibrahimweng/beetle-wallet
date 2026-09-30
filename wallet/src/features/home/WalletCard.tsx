@@ -148,7 +148,6 @@ export type CardProps = {
   /** New, at the top right of the open card: this chat filed, a fresh one */
   onNew?: () => void;
   hint: string;
-  onSend: () => void;
   onReceive: () => void;
   onDollars: () => void;
   chat: ReactNode;
@@ -167,9 +166,10 @@ const clamp = (v: number, lo: number, hi: number) => {
   return Math.min(hi, Math.max(lo, v));
 };
 
-export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onSend, onReceive, onDollars, onNew, chat, foot, over, flash }: CardProps) {
-  /* the mark is the way to Settings: the title arrives from it */
+export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onReceive, onDollars, onNew, chat, foot, over, flash }: CardProps) {
+  /* the mark is the way to Settings: the title arrives from it; Send is the way to the Send money page, the same way */
   const mark = useDeparture({ id: 'mark', to: '/settings', words: 'Settings' });
+  const send = useDeparture({ id: 'card:send', to: '/send', words: 'Send' });
   const { width: W } = useWindowDimensions();
   const still = useStill();
   const { top, extra, headBand, closedH, haze, hazeSolid } = useCardTop();
@@ -345,7 +345,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
             </Tap>
           </View>
           <View style={s.actions}>
-            <Tap accessibilityRole="button" accessibilityLabel="Send" onPress={onSend} style={s.action}>
+            <Tap ref={send.ref} accessibilityRole="button" accessibilityLabel="Send" onPress={send.onPress} style={[s.action, send.style]}>
               <View style={s.disc} testID="send-disc">
                 <Icon name="send" size={16} colour={colour.ink} />
               </View>

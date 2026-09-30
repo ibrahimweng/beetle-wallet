@@ -1,0 +1,63 @@
+<frame id="957:20392" name="AlreadyGone" x="573" y="80" width="393" height="852">
+  <frame id="957:20393" name="Page" x="0" y="0" width="393" height="817.4000244140625">
+    <frame id="957:20394" name="Content" x="20" y="72" width="353" height="745.4000244140625">
+      <instance id="957:20395" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="957:20396" name="Column" x="0" y="71.19999694824219" width="353" height="139">
+        <instance id="957:20397" name="Glyph · pot" x="0" y="0" width="56" height="56" />
+        <frame id="957:20398" name="Column" x="0" y="72" width="150.1999969482422" height="67">
+          <text id="957:20399" name="₦20,000" x="0" y="0" width="133" height="40" />
+          <text id="957:20400" name="went to the wrong account" x="0" y="52" width="173" height="20" />
+        </frame>
+      </frame>
+      <frame id="957:20401" name="Card" x="0" y="222.1999969482422" width="353" height="56">
+        <instance id="957:20402" name="Glyph · pot" x="16" y="16" width="24" height="24" />
+        <text id="957:20403" name="Your balance is exactly what i" x="52" y="4" width="239" height="48" />
+      </frame>
+      <frame id="957:20404" name="Row" x="0" y="290.20001220703125" width="353" height="128">
+        <instance id="957:20405" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="957:20406" name="Card" x="44" y="0" width="309" height="128" />
+      </frame>
+      <frame id="957:20407" name="Card" x="0" y="430.20001220703125" width="353" height="152">
+        <frame id="957:20408" name="Row" x="16" y="4" width="321" height="72">
+          <frame id="957:20409" name="Icon" x="0" y="16" width="40" height="40">
+            <instance id="957:20410" name="Glyph · up" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="957:20411" name="Column" x="52" y="14.399999618530273" width="241" height="43.20000076293945">
+            <text id="957:20412" name="Take ₦20,000 back" x="0" y="0" width="146" height="24" />
+            <text id="957:20413" name="Paid by us today, not in days" x="0" y="28" width="184" height="20" />
+          </frame>
+          <instance id="957:20414" name="Glyph · check" x="305" y="28" width="16" height="16" />
+        </frame>
+        <frame id="957:20415" name="Row" x="16" y="76" width="321" height="72">
+          <frame id="957:20416" name="Icon" x="0" y="16" width="40" height="40">
+            <instance id="957:20417" name="Glyph · airtime" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="957:20418" name="Column" x="52" y="14.399999618530273" width="241" height="43.20000076293945">
+            <text id="957:20419" name="Ask GTBank to recall it" x="0" y="0" width="173" height="24" />
+            <text id="957:20420" name="We do this to recover our side" x="0" y="28" width="194" height="20" />
+          </frame>
+          <instance id="957:20421" name="Glyph · check" x="305" y="28" width="16" height="16" />
+        </frame>
+      </frame>
+      <frame id="957:20422" name="Card" x="0" y="594.2000122070312" width="353" height="162.39999389648438">
+        <frame id="957:20423" name="Row" x="16" y="16" width="319" height="70.4000015258789">
+          <instance id="957:20424" name="Mark · 32" x="0" y="0" width="32" height="32" />
+          <instance id="957:20425" name="Card" x="44" y="0" width="275" height="56" />
+        </frame>
+        <instance id="957:20426" name="Button · Do that" x="16" y="98.4000015258789" width="319" height="48" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="957:20427" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="957:20428" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="957:20429" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="957:20430" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="957:20431" name="Ask bar" x="52" y="4" width="309" height="48">
+        <instance id="957:20432" name="Mark · 32" x="8" y="8" width="32" height="32" />
+        <text id="957:20433" name="Ask about the cover" x="48" y="14" width="223" height="20" />
+        <instance id="957:20434" name="Glyph · camera" x="279" y="15" width="18" height="18" />
+      </frame>
+    </frame>
+  </frame>
+</frame>

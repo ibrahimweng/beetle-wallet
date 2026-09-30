@@ -13,6 +13,9 @@ export type Reading = {
   numbers: string[];
   /** read off the photo itself, or the stand-in's answer */
   real: boolean;
+  /** a number the reader was not sure of: what it most likely is, and what
+      else it could be. Beetle shows both rather than choosing. */
+  soft?: { number: string; maybe: string };
 };
 
 export interface ReaderService {
@@ -33,13 +36,19 @@ export function accountNumbersIn(text: string): string[] {
 }
 
 /** What the sample slip says. */
-export const SAMPLE_TEXT = 'GTBANK\nAccount name\nSarah Adeyemi\nAccount number\n0123456789\nBank\nGuaranty Trust Bank\nPlease pay into the account above. Thank you.';
+export const SAMPLE_TEXT = 'GTBANK\nAccount name\nSarah Adeyemi\nAccount number\n0234 5678 90\nBank\nGuaranty Trust Bank\nPlease pay into the account above. Thank you.';
+
+/** A slip the stand-in is not sure of: the last digit could be a 0 or a 6. */
+export const SOFT_TEXT = 'GTBANK\nAccount name\nSarah Adeyemi\nAccount number\n0234 5678 90\nBank\nGuaranty Trust Bank';
+export const SOFT_READING: Reading = { text: SOFT_TEXT, numbers: ['0234567890'], real: false, soft: { number: '0234567890', maybe: '0234567896' } };
 
 export class MockReader implements ReaderService {
   readonly real = false;
   constructor(private readonly delay = 900) {}
-  async read(): Promise<Reading> {
+  /** the sample slip; a photo whose name says it is soft comes back with the digit in doubt */
+  async read(uri = ''): Promise<Reading> {
     await wait(this.delay);
+    if (uri.includes('soft')) return { ...SOFT_READING };
     return { text: SAMPLE_TEXT, numbers: accountNumbersIn(SAMPLE_TEXT), real: false };
   }
 }

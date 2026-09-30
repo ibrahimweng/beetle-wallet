@@ -1,0 +1,59 @@
+<frame id="206:153" name="Reversed" x="2545" y="80" width="393" height="852">
+  <frame id="206:154" name="Page" x="0" y="0" width="393" height="827">
+    <frame id="206:155" name="Content" x="20" y="72" width="353" height="755">
+      <instance id="660:18097" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="206:159" name="Column" x="0" y="75.19999694824219" width="353" height="139">
+        <instance id="564:15046" name="Glyph · alert-red" x="0" y="0" width="56" height="56" />
+        <frame id="206:162" name="Column" x="0" y="72" width="150.1999969482422" height="67">
+          <text id="206:163" name="₦20,000" x="0" y="0" width="132" height="40" />
+          <text id="206:164" name="back in Everyday" x="0" y="52" width="109" height="20" />
+        </frame>
+      </frame>
+      <frame id="206:165" name="Column" x="0" y="230.1999969482422" width="353" height="224">
+        <frame id="206:166" name="Row · Left" x="0" y="0" width="353" height="56">
+          <text id="206:167" name="Left" x="0" y="16" width="304.79998779296875" height="24" />
+          <text id="206:168" name="14:22" x="304.79998779296875" y="16" width="44" height="24" />
+        </frame>
+        <frame id="206:169" name="Row · Came back" x="0" y="56" width="353" height="56">
+          <text id="206:170" name="Came back" x="0" y="16" width="305" height="24" />
+          <text id="206:171" name="16:22" x="305" y="16" width="44" height="24" />
+        </frame>
+        <frame id="206:172" name="Row · Why" x="0" y="112" width="353" height="56">
+          <text id="206:173" name="Why" x="0" y="16" width="96.30000305175781" height="24" />
+          <text id="206:174" name="Account could not be credited" x="96.30000305175781" y="16" width="230" height="24" />
+        </frame>
+        <frame id="206:175" name="Row · Reference" x="0" y="168" width="353" height="56">
+          <text id="206:176" name="Reference" x="0" y="16" width="204.5" height="24" />
+          <text id="206:177" name="REV-40118-2290" x="204.5" y="16" width="133" height="24" />
+        </frame>
+      </frame>
+      <frame id="206:178" name="Row" x="0" y="470.20001220703125" width="353" height="116.80000305175781">
+        <instance id="235:6094" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="653:18022" name="Card" x="44" y="0" width="309" height="128" />
+      </frame>
+      <frame id="206:185" name="Card" x="0" y="603" width="353" height="152">
+        <frame id="206:186" name="Row" x="16" y="4" width="321" height="72">
+          <frame id="206:187" name="Icon" x="0" y="16" width="40" height="40">
+            <instance id="564:15049" name="Glyph · globe" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="206:191" name="Column" x="52" y="14.399999618530273" width="241" height="43.20000076293945">
+            <text id="206:192" name="Check the account number" x="0" y="0" width="206" height="24" />
+            <text id="206:193" name="One digit is usually all it " x="0" y="28" width="167" height="20" />
+          </frame>
+          <instance id="564:15053" name="Glyph · check" x="305" y="28" width="16" height="16" />
+        </frame>
+        <frame id="206:196" name="Row" x="16" y="76" width="321" height="72">
+          <frame id="206:197" name="Icon" x="0" y="16" width="40" height="40">
+            <instance id="564:15056" name="Glyph · up" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="206:200" name="Column" x="52" y="14.399999618530273" width="241" height="43.20000076293945">
+            <text id="206:201" name="Try Sarah again" x="0" y="0" width="119" height="24" />
+            <text id="206:202" name="Same amount, same account" x="0" y="28" width="188" height="20" />
+          </frame>
+          <instance id="564:15059" name="Glyph · check" x="305" y="28" width="16" height="16" />
+        </frame>
+      </frame>
+    </frame>
+  </frame>
+  <instance id="238:7888" name="Dock · Ask about this" x="0" y="748" width="393" height="104" />
+</frame>

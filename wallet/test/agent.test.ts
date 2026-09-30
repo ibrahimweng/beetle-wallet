@@ -39,14 +39,14 @@ describe('reading an ask', () => {
     expect(accountIn('my phone is 0803 214 4471')).toBeNull();
   });
   it('knows the fee scale', () => {
-    expect(feeFor(3_000)).toBe(10);
-    expect(feeFor(20_000)).toBe(25);
-    expect(feeFor(200_000)).toBe(50);
+    expect(feeFor(3_000)).toBe(0);
+    expect(feeFor(20_000)).toBe(26.88);
+    expect(feeFor(200_000)).toBe(53.75);
   });
   it('names an unknown number from the words around it', () => {
     const p = whose('9876543210', { text: 'Zenith Bank\nAmaka Nwosu\n9876543210', numbers: ['9876543210'], real: true });
     expect(p).toEqual({ name: 'Amaka Nwosu', bank: 'Zenith', number: '9876543210' });
-    expect(whose('0123456789').name).toBe('Sarah Adeyemi');
+    expect(whose('0234567890').name).toBe('Sarah Adeyemi');
   });
 });
 
@@ -55,8 +55,8 @@ describe('the scripted Beetle', () => {
     const r = await agent.ask({ text: 'Send 20k to Sarah' }, ctx());
     const [p] = panels(r.blocks);
     expect(p?.tool).toBe('transfer');
-    expect(p?.rows.map(x => x.value)).toEqual(['Sarah Adeyemi', 'GTBank', '₦20,000', '₦25', 'In a moment']);
-    expect(p?.action).toEqual({ label: 'Confirm ₦20,000', amount: 20_025 });
+    expect(p?.rows.map(x => x.value)).toEqual(['Sarah Adeyemi', 'GTBank', '₦20,000', '₦26.88', 'In a moment']);
+    expect(p?.action).toEqual({ label: 'Confirm ₦20,000', amount: 20_026.88 });
     expect(p?.move?.amount).toBe(-20_000);
     expect(r.pending).toBeNull();
   });
@@ -96,7 +96,7 @@ describe('the scripted Beetle', () => {
     expect(askMissing(ask!)).toEqual(['who', 'amount']);
     const r2 = await agent.ask({ answers: { askId: ask!.id, values: { who: 'Sarah', amount: 2_000 } } }, ctx(r1.pending));
     expect(fills(r2.blocks)[0]?.done).toBe(true);
-    expect(panels(r2.blocks)[0]?.rows.map(x => x.value)).toEqual(['Sarah Adeyemi', 'GTBank', '₦2,000', '₦10', 'In a moment']);
+    expect(panels(r2.blocks)[0]?.rows.map(x => x.value)).toEqual(['Sarah Adeyemi', 'GTBank', '₦2,000', 'Free', 'In a moment']);
   });
   it('will not send more than there is', async () => {
     const r = await agent.ask({ text: 'send 900k to Sarah' }, ctx());
@@ -113,7 +113,7 @@ describe('the scripted Beetle', () => {
   });
   it('reads a photo and goes on from the number', async () => {
     const r = await agent.ask({ photo: { uri: 'file:///slip.jpg' } }, ctx());
-    expect(r.reading?.numbers).toEqual(['0123456789']);
+    expect(r.reading?.numbers).toEqual(['0234567890']);
     expect(panels(r.blocks)[0]?.tool).toBe('found');
     expect(said(r.blocks)).toContain('Sarah Adeyemi at GTBank');
     expect(r.pending).toMatchObject({ need: 'ask', ask: { tool: 'transfer', values: { who: 'Sarah Adeyemi' } } });
@@ -123,7 +123,7 @@ describe('the scripted Beetle', () => {
   it('knows the bills, the data, the dollars and the balance', async () => {
     const bill = panels((await agent.ask({ text: 'top up my light' }, ctx())).blocks)[0];
     expect(bill?.tool).toBe('pay');
-    expect(bill?.rows.map(x => x.value)).toEqual(['Ikeja Electric', 'Prepaid · 4457 8891', 'Ibrahim Musa', '₦8,000', 'About 38 kWh', '₦0']);
+    expect(bill?.rows.map(x => x.value)).toEqual(['Ikeja Electric', 'Prepaid · 4457 8891', 'Ibrahim Musa', '₦8,000', 'About 38 kWh', 'Free']);
     expect(bill?.move?.reference).toMatch(/^\d{5} \d{5} \d{5} \d{5}$/);
     const data = panels((await agent.ask({ text: 'buy data' }, ctx())).blocks)[0];
     expect(data?.tool).toBe('data');
@@ -151,7 +151,7 @@ describe('what Beetle asks for', () => {
     const dad = await agent.ask({ text: 'airtime for dad' }, ctx());
     expect(panels(dad.blocks)[0]?.rows.map(x => x.value)).toEqual(['Dad · 0805 331 0921', 'Glo', '₦1,000', 'At once']);
     const flat = await agent.ask({ text: "pay mum's flat" }, ctx());
-    expect(panels(flat.blocks)[0]?.rows.map(x => x.value)).toEqual(['Eko Electricity', 'Postpaid · 5415 0011 234', 'Aisha Musa', '₦12,000', 'The account, at once', '₦0']);
+    expect(panels(flat.blocks)[0]?.rows.map(x => x.value)).toEqual(['Eko Electricity', 'Postpaid · 5415 0011 234', 'Aisha Musa', '₦12,000', 'The account, at once', 'Free']);
     const usualBill = await agent.ask({ text: 'pay my light bill, 5k' }, ctx());
     expect(panels(usualBill.blocks)[0]?.action).toEqual({ label: 'Pay ₦5,000', amount: 5_000 });
   });

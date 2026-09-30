@@ -1,0 +1,63 @@
+<frame id="206:77" name="Failed" x="2052" y="80" width="393" height="852">
+  <frame id="206:78" name="Page" x="0" y="0" width="393" height="817.4000244140625">
+    <frame id="206:79" name="Content" x="20" y="72" width="353" height="745.4000244140625">
+      <instance id="660:18094" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="206:83" name="Column" x="0" y="71.19999694824219" width="353" height="139">
+        <instance id="564:15009" name="Glyph · pot" x="0" y="0" width="56" height="56" />
+        <frame id="206:87" name="Column" x="0" y="72" width="150.1999969482422" height="67">
+          <text id="206:88" name="₦20,000" x="0" y="0" width="132" height="40" />
+          <text id="206:89" name="still in your account" x="0" y="52" width="126" height="20" />
+        </frame>
+      </frame>
+      <frame id="206:90" name="Card" x="0" y="222.1999969482422" width="353" height="56">
+        <instance id="564:15013" name="Glyph · pot" x="16" y="16" width="24" height="24" />
+        <text id="206:94" name="Your balance is exactly what i" x="52" y="4" width="239" height="48" />
+      </frame>
+      <frame id="206:95" name="Row" x="0" y="290.20001220703125" width="353" height="116.80000305175781">
+        <instance id="235:6086" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="653:18018" name="Card" x="44" y="0" width="309" height="128" />
+      </frame>
+      <frame id="206:102" name="Card" x="0" y="419" width="353" height="152">
+        <frame id="206:103" name="Row" x="16" y="4" width="321" height="72">
+          <frame id="206:104" name="Icon" x="0" y="16" width="40" height="40">
+            <instance id="564:15017" name="Glyph · up" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="206:107" name="Column" x="52" y="14.399999618530273" width="241" height="43.20000076293945">
+            <text id="206:108" name="Try again now" x="0" y="0" width="106" height="24" />
+            <text id="206:109" name="It may have cleared already" x="0" y="28" width="177" height="20" />
+          </frame>
+          <instance id="564:15020" name="Glyph · check" x="305" y="28" width="16" height="16" />
+        </frame>
+        <frame id="206:112" name="Row" x="16" y="76" width="321" height="72">
+          <frame id="206:113" name="Icon" x="0" y="16" width="40" height="40">
+            <instance id="564:15023" name="Glyph · airtime" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="206:116" name="Column" x="52" y="14.399999618530273" width="241" height="43.20000076293945">
+            <text id="206:117" name="Send it another way" x="0" y="0" width="152" height="24" />
+            <text id="206:118" name="Through your Zenith account" x="0" y="28" width="188" height="20" />
+          </frame>
+          <instance id="564:15026" name="Glyph · check" x="305" y="28" width="16" height="16" />
+        </frame>
+      </frame>
+      <frame id="206:121" name="Card" x="0" y="583" width="353" height="162.39999389648438">
+        <frame id="206:122" name="Row" x="16" y="16" width="319" height="70.4000015258789">
+          <instance id="235:6090" name="Mark · 32" x="0" y="0" width="32" height="32" />
+          <instance id="653:18020" name="Card" x="44" y="0" width="275" height="80" />
+        </frame>
+        <instance id="577:18207" name="Button · Do that" x="16" y="98.4000015258789" width="319" height="48" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="206:133" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="206:134" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="206:135" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="564:15032" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="206:138" name="Ask bar" x="52" y="4" width="309" height="48">
+        <instance id="235:6262" name="Mark · 32" x="8" y="8" width="32" height="32" />
+        <text id="206:143" name="Ask why this failed" x="48" y="14" width="223" height="20" />
+        <instance id="564:15035" name="Glyph · camera" x="279" y="15" width="18" height="18" />
+      </frame>
+    </frame>
+  </frame>
+</frame>

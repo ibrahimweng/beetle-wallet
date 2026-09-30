@@ -91,7 +91,7 @@ export function Chat({
           const card = t.block.card;
           body = (
             <View style={{ marginRight: PANEL_INSET }}>
-              <ReceiptCard card={card} to={`/receipt/${card.rowId}`} />
+              <ReceiptCard card={card} to={card.to ?? `/receipt/${card.rowId}`} />
             </View>
           );
         } else if (isAsk(t)) {

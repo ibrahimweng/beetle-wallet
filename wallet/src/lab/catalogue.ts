@@ -474,22 +474,95 @@ export const RECEIVE: Feature = {
   id: 'receive',
   title: 'Being paid',
   folder: 'src/features/receive',
-  sub: 'The account number to hand out, and money arriving.',
+  sub: 'The Receive sheet, the three ways money reaches the account, the code, and money arriving.',
   places: [
     {
-      id: 'receive-details',
+      id: 'receive-sheet',
       icon: 'receive-filled',
-      title: 'Your details',
-      sub: 'The number and the name, to copy or share, over the chat',
-      href: '/home?receive=details',
+      title: 'Receive',
+      sub: 'The sheet over home: a bank transfer, a card, asking someone, dollars, from the frame',
+      href: '/home?receive=pick',
+      seed: demo,
+    },
+    {
+      id: 'receive-ways',
+      icon: 'bank',
+      title: 'Three ways to be paid',
+      sub: 'The number to copy, the code to show, and asking somebody, from the frame',
+      href: '/ways',
+      seed: demo,
+    },
+    {
+      id: 'receive-code',
+      icon: 'qr',
+      title: 'Your code',
+      sub: 'A real QR of the account, to share or save, from the frame',
+      href: '/mycode',
       seed: demo,
     },
     {
       id: 'receive-arrival',
-      icon: 'bank',
+      icon: 'down',
       title: 'Money arrives',
-      sub: '₦50,000 from Sarah lands on the card, in the day, and in a chat from Beetle',
+      sub: '₦50,000 from Sarah lands on the card, in the day, and in a chat from Beetle with the receipt',
       href: '/home?receive=arrival',
+      seed: demo,
+    },
+  ],
+};
+
+export const ASKING: Feature = {
+  id: 'asking',
+  title: 'Asking for money',
+  folder: 'src/features/request',
+  sub: 'A request somebody can pay: from words, from a photo of their message, or from nothing yet.',
+  places: [
+    {
+      id: 'ask-typing',
+      icon: 'chat',
+      title: 'Typed at home',
+      sub: '"ask musa for 20k" in the bar with the keyboard up, from the frame',
+      href: '/home?typing=ask%20musa%20for%2020k&kb=236',
+      seed: demo,
+    },
+    {
+      id: 'ask-typed',
+      icon: 'request',
+      title: 'The request, from words',
+      sub: 'Musa, ₦20,000, the rent balance: Beetle Requests at work, from the frame',
+      href: '/request?demo=typed',
+      seed: demo,
+    },
+    {
+      id: 'ask-found',
+      icon: 'camera',
+      title: 'Read from your photo',
+      sub: "Musa's message through the reader, and the sheet over the camera, from the frame",
+      href: '/scan?demo=request',
+      seed: demo,
+    },
+    {
+      id: 'ask-photo',
+      icon: 'camera-filled',
+      title: 'The request, from the photo',
+      sub: 'What the camera read, on the request page, from the frame',
+      href: '/request?demo=photo',
+      seed: demo,
+    },
+    {
+      id: 'ask-empty',
+      icon: 'person',
+      title: 'Nothing yet',
+      sub: 'Ask someone on the Receive sheet: Beetle asks who, and for how much',
+      href: '/request',
+      seed: demo,
+    },
+    {
+      id: 'ask-sent',
+      icon: 'check',
+      title: 'Request sent',
+      sub: 'The page that says so, with the reminder Beetle offers, from the frame',
+      href: '/asked/demo',
       seed: demo,
     },
   ],
@@ -512,4 +585,4 @@ export const MODEL: Feature = {
   ],
 };
 
-export const FEATURES: Feature[] = [WAY_IN, HOME, MORE, ASK, SEND, TRANSFERS, SCAN, GUARD, RECEIVE, RECEIPTS, ACTIVITIES, SETTINGS, MODEL];
+export const FEATURES: Feature[] = [WAY_IN, HOME, MORE, ASK, SEND, TRANSFERS, SCAN, GUARD, RECEIVE, ASKING, RECEIPTS, ACTIVITIES, SETTINGS, MODEL];

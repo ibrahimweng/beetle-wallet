@@ -1,0 +1,60 @@
+<instance id="239:8294" name="Sent" x="573" y="2721" width="393" height="852">
+  <frame id="I239:8294;239:7579" name="Page" x="0" y="0" width="393" height="737">
+    <frame id="I239:8294;239:7580" name="Content" x="20" y="72" width="353" height="665">
+      <instance id="I239:8294;660:20318" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="I239:8294;239:7584" name="Column" x="0" y="75.19999694824219" width="353" height="141">
+        <frame id="I239:8294;239:7585" name="Icon" x="0" y="0" width="56" height="56">
+          <instance id="I239:8294;568:1283" name="Glyph · check" x="16" y="16" width="24" height="24" />
+        </frame>
+        <frame id="I239:8294;239:7588" name="Column" x="0" y="72" width="150.1999969482422" height="69">
+          <text id="I239:8294;239:7589" name="₦20,000" x="0" y="0" width="133" height="40" />
+          <text id="I239:8294;239:7590" name="Asked Musa Danjuma" x="0" y="52" width="139" height="20" />
+        </frame>
+      </frame>
+      <frame id="I239:8294;239:7591" name="Column" x="0" y="232.1999969482422" width="353" height="168">
+        <frame id="I239:8294;239:7592" name="Row · For" x="0" y="0" width="353" height="56">
+          <text id="I239:8294;239:7593" name="For" x="0" y="16" width="242.6999969482422" height="24" />
+          <text id="I239:8294;239:7594" name="Rent balance" x="242.6999969482422" y="16" width="100" height="24" />
+        </frame>
+        <frame id="I239:8294;239:7595" name="Row · Expires" x="0" y="56" width="353" height="56">
+          <text id="I239:8294;239:7596" name="Expires" x="0" y="16" width="281" height="24" />
+          <text id="I239:8294;239:7597" name="In 7 days" x="281" y="16" width="68" height="24" />
+        </frame>
+        <frame id="I239:8294;239:7598" name="Row · Reference" x="0" y="112" width="353" height="56">
+          <text id="I239:8294;239:7599" name="Reference" x="0" y="16" width="203" height="24" />
+          <text id="I239:8294;239:7600" name="REQ-40112-8873" x="203" y="16" width="134" height="24" />
+        </frame>
+      </frame>
+      <frame id="I239:8294;239:7601" name="Row" x="0" y="416.20001220703125" width="353" height="80">
+        <instance id="I239:8294;239:7602" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="I239:8294;653:20228" name="Card" x="44" y="0" width="309" height="80">
+          <text id="I239:8294;653:20228;652:1988" name="I will tell you the moment it " x="16" y="16" width="277" height="48" />
+        </instance>
+      </frame>
+      <frame id="I239:8294;239:7605" name="Card" x="0" y="512.2000122070312" width="353" height="170">
+        <frame id="I239:8294;239:7606" name="Row" x="16" y="16" width="319" height="80">
+          <instance id="I239:8294;239:7607" name="Mark · 32" x="0" y="0" width="32" height="32" />
+          <instance id="I239:8294;653:20230" name="Card" x="44" y="0" width="275" height="80">
+            <text id="I239:8294;653:20230;652:1988" name="Want me to remind him if nothi" x="16" y="16" width="243" height="48" />
+          </instance>
+        </frame>
+        <frame id="I239:8294;239:7610" name="Button · Set that up" x="16" y="108" width="319" height="46">
+          <text id="I239:8294;239:7611" name="Set that up" x="112" y="13" width="75" height="20" />
+          <instance id="I239:8294;568:1286" name="Glyph · check" x="195" y="17" width="12" height="12" />
+        </frame>
+      </frame>
+    </frame>
+  </frame>
+  <frame id="I239:8294;239:7614" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="I239:8294;239:7615" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="I239:8294;239:7616" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="I239:8294;568:1289" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="I239:8294;239:7619" name="Ask bar" x="52" y="4" width="309" height="48">
+        <instance id="I239:8294;239:7620" name="Mark · 32" x="8" y="8" width="32" height="32" />
+        <text id="I239:8294;239:7621" name="Ask about this request" x="48" y="14" width="223" height="20" />
+        <instance id="I239:8294;568:1292" name="Glyph · camera" x="279" y="15" width="18" height="18" />
+      </frame>
+    </frame>
+  </frame>
+</instance>

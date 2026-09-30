@@ -2,15 +2,20 @@
    reading goes to Beetle. Every way it can go wrong has a way out: the
    permission not yet given, given and taken back (with the way to settings),
    a device with no camera at all (the web in a sandbox), and a picture that
-   would not take. Where there is no camera, the sample slip stands in. */
+   would not take. Where there is no camera, the sample slip stands in, and
+   a sample message beside it. The photo is read here first: a message
+   asking to be paid puts Read from your photo up over the camera, and the
+   request goes on from there; anything else goes back with what was read. */
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Body, Head, Icon, Meta, Pane, Row, Tap, colour, dark } from '../../design';
-import { reader } from '../../services';
+import { reader, type Photo, type RequestReading } from '../../services';
+import { FoundSheet, requestDraft } from '../request';
+import { LAB } from '../../lab/enabled';
 import { handoff } from './handoff';
-import { samplePhoto } from './sample';
+import { sampleMessage, samplePhoto } from './sample';
 
 type CameraModule = typeof import('expo-camera');
 type CameraViewRef = InstanceType<CameraModule['CameraView']>;
@@ -31,8 +36,11 @@ type State = 'asking' | 'denied' | 'ready' | 'none' | 'taking';
 
 export function Scan() {
   const router = useRouter();
+  const asked = useLocalSearchParams<{ demo?: string }>();
   const [state, setState] = useState<State>('asking');
   const [note, setNote] = useState<string | null>(null);
+  /** a message asking to be paid, read off the photo: the sheet over the camera */
+  const [found, setFound] = useState<RequestReading | null>(null);
   const camera = useRef<CameraViewRef>(null);
   const failed = useRef(false);
 
@@ -59,9 +67,24 @@ export function Scan() {
     }
   };
 
-  const done = (photo: { uri: string; width?: number; height?: number }) => {
-    handoff.put(photo);
+  /* the photo, read here: a message asking to be paid stays, with the sheet
+     up; anything else goes back to the screen that asked, read */
+  const done = async (photo: Photo) => {
+    const before = state;
+    setState('taking');
+    const reading = await reader.read(photo.uri).catch(() => undefined);
+    if (reading?.request) {
+      setFound(reading.request);
+      setState(before === 'taking' ? 'ready' : before);
+      return;
+    }
+    handoff.put({ ...photo, reading });
     router.back();
+  };
+  const ask = (draft: Parameters<typeof requestDraft.put>[0]) => {
+    requestDraft.put(draft);
+    setFound(null);
+    router.replace('/request');
   };
 
   const take = async () => {
@@ -70,7 +93,7 @@ export function Scan() {
     try {
       const shot = await camera.current?.takePictureAsync({ quality: 0.8, skipProcessing: Platform.OS === 'android' });
       if (!shot?.uri) throw new Error('nothing came back');
-      done({ uri: shot.uri, width: shot.width, height: shot.height });
+      await done({ uri: shot.uri, width: shot.width, height: shot.height });
     } catch {
       setState('ready');
       setNote('That did not take. Hold the phone still and try again.');
@@ -79,8 +102,16 @@ export function Scan() {
 
   const sample = async () => {
     setState('taking');
-    done(await samplePhoto());
+    await done(await samplePhoto());
   };
+  const message = async () => {
+    setState('taking');
+    await done(await sampleMessage());
+  };
+  /* the lab: the message, read, and the sheet up */
+  useEffect(() => {
+    if (LAB && asked.demo === 'request') void message();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const back = () => router.back();
   const CameraView = cam?.CameraView;
@@ -128,6 +159,8 @@ export function Scan() {
             body="This device has no camera Beetle can use, so a sample slip stands in: a name, a bank and an account number on paper."
             action="Use the sample photo"
             onAction={sample}
+            alt="Or a message asking for your account"
+            onAlt={message}
           />
         ) : (
           <View style={s.controls}>
@@ -138,9 +171,13 @@ export function Scan() {
             <Pressable accessibilityRole="button" onPress={sample} style={{ paddingVertical: 8 }}>
               <Meta style={{ color: dark.text }}>Use a sample photo</Meta>
             </Pressable>
+            <Pressable accessibilityRole="button" onPress={message} style={{ paddingVertical: 4, marginTop: -16 }}>
+              <Meta style={{ color: dark.textSoft }}>Or a message asking for your account</Meta>
+            </Pressable>
           </View>
         )}
       </Pane>
+      {found ? <FoundSheet reading={found} onAsk={ask} onRetake={() => setFound(null)} onDismiss={() => setFound(null)} /> : null}
     </View>
   );
 }

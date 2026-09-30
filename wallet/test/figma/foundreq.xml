@@ -1,0 +1,129 @@
+<frame id="225:1551" name="FoundReq" x="573" y="80" width="393" height="852">
+  <frame id="1238:14504" name="Camera behind" x="0" y="0" width="393" height="852">
+    <frame id="1238:14505" name="Group" x="20" y="56" width="353" height="44">
+      <frame id="1238:14506" name="Icon" x="0" y="2" width="40" height="40">
+        <instance id="1238:14507" name="Glyph · close" x="10" y="10" width="20" height="20" />
+      </frame>
+      <frame id="1238:14508" name="Icon" x="309" y="2" width="40" height="40">
+        <instance id="1238:14509" name="Glyph · power" x="10" y="10" width="20" height="20" />
+      </frame>
+    </frame>
+    <frame id="1238:14510" name="Column" x="20" y="120" width="353" height="72">
+      <text id="1238:14511" name="Point at an account number" x="71.5" y="0" width="210" height="24" />
+      <text id="1238:14512" name="A QR code works too. So does" x="0" y="32" width="353" height="40" />
+    </frame>
+    <frame id="1238:14513" name="Column" x="20" y="212" width="353" height="481">
+      <frame id="1238:14514" name="Card" x="0" y="8" width="353" height="234">
+        <frame id="1238:14515" name="Card" x="14" y="14" width="325" height="206">
+          <frame id="1238:14516" name="Row · Musa · Agent" x="12" y="12" width="301" height="24">
+            <frame id="1238:14517" name="Chip · MA" x="0" y="0" width="24" height="24">
+              <text id="1238:14518" name="MD" x="2.299999952316284" y="5" width="20" height="16" />
+            </frame>
+            <text id="1238:14519" name="Musa Danjuma" x="32" y="4" width="214" height="16" />
+            <text id="1238:14520" name="9:41 AM" x="254" y="4" width="47" height="16" />
+          </frame>
+          <frame id="1238:14521" name="Card" x="12" y="44" width="301" height="150">
+            <text id="1238:14522" name="Bros, rent balance coming Friday:" x="12" y="12" width="190" height="16" />
+            <frame id="1238:14523" name="Box" x="12" y="36" width="76.80000305175781" height="24">
+              <text id="1238:14524" name="20k" x="9.699999809265137" y="5" width="26" height="20" />
+            </frame>
+            <frame id="1238:14525" name="Chip · GTBank" x="12" y="68" width="55.79999923706055" height="18">
+              <text id="1238:14526" name="Friday" x="9" y="5" width="37" height="16" />
+            </frame>
+            <frame id="1238:14527" name="Box" x="12" y="94" width="121.80000305175781" height="24">
+              <text id="1238:14528" name="send me your account" x="9" y="5" width="149" height="20" />
+            </frame>
+            <frame id="1238:14529" name="Chip · Sarah A." x="12" y="126" width="112.0999984741211" height="21">
+              <text id="1238:14530" name="Musa D." x="9" y="4.5" width="48" height="16" />
+              <text id="1238:14531" name="not sure" x="57.400001525878906" y="3" width="47" height="16" hidden="true" />
+            </frame>
+          </frame>
+        </frame>
+      </frame>
+      <frame id="1238:14532" name="Chip · 0123 4457 8842" x="122.5" y="258" width="108" height="36">
+        <instance id="1238:14533" name="Glyph · step-done" x="12" y="9" width="18" height="18" />
+        <text id="1238:14534" name="₦20,000" x="38" y="8" width="58" height="20" />
+      </frame>
+    </frame>
+    <frame id="1238:14535" name="Row" x="20" y="713" width="353" height="72">
+      <frame id="1238:14536" name="Column" x="0" y="10" width="52" height="52">
+        <frame id="1238:14537" name="Row" x="8" y="8" width="36" height="10">
+          <frame id="1238:14538" name="Box" x="0" y="0" width="10" height="10" />
+          <frame id="1238:14539" name="Box" x="14" y="3" width="22" height="4" />
+        </frame>
+        <frame id="1238:14540" name="Box" x="8" y="22" width="36" height="4" />
+        <frame id="1238:14541" name="Box" x="8" y="30" width="36" height="4" />
+        <frame id="1238:14542" name="Box" x="8" y="38" width="22.299999237060547" height="4" />
+      </frame>
+      <frame id="1238:14543" name="Box" x="140.5" y="0" width="72" height="72">
+        <frame id="1238:14544" name="Box" x="8" y="8" width="56" height="56" />
+      </frame>
+      <frame id="1238:14545" name="Icon" x="301" y="10" width="52" height="52">
+        <instance id="1238:14546" name="Glyph · qr" x="15" y="15" width="22" height="22" />
+      </frame>
+    </frame>
+    <text id="1238:14547" name="Or send a screenshot straigh" x="38" y="805" width="317" height="16" />
+  </frame>
+  <frame id="1238:14548" name="Scrim" x="0" y="0" width="393" height="852" />
+  <frame id="1238:14549" name="Sheet" x="10" y="363.79998779296875" width="373" height="478.20001220703125">
+    <frame id="1238:14550" name="Group" x="0" y="0" width="373" height="38" hidden="true">
+      <frame id="1238:14551" name="Group" x="-77.19999694824219" y="0" width="373" height="3" />
+    </frame>
+    <frame id="1238:14552" name="Box" x="167.5" y="0" width="38" height="4" />
+    <frame id="1238:14553" name="Column" x="0" y="4" width="373" height="362.20001220703125">
+      <frame id="1238:14554" name="Row · Read" x="20" y="20" width="333" height="24">
+        <instance id="1238:14555" name="Glyph · mark" x="0" y="0" width="24" height="24" />
+        <text id="1238:14556" name="Read from your photo" x="32" y="0" width="166" height="24" />
+      </frame>
+      <frame id="1238:14557" name="Group" x="20" y="64" width="333" height="28">
+        <text id="1238:14558" name="Ask Musa for" x="0" y="-6" width="198" height="40" />
+        <text id="1238:14559" name=" 20k" x="198" y="-6" width="67" height="40" />
+      </frame>
+      <frame id="1238:14560" name="Column" x="20" y="112" width="333" height="230.1999969482422">
+        <text id="1238:14561" name="What I read" x="0" y="1" width="85" height="24" />
+        <frame id="1238:14562" name="Card · What I read" x="0" y="38.20000076293945" width="333" height="192">
+          <frame id="1238:14563" name="Row · Amount" x="16" y="0" width="301" height="48">
+            <instance id="1238:14564" name="Glyph · step-done" x="0" y="14.5" width="18" height="18" />
+            <text id="1238:14565" name="Amount" x="30" y="13.5" width="51" height="20" />
+            <frame id="1238:14566" name="Row · ₦20,000" x="93" y="11.5" width="208" height="24">
+              <text id="1238:14567" name="₦20,000" x="49" y="0" width="66" height="24" />
+              <text id="1238:14568" name="from the photo" x="123" y="4" width="85" height="16" />
+            </frame>
+          </frame>
+          <frame id="1238:14569" name="Row · Person" x="16" y="48" width="301" height="48">
+            <instance id="1238:14570" name="Glyph · step-done" x="0" y="14.5" width="18" height="18" />
+            <text id="1238:14571" name="Person" x="30" y="13.5" width="45" height="20" />
+            <frame id="1238:14572" name="Row · Musa Danjuma" x="87" y="11.5" width="214" height="24">
+              <text id="1238:14573" name="Musa Danjuma" x="4" y="0" width="113" height="24" />
+              <text id="1238:14574" name="paid you before" x="125" y="4" width="89" height="16" />
+            </frame>
+          </frame>
+          <frame id="1238:14575" name="Row · Reaches him" x="16" y="96" width="301" height="48">
+            <instance id="1238:14576" name="Glyph · step-done" x="0" y="14.5" width="18" height="18" />
+            <text id="1238:14577" name="Reaches him" x="30" y="13.5" width="83" height="20" />
+            <frame id="1238:14578" name="Row · WhatsApp and SMS" x="125" y="11.5" width="176" height="24">
+              <text id="1238:14579" name="WhatsApp and SMS" x="25" y="0" width="151" height="24" />
+            </frame>
+          </frame>
+          <frame id="1238:14581" name="Row · For" x="16" y="144" width="301" height="48">
+            <instance id="1238:14582" name="Glyph · step-done" x="0" y="15" width="18" height="18" />
+            <text id="1238:14583" name="For" x="30" y="14" width="22" height="20" />
+            <frame id="1238:14584" name="Row · Rent balance" x="64" y="12" width="237" height="24">
+              <text id="1238:14585" name="Rent balance" x="44" y="0" width="100" height="24" />
+              <text id="1238:14586" name="from the photo" x="152" y="4" width="85" height="16" />
+            </frame>
+          </frame>
+        </frame>
+      </frame>
+    </frame>
+    <frame id="1238:14587" name="Column" x="0" y="366.20001220703125" width="373" height="112">
+      <text id="1238:14588" name="Not this person" x="134.5" y="0" width="104" height="20" />
+      <frame id="1238:14589" name="Row" x="20" y="32" width="333" height="56">
+        <instance id="1238:14590" name="Button · Ask Musa" x="0" y="0" width="269" height="56" />
+        <frame id="1238:14591" name="Retake" x="277" y="0" width="56" height="56">
+          <instance id="1238:14592" name="Glyph · camera" x="16" y="16" width="24" height="24" />
+        </frame>
+      </frame>
+    </frame>
+  </frame>
+</frame>

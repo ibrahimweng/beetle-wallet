@@ -15,6 +15,7 @@ import { useApp } from '../features/onboarding/store';
 import { storage } from '../services';
 import { forgetMoves, movesKey } from '../features/home/moves';
 import { forgetChats } from '../features/agent/chats';
+import { forgetRequests, requestsKey } from '../features/request/requests';
 import { prefsKey } from '../features/settings/prefs';
 import { FEATURES, type Place } from './catalogue';
 import { door } from './door';
@@ -54,8 +55,10 @@ export function Lab() {
       if (p.seed.session) {
         await storage.remove(movesKey(p.seed.session.account.accountNumber));
         await storage.remove(prefsKey(p.seed.session.account.accountNumber));
+        await storage.remove(requestsKey(p.seed.session.account.accountNumber));
         forgetMoves(p.seed.session.account.accountNumber);
         forgetChats(p.seed.session.account.accountNumber);
+        forgetRequests(p.seed.session.account.accountNumber);
       }
       await app.seed(p.seed.progress, p.seed.session);
       router.push(p.href);

@@ -281,19 +281,35 @@ the page is a line in the day with its receipt, and no chat is filed for it.
 
 ## Round 4 · Being paid, and asking
 
-- [ ] Receive on the card, and in the More sheet, opens Receive (332:9555):
-      bank transfer, from a card, ask someone, in dollars
-- [ ] Three ways to be paid (ways 222:199) and Your code (mycode 221:2), the
-      code drawn for real
-- [ ] Ask someone: Request (225:1606), the typed and photographed ways in
-      (typedask 225:1928, foundreq 225:1551), Request sent (sent 239:8294)
-- [ ] Money in (donein 490:12465) and its share, from round 1, reached from
-      the day and from an arrival
-- [ ] The receive pane built earlier folds into these frames; nothing exists
+- [x] Receive on the card, the shortcut, the new account's button and More
+      opens the Receive sheet (332:9555): bank transfer, from a card, ask
+      someone, in dollars; the rows that lead to a page send the sheet down
+      first
+- [x] Three ways to be paid (ways 222:199) and Your code (mycode 221:2), the
+      code drawn for real: a QR of the account made on the phone, read back
+      in a unit test, shared as a picture and saved to Photos
+- [x] Ask someone: Request (225:1606), the typed and photographed ways in
+      (typedask 225:1928, foundreq 225:1551), Request sent (sent 239:8294);
+      the camera reads the photo first, and a message asking to be paid puts
+      the sheet up over it; the reply bar fills what is missing
+- [x] Money in (donein 490:12465), from round 1, reached from the day and
+      from an arrival: the chat Beetle starts about it carries the receipt's
+      card
+- [x] The receive pane built earlier folds into these frames; nothing exists
       twice
+- [x] Lab places for each, the Figma check for the seven frames, the walk
 
 Taps: Receive (1), bank transfer (2), copy (3). Receive (1), ask someone (2),
 who and how much (3), send the request (4).
+
+Decided while building: the typed frame draws its bar on the closed card
+above the keyboard, and this build's bar lives in the open chat, so the bar
+there took the frame's active state (the send disc beside it) and the
+check anchors on the bar; the Request frame draws Back in its head, and
+the build keeps it at the bottom left by the rule; a request files a chat
+from Beetle with its card, and a line in the day would have looked like
+money that came; the people who can be asked are this build's own list
+with a line each, until an account service says who has paid.
 
 ## Round 5 · Bills, data and the services drawer
 

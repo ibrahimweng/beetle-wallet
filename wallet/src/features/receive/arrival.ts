@@ -4,8 +4,9 @@
    a line in the day, and a chat Beetle starts to say so. */
 import type { Move } from '../../services';
 import { naira } from '../../lib/format';
-import { clock, type Chat } from '../agent/chats';
-import { turn } from '../agent/conversation';
+import type { Chat } from '../agent/chats';
+import { clock } from '../../lib/clock';
+import { turn } from '../agent/turns';
 
 export type Arrival = { from: string; bank: string; amount: number; note?: string };
 
@@ -33,8 +34,9 @@ export function arrivalLine(a: Arrival, balanceAfter: number): string {
   return `${naira(a.amount)} just came in from ${a.from} at ${a.bank}.${note} It is in your balance now: ${naira(balanceAfter)}.`;
 }
 
-/** The chat Beetle starts about it, waiting in the day. */
-export function arrivalChat(a: Arrival, balanceAfter: number, time = clock()): Chat {
+/** The chat Beetle starts about it, waiting in the day, with the card that
+    opens the receipt for it where the line's id is known. */
+export function arrivalChat(a: Arrival, balanceAfter: number, rowId?: string, time = clock()): Chat {
   return {
     id: `in-${Date.now().toString(36)}`,
     startedBy: 'beetle',
@@ -42,7 +44,7 @@ export function arrivalChat(a: Arrival, balanceAfter: number, time = clock()): C
     detail: `From ${a.from} at ${a.bank}`,
     time,
     day: 'today',
-    turns: [turn.say(arrivalLine(a, balanceAfter))],
+    turns: [turn.say(arrivalLine(a, balanceAfter)), ...(rowId ? [turn.receipt({ rowId, amount: naira(a.amount), line: `From ${a.from}`, status: 'Received', time })] : [])],
     pending: null,
     unread: true,
   };

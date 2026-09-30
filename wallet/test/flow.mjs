@@ -529,23 +529,157 @@ try {
   await shot('home-after-transfer');
 
   console.log('Being paid');
-  /* Receive opens the card on the account's own details; the number can be
-     copied, and Done closes the card again */
+  /* Receive on the card puts up the sheet with the four ways money can come;
+     Bank transfer sends it down and opens Three ways to be paid, with the
+     number to copy and the code behind Show it */
   await tap('Receive');
-  await see('Your account number');
-  await see('0102 4457 88');
-  await shot('receive', 900);
-  await tap('Copy the number');
+  await see('Pick how you want the money to reach you');
+  await shot('receive-sheet', 900);
+  await tap('Bank transfer');
+  await see('All of them safe to hand out');
+  at('/ways');
+  must((await page.getByText('Pick how you want').filter({ visible: true }).count()) === 0, 'the sheet should have gone down before the page came');
+  await shot('ways', 900);
+  await tap('Copy it');
   /* the browser may still refuse the clipboard on a machine with none; the
-     pane says so either way, and that is what is checked */
+     page says so either way, and that is what is checked */
   const copied = page.getByText('copied. Paste it anywhere.').filter({ visible: true }).first();
   const refused = page.getByText('cannot reach the clipboard').filter({ visible: true }).first();
   await Promise.race([copied.waitFor(), refused.waitFor()]);
   console.log(`  the number was ${(await copied.count()) ? 'copied' : 'not copied: this browser has no clipboard to give'}`);
-  await tap('Done');
-  await page.waitForTimeout(900);
-  const afterDetails = await page.locator('[data-testid="card"]').boundingBox();
-  must(afterDetails && afterDetails.height < 420, `Done should close the card again (${afterDetails?.height}px)`);
+  await tap('Show it');
+  await see('Point their camera at this');
+  at('/mycode');
+  /* the code is a real one: its modules drawn as one path, its three eyes as rounded squares */
+  const modules = await page.locator('[data-testid="code"] path').first().getAttribute('d');
+  must(modules && modules.startsWith('M') && modules.length > 400, 'the code should be drawn as a path of modules');
+  await shot('mycode', 900);
+  /* Save it on the web downloads the picture; Share it, with no share sheet here, puts the words on the clipboard */
+  await tap('Save it');
+  const saved = page.getByText(/Downloaded|would not take|cannot draw|Nothing here to save/).filter({ visible: true }).first();
+  await saved.waitFor();
+  console.log(`  Save it: ${(await saved.innerText()).trim()}`);
+  await tap('Share it');
+  await page.getByText(/No share sheet here/).filter({ visible: true }).first().waitFor();
+  await tap('Back');
+  await see('All of them safe to hand out');
+  await tap('Back');
+  await page.waitForTimeout(700);
+  at('/home');
+
+  console.log('Asking for money');
+  /* "ask musa for 20k" typed in the chat is a page of its own: the request,
+     filled from the words, Beetle Requests running until it has a date */
+  await pull('card-for-asking', false);
+  await page.getByLabel('Ask Beetle').fill('ask musa for 20k for the rent balance');
+  await button('Send this').waitFor();
+  await tap('Send this');
+  await see('the line ending 4471');
+  at('/request');
+  await see('In 7 days');
+  await shot('request-typed', 600);
+  await tap('Send the request');
+  await see('Request sent');
+  must(page.url().includes('/asked/'), 'the page that says it was sent should take the request\'s place');
+  await shot('request-sent', 900);
+  /* Set that up leads to the standing instruction, and Set it up lists it */
+  await tap('Set that up');
+  await see('Nudge whoever I asked for money');
+  at('/rule');
+  await tap('Set it up');
+  await see('What I can do without asking you first');
+  await see('Nudge whoever I asked for money');
+  await shot('rules-remind', 900);
+  await page.goto(`${base}/home`, { waitUntil: 'load' });
+  await see('See all');
+  /* the chat Beetle filed carries the request's card, which opens the page again */
+  await tap('Chats');
+  await page.waitForTimeout(400);
+  await see('₦20,000 asked of Musa');
+  await tap('₦20,000 asked of Musa');
+  await button('Request').waitFor();
+  await shot('request-chat', 900);
+  await tap('Request');
+  await see('Request sent');
+  await tap('Back');
+  await page.waitForTimeout(700);
+  at('/home');
+  await tap('Back to the day');
+  await page.waitForTimeout(700);
+  await tap('All');
+  /* the photo way: the camera reads the message, and the sheet over it says what it read */
+  await pull('card-for-the-camera', false);
+  await tap('Show me a photo');
+  at('/scan');
+  await page.waitForTimeout(600);
+  if (
+    await page
+      .getByRole('button', { name: 'Allow the camera', exact: true })
+      .isVisible()
+      .catch(() => false)
+  )
+    await tap('Allow the camera');
+  await page.getByText(/Fill the frame with the account number|No camera here/).first().waitFor();
+  await tap('Or a message asking for your account');
+  await see('Read from your photo');
+  await see('Ask Musa for 20k');
+  await shot('found-request', 900);
+  await tap('Ask Musa');
+  await see('the line ending 4471');
+  at('/request');
+  must((await page.locator('[data-testid="you-said"]').count()) === 1, 'what the camera read should stand as the first thing said');
+  await see('In 7 days');
+  await shot('request-photo', 600);
+  await tap('Back');
+  await page.waitForTimeout(700);
+  at('/home');
+  await tap('Back to the day');
+  await page.waitForTimeout(700);
+  /* nothing yet: Ask someone on the sheet; Beetle asks, and a reply in the bar fills it */
+  await tap('Receive');
+  await see('Pick how you want the money to reach you');
+  await tap('Ask someone');
+  await see('Who should I ask, and for how much?');
+  at('/request');
+  await shot('request-empty', 900);
+  await page.getByPlaceholder('Reply, or just keep typing').fill('sarah 5k for lunch');
+  await page.keyboard.press('Enter');
+  await see('Sarah Adeyemi, the line ending 8842');
+  await see('₦5,000');
+  await see('Lunch');
+  await see('In 7 days');
+  await shot('request-reply', 600);
+  /* the amount row opens the keypad, which hands the figure back */
+  await tap('Amount');
+  await see('Nothing has been asked yet');
+  at('/amend');
+  /* the keypad opens on the figure as it stands: clear it, then 25,000 */
+  await wipe(6);
+  await type(['2', '5', '000']);
+  await tap('Use ₦25,000');
+  await see('₦25,000');
+  at('/request');
+  /* the person row opens the list of who has paid before */
+  await tap('Person');
+  await see('Who should I ask?');
+  await tap('Musa Danjuma');
+  await see('the line ending 4471');
+  await shot('request-picked', 600);
+  await tap('Back');
+  await page.waitForTimeout(700);
+  at('/home');
+  /* and asking how to be paid is Three ways to be paid */
+  await pull('card-for-the-ways', false);
+  await page.getByLabel('Ask Beetle').fill('how do I get paid');
+  await tap('Send this');
+  await see('All of them safe to hand out');
+  at('/ways');
+  await tap('Back');
+  await page.waitForTimeout(700);
+  at('/home');
+  await tap('Back to the day');
+  await page.waitForTimeout(700);
+  await tap('All');
 
   console.log('The chats in the day');
   /* under their own chip: the one just filed, and the one Beetle started */
@@ -979,6 +1113,15 @@ try {
   await see('₦645,320');
   await shot('lab-arrival', 300);
   await see('₦50,000 came in');
+  /* the chat Beetle started carries the receipt's card, which opens Money in */
+  await tap('₦50,000 came in');
+  await button('Receipt').waitFor();
+  await tap('Receipt');
+  await see('Money in');
+  must(page.url().includes('/receipt/'), 'the card in the chat should open the receipt');
+  await shot('lab-arrival-receipt', 900);
+  await tap('Back');
+  await page.waitForTimeout(700);
   await tap('Back to the lab');
   await see('Beetle Lab');
   /* Beetle's model: no key here, so the try comes back from the script */

@@ -1,0 +1,61 @@
+<instance id="332:9555" name="Receive" x="573" y="80" width="393" height="852">
+  <instance id="I332:9555;232:4565" name="Home behind" x="0" y="0" width="393" height="2520.60009765625" />
+  <frame id="I332:9555;221:255" name="Scrim" x="0" y="0" width="393" height="852" />
+  <frame id="I332:9555;221:256" name="Sheet" x="10" y="272" width="373" height="567">
+    <frame id="I332:9555;221:257" name="Box" x="164.5" y="14" width="44" height="5" />
+    <frame id="I332:9555;221:258" name="Column" x="20" y="35" width="333" height="148">
+      <frame id="I332:9555;221:259" name="Icon" x="134.5" y="4" width="64" height="64">
+        <instance id="I332:9555;568:1254" name="Glyph · up" x="16" y="16" width="32" height="32" />
+      </frame>
+      <frame id="I332:9555;727:18285" name="Frame 5" x="8" y="84" width="317" height="60">
+        <text id="I332:9555;221:262" name="Receive" x="0" y="0" width="317" height="24" />
+        <text id="I332:9555;221:263" name="Pick how you want the money to" x="0" y="36" width="317" height="24" />
+      </frame>
+    </frame>
+    <frame id="I332:9555;221:264" name="Column" x="20" y="199" width="333" height="288">
+      <frame id="I332:9555;221:265" name="Row" x="0" y="0" width="333" height="72">
+        <frame id="I332:9555;221:266" name="Icon" x="0" y="16" width="40" height="40">
+          <instance id="I332:9555;568:1257" name="Glyph · airtime" x="10" y="10" width="20" height="20" />
+        </frame>
+        <frame id="I332:9555;221:269" name="Column" x="52" y="14.399999618530273" width="253" height="43.20000076293945">
+          <text id="I332:9555;221:270" name="Bank transfer" x="0" y="0" width="102" height="24" />
+          <text id="I332:9555;221:271" name="Your number, 0102 4457 88" x="0" y="28" width="181" height="20" />
+        </frame>
+        <instance id="I332:9555;568:1260" name="Glyph · check" x="317" y="28" width="16" height="16" />
+      </frame>
+      <frame id="I332:9555;221:274" name="Row" x="0" y="72" width="333" height="72">
+        <frame id="I332:9555;221:275" name="Icon" x="0" y="16" width="40" height="40">
+          <instance id="I332:9555;568:1263" name="Glyph · card" x="10" y="10" width="20" height="20" />
+        </frame>
+        <frame id="I332:9555;221:279" name="Column" x="52" y="14.399999618530273" width="253" height="43.20000076293945">
+          <text id="I332:9555;221:280" name="From a card" x="0" y="0" width="89" height="24" />
+          <text id="I332:9555;221:281" name="Any Nigerian debit card" x="0" y="28" width="152" height="20" />
+        </frame>
+        <instance id="I332:9555;568:1267" name="Glyph · check" x="317" y="28" width="16" height="16" />
+      </frame>
+      <frame id="I332:9555;221:284" name="Row" x="0" y="144" width="333" height="72">
+        <frame id="I332:9555;221:285" name="Icon" x="0" y="16" width="40" height="40">
+          <instance id="I332:9555;568:1270" name="Glyph · up" x="10" y="10" width="20" height="20" />
+        </frame>
+        <frame id="I332:9555;221:288" name="Column" x="52" y="14.399999618530273" width="253" height="43.20000076293945">
+          <text id="I332:9555;221:289" name="Ask someone" x="0" y="0" width="101" height="24" />
+          <text id="I332:9555;221:290" name="Send a request they can pay" x="0" y="28" width="184" height="20" />
+        </frame>
+        <instance id="I332:9555;568:1273" name="Glyph · check" x="317" y="28" width="16" height="16" />
+      </frame>
+      <frame id="I332:9555;298:8847" name="Row" x="0" y="216" width="333" height="72">
+        <frame id="I332:9555;298:8848" name="Icon" x="0" y="16" width="40" height="40">
+          <instance id="I332:9555;568:1276" name="Glyph · key" x="10" y="10" width="20" height="20" />
+        </frame>
+        <frame id="I332:9555;298:8852" name="Column" x="52" y="14.399999618530273" width="253" height="43.20000076293945">
+          <text id="I332:9555;298:8853" name="In dollars" x="0" y="0" width="69" height="24" />
+          <text id="I332:9555;298:8854" name="Hold it steady, or turn nair" x="0" y="28" width="222" height="20" />
+        </frame>
+        <instance id="I332:9555;568:1280" name="Glyph · check" x="317" y="28" width="16" height="16" />
+      </frame>
+    </frame>
+    <frame id="I332:9555;221:293" name="Button · Done" x="126.19999694824219" y="503" width="120.5999984741211" height="50">
+      <text id="I332:9555;221:294" name="Done" x="40" y="14.399999618530273" width="41" height="24" />
+    </frame>
+  </frame>
+</instance>

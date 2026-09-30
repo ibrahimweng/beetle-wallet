@@ -9,12 +9,12 @@ export function ReceiptCard({ card, to }: { card: Card; to: string }) {
   const amount = useRef<View>(null);
   const j = useDeparture({ id: `chat-receipt:${card.rowId}`, to, words: card.amount, anchor: amount });
   return (
-    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel="Receipt" onPress={j.onPress} style={s.card} testID="receipt-card">
+    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={card.kind === 'request' ? 'Request' : 'Receipt'} onPress={j.onPress} style={s.card} testID="receipt-card">
       <View style={s.head}>
         <View style={s.disc}>
-          <Icon name="receipt" size={16} colour="#ffffff" />
+          <Icon name={card.kind === 'request' ? 'request' : 'receipt'} size={16} colour="#ffffff" />
         </View>
-        <Label style={{ color: '#ffffff', flex: 1 }}>Receipt</Label>
+        <Label style={{ color: '#ffffff', flex: 1 }}>{card.kind === 'request' ? 'Request' : 'Receipt'}</Label>
         <View style={s.pill}>
           <View style={s.dot} />
           <Caption style={{ color: colour.good }}>{card.status}</Caption>
@@ -28,7 +28,7 @@ export function ReceiptCard({ card, to }: { card: Card; to: string }) {
         <Meta style={{ color: dark.label }}>{card.time}</Meta>
       </View>
       <View style={s.foot}>
-        <Caption style={{ color: dark.textSoft }}>The full receipt</Caption>
+        <Caption style={{ color: dark.textSoft }}>{card.kind === 'request' ? 'The request' : 'The full receipt'}</Caption>
         <Icon name="chevron" size={12} colour={dark.textSoft} />
       </View>
     </Tap>

@@ -1,0 +1,10 @@
+<frame id="225:1928" name="TypedAsk" x="1066" y="80" width="393" height="852">
+  <instance id="232:5023" name="Home behind" x="0" y="0" width="393" height="2520.60009765625" />
+  <frame id="225:1929" name="Row" x="0" y="530" width="393" height="60">
+    <instance id="655:18026" name="Ask bar" x="16" y="0" width="305" height="48" />
+    <frame id="225:1937" name="Icon" x="329" y="0" width="48" height="48">
+      <instance id="564:14329" name="Glyph · up" x="13" y="13" width="22" height="22" />
+    </frame>
+  </frame>
+  <instance id="238:7298" name="Keyboard" x="0" y="616" width="410" height="236" />
+</frame>

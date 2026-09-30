@@ -1,432 +1,534 @@
 {
-  "code": [
-    {
-      "text": "Six digits, sent to 0803 214",
-      "why": "the number is the one typed a step before"
-    }
-  ],
-  "ready": [
-    {
-      "piece": "Button · Take me in",
-      "why": "the frame insets this one button 34 where every other frame's runs from 20; the build keeps 20"
-    },
-    {
-      "text": "Your number is 0102 4457 88,",
-      "why": "the account number is the account's own"
-    }
-  ],
-  "signin": [
-    {
-      "piece": "Welcome back",
-      "why": "this frame puts 11 and 16 between the title, its line and the field where the number frame puts 8 and 12; the build keeps 8 and 12, so the title sits 7 higher"
-    }
-  ],
-  "confirm": [
-    {
-      "text": "GTBank · 0234 5678 90",
-      "why": "the account is the person's own"
-    },
-    {
-      "text": "Or tap the face to use Face ID.",
-      "why": "said only on a phone with a face enrolled; the web has none, and says 'Six digits, the ones you chose.'"
-    },
-    {
-      "text": "Nothing moves until the four",
-      "why": "the passcode is six digits, as the way in sets it; the line says 'sixth'"
-    }
-  ],
-  "donesend": [
-    {
-      "text": "Ask about this transfer",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    },
-    {
-      "piece": "Chip · Successful",
-      "why": "the chip is as wide as its word; the frame draws the same chip 104 and 90 wide on two pages"
-    },
-    {
-      "piece": "Chip · Cleared",
-      "why": "the chip is as wide as its word"
-    },
-    {
-      "piece": "GTBank · 0234 5678 90",
-      "why": "the frame boxes this line at 89 wide so it wraps; the build gives it the column, and it fits on one line"
-    }
-  ],
-  "done": [
-    {
-      "text": "Ask about this",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    },
-    {
-      "piece": "Chip · Successful",
-      "why": "the chip is as wide as its word; the frame draws the same chip 104 and 90 wide on two pages"
-    },
-    {
-      "piece": "Chip · Cleared",
-      "why": "the chip is as wide as its word"
-    }
-  ],
-  "power": [
-    {
-      "text": "Ask about this payment",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    },
-    {
-      "piece": "Chip · Successful",
-      "why": "the chip is as wide as its word; the frame draws the same chip 104 and 90 wide on two pages"
-    },
-    {
-      "piece": "Chip · Cleared",
-      "why": "the chip is as wide as its word"
-    },
-    {
-      "piece": "Ikeja Electric",
-      "why": "this frame puts 12 between the amount and its line where the All done frames put none; the build keeps none"
-    },
-    {
-      "pieces": [
-        "Amount",
-        "₦8,000.00",
-        "Fee",
-        "Free",
-        "Total charged",
-        "Balance after",
-        "₦39,654.51",
-        "Ikeja reference",
-        "IKJ 4457 8891 2208",
-        "Icon",
-        "Card",
-        "Button",
-        "Pay this every month, without ",
-        "Chip · Set it up",
-        "The token did not work?"
-      ],
-      "why": "two of the four receipt frames put 24 between the slip's blocks, the other two 20; the build keeps 20, so everything after the first block sits a little higher"
-    }
-  ],
-  "donein": [
-    {
-      "text": "Ask about this payment",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    },
-    {
-      "piece": "Chip · Successful",
-      "why": "the chip is as wide as its word; the frame draws the same chip 104 and 90 wide on two pages"
-    },
-    {
-      "piece": "Chip · Cleared",
-      "why": "the chip is as wide as its word"
-    },
-    {
-      "piece": "Zenith Bank · 1014 2288 31",
-      "why": "the frame boxes this line at 111 wide so it wraps; the build gives it the column"
-    },
-    {
-      "piece": "From Pagrin Limited",
-      "why": "this frame puts 12 between the amount and its line where the All done frames put none; the build keeps none"
-    },
-    {
-      "pieces": [
-        "They wrote",
-        "August salary",
-        "Amount",
-        "₦640,000.00",
-        "Fee",
-        "None on money in",
-        "Total credited",
-        "Balance after",
-        "₦679,654.51",
-        "Session ID",
-        "000015 260827 164004 118220 77",
-        "Icon",
-        "Card",
-        "Button",
-        "Put ₦50,000 away before it goe",
-        "Chip · Set it up",
-        "Expecting more than this?"
-      ],
-      "why": "two of the four receipt frames put 24 between the slip's blocks, the other two 20; the build keeps 20, so everything after the first block sits a little higher"
-    }
-  ],
-  "share": [
-    {
-      "piece": "Box",
-      "why": "the grabber is 4 tall on every sheet of this build; this frame draws it 5"
-    },
-    {
-      "piece": "Button · Done",
-      "why": "the frame draws Done 50 tall where every other small button is 48"
-    },
-    {
-      "piece": "Sheet",
-      "why": "every sheet in this build sits 10 off the bottom, as the passcode frame draws it; this frame draws 5"
-    },
-    {
-      "text": "Your balance is left off eve",
-      "why": "the layer is named for an older line; the frame's picture reads 'Your balance and the full account numbers are left off every copy that leaves the phone', which the build says"
-    }
-  ],
-  "settings": [
-    {
-      "text": "No transfer fees and instant",
-      "why": "the layer is named for an older line; the frame's picture reads 'Higher daily limits and a human when you need one', which the build says"
-    },
-    {
-      "text": "Version 1.0.4",
-      "why": "the version is the build's own"
-    }
-  ],
-  "actions": [
-    {
-      "pieces": [
-        "Camera",
-        "Send money",
-        "Receive",
-        "Glyph · camera-filled",
-        "Glyph · spinner-track",
-        "Glyph · eye"
-      ],
-      "why": "the frame draws five actions; the bar at the foot of home carries Activities and Settings, so the sheet keeps these three, sitting nearest the button in the frame's lower three rows"
-    },
-    {
-      "text": "History",
-      "why": "the bar at the foot of home carries the record, as Activities"
-    },
-    {
-      "text": "Settings",
-      "why": "the bar at the foot of home carries Settings"
-    }
-  ],
-  "history": [
-    {
-      "text": "Ask about any of these",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    },
-    {
-      "text": "History",
-      "why": "the page is titled Activities, as the bar and the day call it"
-    }
-  ],
-  "answer": [
-    {
-      "anchor": true,
-      "why": "the line under the title wraps in the web's font where the frame's SF Pro keeps it to one, so everything below sits a line lower here; on the phone it is one line"
-    }
-  ],
-  "lock": [
-    {
-      "text": "Ask me to lock something down",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    },
-    {
-      "piece": "Card",
-      "nth": 2,
-      "why": "the frame draws this one card 321 wide where every other runs the column's 353; the build keeps the column"
-    },
-    {
-      "anchor": true,
-      "why": "the frame boxes the head at 59 and its second line runs under the first card; the build gives the line its room, so everything below sits 24 lower"
-    }
-  ],
-  "limits": [
-    {
-      "text": "Ask me to change a limit",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    },
-    {
-      "piece": "₦64,000",
-      "why": "the figure is the day's own: what has left today"
-    },
-    {
-      "text": "₦64,000",
-      "why": "the figure is the day's own: what has left today"
-    },
-    {
-      "piece": "₦36,000 left before I stop a",
-      "why": "the figure is the day's own"
-    },
-    {
-      "text": "₦36,000 left before I stop a",
-      "why": "the figure is the day's own"
-    },
-    {
-      "piece": "Confirm this transaction",
-      "why": "the words before it are 4 narrower in the web's font"
-    }
-  ],
-  "limitstop": [],
-  "rules": [
-    {
-      "text": "Ask me to set one up",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    },
-    {
-      "piece": "The day your salary lands.",
-      "why": "the frame puts 3 under a two-line title where it puts 8 under the one-line ones; the build keeps 8"
-    }
-  ],
-  "rule": [],
-  "devices": [
-    {
-      "text": "Ask about a device",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    },
-    {
-      "piece": "Button · Sign out everywhere else",
-      "why": "the label is 4 wider in the web's font, and the button is as wide as its label"
-    }
-  ],
-  "lostphone": [
-    {
-      "text": "Ask what freezing does",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    },
-    {
-      "text": "Signing a device out never t",
-      "why": "the layer is named for the Devices line; the frame's picture reads 'Freezing stops money leaving. It does not stop money arriving, and it never touches what you already have', which the build says"
-    }
-  ],
-  "newcode": [],
-  "card": [
-    {
-      "text": "Ask about this card",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    },
-    {
-      "text": "IBRAHIM WENG",
-      "why": "the holder is the account's own: IBRAHIM MUSA on the demo account"
-    }
-  ],
-  "send": [
-    {
-      "text": "Free",
-      "why": "the fee follows the receipts' rule — nothing under ₦10,000, ₦26.88 to ₦50,000 — so the page and its receipt agree; the frame prints Free on ₦50,000"
-    },
-    {
-      "text": "Flat deposit",
-      "why": "the reference is typed in a field, and a field's words are not in the page's text"
-    }
-  ],
-  "amend": [
-    {
-      "piece": "Button · Use ₦20,000",
-      "why": "the button sits in the foot beside Back, where every page keeps its one button; the frame draws it under the bubble"
-    },
-    {
-      "piece": "What if it is more than I ha",
-      "why": "the link sits where the frame's button was, above the foot, since the button is in the foot"
-    }
-  ],
-  "short": [
-    {
-      "text": "Ask me about this",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    }
-  ],
-  "misread": [
-    {
-      "text": "Ask me about this",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    },
-    {
-      "text": "short of the ₦20,000 you ask",
-      "why": "the layer keeps the Not enough frame's name; the frame's picture reads 'and I am not sure of the last digit', which the build says"
-    },
-    {
-      "text": "The rest when your salary la",
-      "why": "the layer keeps the Not enough frame's name; the frame's picture reads 'Someone you have never paid', which the build says"
-    },
-    {
-      "pieces": [
-        "It is 0234 5678 90",
-        "Sarah Adeyemi, who you have paid before"
-      ],
-      "why": "the line under runs to two in the web's font and one in the frame's, so the words sit 12 higher"
-    },
-    {
-      "piece": "Column",
-      "nth": 3,
-      "why": "the same column, taller for the line that wraps"
-    }
-  ],
-  "pending": [],
-  "failed": [
-    {
-      "text": "Ask why this failed",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    },
-    {
-      "text": "₦20,000",
-      "why": "the figures are the line's own: Chidi Okafor's ₦12,000 through Access Bank at 13:40, as the day draws it"
-    }
-  ],
-  "reversed": [
-    {
-      "text": "14:22",
-      "why": "the times are the line's own: Musa Danjuma's, back at 11:15 after leaving at 09:15"
-    },
-    {
-      "text": "16:22",
-      "why": "the times are the line's own"
-    },
-    {
-      "text": "REV-40118-2290",
-      "why": "the reference is the line's own"
-    },
-    {
-      "text": "Try Sarah again",
-      "why": "the name is the line's own: Try Musa again"
-    }
-  ],
-  "wrong": [
-    {
-      "text": "Tell me what happened",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    },
-    {
-      "text": "Today, 14:22",
-      "why": "the time is the line's own: 07:55"
-    },
-    {
-      "pieces": [
-        "I did not make this payment"
-      ],
-      "why": "its line under runs to two in the frame's font and one in the web's, so the words sit 5 lower in the frame"
-    }
-  ],
-  "recall": [
-    {
-      "text": "Ask what happens next",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    },
-    {
-      "text": "If she says no, no bank can fo",
-      "why": "Beetle says they for everyone it has not been told about: 'If they say no, no bank can force them.'"
-    },
-    {
-      "text": "If she has not answered by F",
-      "why": "the same: 'If Sarah has not answered by Friday'"
-    }
-  ],
-  "alreadygone": [
-    {
-      "text": "Ask about the cover",
-      "why": "the ask bar's words are its placeholder, not text on the page"
-    },
-    {
-      "text": "Your balance is exactly what i",
-      "why": "the layer keeps the It did not go frame's name; the frame's picture reads 'This one is mine. You are covered.', which the build says"
-    }
-  ],
-  "facemissed": [
-    {
-      "text": "Three wrong tries locks the passcode for",
-      "why": "this build's gate shuts for thirty seconds, so trying a wrong code never costs an hour; the line says 'for half a minute'"
-    },
-    {
-      "piece": "Three wrong tries locks the passcode for",
-      "why": "the frame centres the two lines on an 18-tall row, so they start 11 above it; the build gives the lines their room, and the sheet stands 20 taller for it"
-    }
-  ]
+ "code": [
+  {
+   "text": "Six digits, sent to 0803 214",
+   "why": "the number is the one typed a step before"
+  }
+ ],
+ "ready": [
+  {
+   "piece": "Button · Take me in",
+   "why": "the frame insets this one button 34 where every other frame's runs from 20; the build keeps 20"
+  },
+  {
+   "text": "Your number is 0102 4457 88,",
+   "why": "the account number is the account's own"
+  }
+ ],
+ "signin": [
+  {
+   "piece": "Welcome back",
+   "why": "this frame puts 11 and 16 between the title, its line and the field where the number frame puts 8 and 12; the build keeps 8 and 12, so the title sits 7 higher"
+  }
+ ],
+ "confirm": [
+  {
+   "text": "GTBank · 0234 5678 90",
+   "why": "the account is the person's own"
+  },
+  {
+   "text": "Or tap the face to use Face ID.",
+   "why": "said only on a phone with a face enrolled; the web has none, and says 'Six digits, the ones you chose.'"
+  },
+  {
+   "text": "Nothing moves until the four",
+   "why": "the passcode is six digits, as the way in sets it; the line says 'sixth'"
+  }
+ ],
+ "donesend": [
+  {
+   "text": "Ask about this transfer",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "piece": "Chip · Successful",
+   "why": "the chip is as wide as its word; the frame draws the same chip 104 and 90 wide on two pages"
+  },
+  {
+   "piece": "Chip · Cleared",
+   "why": "the chip is as wide as its word"
+  },
+  {
+   "piece": "GTBank · 0234 5678 90",
+   "why": "the frame boxes this line at 89 wide so it wraps; the build gives it the column, and it fits on one line"
+  }
+ ],
+ "done": [
+  {
+   "text": "Ask about this",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "piece": "Chip · Successful",
+   "why": "the chip is as wide as its word; the frame draws the same chip 104 and 90 wide on two pages"
+  },
+  {
+   "piece": "Chip · Cleared",
+   "why": "the chip is as wide as its word"
+  }
+ ],
+ "power": [
+  {
+   "text": "Ask about this payment",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "piece": "Chip · Successful",
+   "why": "the chip is as wide as its word; the frame draws the same chip 104 and 90 wide on two pages"
+  },
+  {
+   "piece": "Chip · Cleared",
+   "why": "the chip is as wide as its word"
+  },
+  {
+   "piece": "Ikeja Electric",
+   "why": "this frame puts 12 between the amount and its line where the All done frames put none; the build keeps none"
+  },
+  {
+   "pieces": [
+    "Amount",
+    "₦8,000.00",
+    "Fee",
+    "Free",
+    "Total charged",
+    "Balance after",
+    "₦39,654.51",
+    "Ikeja reference",
+    "IKJ 4457 8891 2208",
+    "Icon",
+    "Card",
+    "Button",
+    "Pay this every month, without ",
+    "Chip · Set it up",
+    "The token did not work?"
+   ],
+   "why": "two of the four receipt frames put 24 between the slip's blocks, the other two 20; the build keeps 20, so everything after the first block sits a little higher"
+  }
+ ],
+ "donein": [
+  {
+   "text": "Ask about this payment",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "piece": "Chip · Successful",
+   "why": "the chip is as wide as its word; the frame draws the same chip 104 and 90 wide on two pages"
+  },
+  {
+   "piece": "Chip · Cleared",
+   "why": "the chip is as wide as its word"
+  },
+  {
+   "piece": "Zenith Bank · 1014 2288 31",
+   "why": "the frame boxes this line at 111 wide so it wraps; the build gives it the column"
+  },
+  {
+   "piece": "From Pagrin Limited",
+   "why": "this frame puts 12 between the amount and its line where the All done frames put none; the build keeps none"
+  },
+  {
+   "pieces": [
+    "They wrote",
+    "August salary",
+    "Amount",
+    "₦640,000.00",
+    "Fee",
+    "None on money in",
+    "Total credited",
+    "Balance after",
+    "₦679,654.51",
+    "Session ID",
+    "000015 260827 164004 118220 77",
+    "Icon",
+    "Card",
+    "Button",
+    "Put ₦50,000 away before it goe",
+    "Chip · Set it up",
+    "Expecting more than this?"
+   ],
+   "why": "two of the four receipt frames put 24 between the slip's blocks, the other two 20; the build keeps 20, so everything after the first block sits a little higher"
+  }
+ ],
+ "share": [
+  {
+   "piece": "Box",
+   "why": "the grabber is 4 tall on every sheet of this build; this frame draws it 5"
+  },
+  {
+   "piece": "Button · Done",
+   "why": "the frame draws Done 50 tall where every other small button is 48"
+  },
+  {
+   "piece": "Sheet",
+   "why": "every sheet in this build sits 10 off the bottom, as the passcode frame draws it; this frame draws 5"
+  },
+  {
+   "text": "Your balance is left off eve",
+   "why": "the layer is named for an older line; the frame's picture reads 'Your balance and the full account numbers are left off every copy that leaves the phone', which the build says"
+  }
+ ],
+ "settings": [
+  {
+   "text": "No transfer fees and instant",
+   "why": "the layer is named for an older line; the frame's picture reads 'Higher daily limits and a human when you need one', which the build says"
+  },
+  {
+   "text": "Version 1.0.4",
+   "why": "the version is the build's own"
+  }
+ ],
+ "actions": [
+  {
+   "pieces": [
+    "Camera",
+    "Send money",
+    "Receive",
+    "Glyph · camera-filled",
+    "Glyph · spinner-track",
+    "Glyph · eye"
+   ],
+   "why": "the frame draws five actions; the bar at the foot of home carries Activities and Settings, so the sheet keeps these three, sitting nearest the button in the frame's lower three rows"
+  },
+  {
+   "text": "History",
+   "why": "the bar at the foot of home carries the record, as Activities"
+  },
+  {
+   "text": "Settings",
+   "why": "the bar at the foot of home carries Settings"
+  }
+ ],
+ "history": [
+  {
+   "text": "Ask about any of these",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "text": "History",
+   "why": "the page is titled Activities, as the bar and the day call it"
+  }
+ ],
+ "answer": [
+  {
+   "anchor": true,
+   "why": "the line under the title wraps in the web's font where the frame's SF Pro keeps it to one, so everything below sits a line lower here; on the phone it is one line"
+  }
+ ],
+ "lock": [
+  {
+   "text": "Ask me to lock something down",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "piece": "Card",
+   "nth": 2,
+   "why": "the frame draws this one card 321 wide where every other runs the column's 353; the build keeps the column"
+  },
+  {
+   "anchor": true,
+   "why": "the frame boxes the head at 59 and its second line runs under the first card; the build gives the line its room, so everything below sits 24 lower"
+  }
+ ],
+ "limits": [
+  {
+   "text": "Ask me to change a limit",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "piece": "₦64,000",
+   "why": "the figure is the day's own: what has left today"
+  },
+  {
+   "text": "₦64,000",
+   "why": "the figure is the day's own: what has left today"
+  },
+  {
+   "piece": "₦36,000 left before I stop a",
+   "why": "the figure is the day's own"
+  },
+  {
+   "text": "₦36,000 left before I stop a",
+   "why": "the figure is the day's own"
+  },
+  {
+   "piece": "Confirm this transaction",
+   "why": "the words before it are 4 narrower in the web's font"
+  }
+ ],
+ "limitstop": [],
+ "rules": [
+  {
+   "text": "Ask me to set one up",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "piece": "The day your salary lands.",
+   "why": "the frame puts 3 under a two-line title where it puts 8 under the one-line ones; the build keeps 8"
+  }
+ ],
+ "rule": [],
+ "devices": [
+  {
+   "text": "Ask about a device",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "piece": "Button · Sign out everywhere else",
+   "why": "the label is 4 wider in the web's font, and the button is as wide as its label"
+  }
+ ],
+ "lostphone": [
+  {
+   "text": "Ask what freezing does",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "text": "Signing a device out never t",
+   "why": "the layer is named for the Devices line; the frame's picture reads 'Freezing stops money leaving. It does not stop money arriving, and it never touches what you already have', which the build says"
+  }
+ ],
+ "newcode": [],
+ "card": [
+  {
+   "text": "Ask about this card",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "text": "IBRAHIM WENG",
+   "why": "the holder is the account's own: IBRAHIM MUSA on the demo account"
+  }
+ ],
+ "send": [
+  {
+   "text": "Free",
+   "why": "the fee follows the receipts' rule — nothing under ₦10,000, ₦26.88 to ₦50,000 — so the page and its receipt agree; the frame prints Free on ₦50,000"
+  },
+  {
+   "text": "Flat deposit",
+   "why": "the reference is typed in a field, and a field's words are not in the page's text"
+  }
+ ],
+ "amend": [
+  {
+   "piece": "Button · Use ₦20,000",
+   "why": "the button sits in the foot beside Back, where every page keeps its one button; the frame draws it under the bubble"
+  },
+  {
+   "piece": "What if it is more than I ha",
+   "why": "the link sits where the frame's button was, above the foot, since the button is in the foot"
+  }
+ ],
+ "short": [
+  {
+   "text": "Ask me about this",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  }
+ ],
+ "misread": [
+  {
+   "text": "Ask me about this",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "text": "short of the ₦20,000 you ask",
+   "why": "the layer keeps the Not enough frame's name; the frame's picture reads 'and I am not sure of the last digit', which the build says"
+  },
+  {
+   "text": "The rest when your salary la",
+   "why": "the layer keeps the Not enough frame's name; the frame's picture reads 'Someone you have never paid', which the build says"
+  },
+  {
+   "pieces": [
+    "It is 0234 5678 90",
+    "Sarah Adeyemi, who you have paid before"
+   ],
+   "why": "the line under runs to two in the web's font and one in the frame's, so the words sit 12 higher"
+  },
+  {
+   "piece": "Column",
+   "nth": 3,
+   "why": "the same column, taller for the line that wraps"
+  }
+ ],
+ "pending": [],
+ "failed": [
+  {
+   "text": "Ask why this failed",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "text": "₦20,000",
+   "why": "the figures are the line's own: Chidi Okafor's ₦12,000 through Access Bank at 13:40, as the day draws it"
+  }
+ ],
+ "reversed": [
+  {
+   "text": "14:22",
+   "why": "the times are the line's own: Musa Danjuma's, back at 11:15 after leaving at 09:15"
+  },
+  {
+   "text": "16:22",
+   "why": "the times are the line's own"
+  },
+  {
+   "text": "REV-40118-2290",
+   "why": "the reference is the line's own"
+  },
+  {
+   "text": "Try Sarah again",
+   "why": "the name is the line's own: Try Musa again"
+  }
+ ],
+ "wrong": [
+  {
+   "text": "Tell me what happened",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "text": "Today, 14:22",
+   "why": "the time is the line's own: 07:55"
+  },
+  {
+   "pieces": [
+    "I did not make this payment"
+   ],
+   "why": "its line under runs to two in the frame's font and one in the web's, so the words sit 5 lower in the frame"
+  }
+ ],
+ "recall": [
+  {
+   "text": "Ask what happens next",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "text": "If she says no, no bank can fo",
+   "why": "Beetle says they for everyone it has not been told about: 'If they say no, no bank can force them.'"
+  },
+  {
+   "text": "If she has not answered by F",
+   "why": "the same: 'If Sarah has not answered by Friday'"
+  }
+ ],
+ "alreadygone": [
+  {
+   "text": "Ask about the cover",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "text": "Your balance is exactly what i",
+   "why": "the layer keeps the It did not go frame's name; the frame's picture reads 'This one is mine. You are covered.', which the build says"
+  }
+ ],
+ "facemissed": [
+  {
+   "text": "Three wrong tries locks the passcode for",
+   "why": "this build's gate shuts for thirty seconds, so trying a wrong code never costs an hour; the line says 'for half a minute'"
+  },
+  {
+   "piece": "Three wrong tries locks the passcode for",
+   "why": "the frame centres the two lines on an 18-tall row, so they start 11 above it; the build gives the lines their room, and the sheet stands 20 taller for it"
+  }
+ ],
+ "ways": [
+  {
+   "anchor": true,
+   "why": "Beetle's five lines fill their bubble; the frame's row is 116.8 tall and runs the bubble under the first card, hiding its last line, so the cards sit lower here by the lines that are read"
+  },
+  {
+   "text": "You cannot receive by talking.",
+   "why": "the bubble component's own layer name; the frame's picture shows the words the page says"
+  }
+ ],
+ "mycode": [
+  {
+   "anchor": true,
+   "why": "the line under the title takes two lines here as in the frame's picture, where the second runs under the card; the card sits under both lines instead"
+  },
+  {
+   "piece": "Glyph · faceid-scan",
+   "why": "the frame stands a placeholder glyph where the code goes; the build draws a real QR of the account, 190 across, in its place"
+  }
+ ],
+ "request": [
+  {
+   "piece": "Back",
+   "why": "Back keeps the bottom left beside the reply bar, as every page does here; the frame draws it in the head"
+  },
+  {
+   "piece": "Glyph · mark",
+   "why": "the head is centred as a whole, and the frame's face sets Beetle narrower than this one, so the mark lands a few points left of the frame's"
+  },
+  {
+   "piece": "Send the request",
+   "why": "the words are centred in the button; the frame's text box sits 18 down in the 52, the build's 24 line 14 down"
+  }
+ ],
+ "typedask": [
+  {
+   "anchor": true,
+   "why": "the frame types on the closed card with the bar risen above the keyboard; this build types in the open chat, where its bar is, at the foot of the card above the keyboard"
+  },
+  {
+   "piece": "Row",
+   "why": "the frame's row runs the screen's width; the bar and its disc sit inside the card's own inset"
+  },
+  {
+   "piece": "Keyboard",
+   "why": "the web has no keyboard to draw; the lab lifts the bar by the height of the frame's"
+  }
+ ],
+ "foundreq": [
+  {
+   "piece": "Sheet",
+   "why": "the sheet's head band is 32 here, as on every sheet, where the frame's grabber sits at the very edge: the sheet is 4 taller and starts 4 higher"
+  },
+  {
+   "piece": "Box",
+   "why": "the sheet's grabber sits 16 under its top and 44 wide, as every sheet's does here; the frame's touches the edge at 38"
+  },
+  {
+   "piece": " 20k",
+   "why": "the frame sets the figure as a second text after the words; the build says the line as one"
+  },
+  {
+   "text": "Point at an account number",
+   "why": "the camera behind the sheet is the camera frame's own; on the web it is the card that says there is none, and the sheet is what this screen checks"
+  },
+  {
+   "text": "A QR code works too",
+   "why": "the camera behind the sheet, as above"
+  },
+  {
+   "text": "Bros, rent balance coming",
+   "why": "the message being photographed, drawn in the camera behind the sheet; on the web the sample message stands in"
+  },
+  {
+   "text": "Friday",
+   "why": "the message behind the sheet"
+  },
+  {
+   "text": "send me your account",
+   "why": "the message behind the sheet"
+  },
+  {
+   "text": "Musa D.",
+   "why": "the message behind the sheet"
+  },
+  {
+   "text": "not sure",
+   "why": "a hidden layer in the frame"
+  },
+  {
+   "text": "MD",
+   "why": "the message behind the sheet"
+  },
+  {
+   "text": "9:41 AM",
+   "why": "the message behind the sheet"
+  },
+  {
+   "text": "Or send a screenshot",
+   "why": "the camera frame behind the sheet"
+  }
+ ]
 }

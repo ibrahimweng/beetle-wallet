@@ -1,0 +1,49 @@
+<frame id="225:1606" name="Request" x="80" y="2721" width="393" height="852">
+  <frame id="225:1607" name="Page" x="0" y="0" width="393" height="706.7999877929688">
+    <frame id="225:1608" name="Content" x="20" y="72" width="353" height="634.7999877929688">
+      <instance id="663:18171" name="Group" x="0" y="0" width="353" height="44">
+        <frame id="I663:18171;663:18133" name="Back" x="0" y="0" width="44" height="44">
+        <instance id="I663:18171;663:18134" name="Glyph · check" x="11" y="11" width="22" height="22" />
+        </frame>
+        <frame id="I663:18171;663:18135" name="Row · Beetle" x="52" y="0" width="249" height="24">
+        <instance id="I663:18171;663:18136" name="Glyph · mark" x="84" y="0" width="24" height="24" />
+        <text id="I663:18171;663:18137" name="Beetle" x="116" y="0" width="49" height="24" />
+        </frame>
+      </instance>
+      <instance id="653:17962" name="Card" x="160.8000030517578" y="60" width="192.1999969482422" height="47.199989318847656">
+        <instance id="I653:17962;652:1993" name="Glyph · camera" x="16" y="15.599994659423828" width="16" height="16" />
+        <text id="I653:17962;652:1997" name="Ask Musa for 20k" x="40" y="11.599994659423828" width="133" height="24" />
+      </instance>
+      <frame id="225:1624" name="Row" x="0" y="123.19998931884766" width="353" height="93.5999984741211">
+        <instance id="235:5978" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="653:17968" name="Card" x="44" y="0" width="309" height="104">
+          <text id="I653:17968;652:1988" name="Musa Danjuma, the line ending " x="16" y="16" width="277" height="72" />
+        </instance>
+      </frame>
+      <instance id="238:7236" name="Tool panel" x="0" y="232.79998779296875" width="353" height="350">
+        <frame id="I238:7236;238:6682" name="Row · Beetle Requests" x="1" y="1" width="351" height="48">
+        <frame id="I238:7236;238:6683" name="Icon" x="12" y="8" width="32" height="32">
+        <instance id="I238:7236;568:1819" name="Glyph · up" x="8" y="8" width="16" height="16" />
+        </frame>
+        <text id="I238:7236;238:6686" name="Beetle Requests" x="97" y="14" width="110" height="20" />
+        <instance id="I238:7236;671:2095" name="Chip · Running" x="260" y="12" width="79" height="24" />
+        </frame>
+        <frame id="I238:7236;238:6690" name="Column" x="1" y="49" width="351" height="236">
+        <instance id="I238:7236;671:2098" name="Row · Recipient" x="12" y="4" width="327" height="44" />
+        <instance id="I238:7236;671:2105" name="Row · Bank" x="12" y="48" width="327" height="44" />
+        <instance id="I238:7236;671:2112" name="Row · Amount" x="12" y="92" width="327" height="44" />
+        <instance id="I238:7236;671:2123" name="Row · Fee" x="12" y="136" width="327" height="44" />
+        <instance id="I238:7236;671:2130" name="Row · Arrives" x="12" y="180" width="327" height="44" />
+        </frame>
+        <frame id="I238:7236;238:6724" name="Button" x="13" y="285" width="327" height="52">
+        <text id="I238:7236;238:6725" name="Send the request" x="101.80000305175781" y="18" width="131" height="24" />
+        </frame>
+      </instance>
+      <frame id="225:1676" name="Row · Face ID first. Nothi" x="0" y="598.7999877929688" width="353" height="36">
+        <instance id="564:14325" name="Glyph · lock" x="0" y="2" width="16" height="16" />
+        <text id="225:1680" name="Asking cannot move money. Noth" x="24" y="0" width="335" height="60" />
+      </frame>
+    </frame>
+  </frame>
+  <instance id="238:7281" name="Dock · Reply, or just keep typing" x="0" y="748" width="393" height="104" />
+</frame>

@@ -1,8 +1,10 @@
-/* The ask bar, in its two states off the frame. Idle: the grey petals of
-   the mark, the placeholder, and the camera. Active — the moment there is
-   something typed: a hairline round the bar, the words in semibold, and a
-   black disc with an arrow where the camera was, to send. The camera and
-   the disc trade places through a blur, the way everything here changes. */
+/* The ask bar, in its two states off the frames. Idle: the grey petals of
+   the mark, the placeholder, and the camera, the bar the full width. Active
+   — the moment there is something typed: a hairline round the bar, the
+   words in semibold, the camera gone, and a black disc with an arrow up
+   beside the bar, to send — the bar gives it the room, as the frame with
+   the words typed draws it (48, 8 from the bar). The camera and the disc
+   trade places through a blur, the way everything here changes. */
 import React, { forwardRef, useEffect } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
@@ -14,6 +16,9 @@ const PETALS = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" v
 
 /** The ring the active bar wears, as the frame colours it. */
 const RING = '#472400';
+/** the send disc beside the bar, and the room it takes */
+const DISC = 48;
+const GAP = 8;
 
 export const AskBar = forwardRef<
   TextInput,
@@ -34,44 +39,46 @@ export const AskBar = forwardRef<
   }, [active, still, t]);
   const ring = useAnimatedStyle(() => ({ opacity: t.value }));
   const cameraStyle = useAnimatedStyle(() => ({ opacity: 1 - t.value, transform: [{ scale: 1 - t.value * 0.2 }], ...blurred(t.value * 4) }));
+  /* the bar gives the disc its room as the disc comes */
+  const barStyle = useAnimatedStyle(() => ({ marginRight: t.value * (DISC + GAP) }));
   const discStyle = useAnimatedStyle(() => ({ opacity: t.value, transform: [{ scale: 0.8 + t.value * 0.2 }], ...blurred((1 - t.value) * 4) }));
   return (
-    <View style={[s.bar, active ? s.barActive : s.barIdle]} testID="ask-bar">
-      <Animated.View pointerEvents="none" style={[s.ringView, ring]} />
-      <SvgXml xml={PETALS} width={22} height={22} />
-      <TextInput
-        ref={ref}
-        style={[s.input, active && s.inputActive]}
-        value={value}
-        onChangeText={onChange}
-        onSubmitEditing={onSubmit}
-        onFocus={onFocus}
-        placeholder={placeholder}
-        placeholderTextColor={colour.textSecondary}
-        returnKeyType="send"
-        blurOnSubmit={false}
-        accessibilityLabel="Ask Beetle"
-      />
-      <View style={s.end}>
-        <Animated.View style={[s.endItem, cameraStyle]} pointerEvents={active ? 'none' : 'auto'}>
+    <View style={s.row} testID="ask-row">
+      <Animated.View style={[s.bar, active ? s.barActive : s.barIdle, barStyle]} testID="ask-bar">
+        <Animated.View pointerEvents="none" style={[s.ringView, ring]} />
+        <SvgXml xml={PETALS} width={22} height={22} />
+        <TextInput
+          ref={ref}
+          style={[s.input, active && s.inputActive]}
+          value={value}
+          onChangeText={onChange}
+          onSubmitEditing={onSubmit}
+          onFocus={onFocus}
+          placeholder={placeholder}
+          placeholderTextColor={colour.textSecondary}
+          returnKeyType="send"
+          blurOnSubmit={false}
+          accessibilityLabel="Ask Beetle"
+        />
+        <Animated.View style={[s.end, cameraStyle]} pointerEvents={active ? 'none' : 'auto'}>
           <Tap accessibilityRole="button" accessibilityLabel="Show me a photo" onPress={onCamera} scale={0.85} hitSlop={8}>
             <Icon name="camera" size={20} colour={colour.ink} />
           </Tap>
         </Animated.View>
-        <Animated.View style={[s.endItem, discStyle]} pointerEvents={active ? 'auto' : 'none'}>
-          <Tap accessibilityRole="button" accessibilityLabel="Send this" onPress={onSubmit} scale={0.85} hitSlop={8} style={s.disc}>
-            <View style={{ transform: [{ rotate: '45deg' }] }}>
-              <Icon name="send" size={16} colour={colour.textInverse} />
-            </View>
-          </Tap>
-        </Animated.View>
-      </View>
+      </Animated.View>
+      <Animated.View style={[s.discHome, discStyle]} pointerEvents={active ? 'auto' : 'none'}>
+        <Tap accessibilityRole="button" accessibilityLabel="Send this" onPress={onSubmit} scale={0.85} style={s.disc} testID="ask-send">
+          <Icon name="up" size={22} colour={colour.textInverse} />
+        </Tap>
+      </Animated.View>
     </View>
   );
 });
 
 const s = StyleSheet.create({
+  row: { flexDirection: 'row', alignItems: 'center' },
   bar: {
+    flex: 1,
     height: 48,
     borderRadius: 24,
     backgroundColor: colour.surface2,
@@ -81,11 +88,11 @@ const s = StyleSheet.create({
     paddingLeft: 12,
   },
   barIdle: { paddingRight: 24 },
-  barActive: { paddingRight: 12 },
+  barActive: { paddingRight: 16 },
   ringView: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 24, borderWidth: 1, borderColor: RING },
   input: { flex: 1, minWidth: 0, fontSize: 14, lineHeight: 20, letterSpacing: -0.15, color: colour.ink, padding: 0 },
   inputActive: { fontWeight: '600' },
   end: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
-  endItem: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
-  disc: { width: 28, height: 28, borderRadius: 14, backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' },
+  discHome: { position: 'absolute', right: 0, top: 0, width: DISC, height: DISC },
+  disc: { width: DISC, height: DISC, borderRadius: DISC / 2, backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' },
 });

@@ -281,7 +281,7 @@ export class ModelAgent implements AgentService {
     let said = (ask.text ?? '').trim();
     if (ask.photo) {
       onStep?.("I'm reading the photo…");
-      reading = await this.reader.read(ask.photo.uri);
+      reading = ask.photo.reading ?? (await this.reader.read(ask.photo.uri));
       const words = reading.text.trim();
       said = `${said ? said + '\n\n' : ''}[The owner sent a photo. ${words ? `The words read off it, top to bottom:\n${words}` : 'Nothing could be read off it.'}${reading.real ? '' : ' (On this device the reader is a stand-in, reading the sample slip.)'}]`;
     }

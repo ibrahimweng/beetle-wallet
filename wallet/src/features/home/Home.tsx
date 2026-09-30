@@ -51,7 +51,8 @@ import { transferPanel, PEOPLE } from '../../services/agent';
 import { handoff } from '../scan/handoff';
 import { samplePhoto } from '../scan/sample';
 import { PasscodeSheet, lockedFor } from '../passcode';
-import { ReceivePane, SAMPLE_ARRIVAL, arrivalChat, arrivalLine, arrivalMove, type Arrival } from '../receive';
+import { ReceiveSheet, SAMPLE_ARRIVAL, arrivalChat, arrivalLine, arrivalMove, type Arrival } from '../receive';
+import { pageFor } from '../request/intent';
 import { LAB } from '../../lab/enabled';
 import { glance, holdingsFor } from './account';
 import { rowFrom, useMoves } from './moves';
@@ -95,7 +96,7 @@ function HomeScreen() {
   const still = useStill();
   const { height: H } = useWindowDimensions();
   const { closedH, haze } = useCardTop();
-  const asked = useLocalSearchParams<{ chat?: string; receive?: string; say?: string; about?: string; more?: string; face?: string }>();
+  const asked = useLocalSearchParams<{ chat?: string; receive?: string; say?: string; about?: string; more?: string; face?: string; typing?: string; kb?: string }>();
   /** a line's receipt in a few words, grown out of the line */
   const [peek, setPeek] = useState<{ card: Card; at: Rect } | null>(null);
   const receding = useRecession();
@@ -191,9 +192,8 @@ function HomeScreen() {
   const stale = useRef(false);
   /** a panel's move waiting on the passcode */
   const [guard, setGuard] = useState<{ panelId: string; panel: Panel } | null>(null);
-  /** the account's own details over the chat, and whether the card was open before them */
-  const [details, setDetails] = useState(false);
-  const detailsFrom = useRef<'closed' | 'open'>('closed');
+  /** the Receive sheet, over everything */
+  const [receive, setReceive] = useState(false);
   /** money that just arrived, for the card to show */
   const [flash, setFlash] = useState<{ text: string; at: number } | undefined>(undefined);
 
@@ -263,7 +263,6 @@ function HomeScreen() {
       } else {
         Keyboard.dismiss();
         setGuard(null);
-        setDetails(false);
         fileCurrent();
       }
       open.value = withSpring(to ? 1 : 0, keys);
@@ -309,26 +308,20 @@ function HomeScreen() {
     talk.confirm(id);
   }, [guard, talk]);
 
-  /* Receive: the account's details over the chat, the card opening for them
-     if it was closed, and closing again after */
-  const openDetails = useCallback(() => {
-    detailsFrom.current = openedRef.current ? 'open' : 'closed';
+  /* Receive: the sheet with the four ways money can come, over everything */
+  const openReceive = useCallback(() => {
     setGuard(null);
-    setDetails(true);
-    if (!openedRef.current) show(true, { greet: false });
-  }, [show]);
-  const closeDetails = useCallback(() => {
-    setDetails(false);
-    if (detailsFrom.current === 'closed') show(false);
-  }, [show]);
+    Keyboard.dismiss();
+    setReceive(true);
+  }, []);
 
   /* money arriving lands in three places at once: the card, the day, and a
      chat from Beetle — said in the open chat too, if one is open */
   const arrive = useCallback(
     (a: Arrival) => {
       const after = balance + a.amount;
-      onMove(arrivalMove(a));
-      file(arrivalChat(a, after));
+      const rowId = onMove(arrivalMove(a));
+      file(arrivalChat(a, after, rowId));
       setFlash({
         text: `+${naira(a.amount)} from ${a.from.split(' ')[0]}`,
         at: Date.now(),
@@ -357,12 +350,12 @@ function HomeScreen() {
     if (!opened) return;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       if (guard) setGuard(null);
-      else if (details) closeDetails();
+      else if (receive) setReceive(false);
       else show(false);
       return true;
     });
     return () => sub.remove();
-  }, [opened, show, guard, details, closeDetails]);
+  }, [opened, show, guard, receive]);
 
   /* the first time: once the balance has resolved, the card dips and springs
      back with the words that say what it is for */
@@ -402,15 +395,23 @@ function HomeScreen() {
   const staged = useRef(false);
   useEffect(() => {
     if (!ok || staged.current || !asked.receive) return;
-    if (asked.receive.startsWith('details-')) {
-      setTimeout(openDetails, 300);
+    /* More, from a page: back here with the sheet up */
+    if (asked.receive.startsWith('pick-')) {
+      setTimeout(openReceive, 300);
       return;
     }
     if (!LAB) return;
     staged.current = true;
-    if (asked.receive === 'details') setTimeout(openDetails, 300);
+    if (asked.receive === 'pick') setTimeout(openReceive, 300);
     if (asked.receive === 'arrival') setTimeout(() => arriveRef.current(SAMPLE_ARRIVAL), 1400);
-  }, [ok, asked.receive, openDetails]);
+  }, [ok, asked.receive, openReceive]);
+  /* the lab: the words typed and the keyboard up, as the frame draws them */
+  useEffect(() => {
+    if (!LAB || !ok || !asked.typing) return;
+    show(true, { greet: false });
+    setDraft(asked.typing);
+    if (asked.kb) kb.value = Number(asked.kb) || 0;
+  }, [ok, asked.typing, asked.kb]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!LAB || !ok || staged.current || !asked.chat) return;
     if (asked.chat === 'prompt') {
@@ -503,12 +504,18 @@ function HomeScreen() {
     said.current = stamp;
     const q = asked.say.replace(/ #\d+$/, '');
     const about = asked.about;
+    /* words that are a page of their own: asking somebody, or how to be paid */
+    const page = pageFor(q);
+    if (page) {
+      router.push(page as never);
+      return;
+    }
     show(true);
     setTimeout(() => {
       if (about) talk.note('About this receipt', about);
       void talk.ask({ text: q });
     }, 300);
-  }, [ok, asked.say, asked.about, show, talk]);
+  }, [ok, asked.say, asked.about, show, talk, router]);
 
   /* the lab opens home with More already up */
   useEffect(() => {
@@ -519,10 +526,10 @@ function HomeScreen() {
      screens, receiving in the card */
   const pickMore = useCallback(
     (item: MoreItem) => {
-      if (item === 'receive') openDetails();
+      if (item === 'receive') openReceive();
       else moreTo(router, item);
     },
-    [openDetails, router],
+    [openReceive, router],
   );
   /* the foot is the bar here: it goes down as the card opens, and More comes up out of its plus */
   useFoot({ kind: 'bar', open, hidden: opened, onPick: pickMore, veil: peek ? 'recede' : undefined });
@@ -531,6 +538,13 @@ function HomeScreen() {
     const text = draft.trim();
     if (!text) return;
     setDraft('');
+    /* asking somebody for money, or how to be paid, is a page of its own */
+    const page = pageFor(text);
+    if (page) {
+      Keyboard.dismiss();
+      router.push(page as never);
+      return;
+    }
     void talk.ask({ text });
   };
   const toCamera = () => router.push('/scan');
@@ -673,23 +687,11 @@ function HomeScreen() {
               kobo={kobo(balance)}
               dollars={`~ ${Math.round(balance / rate).toLocaleString('en-NG')} USD`}
               hint={hint}
-              onReceive={openDetails}
+              onReceive={openReceive}
               onNew={startNew}
               flash={flash}
               onDollars={() => askFor('What about dollars?')}
               chat={<Chat talk={talk} active={opened} top={haze + 8} bottom={FOOT_BAND - 8} confirm={confirmWithPasscode} saved={saved} onSaved={(ask, kind, at) => setPick({ ask, kind, at })} />}
-              over={
-                details && account ? (
-                  <ReceivePane
-                    account={account}
-                    onDone={closeDetails}
-                    onPretend={() => {
-                      closeDetails();
-                      setTimeout(() => arriveRef.current(SAMPLE_ARRIVAL), 1400);
-                    }}
-                  />
-                ) : undefined
-              }
               foot={<AskBar ref={input} value={draft} onChange={setDraft} onSubmit={send} onCamera={toCamera} />}
             />
             <View
@@ -736,7 +738,7 @@ function HomeScreen() {
                           sub="Your first transfer shows up here"
                         />
                         <View style={{ alignSelf: 'center', marginTop: 4 }}>
-                          <Button label="Receive" leading="receive-filled" badge size={40} full={false} onPress={openDetails} />
+                          <Button label="Receive" leading="receive-filled" badge size={40} full={false} onPress={openReceive} />
                         </View>
                       </>
                     )}
@@ -807,7 +809,7 @@ function HomeScreen() {
                         label: 'Data',
                         onPress: () => askFor('Buy data'),
                       },
-                      { glyph: 'down', label: 'Receive', onPress: openDetails },
+                      { glyph: 'down', label: 'Receive', onPress: openReceive },
                       { glyph: 'camera', label: 'Photo', onPress: toCamera },
                     ]}
                   />
@@ -830,6 +832,7 @@ function HomeScreen() {
           faceMissed={LAB && asked.face === 'missed'}
         />
       ) : null}
+      {receive && account ? <ReceiveSheet account={account} onDismiss={() => setReceive(false)} /> : null}
       {peek ? <ReceiptPeek card={peek.card} at={peek.at} onClose={() => setPeek(null)} /> : null}
       {pick ? (
         <SavedPeek

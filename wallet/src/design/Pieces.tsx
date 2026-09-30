@@ -221,14 +221,14 @@ export function ChoiceRow({ glyph, title, sub, onPress, to, testID }: { glyph: I
 
 /* A ring that turns while money is on its way: the grey track and a
    quarter of it in the accent, going round. */
-export function Ring({ size = 56, tone = colour.accent }: { size?: number; tone?: string }) {
+export function Ring({ size = 56, tone = colour.accent, width = 4 }: { size?: number; tone?: string; /** the band's weight */ width?: number }) {
   const still = useStill();
   const r = useSharedValue(0);
   useEffect(() => {
     if (!still) r.value = withRepeat(withTiming(360, { duration: 1400, easing: Easing.linear }), -1, false);
   }, [still, r]);
   const spin = useAnimatedStyle(() => ({ transform: [{ rotate: `${r.value}deg` }] }));
-  const ring = { position: 'absolute' as const, width: size, height: size, borderRadius: size / 2, borderWidth: 4 };
+  const ring = { position: 'absolute' as const, width: size, height: size, borderRadius: size / 2, borderWidth: width };
   return (
     <View style={{ width: size, height: size }} testID="ring">
       <View style={[ring, { borderColor: colour.rule }]} />
@@ -241,19 +241,44 @@ export function Ring({ size = 56, tone = colour.accent }: { size?: number; tone?
    the step is done and an empty ring until then, the step in grey, and when
    it happened — or what is waited for — at the end. A hairline between
    the rows, and a little room between them where a frame gives it. */
-export function StepRows({ rows, gap = 0, testID }: { rows: { label: string; value: string; done: boolean }[]; gap?: number; testID?: string }) {
+export type StepRow = {
+  label: string;
+  value: string;
+  done: boolean;
+  /** still being worked out: a ring turning in the disc's place */
+  working?: boolean;
+  /** a row that can be changed with a tap */
+  onPress?: () => void;
+  /** a chevron at the end, where the frame draws one */
+  chevron?: boolean;
+};
+
+export function StepRows({ rows, gap = 0, disc = 22, testID }: { rows: StepRow[]; gap?: number; /** the disc's size: 22 on most frames, 18 on a request's */ disc?: number; testID?: string }) {
   return (
     <View style={{ gap }} testID={testID}>
       {rows.map((r, i) => (
-        <View key={r.label} style={[s.stepRow, i ? s.hairTop : null]} testID="step-row">
-          <View style={[s.disc22, r.done ? { backgroundColor: colour.good } : { borderWidth: 1.5, borderColor: colour.ruleStrong }]}>
-            {r.done ? <Icon name="check" size={12} colour={colour.textInverse} /> : null}
-          </View>
+        <Tap
+          key={r.label}
+          accessibilityRole={r.onPress ? 'button' : undefined}
+          accessibilityLabel={r.onPress ? r.label : undefined}
+          onPress={r.onPress}
+          disabled={!r.onPress}
+          style={[s.stepRow, i ? s.hairTop : null]}
+          testID="step-row"
+        >
+          {r.working ? (
+            <Ring size={disc} width={disc >= 22 ? 3 : 2} />
+          ) : (
+            <View style={[s.disc22, { width: disc, height: disc, borderRadius: disc / 2 }, r.done ? { backgroundColor: colour.good } : { borderWidth: 1.5, borderColor: colour.ruleStrong }]}>
+              {r.done ? <Icon name="check" size={disc >= 22 ? 12 : 10} colour={colour.textInverse} /> : null}
+            </View>
+          )}
           <Meta tone="secondary" style={{ flex: 1 }}>
             {r.label}
           </Meta>
           {r.done ? <Label>{r.value}</Label> : <Meta tone="secondary">{r.value}</Meta>}
-        </View>
+          {r.chevron ? <Icon name="chevron" size={12} colour={colour.textTertiary} /> : null}
+        </Tap>
       ))}
     </View>
   );
@@ -262,22 +287,43 @@ export function StepRows({ rows, gap = 0, testID }: { rows: { label: string; val
 /* A tool at work, in daylight: the chat's panel drawn on a white card with a
    hairline — a 32 square with the tool's glyph, its name, and a chip saying
    it is running, on a grey band 48 tall — with its steps under. */
-export function LightPanel({ glyph, title, status, rows, testID }: { glyph: IconName; title: string; status: string; rows: { label: string; value: string; done: boolean }[]; testID?: string }) {
+export function LightPanel({
+  glyph,
+  title,
+  status,
+  rows,
+  centre = false,
+  disc = 22,
+  foot,
+  testID,
+}: {
+  glyph: IconName;
+  title: string;
+  status: string;
+  rows: StepRow[];
+  /** the name in the middle of the band, as a request's panel sets it */
+  centre?: boolean;
+  disc?: number;
+  /** what sits under the rows: a request's one button */
+  foot?: ReactNode;
+  testID?: string;
+}) {
   return (
     <View style={s.panel} testID={testID}>
       <View style={s.panelHead}>
         <View style={[s.box32, { backgroundColor: colour.surface }]}>
           <Icon name={glyph} size={16} colour={colour.ink} />
         </View>
-        <Label style={{ flex: 1 }}>{title}</Label>
+        <Label style={{ flex: 1, textAlign: centre ? 'center' : 'left' }}>{title}</Label>
         <View style={s.status} testID="panel-status">
           <View style={s.dot} />
           <Caption style={{ fontWeight: '600' }}>{status}</Caption>
         </View>
       </View>
-      <View style={{ paddingTop: 4, paddingBottom: 12, paddingHorizontal: 12 }}>
-        <StepRows rows={rows} />
+      <View style={{ paddingTop: 4, paddingBottom: foot ? 0 : 12, paddingHorizontal: 12 }}>
+        <StepRows rows={rows} disc={disc} />
       </View>
+      {foot ? <View style={{ padding: 12 }}>{foot}</View> : null}
     </View>
   );
 }

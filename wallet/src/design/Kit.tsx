@@ -54,19 +54,19 @@ export function Badge({ glyph, size = 44, tone = colour.surface3, ink = colour.i
 }
 
 /* Initials in a circle, the way the file draws a person. */
-export function Avatar({ initials, size = 44 }: { initials: string; size?: number }) {
+export function Avatar({ initials, size = 44, tone = colour.surface3, ink }: { initials: string; size?: number; /** the disc's colour, and the letters' */ tone?: string; ink?: string }) {
   return (
     <View
       style={{
         width: size,
         height: size,
         borderRadius: size / 2,
-        backgroundColor: colour.surface3,
+        backgroundColor: tone,
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <Row>{initials}</Row>
+      <Row style={ink ? { color: ink } : undefined}>{initials}</Row>
     </View>
   );
 }

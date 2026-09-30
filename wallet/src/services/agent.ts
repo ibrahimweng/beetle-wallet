@@ -49,7 +49,8 @@ import {
 import type { Reading, ReaderService } from './reader';
 import { wait } from './support';
 
-export type Photo = { uri: string; width?: number; height?: number };
+/** A photo, and what was already read off it where the camera read it first. */
+export type Photo = { uri: string; width?: number; height?: number; reading?: Reading };
 /** What is asked: words, a photo, or an ask panel's fields, filled. */
 export type Ask = { text?: string; photo?: Photo; answers?: { askId: string; values: AskValues } };
 
@@ -688,7 +689,7 @@ export class ScriptedAgent implements AgentService {
     /* a photo: read it, and go on from what it says */
     if (ask.photo) {
       onStep?.("I'm reading the photo…");
-      const reading = await this.reader.read(ask.photo.uri);
+      const reading = ask.photo.reading ?? (await this.reader.read(ask.photo.uri));
       const number = reading.numbers[0];
       if (number) {
         await this.step(onStep, `I'm looking up ${groupAccount(number)}…`, 1);

@@ -13,10 +13,11 @@ import { askHome } from '../more/More';
 import { useFoot } from '../more/Foot';
 import { usePrefs, type Prefs } from './prefs';
 
-export const INSTRUCTIONS: { id: keyof Prefs['rules']; title: string; when: string; log: string }[] = [
+export const INSTRUCTIONS: { id: keyof Prefs['rules']; title: string; when: string; log: string; /** only listed once it is on */ offered?: boolean }[] = [
   { id: 'payday', title: 'Move ₦20,000 to Holiday on payday', when: 'The day your salary lands.', log: 'Moved 4 times · ₦80,000 put aside' },
   { id: 'ikeja', title: 'Top up Ikeja Electric', when: 'When it lands, up to ₦10,000', log: 'Paid 3 times · ₦22,400' },
   { id: 'data', title: 'Buy 5GB when my data runs out', when: 'Once a month at most.', log: 'Bought twice · ₦5,000' },
+  { id: 'remind', title: 'Nudge whoever I asked for money', when: 'The day it was due, if nothing came.', log: 'Nothing due yet', offered: true },
 ];
 
 export function Rules() {
@@ -51,7 +52,7 @@ export function Rules() {
             </Caption>
           </Card>
           <View style={{ gap: 8 }}>
-            {INSTRUCTIONS.map(i => (
+            {INSTRUCTIONS.filter(i => !i.offered || prefs.rules[i.id]).map(i => (
               <Card key={i.id} style={s.rule} testID="rule">
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
                   <View style={{ flex: 1, gap: 8 }}>

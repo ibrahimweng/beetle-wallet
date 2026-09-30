@@ -32,6 +32,16 @@ const OFFERS: Record<string, { rule: keyof Prefs['rules']; facts: { label: strin
     ],
     say: 'Only on the day the salary lands, and only if there is room. I never move it on any other day.',
   },
+  remind: {
+    rule: 'remind',
+    facts: [
+      { label: 'What', value: 'Nudge whoever I asked for money' },
+      { label: 'When', value: 'The day it was due, if nothing came' },
+      { label: 'How', value: 'On WhatsApp and SMS, in my words' },
+      { label: 'Stops if', value: 'The money lands first', quiet: true },
+    ],
+    say: 'Only if nothing has come by then. If it lands the day before, I say nothing at all.',
+  },
 };
 
 export function Rule() {

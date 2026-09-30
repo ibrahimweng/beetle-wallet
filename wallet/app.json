@@ -44,13 +44,21 @@
       ],
       "expo-secure-store",
       [
+        "expo-media-library",
+        {
+          "savePhotosPermission": "Beetle saves your code to Photos so you can hand it out.",
+          "isAccessMediaLocationEnabled": false
+        }
+      ],
+      [
         "expo-local-authentication",
         {
           "faceIDPermission": "Beetle uses Face ID so that only you can open the app and move money."
         }
       ],
       "expo-status-bar",
-      "expo-splash-screen"
+      "expo-splash-screen",
+      "expo-sharing"
     ],
     "owner": "ibrahimweng",
     "extra": {

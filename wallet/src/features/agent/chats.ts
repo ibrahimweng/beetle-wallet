@@ -8,7 +8,7 @@
    files what it sent, and home's day has it. */
 import { useCallback, useEffect, useState } from 'react';
 import { powerPanel, storage, type Pending } from '../../services';
-import { turn, type Turn } from './conversation';
+import { turn, type Turn } from './turns';
 
 export type Chat = {
   id: string;
@@ -40,7 +40,7 @@ export function forgetChats(account: string) {
   kept.delete(account);
 }
 
-export const clock = (d = new Date()) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+export { clock } from '../../lib/clock';
 
 export { HOUR, carriesOn, toCarryOn } from './hour';
 

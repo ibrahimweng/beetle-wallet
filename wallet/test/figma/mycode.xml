@@ -1,0 +1,40 @@
+<frame id="221:2" name="MyCode" x="1559" y="80" width="393" height="852">
+  <frame id="221:3" name="Page" x="0" y="0" width="393" height="612.4000244140625">
+    <frame id="221:4" name="Content" x="20" y="72" width="353" height="540.4000244140625">
+      <instance id="660:18052" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="221:8" name="Card" x="0" y="75.19999694824219" width="353" height="304">
+        <instance id="564:14379" name="Glyph · faceid-scan" x="81.5" y="24" width="190" height="190" />
+        <frame id="221:125" name="Row" x="76" y="234" width="201" height="44">
+          <frame id="221:126" name="Button · IM" x="0" y="0" width="44" height="44">
+            <text id="221:127" name="IM" x="13.699999809265137" y="14" width="17" height="20" />
+          </frame>
+          <frame id="221:128" name="Column" x="56" y="0.39999961853027344" width="145" height="43.20000076293945">
+            <text id="221:129" name="Ibrahim Musa" x="0" y="0" width="104" height="24" />
+            <text id="221:130" name="Beetle · 0102 4457 88" x="0" y="28" width="145" height="20" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="221:131" name="Row" x="0" y="395.20001220703125" width="353" height="52">
+        <instance id="577:18006" name="Button · Share it" x="0" y="-2" width="175.8000030517578" height="56" />
+        <instance id="577:18020" name="Button · Save it" x="183.8000030517578" y="-2" width="169.1999969482422" height="56" />
+      </frame>
+      <frame id="221:140" name="Row · Anyone can pay you w" x="0" y="463.20001220703125" width="353" height="54">
+        <instance id="564:14502" name="Glyph · lock" x="0" y="0" width="16" height="16" />
+        <text id="221:144" name="Anyone can pay you with this" x="24" y="0" width="280" height="60" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="221:145" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="221:146" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="221:147" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="564:14506" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="221:150" name="Ask bar" x="52" y="4" width="245" height="48">
+        <instance id="235:6198" name="Mark · 32" x="8" y="8" width="32" height="32" />
+        <text id="221:155" name="Ask about your code" x="48" y="16" width="107" height="16" />
+        <instance id="564:14509" name="Glyph · camera" x="163" y="15" width="18" height="18" />
+      </frame>
+      <instance id="577:18030" name="Action button" x="305" y="0" width="56" height="56" />
+    </frame>
+  </frame>
+</frame>

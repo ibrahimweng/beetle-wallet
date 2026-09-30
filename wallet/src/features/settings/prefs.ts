@@ -14,7 +14,7 @@ export type Prefs = {
   amountsInNotes: boolean;
   /** Money is tight this month: savings wait */
   tight: boolean;
-  rules: { payday: boolean; ikeja: boolean; data: boolean };
+  rules: { payday: boolean; ikeja: boolean; data: boolean; /** a nudge to whoever was asked for money, if nothing comes */ remind: boolean };
   /** how long the app stays open before it asks again */
   askAfter: string;
   cardFrozen: boolean;
@@ -29,7 +29,7 @@ export const DEFAULT_PREFS: Prefs = {
   hideShots: true,
   amountsInNotes: false,
   tight: false,
-  rules: { payday: true, ikeja: true, data: true },
+  rules: { payday: true, ikeja: true, data: true, remind: false },
   askAfter: '2 minutes',
   cardFrozen: false,
   othersSignedOut: false,

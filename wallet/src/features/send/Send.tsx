@@ -12,7 +12,7 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Avatar, Body, Caption, Display, Icon, Label, Meta, PageHead, Say, Screen, Tap, colour, measure, toast, useDeparture, type Rect } from '../../design';
-import { DEMO_SAVED, PEOPLE, beneficiariesOf, feeFor, feeLabel, ownLine, reader, whose, type Move, type Person } from '../../services';
+import { DEMO_SAVED, PEOPLE, beneficiariesOf, feeFor, feeLabel, ownLine, reader, whose, type Move, type Person, type Reading } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
@@ -64,9 +64,9 @@ export function Send() {
 
   /* a photo the camera took: the number on it, or both readings where the reader was not sure */
   const readPhoto = useCallback(
-    async (uri: string) => {
+    async (photo: { uri: string; reading?: Reading }) => {
       setBusy(true);
-      const r = await reader.read(uri);
+      const r = photo.reading ?? (await reader.read(photo.uri));
       setBusy(false);
       if (r.soft) {
         softReading.put(r);
@@ -109,7 +109,7 @@ export function Send() {
         }
       }
       const photo = handoff.take();
-      if (photo) void readPhoto(photo.uri);
+      if (photo) void readPhoto(photo);
     }, [readPhoto]),
   );
 

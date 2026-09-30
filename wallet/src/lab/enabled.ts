@@ -1,7 +1,9 @@
-/* Whether this build opens on the lab. It does everywhere a designer might
-   be looking — the web, Expo Go, a development build, and the preview APK —
-   and not in the production build, which is the demo people are shown.
-   EXPO_PUBLIC_LAB=1 or 0 at export time overrides that either way. */
+/* Whether this build has the lab in it, behind a long press on the version
+   line in Settings. It does everywhere a designer might be looking — the
+   web, Expo Go, a development build, and the preview APK — and not in the
+   production build, which is the demo people are shown. EXPO_PUBLIC_LAB=1
+   or 0 at export time overrides that either way. The app opens as itself
+   in every build; the lab is where the checks start, at /lab. */
 import { channel } from 'expo-updates';
 
 const flag = process.env.EXPO_PUBLIC_LAB;

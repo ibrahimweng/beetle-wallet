@@ -1,9 +1,11 @@
 /* The lab: every feature on its own. It lists the features, and inside each
    the places worth opening, and puts the app in the state a place needs
-   before going there — so the passcode step is one tap away, not six. It is
-   the first screen of every build but the production one (see enabled.ts),
-   and the small tab on the right edge of every other screen comes back here. */
-import React, { useState } from 'react';
+   before going there — so the passcode step is one tap away, not six. The
+   app opens as itself; the lab is behind a long press on the version line
+   in Settings, in every build but the production one (see enabled.ts), and
+   once it has been opened the small tab on the right edge of every other
+   screen comes back here, until Leave the lab. The checks start here. */
+import React, { useEffect, useState } from 'react';
 import { Platform, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
@@ -15,6 +17,7 @@ import { forgetMoves, movesKey } from '../features/home/moves';
 import { forgetChats } from '../features/agent/chats';
 import { prefsKey } from '../features/settings/prefs';
 import { FEATURES, type Place } from './catalogue';
+import { door } from './door';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const when = (d: Date) => `${d.getDate()} ${MONTHS[d.getMonth()]}, ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
@@ -35,6 +38,12 @@ export function Lab() {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
   const [update, setUpdate] = useState<string | null>(null);
+  /* the tab back here comes with the lab */
+  useEffect(() => door.opened(), []);
+  const leave = () => {
+    door.closed();
+    router.replace('/');
+  };
 
   const open = async (p: Place) => {
     if (busy) return;
@@ -79,7 +88,10 @@ export function Lab() {
       <View style={{ gap: space.s3 }}>
         <Icon name="mark" size={32} colour={colour.accent} />
         <Display>Beetle Lab</Display>
-        <Meta tone="secondary">Every feature on its own. Pick a place and the app opens there, with everything before it already done. The small tab on the right edge brings you back here.</Meta>
+        <Meta tone="secondary">
+          Every feature on its own. Pick a place and the app opens there, with everything before it already done. The small tab on the right edge brings you back here; Leave the lab, below, puts it
+          away.
+        </Meta>
       </View>
 
       {FEATURES.map(f => (
@@ -127,6 +139,8 @@ export function Lab() {
           ) : null}
           <Divider />
           <More label="Forget everything on this phone" onPress={() => app.seed({}, null).then(() => setUpdate('Forgotten. Every place starts fresh.'))} />
+          <Divider />
+          <More label="Leave the lab" onPress={leave} />
         </Card>
       </View>
     </Screen>

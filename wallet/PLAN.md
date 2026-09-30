@@ -10,6 +10,16 @@ Send and Receive, the pull down into the chat, the day under it. The file's
 older home (225:3) is not used. Everything else is built from the frame named
 beside it, with its sizes and its words.
 
+## Testing the app as a whole
+
+The app opens as itself on every build: the welcome the first time, home
+after that. The feature-by-feature door — the lab, every place on its own —
+stays for the checks and for a look at a rare state, behind a long press on
+the version line in Settings, and nothing of it shows while the app is being
+used as an app. The day the frames are drawn around is the owner's account:
+sign in with 0906 911 3588 and the code 123456. A number of your own opens
+a new account with an empty day.
+
 ## The rule for every screen
 
 1. **Frame first.** Open the frame. Save its picture to `test/figma/<key>.png`

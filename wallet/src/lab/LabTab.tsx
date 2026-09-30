@@ -1,16 +1,19 @@
 /* The way back to the lab from any screen: a small dark tab tucked into the
    right edge, in the gutter every screen keeps clear, so it covers nothing.
-   It is only there while the lab is on, and not on the lab itself. */
+   It is only there once the lab has been opened this time round — the app
+   opens as itself, with nothing of the lab showing — and not on the lab. */
 import React from 'react';
 import { View } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { Icon, Tap, colour } from '../design';
 import { LAB } from './enabled';
+import { useLabOpen } from './door';
 
 export function LabTab() {
   const pathname = usePathname();
   const router = useRouter();
-  if (!LAB || pathname === '/lab' || pathname === '/') return null;
+  const open = useLabOpen();
+  if (!LAB || !open || pathname === '/lab' || pathname === '/') return null;
   const back = () => {
     if (router.canDismiss()) router.dismissTo('/lab');
     else router.replace('/lab');

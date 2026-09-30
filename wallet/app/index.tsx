@@ -1,14 +1,12 @@
 /* The first thing the app shows: the mark, the name, and a line filling
    while what the device knows is read back. Then it goes where that says: the
-   welcome for a new phone, the step somebody left off on, or home — or the
-   lab, in a build that has it. It stays at least long enough to be seen, so
-   it never flickers. */
+   welcome for a new phone, the step somebody left off on, or home. It stays
+   at least long enough to be seen, so it never flickers. */
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Display, Icon, Meta, Pane, colour } from '../src/design';
 import { useApp } from '../src/features/onboarding/store';
-import { LAB } from '../src/lab/enabled';
 
 const HOLD = 900;
 
@@ -29,10 +27,9 @@ export default function Boot() {
   }, [fill]);
   useEffect(() => {
     if (!ready || !held) return;
-    /* a build with the lab on opens on it. Otherwise a session goes home,
-       unless the account was opened a moment ago and the ready screen has not
-       been seen; everything else is the way in */
-    router.replace(LAB ? '/lab' : session && !progress.accountNumber ? '/home' : '/way-in');
+    /* a session goes home, unless the account was opened a moment ago and
+       the ready screen has not been seen; everything else is the way in */
+    router.replace(session && !progress.accountNumber ? '/home' : '/way-in');
   }, [ready, held, session, progress, router]);
   return (
     <View

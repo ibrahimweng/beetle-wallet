@@ -15,9 +15,10 @@ in, and home — the black card with the balance, the day under it, and the
 chat the card turns into when it is pulled down, where Beetle sends money,
 tops up, buys data and reads an account number off a photo.
 
-Each feature is a folder under `src/features/`, and every build but the
-production one opens on the **lab**, a screen that lists them so each can be
-tried on its own. See [the lab](#the-lab).
+Each feature is a folder under `src/features/`. The app opens as itself in
+every build; every build but the production one also carries the **lab**, a
+screen behind a long press on the version line in Settings that lists the
+features so each can be tried on its own. See [the lab](#the-lab).
 
 ## Running it
 
@@ -39,7 +40,7 @@ every screen. It needs a Chromium (`npx playwright install chromium`, or set
 | `npm run typecheck` | it compiles, with `strict` and `noUncheckedIndexedAccess` on |
 | `npm test` | the rules of the way in: what counts as a Nigerian number, what a passcode may not be, where each step leads, how the mock services answer; the scripted Beetle and what it asks for; the model against a fake API, its ask panel and its tools; what Beetle knows of the country — the networks by prefix, the plans, the companies, the meters, what was paid before; the gate before money moves; the hour a chat carries on for; the receipts' figures; the order of the record; the three words past a limit |
 | `npm run bundle` | the same JavaScript the phone runs, exported for the web into `dist/` |
-| `npm run flow` | from the lab to the welcome and on to home, then out and back in as the demo account, with the doors that should be shut tried on the way; the card pulled down and traced as it opens, money sent by asking and let through by the passcode, the account's details opened and copied, a photo taken with the browser's stand-in camera and read, money arriving, a shortcut, the model screen, a chat carried on and New, the receipt card and the receipt pages with the share sheet, Settings with every row followed — the switches kept, a new passcode, the three words past a limit, an instruction offered and set up, the other devices signed out, the phone that is not yours frozen, the card revealed and frozen — the bar and More, the record narrowed to In and a line opened, the four asks — a transfer with no amount, data for a new number, airtime by the slider, a bill from a new meter and from one paid before — each filled from the panel or from the list of what was paid before and taken through the passcode to its receipt; money sent from the Send money page in its four taps — who from the people paid before, the amount on the keypad page, a reference typed, the slide, the passcode, the receipt, and the line in the day — then filled from a message, from a photo, past the balance to Not enough, and from a digit the reader was not sure of; every state of a transfer and every way out of it; the face that did not take; and the lab's places opened on their own; every screen photographed into `shots/` |
+| `npm run flow` | from the boot to the welcome and on to home, then out and back in as the demo account, with the doors that should be shut tried on the way and the lab opened from the version line; the card pulled down and traced as it opens, money sent by asking and let through by the passcode, the account's details opened and copied, a photo taken with the browser's stand-in camera and read, money arriving, a shortcut, the model screen, a chat carried on and New, the receipt card and the receipt pages with the share sheet, Settings with every row followed — the switches kept, a new passcode, the three words past a limit, an instruction offered and set up, the other devices signed out, the phone that is not yours frozen, the card revealed and frozen — the bar and More, the record narrowed to In and a line opened, the four asks — a transfer with no amount, data for a new number, airtime by the slider, a bill from a new meter and from one paid before — each filled from the panel or from the list of what was paid before and taken through the passcode to its receipt; money sent from the Send money page in its four taps — who from the people paid before, the amount on the keypad page, a reference typed, the slide, the passcode, the receipt, and the line in the day — then filled from a message, from a photo, past the balance to Not enough, and from a digit the reader was not sure of; every state of a transfer and every way out of it; the face that did not take; and the lab's places opened on their own; every screen photographed into `shots/` |
 | `npm run figma` | every built screen — thirty-eight of them — against its Figma frame: each named piece where the frame puts it, within three of the frame's figure or of that figure snapped to the 4-point grid; the frame's words on the screen; what is off on purpose listed with its reason; the frame and the screen side by side in `shots/figma/` |
 
 ## On the frame
@@ -119,14 +120,18 @@ against that.
 
 ## The lab
 
-A feature is built and tried on its own before it is joined to the rest, so
-every build but the production one opens on the lab instead of the app. It
-lists each feature, and inside each the places worth opening: every stage of
-the way in, and home as a new account and as the demo one. Tap a place and
-the app is put in the state that place needs — the steps before it done, a
-session where one is wanted — and opens there. The passcode step is one tap
-away, not six. A small dark tab on the right edge of every other screen comes
-back to the lab; so do the phone's own back gesture and the browser's back.
+The app opens as itself in every build: the welcome on a new phone, the
+step somebody left off on, or home. Behind it, in every build but the
+production one, is the lab: every feature and, inside each, the places
+worth opening on their own — every stage of the way in, home as a new
+account and as the demo one, each ask, each state of a transfer. Tap a
+place and the app is put in the state that place needs — the steps before
+it done, a session where one is wanted — and opens there. The passcode
+step is one tap away, not six. The lab is behind a long press on the
+version line at the foot of Settings; once it has been opened, a small
+dark tab on the right edge of every other screen comes back to it, until
+Leave the lab puts the tab away. The checks start at the lab directly, at
+`/lab`.
 
 The lab also says which build it is (the update it is running and when it was
 sent) and can fetch the latest one on the spot, instead of waiting for the
@@ -135,7 +140,7 @@ in.
 
 Which builds have it is decided in `src/lab/enabled.ts`: every build except
 one on the `production` update channel, so the preview APK, Expo Go, the web
-export and a development build all open on it and the production build never
+export and a development build all carry it and the production build never
 does. `EXPO_PUBLIC_LAB=0` or `=1` at export time overrides that either way,
 and `eas.json` sets it to `0` for the production profile as well.
 

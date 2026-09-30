@@ -308,7 +308,8 @@ export function Foot() {
   const live = kind !== 'none' && !barHidden && !veil;
 
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+    /* clipped at the window's edge: a foot gone down out of the way must not lengthen the page under it */
+    <View style={[StyleSheet.absoluteFill, { overflow: 'hidden' }]} pointerEvents="box-none">
       <Animated.View style={[s.surface, surface]} pointerEvents={live ? 'box-none' : 'none'} testID={kind === 'bar' ? 'bar' : 'foot'}>
         <Animated.View style={[s.back, backStyle]} pointerEvents={page ? 'auto' : 'none'}>
           <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={() => router.back()} style={s.backHit}>

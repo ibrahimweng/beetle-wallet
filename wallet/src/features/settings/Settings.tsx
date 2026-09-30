@@ -3,9 +3,10 @@
    is set to at its end, and the version at the foot. Every row leads
    somewhere: its own page, Your details on its sheet, or the chat for what
    Beetle answers itself. The dock is the way back, the ask bar, and the
-   camera. */
+   camera. A long press on the version line opens the lab, in a build that
+   has one. */
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import { Arrive, Card, Icon, Meta, Row, Screen, SectionLabel, SettingRow, Tap, Title, colour, toast } from '../../design';
@@ -15,6 +16,7 @@ import { useSessionGuard } from '../onboarding/useGuard';
 import { askHome } from '../more/More';
 import { Details } from './Details';
 import { rulesRunning, usePrefs } from './prefs';
+import { LAB } from '../../lab/enabled';
 
 export function Settings() {
   const app = useApp();
@@ -25,7 +27,13 @@ export function Settings() {
   const account = app.session?.account;
   const { prefs } = usePrefs(account?.accountNumber);
   /* the foot: Back, and the ask bar with this page's question */
-  useFoot({ kind: 'ask', placeholder: 'Ask me to change something', onAsk: q => router.push({ pathname: '/home', params: { say: q } }), onScan: () => router.push('/scan'), veil: details ? 'away' : undefined });
+  useFoot({
+    kind: 'ask',
+    placeholder: 'Ask me to change something',
+    onAsk: q => router.push({ pathname: '/home', params: { say: q } }),
+    onScan: () => router.push('/scan'),
+    veil: details ? 'away' : undefined,
+  });
   if (!ok || !account) return null;
 
   const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
@@ -91,9 +99,18 @@ export function Settings() {
             </>,
           )}
         </View>
-        <Meta tone="tertiary" style={{ textAlign: 'center', marginTop: 4 }}>
-          Version {Constants.expoConfig?.version ?? '1.0.0'}
-        </Meta>
+        <Pressable
+          accessibilityRole="text"
+          accessibilityLabel="Version"
+          onLongPress={LAB ? () => router.push('/lab') : undefined}
+          delayLongPress={600}
+          style={{ marginTop: 4, alignSelf: 'center', paddingHorizontal: 16 }}
+          testID="version"
+        >
+          <Meta tone="tertiary" style={{ textAlign: 'center' }}>
+            Version {Constants.expoConfig?.version ?? '1.0.0'}
+          </Meta>
+        </Pressable>
       </Screen>
       {details ? <Details account={account} onDismiss={() => setDetails(false)} /> : null}
     </>

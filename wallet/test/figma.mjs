@@ -61,7 +61,8 @@ async function measure(spec) {
     const box = el => {
       const r = el.getBoundingClientRect();
       let dy = 0;
-      for (let p = el.parentElement; p; p = p.parentElement) dy += p.scrollTop || 0;
+      /* a list's own scroll, on top of the page's; the document's is window.scrollY, counted once */
+      for (let p = el.parentElement; p; p = p.parentElement) if (p !== document.documentElement && p !== document.body) dy += p.scrollTop || 0;
       return { x: r.left, y: r.top + dy + (window.scrollY || 0), w: r.width, h: r.height };
     };
     let el = null;
@@ -126,7 +127,7 @@ for (const key of keys) {
   let bad = 0;
 
   /* get there: the lab opens the place with the state it needs */
-  await page.goto(base + '/', { waitUntil: 'load' });
+  await page.goto(base + '/lab', { waitUntil: 'load' });
   await page.getByText('Beetle Lab').first().waitFor();
   await page.waitForTimeout(300);
   await page.getByRole('button', { name: s.place, exact: true }).first().click();

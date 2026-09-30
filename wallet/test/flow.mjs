@@ -1,9 +1,10 @@
 /* The whole way in, driven through a browser against the exported web bundle,
-   which is the same JavaScript the phone runs. It opens on the lab, picks the
-   welcome, opens an account from there to home, comes back to find the
-   session kept, signs out, tries the doors that should be shut, signs back in
-   with the number the design is drawn around, and then uses the lab to open
-   a step deep in the way in and home on its own. Every screen on the way is
+   which is the same JavaScript the phone runs. It opens as the app does — the
+   boot, then the welcome — opens an account from there to home, comes back
+   to find the session kept, opens the lab from the version line in Settings
+   and leaves it again, signs out, tries the doors that should be shut, signs
+   back in with the number the design is drawn around, and then uses the lab
+   to open a step deep in the way in and home on its own. Every screen on the way is
    photographed, including the ones that say no. Anything the page logs as an
    error fails the run.
 
@@ -185,15 +186,11 @@ const toBottom = () =>
   });
 
 try {
-  console.log('The lab');
-  /* this build opens on the lab; the welcome is its first place */
+  console.log('The front door');
+  /* the app opens as itself: the boot, and on a new phone the welcome */
   await page.goto(`${base}/`, { waitUntil: 'load' });
   await page.getByText('Beetle', { exact: true }).first().waitFor();
   await shot('boot', 250);
-  await see('Beetle Lab');
-  at('/lab');
-  await shot('lab');
-  await tap('Welcome');
 
   console.log('Opening an account');
   await see('Open an account');
@@ -318,20 +315,37 @@ try {
   await shot('home-new-bottom');
 
   console.log('Coming back');
-  /* opening the app again starts at the loading screen, which in this build
-     goes to the lab; the session was kept, so the way in is not for somebody
-     who is already in, and sends them home */
+  /* opening the app again starts at the loading screen; the session was
+     kept, so it goes home, and the way in is not for somebody who is already
+     in: it sends them home too */
   await page.goto(`${base}/`, { waitUntil: 'load' });
   await page.getByText('Beetle', { exact: true }).first().waitFor();
   await shot('boot-again', 250);
-  await see('Beetle Lab');
-  at('/lab');
+  await see('Nothing has moved yet');
+  at('/home');
   await page.goto(`${base}/way-in`, { waitUntil: 'load' });
   await see('Nothing has moved yet');
   at('/home');
 
+  console.log('The lab, behind the version line');
+  /* the mark at the top left opens Settings; a long press on the version line
+     at its foot opens the lab, and the tab back to it comes with it; Leave
+     the lab puts the tab away and goes back into the app */
+  await tap('Settings');
+  await see('What keeps the money yours');
+  at('/settings');
+  must((await page.getByRole('button', { name: 'Back to the lab', exact: true }).count()) === 0, 'nothing of the lab should show before it is opened');
+  await page.getByTestId('version').click({ delay: 900 });
+  await see('Beetle Lab');
+  at('/lab');
+  await shot('lab');
+  await tap('Leave the lab');
+  await see('Nothing has moved yet');
+  at('/home');
+  must((await page.getByRole('button', { name: 'Back to the lab', exact: true }).count()) === 0, 'the tab should go with Leave the lab');
+
   console.log('Signing out');
-  /* the mark at the top left opens Settings, and Sign out is there */
+  /* Sign out is in Settings */
   await tap('Settings');
   await see('What keeps the money yours');
   at('/settings');
@@ -342,10 +356,10 @@ try {
   await page.goto(`${base}/home`, { waitUntil: 'load' });
   await see('Open an account');
   at('/way-in');
-  /* and an address that is not a screen goes back to the start */
+  /* and an address that is not a screen goes back to the start: the boot, and the way in */
   await page.goto(`${base}/passcode`, { waitUntil: 'load' });
-  await see('Beetle Lab');
-  at('/lab');
+  await see('Open an account');
+  at('/way-in');
 
   console.log('Signing in');
   await page.goto(`${base}/way-in`, { waitUntil: 'load' });
@@ -599,9 +613,10 @@ try {
   await page.waitForTimeout(700);
 
   console.log('A place on its own');
-  /* the tab on the edge brings the lab back; a step deep in the way in opens
-     with the way there already walked, and home opens signed in */
-  await tap('Back to the lab');
+  /* the lab, opened at its own address: from here on the tab on the edge
+     brings it back; a step deep in the way in opens with the way there
+     already walked, and home opens signed in */
+  await page.goto(`${base}/lab`, { waitUntil: 'load' });
   await see('Beetle Lab');
   at('/lab');
   await tap('Your face');

@@ -1,0 +1,92 @@
+<frame id="215:170" name="Airtime" x="1066" y="80" width="393" height="852">
+  <frame id="215:171" name="Page" x="0" y="0" width="393" height="796">
+    <frame id="215:172" name="Content" x="20" y="72" width="353" height="724">
+      <instance id="660:18067" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="215:176" name="Column" x="0" y="75.19999694824219" width="353" height="44.20000076293945">
+        <text id="215:177" name="You typed" x="0" y="0" width="57" height="16" />
+        <text id="215:178" name="2k data for mum" x="0" y="24" width="120" height="24" />
+      </frame>
+      <frame id="215:179" name="Row" x="0" y="135.39999389648438" width="353" height="47.20000076293945">
+        <instance id="235:6050" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="653:17997" name="Card" x="44" y="0" width="309" height="56" />
+      </frame>
+      <frame id="215:186" name="Card" x="0" y="198.59999084472656" width="353" height="315">
+        <frame id="215:187" name="Card" x="12" y="12" width="329" height="83">
+          <frame id="215:188" name="Row" x="16" y="12" width="297" height="38">
+            <frame id="215:189" name="Chip · M" x="0" y="0" width="38" height="38">
+              <text id="215:190" name="M" x="12.800000190734863" y="11" width="13" height="20" />
+            </frame>
+            <frame id="215:191" name="Column" x="50" y="0" width="219" height="38">
+              <text id="215:192" name="Mum" x="0" y="0" width="34" height="20" />
+              <text id="215:193" name="0803 214 4471 · MTN" x="0" y="24" width="141" height="20" />
+            </frame>
+            <instance id="564:14770" name="Glyph · check" x="281" y="11" width="16" height="16" />
+          </frame>
+          <text id="215:196" name="The number you top up most" x="16" y="58" width="164" height="16" />
+        </frame>
+        <frame id="215:197" name="Card" x="12" y="103" width="329" height="80">
+          <frame id="215:198" name="Row · ₦2,500" x="16" y="12" width="297" height="35">
+            <instance id="564:14773" name="Glyph · down" x="0" y="6.499999046325684" width="22.000001907348633" height="22.000001907348633" />
+            <frame id="215:203" name="Column" x="34" y="0" width="194.59999084472656" height="35">
+              <text id="215:204" name="5GB for 30 days" x="0" y="0" width="109" height="20" />
+              <text id="215:205" name="It will not renew on its own" x="0" y="24" width="150" height="16" />
+            </frame>
+            <text id="215:206" name="₦2,500" x="240.59999084472656" y="5.5" width="56" height="24" />
+          </frame>
+          <text id="215:207" name="The bundle you bought last m" x="16" y="55" width="195" height="16" />
+        </frame>
+        <frame id="215:208" name="Card" x="12" y="191" width="329" height="112">
+          <frame id="215:209" name="Row · From" x="16" y="0" width="297" height="56">
+            <text id="215:210" name="From" x="0" y="16" width="49" height="24" />
+            <text id="215:211" name="Everyday · 0102 4457 88" x="69" y="16" width="192" height="24" />
+            <instance id="564:14778" name="Glyph · check" x="281" y="20" width="16" height="16" />
+          </frame>
+          <frame id="215:214" name="Row · Goes to your Holiday" x="16" y="56" width="297" height="56">
+            <text id="215:215" name="Goes to your Holiday goal" x="0" y="16" width="261.79998779296875" height="24" />
+            <text id="215:216" name="₦25" x="261.79998779296875" y="16" width="31" height="24" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="215:217" name="Column" x="0" y="529.5999755859375" width="353" height="97.19999694824219">
+        <text id="215:218" name="Other bundles" x="0" y="1" width="105" height="24" />
+        <frame id="215:219" name="Row" x="0" y="42.20000076293945" width="353" height="62">
+          <frame id="215:220" name="Column" x="0" y="0" width="112.33333587646484" height="62">
+            <text id="215:221" name="1GB" x="42.66666793823242" y="12" width="27" height="20" />
+            <text id="215:222" name="₦800" x="38.16666793823242" y="36" width="36" height="20" />
+          </frame>
+          <frame id="215:223" name="Column" x="120.33333587646484" y="0" width="112.33332824707031" height="62">
+            <text id="215:224" name="2GB" x="41.666664123535156" y="12" width="29" height="20" />
+            <text id="215:225" name="₦2,000" x="32.666664123535156" y="36" width="47" height="20" />
+          </frame>
+          <frame id="215:226" name="Column" x="240.66665649414062" y="0" width="112.33332824707031" height="62">
+            <text id="215:227" name="10GB" x="38.166664123535156" y="12" width="36" height="20" />
+            <text id="215:228" name="₦4,000" x="32.666664123535156" y="36" width="47" height="20" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="215:229" name="Column" x="0" y="642.7999877929688" width="353" height="81.19999694824219">
+        <text id="215:230" name="You also top up" x="0" y="1" width="113" height="24" />
+        <frame id="215:231" name="Row" x="0" y="42.20000076293945" width="353" height="46">
+          <instance id="577:18117" name="Button · D" x="0" y="-1" width="46" height="48" />
+          <instance id="577:18126" name="Button · K" x="58" y="-1" width="46" height="48" />
+          <instance id="577:18135" name="Button · B" x="116" y="-1" width="46" height="48" />
+          <instance id="577:18144" name="Button · T" x="174" y="-1" width="46" height="48" />
+          <frame id="215:240" name="Box" x="232" y="0" width="46" height="46">
+            <instance id="564:14781" name="Glyph · plus" x="14" y="14" width="18" height="18" />
+          </frame>
+        </frame>
+      </frame>
+    </frame>
+  </frame>
+  <frame id="215:243" name="Dock" x="0" y="736" width="393" height="116">
+    <frame id="215:244" name="Back" x="20" y="40" width="44" height="44">
+      <instance id="564:14784" name="Glyph · check" x="11" y="11" width="22" height="22" />
+    </frame>
+    <frame id="215:247" name="Slide to confirm" x="72" y="32" width="301" height="60">
+      <frame id="215:248" name="Knob" x="4" y="5" width="50" height="50">
+        <instance id="564:14787" name="Glyph · up" x="15" y="15" width="20" height="20" />
+      </frame>
+      <text id="215:251" name="Slide to buy ₦2,500" x="76.4000015258789" y="6" width="133" height="48" />
+    </frame>
+  </frame>
+</frame>

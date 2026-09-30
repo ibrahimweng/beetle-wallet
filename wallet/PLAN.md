@@ -313,19 +313,40 @@ with a line each, until an account service says who has paid.
 
 ## Round 5 · Bills, data and the services drawer
 
-- [ ] Bills (217:67) and Pay a bill (powerpay 217:2), the passcode, Bill paid
+- [x] Bills (217:67) and Pay a bill (powerpay 217:2), the passcode, Bill paid
       (power 490:13497) and its share (490:13595)
-- [ ] A bill from a photo: Scan a bill (222:97), What I read (meter 210:2),
+- [x] A bill from a photo: Scan a bill (222:97), What I read (meter 210:2),
       Confirm (confirmmeter 210:71)
-- [ ] All services (215:2), Buy data (airtime 215:170 and buy 221:165), the
+- [x] All services (215:2), Buy data (airtime 215:170 and buy 221:165), the
       typed and photographed ways in (typedbuy 225:2973, foundsvc 225:2620),
       Confirm (confirmbuy 239:8474), All done (done 239:8418), Share (472:11590)
-- [ ] Borrow (loan 217:181) and Virtual card (card 218:2)
-- [ ] The shortcuts under the open chat and the insight cards on home hand
-      these to the chat, as now; the click-through versions reach the same
-      receipts
+- [x] Borrow (loan 217:181); Virtual card (card 218:2) from Cards on All
+      services, as built in round 2
+- [x] The shortcuts under the open chat hand these to their pages — Bills,
+      Data, Services, Photo — and the insight cards hand theirs to the chat,
+      as before; both reach the same receipts
+- [x] Lab places for each, the Figma check for the thirteen frames, the walk
 
-Taps: More (1), Services (2), Buy data (3), confirm with the passcode (4).
+Taps: Services (1), Data (2), the slide (3), the passcode (4). Bills (1),
+the light (2), the slide (3), the passcode (4).
+
+Decided while building: typed asks for a bill or data stay in the chat, as
+round 3 decided, so the pages are reached from the shortcuts, All services,
+a photo and the lab, and their "You typed" line is the lab's; the Receive
+shortcut under the open chat repeated the card's Receive, so Services took
+its place; Mum's line is 0803 214 4471 wherever she is, where two frames
+print a number a digit short; the bar on Borrow fills against the limit as
+the frame draws it, and the interest, the fee and the payments are this
+build's own figures until a lender is behind the app; a loan lands as money
+in, with Beetle's own chat rather than an arrival's, since nothing was sent;
+a top-up read off a photo files a chat with its card, as a request does,
+while the pages that are not chats (Pay a bill, Buy data, Borrow) put their
+line in the day and open the receipt, as Send money does; the camera was
+redrawn to its frames, with the sample photos in its gallery, so the walk
+picks a sample by name; the share sheet's picture works now, through the
+same capture Your code uses, and the PDF waits for a later round; the
+chat's own panel for data keeps its name, Beetle Data, where the frame
+titles it Beetle Airtime.
 
 ## Round 6 · Dollars, putting money away, money health
 

@@ -1,0 +1,78 @@
+<frame id="217:181" name="Loan" x="1559" y="80" width="393" height="852">
+  <frame id="217:182" name="Page" x="0" y="0" width="393" height="821.7999877929688">
+    <frame id="217:183" name="Content" x="20" y="72" width="353" height="749.7999877929688">
+      <instance id="660:18070" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="217:187" name="Row" x="0" y="71.19999694824219" width="353" height="70.4000015258789">
+        <instance id="235:6054" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="653:17999" name="Card" x="44" y="0" width="309" height="80" />
+      </frame>
+      <frame id="217:194" name="Card" x="0" y="153.60000610351562" width="353" height="212.1999969482422">
+        <text id="217:195" name="How much you want" x="16" y="16" width="148" height="23.199996948242188" />
+        <frame id="217:196" name="Row · ₦150,000" x="16" y="51.19999694824219" width="321" height="45">
+          <frame id="217:197" name="Icon" x="0" y="0.5" width="40" height="40">
+            <instance id="564:14790" name="Glyph · gift" x="10" y="10" width="20" height="20" />
+          </frame>
+          <text id="217:200" name="₦150,000" x="81.69999694824219" y="0" width="148" height="40" />
+          <frame id="217:201" name="Icon" x="277" y="0.5" width="40" height="40">
+            <instance id="564:14797" name="Glyph · plus" x="10" y="10" width="20" height="20" />
+          </frame>
+        </frame>
+        <frame id="217:204" name="Column" x="16" y="108.19999694824219" width="321" height="30">
+          <frame id="217:205" name="Box" x="0" y="0" width="321" height="6">
+            <frame id="217:206" name="Box" x="0" y="0" width="192.60000610351562" height="6" />
+          </frame>
+          <frame id="217:207" name="Row · ₦10,000" x="0" y="14" width="321" height="18">
+            <text id="217:208" name="₦10,000" x="0" y="-1" width="54" height="20" />
+            <text id="217:209" name="₦250,000 is your limit" x="180" y="-1" width="141" height="20" />
+          </frame>
+        </frame>
+        <frame id="217:210" name="Row" x="16" y="150.1999969482422" width="321" height="46">
+          <instance id="577:18153" name="Button · 30 days" x="0" y="0" width="101.66666412353516" height="48" />
+          <instance id="577:18166" name="Button · 60 days" x="109.66666412353516" y="0" width="101.66667175292969" height="48" />
+          <instance id="577:18175" name="Button · 90 days" x="219.33334350585938" y="0" width="101.66667175292969" height="48" />
+        </frame>
+      </frame>
+      <frame id="217:217" name="Column" x="0" y="377.79998779296875" width="353" height="324">
+        <frame id="217:218" name="Row · You get today" x="0" y="0" width="353" height="54">
+          <text id="217:219" name="You get today" x="0" y="15" width="268.79998779296875" height="24" />
+          <text id="217:220" name="₦150,000" x="268.79998779296875" y="15" width="74" height="24" />
+        </frame>
+        <frame id="217:221" name="Row · Interest, 4% a month" x="0" y="54" width="353" height="54">
+          <text id="217:222" name="Interest, 4% a month" x="0" y="15" width="281" height="24" />
+          <text id="217:223" name="₦18,000" x="281" y="15" width="64" height="24" />
+        </frame>
+        <frame id="217:224" name="Row · One off fee" x="0" y="108" width="353" height="54">
+          <text id="217:225" name="One off fee" x="0" y="15" width="290.6000061035156" height="24" />
+          <text id="217:226" name="₦1,500" x="290.6000061035156" y="15" width="54" height="24" />
+        </frame>
+        <frame id="217:227" name="Row · You pay back in all" x="0" y="162" width="353" height="54">
+          <text id="217:228" name="You pay back in all" x="0" y="15" width="270.29998779296875" height="24" />
+          <text id="217:229" name="₦169,500" x="270.29998779296875" y="15" width="73" height="24" />
+        </frame>
+        <frame id="217:230" name="Row · Three payments of" x="0" y="216" width="353" height="54">
+          <text id="217:231" name="Three payments of" x="0" y="15" width="278" height="24" />
+          <text id="217:232" name="₦56,500" x="278" y="15" width="67" height="24" />
+        </frame>
+        <frame id="217:233" name="Row · First payment" x="0" y="270" width="353" height="54">
+          <text id="217:234" name="First payment" x="0" y="15" width="233.5" height="24" />
+          <text id="217:235" name="19 September" x="233.5" y="15" width="107" height="24" />
+        </frame>
+      </frame>
+      <frame id="217:236" name="Row · Pay late and it cost" x="0" y="713.7999877929688" width="353" height="36">
+        <instance id="564:14800" name="Glyph · lock" x="0" y="0" width="16" height="16" />
+        <text id="217:240" name="Pay late and it costs ₦2,000 a" x="24" y="0" width="322" height="40" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="217:241" name="Dock" x="0" y="736" width="393" height="116">
+    <frame id="217:242" name="Back" x="20" y="40" width="44" height="44">
+      <instance id="564:14804" name="Glyph · check" x="11" y="11" width="22" height="22" />
+    </frame>
+    <frame id="217:245" name="Slide to confirm" x="72" y="32" width="301" height="60">
+      <frame id="217:246" name="Knob" x="4" y="5" width="50" height="50">
+        <instance id="564:14807" name="Glyph · up" x="15" y="15" width="20" height="20" />
+      </frame>
+      <text id="217:249" name="Slide to take ₦150,000" x="64.5999984741211" y="6" width="152" height="48" />
+    </frame>
+  </frame>
+</frame>

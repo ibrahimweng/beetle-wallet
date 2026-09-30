@@ -19,7 +19,7 @@ import { Keyboard, Platform, Pressable, StyleSheet, TextInput, View, useWindowDi
 import { useFocusEffect, useNavigation, usePathname, useRouter } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { SharedValue, runOnJS, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
-import { ActionButton, Body, Button, Icon, Row, Tap, blurred, colour, frame, keys, motion, settle, useDeparture, useStill } from '../../design';
+import { ActionButton, Body, Button, Icon, Row, Tap, blurred, colour, frame, keys, motion, settle, useDeparture, useStill, type ButtonSize, type ButtonTone } from '../../design';
 import type { IconName } from '../../icons';
 import { More, moreTo, type MoreItem } from './More';
 
@@ -35,7 +35,7 @@ export type FootSpec =
   /** a page: Back and the ask bar, with the plus where the frame draws one */
   | { kind: 'ask'; placeholder: string; onAsk: (q: string) => void; onScan?: () => void; more?: boolean; onPick?: (item: MoreItem) => void; veil?: Veil }
   /** a page with one thing to do: Back beside its button */
-  | { kind: 'button'; label: string; onPress: () => void; disabled?: boolean; veil?: Veil }
+  | { kind: 'button'; label: string; onPress: () => void; disabled?: boolean; veil?: Veil; /** grey where a frame draws it so, with a glyph before the word */ tone?: ButtonTone; leading?: IconName; size?: ButtonSize }
   /** money about to move: Back beside Slide to send, with the figure under the words */
   | { kind: 'slide'; label: string; amount: string; onSlide: () => void; disabled?: boolean; veil?: Veil }
   | { kind: 'none' };
@@ -65,7 +65,7 @@ const shapeOf = (s: FootSpec) => {
     case 'ask':
       return `ask|${s.placeholder}|${s.more ? 1 : 0}|${s.veil ?? ''}`;
     case 'button':
-      return `button|${s.label}|${s.disabled ? 1 : 0}|${s.veil ?? ''}`;
+      return `button|${s.label}|${s.disabled ? 1 : 0}|${s.veil ?? ''}|${s.tone ?? ''}|${s.leading ?? ''}|${s.size ?? ''}`;
     case 'slide':
       return `slide|${s.label}|${s.amount}|${s.disabled ? 1 : 0}|${s.veil ?? ''}`;
     default:
@@ -333,7 +333,7 @@ export function Foot() {
           ) : null}
           {kind === 'button' ? (
             <Animated.View style={[StyleSheet.absoluteFill, buttonStyle]}>
-              <Button label={spec.label} disabled={spec.disabled} onPress={spec.onPress} />
+              <Button label={spec.label} disabled={spec.disabled} onPress={spec.onPress} tone={spec.tone} leading={spec.leading} size={spec.size} />
             </Animated.View>
           ) : null}
           {kind === 'slide' ? (

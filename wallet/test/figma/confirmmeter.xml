@@ -1,0 +1,112 @@
+<frame id="210:71" name="ConfirmMeter" x="1559" y="80" width="393" height="852">
+  <frame id="765:19124" name="Page" x="0" y="0" width="393" height="739.4000244140625">
+    <frame id="765:19125" name="Content" x="20" y="72" width="353" height="667.4000244140625">
+      <instance id="765:19126" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="765:19127" name="Card" x="0" y="71.19999694824219" width="353" height="227">
+        <frame id="765:19128" name="Row · Bill photo" x="12" y="12" width="329" height="24">
+          <frame id="765:19129" name="Chip · IE" x="0" y="0" width="24" height="24">
+            <text id="765:19130" name="IE" x="6.5" y="5" width="11" height="16" />
+          </frame>
+          <text id="765:19131" name="Bill photo" x="32" y="4" width="241" height="16" />
+          <text id="765:19132" name="4:02 PM" x="281" y="4" width="48" height="16" />
+        </frame>
+        <frame id="765:19133" name="Card" x="12" y="44" width="329" height="148">
+          <text id="765:19134" name="IKEJA ELECTRIC · Prepaid" x="12" y="12" width="147" height="16" />
+          <frame id="765:19135" name="Box" x="12" y="36" width="128.6999969482422" height="24">
+            <text id="765:19136" name="Meter 4457 8891" x="9" y="5" width="118" height="20" />
+          </frame>
+          <frame id="765:19137" name="Box" x="12" y="68" width="68.5" height="24">
+            <text id="765:19138" name="₦8,000" x="9.699999809265137" y="5" width="50" height="20" />
+          </frame>
+          <frame id="765:19139" name="Chip · 14 Bode Thomas" x="12" y="100" width="96.5" height="18">
+            <text id="765:19140" name="14 Bode Thomas" x="9" y="5" width="98" height="16" />
+          </frame>
+          <text id="765:19141" name="Keep this slip for your reco" x="12" y="126" width="170" height="16" />
+        </frame>
+        <frame id="765:19142" name="Row · What I read" x="12" y="200" width="83.4000015258789" height="15">
+          <frame id="765:19143" name="Box" x="0" y="0.5" width="14" height="14" />
+          <text id="765:19144" name="What I read" x="22" y="-0.5" width="65" height="16" />
+        </frame>
+      </frame>
+      <frame id="765:19145" name="Card" x="0" y="310.20001220703125" width="353" height="201.1999969482422">
+        <frame id="765:19146" name="Row · Is this your meter?" x="17" y="16" width="319" height="23.200000762939453">
+          <instance id="765:19147" name="Glyph · alert" x="0" y="2.5999999046325684" width="18" height="18" />
+          <text id="765:19148" name="Is this your meter?" x="26" y="-0.39999961853027344" width="142" height="24" />
+        </frame>
+        <frame id="765:19149" name="Card" x="17" y="51.20000076293945" width="319" height="72">
+          <frame id="765:19150" name="Row · On the bill" x="12" y="8" width="295" height="28">
+            <text id="765:19151" name="On the bill" x="0" y="5" width="66" height="20" />
+            <text id="765:19152" name="Meter 4457 8891" x="185" y="5" width="118" height="20" />
+          </frame>
+          <frame id="765:19153" name="Row · Ikeja Electric says" x="12" y="36" width="295" height="28">
+            <text id="765:19154" name="Ikeja Electric says" x="0" y="5" width="115" height="20" />
+            <text id="765:19155" name="14 Bode Thomas" x="187.10000610351562" y="5" width="112" height="20" />
+          </frame>
+        </frame>
+        <frame id="765:19156" name="Row" x="17" y="135.1999969482422" width="319" height="48">
+          <instance id="765:19157" name="Button · Yes, that is mine" x="0" y="0" width="249.1999969482422" height="48" />
+          <instance id="765:19158" name="Button · No" x="257.20001220703125" y="0" width="61.79999923706055" height="48" />
+        </frame>
+      </frame>
+      <frame id="765:19159" name="Card" x="0" y="523.4000244140625" width="353" height="144">
+        <frame id="765:19160" name="Row · Amount" x="16" y="0" width="321" height="48">
+          <instance id="765:19161" name="Glyph · step-done" x="0" y="15" width="18" height="18" />
+          <text id="765:19162" name="Amount" x="30" y="14" width="51" height="20" />
+          <frame id="765:19163" name="Row · ₦8,000" x="93" y="12.399999618530273" width="228" height="23.200000762939453">
+            <text id="765:19164" name="₦8,000" x="76.80000305175781" y="-0.39999961853027344" width="57" height="24" />
+            <text id="765:19165" name="from the photo" x="148.20001220703125" y="3.6000003814697266" width="85" height="16" />
+          </frame>
+        </frame>
+        <frame id="765:19166" name="Row · Meter" x="16" y="48" width="321" height="48">
+          <instance id="765:19167" name="Glyph · step-done" x="0" y="14.5" width="18" height="18" />
+          <text id="765:19168" name="Meter" x="30" y="14.5" width="38" height="20" />
+          <text id="765:19169" name="4457 8891" x="203.5" y="12.899999618530273" width="84" height="24" />
+        </frame>
+        <frame id="765:19170" name="Row · Disco" x="16" y="96" width="321" height="48">
+          <instance id="765:19171" name="Glyph · step-done" x="0" y="15" width="18" height="18" />
+          <text id="765:19172" name="Disco" x="30" y="15" width="37" height="20" />
+          <text id="765:19173" name="Ikeja Electric" x="225.39999389648438" y="13.399999618530273" width="98" height="24" />
+        </frame>
+      </frame>
+    </frame>
+  </frame>
+  <frame id="765:19174" name="Dock" x="0" y="740" width="393" height="112">
+    <frame id="765:19175" name="Back" x="20" y="38" width="44" height="44">
+      <instance id="765:19176" name="Glyph · back" x="11" y="11" width="22" height="22" />
+    </frame>
+    <instance id="765:19177" name="Button · Continue" x="72" y="32" width="301" height="56" />
+  </frame>
+  <frame id="765:19178" name="Scrim" x="0" y="0" width="393" height="852" />
+  <frame id="765:19180" name="Sheet" x="10" y="152.79998779296875" width="373" height="689.2000122070312">
+    <frame id="765:19181" name="Box" x="20" y="16" width="44" height="5" />
+    <frame id="210:73" name="Content" x="20" y="33" width="333" height="632.2000122070312">
+      <frame id="210:79" name="Column" x="0" y="0" width="333" height="100.19999694824219">
+        <text id="210:80" name="₦8,000" x="119.4996109008789" y="0" width="114" height="40" />
+        <frame id="210:81" name="Row" x="77.099609375" y="52" width="198.8000030517578" height="43.20000076293945">
+          <frame id="210:82" name="Icon" x="0" y="1.6000003814697266" width="40" height="40">
+            <instance id="564:14594" name="Glyph · power" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="210:85" name="Column" x="52" y="0" width="146.8000030517578" height="43.20000076293945">
+            <text id="210:86" name="Ikeja Electric" x="0" y="0" width="98" height="24" />
+            <text id="210:87" name="Meter 4457 8891" x="0" y="28" width="113" height="20" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="210:88" name="Column" x="0" y="124.19999694824219" width="333" height="52">
+        <text id="210:89" name="Enter your passcode" x="70.5" y="0" width="192" height="24" />
+        <text id="210:90" name="Or tap the face to use Face ID." x="68.5" y="32" width="196" height="20" />
+      </frame>
+      <frame id="210:91" name="Row" x="0" y="200.1999969482422" width="333" height="14">
+        <frame id="210:92" name="Dot" x="108.5" y="0" width="14" height="14" />
+        <frame id="210:93" name="Dot" x="142.5" y="0" width="14" height="14" />
+        <frame id="210:94" name="Dot" x="176.5" y="0" width="14" height="14" />
+        <frame id="210:95" name="Dot" x="210.5" y="0" width="14" height="14" />
+      </frame>
+      <instance id="238:7732" name="Passcode keypad" x="0" y="238.1999969482422" width="333" height="352" />
+      <frame id="210:134" name="Row · Nothing moves until " x="0" y="614.2000122070312" width="333" height="18">
+        <instance id="564:14597" name="Glyph · lock" x="8" y="1" width="16" height="16" />
+        <text id="210:138" name="Nothing moves until the four" x="32" y="-1" width="293" height="20" />
+      </frame>
+    </frame>
+  </frame>
+</frame>

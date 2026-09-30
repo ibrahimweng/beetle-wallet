@@ -13,6 +13,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import { Avatar, Display, Head, Icon, Keypad, Meta, Pips, Pop, Row, Sheet, Swap, colour, useStill } from '../../design';
+import type { IconName } from '../../icons';
 import { initialsOf } from '../../lib/format';
 import { checkCode, checkFace, faceAvailable, lockedFor, refusal } from './check';
 
@@ -27,6 +28,7 @@ export function PasscodeSheet({
   onDone,
   onCancel,
   faceMissed = false,
+  glyph,
 }: {
   amount: string;
   /** who it is going to */
@@ -39,6 +41,8 @@ export function PasscodeSheet({
   onCancel: () => void;
   /** opened as if the face had just been missed: the lab's place for the frame */
   faceMissed?: boolean;
+  /** a bill or a bundle rather than a person: the glyph on a 40 square in the avatar's place */
+  glyph?: IconName;
 }) {
   const still = useStill();
   const [digits, setDigits] = useState('');
@@ -121,7 +125,13 @@ export function PasscodeSheet({
       <View style={{ alignItems: 'center', gap: 12 }}>
         <Display accessibilityRole="header">{amount}</Display>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <Avatar initials={initialsOf(name)} size={40} />
+          {glyph ? (
+            <View style={s.square} testID="passcode-glyph">
+              <Icon name={glyph} size={20} colour={colour.ink} />
+            </View>
+          ) : (
+            <Avatar initials={initialsOf(name)} size={40} />
+          )}
           <View style={{ gap: 4 }}>
             <Row>{name}</Row>
             {detail ? <Meta tone="secondary">{detail}</Meta> : null}
@@ -179,6 +189,7 @@ function Shake({ n, children }: { n: number; children: React.ReactNode }) {
 }
 
 const s = StyleSheet.create({
+  square: { width: 40, height: 40, borderRadius: 12, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },
   tick: {
     width: 28,
     height: 28,

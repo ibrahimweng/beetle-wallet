@@ -530,5 +530,141 @@
    "text": "Or send a screenshot",
    "why": "the camera frame behind the sheet"
   }
+ ],
+ "bills": [
+  {
+   "pieces": [
+    "Back",
+    "Card",
+    "Add a bill"
+   ],
+   "why": "the frame draws Back and Add a bill in the column, 640 down in a 786 frame; the build keeps them in the foot at the bottom of the screen, where every page has them"
+  },
+  {
+   "text": "· Not covered",
+   "why": "the line is on the screen twice, as in the frame"
+  }
+ ],
+ "scanbill": [
+  {
+   "piece": "Card",
+   "why": "the frame draws the bill as a slip of chips; the build shows the photo itself, as read, and the words on it are the picture's"
+  }
+ ],
+ "confirmmeter": [
+  {
+   "text": "Or tap the face to use Face ID.",
+   "why": "said only on a phone with a face enrolled; the web has none, and says 'Six digits, the ones you chose.'"
+  },
+  {
+   "text": "Nothing moves until the four",
+   "why": "the passcode is six digits, as the way in sets it; the line says 'sixth'"
+  },
+  {
+   "piece": "Box",
+   "why": "the frame draws this sheet's grabber at its left edge, 20 in; every sheet here centres it",
+   "nth": 3
+  }
+ ],
+ "services": [],
+ "typedbuy": [
+  {
+   "anchor": true,
+   "why": "the frame types on the closed card with the bar risen above the keyboard; this build types in the open chat, where its bar is, at the foot of the card above the keyboard"
+  },
+  {
+   "piece": "Row",
+   "why": "the frame's row runs the screen's width; the bar and its disc sit inside the card's own inset"
+  },
+  {
+   "piece": "Keyboard",
+   "why": "the web has no keyboard to draw; the lab lifts the bar by the height of the frame's"
+  }
+ ],
+ "foundsvc": [
+  {
+   "piece": "Sheet",
+   "why": "the sheet's head band is 32 here, as on every sheet, where the frame's grabber sits at the very edge: the sheet is 4 taller and starts 4 higher"
+  },
+  {
+   "piece": "Box",
+   "why": "the sheet's grabber sits 16 under its top and 44 wide, as every sheet's does here; the frame's touches the edge at 38"
+  },
+  {
+   "piece": " mum",
+   "why": "the frame sets whose as a second text after the words; the build says the line as one"
+  },
+  {
+   "text": "0803 4457 881",
+   "why": "the frame's number for Mum's line is a digit short; the build uses her line, 0803 214 4471, wherever she is"
+  },
+  {
+   "text": "8:02 AM",
+   "why": "the message being photographed, drawn in the camera behind the sheet; on the web the sample message stands in"
+  },
+  {
+   "text": "My data has finished again:",
+   "why": "the message behind the sheet"
+  },
+  {
+   "text": "not sure",
+   "why": "a hidden layer in the frame"
+  }
+ ],
+ "confirmbuy": [
+  {
+   "text": "Mum · 0803 4457 881",
+   "why": "the frame's number for Mum's line is a digit short; the build uses her line, 0803 214 4471"
+  },
+  {
+   "text": "Or tap the face to use Face ID.",
+   "why": "said only on a phone with a face enrolled; the web has none, and says 'Six digits, the ones you chose.'"
+  },
+  {
+   "text": "Nothing moves until the four",
+   "why": "the passcode is six digits, as the way in sets it; the line says 'sixth'"
+  }
+ ],
+ "loan": [
+  {
+   "text": "19 September",
+   "why": "the first payment is a month from today; the frame's day is its own"
+  }
+ ],
+ "sharebuy": [
+  {
+   "piece": "Box",
+   "why": "the grabber is 4 tall on every sheet of this build; this frame draws it 5"
+  },
+  {
+   "piece": "Button · Done",
+   "why": "the frame draws Done 50 tall where every other small button is 48"
+  },
+  {
+   "piece": "Sheet",
+   "why": "every sheet in this build sits 10 off the bottom, as the passcode frame draws it; this frame draws 5"
+  },
+  {
+   "text": "Your balance is left off eve",
+   "why": "the layer is named for an older line; the frame's picture reads 'Your balance and the full account numbers are left off every copy that leaves the phone', which the build says"
+  },
+  {
+   "pieces": [
+    "Icon",
+    "Share this receipt",
+    "₦2,500 of data for Mum, 8:02 A",
+    "WhatsApp",
+    "The picture, ready to send",
+    "Save to photos",
+    "It stays on this phone",
+    "Save as PDF",
+    "The full record, for an offi",
+    "Somewhere else",
+    "Messages, mail, anywhere you",
+    "Your balance is left off eve",
+    "Button · Done"
+   ],
+   "why": "this frame holds a later cut of the share sheet: 6 more under its grabber, 12 more above the ways and 18 above the note, 623 tall against the Share frame's 599; the build is drawn to the Share frame (472:10886), which it is on"
+  }
  ]
 }

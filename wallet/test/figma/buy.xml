@@ -1,0 +1,18 @@
+<frame id="221:165" name="Buy" x="80" y="2721" width="393" height="852">
+  <frame id="221:166" name="Page" x="0" y="0" width="393" height="730">
+    <frame id="221:167" name="Content" x="20" y="72" width="353" height="658">
+      <instance id="663:18195" name="Group" x="0" y="0" width="353" height="44" />
+      <instance id="653:17979" name="Card" x="175.8000030517578" y="60" width="177.1999969482422" height="47.19999694824219" />
+      <frame id="221:183" name="Row" x="0" y="123.19999694824219" width="353" height="116.80000305175781">
+        <instance id="235:6006" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="653:17985" name="Card" x="44" y="0" width="309" height="128" />
+      </frame>
+      <instance id="238:7429" name="Tool panel" x="0" y="256" width="353" height="350" />
+      <frame id="221:232" name="Row · Face ID first. Nothi" x="0" y="622" width="353" height="36">
+        <instance id="564:14537" name="Glyph · lock" x="0" y="0" width="16" height="16" />
+        <text id="221:236" name="Face ID first. Nothing leave" x="24" y="0" width="275" height="40" />
+      </frame>
+    </frame>
+  </frame>
+  <instance id="238:7471" name="Dock · Reply, or just keep typing" x="0" y="748" width="393" height="104" />
+</frame>

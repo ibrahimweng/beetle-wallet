@@ -1,14 +1,27 @@
 /* Share this receipt, on the sheet the frames draw for it: the share mark,
    the line about what moved, four ways out, the word about what is left off
-   every copy, and Done. WhatsApp and somewhere else hand the words to the
-   phone; the picture and the PDF come with the round that draws them. */
-import React from 'react';
+   every copy, and Done. WhatsApp takes a picture of the receipt and hands it
+   to the phone's share sheet (the words, where there is none), Save to
+   photos puts the picture in Photos, Somewhere else hands the words to the
+   phone, and the PDF comes with a later round. */
+import React, { type RefObject } from 'react';
 import { Linking, Share, StyleSheet, View } from 'react-native';
 import { Body, Button, Head, Icon, Meta, Row, Sheet, Tap, colour, toast } from '../../design';
 import type { IconName } from '../../icons';
 import { copyText } from '../receive/clipboard';
+import { savePicture, sharePicture } from '../receive/picture';
 
-export function ShareSheet({ line, message, onDismiss }: { line: string; message: string; onDismiss: () => void }) {
+export function ShareSheet({
+  line,
+  message,
+  capture,
+  onDismiss,
+}: {
+  line: string;
+  message: string;
+  /** the receipt as drawn, for the picture */ capture?: RefObject<View | null>;
+  onDismiss: () => void;
+}) {
   const elsewhere = async () => {
     try {
       await Share.share({ message });
@@ -29,7 +42,13 @@ export function ShareSheet({ line, message, onDismiss }: { line: string; message
     }
     await elsewhere();
   };
-  const later = () => toast('The picture and the PDF come with round 5.');
+  /* the picture: to the share sheet, or the words where there is none */
+  const picture = async () => {
+    if (!capture) return whatsapp();
+    toast(await sharePicture(capture, message, 'Your receipt'));
+  };
+  const save = async () => toast(capture ? await savePicture(capture, 'beetle-receipt.png') : 'This build cannot draw the picture to save it.');
+  const pdf = () => toast('The PDF comes with a later round.');
   const way = (glyph: IconName, title: string, sub: string, go: () => void) => (
     <Tap key={title} accessibilityRole="button" accessibilityLabel={title} onPress={go} style={s.way}>
       <View style={s.mark}>
@@ -55,9 +74,9 @@ export function ShareSheet({ line, message, onDismiss }: { line: string; message
         </Body>
       </View>
       <View style={{ marginTop: 12 }}>
-        {way('chat', 'WhatsApp', 'The picture, ready to send', () => void whatsapp())}
-        {way('camera', 'Save to photos', 'It stays on this phone', later)}
-        {way('receipt', 'Save as PDF', 'The full record, for an office', later)}
+        {way('chat', 'WhatsApp', 'The picture, ready to send', () => void picture())}
+        {way('camera', 'Save to photos', 'It stays on this phone', () => void save())}
+        {way('receipt', 'Save as PDF', 'The full record, for an office', pdf)}
         {way('grid', 'Somewhere else', 'Messages, mail, anywhere you share', () => void elsewhere())}
       </View>
       <View style={s.note}>

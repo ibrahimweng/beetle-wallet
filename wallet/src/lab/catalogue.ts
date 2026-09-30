@@ -568,6 +568,154 @@ export const ASKING: Feature = {
   ],
 };
 
+export const BILLS: Feature = {
+  id: 'bills',
+  title: 'Bills',
+  folder: 'src/features/bills',
+  sub: "The month's bills, paying one on the saved meter, and a bill read off a photo.",
+  places: [
+    {
+      id: 'bills-month',
+      icon: 'receipt',
+      title: 'Bills',
+      sub: 'The month: what it comes to, what is covered, and the five rows, from the frame',
+      href: '/bills',
+      seed: demo,
+    },
+    {
+      id: 'bills-pay',
+      icon: 'power',
+      title: 'Pay a bill',
+      sub: 'Ikeja Electric on the saved meter, ₦8,000, three figures to pick from, from the frame',
+      href: '/pay?biller=ikeja&demo=1',
+      seed: demo,
+    },
+    {
+      id: 'bills-scan',
+      icon: 'camera',
+      title: 'Scan a bill',
+      sub: 'The camera pointed at a bill: the sample read, the meter found under it, from the frame',
+      href: '/scan?demo=bill&hold=1',
+      seed: demo,
+    },
+    {
+      id: 'bills-found',
+      icon: 'search',
+      title: 'What I found',
+      sub: 'The bill as read, Is this your meter?, and the three pieces, from the frame',
+      href: '/meter?demo=1',
+      seed: demo,
+    },
+    {
+      id: 'bills-confirm',
+      icon: 'lock',
+      title: 'Confirm the bill',
+      sub: 'The passcode over What I found, ₦8,000 to Ikeja Electric, from the frame',
+      href: '/meter?demo=1&guard=1',
+      seed: demo,
+    },
+  ],
+};
+
+export const SERVICES: Feature = {
+  id: 'services',
+  title: 'All services',
+  folder: 'src/features/services',
+  sub: 'The drawer: the eight used most, then bills, saving and borrowing, and money.',
+  places: [
+    {
+      id: 'services-all',
+      icon: 'grid',
+      title: 'All services',
+      sub: 'The tiles and the three lists, each a way into a page, from the frame',
+      href: '/services',
+      seed: demo,
+    },
+  ],
+};
+
+export const DATA: Feature = {
+  id: 'data',
+  title: 'Buying data',
+  folder: 'src/features/data',
+  sub: 'Data and airtime on a saved line: the page, the typed way in, the message read off a photo, and the chat that prices it.',
+  places: [
+    {
+      id: 'data-buy',
+      icon: 'data',
+      title: 'Buy data',
+      sub: "Mum's 5GB on her MTN line, the other bundles, the other lines, from the frame",
+      href: '/buy?demo=1',
+      seed: demo,
+    },
+    {
+      id: 'data-airtime',
+      icon: 'airtime',
+      title: 'Buy airtime',
+      sub: "The same page with a figure in the bundle's place",
+      href: '/buy?kind=airtime',
+      seed: demo,
+    },
+    {
+      id: 'data-typing',
+      icon: 'chat',
+      title: 'Typed at home, for data',
+      sub: '"2k data for mum" in the bar with the keyboard up, from the frame',
+      href: '/home?typing=2k%20data%20for%20mum&kb=236',
+      seed: demo,
+    },
+    {
+      id: 'data-found',
+      icon: 'camera',
+      title: 'Read from your photo, for data',
+      sub: "Mum's message through the reader, and the sheet over the camera, from the frame",
+      href: '/scan?demo=topup',
+      seed: demo,
+    },
+    {
+      id: 'data-topup',
+      icon: 'camera-filled',
+      title: 'The top-up, from the photo',
+      sub: 'Beetle Data pricing the bigger bundle, and checking for a cheaper one, from the frame',
+      href: '/topup?demo=1',
+      seed: demo,
+    },
+    {
+      id: 'data-confirm',
+      icon: 'lock',
+      title: 'Confirm the top-up',
+      sub: 'The passcode over the chat, ₦2,500 of MTN for Mum, from the frame',
+      href: '/topup?demo=1&guard=1',
+      seed: demo,
+    },
+    {
+      id: 'data-share',
+      icon: 'share',
+      title: 'Share the receipt',
+      sub: "The share sheet over Mum's 5GB receipt, from the frame",
+      href: '/receipt/l07?share=1',
+      seed: demo,
+    },
+  ],
+};
+
+export const LOAN: Feature = {
+  id: 'loan',
+  title: 'Borrowing',
+  folder: 'src/features/loan',
+  sub: 'Borrow: the whole cost before deciding, and the money landing as money in.',
+  places: [
+    {
+      id: 'loan-borrow',
+      icon: 'loan',
+      title: 'Borrow',
+      sub: '₦150,000 for 90 days and what it costs, row by row, from the frame',
+      href: '/loan',
+      seed: demo,
+    },
+  ],
+};
+
 export const MODEL: Feature = {
   id: 'model',
   title: "Beetle's model",
@@ -585,4 +733,4 @@ export const MODEL: Feature = {
   ],
 };
 
-export const FEATURES: Feature[] = [WAY_IN, HOME, MORE, ASK, SEND, TRANSFERS, SCAN, GUARD, RECEIVE, ASKING, RECEIPTS, ACTIVITIES, SETTINGS, MODEL];
+export const FEATURES: Feature[] = [WAY_IN, HOME, MORE, ASK, SEND, TRANSFERS, SCAN, GUARD, RECEIVE, ASKING, BILLS, SERVICES, DATA, LOAN, RECEIPTS, ACTIVITIES, SETTINGS, MODEL];

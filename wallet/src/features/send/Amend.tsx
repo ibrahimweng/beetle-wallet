@@ -16,6 +16,8 @@ import { useMoves } from '../home/moves';
 import { naira } from '../../lib/format';
 import { draft } from './hand';
 import { requestDraft } from '../request/hand';
+import { billDraft } from '../bills/hand';
+import { topupDraft } from '../data/hand';
 
 /** ₦99,999,999 at most: eight digits. */
 const MOST = 8;
@@ -24,7 +26,7 @@ export function Amend() {
   const app = useApp();
   const router = useRouter();
   const ok = useSessionGuard();
-  const asked = useLocalSearchParams<{ amount?: string; read?: string; /** the page that asked: request, or Send money */ to?: string }>();
+  const asked = useLocalSearchParams<{ amount?: string; read?: string; /** the page that asked: request, bill, airtime, or Send money */ to?: string }>();
   const account = app.session?.account;
   const { moves } = useMoves(account?.accountNumber);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
@@ -36,6 +38,8 @@ export function Amend() {
   const forRequest = asked.to === 'request';
   const use = () => {
     if (forRequest) requestDraft.put({ amount });
+    else if (asked.to === 'bill') billDraft.put({ amount });
+    else if (asked.to === 'airtime') topupDraft.put({ amount });
     else draft.put({ amount, amountNote: 'You typed it' });
     router.back();
   };
@@ -46,7 +50,14 @@ export function Amend() {
   useFoot({ kind: 'button', label: `Use ${naira(amount)}`, disabled: !amount, onPress: use });
   if (!ok) return null;
   return (
-    <Screen head={<PageHead title="Change the amount" sub={forRequest ? 'Nothing has been asked yet' : 'Nothing has been sent'} />}>
+    <Screen
+      head={
+        <PageHead
+          title="Change the amount"
+          sub={forRequest ? 'Nothing has been asked yet' : asked.to === 'bill' ? 'Nothing has been paid yet' : asked.to === 'airtime' ? 'Nothing has been bought yet' : 'Nothing has been sent'}
+        />
+      }
+    >
       {/* the frame: what was read 8 under its word, the figure 6 under that, the keypad 17 under the figure */}
       <View style={{ alignItems: 'center', gap: 8, marginTop: -2 }} testID="amount">
         <Caption tone="secondary">{read ? 'I read' : 'The amount'}</Caption>

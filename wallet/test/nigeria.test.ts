@@ -101,7 +101,7 @@ describe('electricity', () => {
   });
   it('looks a meter up, the same answer every time, and none for a dud', async () => {
     const meters = new MockMeters(0);
-    expect(await meters.lookup('ikeja', 'prepaid', '4457 8891')).toEqual({ name: 'Ibrahim Musa', address: '12 Allen Avenue, Ikeja' });
+    expect(await meters.lookup('ikeja', 'prepaid', '4457 8891')).toEqual({ name: 'Ibrahim Musa', address: '14 Bode Thomas' });
     const a = await meters.lookup('jos', 'prepaid', '12345678901');
     expect(a?.name).toBeTruthy();
     expect(a?.address).toContain('Jos');
@@ -155,7 +155,7 @@ describe('what has been paid before', () => {
   it('puts the own line first, then the lines topped up, with what they had last', () => {
     expect(saved.lines[0]).toMatchObject({ label: 'Your line', number: '09069113588', network: 'MTN', own: true });
     expect(saved.lines[1]).toMatchObject({ label: 'Mum', times: 7, when: 'Today 08:02', plan: 'mtn-5gb-30d' });
-    expect(saved.lines.map(l => l.label)).toEqual(['Your line', 'Mum', 'Dad', 'Kemi', 'Tunde']);
+    expect(saved.lines.map(l => l.label)).toEqual(['Your line', 'Mum', 'Dad', 'Kemi', 'Bola', 'Tunde']);
   });
   it('keeps the meters paid with the usual amount', () => {
     expect(saved.meters[0]).toMatchObject({ label: 'Home', disco: 'ikeja', meter: '44578891', name: 'Ibrahim Musa', times: 10, amount: 8_000, when: 'Yesterday 11:22' });

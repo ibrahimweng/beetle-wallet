@@ -17,10 +17,28 @@ export function isWays(text: string): boolean {
   return /\b(get paid|be paid|receive money|receiving money|pay me|my account number|account details|how do i receive|how can .* pay me|my code|qr)\b/.test(lower);
 }
 
+/** "my bills", "what do I owe this month", "bills": the month's bills. */
+export function isBills(text: string): boolean {
+  return /\b(my bills|the bills|bills this month|what do i owe|what is due|due this month)\b|^bills$/i.test(text.trim());
+}
+
+/** "borrow", "loan", "how much can I borrow": Borrow. */
+export function isLoan(text: string): boolean {
+  return /\b(borrow|loan|lend me|overdraft)\b/i.test(text);
+}
+
+/** "services", "what can I pay for", "everything": the drawer. */
+export function isServices(text: string): boolean {
+  return /\b(all services|what can i pay|what can you pay|everything you can do|services)\b/i.test(text);
+}
+
 /** The page the words open, with what they carry handed to it; null for the chat. */
 export function pageFor(text: string): string | null {
   const q = text.trim();
   if (!q) return null;
+  if (isBills(q)) return '/bills';
+  if (isLoan(q)) return '/loan';
+  if (isServices(q)) return '/services';
   if (isRequest(q)) {
     const who = payerIn(q);
     const amount = amountIn(q) ?? undefined;

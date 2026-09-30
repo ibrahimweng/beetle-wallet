@@ -4,10 +4,10 @@
    a transfer opens What went wrong?. The dock is the way back, the ask bar
    to ask about it, and the camera. A bill's token sits above the slip with
    a button to copy it. */
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Body, Button, Caption, Card, Head, Icon, Label, Meta, Receipt, Screen, Tap, colour, toast, Arrive, useDeparture } from '../../design';
+import { Body, Button, Caption, Card, Head, Icon, Label, Meta, Receipt, Screen, Tap, colour, frame, toast, Arrive, useDeparture } from '../../design';
 import { useFoot } from '../more/Foot';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -26,6 +26,8 @@ export function ReceiptScreen({ id }: { id: string }) {
   const account = app.session?.account;
   const { moves, ready } = useMoves(account?.accountNumber);
   const [sharing, setSharing] = useState(asked.share === '1');
+  /* the receipt as drawn, for the picture the share sheet hands out */
+  const slip = useRef<View>(null);
 
   const receipt = useMemo(() => {
     if (!account || !ready) return null;
@@ -73,18 +75,21 @@ export function ReceiptScreen({ id }: { id: string }) {
           </Arrive>
         }
       >
-        <Receipt
-          amount={naira(receipt.amount)}
-          line={receipt.line}
-          status={receipt.status}
-          fields={receipt.fields}
-          session={receipt.session}
-          sessionLabel={receipt.sessionLabel}
-          good={receipt.kind === 'in'}
-          onCopy={() => void copy(receipt.session, 'The session id')}
-          tail={receipt.tail}
-          head={receipt.token ? <Token token={receipt.token} onCopy={() => void copy(receipt.token ?? '', 'The token')} /> : undefined}
-        />
+        {/* the top and the slip keep the column's own gap inside the view the picture is taken of */}
+        <View ref={slip} collapsable={false} style={{ gap: frame.columnGap, backgroundColor: colour.surface }}>
+          <Receipt
+            amount={naira(receipt.amount)}
+            line={receipt.line}
+            status={receipt.status}
+            fields={receipt.fields}
+            session={receipt.session}
+            sessionLabel={receipt.sessionLabel}
+            good={receipt.kind === 'in'}
+            onCopy={() => void copy(receipt.session, 'The session id')}
+            tail={receipt.tail}
+            head={receipt.token ? <Token token={receipt.token} onCopy={() => void copy(receipt.token ?? '', 'The token')} /> : undefined}
+          />
+        </View>
         <Button label="Share receipt" leading="share" badge onPress={() => setSharing(true)} />
         <Nudge text={receipt.nudge.text} action={receipt.nudge.action} to={`/rule?offer=${receipt.kind === 'in' ? 'salary' : 'ikeja'}`} />
         <Tap
@@ -98,7 +103,9 @@ export function ReceiptScreen({ id }: { id: string }) {
           <Icon name="chevron" size={12} colour={colour.accent} />
         </Tap>
       </Screen>
-      {sharing ? <ShareSheet line={shareLine(receipt)} message={`${shareLine(receipt)}. ${receipt.sessionLabel} ${receipt.session}. Sent with Beetle.`} onDismiss={() => setSharing(false)} /> : null}
+      {sharing ? (
+        <ShareSheet line={shareLine(receipt)} message={`${shareLine(receipt)}. ${receipt.sessionLabel} ${receipt.session}. Sent with Beetle.`} capture={slip} onDismiss={() => setSharing(false)} />
+      ) : null}
     </>
   );
 }

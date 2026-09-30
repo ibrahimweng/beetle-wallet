@@ -91,16 +91,20 @@ mocks in and says so on the code screen; a real `AuthService` and
 
 | Folder | What it is |
 |---|---|
-| `app/` | The routes: the loading screen, the lab, the way in as one screen, home, Send money and the pages around it, a receipt, a transfer's state pages, Three ways to be paid and Your code, the request and Request sent, Activities and the answer, Settings and the pages its rows lead to. `expo-router` reads this folder as the map. |
+| `app/` | The routes: the loading screen, the lab, the way in as one screen, home, Send money and the pages around it, a receipt, a transfer's state pages, Three ways to be paid and Your code, the request and Request sent, Bills, Pay a bill and What I found, All services, Buy data and the top-up, Borrow, Activities and the answer, Settings and the pages its rows lead to. `expo-router` reads this folder as the map. |
 | `src/design/` | The design system read off the Figma file: tokens, type, icons, motion, and the pieces every screen is made of |
 | `src/icons.ts` | The 95 glyphs, generated from `../src/icons.js` by `npm run icons`, which puts the line widths the file draws them at (0.075 of the box for a glyph, 0.10 for a bare mark) and round ends back on every stroked path; never edited by hand |
 | `src/features/onboarding/` | The way in: the step machine (`machine.ts`), what is remembered and the session (`store.tsx`), the rules (`validation.ts`), the one screen and its choreography (`WayIn.tsx`), what each stage of it shows (`views.tsx`, `stages.ts`), and the guard that keeps home for a session |
 | `src/features/home/` | Home: the card (`WalletCard.tsx`, closed and open and the drag between), the haze at its head and its foot (`Frost.tsx`), the screen around it with the day and the chats in it (`Home.tsx`), the ask bar in its two states (`AskBar.tsx`), what the day shows for an account (`account.ts`), what moved on this phone since (`moves.ts`), and the once-only dip (`first.ts`) |
 | `src/features/agent/` | The chat: the conversation and what Beetle is waiting for (`conversation.tsx`), the list (`Chat.tsx`), the dark pieces it is drawn with — what was said, the panels, the dots (`Dark.tsx`) — the ask panel with its fields (`AskPanel.tsx`) and the list of what was paid before that grows out of it (`SavedPeek.tsx`), and the chats filed in the day, Beetle's prompts among them (`chats.ts`), with the hour they carry on for (`hour.ts`) |
-| `src/features/scan/` | The camera screen with every way it can go wrong, the photo's way back to the chat, and the sample slip |
+| `src/features/scan/` | The camera from its frames (`Scan.tsx`): every way it can go wrong, the photo read on the spot and drawn back with what was found, the sample photos in its gallery (`sample.ts`), the sheet a message puts up over it (`ReadSheet.tsx`) and the rows it and What I found lay their pieces on (`ReadRows.tsx`), and the photo's way back to the screen that asked (`handoff.ts`) |
 | `src/features/passcode/` | The gate before money moves: the passcode on its sheet over the chat (`Passcode.tsx`) and the check itself, with the tries and the lock (`check.ts`) |
 | `src/features/receive/` | Being paid: the Receive sheet (`ReceiveSheet.tsx`), Three ways to be paid (`Ways.tsx`), Your code (`MyCode.tsx`) with the QR made and drawn (`qr.ts`, `Code.tsx`) and its picture shared or saved (`picture.ts`), money arriving (`arrival.ts`), and the clipboard |
 | `src/features/request/` | Asking for money: who can be asked (`people.ts`), what the pages hand each other (`hand.ts`), the words typed at home that are a page (`intent.ts`), Read from your photo over the camera (`FoundSheet.tsx`), the Request page (`Request.tsx`) and what Beetle says on it (`words.ts`), the requests kept (`requests.ts`), and Request sent (`Asked.tsx`) |
+| `src/features/bills/` | Bills: the billers and the month (`billers.ts`), the page that pays one (`PayBill.tsx`), the month's page (`Bills.tsx`), What I found for a bill read off a photo (`Meter.tsx`), and what the pages hand each other (`hand.ts`) |
+| `src/features/services/` | All services: the drawer (`Services.tsx`) and what it lists, with the way the bar's words find one (`services.ts`) |
+| `src/features/data/` | Data and airtime: the page (`BuyData.tsx`), the sheet over the camera for a message asking for data (`TopupSheet.tsx`), the chat that prices a top-up read off a photo (`Topup.tsx`), and what the pages hand each other (`hand.ts`) |
+| `src/features/loan/` | Borrow: what a loan costs (`loan.ts`) and the page (`Loan.tsx`) |
 | `src/features/send/` | Sending money: the page (`Send.tsx`), the keypad page for the amount (`Amend.tsx`), Not enough (`Short.tsx`), Check this number (`Misread.tsx`), and what the pages hand back to the one under them (`hand.ts`) |
 | `src/features/transfers/` | A transfer that is not done: Still on its way, It did not go and It came back (`Transfer.tsx`), What went wrong? (`Wrong.tsx`), Asking for it back (`Recall.tsx`), I sent it wrong (`AlreadyGone.tsx`), what each says about a line (`states.ts`) |
 | `src/features/receipts/` | A receipt for every line in the day: the record and the frames' own figures (`receipts.ts`), the page (`ReceiptScreen.tsx`), the share sheet (`ShareSheet.tsx`); the card in the chat is `src/features/agent/ReceiptCard.tsx` |
@@ -442,6 +446,108 @@ Beetle files a chat about the request in the day, with the request's card
 in it, which opens the page again: nothing about a request is more than two
 taps from home.
 
+## Bills
+
+Bills, the shortcut under the open chat, opens the month from its frame:
+Beetle's word on what the month comes to and how much of it is spoken for,
+five marks for the five bills with how many are covered, and the rows — the
+light due Thursday that a standing instruction pays (Ikeja Electric follows
+the instruction in Settings, so turning it off there uncovers the light
+here), the television and the internet with nothing behind them yet, the
+waste and Mum's data already paid. A row opens the page that pays it; Add a
+bill sits beside Back at the foot and says what it waits for. The billers
+and the month are this build's own (`src/features/bills/billers.ts`); an
+account service will fill them from what came through.
+
+## Paying a bill
+
+Pay a bill, from its frame, is the Send money page for a biller: the meter
+or the account it is paid on, the figure, and from where and what lands,
+each on its own white card in one grey one, Beetle's word above them, three
+figures to pick from under (with what each buys: about 38 kWh, two months,
+100GB), the line about what lands, and Slide to pay beside Back. The meter
+card opens the meters paid before with the camera under them; a meter at
+another company makes the page that company's. The figure opens the keypad
+page, which hands it back. The slide leads to the passcode — with the
+biller's glyph on a square in the avatar's place, as the frame draws it —
+and the receipt after, with the token above the slip, and the line in the
+day.
+
+A bill can also be read off a photo. The camera pointed at a bill
+(`/scan?for=bill`, from the meters list) says so at its head, and when the
+photo is read it draws the photo back in the middle with the meter it found
+in a chip under it, then goes on to What I found: the bill as read — the
+company, the meter, the figure and the address on it, boxed the way the
+frame boxes them, with What I read to see the reader's own lines — then the
+question that matters before a token is bought, Is this your meter?, with
+what the bill says beside what the company says the meter is (the
+`MeterService` look-up), and Yes, that is mine or No; under them the three
+pieces the payment needs, each ticked. Continue leads to the passcode and
+the receipt with the token. The camera itself is now drawn from its frames:
+close at the top left and the light at the top right, the word on what to
+point it at, the gallery of sample photos, the shutter and the code reader
+along the foot, and a line under them.
+
+## All services
+
+All services, from its frame, is the drawer: the eight used most as tiles —
+Airtime, Data, Power, Send, Cable TV, Betting, Loan, Cards — then Bills,
+Save and borrow, and Money as rows, each a way into a page this build has
+(Power, Cable TV, Internet and Waste open Pay a bill on that biller; Data
+and Airtime open Buy data; Loan opens Borrow; Cards opens Virtual card;
+Request money opens the request; Send opens Send money) or a word about
+which round brings it. The bar at the foot searches them by name or a word
+for one ("light", "dstv", "borrow"), opens a page for words that are one,
+and hands anything else to Beetle at home; the plus is More. The Services
+shortcut under the open chat opens it, as does "services" typed there.
+
+## Buying data
+
+Buy data, from its frame, opens on the line topped up most — Mum's MTN
+line — with the bundle she had last month: whose line, the bundle with its
+price, and from where and what the round-up feeds (the Holiday goal), each
+on its own card; Beetle's word above; the other bundles nearest in price to
+pick from; the other lines topped up as their initials, with a plus for
+another; and Slide to buy beside Back. The line card opens the lines
+topped up before with a number to type and the camera under them; a line
+brings its usual bundle with it. Buy airtime is the same page with a figure
+in the bundle's place, the keypad page behind it, and other figures to pick
+from. The slide leads to the passcode, with the network and the size on its
+row, and the receipt after.
+
+A message asking for data, shown to the camera, is read on the spot: Read
+from your photo comes up over the camera with the line and its network,
+whose it is where a saved line matches, the figure and the bundle it buys,
+and Top up Mum, Retake, and Not this line. Top up Mum opens the top-up
+chat, from its frame: what was read as a black pill with the camera's
+glyph, Beetle's word on whose line it is — and, where she asked for less
+than she usually gets and ran dry early last month, that it has priced the
+bigger bundle too — and Beetle Data at work: the line, whose, the plan, the
+price, and Cheaper?, which it checks and answers, with Confirm under the
+rows and the lock line that nothing leaves before the face and the
+passcode. A reply in the bar changes the bundle ("2GB", "₦1,000",
+"500 airtime"). Confirm leads to the passcode; the line goes into the day,
+the chat is filed with the receipt's card in it, and the receipt opens.
+"2k data for mum" typed at home still goes to Beetle in the chat, as
+decided in round 3; the pages are reached from Services, the shortcuts, a
+photo and the lab.
+
+## Borrowing
+
+Borrow, from its frame, shows the whole cost before deciding: the figure
+with less and more either side and the bar under it against the limit, the
+three terms, and the cost row by row — what you get today, the interest at
+4% a month, the one-off fee, what it comes to, the payments and the first
+of them, a month from today — with the word about paying late at the foot,
+and Slide to take beside Back. The figures are this build's own
+(`src/features/loan/loan.ts`) until a lender stands behind the app; the
+frame's ₦150,000 for 90 days comes to ₦169,500 in three payments of
+₦56,500. The slide leads to the passcode, and the money then lands the way
+any money in does: on the card, as a line in the day, and as a chat from
+Beetle with the receipt's card, which opens Money in from Beetle Loans.
+"borrow" or "how much can I borrow" typed at home opens the page; so does
+Loan on All services.
+
 ## Receipts
 
 Every line in the day opens its receipt, and so does the card in the chat.
@@ -453,9 +559,12 @@ then Share receipt, what Beetle offers about it, and the way to say
 something is wrong. A bill's meter token sits above the slip with its own
 copy button. The dock is the way back, an ask bar that opens home's chat
 with the receipt named, and the camera. Share receipt opens the frame's
-sheet: WhatsApp and Somewhere else hand the words to the phone, with the
-balance and the full account numbers left off; the picture and the PDF come
-with round 5. The lines the frames draw carry the frames' own figures
+sheet: WhatsApp and Save to photos take a picture of the receipt (the same
+way Your code is shared and saved) and hand it to the phone's share sheet or
+put it in Photos, Somewhere else hands the words to the phone, with the
+balance and the full account numbers left off, and the PDF comes with a
+later round. A data receipt's line reads the way the share frame says it:
+₦2,500 of data for Mum. The lines the frames draw carry the frames' own figures
 (`src/features/receipts/receipts.ts`); a line this phone added carries what
 its panel or its arrival knew, kept per account by `src/features/home/moves.ts`
 so the balance and the receipts hold across a restart.
@@ -600,6 +709,7 @@ they are not moving the way that file says.
 
 ## What comes next
 
-The rounds in `PLAN.md`, bills, data and the services drawer next; finishing
-setting up (the ID card and the income question that turn the last two
-limits on); a server for the model's key.
+The rounds in `PLAN.md`: dollars, putting money away and money health next;
+then what goes wrong and what runs on its own; then finishing setting up (the
+ID card and the income question that turn the last two limits on); a server
+for the model's key.

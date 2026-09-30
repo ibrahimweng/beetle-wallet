@@ -556,11 +556,18 @@ try {
   await shot('mycode', 900);
   /* Save it on the web downloads the picture; Share it, with no share sheet here, puts the words on the clipboard */
   await tap('Save it');
-  const saved = page.getByText(/Downloaded|would not take|cannot draw|Nothing here to save/).filter({ visible: true }).first();
+  const saved = page
+    .getByText(/Downloaded|would not take|cannot draw|Nothing here to save/)
+    .filter({ visible: true })
+    .first();
   await saved.waitFor();
   console.log(`  Save it: ${(await saved.innerText()).trim()}`);
   await tap('Share it');
-  await page.getByText(/No share sheet here/).filter({ visible: true }).first().waitFor();
+  await page
+    .getByText(/No share sheet here/)
+    .filter({ visible: true })
+    .first()
+    .waitFor();
   await tap('Back');
   await see('All of them safe to hand out');
   await tap('Back');
@@ -580,7 +587,7 @@ try {
   await shot('request-typed', 600);
   await tap('Send the request');
   await see('Request sent');
-  must(page.url().includes('/asked/'), 'the page that says it was sent should take the request\'s place');
+  must(page.url().includes('/asked/'), "the page that says it was sent should take the request's place");
   await shot('request-sent', 900);
   /* Set that up leads to the standing instruction, and Set it up lists it */
   await tap('Set that up');
@@ -619,8 +626,12 @@ try {
       .catch(() => false)
   )
     await tap('Allow the camera');
-  await page.getByText(/Fill the frame with the account number|No camera here/).first().waitFor();
-  await tap('Or a message asking for your account');
+  await page
+    .getByText(/Point at an account number|No camera here/)
+    .first()
+    .waitFor();
+  await tap('Use a sample photo');
+  await tap('A message asking for your account');
   await see('Read from your photo');
   await see('Ask Musa for 20k');
   await shot('found-request', 900);
@@ -723,7 +734,7 @@ try {
   )
     await tap('Allow the camera');
   await page
-    .getByText(/Fill the frame with the account number|No camera here/)
+    .getByText(/Point at an account number|No camera here/)
     .first()
     .waitFor();
   await shot('scan', 900);
@@ -734,7 +745,10 @@ try {
       .catch(() => false)
   )
     await tap('Take the photo');
-  else await tap('Use the sample photo');
+  else {
+    await tap('Use a sample photo');
+    await tap('An account slip');
+  }
   await see('Read off the photo');
   at('/home');
   await see('Sarah Adeyemi at GTBank');
@@ -1134,13 +1148,14 @@ try {
   await shot('lab-model', 300);
   await tap('Back to the lab');
   await see('Beetle Lab');
-  /* a shortcut under the open card hands its thing to the chat */
+  /* a shortcut under the open card opens its page: Data is Buy data, on the line topped up most */
   await tap('The chat, open');
   await button('Data').waitFor();
   await page.waitForTimeout(900);
   await tap('Data');
-  await see('Beetle Data');
-  await shot('lab-shortcut-data', 1600);
+  await see("5GB for 30 days, on Mum's MTN line.");
+  at('/buy');
+  await shot('lab-shortcut-data', 1200);
   await tap('Back to the lab');
   await see('Beetle Lab');
   console.log('What Beetle asks for');
@@ -1340,6 +1355,7 @@ try {
   await sample.waitFor();
   at('/scan');
   await sample.click();
+  await tap('An account slip');
   await see('Read off the photo');
   await see('Sarah Adeyemi');
   at('/send');
@@ -1377,6 +1393,142 @@ try {
   at('/send');
   await shot('send-misread-taken', 600);
   await tap('Back to the lab');
+  await see('Beetle Lab');
+  console.log('Bills, data and the drawer');
+  /* the drawer, bills, data and borrowing: from home, with the demo account the lab left signed in */
+  await page.goto(`${base}/home`, { waitUntil: 'load' });
+  await see('See all');
+  /* the Bills shortcut under the open card opens the month: what it comes to,
+     what is covered, and the rows; a row opens the page that pays it */
+  await pull('card-for-bills', false);
+  await tap('Bills');
+  await see('Everything that repeats each month');
+  at('/bills');
+  await see('3 of 5 covered');
+  await shot('bills', 900);
+  await tap('Ikeja Electric');
+  await see('Ikeja Electric, the meter you always use.');
+  at('/pay');
+  await shot('pay-bill', 900);
+  /* a figure picked, and one typed on the keypad page, which hands it back */
+  await tap('₦15,000');
+  await see('You picked it');
+  await tap('The amount');
+  await see('Nothing has been paid yet');
+  at('/amend');
+  await wipe(5);
+  await type(['5', '000']);
+  await tap('Use ₦5,000');
+  await see('You typed it');
+  at('/pay');
+  /* the meter card opens the meters paid before, with the camera under them */
+  await page
+    .getByRole('button', { name: /^Ikeja Electric, Prepaid/ })
+    .first()
+    .click();
+  await inSaved("Mum's flat");
+  await see('Eko Electricity, the meter you picked.');
+  await shot('pay-bill-picked', 600);
+  await slideToSend();
+  await see('Enter your passcode');
+  await type(PASSCODE);
+  await see('Bill paid');
+  await see('Eko Electricity');
+  must(page.url().includes('/receipt/'), 'paying a bill should open its receipt');
+  await shot('bill-receipt', 900);
+  /* the drawer: every service a way in; Data opens the page on the line topped up most */
+  await page.goto(`${base}/services`, { waitUntil: 'load' });
+  await see('Everything you can pay for from here');
+  at('/services');
+  await shot('services', 900);
+  await tap('Data');
+  await see("5GB for 30 days, on Mum's MTN line.");
+  at('/buy');
+  await shot('buy-data', 900);
+  /* another bundle, another line, then the slide, the passcode and the receipt */
+  await tap('2GB');
+  await see('2GB for 30 days, on');
+  await tap('Dad');
+  await see("on Dad's Glo line.");
+  await shot('buy-data-dad', 600);
+  await slideToSend();
+  await see('Enter your passcode');
+  await type(PASSCODE);
+  await see('All done');
+  must(page.url().includes('/receipt/'), 'buying data should open its receipt');
+  await shot('data-receipt', 900);
+  /* a message asking for data, read off a photo: the sheet over the camera, then the chat that prices it */
+  await page.goto(`${base}/scan`, { waitUntil: 'load' });
+  await see('Point at an account number');
+  await tap('Use a sample photo');
+  await tap('A message asking for data');
+  await see('Read from your photo');
+  await see('2k data for mum');
+  await shot('found-topup', 900);
+  await tap('Top up Mum');
+  await see('the one ending 471');
+  at('/topup');
+  await see('Checking MTN plans');
+  await see('2GB at ₦2,000 ran out early');
+  await shot('topup', 600);
+  await tap('Confirm ₦2,500');
+  await see('Enter your passcode');
+  await type(PASSCODE);
+  await see('All done');
+  await see('5GB for 30 days · Mum');
+  await shot('topup-receipt', 900);
+  /* the chat Beetle filed carries the receipt's card */
+  await page.goto(`${base}/home`, { waitUntil: 'load' });
+  await see('See all');
+  await tap('Chats');
+  await page.waitForTimeout(400);
+  await see('5GB for Mum');
+  /* borrowing: the whole cost before deciding, and the money landing as money in */
+  await page.goto(`${base}/loan`, { waitUntil: 'load' });
+  await see('The whole cost, before you decide');
+  at('/loan');
+  await tap('60 days');
+  await see('Two payments of');
+  await tap('Less');
+  await see('₦140,000');
+  await shot('loan', 600);
+  await slideToSend();
+  await see('Enter your passcode');
+  await type(PASSCODE);
+  await see('Money in');
+  await see('From Beetle Loans');
+  await shot('loan-receipt', 900);
+  await page.goto(`${base}/home`, { waitUntil: 'load' });
+  await see('See all');
+  await tap('Chats');
+  await page.waitForTimeout(400);
+  await see('₦140,000 borrowed');
+  /* "borrow" typed at home is the page */
+  await tap('All');
+  await pull('card-for-borrowing', false);
+  await page.getByLabel('Ask Beetle').fill('how much can I borrow');
+  await tap('Send this');
+  await see('The whole cost, before you decide');
+  at('/loan');
+  /* a bill read off a photo: the camera pointed at a bill, What I found, the meter confirmed, the passcode, the token */
+  await page.goto(`${base}/scan?for=bill`, { waitUntil: 'load' });
+  await see('Point at a bill or a meter');
+  await tap('Use a sample photo');
+  await tap('A light bill');
+  await see('4457 8891');
+  await see('Is this your meter?');
+  at('/meter');
+  await see('14 Bode Thomas');
+  await shot('meter', 900);
+  await tap('Yes, that is mine');
+  await see('Yours, at 14 Bode Thomas');
+  await tap('Continue');
+  await see('Enter your passcode');
+  await type(PASSCODE);
+  await see('Bill paid');
+  await see('Meter token');
+  await shot('meter-receipt', 900);
+  await page.goto(`${base}/lab`, { waitUntil: 'load' });
   await see('Beetle Lab');
   console.log('When a transfer is not done');
   await tap('Still on its way');

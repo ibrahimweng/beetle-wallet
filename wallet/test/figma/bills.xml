@@ -1,0 +1,99 @@
+<frame id="217:67" name="Bills" x="573" y="80" width="393" height="786.4000244140625">
+  <frame id="217:68" name="Page" x="0" y="0" width="393" height="786.4000244140625">
+    <frame id="217:69" name="Content" x="20" y="72" width="353" height="690.4000244140625">
+      <instance id="660:18058" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="217:73" name="Card" x="0" y="71.19999694824219" width="353" height="153">
+        <frame id="217:74" name="Row" x="16" y="16" width="319" height="80">
+          <instance id="235:6026" name="Mark · 32" x="0" y="0" width="32" height="32" />
+          <instance id="653:17991" name="Card" x="44" y="0" width="275" height="80" />
+        </frame>
+        <frame id="217:81" name="Column" x="16" y="108" width="319" height="29">
+          <frame id="217:82" name="Row" x="0" y="0" width="319" height="6">
+            <frame id="217:83" name="Box" x="0" y="0" width="60.599998474121094" height="6" />
+            <frame id="217:84" name="Box" x="64.5999984741211" y="0" width="60.599998474121094" height="6" />
+            <frame id="217:85" name="Box" x="129.1999969482422" y="0" width="60.599998474121094" height="6" />
+            <frame id="217:86" name="Box" x="193.79998779296875" y="0" width="60.599998474121094" height="6" />
+            <frame id="217:87" name="Box" x="258.3999938964844" y="0" width="60.599998474121094" height="6" />
+          </frame>
+          <frame id="217:88" name="Row · 3 of 5 covered" x="0" y="14" width="319" height="15">
+            <text id="217:89" name="3 of 5 covered" x="0" y="0" width="85" height="16" />
+            <text id="217:90" name="2 still to sort" x="247" y="0" width="72" height="16" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="217:91" name="Column" x="0" y="236.1999969482422" width="353" height="392.20001220703125">
+        <text id="217:92" name="This month" x="0" y="1" width="83" height="24" />
+        <frame id="217:93" name="Column" x="0" y="42.20000076293945" width="353" height="350">
+          <frame id="217:94" name="Row · ₦8,000" x="0" y="0" width="353" height="70">
+            <frame id="217:95" name="Icon" x="0" y="15" width="40" height="40">
+              <instance id="564:14601" name="Glyph · bank" x="10" y="10" width="20" height="20" />
+            </frame>
+            <frame id="217:98" name="Column" x="52" y="13.399999618530273" width="224" height="43.20000076293945">
+              <text id="217:99" name="Ikeja Electric" x="0" y="0" width="95" height="24" />
+              <frame id="217:100" name="Row · Due Thursday" x="0" y="28" width="231.8000030517578" height="18">
+                <text id="217:101" name="Due Thursday" x="0" y="-1" width="91" height="20" />
+                <text id="217:102" name="· I pay it" x="95" y="1" width="47" height="16" />
+              </frame>
+            </frame>
+            <text id="217:103" name="₦8,000" x="288" y="23" width="57" height="24" />
+          </frame>
+          <frame id="217:104" name="Row · ₦12,500" x="0" y="70" width="353" height="70">
+            <frame id="217:105" name="Icon" x="0" y="15" width="40" height="40">
+              <instance id="564:14604" name="Glyph · reversed" x="10" y="10" width="20" height="20" />
+            </frame>
+            <frame id="217:109" name="Column" x="52" y="13.399999618530273" width="217" height="43.20000076293945">
+              <text id="217:110" name="DStv Compact" x="0" y="0" width="109" height="24" />
+              <frame id="217:111" name="Row · Due 24 August" x="0" y="28" width="222.39999389648438" height="18">
+                <text id="217:112" name="Due 24 August" x="0" y="-1" width="97" height="20" />
+                <text id="217:113" name="· Not covered" x="101" y="1" width="79" height="16" />
+              </frame>
+            </frame>
+            <text id="217:114" name="₦12,500" x="281" y="23" width="64" height="24" />
+          </frame>
+          <frame id="217:115" name="Row · ₦15,000" x="0" y="140" width="353" height="70">
+            <frame id="217:116" name="Icon" x="0" y="15" width="40" height="40">
+              <instance id="564:14608" name="Glyph · search" x="10" y="10" width="20" height="20" />
+            </frame>
+            <frame id="217:121" name="Column" x="52" y="13.399999618530273" width="215.1999969482422" height="43.20000076293945">
+              <text id="217:122" name="Spectranet" x="0" y="0" width="84" height="24" />
+              <frame id="217:123" name="Row · Due 27 August" x="0" y="28" width="222.39999389648438" height="18">
+                <text id="217:124" name="Due 27 August" x="0" y="-1" width="96" height="20" />
+                <text id="217:125" name="· Not covered" x="100" y="1" width="79" height="16" />
+              </frame>
+            </frame>
+            <text id="217:126" name="₦15,000" x="279.20001220703125" y="23" width="64" height="24" />
+          </frame>
+          <frame id="217:127" name="Row · ₦2,000" x="0" y="210" width="353" height="70">
+            <frame id="217:128" name="Icon" x="0" y="15" width="40" height="40">
+              <instance id="564:14613" name="Glyph · chart" x="10" y="10" width="20" height="20" />
+            </frame>
+            <frame id="217:131" name="Column" x="52" y="13.399999618530273" width="225" height="43.20000076293945">
+              <text id="217:132" name="LAWMA waste" x="0" y="0" width="109" height="24" />
+              <text id="217:133" name="Paid 2 August" x="0" y="28" width="90" height="20" />
+            </frame>
+            <text id="217:134" name="₦2,000" x="289" y="23" width="56" height="24" />
+          </frame>
+          <frame id="217:135" name="Row · ₦2,500" x="0" y="280" width="353" height="70">
+            <frame id="217:136" name="Icon" x="0" y="15" width="40" height="40">
+              <instance id="564:14616" name="Glyph · down" x="10" y="10" width="20" height="20" />
+            </frame>
+            <frame id="217:141" name="Column" x="52" y="13.399999618530273" width="225" height="43.20000076293945">
+              <text id="217:142" name="MTN 5GB" x="0" y="0" width="72" height="24" />
+              <text id="217:143" name="Paid 4 August" x="0" y="28" width="90" height="20" />
+            </frame>
+            <text id="217:144" name="₦2,500" x="289" y="23" width="56" height="24" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="1376:15401" name="Frame 20" x="0" y="640.4000244140625" width="353" height="50">
+        <frame id="1376:15397" name="Back" x="0" y="3" width="44" height="44">
+          <instance id="1376:15398" name="Glyph · check" x="11" y="11" width="22" height="22" />
+        </frame>
+        <frame id="217:145" name="Card" x="56" y="0" width="297" height="50">
+          <instance id="564:14621" name="Glyph · plus" x="104" y="16" width="18" height="18" />
+          <text id="217:148" name="Add a bill" x="130" y="15" width="63" height="20" />
+        </frame>
+      </frame>
+    </frame>
+  </frame>
+</frame>

@@ -247,7 +247,8 @@ export function meterIn(text: string): string | null {
 export const groupMeter = (digits: string) => digits.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ');
 
 /** About what a naira buys, in units, on a prepaid meter. */
-export const KWH_PER_NAIRA = 1 / 210;
+/* about 208 naira a unit: ₦3,000 is 14 kWh, ₦8,000 is 38 and ₦15,000 is 72, as the frames print them */
+export const KWH_PER_NAIRA = 1 / 208.3;
 export const unitsFor = (amount: number) => Math.round(amount * KWH_PER_NAIRA);
 
 /** The amounts worth offering for a meter. */
@@ -265,7 +266,7 @@ const STREETS = ['Allen Avenue', 'Adeola Odeku Street', 'Herbert Macaulay Way', 
 
 /** The meters this build knows by heart: the demo account's own, and the flat it pays for too. */
 export const KNOWN_METERS: Record<string, MeterRecord> = {
-  '44578891': { name: 'Ibrahim Musa', address: '12 Allen Avenue, Ikeja' },
+  '44578891': { name: 'Ibrahim Musa', address: '14 Bode Thomas' },
   '54150011234': { name: 'Aisha Musa', address: '4 Admiralty Way, Lekki' },
 };
 
@@ -335,6 +336,7 @@ export const DEMO_SAVED: Saved = {
     { kind: 'line', id: 'line:08032144471', label: 'Mum', number: '08032144471', network: 'MTN', when: 'Last month', times: 6, plan: 'mtn-5gb-30d' },
     { kind: 'line', id: 'line:08053310921', label: 'Dad', number: '08053310921', network: 'Glo', when: 'Three weeks ago', times: 2, amount: 1_000 },
     { kind: 'line', id: 'line:08124027719', label: 'Kemi', number: '08124027719', network: 'Airtel', when: 'Last month', times: 3, plan: 'airtel-4gb-30d' },
+    { kind: 'line', id: 'line:08161234567', label: 'Bola', number: '08161234567', network: 'MTN', when: 'Two months ago', times: 1, amount: 500 },
     { kind: 'line', id: 'line:08091183350', label: 'Tunde', number: '08091183350', network: '9mobile', when: 'Two months ago', times: 1, amount: 500 },
   ],
   meters: [

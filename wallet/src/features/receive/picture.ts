@@ -51,12 +51,12 @@ export async function capture(ref: RefObject<View | null>): Promise<string | nul
 }
 
 /** Hands the picture to the share sheet; the words where there is none. What happened, to say. */
-export async function shareCode(ref: RefObject<View | null>, words: string): Promise<string> {
+export async function sharePicture(ref: RefObject<View | null>, words: string, title = 'Your Beetle code'): Promise<string> {
   if (Platform.OS !== 'web' && sharing) {
     const uri = await capture(ref);
     if (uri && (await sharing.isAvailableAsync().catch(() => false))) {
       try {
-        await sharing.shareAsync(uri, { mimeType: 'image/png', UTI: 'public.png', dialogTitle: 'Your Beetle code' });
+        await sharing.shareAsync(uri, { mimeType: 'image/png', UTI: 'public.png', dialogTitle: title });
         return 'Shared.';
       } catch {
         /* the sheet was put away, or would not open: the words still go */
@@ -68,7 +68,7 @@ export async function shareCode(ref: RefObject<View | null>, words: string): Pro
 }
 
 /** Puts the picture in Photos, or downloads it on the web. What happened, to say. */
-export async function saveCode(ref: RefObject<View | null>): Promise<string> {
+export async function savePicture(ref: RefObject<View | null>, filename = 'beetle-code.png'): Promise<string> {
   const uri = await capture(ref);
   if (!uri) return 'This build cannot draw the picture to save it.';
   if (Platform.OS === 'web') {
@@ -77,9 +77,9 @@ export async function saveCode(ref: RefObject<View | null>): Promise<string> {
       if (!doc) return 'Nothing here to save into.';
       const a = doc.createElement('a');
       a.href = uri;
-      a.download = 'beetle-code.png';
+      a.download = filename;
       a.click();
-      return 'Downloaded: beetle-code.png.';
+      return `Downloaded: ${filename}.`;
     } catch {
       return 'The browser would not take the download.';
     }
@@ -94,3 +94,7 @@ export async function saveCode(ref: RefObject<View | null>): Promise<string> {
     return 'Photos would not take it. Try again in a moment.';
   }
 }
+
+/** Your code's own picture: shared, and saved. */
+export const shareCode = (ref: RefObject<View | null>, words: string) => sharePicture(ref, words, 'Your Beetle code');
+export const saveCode = (ref: RefObject<View | null>) => savePicture(ref, 'beetle-code.png');

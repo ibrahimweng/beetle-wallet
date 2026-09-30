@@ -799,17 +799,9 @@ function HomeScreen() {
                 >
                   <Shortcuts
                     items={[
-                      {
-                        glyph: 'power',
-                        label: 'Bills',
-                        onPress: () => askFor('Top up my light'),
-                      },
-                      {
-                        glyph: 'data',
-                        label: 'Data',
-                        onPress: () => askFor('Buy data'),
-                      },
-                      { glyph: 'down', label: 'Receive', onPress: openReceive },
+                      { glyph: 'power', label: 'Bills', onPress: () => router.push('/bills') },
+                      { glyph: 'data', label: 'Data', onPress: () => router.push('/buy') },
+                      { glyph: 'grid', label: 'Services', onPress: () => router.push('/services') },
                       { glyph: 'camera', label: 'Photo', onPress: toCamera },
                     ]}
                   />

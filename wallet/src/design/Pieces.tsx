@@ -84,6 +84,45 @@ export function SayCard({ children, action, onAction, disabled = false, testID }
   );
 }
 
+/* ---- what was typed, and picks ---- */
+
+/* The words that brought the page, under "You typed", as the Send money,
+   Pay a bill and Buy data frames set them. */
+export function YouTyped({ said, testID = 'you-typed' }: { said: string; testID?: string }) {
+  return (
+    <View style={{ gap: 8 }} testID={testID}>
+      <Caption tone="secondary">You typed</Caption>
+      <Body tone="secondary">{said}</Body>
+    </View>
+  );
+}
+
+/* Three things to pick from in a row, each on a grey card 62 tall with a
+   figure over a line: the amounts a bill is usually paid in, the other
+   bundles. The picked one is white with a hairline. */
+export function Picks<T extends string | number>({ items, value, onPick, testID }: { items: { value: T; big: string; small: string }[]; value: T | null; onPick: (v: T) => void; testID?: string }) {
+  return (
+    <View style={{ flexDirection: 'row', gap: 8 }} testID={testID}>
+      {items.map(it => {
+        const on = it.value === value;
+        return (
+          <Tap
+            key={String(it.value)}
+            accessibilityRole="button"
+            accessibilityLabel={it.big}
+            accessibilityState={{ selected: on }}
+            onPress={() => onPick(it.value)}
+            style={[s.pick, on ? s.pickOn : null]}
+          >
+            <Label>{it.big}</Label>
+            <Meta tone="secondary">{it.small}</Meta>
+          </Tap>
+        );
+      })}
+    </View>
+  );
+}
+
 /* ---- facts, notes, banners ---- */
 
 /* What a rule comes to: the label in grey, what it is set to at the end of
@@ -92,19 +131,25 @@ export function SayCard({ children, action, onAction, disabled = false, testID }
 export function Facts({
   rows,
   inset = 12,
+  row = 56,
   testID,
 }: {
-  rows: { label: string; value: string; quiet?: boolean; /** the figure in a colour: what is short, in amber */ tone?: string }[];
+  rows: { label: string; value: string; quiet?: boolean; /** the figure in a colour: what is short, in amber */ tone?: string; /** the label in bold: what a loan comes to */ strong?: boolean }[];
   /** what the figure keeps from the right edge */ inset?: number;
+  /** a row's height: 56 on most frames, 54 on the loan's */ row?: number;
   testID?: string;
 }) {
   return (
     <View testID={testID}>
       {rows.map(r => (
-        <View key={r.label} style={s.fact}>
-          <Body tone="secondary" style={{ flex: 1 }}>
-            {r.label}
-          </Body>
+        <View key={r.label} style={[s.fact, { height: row }]}>
+          {r.strong ? (
+            <Row style={{ flex: 1 }}>{r.label}</Row>
+          ) : (
+            <Body tone="secondary" style={{ flex: 1 }}>
+              {r.label}
+            </Body>
+          )}
           <Row tone={r.quiet ? 'secondary' : 'ink'} style={[{ textAlign: 'right', paddingRight: inset }, r.tone ? { color: r.tone } : null]}>
             {r.value}
           </Row>
@@ -609,6 +654,8 @@ const s = StyleSheet.create({
   disc22: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
   stepRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 44 },
   hairTop: { borderTopWidth: 1, borderTopColor: colour.rule },
+  pick: { flex: 1, height: 62, borderRadius: 16, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center', gap: 4, borderWidth: 1, borderColor: 'transparent' },
+  pickOn: { backgroundColor: colour.surface, borderColor: colour.rule },
   panel: { backgroundColor: colour.surface, borderWidth: 1, borderColor: colour.rule, borderRadius: 20, overflow: 'hidden' },
   panelHead: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 48, paddingHorizontal: 12, backgroundColor: colour.surface2 },
   status: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 24, paddingHorizontal: 10, borderRadius: 12, backgroundColor: colour.surface, borderWidth: 1, borderColor: colour.rule },

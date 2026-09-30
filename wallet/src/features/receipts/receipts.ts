@@ -332,5 +332,9 @@ export function receiptFor(row: LedgerRow, ctx: { account: Account; balanceNow: 
 
 /** The line a shared copy carries: what moved and when, and nothing of the balance or the account numbers. */
 export function shareLine(r: Receipt): string {
-  return `${naira(r.amount)} ${r.line.replace(/^Sent to /, 'to ').replace(/^From /, 'from ')}, ${r.when.split(' at ')[1] ?? r.when}`;
+  const at = r.when.split(' at ')[1] ?? r.when;
+  /* data and airtime: ₦2,500 of data for Mum, as the share frame says it */
+  const sent = r.kind === 'airtime' ? r.line.match(/^(.+?) sent to (.+)$/) : null;
+  if (sent) return `${naira(r.amount)} of ${/\d(GB|MB)/.test(sent[1] ?? '') ? 'data' : 'airtime'} for ${sent[2]}, ${at}`;
+  return `${naira(r.amount)} ${r.line.replace(/^Sent to /, 'to ').replace(/^From /, 'from ')}, ${at}`;
 }

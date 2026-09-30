@@ -6,6 +6,7 @@
 import type { Account } from '../../services';
 import { groupAccount, longDate, naira } from '../../lib/format';
 import type { LedgerRow } from '../home/account';
+import { usdFull } from '../dollars/dollars';
 
 export type Field = [label: string, value: string, note?: string];
 
@@ -60,7 +61,7 @@ export function balanceAfter(row: LedgerRow, rows: LedgerRow[], balanceNow: numb
   if (row.after !== undefined) return row.after;
   const order = (r: LedgerRow) => (r.day === 'yesterday' ? 0 : 1) * 10_000 + Number(r.time.replace(':', ''));
   const newer = rows.filter(r => r.status === 'done' && r.id !== row.id && (order(r) > order(row) || r.after !== undefined));
-  return Math.round((balanceNow - newer.reduce((a, r) => a + r.amount, 0)) * 100) / 100;
+  return Math.round((balanceNow - newer.reduce((a, r) => a + (r.usd !== undefined && r.kind !== 'convert' ? 0 : r.amount), 0)) * 100) / 100;
 }
 
 /** A session id for a line the frames draw, the same every time it is asked for. */
@@ -246,8 +247,35 @@ export function receiptFor(row: LedgerRow, ctx: { account: Account; balanceNow: 
   const amount = Math.abs(row.amount);
   const fee = row.fee ?? 0;
   const session = row.session ?? fixedSession(row.id, row.time);
-  const from: Field = ['From', 'Everyday', number];
+  /* paid from the dollars: the row carries what left them, and the rate is in its line */
+  const paidInUsd = row.usd !== undefined && row.kind !== 'convert' ? -row.usd : 0;
+  const rate = row.detail.match(/at (₦[\d,]+ to \$1)/)?.[1] ?? '₦1,552 to $1';
+  const from: Field = paidInUsd ? ['From', 'Dollars', `${usdFull(paidInUsd)} at ${rate}`] : ['From', 'Everyday', number];
   const first = row.name.split(' ')[0] ?? row.name;
+  if (row.kind === 'convert') {
+    const intoDollars = (row.usd ?? 0) > 0;
+    const usd = usdFull(row.usd ?? 0);
+    return {
+      ...base,
+      head: 'Converted',
+      line: intoDollars ? `${usd} into Dollars` : `${usd} back to naira`,
+      status: 'Successful',
+      fields: [
+        intoDollars ? ['To', 'Dollars', usd] : ['From', 'Dollars', usd],
+        intoDollars ? ['From', 'Everyday', number] : ['To', 'Everyday', number],
+        ['Rate', rate],
+        ['Amount', nairaFull(amount)],
+        fee > 0 ? ['Fee', nairaFull(fee), 'One percent over $500'] : ['Fee', 'Free', 'Because it is under $500'],
+        [intoDollars ? 'Total charged' : 'Total credited', nairaFull(amount + fee)],
+        ['Balance after', after],
+      ],
+      session,
+      sessionLabel: 'Session ID',
+      nudge: { text: 'Move some across every payday?', action: 'Set it up' },
+      wrong: 'Something wrong with this?',
+      ask: 'Ask about this',
+    };
+  }
   if (row.kind === 'in') {
     return {
       ...base,
@@ -281,8 +309,8 @@ export function receiptFor(row: LedgerRow, ctx: { account: Account; balanceNow: 
         from,
         ...(row.reference ? [['Narration', row.reference] as Field] : []),
         ['Amount', nairaFull(amount)],
-        fee > 0 ? ['Fee', nairaFull(fee), 'Transfers under ₦10,000 carry none'] : ['Fee', 'Free', 'Because it is under ₦10,000'],
-        ['Total charged', nairaFull(amount + fee)],
+        fee > 0 ? ['Fee', nairaFull(fee), 'Transfers under ₦10,000 carry none'] : ['Fee', 'Free', paidInUsd ? 'Nothing on money from your dollars' : 'Because it is under ₦10,000'],
+        ['Total charged', paidInUsd ? usdFull(paidInUsd) : nairaFull(amount + fee)],
         ['Balance after', after],
       ],
       session,

@@ -1,0 +1,84 @@
+<frame id="219:2" name="Goal" x="573" y="80" width="393" height="852">
+  <frame id="219:3" name="Page" x="0" y="0" width="393" height="1019.7999877929688">
+    <frame id="219:4" name="Content" x="20" y="72" width="353" height="947.7999877929688">
+      <instance id="660:18130" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="219:8" name="Card" x="0" y="79.19999694824219" width="353" height="303">
+        <frame id="219:9" name="Group" x="86.5" y="20" width="180" height="180">
+          <instance id="564:15489" name="Glyph · person" x="0" y="0" width="180" height="180" />
+          <frame id="219:13" name="Column" x="0" y="0" width="180" height="180">
+            <text id="219:14" name="33%" x="50.099998474121094" y="57.5" width="68" height="40" />
+            <text id="219:15" name="of the way" x="50.099998474121094" y="104.5" width="67" height="20" />
+          </frame>
+        </frame>
+        <frame id="219:16" name="Column" x="101.4000015258789" y="216" width="150.1999969482422" height="67">
+          <text id="219:17" name="₦82,400" x="0" y="0" width="135" height="40" />
+          <text id="219:18" name="of ₦250,000 put aside" x="0" y="52" width="144" height="20" />
+        </frame>
+      </frame>
+      <frame id="219:19" name="Row" x="0" y="402.20001220703125" width="353" height="93.5999984741211">
+        <instance id="235:6130" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="653:18045" name="Card" x="44" y="0" width="309" height="104" />
+      </frame>
+      <frame id="219:26" name="Column" x="0" y="515.7999877929688" width="353" height="244">
+        <text id="219:27" name="What is feeding it" x="0" y="0" width="163" height="24" />
+        <frame id="219:28" name="Column" x="0" y="36" width="353" height="204">
+          <frame id="219:29" name="Row · ₦80,000" x="0" y="0" width="353" height="68">
+            <frame id="219:30" name="Icon" x="0" y="14" width="40" height="40">
+              <instance id="564:15493" name="Glyph · alert" x="10" y="10" width="20" height="20" />
+            </frame>
+            <frame id="219:34" name="Column" x="52" y="12.399999618530273" width="223.1999969482422" height="43.20000076293945">
+              <text id="219:35" name="Payday transfer" x="0" y="0" width="118" height="24" />
+              <text id="219:36" name="₦20,000 every month" x="0" y="28" width="140" height="20" />
+            </frame>
+            <text id="219:37" name="₦80,000" x="287.20001220703125" y="22" width="67" height="24" />
+          </frame>
+          <frame id="219:38" name="Row · ₦2,280" x="0" y="68" width="353" height="68">
+            <frame id="219:39" name="Icon" x="0" y="14" width="40" height="40">
+              <instance id="564:15497" name="Glyph · swap" x="10" y="10" width="20" height="20" />
+            </frame>
+            <frame id="219:42" name="Column" x="52" y="12.399999618530273" width="232.60000610351562" height="43.20000076293945">
+              <text id="219:43" name="Round ups" x="0" y="0" width="80" height="24" />
+              <text id="219:44" name="The change from card payment" x="0" y="28" width="210" height="20" />
+            </frame>
+            <text id="219:45" name="₦2,280" x="296.6000061035156" y="22" width="56" height="24" />
+          </frame>
+          <frame id="219:46" name="Row · ₦120" x="0" y="136" width="353" height="68">
+            <frame id="219:47" name="Icon" x="0" y="14" width="40" height="40">
+              <instance id="564:15500" name="Glyph · card" x="10" y="10" width="20" height="20" />
+            </frame>
+            <frame id="219:51" name="Column" x="52" y="12.399999618530273" width="247.39999389648438" height="43.20000076293945">
+              <text id="219:52" name="Money back on top ups" x="0" y="0" width="174" height="24" />
+              <text id="219:53" name="Instead of cash back" x="0" y="28" width="134" height="20" />
+            </frame>
+            <text id="219:54" name="₦120" x="311.3999938964844" y="22" width="39" height="24" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="219:55" name="Row" x="0" y="779.7999877929688" width="353" height="52">
+        <instance id="577:18318" name="Button · Add money" x="0" y="-2" width="169.39999389648438" height="56" />
+        <instance id="577:18326" name="Button · Feed it more" x="177.39999389648438" y="-2" width="175.60000610351562" height="56" />
+      </frame>
+      <frame id="219:60" name="Row · Nothing here is lock" x="0" y="851.7999877929688" width="353" height="36">
+        <instance id="564:15504" name="Glyph · lock" x="0" y="0" width="16" height="16" />
+        <text id="219:64" name="Nothing here is locked. Take" x="24" y="0" width="329" height="40" />
+      </frame>
+      <frame id="219:65" name="Row · What happens if mone" x="0" y="907.7999877929688" width="353" height="40">
+        <text id="219:66" name="What happens if money gets t" x="49" y="10" width="235" height="20" />
+        <instance id="564:15508" name="Glyph · check" x="292" y="14" width="12.000000953674316" height="12.000000953674316" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="219:69" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="219:70" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="219:71" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="564:15511" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="219:74" name="Ask bar" x="52" y="4" width="245" height="48">
+        <instance id="235:6310" name="Mark · 32" x="8" y="8" width="32" height="32" />
+        <text id="219:79" name="Ask about this goal" x="48" y="16" width="107" height="16" />
+        <instance id="564:15514" name="Glyph · camera" x="163" y="15" width="18" height="18" />
+      </frame>
+      <instance id="577:18335" name="Action button" x="305" y="0" width="56" height="56" />
+    </frame>
+  </frame>
+</frame>

@@ -1,0 +1,151 @@
+<frame id="224:122" name="SaveRule" x="1066" y="80" width="393" height="852">
+  <frame id="224:123" name="Page" x="0" y="0" width="393" height="1019.7999877929688">
+    <frame id="224:124" name="Content" x="20" y="72" width="353" height="947.7999877929688">
+      <instance id="660:18133" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="224:128" name="Card" x="0" y="79.19999694824219" width="353" height="303">
+        <frame id="224:129" name="Group" x="86.5" y="20" width="180" height="180">
+          <instance id="564:15525" name="Glyph · person" x="0" y="0" width="180" height="180" />
+          <frame id="224:133" name="Column" x="0" y="0" width="180" height="180">
+            <text id="224:134" name="33%" x="50.099998474121094" y="57.5" width="68" height="40" />
+            <text id="224:135" name="of the way" x="50.099998474121094" y="104.5" width="67" height="20" />
+          </frame>
+        </frame>
+        <frame id="224:136" name="Column" x="101.4000015258789" y="216" width="150.1999969482422" height="67">
+          <text id="224:137" name="₦82,400" x="0" y="0" width="135" height="40" />
+          <text id="224:138" name="of ₦250,000 put aside" x="0" y="52" width="144" height="20" />
+        </frame>
+      </frame>
+      <frame id="224:139" name="Row" x="0" y="402.20001220703125" width="353" height="93.5999984741211">
+        <instance id="235:6134" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="653:18047" name="Card" x="44" y="0" width="309" height="104" />
+      </frame>
+      <frame id="224:146" name="Column" x="0" y="515.7999877929688" width="353" height="244">
+        <text id="224:147" name="What is feeding it" x="0" y="0" width="163" height="24" />
+        <frame id="224:148" name="Column" x="0" y="36" width="353" height="204">
+          <frame id="224:149" name="Row · ₦80,000" x="0" y="0" width="353" height="68">
+            <frame id="224:150" name="Icon" x="0" y="14" width="40" height="40">
+              <instance id="564:15529" name="Glyph · alert" x="10" y="10" width="20" height="20" />
+            </frame>
+            <frame id="224:154" name="Column" x="52" y="12.399999618530273" width="223.1999969482422" height="43.20000076293945">
+              <text id="224:155" name="Payday transfer" x="0" y="0" width="118" height="24" />
+              <text id="224:156" name="₦20,000 every month" x="0" y="28" width="140" height="20" />
+            </frame>
+            <text id="224:157" name="₦80,000" x="287.20001220703125" y="22" width="67" height="24" />
+          </frame>
+          <frame id="224:158" name="Row · ₦2,280" x="0" y="68" width="353" height="68">
+            <frame id="224:159" name="Icon" x="0" y="14" width="40" height="40">
+              <instance id="564:15533" name="Glyph · swap" x="10" y="10" width="20" height="20" />
+            </frame>
+            <frame id="224:162" name="Column" x="52" y="12.399999618530273" width="232.60000610351562" height="43.20000076293945">
+              <text id="224:163" name="Round ups" x="0" y="0" width="80" height="24" />
+              <text id="224:164" name="The change from card payment" x="0" y="28" width="210" height="20" />
+            </frame>
+            <text id="224:165" name="₦2,280" x="296.6000061035156" y="22" width="56" height="24" />
+          </frame>
+          <frame id="224:166" name="Row · ₦120" x="0" y="136" width="353" height="68">
+            <frame id="224:167" name="Icon" x="0" y="14" width="40" height="40">
+              <instance id="564:15536" name="Glyph · card" x="10" y="10" width="20" height="20" />
+            </frame>
+            <frame id="224:171" name="Column" x="52" y="12.399999618530273" width="247.39999389648438" height="43.20000076293945">
+              <text id="224:172" name="Money back on top ups" x="0" y="0" width="174" height="24" />
+              <text id="224:173" name="Instead of cash back" x="0" y="28" width="134" height="20" />
+            </frame>
+            <text id="224:174" name="₦120" x="311.3999938964844" y="22" width="39" height="24" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="224:175" name="Row" x="0" y="779.7999877929688" width="353" height="52">
+        <instance id="577:18340" name="Button · Add money" x="0" y="-2" width="169.39999389648438" height="56" />
+        <instance id="577:18348" name="Button · Feed it more" x="177.39999389648438" y="-2" width="175.60000610351562" height="56" />
+      </frame>
+      <frame id="224:180" name="Row · Nothing here is lock" x="0" y="851.7999877929688" width="353" height="36">
+        <instance id="564:15540" name="Glyph · lock" x="0" y="0" width="16" height="16" />
+        <text id="224:184" name="Nothing here is locked. Take" x="24" y="0" width="329" height="40" />
+      </frame>
+      <frame id="224:185" name="Row · What happens if mone" x="0" y="907.7999877929688" width="353" height="40">
+        <text id="224:186" name="What happens if money gets t" x="49" y="10" width="235" height="20" />
+        <instance id="564:15544" name="Glyph · check" x="292" y="14" width="12.000000953674316" height="12.000000953674316" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="224:189" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="224:190" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="224:191" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="564:15547" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="224:194" name="Ask bar" x="52" y="4" width="245" height="48">
+        <instance id="235:6314" name="Mark · 32" x="8" y="8" width="32" height="32" />
+        <text id="224:199" name="Ask about this goal" x="48" y="16" width="107" height="16" />
+        <instance id="564:15550" name="Glyph · camera" x="163" y="15" width="18" height="18" />
+      </frame>
+      <instance id="577:18356" name="Action button" x="305" y="0" width="56" height="56" />
+    </frame>
+  </frame>
+  <frame id="224:209" name="Scrim" x="0" y="0" width="393" height="852" />
+  <frame id="224:210" name="Sheet" x="10" y="152.599609375" width="373" height="689.4000244140625">
+    <frame id="224:211" name="Box" x="164.5" y="14" width="44" height="5" />
+    <frame id="224:212" name="Column" x="20" y="31" width="333" height="172.39999389648438">
+      <frame id="224:213" name="Icon" x="28.599998474121094" y="2" width="64" height="64">
+        <instance id="564:15561" name="Glyph · alert" x="16" y="16" width="32" height="32" />
+      </frame>
+      <text id="224:217" name="Feed the Holiday goal" x="28.599998474121094" y="76" width="202" height="24" />
+      <text id="224:218" name="Pick something that runs witho" x="28.600000381469727" y="110" width="277" height="48" />
+    </frame>
+    <frame id="224:219" name="Column" x="20" y="203.39999389648438" width="333" height="304">
+      <frame id="224:220" name="Row" x="0" y="0" width="333" height="76">
+        <frame id="224:221" name="Icon" x="0" y="18" width="40" height="40">
+          <instance id="564:15565" name="Glyph · alert" x="10" y="10" width="20" height="20" />
+        </frame>
+        <frame id="224:225" name="Column" x="52" y="7.899999618530273" width="217" height="60.20000076293945">
+          <text id="224:226" name="A slice of payday" x="0" y="0" width="129" height="24" />
+          <text id="224:227" name="10% the day your salary land" x="0" y="28" width="168" height="16" />
+          <text id="224:228" name="₦20,000 a month" x="0" y="48" width="117" height="20" />
+        </frame>
+        <frame id="224:229" name="Box" x="281" y="22" width="52" height="32">
+          <frame id="224:230" name="Box" x="24" y="2" width="26" height="26" />
+        </frame>
+      </frame>
+      <frame id="224:231" name="Row" x="0" y="76" width="333" height="76">
+        <frame id="224:232" name="Icon" x="0" y="18" width="40" height="40">
+          <instance id="564:15569" name="Glyph · swap" x="10" y="10" width="20" height="20" />
+        </frame>
+        <frame id="224:235" name="Column" x="52" y="7.899999618530273" width="217" height="60.20000076293945">
+          <text id="224:236" name="Round ups" x="0" y="0" width="82" height="24" />
+          <text id="224:237" name="The change from every card p" x="0" y="28" width="212" height="16" />
+          <text id="224:238" name="₦2,280 a month" x="0" y="48" width="108" height="20" />
+        </frame>
+        <frame id="224:239" name="Box" x="281" y="22" width="52" height="32">
+          <frame id="224:240" name="Box" x="24" y="2" width="26" height="26" />
+        </frame>
+      </frame>
+      <frame id="224:241" name="Row" x="0" y="152" width="333" height="76">
+        <frame id="224:242" name="Icon" x="0" y="18" width="40" height="40">
+          <instance id="564:15572" name="Glyph · card" x="10" y="10" width="20" height="20" />
+        </frame>
+        <frame id="224:246" name="Column" x="52" y="7.899999618530273" width="217" height="60.20000076293945">
+          <text id="224:247" name="Money back on top ups" x="0" y="0" width="177" height="24" />
+          <text id="224:248" name="Cash back comes here instead" x="0" y="28" width="210" height="16" />
+          <text id="224:249" name="₦120 a month" x="0" y="48" width="93" height="20" />
+        </frame>
+        <frame id="224:250" name="Box" x="281" y="22" width="52" height="32">
+          <frame id="224:251" name="Box" x="24" y="2" width="26" height="26" />
+        </frame>
+      </frame>
+      <frame id="224:252" name="Row" x="0" y="228" width="333" height="76">
+        <frame id="224:253" name="Icon" x="0" y="18" width="40" height="40">
+          <instance id="564:15576" name="Glyph · plus" x="10" y="10" width="20" height="20" />
+        </frame>
+        <frame id="224:256" name="Column" x="52" y="7.899999618530273" width="219.8000030517578" height="60.20000076293945">
+          <text id="224:257" name="A fixed amount" x="0" y="0" width="115" height="24" />
+          <text id="224:258" name="You pick the day and the sum" x="0" y="28" width="167" height="16" />
+          <text id="224:259" name="You choose" x="0" y="48" width="78" height="20" />
+        </frame>
+        <frame id="224:260" name="Chip · Set it" x="283.79998779296875" y="22" width="49.20000076293945" height="32">
+          <text id="224:261" name="Set it" x="16" y="9" width="31" height="16" />
+        </frame>
+      </frame>
+    </frame>
+    <instance id="653:18049" name="Card" x="20" y="523.4000244140625" width="333" height="80" />
+    <instance id="577:18360" name="Button · Done" x="126.19999694824219" y="619.4000244140625" width="120.5999984741211" height="48" />
+  </frame>
+</frame>

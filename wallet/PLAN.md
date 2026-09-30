@@ -350,13 +350,30 @@ titles it Beetle Airtime.
 
 ## Round 6 · Dollars, putting money away, money health
 
-- [ ] Dollars (279:8211), Convert (279:8299), Converted (296:8850); the
+- [x] Dollars (279:8211), Convert (279:8299), Converted (296:8850); the
       dollars chip on the card opens Dollars
-- [ ] Pay from your dollars (payfrom 301:9464, paydollars 301:9565)
-- [ ] Holiday, the goal (219:2), the rule that feeds it (saverule 224:122),
+- [x] Pay from your dollars (payfrom 301:9464, paydollars 301:9565)
+- [x] Holiday, the goal (219:2), the rule that feeds it (saverule 224:122),
       Paused (204:2); No goal yet (emptygoal 964:21229)
-- [ ] Money health (223:2), from the row on home
-- [ ] Draft (222:2), from the button
+- [x] Money health (223:2), from the row on home
+- [x] Draft (222:2), from the button
+- [x] Lab places for each, the Figma check for the eleven frames, the walk
+      through converting, paying from the dollars, feeding the goal, adding
+      to it, pausing it, the score's offer, a new account's goal and the
+      draft
+
+Decided while building: the dollars chip opens Dollars itself (typed
+"what about dollars" stays a question for the chat, as the artifact page
+says it does; "convert" opens Convert); the dollars held are the account's
+own plus every conversion and every payment from them on this phone, so no
+new store; a conversion is a line in the day of its own kind whose page is
+Converted; sending from the dollars is free and leaves the naira balance
+alone; the goal's Paused state is the Rules page's Money is tight switch,
+so the two are one; round ups and cash back are the goal's own switches
+rather than standing instructions, so the Rules page keeps its frame; the
+Draft frame is the file's older home with a keyboard over it, so it is a
+lab place for the typing state with a draft waiting in the bar; the score,
+the goal's figures and the rate are the demo's own.
 
 ## Round 7 · When it goes wrong, and what runs on its own
 

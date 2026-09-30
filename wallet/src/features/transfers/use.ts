@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { holdingsFor, type LedgerRow } from '../home/account';
-import { useMoves } from '../home/moves';
+import { balanceOf, useMoves } from '../home/moves';
 
 export function useLine(id: string) {
   const app = useApp();
@@ -12,7 +12,7 @@ export function useLine(id: string) {
   const { moves, ready, add } = useMoves(account?.accountNumber);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
   const rows: LedgerRow[] = useMemo(() => [...moves, ...(h?.ledger ?? [])], [moves, h]);
-  const balance = (h?.everyday ?? 0) + moves.reduce((a, r) => a + r.amount, 0);
+  const balance = (h?.everyday ?? 0) + balanceOf(moves);
   const row = rows.find(r => r.id === id) ?? null;
   return { ok: ok && !!account, account, ready, row, rows, balance, moves, add };
 }

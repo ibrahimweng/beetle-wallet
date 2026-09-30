@@ -15,7 +15,8 @@ import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
 import { holdingsFor } from '../home/account';
-import { rowFrom, useMoves } from '../home/moves';
+import { balanceOf, rowFrom, useMoves } from '../home/moves';
+import { PayFromSheet, dollarsOf, usdFull, usdOf, type Source } from '../dollars';
 import { clock } from '../../lib/clock';
 import { SavedPeek } from '../agent/SavedPeek';
 import { PasscodeSheet, lockedFor } from '../passcode';
@@ -39,7 +40,13 @@ export function PayBill() {
   const account = app.session?.account;
   const { moves, add: addMove } = useMoves(account?.accountNumber);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
-  const balance = (h?.everyday ?? 0) + moves.reduce((a, r) => a + r.amount, 0);
+  const balance = (h?.everyday ?? 0) + balanceOf(moves);
+  const rate = h?.rate ?? 1_552;
+  const dollars = dollarsOf(h?.dollars ?? 0, moves);
+  /* where it leaves from: Everyday, or the dollars at today's rate */
+  const [source, setSource] = useState<Source>('everyday');
+  const [choosing, setChoosing] = useState(false);
+  const fromDollars = source === 'dollars';
   const saved = useMemo(
     () => beneficiariesOf([...moves, ...(h?.ledger ?? [])], account?.demo ? DEMO_SAVED : { lines: [], meters: [] }, PEOPLE, account ? ownLine(account.phone) : null),
     [moves, h, account],
@@ -73,7 +80,11 @@ export function PayBill() {
 
   const slide = () => {
     if (!amount) return;
-    if (amount > balance) {
+    if (fromDollars && usdOf(amount, rate) > dollars) {
+      toast(`That is more than the ${usdFull(dollars)} you hold. Pay from Everyday, or convert some first.`);
+      return;
+    }
+    if (!fromDollars && amount > balance) {
       router.push(`/short?asked=${amount}`);
       return;
     }
@@ -97,13 +108,13 @@ export function PayBill() {
           kind: 'bill',
         })
       : { name: biller.name, detail: `${biller.accountLabel} ${biller.account}`, amount: -amount, icon: biller.glyph, kind: 'bill' };
-    const row = rowFrom({ ...base, detail: `${base.detail} · ${at}` }, balance, 17 + moves.length);
+    const row = rowFrom({ ...base, detail: `${base.detail}${fromDollars ? ' · from dollars' : ''} · ${at}`, ...(fromDollars ? { usd: -usdOf(amount, rate) } : {}) }, balance, 17 + moves.length);
     addMove(row);
     setGuard(false);
     router.replace(`/receipt/${row.id}`);
   };
 
-  useFoot({ kind: 'slide', label: 'Slide to pay', amount: naira(amount), disabled: !amount || (power && !meter), onSlide: slide, veil: guard ? 'away' : pick ? 'recede' : undefined });
+  useFoot({ kind: 'slide', label: 'Slide to pay', amount: naira(amount), disabled: !amount || (power && !meter), onSlide: slide, veil: guard || choosing ? 'away' : pick ? 'recede' : undefined });
   const amend = useDeparture({ id: 'pay:amount', to: `/amend?amount=${amount}&to=bill`, words: naira(amount) });
 
   if (!ok || !account) return null;
@@ -112,7 +123,7 @@ export function PayBill() {
   const line =
     power && !meter
       ? 'Which meter? Tap the card to pick one you have paid, or point the camera at a bill.'
-      : amount > balance
+      : !fromDollars && amount > balance
         ? `That is ${naira(amount - balance)} more than Everyday holds. Slide, and I show you three ways to close it.`
         : meter && meter.disco !== biller.id
           ? `${name}, the meter you picked.`
@@ -155,11 +166,11 @@ export function PayBill() {
             <Caption tone="secondary">{amountNote}</Caption>
           </Tap>
           <View style={[s.sub, s.rows]} testID="pay-rows">
-            <Tap accessibilityRole="button" accessibilityLabel="From" onPress={later('Paying from Dollars', 6)} style={s.row}>
+            <Tap accessibilityRole="button" accessibilityLabel="From" onPress={() => setChoosing(true)} style={s.row}>
               <Body tone="secondary" style={{ flex: 1 }}>
                 From
               </Body>
-              <Label style={s.value}>{`Everyday · ${groupAccount(account.accountNumber)}`}</Label>
+              <Label style={s.value}>{fromDollars ? `Dollars · ${usdFull(dollars)}` : `Everyday · ${groupAccount(account.accountNumber)}`}</Label>
               <Icon name="chevron" size={16} colour={colour.textTertiary} />
             </Tap>
             <View style={s.row}>
@@ -217,6 +228,7 @@ export function PayBill() {
           onClose={() => setPick(null)}
         />
       ) : null}
+      {choosing ? <PayFromSheet everyday={balance} dollars={dollars} rate={rate} value={source} who="the light" onPick={setSource} onDismiss={() => setChoosing(false)} /> : null}
       {guard ? (
         <PasscodeSheet
           amount={naira(amount)}

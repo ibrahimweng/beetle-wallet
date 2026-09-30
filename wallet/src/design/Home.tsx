@@ -378,6 +378,7 @@ export function ScoreRow({ score, title, sub, onPress }: { score: number; title:
   return (
     <Tap
       accessibilityRole="button"
+      accessibilityLabel={title}
       onPress={onPress}
       style={{
         flexDirection: 'row',

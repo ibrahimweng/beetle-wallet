@@ -33,7 +33,8 @@ import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
 import { holdingsFor } from '../home/account';
-import { rowFrom, useMoves } from '../home/moves';
+import { balanceOf, rowFrom, useMoves } from '../home/moves';
+import { PayFromSheet, dollarsOf, usdFull, usdOf, type Source } from '../dollars';
 import { clock } from '../../lib/clock';
 import { SavedPeek } from '../agent/SavedPeek';
 import { PasscodeSheet, lockedFor } from '../passcode';
@@ -76,7 +77,13 @@ export function BuyData() {
   const account = app.session?.account;
   const { moves, add: addMove } = useMoves(account?.accountNumber);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
-  const balance = (h?.everyday ?? 0) + moves.reduce((a, r) => a + r.amount, 0);
+  const balance = (h?.everyday ?? 0) + balanceOf(moves);
+  const rate = h?.rate ?? 1_552;
+  const dollars = dollarsOf(h?.dollars ?? 0, moves);
+  /* where it leaves from: Everyday, or the dollars at today's rate */
+  const [source, setSource] = useState<Source>('everyday');
+  const [choosing, setChoosing] = useState(false);
+  const fromDollars = source === 'dollars';
   const saved = useMemo(
     () => beneficiariesOf([...moves, ...(h?.ledger ?? [])], account?.demo ? DEMO_SAVED : { lines: [], meters: [] }, PEOPLE, account ? ownLine(account.phone) : null),
     [moves, h, account],
@@ -153,7 +160,11 @@ export function BuyData() {
   const price = airtime ? amount : (plan?.price ?? 0);
   const slide = () => {
     if (!line || !price) return;
-    if (price > balance) {
+    if (fromDollars && usdOf(price, rate) > dollars) {
+      toast(`That is more than the ${usdFull(dollars)} you hold. Pay from Everyday, or convert some first.`);
+      return;
+    }
+    if (!fromDollars && price > balance) {
       router.push(`/short?asked=${price}`);
       return;
     }
@@ -171,13 +182,13 @@ export function BuyData() {
     const phone = { number: line.number, network: line.network, label: line.own ? 'Your line' : line.label };
     const base = airtime || !plan ? airtimePanelFor(phone, amount).move : dataPanelFor(phone, plan).move;
     if (!base) return;
-    const row = rowFrom({ ...base, detail: `${base.detail} · ${at}` }, balance, 17 + moves.length);
+    const row = rowFrom({ ...base, detail: `${base.detail}${fromDollars ? ' · from dollars' : ''} · ${at}`, ...(fromDollars ? { usd: -usdOf(price, rate) } : {}) }, balance, 17 + moves.length);
     addMove(row);
     setGuard(false);
     router.replace(`/receipt/${row.id}`);
   };
 
-  useFoot({ kind: 'slide', label: 'Slide to buy', amount: naira(price), disabled: !line || !price || typing, onSlide: slide, veil: guard ? 'away' : pick ? 'recede' : undefined });
+  useFoot({ kind: 'slide', label: 'Slide to buy', amount: naira(price), disabled: !line || !price || typing, onSlide: slide, veil: guard || choosing ? 'away' : pick ? 'recede' : undefined });
   const amend = useDeparture({ id: 'buy:amount', to: `/amend?amount=${amount}&to=airtime`, words: naira(amount) });
 
   if (!ok || !account) return null;
@@ -272,11 +283,11 @@ export function BuyData() {
             </View>
           )}
           <View style={[s.sub, s.rows]} testID="buy-rows">
-            <Tap accessibilityRole="button" accessibilityLabel="From" onPress={later('Paying from Dollars', 6)} style={s.row}>
+            <Tap accessibilityRole="button" accessibilityLabel="From" onPress={() => setChoosing(true)} style={s.row}>
               <Body tone="secondary" style={{ flex: 1 }}>
                 From
               </Body>
-              <Label style={s.value}>{`Everyday · ${groupAccount(account.accountNumber)}`}</Label>
+              <Label style={s.value}>{fromDollars ? `Dollars · ${usdFull(dollars)}` : `Everyday · ${groupAccount(account.accountNumber)}`}</Label>
               <Icon name="chevron" size={16} colour={colour.textTertiary} />
             </Tap>
             <View style={s.row}>
@@ -365,6 +376,7 @@ export function BuyData() {
           onClose={() => setPick(null)}
         />
       ) : null}
+      {choosing ? <PayFromSheet everyday={balance} dollars={dollars} rate={rate} value={source} who="the line" onPick={setSource} onDismiss={() => setChoosing(false)} /> : null}
       {guard && line ? (
         <PasscodeSheet
           amount={naira(price)}

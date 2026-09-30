@@ -12,7 +12,7 @@ import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
 import { askHome } from '../more/More';
 import { holdingsFor } from '../home/account';
-import { useMoves } from '../home/moves';
+import { balanceOf, useMoves } from '../home/moves';
 import { LAB } from '../../lab/enabled';
 import { naira } from '../../lib/format';
 import { draft } from './hand';
@@ -42,7 +42,7 @@ export function Short() {
   const { moves } = useMoves(account?.accountNumber);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
   /* the lab opens it with the balance the frame draws */
-  const have = LAB && asked.have ? Number(asked.have) : (h?.everyday ?? 0) + moves.reduce((a, r) => a + r.amount, 0);
+  const have = LAB && asked.have ? Number(asked.have) : (h?.everyday ?? 0) + balanceOf(moves);
   const want = Number(asked.asked ?? 0) || 0;
   const short = Math.max(0, want - have);
   const toSend = useBackToSend();

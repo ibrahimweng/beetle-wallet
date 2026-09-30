@@ -12,12 +12,13 @@ import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
 import { holdingsFor } from '../home/account';
-import { useMoves } from '../home/moves';
+import { balanceOf, useMoves } from '../home/moves';
 import { naira } from '../../lib/format';
 import { draft } from './hand';
 import { requestDraft } from '../request/hand';
 import { billDraft } from '../bills/hand';
 import { topupDraft } from '../data/hand';
+import { goalDraft } from '../goal/hand';
 
 /** ₦99,999,999 at most: eight digits. */
 const MOST = 8;
@@ -30,7 +31,7 @@ export function Amend() {
   const account = app.session?.account;
   const { moves } = useMoves(account?.accountNumber);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
-  const balance = (h?.everyday ?? 0) + moves.reduce((a, r) => a + r.amount, 0);
+  const balance = (h?.everyday ?? 0) + balanceOf(moves);
   const read = Number(asked.read ?? 0) || 0;
   const [digits, setDigits] = useState(() => String(Number(asked.amount ?? 0) || '').replace(/^0$/, ''));
   const amount = Number(digits || 0);
@@ -40,6 +41,7 @@ export function Amend() {
     if (forRequest) requestDraft.put({ amount });
     else if (asked.to === 'bill') billDraft.put({ amount });
     else if (asked.to === 'airtime') topupDraft.put({ amount });
+    else if (asked.to === 'goal') goalDraft.put({ amount });
     else draft.put({ amount, amountNote: 'You typed it' });
     router.back();
   };
@@ -54,7 +56,17 @@ export function Amend() {
       head={
         <PageHead
           title="Change the amount"
-          sub={forRequest ? 'Nothing has been asked yet' : asked.to === 'bill' ? 'Nothing has been paid yet' : asked.to === 'airtime' ? 'Nothing has been bought yet' : 'Nothing has been sent'}
+          sub={
+            forRequest
+              ? 'Nothing has been asked yet'
+              : asked.to === 'bill'
+                ? 'Nothing has been paid yet'
+                : asked.to === 'airtime'
+                  ? 'Nothing has been bought yet'
+                  : asked.to === 'goal'
+                    ? 'Nothing has been put away yet'
+                    : 'Nothing has been sent'
+          }
         />
       }
     >

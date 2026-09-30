@@ -32,6 +32,28 @@ const OFFERS: Record<string, { rule: keyof Prefs['rules']; facts: { label: strin
     ],
     say: 'Only on the day the salary lands, and only if there is room. I never move it on any other day.',
   },
+  dollars: {
+    rule: 'dollars',
+    facts: [
+      { label: 'What', value: 'Move ₦20,000 into Dollars' },
+      { label: 'When', value: 'The day your salary lands' },
+      { label: 'Rate', value: 'Whatever it is that day' },
+      { label: 'Up to', value: '₦20,000' },
+      { label: 'Stops if', value: 'Everyday is under ₦15,000', quiet: true },
+    ],
+    say: 'Only on payday, at the rate that day, and only if there is room. Turn it off and the dollars stay dollars.',
+  },
+  budget: {
+    rule: 'budget',
+    facts: [
+      { label: 'What', value: 'Hold ₦5,000 back on payday' },
+      { label: 'Where', value: 'Into the Holiday goal' },
+      { label: 'When', value: 'The day your salary lands' },
+      { label: 'Up to', value: '₦5,000' },
+      { label: 'Stops if', value: 'Everyday is under ₦15,000', quiet: true },
+    ],
+    say: 'It is ₦5,000 you do not see, once a month. Your score would reach 76 by October if nothing else changed.',
+  },
   remind: {
     rule: 'remind',
     facts: [

@@ -105,6 +105,9 @@ mocks in and says so on the code screen; a real `AuthService` and
 | `src/features/services/` | All services: the drawer (`Services.tsx`) and what it lists, with the way the bar's words find one (`services.ts`) |
 | `src/features/data/` | Data and airtime: the page (`BuyData.tsx`), the sheet over the camera for a message asking for data (`TopupSheet.tsx`), the chat that prices a top-up read off a photo (`Topup.tsx`), and what the pages hand each other (`hand.ts`) |
 | `src/features/loan/` | Borrow: what a loan costs (`loan.ts`) and the page (`Loan.tsx`) |
+| `src/features/dollars/` | Dollars: the rate, the fee and the sums (`dollars.ts`), the page (`Dollars.tsx`), Convert (`Convert.tsx`) and Converted (`Converted.tsx`), and the Pay from sheet the paying pages put up (`PayFromSheet.tsx`) |
+| `src/features/goal/` | Putting money away: the goal and what feeds it (`goal.ts`), the page in its three states (`Goal.tsx`), the sheet that feeds it (`FeedSheet.tsx`), and what the keypad hands back (`hand.ts`) |
+| `src/features/health/` | Money health: the score and the five habits (`health.ts`) and the page (`Health.tsx`) |
 | `src/features/send/` | Sending money: the page (`Send.tsx`), the keypad page for the amount (`Amend.tsx`), Not enough (`Short.tsx`), Check this number (`Misread.tsx`), and what the pages hand back to the one under them (`hand.ts`) |
 | `src/features/transfers/` | A transfer that is not done: Still on its way, It did not go and It came back (`Transfer.tsx`), What went wrong? (`Wrong.tsx`), Asking for it back (`Recall.tsx`), I sent it wrong (`AlreadyGone.tsx`), what each says about a line (`states.ts`) |
 | `src/features/receipts/` | A receipt for every line in the day: the record and the frames' own figures (`receipts.ts`), the page (`ReceiptScreen.tsx`), the share sheet (`ShareSheet.tsx`); the card in the chat is `src/features/agent/ReceiptCard.tsx` |
@@ -548,6 +551,74 @@ Beetle with the receipt's card, which opens Money in from Beetle Loans.
 "borrow" or "how much can I borrow" typed at home opens the page; so does
 Loan on All services.
 
+## Dollars
+
+The dollars chip on the card opens Dollars, from its frame: what is held
+and what it is worth today, Convert and Send, the rate and how it moved
+this week, Beetle's word on holding them, where each dollar came from, the
+note on whose hands they are in, and the line that nothing is locked. The
+holding is the account's own plus every conversion and every payment from
+the dollars on this phone (`src/features/dollars/dollars.ts`); the rate is
+one rate all day, ₦1,552 to the dollar, until a market feed stands behind
+the app. Dollars on All services opens the page too.
+
+Convert takes naira into dollars, or, with the swap between the two
+places, dollars back into naira: the figure typed with what it comes to
+under it, the rate, the fee (free under $500, one percent over) and what
+you get, and Slide to convert beside Back. The slide leads to the passcode;
+the line goes into the day, the dollars change hands, and Converted takes
+the page's place — the tick, the rate you got, the fee, what the dollars
+come to now, and the offer to move ₦20,000 across every payday, which
+Set this up turns into a standing instruction. A conversion's line in the
+day opens Converted again; its receipt says the rate.
+
+Paying from the dollars: the From row on Send money, Pay a bill and Buy
+data opens Pay from — Everyday with what it holds, Dollars with what they
+are worth today, a tick on the one chosen — and picking Dollars makes the
+page pay from them at the rate on it: the figure in dollars under the
+amount, no fee, and the line that the rate is held for sixty seconds once
+you slide. The naira balance is left alone; the receipt says From Dollars
+with what left them. "convert" or "buy dollars" typed at home opens
+Convert; "what about dollars" stays a question for the chat.
+
+## Putting money away
+
+Savings pot on All services, or "my goal" typed at home, opens Holiday,
+from its frame: how far along the goal is on a ring with what is put aside
+under it, Beetle's word on the pace, what is feeding it row by row — the
+payday slice (the standing instruction on the Rules page), round ups from
+card payments and the cash back on top ups — Add money and Feed it more,
+the line that nothing is locked, and the question of what happens when
+money gets tight, which Beetle answers in the chat. Add money goes through
+the keypad page and the passcode; the line goes into the day as Put away,
+its receipt opens, and the ring moves. Feed it more is the sheet from its
+frame: the four ways with a switch on each of the three that run on their
+own and Set it on the fixed amount, with the note that none of it is
+locked away. The switches are kept on this phone with the other settings
+(`src/features/settings/prefs.ts`); the payday one is the same switch as
+Standing instructions.
+
+While Money is tight this month is on (the switch at the top of Standing
+instructions), the goal is Paused, from its frame: the feeds wait, the
+cash back still comes in, the date moves from 12 March to 9 April, and
+Start again lifts it. An account the design does not seed a goal for sees
+Goals with nothing put aside yet, Start a goal and Set it up; Start a goal
+starts Holiday from nothing. The goal's figures are the demo's own
+(`src/features/goal/goal.ts`) until an account service keeps them.
+
+## Money health
+
+The Money health row on home opens the page from its frame: the score on a
+ring with how it moved, Beetle's word on what holds it down, the five
+habits that move it — checking before sending, saving on payday, the
+balance kept covered, only you opening the app, watching where it goes —
+with where each stands, the offer to hold ₦5,000 back on payday with
+Set it up under it (a standing instruction, once said yes to), and the
+note that this is not a credit score and never leaves the phone. The
+habits read the switches in Settings and the transfers on this phone; the
+score is the demo's own (`src/features/health/health.ts`) until an account
+service works it out. "money health" typed at home opens the page.
+
 ## Receipts
 
 Every line in the day opens its receipt, and so does the card in the chat.
@@ -709,7 +780,6 @@ they are not moving the way that file says.
 
 ## What comes next
 
-The rounds in `PLAN.md`: dollars, putting money away and money health next;
-then what goes wrong and what runs on its own; then finishing setting up (the
-ID card and the income question that turn the last two limits on); a server
-for the model's key.
+The rounds in `PLAN.md`: what goes wrong and what runs on its own next;
+then finishing setting up (the ID card and the income question that turn
+the last two limits on); a server for the model's key.

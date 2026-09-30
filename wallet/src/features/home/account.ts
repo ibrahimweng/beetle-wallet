@@ -15,7 +15,7 @@ export type LedgerRow = {
   detail: string;
   amount: number;
   status: 'done' | 'pending' | 'failed' | 'reversed';
-  kind: 'transfer' | 'service' | 'airtime' | 'saving' | 'in' | 'bill' | 'card';
+  kind: 'transfer' | 'service' | 'airtime' | 'saving' | 'in' | 'bill' | 'card' | 'convert';
   /** what its receipt needs beyond the line, where the line was added on this phone */
   fee?: number;
   reference?: string;
@@ -24,6 +24,8 @@ export type LedgerRow = {
   target?: Target;
   /** who it went to was read off a photo */
   read?: 'photo';
+  /** the dollars it moved: into the holding on a conversion, out of it where it was paid from */
+  usd?: number;
   session?: string;
   /** the balance once it had moved */
   after?: number;

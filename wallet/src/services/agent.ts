@@ -79,7 +79,7 @@ export type Move = {
   detail: string;
   amount: number;
   icon: IconName;
-  kind: 'transfer' | 'bill' | 'airtime' | 'service' | 'in';
+  kind: 'transfer' | 'bill' | 'airtime' | 'service' | 'in' | 'saving' | 'convert';
   /** what its receipt needs beyond the line: the fee, who, what was written */
   fee?: number;
   person?: Person;
@@ -88,6 +88,8 @@ export type Move = {
   target?: Target;
   /** who it went to was read off a photo: a wrong digit is then Beetle's own */
   read?: 'photo';
+  /** the dollars it moved: into the holding on a conversion, out of it where it was paid from */
+  usd?: number;
 };
 
 /* ---- what Beetle asks for ---- */
@@ -817,12 +819,32 @@ export class ScriptedAgent implements AgentService {
       return { blocks: [say(words), { kind: 'ask', ask: asking }], pending: { need: 'ask', ask: asking } };
     }
 
+    if (/\b(money (is|gets) tight|things (are|get) tight|tight this month|gets tight|if money)\b/.test(lower)) {
+      return {
+        blocks: [
+          say(
+            'Tell me, and I stop moving money into savings and stop asking you to. Your goals wait where they are: nothing is lost and nothing is charged. It is also a switch under Standing instructions, in Settings.',
+          ),
+        ],
+        pending: keep,
+      };
+    }
+    if (/\b(saving for|should i (be )?sav|what to save|save for)\b/.test(lower)) {
+      return {
+        blocks: [
+          say(
+            'A cushion first: three months of what you spend, so one bad month touches nothing else. After that, whatever you would put a date on. A goal with a rule feeding it looks after itself.',
+          ),
+        ],
+        pending: keep,
+      };
+    }
     if (/\b(dollar|dollars|usd|\$)/.test(lower)) {
       return {
         blocks: [
-          { kind: 'note', title: 'Holding dollars', body: 'Your naira buys dollars at the rate you see, and the dollars sit in their own place.' },
+          { kind: 'note', title: 'Holding dollars', body: 'Your naira buys dollars at the rate you see, and the dollars sit in their own place, in a domiciliary account at our partner bank.' },
           say(
-            `Right now ₦${ctx.rate.toLocaleString('en-NG')} buys a dollar, so what you have is about ${Math.round(ctx.balance / ctx.rate).toLocaleString('en-NG')} USD. Holding dollars comes on when you finish setting up.`,
+            `Right now ₦${ctx.rate.toLocaleString('en-NG')} buys a dollar, so ${naira(ctx.balance)} would be about ${Math.round(ctx.balance / ctx.rate).toLocaleString('en-NG')} USD. Your dollars are on the card: tap the chip to see them, or say "convert" to move some across.`,
           ),
         ],
         pending: keep,

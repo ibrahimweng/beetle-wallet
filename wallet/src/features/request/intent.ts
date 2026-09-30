@@ -32,6 +32,21 @@ export function isServices(text: string): boolean {
   return /\b(all services|what can i pay|what can you pay|everything you can do|services)\b/i.test(text);
 }
 
+/** "convert", "buy dollars", "turn 50k into dollars": Convert. */
+export function isConvert(text: string): boolean {
+  return /\b(convert|buy dollars|into dollars|to dollars|dollars? (in)?to naira|back to naira|change (some )?naira)\b/i.test(text);
+}
+
+/** "my goal", "my savings", "holiday", "how is my saving going": the goal. */
+export function isGoal(text: string): boolean {
+  return /\b(my goal|the goal|my savings?|savings? goal|holiday goal|put (money )?away|put aside|start a goal|save for)\b/i.test(text);
+}
+
+/** "money health", "my score", "how am I doing": Money health. */
+export function isHealth(text: string): boolean {
+  return /\b(money health|health score|my score|how am i doing|how am i handling)\b/i.test(text);
+}
+
 /** The page the words open, with what they carry handed to it; null for the chat. */
 export function pageFor(text: string): string | null {
   const q = text.trim();
@@ -39,6 +54,9 @@ export function pageFor(text: string): string | null {
   if (isBills(q)) return '/bills';
   if (isLoan(q)) return '/loan';
   if (isServices(q)) return '/services';
+  if (isConvert(q)) return '/convert';
+  if (isGoal(q)) return '/goal';
+  if (isHealth(q)) return '/health';
   if (isRequest(q)) {
     const who = payerIn(q);
     const amount = amountIn(q) ?? undefined;

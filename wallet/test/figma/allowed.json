@@ -666,5 +666,118 @@
    ],
    "why": "this frame holds a later cut of the share sheet: 6 more under its grabber, 12 more above the ways and 18 above the note, 623 tall against the Share frame's 599; the build is drawn to the Share frame (472:10886), which it is on"
   }
+ ],
+ "dollars": [
+  {
+   "anchor": true,
+   "why": "the frame's sub runs to two lines and over the card; the build gives the second line its room, so the page sits 24 lower from the card down"
+  },
+  {
+   "text": "₦58,200 less",
+   "why": "the frame's own rounding; the build works the figure from the dollars held at the rate on the page (₦58,600)"
+  }
+ ],
+ "convert": [
+  {
+   "text": "Row · ₦640,300 there",
+   "why": "the layer is named for an older figure; its words read ₦595,320 there, which the build says"
+  }
+ ],
+ "payfrom": [
+  {
+   "piece": "Box",
+   "nth": 0,
+   "why": "the grabber is 4 tall on every sheet of this build, as the passcode frame draws it; this frame draws 5"
+  },
+  {
+   "text": "$412.60, about ₦640,300 toda",
+   "why": "the frame's own rounding of the rate; the build says about ₦640,355 today, which is $412.60 at ₦1,552"
+  }
+ ],
+ "paydollars": [
+  {
+   "text": "About $32.07 from your dolla",
+   "why": "the frame's own rate; the build says about $32.22, which is ₦50,000 at the ₦1,552 on the page"
+  }
+ ],
+ "goal": [
+  {
+   "piece": "Row",
+   "nth": 1,
+   "why": "the frame boxes the two buttons at 52 and lets the 56 buttons stand 2 proud; the build's row is the buttons' own 56, with the same top and the same 20 under"
+  },
+  {
+   "anchor": true,
+   "why": "Beetle's line wraps to three lines in the frame's font and two in the build's, so from the feeds down the page sits 24 higher, less the frame's row box"
+  },
+  {
+   "piece": "Card",
+   "nth": 1,
+   "why": "the bubble's words wrap to three lines in the frame's font and two in the build's: 80 tall against the frame's 104"
+  },
+  {
+   "piece": "Column",
+   "nth": 0,
+   "why": "the ring's own column: the build centres the figure inside the ring rather than boxing it 180 square"
+  }
+ ],
+ "paused": [
+  {
+   "piece": "Row",
+   "nth": 1,
+   "why": "the frame boxes the two buttons at 52 and lets the 56 buttons stand 2 proud; the build's row is the buttons' own 56"
+  },
+  {
+   "piece": "Column",
+   "nth": 0,
+   "why": "the ring's own column: the build centres the figure inside the ring rather than boxing it 180 square"
+  },
+  {
+   "text": "of ₦250,000, holding steady",
+   "why": "the frame sets this line 49 under the figure where the Holiday frame sets it 52; the build keeps the Holiday frame's 12 gap"
+  }
+ ],
+ "emptygoal": [
+  {
+   "piece": "Row",
+   "nth": 1,
+   "why": "the frame boxes the two buttons at 52 and lets the 56 buttons stand 2 proud; the build's row is the buttons' own 56"
+  },
+  {
+   "text": "Button · Add money",
+   "why": "the layer keeps the Holiday page's names; the picture reads Start a goal, which the build says"
+  },
+  {
+   "text": "Button · Feed it more",
+   "why": "the layer keeps the Holiday page's names; the picture reads Set it up, which the build says"
+  },
+  {
+   "text": "What happens if money gets t",
+   "why": "the layer keeps the Holiday page's words; the picture reads What should I be saving for?, which the build says"
+  }
+ ],
+ "saverule": [
+  {
+   "piece": "Box",
+   "nth": 0,
+   "why": "the grabber is 4 tall on every sheet of this build, as the passcode frame draws it; this frame draws 5"
+  }
+ ],
+ "health": [
+  {
+   "piece": "Column",
+   "nth": 0,
+   "why": "the ring's own column: the build centres the figure inside the ring rather than boxing it 180 square"
+  }
+ ],
+ "draft": [
+  {
+   "piece": "Home behind",
+   "why": "the frame holds the file's older home, kept out on purpose (PLAN.md); the build's home is the card and the day"
+  },
+  {
+   "piece": "Keyboard",
+   "why": "the phone draws its own keyboard; the lab lifts the bar by the frame's 236 instead"
+  }
  ]
 }

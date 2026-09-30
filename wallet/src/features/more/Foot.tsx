@@ -35,7 +35,16 @@ export type FootSpec =
   /** a page: Back and the ask bar, with the plus where the frame draws one */
   | { kind: 'ask'; placeholder: string; onAsk: (q: string) => void; onScan?: () => void; more?: boolean; onPick?: (item: MoreItem) => void; veil?: Veil }
   /** a page with one thing to do: Back beside its button */
-  | { kind: 'button'; label: string; onPress: () => void; disabled?: boolean; veil?: Veil; /** grey where a frame draws it so, with a glyph before the word */ tone?: ButtonTone; leading?: IconName; size?: ButtonSize }
+  | {
+      kind: 'button';
+      label: string;
+      onPress: () => void;
+      disabled?: boolean;
+      veil?: Veil;
+      /** grey where a frame draws it so, with a glyph before the word */ tone?: ButtonTone;
+      leading?: IconName;
+      size?: ButtonSize;
+    }
   /** money about to move: Back beside Slide to send, with the figure under the words */
   | { kind: 'slide'; label: string; amount: string; onSlide: () => void; disabled?: boolean; veil?: Veil }
   | { kind: 'none' };
@@ -457,7 +466,7 @@ function Slide({ label, amount, disabled, onSlide }: { label: string; amount: st
     >
       <Animated.View style={[s.slideWords, words]} pointerEvents="none">
         <Row tone={disabled ? 'tertiary' : 'inverse'}>{label}</Row>
-        <Body tone={disabled ? 'tertiary' : 'inverse'}>{amount}</Body>
+        {amount ? <Body tone={disabled ? 'tertiary' : 'inverse'}>{amount}</Body> : null}
       </Animated.View>
       <GestureDetector gesture={pan}>
         <Animated.View style={[s.knob, knob]} testID="slide-knob">

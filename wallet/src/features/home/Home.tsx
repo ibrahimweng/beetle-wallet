@@ -55,7 +55,7 @@ import { ReceiveSheet, SAMPLE_ARRIVAL, arrivalChat, arrivalLine, arrivalMove, ty
 import { pageFor } from '../request/intent';
 import { LAB } from '../../lab/enabled';
 import { glance, holdingsFor } from './account';
-import { rowFrom, useMoves } from './moves';
+import { balanceOf, rowFrom, useMoves } from './moves';
 import { AskBar } from './AskBar';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { CLOSED_H, FOOT_BAND, WalletCard, useCardDrag, useCardTop } from './WalletCard';
@@ -69,8 +69,6 @@ import { JourneyProvider, useDeparture, useRecession, type Rect } from '../../de
 import type { ReceiptCard as Card } from '../agent/conversation';
 import { chatPointedOut, markChatPointedOut } from './first';
 import { groupAccount, kobo, naira, signed } from '../../lib/format';
-
-const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
 
 /** What stays showing under the open card: the gap, the head of the day, its
     chips, and the row of shortcuts under them. */
@@ -146,7 +144,7 @@ function HomeScreen() {
   const account = app.session?.account;
   const { moves, add: addMove } = useMoves(account?.accountNumber);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
-  const balance = (h?.everyday ?? 0) + moves.reduce((a, r) => a + r.amount, 0);
+  const balance = (h?.everyday ?? 0) + balanceOf(moves);
   const rate = h?.rate ?? 1552;
   /* everyone and everything paid before: what moved on this phone, the day, and what was saved from earlier */
   const saved = useMemo(
@@ -587,7 +585,7 @@ function HomeScreen() {
   const away = (k: string) => setPut(p => [...p, k]);
   const cardFor = (r: (typeof ledger)[number]): Card => {
     const rc = receiptFor(r, { account, balanceNow: balance, rows: ledger });
-    return { rowId: r.id, amount: naira(rc.amount), line: rc.line, status: rc.status, time: r.time };
+    return { rowId: r.id, to: r.kind === 'convert' ? `/converted/${r.id}` : undefined, amount: naira(rc.amount), line: rc.line, status: rc.status, time: r.time };
   };
   const rows = (day: 'today' | 'yesterday', from = 0, to = 99) =>
     filter === 'Chats'
@@ -690,7 +688,7 @@ function HomeScreen() {
               onReceive={openReceive}
               onNew={startNew}
               flash={flash}
-              onDollars={() => askFor('What about dollars?')}
+              onDollars={() => router.push('/dollars')}
               chat={<Chat talk={talk} active={opened} top={haze + 8} bottom={FOOT_BAND - 8} confirm={confirmWithPasscode} saved={saved} onSaved={(ask, kind, at) => setPick({ ask, kind, at })} />}
               foot={<AskBar ref={input} value={draft} onChange={setDraft} onSubmit={send} onCamera={toCamera} />}
             />
@@ -719,7 +717,7 @@ function HomeScreen() {
                     {filter === 'Chats' ? null : (
                       <>
                         <Tile
-                          onPress={later('Ways to be paid', 4)}
+                          onPress={() => router.push('/ways')}
                           lead={
                             <View
                               style={{
@@ -753,7 +751,7 @@ function HomeScreen() {
                       <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
                         Today
                       </Meta>
-                      {h.health !== null && filter !== 'Chats' ? <ScoreRow score={h.health} title="Money health" sub={h.healthMove} onPress={later('Money health', 6)} /> : null}
+                      {h.health !== null && filter !== 'Chats' ? <ScoreRow score={h.health} title="Money health" sub={h.healthMove} onPress={() => router.push('/health')} /> : null}
                     </View>
                     {todayChats.length ? <View style={{ gap: 34 }}>{todayChats}</View> : filter === 'Chats' ? <Meta tone="tertiary">No chats yet. Pull the card down to start one.</Meta> : null}
                     {insight('topup', { onDismiss: true })}

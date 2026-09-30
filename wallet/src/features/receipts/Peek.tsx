@@ -44,7 +44,7 @@ export function ReceiptPeek({ card, at, onClose }: { card: Card; at: Rect; onClo
     going.current = setTimeout(then, AWAY);
   };
   /* the full receipt: its amount travels from this one */
-  const full = useDeparture({ id: `row:${card.rowId}`, to: `/receipt/${card.rowId}`, words: card.amount, anchor: amount });
+  const full = useDeparture({ id: `row:${card.rowId}`, to: card.to ?? `/receipt/${card.rowId}`, words: card.amount, anchor: amount });
   const veil = useAnimatedStyle(() => ({ opacity: Math.min(1, t.value * 1.9) }));
   const box = useAnimatedStyle(() => ({
     height: at.h + (PEEK_H - at.h) * t.value,

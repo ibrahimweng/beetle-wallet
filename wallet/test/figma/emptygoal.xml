@@ -1,0 +1,36 @@
+<frame id="964:21229" name="EmptyGoal" x="1559" y="80" width="393" height="852">
+  <frame id="964:21230" name="Page" x="0" y="0" width="393" height="1019.7999877929688">
+    <frame id="964:21231" name="Content" x="20" y="72" width="353" height="947.7999877929688">
+      <instance id="964:21232" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="964:21242" name="Row" x="0" y="79.20001220703125" width="353" height="93.5999984741211">
+        <instance id="964:21243" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="964:21244" name="Card" x="44" y="0" width="309" height="80" />
+      </frame>
+      <frame id="964:21269" name="Row" x="0" y="192.79998779296875" width="353" height="52">
+        <instance id="964:21270" name="Button · Add money" x="0" y="-2" width="169.39999389648438" height="56" />
+        <instance id="964:21271" name="Button · Feed it more" x="177.39999389648438" y="-2" width="175.60000610351562" height="56" />
+      </frame>
+      <frame id="964:21272" name="Row · Nothing here is lock" x="0" y="264.79998779296875" width="353" height="36">
+        <instance id="964:21273" name="Glyph · lock" x="0" y="0" width="16" height="16" />
+        <text id="964:21274" name="Nothing here is locked. Take" x="24" y="0" width="329" height="40" />
+      </frame>
+      <frame id="964:21275" name="Row · What happens if mone" x="0" y="320.79998779296875" width="353" height="40">
+        <text id="964:21276" name="What happens if money gets t" x="71" y="10" width="191" height="20" />
+        <instance id="964:21277" name="Glyph · check" x="270" y="14" width="12.000000953674316" height="12.000000953674316" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="964:21278" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="964:21279" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="964:21280" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="964:21281" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="964:21282" name="Ask bar" x="52" y="4" width="245" height="48">
+        <instance id="964:21283" name="Mark · 32" x="8" y="8" width="32" height="32" />
+        <text id="964:21284" name="Ask about saving" x="48" y="16" width="107" height="16" />
+        <instance id="964:21285" name="Glyph · camera" x="163" y="15" width="18" height="18" />
+      </frame>
+      <instance id="964:21287" name="Action button" x="305" y="0" width="56" height="56" />
+    </frame>
+  </frame>
+</frame>

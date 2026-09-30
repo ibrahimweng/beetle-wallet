@@ -15,7 +15,7 @@ import type { ReceiptCard as Card } from '../agent/conversation';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { holdingsFor, type LedgerRow } from '../home/account';
-import { useMoves } from '../home/moves';
+import { balanceOf, useMoves } from '../home/moves';
 import { naira, signed } from '../../lib/format';
 import { askHome } from '../more/More';
 import { useFoot } from '../more/Foot';
@@ -36,10 +36,10 @@ export function Activities() {
   if (!ok || !account) return null;
   const h = holdingsFor(account);
   const ledger = [...moves, ...h.ledger];
-  const balanceNow = h.everyday + moves.reduce((a, r) => a + r.amount, 0);
+  const balanceNow = h.everyday + balanceOf(moves);
   const cardFor = (r: LedgerRow): Card => {
     const rc = receiptFor(r, { account, balanceNow, rows: ledger });
-    return { rowId: r.id, amount: naira(rc.amount), line: rc.line, status: rc.status, time: r.time };
+    return { rowId: r.id, to: r.kind === 'convert' ? `/converted/${r.id}` : undefined, amount: naira(rc.amount), line: rc.line, status: rc.status, time: r.time };
   };
   if (!ready)
     return (

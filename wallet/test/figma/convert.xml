@@ -1,0 +1,67 @@
+<frame id="279:8299" name="Convert" x="1559" y="80" width="393" height="852">
+  <frame id="279:8300" name="Page" x="0" y="0" width="393" height="753">
+    <frame id="279:8301" name="Content" x="20" y="72" width="353" height="681">
+      <instance id="660:18142" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="279:8305" name="Card" x="0" y="75.19999694824219" width="353" height="128">
+        <frame id="279:8306" name="Row · ₦640,300 there" x="16" y="2" width="321" height="62">
+          <frame id="279:8307" name="Column" x="0" y="10.899999618530273" width="205.3000030517578" height="40.20000076293945">
+            <text id="279:8308" name="From" x="0" y="0" width="29" height="16" />
+            <text id="279:8309" name="Everyday" x="0" y="20" width="71" height="24" />
+          </frame>
+          <text id="279:8310" name="₦595,320 there" x="217.3000030517578" y="21" width="102" height="20" />
+        </frame>
+        <frame id="279:8311" name="Row · $412.60 there" x="16" y="64" width="321" height="62">
+          <frame id="279:8312" name="Column" x="0" y="10.899999618530273" width="218" height="40.20000076293945">
+            <text id="279:8313" name="To" x="0" y="0" width="14" height="16" />
+            <text id="279:8314" name="Dollars" x="0" y="20" width="54" height="24" />
+          </frame>
+          <text id="279:8315" name="$412.60 there" x="230" y="21" width="91" height="20" />
+        </frame>
+        <frame id="279:8316" name="Icon" x="301" y="46" width="36" height="36">
+          <instance id="564:15799" name="Glyph · swap" x="9" y="9" width="18" height="18" />
+        </frame>
+      </frame>
+      <frame id="279:8319" name="Card" x="0" y="219.1999969482422" width="353" height="134.1999969482422">
+        <text id="279:8320" name="You are converting" x="16" y="16" width="121" height="20" />
+        <frame id="279:8321" name="Row · ₦155,200" x="16" y="44" width="321" height="45">
+          <text id="279:8322" name="₦155,200" x="1.7999999523162842" y="-3" width="148" height="40" />
+          <frame id="279:8323" name="Box" x="176.1999969482422" y="3" width="2" height="34" />
+        </frame>
+        <text id="279:8324" name="You get about $100.00" x="16" y="97" width="166" height="24" />
+      </frame>
+      <frame id="279:8325" name="Card" x="0" y="369.3999938964844" width="353" height="168">
+        <frame id="279:8326" name="Row · Rate" x="16" y="0" width="321" height="56">
+          <text id="279:8327" name="Rate" x="0" y="16" width="212.39999389648438" height="24" />
+          <text id="279:8328" name="₦1,552 to $1" x="212.39999389648438" y="16" width="95" height="24" />
+        </frame>
+        <frame id="279:8329" name="Row · Our fee" x="16" y="56" width="321" height="56">
+          <text id="279:8330" name="Our fee" x="0" y="16" width="184" height="24" />
+          <text id="279:8331" name="Free under $500" x="184" y="16" width="129" height="24" />
+        </frame>
+        <frame id="279:8332" name="Row · You get" x="16" y="112" width="321" height="56">
+          <text id="279:8333" name="You get" x="0" y="16" width="251.3000030517578" height="24" />
+          <text id="279:8334" name="$100.00" x="251.3000030517578" y="16" width="64" height="24" />
+        </frame>
+      </frame>
+      <frame id="279:8335" name="Row" x="0" y="553.4000244140625" width="353" height="93.5999984741211">
+        <instance id="302:9484" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="653:18059" name="Card" x="44" y="0" width="309" height="104" />
+      </frame>
+      <frame id="279:8342" name="Row · The rate is held for" x="0" y="663" width="353" height="18">
+        <instance id="564:15802" name="Glyph · lock" x="0" y="1" width="16" height="16" />
+        <text id="279:8346" name="The rate is held for sixty s" x="24" y="-1" width="315" height="20" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="279:8347" name="Dock" x="0" y="736" width="393" height="116">
+    <frame id="279:8348" name="Back" x="20" y="40" width="44" height="44">
+      <instance id="564:15806" name="Glyph · check" x="11" y="11" width="22" height="22" />
+    </frame>
+    <frame id="279:8351" name="Slide to confirm" x="72" y="32" width="301" height="60">
+      <frame id="279:8352" name="Knob" x="4" y="5" width="50" height="50">
+        <instance id="564:15809" name="Glyph · up" x="15" y="15" width="20" height="20" />
+      </frame>
+      <text id="279:8355" name="Slide to convert" x="91.0999984741211" y="18" width="120" height="24" />
+    </frame>
+  </frame>
+</frame>

@@ -31,14 +31,14 @@ export const LISTS: { title: string; items: Service[] }[] = [
   {
     title: 'Save and borrow',
     items: [
-      { glyph: 'pot', label: 'Savings pot', sub: 'Put money aside', later: 'Putting money away comes with round 6.' },
+      { glyph: 'pot', label: 'Savings pot', sub: 'Put money aside', to: '/goal' },
       { glyph: 'lock', label: 'Fixed savings', sub: 'Lock it for a set time', later: 'Fixed savings are not in the frames yet.' },
     ],
   },
   {
     title: 'Money',
     items: [
-      { glyph: 'dollar', label: 'Dollars', sub: 'holding steady', later: 'Dollars come with round 6.' },
+      { glyph: 'dollar', label: 'Dollars', sub: 'holding steady', to: '/dollars' },
       { glyph: 'up', label: 'Request money', sub: 'Ask someone to pay you', to: '/request' },
       { glyph: 'globe', label: 'Send abroad', sub: 'Pounds, dollars and euros', later: 'Sending abroad is not in the frames yet.' },
     ],

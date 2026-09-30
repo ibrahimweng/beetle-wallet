@@ -15800,5 +15800,4112 @@
     }
    }
   ]
+ },
+ "dollars": {
+  "frame": "dollars",
+  "place": "Dollars",
+  "wait": "Steady when the naira is not",
+  "settle": 1400,
+  "anchor": {
+   "name": "Card",
+   "nth": 0,
+   "find": {
+    "testid": "dollars-card"
+   }
+  },
+  "pieces": [
+   {
+    "name": "Page head",
+    "find": {
+     "testid": "head",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "w"
+    ]
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "dollars-card"
+    },
+    "nth": 0
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "dollars-card",
+     "child": 0
+    },
+    "nth": 0,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "$412.60",
+    "find": {
+     "text": "$412.60",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "₦640,355 at today’s rate",
+    "find": {
+     "text": "₦640,355 at today’s rate"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "dollars-card",
+     "child": 1
+    },
+    "nth": 0,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Button · Convert",
+    "find": {
+     "button": "Convert"
+    }
+   },
+   {
+    "name": "Button · Send",
+    "find": {
+     "button": "Send"
+    }
+   },
+   {
+    "name": "Button · ₦1,552 to the dollar",
+    "find": {
+     "testid": "rate-row"
+    }
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "say"
+    },
+    "nth": 1,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Mark · 32",
+    "find": {
+     "testid": "say",
+     "child": 0
+    },
+    "nth": 0
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "say",
+     "child": [
+      1,
+      0
+     ]
+    },
+    "nth": 1
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "sources-block"
+    },
+    "nth": 1,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Where they came from",
+    "find": {
+     "text": "Where they came from"
+    }
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "sources"
+    },
+    "nth": 2,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Row · +$180.00",
+    "find": {
+     "testid": "source",
+     "nth": 0
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "source",
+     "nth": 0,
+     "child": 0
+    },
+    "nth": 0
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "source",
+     "nth": 0,
+     "child": 1
+    },
+    "nth": 3,
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Converted from naira",
+    "find": {
+     "text": "Converted from naira",
+     "exact": true
+    },
+    "nth": 0
+   },
+   {
+    "name": "12 August · at ₦1,534",
+    "find": {
+     "text": "12 August · at ₦1,534"
+    }
+   },
+   {
+    "name": "+$180.00",
+    "find": {
+     "text": "+$180.00"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · +$120.00",
+    "find": {
+     "testid": "source",
+     "nth": 1
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "source",
+     "nth": 1,
+     "child": 0
+    },
+    "nth": 1
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "source",
+     "nth": 1,
+     "child": 1
+    },
+    "nth": 4,
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "From Musa Danjuma",
+    "find": {
+     "text": "From Musa Danjuma",
+     "exact": true
+    }
+   },
+   {
+    "name": "28 July · for the generator",
+    "find": {
+     "text": "28 July · for the generator"
+    }
+   },
+   {
+    "name": "+$120.00",
+    "find": {
+     "text": "+$120.00"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · +$112.60",
+    "find": {
+     "testid": "source",
+     "nth": 2
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "source",
+     "nth": 2,
+     "child": 0
+    },
+    "nth": 2
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "source",
+     "nth": 2,
+     "child": 1
+    },
+    "nth": 5,
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Converted from naira",
+    "find": {
+     "testid": "source",
+     "nth": 2,
+     "child": [
+      1,
+      0
+     ]
+    },
+    "nth": 1,
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "3 March · at ₦1,410",
+    "find": {
+     "text": "3 March · at ₦1,410"
+    }
+   },
+   {
+    "name": "+$112.60",
+    "find": {
+     "text": "+$112.60"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "note"
+    },
+    "nth": 2
+   },
+   {
+    "name": "Row · Turn any of it back ",
+    "find": {
+     "testid": "lock-line"
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Glyph · lock",
+    "find": {
+     "testid": "lock-line",
+     "child": 0
+    }
+   },
+   {
+    "name": "Turn any of it back to naira",
+    "find": {
+     "text": "Turn any of it back to naira"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Dock",
+    "find": {
+     "testid": "foot"
+    },
+    "fixed": true
+   },
+   {
+    "name": "Back",
+    "find": {
+     "button": "Back"
+    },
+    "fixed": true
+   },
+   {
+    "name": "Ask bar",
+    "find": {
+     "testid": "dock-bar"
+    },
+    "fixed": true
+   },
+   {
+    "name": "Action button",
+    "find": {
+     "button": "More"
+    },
+    "fixed": true
+   }
+  ],
+  "skipWords": [
+   "Ask me about your dollars"
+  ]
+ },
+ "convert": {
+  "frame": "convert",
+  "place": "Convert",
+  "wait": "You get about $100.00",
+  "settle": 1400,
+  "pieces": [
+   {
+    "name": "Page head",
+    "find": {
+     "testid": "head",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "w"
+    ]
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "convert-card"
+    },
+    "nth": 0
+   },
+   {
+    "name": "Row · ₦640,300 there",
+    "find": {
+     "testid": "convert-from"
+    }
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "convert-from",
+     "child": 0
+    },
+    "nth": 0,
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "From",
+    "find": {
+     "text": "From",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Everyday",
+    "find": {
+     "text": "Everyday",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "₦595,320 there",
+    "find": {
+     "text": "₦595,320 there"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · $412.60 there",
+    "find": {
+     "testid": "convert-to"
+    }
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "convert-to",
+     "child": 0
+    },
+    "nth": 1,
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "To",
+    "find": {
+     "text": "To",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Dollars",
+    "find": {
+     "text": "Dollars",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "$412.60 there",
+    "find": {
+     "text": "$412.60 there"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "swap"
+    },
+    "nth": 0
+   },
+   {
+    "name": "Glyph · swap",
+    "find": {
+     "testid": "swap",
+     "child": 0
+    }
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "convert-amount"
+    },
+    "nth": 1
+   },
+   {
+    "name": "You are converting",
+    "find": {
+     "text": "You are converting"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · ₦155,200",
+    "find": {
+     "testid": "convert-amount",
+     "child": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w",
+     "h"
+    ]
+   },
+   {
+    "name": "₦155,200",
+    "find": {
+     "text": "₦155,200",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Box",
+    "find": {
+     "testid": "caret"
+    },
+    "nth": 0,
+    "only": [
+     "y",
+     "w",
+     "h"
+    ]
+   },
+   {
+    "name": "You get about $100.00",
+    "find": {
+     "text": "You get about $100.00"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "facts",
+     "up": 1
+    },
+    "nth": 2
+   },
+   {
+    "name": "Row · Rate",
+    "find": {
+     "testid": "facts",
+     "child": 0
+    }
+   },
+   {
+    "name": "Rate",
+    "find": {
+     "text": "Rate",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "₦1,552 to $1",
+    "find": {
+     "text": "₦1,552 to $1"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · Our fee",
+    "find": {
+     "testid": "facts",
+     "child": 1
+    }
+   },
+   {
+    "name": "Our fee",
+    "find": {
+     "text": "Our fee",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Free under $500",
+    "find": {
+     "text": "Free under $500"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · You get",
+    "find": {
+     "testid": "facts",
+     "child": 2
+    }
+   },
+   {
+    "name": "You get",
+    "find": {
+     "text": "You get",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "$100.00",
+    "find": {
+     "text": "$100.00",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "say"
+    },
+    "nth": 0,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Mark · 32",
+    "find": {
+     "testid": "say",
+     "child": 0
+    },
+    "nth": 0
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "say",
+     "child": [
+      1,
+      0
+     ]
+    },
+    "nth": 3
+   },
+   {
+    "name": "Row · The rate is held for",
+    "find": {
+     "testid": "lock-line"
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Glyph · lock",
+    "find": {
+     "testid": "lock-line",
+     "child": 0
+    }
+   },
+   {
+    "name": "The rate is held for sixty s",
+    "find": {
+     "text": "The rate is held for sixty s"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Back",
+    "find": {
+     "button": "Back"
+    }
+   },
+   {
+    "name": "Slide to confirm",
+    "find": {
+     "testid": "slide"
+    }
+   },
+   {
+    "name": "Knob",
+    "find": {
+     "testid": "slide-knob"
+    }
+   },
+   {
+    "name": "Glyph · up",
+    "find": {
+     "testid": "slide-knob",
+     "child": 0
+    }
+   },
+   {
+    "name": "Slide to convert",
+    "find": {
+     "text": "Slide to convert",
+     "up": 1
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   }
+  ]
+ },
+ "converted": {
+  "frame": "converted",
+  "place": "Converted",
+  "wait": "Dollars now",
+  "settle": 1400,
+  "pieces": [
+   {
+    "name": "Page head",
+    "find": {
+     "testid": "head",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "w"
+    ]
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "status"
+    },
+    "nth": 0,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "done-disc"
+    },
+    "nth": 0
+   },
+   {
+    "name": "Glyph · check",
+    "find": {
+     "testid": "done-disc",
+     "child": 0
+    },
+    "nth": 0
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "status",
+     "child": 1
+    },
+    "nth": 1,
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "$100.00",
+    "find": {
+     "text": "$100.00",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "From ₦155,200 in Everyday",
+    "find": {
+     "text": "From ₦155,200 in Everyday"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "facts"
+    },
+    "nth": 2,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Row · Rate you got",
+    "find": {
+     "testid": "facts",
+     "child": 0
+    }
+   },
+   {
+    "name": "Rate you got",
+    "find": {
+     "text": "Rate you got"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "₦1,552 to $1",
+    "find": {
+     "text": "₦1,552 to $1"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · Fee",
+    "find": {
+     "testid": "facts",
+     "child": 1
+    }
+   },
+   {
+    "name": "Fee",
+    "find": {
+     "text": "Fee",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Free",
+    "find": {
+     "text": "Free",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · Dollars now",
+    "find": {
+     "testid": "facts",
+     "child": 2
+    }
+   },
+   {
+    "name": "Dollars now",
+    "find": {
+     "text": "Dollars now"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "$512.60",
+    "find": {
+     "text": "$512.60",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "offer"
+    },
+    "nth": 0
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "offer",
+     "child": 0
+    },
+    "nth": 0,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Mark · 32",
+    "find": {
+     "testid": "offer",
+     "child": [
+      0,
+      0
+     ]
+    },
+    "nth": 0
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "offer",
+     "child": [
+      0,
+      1,
+      0
+     ]
+    },
+    "nth": 1
+   },
+   {
+    "name": "Button · Set it up",
+    "find": {
+     "button": "Set it up"
+    }
+   },
+   {
+    "name": "Row · See your dollars",
+    "find": {
+     "testid": "see-dollars"
+    }
+   },
+   {
+    "name": "See your dollars",
+    "find": {
+     "text": "See your dollars"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Glyph · check",
+    "find": {
+     "testid": "see-dollars",
+     "child": 1
+    },
+    "nth": 1,
+    "only": [
+     "y",
+     "w",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · Something wrong with",
+    "find": {
+     "testid": "wrong"
+    }
+   },
+   {
+    "name": "Something wrong with this?",
+    "find": {
+     "text": "Something wrong with this?"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Glyph · check",
+    "find": {
+     "testid": "wrong",
+     "child": 1
+    },
+    "nth": 2,
+    "only": [
+     "y",
+     "w",
+     "h"
+    ]
+   },
+   {
+    "name": "Dock",
+    "find": {
+     "testid": "foot"
+    }
+   },
+   {
+    "name": "Back",
+    "find": {
+     "button": "Back"
+    }
+   },
+   {
+    "name": "Ask bar",
+    "find": {
+     "testid": "dock-bar"
+    }
+   }
+  ],
+  "skipWords": [
+   "Ask me about this"
+  ]
+ },
+ "payfrom": {
+  "frame": "payfrom",
+  "place": "Pay from",
+  "wait": "Two places the money can leave",
+  "settle": 1800,
+  "pieces": [
+   {
+    "name": "Sheet",
+    "find": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Box",
+    "find": {
+     "testid": "payfrom-grabber"
+    },
+    "nth": 0,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "payfrom-head"
+    },
+    "nth": 1,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "payfrom-head",
+     "child": 0
+    },
+    "nth": 0,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Pay from",
+    "find": {
+     "text": "Pay from",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Two places the money can leave",
+    "find": {
+     "text": "Two places the money can leave"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "sources"
+    },
+    "nth": 2,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "source-row",
+     "nth": 0
+    },
+    "nth": 1,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "source-row",
+     "nth": 0,
+     "child": 0
+    },
+    "nth": 1,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "source-row",
+     "nth": 0,
+     "child": 1
+    },
+    "nth": 3,
+    "only": [
+     "x",
+     "y"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Everyday",
+    "find": {
+     "text": "Everyday",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "₦595,320 in naira",
+    "find": {
+     "text": "₦595,320 in naira"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "picked"
+    },
+    "nth": 2,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "source-row",
+     "nth": 1
+    },
+    "nth": 2,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "source-row",
+     "nth": 1,
+     "child": 0
+    },
+    "nth": 3,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "source-row",
+     "nth": 1,
+     "child": 1
+    },
+    "nth": 4,
+    "only": [
+     "x",
+     "y"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Dollars",
+    "find": {
+     "text": "Dollars",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "$412.60, about ₦640,300 toda",
+    "find": {
+     "text": "$412.60, about"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Box",
+    "find": {
+     "testid": "source-row",
+     "nth": 1,
+     "child": 2
+    },
+    "nth": 1,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "say"
+    },
+    "nth": 3,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Mark · 32",
+    "find": {
+     "testid": "say",
+     "child": 0
+    },
+    "nth": 0,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "say",
+     "child": [
+      1,
+      0
+     ]
+    },
+    "nth": 5,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   },
+   {
+    "name": "Button · Done",
+    "find": {
+     "button": "Done"
+    },
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "payfrom"
+    }
+   }
+  ],
+  "skipWords": [
+   "Flat deposit",
+   "Free"
+  ]
+ },
+ "paydollars": {
+  "frame": "paydollars",
+  "place": "Send from dollars",
+  "wait": "The rate is held for sixty seconds",
+  "settle": 1400,
+  "pieces": [
+   {
+    "name": "Page head",
+    "find": {
+     "testid": "head",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "You typed",
+    "find": {
+     "text": "You typed"
+    }
+   },
+   {
+    "name": "send Sarah 50k for the flat de",
+    "find": {
+     "text": "send Sarah 50k"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Mark · 32",
+    "find": {
+     "testid": "say",
+     "child": 0
+    }
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "say",
+     "child": [
+      1,
+      0
+     ]
+    }
+   },
+   {
+    "name": "Card",
+    "nth": 1,
+    "find": {
+     "testid": "send-card"
+    }
+   },
+   {
+    "name": "Card",
+    "nth": 2,
+    "find": {
+     "testid": "send-amount"
+    }
+   },
+   {
+    "name": "₦50,000",
+    "find": {
+     "text": "₦50,000",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "About $32.07 from your dolla",
+    "find": {
+     "text": "About $32.22 from your dollars"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "I took this from your messag",
+    "find": {
+     "text": "I took this from your message"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Card",
+    "nth": 3,
+    "find": {
+     "testid": "send-who"
+    }
+   },
+   {
+    "name": "Row",
+    "nth": 1,
+    "find": {
+     "testid": "send-who",
+     "child": 0
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Chip · SA",
+    "find": {
+     "text": "SA",
+     "up": 1
+    }
+   },
+   {
+    "name": "SA",
+    "find": {
+     "text": "SA",
+     "exact": true
+    },
+    "only": [
+     "x"
+    ]
+   },
+   {
+    "name": "Column",
+    "nth": 1,
+    "find": {
+     "text": "Sarah Adeyemi",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Sarah Adeyemi",
+    "find": {
+     "text": "Sarah Adeyemi"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "GTBank · 0234 5678 90",
+    "find": {
+     "text": "GTBank ·"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Glyph · check",
+    "nth": 0,
+    "find": {
+     "testid": "send-who",
+     "child": [
+      0,
+      2
+     ]
+    }
+   },
+   {
+    "name": "The only Sarah you have paid",
+    "find": {
+     "text": "The only Sarah you have paid"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Card",
+    "nth": 4,
+    "find": {
+     "testid": "send-ref"
+    }
+   },
+   {
+    "name": "Row · Reference",
+    "find": {
+     "testid": "send-ref",
+     "child": 0
+    }
+   },
+   {
+    "name": "Reference",
+    "find": {
+     "text": "Reference",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Flat deposit",
+    "find": {
+     "label": "Reference"
+    },
+    "only": [
+     "y"
+    ]
+   },
+   {
+    "name": "Card",
+    "nth": 5,
+    "find": {
+     "testid": "send-rows"
+    }
+   },
+   {
+    "name": "Row · From",
+    "find": {
+     "button": "From"
+    }
+   },
+   {
+    "name": "From",
+    "find": {
+     "text": "From",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Dollars · $412.60",
+    "find": {
+     "text": "Dollars ·"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Glyph · check",
+    "nth": 1,
+    "find": {
+     "button": "From",
+     "child": 2
+    }
+   },
+   {
+    "name": "Row · Arrives",
+    "find": {
+     "button": "Arrives"
+    }
+   },
+   {
+    "name": "Arrives",
+    "find": {
+     "text": "Arrives",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "In a few seconds",
+    "find": {
+     "text": "In a few seconds"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Glyph · check",
+    "nth": 2,
+    "find": {
+     "button": "Arrives",
+     "child": 2
+    }
+   },
+   {
+    "name": "Row · Fee",
+    "find": {
+     "text": "Fee",
+     "exact": true,
+     "up": 1
+    }
+   },
+   {
+    "name": "Fee",
+    "find": {
+     "text": "Fee",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Free",
+    "find": {
+     "text": "Free",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · The rate is held for",
+    "find": {
+     "text": "The rate is held for sixty",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Glyph · lock",
+    "find": {
+     "text": "The rate is held for sixty",
+     "up": 1,
+     "child": 0
+    }
+   },
+   {
+    "name": "The rate is held for sixty s",
+    "find": {
+     "text": "The rate is held for sixty"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Back",
+    "find": {
+     "button": "Back"
+    }
+   },
+   {
+    "name": "Slide to confirm",
+    "find": {
+     "testid": "slide"
+    }
+   },
+   {
+    "name": "Knob",
+    "find": {
+     "testid": "slide-knob"
+    }
+   },
+   {
+    "name": "Glyph · up",
+    "find": {
+     "testid": "slide-knob",
+     "child": 0
+    }
+   },
+   {
+    "name": "Slide to send ₦50,000",
+    "find": {
+     "text": "Slide to send",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   }
+  ],
+  "skipWords": [
+   "Flat deposit"
+  ]
+ },
+ "goal": {
+  "frame": "goal",
+  "place": "Holiday",
+  "wait": "33%",
+  "settle": 1400,
+  "pieces": [
+   {
+    "name": "Page head",
+    "find": {
+     "testid": "head",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "w"
+    ],
+    "fixed": true
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "goal-card"
+    },
+    "nth": 0,
+    "fixed": true
+   },
+   {
+    "name": "Group",
+    "find": {
+     "testid": "goal-ring"
+    },
+    "nth": 0,
+    "fixed": true
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "goal-ring"
+    },
+    "nth": 0,
+    "fixed": true
+   },
+   {
+    "name": "33%",
+    "find": {
+     "text": "33%",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ],
+    "fixed": true
+   },
+   {
+    "name": "of the way",
+    "find": {
+     "text": "of the way"
+    },
+    "only": [
+     "y",
+     "h"
+    ],
+    "fixed": true
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "goal-sum"
+    },
+    "nth": 1,
+    "only": [
+     "y"
+    ],
+    "fixed": true
+   },
+   {
+    "name": "₦82,400",
+    "find": {
+     "text": "₦82,400",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ],
+    "fixed": true
+   },
+   {
+    "name": "of ₦250,000 put aside",
+    "find": {
+     "text": "of ₦250,000 put aside"
+    },
+    "only": [
+     "y",
+     "h"
+    ],
+    "fixed": true
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "say"
+    },
+    "nth": 0,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ],
+    "fixed": true
+   },
+   {
+    "name": "Mark · 32",
+    "find": {
+     "testid": "say",
+     "child": 0
+    },
+    "nth": 0,
+    "fixed": true
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "say",
+     "child": [
+      1,
+      0
+     ]
+    },
+    "nth": 1,
+    "fixed": true
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "feeds-block"
+    },
+    "nth": 2,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "What is feeding it",
+    "find": {
+     "text": "What is feeding it"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "feeds"
+    },
+    "nth": 3,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Row · ₦80,000",
+    "find": {
+     "testid": "feed",
+     "nth": 0
+    },
+    "nth": 0
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "feed",
+     "nth": 0,
+     "child": 0
+    },
+    "nth": 0
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "feed",
+     "nth": 0,
+     "child": 1
+    },
+    "nth": 4,
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Payday transfer",
+    "find": {
+     "text": "Payday transfer",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "₦20,000 every month",
+    "find": {
+     "text": "₦20,000 every month"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "₦80,000",
+    "find": {
+     "text": "₦80,000",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · ₦2,280",
+    "find": {
+     "testid": "feed",
+     "nth": 1
+    },
+    "nth": 0
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "feed",
+     "nth": 1,
+     "child": 0
+    },
+    "nth": 1
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "feed",
+     "nth": 1,
+     "child": 1
+    },
+    "nth": 5,
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Round ups",
+    "find": {
+     "text": "Round ups",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "The change from card payment",
+    "find": {
+     "text": "The change from card payment"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "₦2,280",
+    "find": {
+     "text": "₦2,280",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · ₦120",
+    "find": {
+     "testid": "feed",
+     "nth": 2
+    },
+    "nth": 0
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "feed",
+     "nth": 2,
+     "child": 0
+    },
+    "nth": 2
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "feed",
+     "nth": 2,
+     "child": 1
+    },
+    "nth": 6,
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Money back on top ups",
+    "find": {
+     "text": "Money back on top ups",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Instead of cash back",
+    "find": {
+     "text": "Instead of cash back"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "₦120",
+    "find": {
+     "text": "₦120",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "buttons"
+    },
+    "nth": 1,
+    "only": [
+     "x",
+     "w"
+    ]
+   },
+   {
+    "name": "Button · Add money",
+    "find": {
+     "button": "Add money"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Button · Feed it more",
+    "find": {
+     "button": "Feed it more"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · Nothing here is lock",
+    "find": {
+     "testid": "lock-line"
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Glyph · lock",
+    "find": {
+     "testid": "lock-line",
+     "child": 0
+    }
+   },
+   {
+    "name": "Nothing here is locked. Take",
+    "find": {
+     "text": "Nothing here is locked. Take"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Row · What happens if mone",
+    "find": {
+     "testid": "link"
+    }
+   },
+   {
+    "name": "What happens if money gets t",
+    "find": {
+     "text": "What happens if money gets t"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Glyph · check",
+    "find": {
+     "testid": "link",
+     "child": 1
+    },
+    "nth": 0,
+    "only": [
+     "y",
+     "w",
+     "h"
+    ]
+   },
+   {
+    "name": "Dock",
+    "find": {
+     "testid": "foot"
+    },
+    "fixed": true
+   },
+   {
+    "name": "Back",
+    "find": {
+     "button": "Back"
+    },
+    "fixed": true
+   },
+   {
+    "name": "Ask bar",
+    "find": {
+     "testid": "dock-bar"
+    },
+    "fixed": true
+   },
+   {
+    "name": "Action button",
+    "find": {
+     "button": "More"
+    },
+    "fixed": true
+   }
+  ],
+  "skipWords": [
+   "Ask about this goal"
+  ],
+  "anchor": {
+   "name": "Column",
+   "nth": 2,
+   "find": {
+    "testid": "feeds-block"
+   }
+  }
+ },
+ "paused": {
+  "frame": "paused",
+  "place": "Paused",
+  "wait": "Paused since 3 August",
+  "settle": 1400,
+  "pieces": [
+   {
+    "name": "Page head",
+    "find": {
+     "testid": "head",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "w"
+    ]
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "goal-card"
+    },
+    "nth": 0
+   },
+   {
+    "name": "Group",
+    "find": {
+     "testid": "goal-ring"
+    },
+    "nth": 0
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "goal-ring"
+    },
+    "nth": 0
+   },
+   {
+    "name": "33%",
+    "find": {
+     "text": "33%",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "of the way",
+    "find": {
+     "text": "of the way"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "goal-sum"
+    },
+    "nth": 1,
+    "only": [
+     "y"
+    ]
+   },
+   {
+    "name": "₦82,400",
+    "find": {
+     "text": "₦82,400",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "of ₦250,000, holding steady",
+    "find": {
+     "text": "of ₦250,000, holding steady"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "say"
+    },
+    "nth": 0,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Mark · 32",
+    "find": {
+     "testid": "say",
+     "child": 0
+    },
+    "nth": 0
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "say",
+     "child": [
+      1,
+      0
+     ]
+    },
+    "nth": 1
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "feeds-block"
+    },
+    "nth": 2,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Waiting for you",
+    "find": {
+     "text": "Waiting for you"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "feeds"
+    },
+    "nth": 3,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Row · Paused",
+    "find": {
+     "testid": "feed",
+     "nth": 0
+    },
+    "nth": 0
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "feed",
+     "nth": 0,
+     "child": 0
+    },
+    "nth": 0
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "feed",
+     "nth": 0,
+     "child": 1
+    },
+    "nth": 4,
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Payday transfer",
+    "find": {
+     "text": "Payday transfer",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Paused since 3 August",
+    "find": {
+     "text": "Paused since 3 August",
+     "nth": 0
+    },
+    "nth": 0,
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Paused",
+    "find": {
+     "text": "Paused",
+     "exact": true,
+     "nth": 0
+    },
+    "nth": 1,
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · Paused",
+    "find": {
+     "testid": "feed",
+     "nth": 1
+    },
+    "nth": 1
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "feed",
+     "nth": 1,
+     "child": 0
+    },
+    "nth": 1
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "feed",
+     "nth": 1,
+     "child": 1
+    },
+    "nth": 5,
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Round ups",
+    "find": {
+     "text": "Round ups",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Paused since 3 August",
+    "find": {
+     "text": "Paused since 3 August",
+     "nth": 1
+    },
+    "nth": 1,
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Paused",
+    "find": {
+     "text": "Paused",
+     "exact": true,
+     "nth": 1
+    },
+    "nth": 2,
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · ₦120",
+    "find": {
+     "testid": "feed",
+     "nth": 2
+    },
+    "nth": 0
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "feed",
+     "nth": 2,
+     "child": 0
+    },
+    "nth": 2
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "feed",
+     "nth": 2,
+     "child": 1
+    },
+    "nth": 6,
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Money back on top ups",
+    "find": {
+     "text": "Money back on top ups",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Still going in",
+    "find": {
+     "text": "Still going in"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "₦120",
+    "find": {
+     "text": "₦120",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "buttons"
+    },
+    "nth": 1,
+    "only": [
+     "x",
+     "w"
+    ]
+   },
+   {
+    "name": "Button · Add money anyway",
+    "find": {
+     "button": "Add money anyway"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Button · Start again",
+    "find": {
+     "button": "Start again"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · I will not ask you a",
+    "find": {
+     "testid": "lock-line"
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Glyph · lock",
+    "find": {
+     "testid": "lock-line",
+     "child": 0
+    }
+   },
+   {
+    "name": "I will not ask you about thi",
+    "find": {
+     "text": "I will not ask you about thi"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Dock",
+    "find": {
+     "testid": "foot"
+    }
+   },
+   {
+    "name": "Back",
+    "find": {
+     "button": "Back"
+    }
+   },
+   {
+    "name": "Ask bar",
+    "find": {
+     "testid": "dock-bar"
+    }
+   },
+   {
+    "name": "Action button",
+    "find": {
+     "button": "More"
+    }
+   }
+  ],
+  "skipWords": [
+   "Ask about this goal"
+  ]
+ },
+ "emptygoal": {
+  "frame": "emptygoal",
+  "place": "No goal yet",
+  "wait": "Nothing put aside yet",
+  "settle": 1400,
+  "pieces": [
+   {
+    "name": "Page head",
+    "find": {
+     "testid": "head",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "w"
+    ]
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "say"
+    },
+    "nth": 0,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Mark · 32",
+    "find": {
+     "testid": "say",
+     "child": 0
+    },
+    "nth": 0
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "say",
+     "child": [
+      1,
+      0
+     ]
+    },
+    "nth": 0
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "buttons"
+    },
+    "nth": 1,
+    "only": [
+     "x",
+     "w"
+    ]
+   },
+   {
+    "name": "Button · Add money",
+    "find": {
+     "button": "Start a goal"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Button · Feed it more",
+    "find": {
+     "button": "Set it up"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · Nothing here is lock",
+    "find": {
+     "testid": "lock-line"
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Glyph · lock",
+    "find": {
+     "testid": "lock-line",
+     "child": 0
+    }
+   },
+   {
+    "name": "Nothing here is locked. Take",
+    "find": {
+     "text": "Nothing here is locked. Take"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Row · What happens if mone",
+    "find": {
+     "testid": "link"
+    }
+   },
+   {
+    "name": "What happens if money gets t",
+    "find": {
+     "text": "What should I be saving for?"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Glyph · check",
+    "find": {
+     "testid": "link",
+     "child": 1
+    },
+    "nth": 0,
+    "only": [
+     "y",
+     "w",
+     "h"
+    ]
+   },
+   {
+    "name": "Dock",
+    "find": {
+     "testid": "foot"
+    }
+   },
+   {
+    "name": "Back",
+    "find": {
+     "button": "Back"
+    }
+   },
+   {
+    "name": "Ask bar",
+    "find": {
+     "testid": "dock-bar"
+    }
+   },
+   {
+    "name": "Action button",
+    "find": {
+     "button": "More"
+    }
+   }
+  ],
+  "skipWords": [
+   "Ask about saving"
+  ]
+ },
+ "saverule": {
+  "frame": "saverule",
+  "place": "Feed the goal",
+  "wait": "Pick something that runs without",
+  "settle": 1800,
+  "pieces": [
+   {
+    "name": "Sheet",
+    "find": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Box",
+    "find": {
+     "testid": "feed-sheet-grabber"
+    },
+    "nth": 0,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "feed-head"
+    },
+    "nth": 7,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "feed-head",
+     "child": 0
+    },
+    "nth": 3,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Feed the Holiday goal",
+    "find": {
+     "text": "Feed the Holiday goal"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Pick something that runs witho",
+    "find": {
+     "text": "Pick something that runs witho"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "ways"
+    },
+    "nth": 8,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "way",
+     "nth": 0
+    },
+    "nth": 2,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "way",
+     "nth": 0,
+     "child": 0
+    },
+    "nth": 4,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "way",
+     "nth": 0,
+     "child": 1
+    },
+    "nth": 9,
+    "only": [
+     "x",
+     "y"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "A slice of payday",
+    "find": {
+     "text": "A slice of payday",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "10% the day your salary land",
+    "find": {
+     "text": "10% the day your salary land"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "₦20,000 a month",
+    "find": {
+     "text": "₦20,000 a month"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Box",
+    "find": {
+     "testid": "way",
+     "nth": 0,
+     "child": 2
+    },
+    "nth": 1,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Box",
+    "find": {
+     "testid": "way",
+     "nth": 0,
+     "child": [
+      2,
+      0,
+      0
+     ]
+    },
+    "nth": 2,
+    "only": [
+     "y",
+     "w",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "way",
+     "nth": 1
+    },
+    "nth": 3,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "way",
+     "nth": 1,
+     "child": 0
+    },
+    "nth": 5,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "way",
+     "nth": 1,
+     "child": 1
+    },
+    "nth": 10,
+    "only": [
+     "x",
+     "y"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Round ups",
+    "find": {
+     "text": "Round ups",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    },
+    "nth": 1
+   },
+   {
+    "name": "The change from every card p",
+    "find": {
+     "text": "The change from every card p"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "₦2,280 a month",
+    "find": {
+     "text": "₦2,280 a month"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Box",
+    "find": {
+     "testid": "way",
+     "nth": 1,
+     "child": 2
+    },
+    "nth": 3,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Box",
+    "find": {
+     "testid": "way",
+     "nth": 1,
+     "child": [
+      2,
+      0,
+      0
+     ]
+    },
+    "nth": 4,
+    "only": [
+     "y",
+     "w",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "way",
+     "nth": 2
+    },
+    "nth": 4,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "way",
+     "nth": 2,
+     "child": 0
+    },
+    "nth": 6,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "way",
+     "nth": 2,
+     "child": 1
+    },
+    "nth": 11,
+    "only": [
+     "x",
+     "y"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Money back on top ups",
+    "find": {
+     "text": "Money back on top ups",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    },
+    "nth": 1
+   },
+   {
+    "name": "Cash back comes here instead",
+    "find": {
+     "text": "Cash back comes here instead"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "₦120 a month",
+    "find": {
+     "text": "₦120 a month"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Box",
+    "find": {
+     "testid": "way",
+     "nth": 2,
+     "child": 2
+    },
+    "nth": 5,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Box",
+    "find": {
+     "testid": "way",
+     "nth": 2,
+     "child": [
+      2,
+      0,
+      0
+     ]
+    },
+    "nth": 6,
+    "only": [
+     "y",
+     "w",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "way",
+     "nth": 3
+    },
+    "nth": 5,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "way",
+     "nth": 3,
+     "child": 0
+    },
+    "nth": 7,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "way",
+     "nth": 3,
+     "child": 1
+    },
+    "nth": 12,
+    "only": [
+     "x",
+     "y"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "A fixed amount",
+    "find": {
+     "text": "A fixed amount",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "You pick the day and the sum",
+    "find": {
+     "text": "You pick the day and the sum"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "You choose",
+    "find": {
+     "text": "You choose"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Chip · Set it",
+    "find": {
+     "testid": "set-it"
+    },
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Set it",
+    "find": {
+     "text": "Set it",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "note"
+    },
+    "nth": 2,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   },
+   {
+    "name": "Button · Done",
+    "find": {
+     "button": "Done"
+    },
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "feed-sheet"
+    }
+   }
+  ],
+  "skipWords": [
+   "Ask about this goal"
+  ]
+ },
+ "health": {
+  "frame": "health",
+  "place": "Money health",
+  "wait": "out of 100",
+  "settle": 1400,
+  "pieces": [
+   {
+    "name": "Page head",
+    "find": {
+     "testid": "head",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "w"
+    ]
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "score-card"
+    },
+    "nth": 0
+   },
+   {
+    "name": "Group",
+    "find": {
+     "testid": "score-ring"
+    },
+    "nth": 0
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "score-ring"
+    },
+    "nth": 0
+   },
+   {
+    "name": "72",
+    "find": {
+     "text": "72",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "out of 100",
+    "find": {
+     "text": "out of 100"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · Up 4 since July",
+    "find": {
+     "testid": "score-move"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Glyph · up",
+    "find": {
+     "testid": "score-move",
+     "child": 0
+    },
+    "nth": 0,
+    "only": [
+     "y",
+     "w",
+     "h"
+    ]
+   },
+   {
+    "name": "Up 4 since July",
+    "find": {
+     "text": "Up 4 since July"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "say"
+    },
+    "nth": 0,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Mark · 32",
+    "find": {
+     "testid": "say",
+     "child": 0
+    },
+    "nth": 0
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "say",
+     "child": [
+      1,
+      0
+     ]
+    },
+    "nth": 1
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "moves-block"
+    },
+    "nth": 1,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "What moves it",
+    "find": {
+     "text": "What moves it"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "moves"
+    },
+    "nth": 2
+   },
+   {
+    "name": "Row · 9 of 9",
+    "find": {
+     "testid": "habit",
+     "nth": 0
+    },
+    "nth": 0
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "habit",
+     "nth": 0,
+     "child": 0
+    },
+    "nth": 0
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "habit",
+     "nth": 0,
+     "child": 1
+    },
+    "nth": 2,
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "You check before you send",
+    "find": {
+     "text": "You check before you send",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Every transfer read before i",
+    "find": {
+     "text": "Every transfer read before i"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "9 of 9",
+    "find": {
+     "text": "9 of 9",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · 3 months",
+    "find": {
+     "testid": "habit",
+     "nth": 1
+    },
+    "nth": 0
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "habit",
+     "nth": 1,
+     "child": 0
+    },
+    "nth": 1
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "habit",
+     "nth": 1,
+     "child": 1
+    },
+    "nth": 3,
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "You save on payday",
+    "find": {
+     "text": "You save on payday",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Before it can go anywhere el",
+    "find": {
+     "text": "Before it can go anywhere el"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "3 months",
+    "find": {
+     "text": "3 months",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · On",
+    "find": {
+     "testid": "habit",
+     "nth": 2
+    },
+    "nth": 0
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "habit",
+     "nth": 2,
+     "child": 0
+    },
+    "nth": 2
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "habit",
+     "nth": 2,
+     "child": 1
+    },
+    "nth": 4,
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Your balance stays covered",
+    "find": {
+     "text": "Your balance stays covered",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Dots in public, figures at h",
+    "find": {
+     "text": "Dots in public, figures at h"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "On",
+    "find": {
+     "text": "On",
+     "exact": true,
+     "nth": 0
+    },
+    "nth": 0,
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · On",
+    "find": {
+     "testid": "habit",
+     "nth": 3
+    },
+    "nth": 1
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "habit",
+     "nth": 3,
+     "child": 0
+    },
+    "nth": 3
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "habit",
+     "nth": 3,
+     "child": 1
+    },
+    "nth": 5,
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Only you can open this",
+    "find": {
+     "text": "Only you can open this",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Face ID, a passcode, and a l",
+    "find": {
+     "text": "Face ID, a passcode, and a l"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "On",
+    "find": {
+     "text": "On",
+     "exact": true,
+     "nth": 1
+    },
+    "nth": 1,
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · 18% over",
+    "find": {
+     "testid": "habit",
+     "nth": 4
+    },
+    "nth": 0
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "habit",
+     "nth": 4,
+     "child": 0
+    },
+    "nth": 4
+   },
+   {
+    "name": "Column",
+    "find": {
+     "testid": "habit",
+     "nth": 4,
+     "child": 1
+    },
+    "nth": 6,
+    "only": [
+     "x"
+    ]
+   },
+   {
+    "name": "You watch where it goes",
+    "find": {
+     "text": "You watch where it goes",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Against what you planned to ",
+    "find": {
+     "text": "Against what you planned to "
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "18% over",
+    "find": {
+     "text": "18% over",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "offer"
+    },
+    "nth": 3
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "offer",
+     "child": 0
+    },
+    "nth": 1,
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Mark · 32",
+    "find": {
+     "testid": "offer",
+     "child": [
+      0,
+      0
+     ]
+    },
+    "nth": 1
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "offer",
+     "child": [
+      0,
+      1,
+      0
+     ]
+    },
+    "nth": 4
+   },
+   {
+    "name": "Button · Set it up",
+    "find": {
+     "button": "Set it up"
+    }
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "note"
+    },
+    "nth": 5
+   },
+   {
+    "name": "Dock",
+    "find": {
+     "testid": "foot"
+    }
+   },
+   {
+    "name": "Back",
+    "find": {
+     "button": "Back"
+    }
+   },
+   {
+    "name": "Ask bar",
+    "find": {
+     "testid": "dock-bar"
+    }
+   }
+  ],
+  "skipWords": [
+   "Ask me how to move it"
+  ]
+ },
+ "draft": {
+  "frame": "draft",
+  "place": "A draft, unsent",
+  "settle": 1800,
+  "pieces": []
  }
 }

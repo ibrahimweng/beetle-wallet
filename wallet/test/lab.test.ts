@@ -47,7 +47,7 @@ describe('the lab', () => {
 
   it('opens home signed in, as a new account and as the demo one', () => {
     for (const p of HOME.places) {
-      expect(p.href).toBe('/home');
+      expect(p.href.split('?')[0]).toBe('/home');
       expect(p.seed.session).not.toBeNull();
       expect(p.seed.progress).toEqual({});
     }

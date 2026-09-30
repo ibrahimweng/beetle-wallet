@@ -1,0 +1,75 @@
+<frame id="279:8211" name="Dollars" x="1066" y="80" width="393" height="852">
+  <frame id="279:8212" name="Page" x="0" y="0" width="393" height="967.5999755859375">
+    <frame id="279:8213" name="Content" x="20" y="72" width="353" height="895.5999755859375">
+      <instance id="660:18139" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="279:8217" name="Card" x="0" y="75.19999694824219" width="353" height="172.1999969482422">
+        <frame id="279:8218" name="Column" x="16" y="16" width="321" height="74.19999694824219">
+          <text id="279:8219" name="$412.60" x="0" y="0" width="128" height="40" />
+          <text id="279:8220" name="₦640,355 at today’s rate" x="0" y="48" width="181" height="24" />
+        </frame>
+        <frame id="279:8221" name="Row" x="16" y="106.19999694824219" width="321" height="50">
+          <instance id="577:18418" name="Button · Convert" x="0" y="0" width="156.5" height="48" />
+          <instance id="577:18427" name="Button · Send" x="164.5" y="0" width="156.5" height="48" />
+        </frame>
+      </frame>
+      <instance id="671:21197" name="Button · ₦1,552 to the dollar" x="0" y="263.3999938964844" width="353" height="44" />
+      <frame id="279:8237" name="Row" x="0" y="323.3999938964844" width="353" height="116.80000305175781">
+        <instance id="302:9480" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="653:18054" name="Card" x="44" y="0" width="309" height="128" />
+      </frame>
+      <frame id="279:8244" name="Column" x="0" y="456.20001220703125" width="353" height="250">
+        <text id="279:8245" name="Where they came from" x="0" y="0" width="213" height="24" />
+        <frame id="279:8246" name="Column" x="0" y="36" width="353" height="210">
+          <frame id="279:8247" name="Row · +$180.00" x="0" y="0" width="353" height="70">
+            <frame id="279:8248" name="Icon" x="0" y="15" width="40" height="40">
+              <instance id="564:15772" name="Glyph · swap" x="10" y="10" width="20" height="20" />
+            </frame>
+            <frame id="279:8251" name="Column" x="52" y="13.399999618530273" width="216" height="43.20000076293945">
+              <text id="279:8252" name="Converted from naira" x="0" y="0" width="159" height="24" />
+              <text id="279:8253" name="12 August · at ₦1,534" x="0" y="28" width="137" height="20" />
+            </frame>
+            <text id="279:8254" name="+$180.00" x="280" y="23" width="75" height="24" />
+          </frame>
+          <frame id="279:8255" name="Row · +$120.00" x="0" y="70" width="353" height="70">
+            <frame id="279:8256" name="Icon" x="0" y="15" width="40" height="40">
+              <instance id="564:15775" name="Glyph · up" x="10" y="10" width="20" height="20" />
+            </frame>
+            <frame id="279:8259" name="Column" x="52" y="13.399999618530273" width="216" height="43.20000076293945">
+              <text id="279:8260" name="From Musa Danjuma" x="0" y="0" width="153" height="24" />
+              <text id="279:8261" name="28 July · for the generator" x="0" y="28" width="169" height="20" />
+            </frame>
+            <text id="279:8262" name="+$120.00" x="280" y="23" width="74" height="24" />
+          </frame>
+          <frame id="279:8263" name="Row · +$112.60" x="0" y="140" width="353" height="70">
+            <frame id="279:8264" name="Icon" x="0" y="15" width="40" height="40">
+              <instance id="564:15778" name="Glyph · swap" x="10" y="10" width="20" height="20" />
+            </frame>
+            <frame id="279:8267" name="Column" x="52" y="13.399999618530273" width="216" height="43.20000076293945">
+              <text id="279:8268" name="Converted from naira" x="0" y="0" width="159" height="24" />
+              <text id="279:8269" name="3 March · at ₦1,410" x="0" y="28" width="124" height="20" />
+            </frame>
+            <text id="279:8270" name="+$112.60" x="280" y="23" width="72" height="24" />
+          </frame>
+        </frame>
+      </frame>
+      <instance id="653:18056" name="Card" x="0" y="722.2000122070312" width="321" height="112" />
+      <frame id="279:8274" name="Row · Turn any of it back " x="0" y="850.2000122070312" width="353" height="36">
+        <instance id="564:15781" name="Glyph · lock" x="0" y="0" width="16" height="16" />
+        <text id="279:8278" name="Turn any of it back to naira" x="24" y="0" width="327" height="40" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="279:8279" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="279:8280" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="279:8281" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="564:15785" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="279:8284" name="Ask bar" x="52" y="4" width="245" height="48">
+        <instance id="280:8444" name="Mark · 32" x="8" y="8" width="32" height="32" />
+        <text id="279:8289" name="Ask me about your dollars" x="48" y="16" width="107" height="16" />
+        <instance id="564:15788" name="Glyph · camera" x="163" y="15" width="18" height="18" />
+      </frame>
+      <instance id="577:18436" name="Action button" x="305" y="0" width="56" height="56" />
+    </frame>
+  </frame>
+</frame>

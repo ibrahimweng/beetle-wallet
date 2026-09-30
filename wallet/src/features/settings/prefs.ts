@@ -14,7 +14,21 @@ export type Prefs = {
   amountsInNotes: boolean;
   /** Money is tight this month: savings wait */
   tight: boolean;
-  rules: { payday: boolean; ikeja: boolean; data: boolean; /** a nudge to whoever was asked for money, if nothing comes */ remind: boolean };
+  rules: {
+    payday: boolean;
+    ikeja: boolean;
+    data: boolean;
+    /** a nudge to whoever was asked for money, if nothing comes */
+    remind: boolean;
+    /** ₦20,000 into dollars the day the salary lands */
+    dollars: boolean;
+    /** ₦5,000 held back on payday, for the score */
+    budget: boolean;
+  };
+  /** what feeds the goal besides the payday slice */
+  feeds: { roundups: boolean; cashback: boolean };
+  /** a goal has been started on an account the design does not seed one for */
+  goal: boolean;
   /** how long the app stays open before it asks again */
   askAfter: string;
   cardFrozen: boolean;
@@ -29,7 +43,9 @@ export const DEFAULT_PREFS: Prefs = {
   hideShots: true,
   amountsInNotes: false,
   tight: false,
-  rules: { payday: true, ikeja: true, data: true, remind: false },
+  rules: { payday: true, ikeja: true, data: true, remind: false, dollars: false, budget: false },
+  feeds: { roundups: true, cashback: true },
+  goal: false,
   askAfter: '2 minutes',
   cardFrozen: false,
   othersSignedOut: false,
@@ -44,6 +60,9 @@ export const ASK_AGAIN = ['2 minutes', '5 minutes', '15 minutes', 'Straight away
 /** How many standing instructions are running. */
 export const rulesRunning = (p: Prefs) => Object.values(p.rules).filter(Boolean).length;
 
+/** How much the goal's rules bring in a month, for the receipts' offers. */
+export const feedsOn = (p: Prefs) => (p.rules.payday ? 1 : 0) + (p.feeds.roundups ? 1 : 0) + (p.feeds.cashback ? 1 : 0);
+
 export function usePrefs(account: string | undefined) {
   const [prefs, setPrefs] = useState<Prefs>(DEFAULT_PREFS);
   const [ready, setReady] = useState(false);
@@ -56,7 +75,7 @@ export function usePrefs(account: string | undefined) {
     let live = true;
     void storage.get<Partial<Prefs>>(prefsKey(account)).then(kept => {
       if (!live) return;
-      setPrefs({ ...DEFAULT_PREFS, ...(kept ?? {}), rules: { ...DEFAULT_PREFS.rules, ...(kept?.rules ?? {}) } });
+      setPrefs({ ...DEFAULT_PREFS, ...(kept ?? {}), rules: { ...DEFAULT_PREFS.rules, ...(kept?.rules ?? {}) }, feeds: { ...DEFAULT_PREFS.feeds, ...(kept?.feeds ?? {}) } });
       setReady(true);
     });
     return () => {

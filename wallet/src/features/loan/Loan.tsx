@@ -16,7 +16,7 @@ import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
 import { holdingsFor } from '../home/account';
-import { rowFrom, useMoves } from '../home/moves';
+import { balanceOf, rowFrom, useMoves } from '../home/moves';
 import { clock, useChats } from '../agent/chats';
 import { turn } from '../agent/turns';
 import { PasscodeSheet, lockedFor } from '../passcode';
@@ -30,7 +30,7 @@ export function Loan() {
   const account = app.session?.account;
   const { moves, add: addMove } = useMoves(account?.accountNumber);
   const { file } = useChats(account?.accountNumber, !!account?.demo);
-  const balance = (account ? holdingsFor(account).everyday : 0) + moves.reduce((a, r) => a + r.amount, 0);
+  const balance = (account ? holdingsFor(account).everyday : 0) + balanceOf(moves);
   /* the frame opens on ₦150,000 for 90 days */
   const [amount, setAmount] = useState(150_000);
   const [days, setDays] = useState<Term>(90);

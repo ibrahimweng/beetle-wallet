@@ -18,6 +18,8 @@ export const INSTRUCTIONS: { id: keyof Prefs['rules']; title: string; when: stri
   { id: 'ikeja', title: 'Top up Ikeja Electric', when: 'When it lands, up to ₦10,000', log: 'Paid 3 times · ₦22,400' },
   { id: 'data', title: 'Buy 5GB when my data runs out', when: 'Once a month at most.', log: 'Bought twice · ₦5,000' },
   { id: 'remind', title: 'Nudge whoever I asked for money', when: 'The day it was due, if nothing came.', log: 'Nothing due yet', offered: true },
+  { id: 'dollars', title: 'Move ₦20,000 into Dollars on payday', when: 'The day your salary lands, at the rate that day.', log: 'Nothing moved yet', offered: true },
+  { id: 'budget', title: 'Hold ₦5,000 back on payday', when: 'Into the Holiday goal, the day your salary lands.', log: 'Nothing held yet', offered: true },
 ];
 
 export function Rules() {

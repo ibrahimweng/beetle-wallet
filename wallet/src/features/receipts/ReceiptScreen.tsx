@@ -12,7 +12,7 @@ import { useFoot } from '../more/Foot';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { holdingsFor } from '../home/account';
-import { useMoves } from '../home/moves';
+import { balanceOf, useMoves } from '../home/moves';
 import { copyText } from '../receive/clipboard';
 import { naira } from '../../lib/format';
 import { receiptFor, shareLine } from './receipts';
@@ -35,7 +35,7 @@ export function ReceiptScreen({ id }: { id: string }) {
     const rows = [...moves, ...h.ledger];
     const row = rows.find(r => r.id === id);
     if (!row) return null;
-    const balanceNow = h.everyday + moves.reduce((a, r) => a + r.amount, 0);
+    const balanceNow = h.everyday + balanceOf(moves);
     return receiptFor(row, { account, balanceNow, rows });
   }, [account, ready, moves, id]);
 
@@ -91,7 +91,11 @@ export function ReceiptScreen({ id }: { id: string }) {
           />
         </View>
         <Button label="Share receipt" leading="share" badge onPress={() => setSharing(true)} />
-        <Nudge text={receipt.nudge.text} action={receipt.nudge.action} to={`/rule?offer=${receipt.kind === 'in' ? 'salary' : 'ikeja'}`} />
+        <Nudge
+          text={receipt.nudge.text}
+          action={receipt.nudge.action}
+          to={`/rule?offer=${receipt.kind === 'in' ? 'salary' : receipt.kind === 'convert' ? 'dollars' : receipt.kind === 'saving' ? 'salary' : 'ikeja'}`}
+        />
         <Tap
           ref={wrong.ref}
           accessibilityRole="button"

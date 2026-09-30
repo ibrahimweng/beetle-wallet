@@ -1,0 +1,112 @@
+<frame id="301:9464" name="PayFrom" x="1066" y="80" width="393" height="852">
+  <frame id="301:9465" name="Page" x="0" y="0" width="393" height="783.7999877929688">
+    <frame id="301:9466" name="Content" x="20" y="72" width="353" height="711.7999877929688">
+      <instance id="660:18148" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="301:9470" name="Column" x="0" y="75.19999694824219" width="353" height="44.20000076293945">
+        <text id="301:9471" name="You typed" x="0" y="0" width="57" height="16" />
+        <text id="301:9472" name="send Sarah 50k for the flat de" x="0" y="24" width="254" height="24" />
+      </frame>
+      <frame id="301:9473" name="Row" x="0" y="135.39999389648438" width="353" height="70.4000015258789">
+        <instance id="302:9496" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="653:18063" name="Card" x="44" y="0" width="309" height="80" />
+      </frame>
+      <frame id="301:9480" name="Card" x="0" y="221.79998779296875" width="353" height="456">
+        <frame id="301:9481" name="Card" x="12" y="12" width="329" height="90">
+          <text id="301:9482" name="₦50,000" x="16" y="12" width="133" height="40" />
+          <text id="301:9483" name="I took this from your messag" x="16" y="64" width="168" height="16" />
+        </frame>
+        <frame id="301:9484" name="Card" x="12" y="110" width="329" height="83">
+          <frame id="301:9485" name="Row" x="16" y="12" width="297" height="38">
+            <frame id="301:9486" name="Chip · SA" x="0" y="0" width="38" height="38">
+              <text id="301:9487" name="SA" x="9.5" y="11" width="20" height="20" />
+            </frame>
+            <frame id="301:9488" name="Column" x="50" y="0" width="219" height="38">
+              <text id="301:9489" name="Sarah Adeyemi" x="0" y="0" width="101" height="20" />
+              <text id="301:9490" name="GTBank · 0234 5678 90" x="0" y="24" width="157" height="20" />
+            </frame>
+            <instance id="564:15838" name="Glyph · check" x="281" y="11" width="16" height="16" />
+          </frame>
+          <text id="301:9493" name="The only Sarah you have paid" x="16" y="58" width="207" height="16" />
+        </frame>
+        <frame id="301:9494" name="Card" x="12" y="201" width="329" height="67">
+          <frame id="301:9495" name="Row · Reference" x="16" y="12" width="297" height="22">
+            <text id="301:9496" name="Reference" x="0" y="1" width="221" height="20" />
+            <text id="301:9497" name="Flat deposit" x="221" y="1" width="76" height="20" />
+          </frame>
+          <text id="301:9498" name="I took this from your messag" x="16" y="42" width="168" height="16" />
+        </frame>
+        <frame id="301:9499" name="Card" x="12" y="276" width="329" height="168">
+          <frame id="301:9500" name="Row · From" x="16" y="0" width="297" height="56">
+            <text id="301:9501" name="From" x="0" y="16" width="74" height="24" />
+            <text id="301:9502" name="Everyday · ₦595,320" x="98" y="16" width="159" height="24" />
+            <instance id="564:15841" name="Glyph · check" x="281" y="20" width="16" height="16" />
+          </frame>
+          <frame id="301:9505" name="Row · Arrives" x="16" y="56" width="297" height="56">
+            <text id="301:9506" name="Arrives" x="0" y="16" width="113" height="24" />
+            <text id="301:9507" name="In a few seconds" x="133" y="16" width="128" height="24" />
+            <instance id="564:15844" name="Glyph · check" x="281" y="20" width="16" height="16" />
+          </frame>
+          <frame id="301:9510" name="Row · Fee" x="16" y="112" width="297" height="56">
+            <text id="301:9511" name="Fee" x="0" y="16" width="259.5" height="24" />
+            <text id="301:9512" name="Free" x="259.5" y="16" width="34" height="24" />
+          </frame>
+        </frame>
+      </frame>
+      <frame id="301:9513" name="Row · Nothing moves until " x="0" y="693.7999877929688" width="353" height="18">
+        <instance id="564:15847" name="Glyph · lock" x="0" y="1" width="16" height="16" />
+        <text id="301:9517" name="Nothing moves until you slid" x="24" y="-1" width="194" height="20" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="301:9518" name="Dock" x="0" y="736" width="393" height="116">
+    <frame id="301:9519" name="Back" x="20" y="40" width="44" height="44">
+      <instance id="564:15851" name="Glyph · check" x="11" y="11" width="22" height="22" />
+    </frame>
+    <frame id="301:9522" name="Slide to confirm" x="72" y="32" width="301" height="60">
+      <frame id="301:9523" name="Knob" x="4" y="5" width="50" height="50">
+        <instance id="564:15854" name="Glyph · up" x="15" y="15" width="20" height="20" />
+      </frame>
+      <text id="301:9526" name="Slide to send ₦50,000" x="66" y="6" width="150.5" height="48" />
+    </frame>
+  </frame>
+  <frame id="301:9527" name="Scrim" x="0" y="0" width="393" height="852" />
+  <frame id="301:9528" name="Sheet" x="10" y="291" width="373" height="551">
+    <frame id="301:9529" name="Box" x="164.5" y="14" width="44" height="5" />
+    <frame id="301:9530" name="Column" x="20" y="31" width="333" height="149.1999969482422">
+      <frame id="301:9531" name="Icon" x="45.900001525878906" y="2" width="64" height="64">
+        <instance id="564:15857" name="Glyph · up" x="16" y="16" width="32" height="32" />
+      </frame>
+      <text id="301:9534" name="Pay from" x="45.900001525878906" y="76" width="84" height="24" />
+      <text id="301:9535" name="Two places the money can leave" x="45.900001525878906" y="110" width="236" height="24" />
+    </frame>
+    <frame id="301:9536" name="Column" x="20" y="180.19921875" width="333" height="152">
+      <frame id="301:9537" name="Row" x="0" y="0" width="333" height="76">
+        <frame id="301:9538" name="Icon" x="0" y="18" width="40" height="40">
+          <instance id="564:15860" name="Glyph · airtime" x="10" y="10" width="20" height="20" />
+        </frame>
+        <frame id="301:9541" name="Column" x="52" y="16.399999618530273" width="247" height="43.20000076293945">
+          <text id="301:9542" name="Everyday" x="0" y="0" width="71" height="24" />
+          <text id="301:9543" name="₦595,320 in naira" x="0" y="28" width="115" height="20" />
+        </frame>
+        <frame id="301:9544" name="Icon" x="311" y="27" width="22" height="22">
+          <instance id="564:15863" name="Glyph · check" x="5" y="5" width="12" height="12" />
+        </frame>
+      </frame>
+      <frame id="301:9547" name="Row" x="0" y="76" width="333" height="76">
+        <frame id="301:9548" name="Icon" x="0" y="18" width="40" height="40">
+          <instance id="564:15866" name="Glyph · key" x="10" y="10" width="20" height="20" />
+        </frame>
+        <frame id="301:9552" name="Column" x="52" y="16.399999618530273" width="247" height="43.20000076293945">
+          <text id="301:9553" name="Dollars" x="0" y="0" width="54" height="24" />
+          <text id="301:9554" name="$412.60, about ₦640,300 toda" x="0" y="28" width="206" height="20" />
+        </frame>
+        <frame id="301:9555" name="Box" x="311" y="27" width="22" height="22" />
+      </frame>
+    </frame>
+    <frame id="301:9556" name="Row" x="20" y="346.19921875" width="333" height="116.80000305781">
+      <instance id="302:9500" name="Mark · 32" x="0" y="0" width="32" height="32" />
+      <instance id="653:18065" name="Card" x="44" y="0" width="289" height="128" />
+    </frame>
+    <instance id="577:18455" name="Button · Done" x="126.19999694824219" y="481" width="120.5999984741211" height="48" />
+  </frame>
+</frame>

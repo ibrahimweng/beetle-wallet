@@ -127,6 +127,14 @@ export const HOME: Feature = {
       seed: demo,
       forget: ['beetle.home.pointed-out.v1'],
     },
+    {
+      id: 'home-draft',
+      icon: 'chat',
+      title: 'A draft, unsent',
+      sub: 'Words typed and the keyboard up, the way the Draft frame draws it',
+      href: '/home?typing=Send%2020k%20to%20Sarah%20for&kb=236',
+      seed: demo,
+    },
   ],
 };
 
@@ -716,6 +724,41 @@ export const LOAN: Feature = {
   ],
 };
 
+export const DOLLARS: Feature = {
+  id: 'dollars',
+  title: 'Dollars',
+  folder: 'src/features/dollars',
+  sub: 'What is held and what it is worth today, converting either way, and paying from the dollars.',
+  places: [
+    { id: 'dollars-page', icon: 'dollar', title: 'Dollars', sub: '$412.60 and where each dollar came from, from the frame', href: '/dollars', seed: demo },
+    { id: 'dollars-convert', icon: 'swap', title: 'Convert', sub: '₦155,200 into dollars, with the rate, the fee and what you get', href: '/convert?demo=1', seed: demo },
+    { id: 'dollars-converted', icon: 'check', title: 'Converted', sub: 'The tick, the rate you got, and the offer to move some every payday', href: '/converted/demo', seed: demo },
+    { id: 'dollars-payfrom', icon: 'up', title: 'Pay from', sub: 'The sheet the From row on Send money puts up', href: '/send?demo=1&from=pick', seed: demo },
+    { id: 'dollars-send', icon: 'send', title: 'Send from dollars', sub: 'Sarah paid from the dollars, at the rate on the page', href: '/send?demo=1&from=dollars', seed: demo },
+  ],
+};
+
+export const SAVING: Feature = {
+  id: 'saving',
+  title: 'Putting money away',
+  folder: 'src/features/goal',
+  sub: 'The Holiday goal, what feeds it, the goal paused while money is tight, and an account with no goal yet.',
+  places: [
+    { id: 'goal-holiday', icon: 'pot', title: 'Holiday', sub: 'A third of the way, and the three things feeding it', href: '/goal', seed: demo },
+    { id: 'goal-feed', icon: 'pot-tone', title: 'Feed the goal', sub: 'The sheet Feed it more puts up: four ways, three switches', href: '/goal?feed=1', seed: demo },
+    { id: 'goal-paused', icon: 'clock', title: 'Paused', sub: 'Money is tight, so the feeds wait and the date moves', href: '/goal?paused=1', seed: demo },
+    { id: 'goal-none', icon: 'pot', title: 'No goal yet', sub: 'An account with nothing put aside, and Start a goal', href: '/goal', seed: { progress: {}, session: sessionFor(account(LAB_PHONE)) } },
+  ],
+};
+
+export const HEALTH: Feature = {
+  id: 'health',
+  title: 'Money health',
+  folder: 'src/features/health',
+  sub: 'One number for how the money is handled, the five habits that move it, and the offer that would lift it.',
+  places: [{ id: 'health-page', icon: 'chart', title: 'Money health', sub: '72 out of 100, up 4 since July, from the frame', href: '/health', seed: demo }],
+};
+
 export const MODEL: Feature = {
   id: 'model',
   title: "Beetle's model",
@@ -733,4 +776,26 @@ export const MODEL: Feature = {
   ],
 };
 
-export const FEATURES: Feature[] = [WAY_IN, HOME, MORE, ASK, SEND, TRANSFERS, SCAN, GUARD, RECEIVE, ASKING, BILLS, SERVICES, DATA, LOAN, RECEIPTS, ACTIVITIES, SETTINGS, MODEL];
+export const FEATURES: Feature[] = [
+  WAY_IN,
+  HOME,
+  MORE,
+  ASK,
+  SEND,
+  TRANSFERS,
+  SCAN,
+  GUARD,
+  RECEIVE,
+  ASKING,
+  BILLS,
+  SERVICES,
+  DATA,
+  LOAN,
+  DOLLARS,
+  SAVING,
+  HEALTH,
+  RECEIPTS,
+  ACTIVITIES,
+  SETTINGS,
+  MODEL,
+];

@@ -17,7 +17,7 @@ import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
 import { holdingsFor } from '../home/account';
-import { rowFrom, useMoves } from '../home/moves';
+import { balanceOf, rowFrom, useMoves } from '../home/moves';
 import { clock } from '../agent/chats';
 import { SavedPeek } from '../agent/SavedPeek';
 import { PasscodeSheet, lockedFor } from '../passcode';
@@ -25,6 +25,7 @@ import { handoff } from '../scan/handoff';
 import { LAB } from '../../lab/enabled';
 import { groupAccount, initialsOf, naira } from '../../lib/format';
 import { draft, softReading } from './hand';
+import { PayFromSheet, dollarsOf, usdFull, usdOf, type Source } from '../dollars';
 
 const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
 /** The three parts the frame's message fills in, for the lab. */
@@ -35,12 +36,14 @@ export function Send() {
   const app = useApp();
   const router = useRouter();
   const ok = useSessionGuard();
-  const asked = useLocalSearchParams<{ demo?: string }>();
+  const asked = useLocalSearchParams<{ demo?: string; from?: string }>();
   const demo = LAB && asked.demo === '1';
   const account = app.session?.account;
   const { moves, add: addMove } = useMoves(account?.accountNumber);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
-  const balance = (h?.everyday ?? 0) + moves.reduce((a, r) => a + r.amount, 0);
+  const balance = (h?.everyday ?? 0) + balanceOf(moves);
+  const rate = h?.rate ?? 1_552;
+  const dollars = dollarsOf(h?.dollars ?? 0, moves);
   const saved = useMemo(
     () => beneficiariesOf([...moves, ...(h?.ledger ?? [])], account?.demo ? DEMO_SAVED : { lines: [], meters: [] }, PEOPLE, account ? ownLine(account.phone) : null),
     [moves, h, account],
@@ -59,6 +62,11 @@ export function Send() {
   const [pick, setPick] = useState<Rect | null>(null);
   const [guard, setGuard] = useState(false);
   const [busy, setBusy] = useState(false);
+  /* where it leaves from: Everyday, or the dollars at the rate on this page */
+  const [source, setSource] = useState<Source>(asked.from === 'dollars' ? 'dollars' : 'everyday');
+  const [choosing, setChoosing] = useState(LAB && asked.from === 'pick');
+  const fromDollars = source === 'dollars';
+  const usd = fromDollars ? usdOf(amount, rate) : 0;
   const whoCard = useRef<View>(null);
   const numberField = useRef<TextInput>(null);
 
@@ -129,7 +137,11 @@ export function Send() {
   /* Slide to send: past the balance it is Not enough; otherwise the passcode */
   const slide = () => {
     if (!who || !amount) return;
-    if (amount > balance) {
+    if (fromDollars && usd > dollars) {
+      toast(`That is more than the ${usdFull(dollars)} you hold. Pay from Everyday, or convert some first.`);
+      return;
+    }
+    if (!fromDollars && amount > balance) {
       router.push(`/short?asked=${amount}`);
       return;
     }
@@ -144,28 +156,48 @@ export function Send() {
   const done = () => {
     if (!who || !account) return;
     const at = clock();
-    const fee = feeFor(amount);
-    const move: Move = { name: who.name, detail: `${who.bank} · sent · ${at}`, amount: -amount, icon: 'send', kind: 'transfer', fee, person: who, reference: reference.trim() || undefined, read };
+    const fee = fromDollars ? 0 : feeFor(amount);
+    const move: Move = {
+      name: who.name,
+      detail: `${who.bank} · ${fromDollars ? 'sent from dollars' : 'sent'} · ${at}`,
+      amount: -amount,
+      icon: 'send',
+      kind: 'transfer',
+      fee,
+      person: who,
+      reference: reference.trim() || undefined,
+      read,
+      ...(fromDollars ? { usd: -usd } : {}),
+    };
     const row = rowFrom(move, balance, 17 + moves.length);
     addMove(row);
     setGuard(false);
     router.replace(`/receipt/${row.id}`);
   };
 
-  useFoot({ kind: 'slide', label: 'Slide to send', amount: naira(amount), disabled: !who || !amount || busy || typing, onSlide: slide, veil: guard ? 'away' : pick ? 'recede' : undefined });
+  useFoot({
+    kind: 'slide',
+    label: 'Slide to send',
+    amount: naira(amount),
+    disabled: !who || !amount || busy || typing,
+    onSlide: slide,
+    veil: guard || choosing ? 'away' : pick ? 'recede' : undefined,
+  });
   /* the keypad page arrives from the figure */
   const amend = useDeparture({ id: 'send:amount', to: `/amend?amount=${amount}`, words: naira(amount) });
 
   if (!ok || !account) return null;
   const first = who?.name.split(' ')[0] ?? '';
-  const fee = feeFor(amount);
-  const over = amount > balance;
+  const fee = fromDollars ? 0 : feeFor(amount);
+  const over = fromDollars ? usd > dollars : amount > balance;
   const line = busy
     ? 'Reading the photo…'
     : said && who && amount
       ? 'Here it is, ready to go. Check the three parts I filled in.'
       : over && who
-        ? `That is ${naira(amount - balance)} more than Everyday holds. Slide, and I show you three ways to close it.`
+        ? fromDollars
+          ? `That is more than the ${usdFull(dollars)} you hold. Pay from Everyday, or convert some first.`
+          : `That is ${naira(amount - balance)} more than Everyday holds. Slide, and I show you three ways to close it.`
         : who && amount
           ? 'Here it is, ready to go. Check it, then slide.'
           : who
@@ -177,7 +209,7 @@ export function Send() {
 
   return (
     <>
-      <Screen head={<PageHead title="Send money" sub={who ? `To ${who.name}` : 'From Everyday'} />}>
+      <Screen head={<PageHead title="Send money" sub={who ? `To ${who.name}` : fromDollars ? 'From Dollars' : 'From Everyday'} />}>
         {said ? (
           <View style={{ gap: 8 }} testID="you-typed">
             <Caption tone="secondary">You typed</Caption>
@@ -191,7 +223,7 @@ export function Send() {
         <View style={s.card} testID="send-card">
           <Tap ref={amend.ref} accessibilityRole="button" accessibilityLabel="The amount" onPress={amend.onPress} style={[s.sub, s.amount, amend.style]} testID="send-amount">
             <Display tone={amount ? 'ink' : 'tertiary'}>{naira(amount)}</Display>
-            <Caption tone="secondary">{amountNote || (amount ? 'Tap to change it' : 'Tap to type an amount')}</Caption>
+            <Caption tone="secondary">{fromDollars && amount ? `About ${usdFull(usd)} from your dollars` : amountNote || (amount ? 'Tap to change it' : 'Tap to type an amount')}</Caption>
           </Tap>
           {typing ? (
             <View style={[s.sub, s.who]} testID="send-who">
@@ -253,11 +285,11 @@ export function Send() {
             <Caption tone="secondary">{refNote || 'They see it on their statement'}</Caption>
           </View>
           <View style={[s.sub, s.rows]} testID="send-rows">
-            <Tap accessibilityRole="button" accessibilityLabel="From" onPress={later('Paying from Dollars', 6)} style={s.row}>
+            <Tap accessibilityRole="button" accessibilityLabel="From" onPress={() => setChoosing(true)} style={s.row}>
               <Body tone="secondary" style={{ flex: 1 }}>
                 From
               </Body>
-              <Label style={s.value}>{`Everyday · ${naira(balance)}`}</Label>
+              <Label style={s.value}>{fromDollars ? `Dollars · ${usdFull(dollars)}` : `Everyday · ${naira(balance)}`}</Label>
               <Icon name="chevron" size={16} colour={colour.textTertiary} />
             </Tap>
             <Tap accessibilityRole="button" accessibilityLabel="Arrives" onPress={later('Sending it later', 7)} style={s.row}>
@@ -275,9 +307,11 @@ export function Send() {
             </View>
           </View>
         </View>
-        <View style={s.lock}>
+        <View style={[s.lock, fromDollars ? { alignItems: 'flex-start' } : null]}>
           <Icon name="lock" size={16} colour={colour.textTertiary} />
-          <Meta tone="secondary">Nothing moves until you slide</Meta>
+          <Meta tone="secondary" style={{ flex: 1 }}>
+            {fromDollars ? 'The rate is held for sixty seconds once you slide.' : 'Nothing moves until you slide'}
+          </Meta>
         </View>
       </Screen>
       {pick ? (
@@ -314,6 +348,9 @@ export function Send() {
           }}
           onClose={() => setPick(null)}
         />
+      ) : null}
+      {choosing ? (
+        <PayFromSheet everyday={balance} dollars={dollars} rate={rate} value={source} who={who ? first : 'Whoever it is for'} onPick={setSource} onDismiss={() => setChoosing(false)} />
       ) : null}
       {guard && who ? (
         <PasscodeSheet amount={naira(amount)} name={who.name} detail={`${who.bank} · ${groupAccount(who.number)}`} verify={app.checkPasscode} onDone={done} onCancel={() => setGuard(false)} />

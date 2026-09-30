@@ -15,7 +15,7 @@ import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
 import { holdingsFor } from '../home/account';
-import { rowFrom, useMoves } from '../home/moves';
+import { balanceOf, rowFrom, useMoves } from '../home/moves';
 import { clock } from '../../lib/clock';
 import { clock12 } from '../receipts/receipts';
 import { ReadRows } from '../scan/ReadRows';
@@ -32,7 +32,7 @@ export function Meter() {
   const demo = LAB && asked.demo === '1';
   const account = app.session?.account;
   const { moves, add: addMove } = useMoves(account?.accountNumber);
-  const balance = (account ? holdingsFor(account).everyday : 0) + moves.reduce((a, r) => a + r.amount, 0);
+  const balance = (account ? holdingsFor(account).everyday : 0) + balanceOf(moves);
 
   /* what the camera handed here, taken once; the lab has the frame's bill */
   const [reading] = useState<BillReading | null>(() => {

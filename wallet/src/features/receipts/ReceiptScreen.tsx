@@ -9,6 +9,7 @@ import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Body, Button, Caption, Card, Head, Icon, Label, Meta, Receipt, Screen, Tap, colour, frame, toast, Arrive, useDeparture } from '../../design';
 import { useFoot } from '../more/Foot';
+import { askHome } from '../more/More';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { holdingsFor } from '../home/account';
@@ -63,7 +64,6 @@ export function ReceiptScreen({ id }: { id: string }) {
         <Body tone="tertiary">The line it belonged to is not in this day.</Body>
       </Screen>
     );
-  const later = (what: string) => () => toast(`${what} comes with round 7.`);
   return (
     <>
       <Screen
@@ -94,13 +94,17 @@ export function ReceiptScreen({ id }: { id: string }) {
         <Nudge
           text={receipt.nudge.text}
           action={receipt.nudge.action}
-          to={`/rule?offer=${receipt.kind === 'in' ? 'salary' : receipt.kind === 'convert' ? 'dollars' : receipt.kind === 'saving' ? 'salary' : 'ikeja'}`}
+          to={
+            receipt.kind === 'transfer'
+              ? `/rule?offer=again&row=${id}`
+              : `/rule?offer=${receipt.kind === 'in' ? 'salary' : receipt.kind === 'convert' ? 'dollars' : receipt.kind === 'saving' ? 'salary' : 'ikeja'}`
+          }
         />
         <Tap
           ref={wrong.ref}
           accessibilityRole="button"
           accessibilityLabel={receipt.wrong}
-          onPress={receipt.kind === 'transfer' ? wrong.onPress : later('What went wrong')}
+          onPress={receipt.kind === 'transfer' ? wrong.onPress : () => askHome(router, receipt.wrong, `${naira(receipt.amount)} ${receipt.line.toLowerCase()}`)}
           style={[s.wrong, wrong.style]}
         >
           <Label tone="accent">{receipt.wrong}</Label>

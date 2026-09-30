@@ -1,0 +1,63 @@
+<frame id="959:20420" name="NoNetwork" x="80" y="80" width="393" height="852">
+  <frame id="959:20421" name="Page" x="0" y="0" width="393" height="817.4000244140625">
+    <frame id="959:20422" name="Content" x="20" y="72" width="353" height="745.4000244140625">
+      <instance id="959:20423" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="959:20424" name="Column" x="0" y="71.19999694824219" width="353" height="139">
+        <instance id="959:20425" name="Glyph · pot" x="0" y="0" width="56" height="56" />
+        <frame id="959:20426" name="Column" x="0" y="72" width="150.1999969482422" height="67">
+          <text id="959:20427" name="₦595,320" x="0" y="0" width="152" height="40" />
+          <text id="959:20428" name="as of 14:10, not live" x="0" y="52" width="124" height="20" />
+        </frame>
+      </frame>
+      <frame id="959:20429" name="Card" x="0" y="222.1999969482422" width="353" height="56">
+        <instance id="959:20430" name="Glyph · pot" x="16" y="16" width="24" height="24" />
+        <text id="959:20431" name="Your balance is exactly what i" x="52" y="16" width="239" height="24" />
+      </frame>
+      <frame id="959:20432" name="Row" x="0" y="290.20001220703125" width="353" height="128">
+        <instance id="959:20433" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="959:20434" name="Card" x="44" y="0" width="309" height="128" />
+      </frame>
+      <frame id="959:20435" name="Card" x="0" y="430.20001220703125" width="353" height="152">
+        <frame id="959:20436" name="Row" x="16" y="4" width="321" height="72">
+          <frame id="959:20437" name="Icon" x="0" y="16" width="40" height="40">
+            <instance id="959:20438" name="Glyph · up" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="959:20439" name="Column" x="52" y="14.399999618530273" width="241" height="43.20000076293945">
+            <text id="959:20440" name="Queue it for later" x="0" y="0" width="129" height="24" />
+            <text id="959:20441" name="Waits here until I can check" x="0" y="28" width="177" height="20" />
+          </frame>
+          <instance id="959:20442" name="Glyph · check" x="305" y="28" width="16" height="16" />
+        </frame>
+        <frame id="959:20443" name="Row" x="16" y="76" width="321" height="72">
+          <frame id="959:20444" name="Icon" x="0" y="16" width="40" height="40">
+            <instance id="959:20445" name="Glyph · airtime" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="959:20446" name="Column" x="52" y="14.399999618530273" width="241" height="43.20000076293945">
+            <text id="959:20447" name="Pay by USSD instead" x="0" y="0" width="159" height="24" />
+            <text id="959:20448" name="Works with no data at all" x="0" y="28" width="159" height="20" />
+          </frame>
+          <instance id="959:20449" name="Glyph · check" x="305" y="28" width="16" height="16" />
+        </frame>
+      </frame>
+      <frame id="959:20450" name="Card" x="0" y="594.2000122070312" width="353" height="162.39999389648438">
+        <frame id="959:20451" name="Row" x="16" y="16" width="319" height="80">
+          <instance id="959:20452" name="Mark · 32" x="0" y="0" width="32" height="32" />
+          <instance id="959:20453" name="Card" x="44" y="0" width="275" height="80" />
+        </frame>
+        <instance id="959:20454" name="Button · Do that" x="16" y="108" width="319" height="48" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="959:20455" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="959:20456" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="959:20457" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="959:20458" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="959:20459" name="Ask bar" x="52" y="4" width="309" height="48">
+        <instance id="959:20460" name="Mark · 32" x="8" y="8" width="32" height="32" />
+        <text id="959:20461" name="Ask what works offline" x="48" y="14" width="223" height="20" />
+        <instance id="959:20462" name="Glyph · camera" x="279" y="15" width="18" height="18" />
+      </frame>
+    </frame>
+  </frame>
+</frame>

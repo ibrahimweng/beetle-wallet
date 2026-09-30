@@ -9,16 +9,19 @@ import { useRouter } from 'expo-router';
 import { Body, Card, ChoiceList, Head, LightPanel, Meta, NoteRow, PageHead, Screen, toast } from '../../design';
 import { useFoot } from '../more/Foot';
 import { askHome } from '../more/More';
-import { clock } from '../agent/chats';
 import { naira } from '../../lib/format';
 import { bankOf, firstOf, shifted } from './states';
+import { useOpenDispute } from '../dispute';
+import { clock, useChats } from '../agent/chats';
+import { turn } from '../agent/turns';
 import { useLine } from './use';
-
-const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
 
 export function Recall({ id }: { id: string }) {
   const router = useRouter();
-  const { ok, ready, row } = useLine(id);
+  const { ok, ready, row, account } = useLine(id);
+  const open = useOpenDispute(account?.accountNumber, !!account?.demo);
+  const { file } = useChats(account?.accountNumber, !!account?.demo);
+  const [messaged, setMessaged] = useState(false);
   /* the moment it was reported: now, and kept while the page is up */
   const [at] = useState(() => clock());
   const about = row ? `${naira(row.amount)} to ${row.name}, being asked back` : undefined;
@@ -69,8 +72,33 @@ export function Recall({ id }: { id: string }) {
         <ChoiceList
           testID="ways"
           items={[
-            { glyph: 'chat', title: `Message ${first}`, sub: 'Most of these end here, in an hour', onPress: later(`A message to ${first} through ${bank}`, 7) },
-            { glyph: 'list', title: 'Open a dispute', sub: `If ${first} has not answered by Friday`, onPress: later('A dispute', 7) },
+            {
+              glyph: 'chat',
+              title: messaged ? `${first} has the message` : `Message ${first}`,
+              sub: messaged ? 'I tell you the moment she answers' : 'Most of these end here, in an hour',
+              onPress: () => {
+                if (messaged) return;
+                setMessaged(true);
+                const at = clock();
+                file({
+                  id: `recall-${row.id}`,
+                  startedBy: 'beetle',
+                  title: `A message to ${first}`,
+                  detail: `Through ${bank} · ${naira(row.amount)}`,
+                  time: at,
+                  day: 'today',
+                  turns: [
+                    turn.say(
+                      `Sent through ${bank} at ${at}: "${first}, the ${naira(row.amount)} that reached you at ${row.time} was sent in error. Please approve its return; nothing else is needed from you." I tell you the moment there is an answer.`,
+                    ),
+                  ],
+                  pending: null,
+                  unread: true,
+                });
+                toast(`Sent through ${bank}. I tell you the moment ${first} answers.`);
+              },
+            },
+            { glyph: 'list', title: 'Open a dispute', sub: `If ${first} has not answered by Friday`, onPress: () => open(row, 'recall') },
           ]}
         />
       </View>

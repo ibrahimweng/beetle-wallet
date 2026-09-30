@@ -24,10 +24,11 @@ import { PasscodeSheet, lockedFor } from '../passcode';
 import { handoff } from '../scan/handoff';
 import { LAB } from '../../lab/enabled';
 import { groupAccount, initialsOf, naira } from '../../lib/format';
-import { draft, softReading } from './hand';
+import { checkFor, draft, softReading } from './hand';
+import { refuses } from './rules';
+import { useOnline } from '../offline';
 import { PayFromSheet, dollarsOf, usdFull, usdOf, type Source } from '../dollars';
 
-const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
 /** The three parts the frame's message fills in, for the lab. */
 const DEMO = { who: PEOPLE[0]!, amount: 50_000, reference: 'Flat deposit', said: 'send Sarah 50k for the flat deposit' };
 const FROM_MESSAGE = 'I took this from your message';
@@ -62,6 +63,7 @@ export function Send() {
   const [pick, setPick] = useState<Rect | null>(null);
   const [guard, setGuard] = useState(false);
   const [busy, setBusy] = useState(false);
+  const online = useOnline();
   /* where it leaves from: Everyday, or the dollars at the rate on this page */
   const [source, setSource] = useState<Source>(asked.from === 'dollars' ? 'dollars' : 'everyday');
   const [choosing, setChoosing] = useState(LAB && asked.from === 'pick');
@@ -137,6 +139,23 @@ export function Send() {
   /* Slide to send: past the balance it is Not enough; otherwise the passcode */
   const slide = () => {
     if (!who || !amount) return;
+    /* no network: nothing is sent against a balance that cannot be checked */
+    if (!online) {
+      router.push(`/offline?asked=${amount}&name=${encodeURIComponent(who.name.split(' ')[0] ?? who.name)}`);
+      return;
+    }
+    /* the whole balance to somebody never paid before: Beetle stops and says why */
+    if (
+      !fromDollars &&
+      refuses(
+        amount,
+        balance,
+        saved.people.some(p => p.number === who.number),
+      )
+    ) {
+      router.push(`/refused?amount=${amount}&name=${encodeURIComponent(who.name)}&number=${who.number}`);
+      return;
+    }
     if (fromDollars && usd > dollars) {
       toast(`That is more than the ${usdFull(dollars)} you hold. Pay from Everyday, or convert some first.`);
       return;
@@ -263,7 +282,28 @@ export function Send() {
                   <Icon name="chevron" size={16} colour={colour.textTertiary} />
                 </View>
               </View>
-              {whoNote ? <Caption tone="secondary">{whoNote}</Caption> : null}
+              {whoNote && read === 'photo' && who ? (
+                <Tap
+                  accessibilityRole="button"
+                  accessibilityLabel="Before I filled this in"
+                  onPress={() => {
+                    const past = [...moves, ...(h?.ledger ?? [])].find(r => r.kind === 'transfer' && r.name === who.name);
+                    checkFor.put({
+                      who,
+                      times: saved.people.find(p => p.number === who.number)?.times ?? 0,
+                      usual: past ? { amount: Math.abs(past.amount), reference: past.reference } : undefined,
+                      amount,
+                      read: true,
+                    });
+                    router.push('/checking');
+                  }}
+                  testID="check-photo"
+                >
+                  <Caption tone="accent">{`${whoNote} · before I filled this in`}</Caption>
+                </Tap>
+              ) : whoNote ? (
+                <Caption tone="secondary">{whoNote}</Caption>
+              ) : null}
             </Tap>
           )}
           <View style={[s.sub, s.ref]} testID="send-ref">
@@ -292,7 +332,7 @@ export function Send() {
               <Label style={s.value}>{fromDollars ? `Dollars · ${usdFull(dollars)}` : `Everyday · ${naira(balance)}`}</Label>
               <Icon name="chevron" size={16} colour={colour.textTertiary} />
             </Tap>
-            <Tap accessibilityRole="button" accessibilityLabel="Arrives" onPress={later('Sending it later', 7)} style={s.row}>
+            <Tap accessibilityRole="button" accessibilityLabel="Arrives" onPress={() => toast('Sending it later is not in the frames yet. Slide when you are ready and it goes now.')} style={s.row}>
               <Body tone="secondary" style={{ flex: 1 }}>
                 Arrives
               </Body>

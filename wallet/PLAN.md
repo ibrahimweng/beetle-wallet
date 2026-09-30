@@ -375,16 +375,37 @@ Draft frame is the file's older home with a keyboard over it, so it is a
 lab place for the typing state with a draft waiting in the bar; the score,
 the goal's figures and the rate are the demo's own.
 
-## Round 7 · When it goes wrong, and what runs on its own
+## Round 7 · When it goes wrong, and what runs on its own — done
 
-- [ ] Checking (973:20644) and I will not do this one (973:20699), as states
-      of the chat
-- [ ] Your dispute (disputeopen 959:20338) and The dispute is closed
-      (disputeend 959:20393), from What went wrong
-- [ ] You are offline (nonetwork 959:20420), shown when the network is not
+- [x] Checking (973:20644), off a transfer the photo filled in, and I will
+      not do this one (973:20699), off the whole balance to an account never
+      paid; the chat refuses the same way
+- [x] Your dispute (disputeopen 959:20338) and The dispute is closed
+      (disputeend 959:20393), from What went wrong and Asking for it back
+- [x] You are offline (nonetwork 959:20420), shown when the network is not
       there, and the chat's own line for it
-- [ ] Standing instructions in full: the rules that run, the one a receipt
-      offers ("Rent again next month?"), pausing one
+- [x] Standing instructions in full: the rules that run, the one a receipt
+      offers ("Rent again next month?"), pausing one; every "later round"
+      toast swept
+- [x] Lab places for each, the Figma check for the five frames, the walk
+      through a dispute from a receipt, a fraud report, the closed one and
+      its letter, Checking off a slip, the refusal on the page and in the
+      chat, offline with the queue, the goal's take-back and the receipt's
+      own offer
+
+Decided while building: Checking is reached from the Send money page's
+note under a person the photo filled in, and from the lab, rather than as
+a state of the chat — a typed ask keeps the chat's own panel, as round 3
+decided; an account Beetle has never seen reads as four minutes old, the
+demo's own reading, until a bank's look-up stands behind it; the demo's
+dispute sits fixed on its third day and the closed one is a lab place, so
+the frame's home keeps its rows (no dispute chat is seeded); the network's
+signal is the web's own for now — expo-network is left out so the Expo Go
+build keeps working — and on a phone the page is a lab place; the
+receipt's offer is a fourth instruction kept beside the three and listed
+once it is on, rather than a kind of rule per reference; "is not in the
+frames yet" is what every unbuilt thing now says, so the app never
+promises a round.
 
 ## Round 8 · Finishing setting up, and the first day
 

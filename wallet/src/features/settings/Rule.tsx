@@ -8,6 +8,9 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Button, Card, Facts, FootNote, PageHead, Row, Say, Screen, Tap, toast } from '../../design';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
+import { useLine } from '../transfers/use';
+import { naira } from '../../lib/format';
+import { whenAgain } from './again';
 import { usePrefs, type Prefs } from './prefs';
 
 const OFFERS: Record<string, { rule: keyof Prefs['rules']; facts: { label: string; value: string; quiet?: boolean }[]; say: string }> = {
@@ -66,17 +69,34 @@ const OFFERS: Record<string, { rule: keyof Prefs['rules']; facts: { label: strin
   },
 };
 
+function againOffer(name: string, amount: number, reference?: string): (typeof OFFERS)[string] {
+  return {
+    rule: 'again',
+    facts: [
+      { label: 'What', value: `Send ${naira(amount)} to ${name}` },
+      { label: 'When', value: whenAgain(reference) },
+      { label: 'Up to', value: naira(amount) },
+      { label: 'Stops if', value: 'Everyday is under ₦15,000', quiet: true },
+    ],
+    say: 'Only on that day, and only if there is room. Nothing moves on any other day, and one switch stops it.',
+  };
+}
+
 export function Rule() {
   const app = useApp();
   const router = useRouter();
   const ok = useSessionGuard();
-  const asked = useLocalSearchParams<{ offer?: string }>();
+  const asked = useLocalSearchParams<{ offer?: string; row?: string }>();
+  const { row } = useLine(asked.row ?? '');
   const account = app.session?.account;
   const { prefs, set } = usePrefs(account?.accountNumber);
   if (!ok || !account) return null;
-  const offer = OFFERS[asked.offer ?? 'ikeja'] ?? OFFERS.ikeja!;
+  /* a transfer's receipt offers the same again: the facts come from its line */
+  /* the line's reference says when: the rent on the first, the grocer on Fridays; a line with none is read from its words */
+  const again = asked.offer === 'again' && row ? againOffer(row.name, Math.abs(row.amount), row.reference ?? row.detail) : null;
+  const offer = again ?? OFFERS[asked.offer ?? 'ikeja'] ?? OFFERS.ikeja!;
   const setUp = () => {
-    set({ rules: { ...prefs.rules, [offer.rule]: true } });
+    set({ rules: { ...prefs.rules, [offer.rule]: true }, ...(again && row ? { again: { rowId: row.id, title: again.facts[0]!.value, when: again.facts[1]!.value } } : {}) });
     toast('Set up. It sits in Standing instructions with a switch beside it.');
     router.dismissTo('/rules');
   };

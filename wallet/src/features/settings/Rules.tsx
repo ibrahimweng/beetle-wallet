@@ -54,25 +54,27 @@ export function Rules() {
             </Caption>
           </Card>
           <View style={{ gap: 8 }}>
-            {INSTRUCTIONS.filter(i => !i.offered || prefs.rules[i.id]).map(i => (
-              <Card key={i.id} style={s.rule} testID="rule">
-                <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
-                  <View style={{ flex: 1, gap: 8 }}>
-                    <Row>{i.title}</Row>
-                    <Meta tone="secondary">{i.when}</Meta>
+            {[...INSTRUCTIONS, ...(prefs.again ? [{ id: 'again' as const, title: prefs.again.title, when: `${prefs.again.when}.`, log: 'Not run yet', offered: true }] : [])]
+              .filter(i => !i.offered || prefs.rules[i.id])
+              .map(i => (
+                <Card key={i.id} style={s.rule} testID="rule">
+                  <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
+                    <View style={{ flex: 1, gap: 8 }}>
+                      <Row>{i.title}</Row>
+                      <Meta tone="secondary">{i.when}</Meta>
+                    </View>
+                    <Toggle value={prefs.rules[i.id]} onChange={v => set({ rules: { ...prefs.rules, [i.id]: v } })} label={i.title} />
                   </View>
-                  <Toggle value={prefs.rules[i.id]} onChange={v => set({ rules: { ...prefs.rules, [i.id]: v } })} label={i.title} />
-                </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
-                  <Meta tone="secondary" style={{ flex: 1 }}>
-                    {i.log}
-                  </Meta>
-                  <Tap accessibilityRole="button" accessibilityLabel={`See log: ${i.title}`} onPress={() => router.push('/activities')}>
-                    <Label tone="accent">See log</Label>
-                  </Tap>
-                </View>
-              </Card>
-            ))}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
+                    <Meta tone="secondary" style={{ flex: 1 }}>
+                      {i.log}
+                    </Meta>
+                    <Tap accessibilityRole="button" accessibilityLabel={`See log: ${i.title}`} onPress={() => router.push('/activities')}>
+                      <Label tone="accent">See log</Label>
+                    </Tap>
+                  </View>
+                </Card>
+              ))}
           </View>
           <View style={{ gap: 12 }}>
             <Head>I will always ask first</Head>

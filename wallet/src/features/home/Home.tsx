@@ -62,6 +62,7 @@ import { CLOSED_H, FOOT_BAND, WalletCard, useCardDrag, useCardTop } from './Wall
 import { BAR_H, foot, useFoot } from '../more/Foot';
 import { moreTo, type MoreItem } from '../more/More';
 import { ReceiptPeek } from '../receipts/Peek';
+import { useOnline } from '../offline';
 import { SavedPeek } from '../agent/SavedPeek';
 import type { SavedKind } from '../agent/AskPanel';
 import { receiptFor } from '../receipts/receipts';
@@ -156,6 +157,7 @@ function HomeScreen() {
 
   /* ---- the conversation, and the chats it becomes ---- */
   const turnsRef = useRef<Turn[]>([]);
+  const online = useOnline();
   const context = useCallback(
     () => ({
       account: account!,
@@ -163,8 +165,9 @@ function HomeScreen() {
       rate,
       transcript: transcriptOf(turnsRef.current),
       saved,
+      online,
     }),
-    [account, balance, rate, saved],
+    [account, balance, rate, saved, online],
   );
   /* a line added to the day, by a panel or an arrival: it carries what its
      receipt needs, and its id is what the receipt is found by */

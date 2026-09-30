@@ -285,6 +285,20 @@ export const TRANSFERS: Feature = {
   ],
 };
 
+export const WRONG: Feature = {
+  id: 'wrong',
+  title: 'When it goes wrong',
+  folder: 'src/features/dispute',
+  sub: 'What Beetle checked before filling a transfer in, the one it will not do, a dispute open and closed, and the phone offline.',
+  places: [
+    state('wrong-checking', 'search', 'Before I filled this in', 'Beetle Reasoning: the four checks and the one it is not sure of, from the frame', '/checking?demo=1'),
+    state('wrong-refused', 'shield', 'I will not do this one', 'The whole balance to an account four minutes old, and the three ways, from the frame', '/refused?demo=1'),
+    state('wrong-dispute', 'list', 'Your dispute', 'Day three of five: filed, acknowledged, their decision due, from the frame', '/dispute/demo'),
+    state('wrong-closed', 'check', 'The dispute is closed', 'The money back at 11:40, the steps, and the closing letter offered, from the frame', '/dispute/demo?closed=1'),
+    state('wrong-offline', 'alert', 'You are offline', 'The balance as of a time, queue it or pay by USSD, lite mode offered, from the frame', '/offline?demo=1'),
+  ],
+};
+
 export const RECEIPTS: Feature = {
   id: 'receipts',
   title: 'Receipts',
@@ -783,6 +797,7 @@ export const FEATURES: Feature[] = [
   ASK,
   SEND,
   TRANSFERS,
+  WRONG,
   SCAN,
   GUARD,
   RECEIVE,

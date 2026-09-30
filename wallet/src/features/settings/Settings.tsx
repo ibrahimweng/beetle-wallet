@@ -86,7 +86,7 @@ export function Settings() {
             <>
               <SettingRow glyph="person-filled" ink={colour.accent} title="Your details" onPress={() => setDetails(true)} />
               <SettingRow glyph="bell-filled" ink={colour.warn} title="Notifications" onPress={() => toast('Notifications have no frame yet; what they carry is set under Lock and privacy.')} />
-              <SettingRow glyph="gift-filled" title="Saved people" onPress={later('Saved people', 3)} />
+              <SettingRow glyph="gift-filled" title="Saved people" onPress={() => toast('Saved people sit behind the person card on Send money. A page of their own is not in the frames yet.')} />
               <SettingRow glyph="card-filled" title="Cards" value="1 virtual" to="/card" />
             </>,
           )}

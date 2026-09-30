@@ -18,8 +18,6 @@ import { draft } from '../send/hand';
 import { bankOf, firstOf, personOf, returnReference, shifted } from './states';
 import { useLine } from './use';
 
-const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
-
 export function Transfer({ id }: { id: string }) {
   const router = useRouter();
   const { ok, ready, row } = useLine(id);
@@ -119,7 +117,7 @@ function Failed({ id }: { id: string }) {
           testID="ways"
           items={[
             { glyph: 'up', title: 'Try again now', sub: 'It may have cleared already', onPress: again },
-            { glyph: 'bank', title: 'Send it another way', sub: 'Through your Zenith account', onPress: later('Paying from another account', 6) },
+            { glyph: 'bank', title: 'Send it another way', sub: 'Through your Zenith account', onPress: () => toast('Paying from your Zenith account is not in the frames yet.') },
           ]}
         />
       </View>

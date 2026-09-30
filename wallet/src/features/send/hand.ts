@@ -50,3 +50,19 @@ export const shortName = (name: string) => {
   const last = rest[rest.length - 1];
   return last ? `${first} ${last.charAt(0)}.` : (first ?? name);
 };
+
+/** What the Send money page hands to Before I filled this in: who, how many times paid, the usual figure, and what was read. */
+export type CheckDraft = { who: Person; times: number; usual?: { amount: number; reference?: string }; amount: number; read: boolean };
+
+let checking: CheckDraft | null = null;
+
+export const checkFor = {
+  put(d: CheckDraft) {
+    checking = d;
+  },
+  take(): CheckDraft | null {
+    const d = checking;
+    checking = null;
+    return d;
+  },
+};

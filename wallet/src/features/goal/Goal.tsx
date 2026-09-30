@@ -44,8 +44,8 @@ export function Goal() {
   const paused = has && (prefs.tight || (LAB && asked.paused === '1'));
   const on: Record<FeedId, boolean> = { payday: prefs.rules.payday, roundups: prefs.feeds.roundups, cashback: prefs.feeds.cashback };
   const sums = account?.demo ? DEMO_SUMS : NO_SUMS;
-  /* what was put in by hand on this phone */
-  const added = moves.filter(r => r.kind === 'saving' && r.name === GOAL.name).reduce((a, r) => a + Math.abs(r.amount), 0);
+  /* what was put in by hand on this phone, less what was taken back */
+  const added = moves.filter(r => r.kind === 'saving' && r.name === GOAL.name).reduce((a, r) => a - r.amount, 0);
   const aside = has ? putAside(sums, added) : 0;
   const pct = pctOf(aside);
   const state = !has ? 'none' : paused ? 'paused' : aside ? 'running' : 'empty';

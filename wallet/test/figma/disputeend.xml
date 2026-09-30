@@ -1,0 +1,35 @@
+<frame id="959:20393" name="DisputeEnd" x="573" y="80" width="393" height="852">
+  <frame id="959:20394" name="Page" x="0" y="0" width="393" height="852.5999755859375">
+    <frame id="959:20395" name="Content" x="20" y="72" width="353" height="780.5999755859375">
+      <instance id="959:20396" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="959:20397" name="Column" x="0" y="75.19999694824219" width="353" height="139">
+        <instance id="959:20398" name="Glyph · grid" x="0" y="0" width="56" height="56" />
+        <frame id="959:20399" name="Column" x="0" y="72" width="176" height="67">
+          <text id="959:20400" name="₦20,000" x="0" y="0" width="132" height="40" />
+          <text id="959:20401" name="back in Everyday at 11:40" x="0" y="52" width="164" height="20" />
+        </frame>
+      </frame>
+      <frame id="959:20402" name="Card" x="0" y="230.1999969482422" width="353" height="78.4000015258789">
+        <instance id="959:20403" name="Glyph · pot" x="16" y="27.200000762939453" width="24" height="24" />
+        <text id="959:20404" name="Do not send it again. This one" x="52" y="15.200000762939453" width="248" height="48" />
+      </frame>
+      <frame id="959:20405" name="Card" x="0" y="324.6000061035156" width="353" height="168">
+        <instance id="959:20406" name="Row · Left your account" x="16" y="16" width="321" height="44" />
+        <instance id="959:20407" name="Row · GTBank has it" x="16" y="64" width="321" height="44" />
+        <instance id="959:20408" name="Row · Reaching Sarah" x="16" y="112" width="321" height="44" />
+      </frame>
+      <frame id="959:20409" name="Row" x="0" y="508.6000061035156" width="353" height="93.5999984741211">
+        <instance id="959:20410" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="959:20411" name="Card" x="44" y="0" width="309" height="104" />
+      </frame>
+      <frame id="959:20412" name="Card" x="0" y="618.2000122070312" width="353" height="162.39999389648438">
+        <frame id="959:20413" name="Row" x="16" y="16" width="319" height="70.4000015258789">
+          <instance id="959:20414" name="Mark · 32" x="0" y="0" width="32" height="32" />
+          <instance id="959:20415" name="Card" x="44" y="0" width="275" height="80" />
+        </frame>
+        <instance id="959:20416" name="Button · Yes, tell me" x="16" y="98.4000015258789" width="319" height="48" />
+      </frame>
+    </frame>
+  </frame>
+  <instance id="959:20417" name="Dock · Ask about this transfer" x="0" y="748" width="393" height="104" />
+</frame>

@@ -24,7 +24,13 @@ export type Prefs = {
     dollars: boolean;
     /** ₦5,000 held back on payday, for the score */
     budget: boolean;
+    /** the same transfer again, offered by its receipt */
+    again: boolean;
   };
+  /** what the transfer offered by a receipt was: who, how much, and when it runs */
+  again?: { rowId: string; title: string; when: string };
+  /** lite mode while data is short: no pictures and no motion */
+  lite: boolean;
   /** what feeds the goal besides the payday slice */
   feeds: { roundups: boolean; cashback: boolean };
   /** a goal has been started on an account the design does not seed one for */
@@ -43,7 +49,8 @@ export const DEFAULT_PREFS: Prefs = {
   hideShots: true,
   amountsInNotes: false,
   tight: false,
-  rules: { payday: true, ikeja: true, data: true, remind: false, dollars: false, budget: false },
+  rules: { payday: true, ikeja: true, data: true, remind: false, dollars: false, budget: false, again: false },
+  lite: false,
   feeds: { roundups: true, cashback: true },
   goal: false,
   askAfter: '2 minutes',

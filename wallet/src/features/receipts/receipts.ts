@@ -336,6 +336,27 @@ export function receiptFor(row: LedgerRow, ctx: { account: Account; balanceNow: 
     };
   }
   const what = row.detail.replace(/ · \d\d:\d\d$/, '');
+  if (row.kind === 'saving' && row.amount > 0) {
+    return {
+      ...base,
+      head: 'Taken back',
+      line: `From ${row.name}`,
+      status: 'Successful',
+      fields: [
+        ['From', row.name, 'Nothing here is locked'],
+        ['To', 'Everyday', number],
+        ['Amount', nairaFull(amount)],
+        ['Fee', 'Free'],
+        ['Total credited', nairaFull(amount)],
+        ['Balance after', after],
+      ],
+      session,
+      sessionLabel: 'Session ID',
+      nudge: { text: 'Put it back on payday?', action: 'Set it up' },
+      wrong: 'Something wrong with this?',
+      ask: 'Ask about this',
+    };
+  }
   return {
     ...base,
     head: 'All done',

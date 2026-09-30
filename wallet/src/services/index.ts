@@ -25,3 +25,4 @@ export * from './reader';
 export * from './agent';
 export * from './model';
 export * from './nigeria';
+export * from './rules';

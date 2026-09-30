@@ -322,6 +322,10 @@
   {
    "text": "Ask me about this",
    "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "text": "₦48,000 is sitting there",
+   "why": "the goal's own figure: Holiday holds ₦82,400 on its frame, and the row says what the goal says"
   }
  ],
  "misread": [
@@ -778,6 +782,80 @@
   {
    "piece": "Keyboard",
    "why": "the phone draws its own keyboard; the lab lifts the bar by the frame's 236 instead"
+  }
+ ],
+ "checking": [
+  {
+   "text": "I have asked GTBank. That part",
+   "why": "the layer keeps another frame's words; the picture reads 'Three of the four I am sure about.', which the build says"
+  },
+  {
+   "text": "I cannot take it back. It is",
+   "why": "the layer keeps another frame's words; the picture reads 'The amount is the one I get wrong, so I flag it.', which the build says"
+  },
+  {
+   "text": "If she says no, no bank can fo",
+   "why": "the layer keeps another frame's words; the picture reads 'You only have to check the part I marked.', which the build says"
+  },
+  {
+   "text": "After that it is a formal di",
+   "why": "the layer keeps another frame's words; the picture reads 'If I were sure of all four I would not stop you here at all.', which the build says"
+  },
+  {
+   "text": "Most of these end here, in a",
+   "why": "the layer keeps another frame's words; the picture reads 'Rent, the usual amount', which the build says"
+  },
+  {
+   "text": "If she has not answered by F",
+   "why": "the layer keeps another frame's words; the picture reads 'Any figure, on the keypad', which the build says"
+  }
+ ],
+ "disputeopen": [
+  {
+   "text": "I have asked GTBank. That part",
+   "why": "the layer keeps another frame's words; the picture reads 'GTBank has it and the clock is running. Nothing more is needed from you.', which the build says"
+  },
+  {
+   "text": "I cannot take it back. It is",
+   "why": "the layer keeps another frame's words; the picture reads 'I check every morning and tell you the day it moves.', which the build says"
+  },
+  {
+   "text": "If she says no, no bank can fo",
+   "why": "the layer keeps another frame's words; the picture reads 'If they miss 4 September it escalates on its own.', which the build says"
+  },
+  {
+   "text": "After that it is a formal di",
+   "why": "the layer keeps another frame's words; the picture reads 'You do not have to call anybody, and you do not have to watch this screen.', which the build says"
+  },
+  {
+   "text": "Most of these end here, in a",
+   "why": "the layer keeps another frame's words; the picture reads 'The exact wording, and what was attached', which the build says as 'The wording, and what went with it' to hold the line"
+  },
+  {
+   "text": "If she has not answered by F",
+   "why": "the layer keeps another frame's words; the picture's line is cut; the build says 'A message or a screenshot from her'"
+  }
+ ],
+ "iwillnot": [
+  {
+   "text": "short of the ₦20,000 you ask",
+   "why": "the layer keeps the Not enough frame's words; the picture reads 'to an account I have never seen', which the build says"
+  },
+  {
+   "text": "The rest when your salary la",
+   "why": "the layer keeps the Not enough frame's words; the picture reads 'I will ask you again then', which the build says"
+  }
+ ],
+ "disputeend": [
+  {
+   "text": "Do not send it again. This one",
+   "why": "the layer keeps the Still on its way frame's words; the picture reads 'It is already in your balance. Nothing to do.', which the build says"
+  }
+ ],
+ "nonetwork": [
+  {
+   "text": "Your balance is exactly what i",
+   "why": "the layer keeps the It did not go frame's words; the picture reads 'Nothing you do here gets lost.', which the build says"
   }
  ]
 }

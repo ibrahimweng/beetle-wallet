@@ -19,8 +19,6 @@ import type { IconName } from '../../icons';
 import type { Account } from '../../services';
 import { groupAccount } from '../../lib/format';
 
-const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
-
 type Way = { glyph: IconName; title: string; sub: string; to?: string; onPress?: () => void };
 
 export function ReceiveSheet({ account, onDismiss }: { account: Account; onDismiss: () => void }) {
@@ -29,9 +27,9 @@ export function ReceiveSheet({ account, onDismiss }: { account: Account; onDismi
   const [going, setGoing] = useState<string | null>(null);
   const ways: Way[] = [
     { glyph: 'bank', title: 'Bank transfer', sub: `Your number, ${groupAccount(account.accountNumber)}`, to: '/ways' },
-    { glyph: 'card', title: 'From a card', sub: 'Any Nigerian debit card', onPress: later('Paying in from a card', 5) },
+    { glyph: 'card', title: 'From a card', sub: 'Any Nigerian debit card', onPress: () => toast('Paying in from a card is not in the frames yet.') },
     { glyph: 'request', title: 'Ask someone', sub: 'Send a request they can pay', to: '/request' },
-    { glyph: 'dollar', title: 'In dollars', sub: 'Hold it steady, or turn naira across', onPress: later('Dollars', 6) },
+    { glyph: 'dollar', title: 'In dollars', sub: 'Hold it steady, or turn naira across', to: '/dollars' },
   ];
   const gone = () => {
     onDismiss();

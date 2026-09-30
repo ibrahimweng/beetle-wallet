@@ -1,0 +1,77 @@
+<frame id="973:20699" name="IWillNot" x="573" y="80" width="393" height="852">
+  <frame id="973:20700" name="Page" x="0" y="0" width="393" height="860.7999877929688">
+    <frame id="973:20701" name="Content" x="20" y="72" width="353" height="788.7999877929688">
+      <instance id="973:20702" name="Page head" x="0" y="0" width="353" height="59.20000076293945" />
+      <frame id="973:20703" name="Column" x="0" y="71.19999694824219" width="353" height="139">
+        <instance id="973:20704" name="Glyph · pot" x="0" y="0" width="56" height="56" />
+        <frame id="973:20705" name="Column" x="0" y="72" width="235" height="67">
+          <text id="973:20706" name="₦595,320" x="0" y="0" width="152" height="40" />
+          <text id="973:20707" name="short of the ₦20,000 you ask" x="0" y="52" width="205" height="20" />
+        </frame>
+      </frame>
+      <frame id="973:20708" name="Column" x="0" y="222.1999969482422" width="353" height="168">
+        <frame id="973:20709" name="Row · You asked for" x="0" y="0" width="353" height="56">
+          <text id="973:20710" name="You typed" x="0" y="16" width="222.1999969482422" height="24" />
+          <text id="973:20711" name="send everything" x="222.1999969482422" y="16" width="123" height="24" />
+        </frame>
+        <frame id="973:20712" name="Row · In Everyday" x="0" y="56" width="353" height="56">
+          <text id="973:20713" name="Account age" x="0" y="16" width="244" height="24" />
+          <text id="973:20714" name="Four minutes" x="244" y="16" width="101" height="24" />
+        </frame>
+        <frame id="973:20715" name="Row · Short by" x="0" y="112" width="353" height="56">
+          <text id="973:20716" name="Paid before" x="0" y="16" width="299" height="24" />
+          <text id="973:20717" name="Never" x="299" y="16" width="46" height="24" />
+        </frame>
+      </frame>
+      <frame id="973:20718" name="Row" x="0" y="402.20001220703125" width="353" height="70.4000015258789">
+        <instance id="973:20719" name="Mark · 32" x="0" y="0" width="32" height="32" />
+        <instance id="973:20720" name="Card" x="44" y="0" width="309" height="80" />
+      </frame>
+      <frame id="973:20721" name="Card" x="0" y="484.6000061035156" width="353" height="224">
+        <frame id="973:20722" name="Row" x="16" y="4" width="321" height="72">
+          <frame id="973:20723" name="Icon" x="0" y="16" width="40" height="40">
+            <instance id="973:20724" name="Glyph · alert" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="973:20725" name="Column" x="52" y="14.399999618530273" width="241" height="43.20000076293945">
+            <text id="973:20726" name="Send ₦20,000 instead" x="0" y="0" width="169" height="24" />
+            <text id="973:20727" name="Enough to check it arrives" x="0" y="28" width="168" height="20" />
+          </frame>
+          <instance id="973:20728" name="Glyph · check" x="305" y="28" width="16" height="16" />
+        </frame>
+        <frame id="973:20729" name="Row" x="16" y="76" width="321" height="72">
+          <frame id="973:20730" name="Icon" x="0" y="16" width="40" height="40">
+            <instance id="973:20731" name="Glyph · up" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="973:20732" name="Column" x="52" y="14.399999618530273" width="241" height="43.20000076293945">
+            <text id="973:20733" name="Wait until tomorrow" x="0" y="0" width="150" height="24" />
+            <text id="973:20734" name="The rest when your salary la" x="0" y="28" width="153" height="20" />
+          </frame>
+          <instance id="973:20735" name="Glyph · check" x="305" y="28" width="16" height="16" />
+        </frame>
+        <frame id="973:20736" name="Row" x="16" y="148" width="321" height="72">
+          <frame id="973:20737" name="Icon" x="0" y="16" width="40" height="40">
+            <instance id="973:20738" name="Glyph · up" x="10" y="10" width="20" height="20" />
+          </frame>
+          <frame id="973:20739" name="Column" x="52" y="14.399999618530273" width="241" height="43.20000076293945">
+            <text id="973:20740" name="It really is me" x="0" y="0" width="101" height="24" />
+            <text id="973:20741" name="Face ID, then a call from us" x="0" y="28" width="175" height="20" />
+          </frame>
+          <instance id="973:20742" name="Glyph · check" x="305" y="28" width="16" height="16" />
+        </frame>
+      </frame>
+      <instance id="973:20743" name="Card" x="0" y="720.5999755859375" width="321" height="64" />
+    </frame>
+  </frame>
+  <frame id="973:20744" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="973:20745" name="Row" x="16" y="24" width="361" height="56">
+      <frame id="973:20746" name="Back" x="0" y="6" width="44" height="44">
+        <instance id="973:20747" name="Glyph · check" x="11" y="11" width="22" height="22" />
+      </frame>
+      <frame id="973:20748" name="Ask bar" x="52" y="4" width="309" height="48">
+        <instance id="973:20749" name="Mark · 32" x="8" y="8" width="32" height="32" />
+        <text id="973:20750" name="Ask why I stopped this" x="48" y="14" width="223" height="20" />
+        <instance id="973:20751" name="Glyph · camera" x="279" y="15" width="18" height="18" />
+      </frame>
+    </frame>
+  </frame>
+</frame>

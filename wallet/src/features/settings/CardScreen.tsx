@@ -62,7 +62,7 @@ export function CardScreen() {
             items={[
               { glyph: 'search', label: shown ? 'Hide' : 'Reveal', onPress: reveal },
               { glyph: 'freeze', label: prefs.cardFrozen ? 'Unfreeze' : 'Freeze', tone: colour.cyan, onPress: freeze },
-              { glyph: 'plus', label: 'Fund', tone: colour.good, onPress: later('Funding the card', 6) },
+              { glyph: 'plus', label: 'Fund', tone: colour.good, onPress: () => toast('Funding the card from Everyday is not in the frames yet.') },
               { glyph: 'list', label: 'Rules', onPress: () => router.push('/rules') },
             ]}
           />
@@ -78,7 +78,7 @@ export function CardScreen() {
             <Meter pct={(CARD.spent / CARD.ceiling) * 100} height={7} />
             <Meta tone="secondary">{naira(left)} left before it stops working</Meta>
           </Card>
-          <PillRow glyph="plus" label="Make another card" onPress={later('A second card', 5)} />
+          <PillRow glyph="plus" label="Make another card" onPress={() => toast('A second card is not in the frames yet.')} />
         </View>
       </Screen>
     </View>

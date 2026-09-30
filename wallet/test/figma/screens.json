@@ -6803,7 +6803,7 @@
    {
     "name": "₦48,000 is sitting there",
     "find": {
-     "text": "₦48,000 is sitting there"
+     "text": "₦82,400 is sitting there"
     },
     "only": [
      "x",
@@ -19907,5 +19907,1663 @@
   "place": "A draft, unsent",
   "settle": 1800,
   "pieces": []
+ },
+ "checking": {
+  "frame": "checking",
+  "place": "Before I filled this in",
+  "wait": "Beetle Reasoning",
+  "settle": 1400,
+  "skipWords": [
+   "Ask how I decide"
+  ],
+  "pieces": [
+   {
+    "name": "Page head",
+    "find": {
+     "testid": "head",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "MCP panel",
+    "find": {
+     "testid": "reasoning"
+    }
+   },
+   {
+    "name": "Row · Beetle Reasoning",
+    "find": {
+     "text": "Beetle Reasoning",
+     "up": 1
+    }
+   },
+   {
+    "name": "Icon",
+    "nth": 0,
+    "find": {
+     "text": "Beetle Reasoning",
+     "up": 1,
+     "child": 0
+    }
+   },
+   {
+    "name": "Beetle Reasoning",
+    "find": {
+     "text": "Beetle Reasoning"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Chip · Running",
+    "find": {
+     "testid": "panel-status"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Column",
+    "nth": 0,
+    "find": {
+     "testid": "reasoning",
+     "child": 1
+    }
+   },
+   {
+    "name": "Row · You reported it",
+    "find": {
+     "testid": "reasoning",
+     "child": [
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   {
+    "name": "Row · Sent to GTBank",
+    "find": {
+     "testid": "reasoning",
+     "child": [
+      1,
+      0,
+      1
+     ]
+    }
+   },
+   {
+    "name": "Row · Sarah asked to appro",
+    "find": {
+     "testid": "reasoning",
+     "child": [
+      1,
+      0,
+      2
+     ]
+    }
+   },
+   {
+    "name": "Row · Her answer",
+    "find": {
+     "testid": "reasoning",
+     "child": [
+      1,
+      0,
+      3
+     ]
+    }
+   },
+   {
+    "name": "Card",
+    "nth": 0,
+    "find": {
+     "testid": "decided"
+    }
+   },
+   {
+    "name": "How I decided",
+    "find": {
+     "text": "How I decided"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Column",
+    "nth": 1,
+    "find": {
+     "testid": "decided",
+     "child": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Row · I have asked GTBank.",
+    "find": {
+     "testid": "decided",
+     "child": [
+      1,
+      0
+     ]
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Icon",
+    "nth": 1,
+    "find": {
+     "testid": "decided",
+     "child": [
+      1,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   {
+    "name": "I have asked GTBank. That part",
+    "find": {
+     "text": "Three of the four I am sure about."
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Row · I cannot take it bac",
+    "find": {
+     "testid": "decided",
+     "child": [
+      1,
+      1
+     ]
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Icon",
+    "nth": 2,
+    "find": {
+     "testid": "decided",
+     "child": [
+      1,
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   {
+    "name": "I cannot take it back. It is",
+    "find": {
+     "text": "The amount is the one I get wrong"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Row · If she says no, no b",
+    "find": {
+     "testid": "decided",
+     "child": [
+      1,
+      2
+     ]
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Icon",
+    "nth": 3,
+    "find": {
+     "testid": "decided",
+     "child": [
+      1,
+      2,
+      0,
+      0
+     ]
+    }
+   },
+   {
+    "name": "If she says no, no bank can fo",
+    "find": {
+     "text": "You only have to check the part I marked."
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "After that it is a formal di",
+    "find": {
+     "text": "If I were sure of all four"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Card",
+    "nth": 1,
+    "find": {
+     "testid": "ways"
+    }
+   },
+   {
+    "name": "Row",
+    "nth": 0,
+    "find": {
+     "button": "It is ₦20,000"
+    }
+   },
+   {
+    "name": "Icon",
+    "nth": 4,
+    "find": {
+     "button": "It is ₦20,000",
+     "child": 0
+    }
+   },
+   {
+    "name": "Column",
+    "nth": 2,
+    "find": {
+     "button": "It is ₦20,000",
+     "child": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "It is ₦20,000",
+    "find": {
+     "text": "It is ₦20,000"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Most of these end here, in a",
+    "find": {
+     "text": "Rent, the usual amount"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row",
+    "nth": 1,
+    "find": {
+     "button": "Let me type it"
+    }
+   },
+   {
+    "name": "Icon",
+    "nth": 5,
+    "find": {
+     "button": "Let me type it",
+     "child": 0
+    }
+   },
+   {
+    "name": "Column",
+    "nth": 3,
+    "find": {
+     "button": "Let me type it",
+     "child": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Let me type it",
+    "find": {
+     "text": "Let me type it"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "If she has not answered by F",
+    "find": {
+     "text": "Any figure, on the keypad"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Back",
+    "find": {
+     "button": "Back"
+    }
+   },
+   {
+    "name": "Ask bar",
+    "find": {
+     "testid": "dock-bar"
+    }
+   },
+   {
+    "name": "Mark · 32",
+    "nth": 0,
+    "find": {
+     "testid": "dock-bar",
+     "child": 0
+    }
+   },
+   {
+    "name": "Glyph · camera",
+    "find": {
+     "label": "Scan something",
+     "child": 0
+    }
+   }
+  ]
+ },
+ "disputeopen": {
+  "frame": "disputeopen",
+  "place": "Your dispute",
+  "wait": "Beetle Dispute",
+  "settle": 1400,
+  "skipWords": [
+   "Ask where this stands"
+  ],
+  "pieces": [
+   {
+    "name": "Page head",
+    "find": {
+     "testid": "head",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "MCP panel",
+    "find": {
+     "testid": "dispute-panel"
+    }
+   },
+   {
+    "name": "Row · Beetle Dispute",
+    "find": {
+     "text": "Beetle Dispute",
+     "up": 1
+    }
+   },
+   {
+    "name": "Icon",
+    "nth": 0,
+    "find": {
+     "text": "Beetle Dispute",
+     "up": 1,
+     "child": 0
+    }
+   },
+   {
+    "name": "Beetle Dispute",
+    "find": {
+     "text": "Beetle Dispute"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Chip · Running",
+    "find": {
+     "testid": "panel-status"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Column",
+    "nth": 0,
+    "find": {
+     "testid": "dispute-panel",
+     "child": 1
+    }
+   },
+   {
+    "name": "Row · You reported it",
+    "find": {
+     "testid": "dispute-panel",
+     "child": [
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   {
+    "name": "Row · Sent to GTBank",
+    "find": {
+     "testid": "dispute-panel",
+     "child": [
+      1,
+      0,
+      1
+     ]
+    }
+   },
+   {
+    "name": "Row · Sarah asked to appro",
+    "find": {
+     "testid": "dispute-panel",
+     "child": [
+      1,
+      0,
+      2
+     ]
+    }
+   },
+   {
+    "name": "Row · Her answer",
+    "find": {
+     "testid": "dispute-panel",
+     "child": [
+      1,
+      0,
+      3
+     ]
+    }
+   },
+   {
+    "name": "Card",
+    "nth": 0,
+    "find": {
+     "testid": "where"
+    }
+   },
+   {
+    "name": "Where this actually is",
+    "find": {
+     "text": "Where this actually is"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Column",
+    "nth": 1,
+    "find": {
+     "testid": "where",
+     "child": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Row · I have asked GTBank.",
+    "find": {
+     "testid": "where",
+     "child": [
+      1,
+      0
+     ]
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Icon",
+    "nth": 1,
+    "find": {
+     "testid": "where",
+     "child": [
+      1,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   {
+    "name": "I have asked GTBank. That part",
+    "find": {
+     "text": "GTBank has it and the clock is running"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Row · I cannot take it bac",
+    "find": {
+     "testid": "where",
+     "child": [
+      1,
+      1
+     ]
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Icon",
+    "nth": 2,
+    "find": {
+     "testid": "where",
+     "child": [
+      1,
+      1,
+      0,
+      0
+     ]
+    }
+   },
+   {
+    "name": "I cannot take it back. It is",
+    "find": {
+     "text": "I check every morning"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Row · If she says no, no b",
+    "find": {
+     "testid": "where",
+     "child": [
+      1,
+      2
+     ]
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Icon",
+    "nth": 3,
+    "find": {
+     "testid": "where",
+     "child": [
+      1,
+      2,
+      0,
+      0
+     ]
+    }
+   },
+   {
+    "name": "If she says no, no bank can fo",
+    "find": {
+     "text": "If they miss 4 September"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "After that it is a formal di",
+    "find": {
+     "text": "You do not have to call anybody"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Card",
+    "nth": 1,
+    "find": {
+     "testid": "ways"
+    }
+   },
+   {
+    "name": "Row",
+    "nth": 0,
+    "find": {
+     "button": "See what was filed"
+    }
+   },
+   {
+    "name": "Icon",
+    "nth": 4,
+    "find": {
+     "button": "See what was filed",
+     "child": 0
+    }
+   },
+   {
+    "name": "Column",
+    "nth": 2,
+    "find": {
+     "button": "See what was filed",
+     "child": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "See what was filed",
+    "find": {
+     "text": "See what was filed"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Most of these end here, in a",
+    "find": {
+     "text": "The wording, and what went with it"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row",
+    "nth": 1,
+    "find": {
+     "button": "Add something to it"
+    }
+   },
+   {
+    "name": "Icon",
+    "nth": 5,
+    "find": {
+     "button": "Add something to it",
+     "child": 0
+    }
+   },
+   {
+    "name": "Column",
+    "nth": 3,
+    "find": {
+     "button": "Add something to it",
+     "child": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Add something to it",
+    "find": {
+     "text": "Add something to it"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "If she has not answered by F",
+    "find": {
+     "text": "A message or a screenshot from her"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Back",
+    "find": {
+     "button": "Back"
+    }
+   },
+   {
+    "name": "Ask bar",
+    "find": {
+     "testid": "dock-bar"
+    }
+   },
+   {
+    "name": "Mark · 32",
+    "nth": 0,
+    "find": {
+     "testid": "dock-bar",
+     "child": 0
+    }
+   },
+   {
+    "name": "Glyph · camera",
+    "find": {
+     "label": "Scan something",
+     "child": 0
+    }
+   }
+  ]
+ },
+ "iwillnot": {
+  "frame": "iwillnot",
+  "place": "I will not do this one",
+  "wait": "to an account I have never seen",
+  "settle": 1400,
+  "skipWords": [
+   "Ask why I stopped this"
+  ],
+  "pieces": [
+   {
+    "name": "Page head",
+    "find": {
+     "testid": "head",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Glyph · pot",
+    "find": {
+     "testid": "status",
+     "child": 0
+    }
+   },
+   {
+    "name": "₦595,320",
+    "find": {
+     "text": "₦595,320",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "short of the ₦20,000 you ask",
+    "find": {
+     "text": "to an account I have never seen"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · You asked for",
+    "find": {
+     "text": "You typed",
+     "up": 1
+    }
+   },
+   {
+    "name": "You typed",
+    "find": {
+     "text": "You typed"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "send everything",
+    "find": {
+     "text": "send everything"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · In Everyday",
+    "find": {
+     "text": "Account age",
+     "up": 1
+    }
+   },
+   {
+    "name": "Account age",
+    "find": {
+     "text": "Account age"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Four minutes",
+    "find": {
+     "text": "Four minutes"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · Short by",
+    "find": {
+     "text": "Paid before",
+     "up": 1
+    }
+   },
+   {
+    "name": "Paid before",
+    "find": {
+     "text": "Paid before"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Never",
+    "find": {
+     "text": "Never",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Mark · 32",
+    "find": {
+     "testid": "say",
+     "child": 0
+    }
+   },
+   {
+    "name": "Card",
+    "nth": 0,
+    "find": {
+     "testid": "say",
+     "child": [
+      1,
+      0
+     ]
+    }
+   },
+   {
+    "name": "Card",
+    "nth": 1,
+    "find": {
+     "testid": "ways"
+    }
+   },
+   {
+    "name": "Row",
+    "nth": 1,
+    "find": {
+     "button": "Send ₦20,000 instead"
+    }
+   },
+   {
+    "name": "Icon",
+    "nth": 0,
+    "find": {
+     "button": "Send ₦20,000 instead",
+     "child": 0
+    }
+   },
+   {
+    "name": "Column",
+    "nth": 3,
+    "find": {
+     "button": "Send ₦20,000 instead",
+     "child": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Send ₦20,000 instead",
+    "find": {
+     "text": "Send ₦20,000 instead"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Enough to check it arrives",
+    "find": {
+     "text": "Enough to check it arrives"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Glyph · check",
+    "nth": 0,
+    "find": {
+     "button": "Send ₦20,000 instead",
+     "child": 2
+    }
+   },
+   {
+    "name": "Row",
+    "nth": 2,
+    "find": {
+     "button": "Wait until tomorrow"
+    }
+   },
+   {
+    "name": "Icon",
+    "nth": 1,
+    "find": {
+     "button": "Wait until tomorrow",
+     "child": 0
+    }
+   },
+   {
+    "name": "Column",
+    "nth": 4,
+    "find": {
+     "button": "Wait until tomorrow",
+     "child": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Wait until tomorrow",
+    "find": {
+     "text": "Wait until tomorrow"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "The rest when your salary la",
+    "find": {
+     "text": "I will ask you again then"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Glyph · check",
+    "nth": 1,
+    "find": {
+     "button": "Wait until tomorrow",
+     "child": 2
+    }
+   },
+   {
+    "name": "Row",
+    "nth": 3,
+    "find": {
+     "button": "It really is me"
+    }
+   },
+   {
+    "name": "Icon",
+    "nth": 2,
+    "find": {
+     "button": "It really is me",
+     "child": 0
+    }
+   },
+   {
+    "name": "Column",
+    "nth": 5,
+    "find": {
+     "button": "It really is me",
+     "child": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "It really is me",
+    "find": {
+     "text": "It really is me"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Face ID, then a call from us",
+    "find": {
+     "text": "Face ID, then a call from us"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Glyph · check",
+    "nth": 2,
+    "find": {
+     "button": "It really is me",
+     "child": 2
+    }
+   },
+   {
+    "name": "Card",
+    "nth": 2,
+    "find": {
+     "testid": "note"
+    }
+   },
+   {
+    "name": "Back",
+    "find": {
+     "button": "Back"
+    }
+   },
+   {
+    "name": "Ask bar",
+    "find": {
+     "testid": "dock-bar"
+    }
+   },
+   {
+    "name": "Mark · 32",
+    "nth": 1,
+    "find": {
+     "testid": "dock-bar",
+     "child": 0
+    }
+   },
+   {
+    "name": "Glyph · camera",
+    "find": {
+     "label": "Scan something",
+     "child": 0
+    }
+   }
+  ]
+ },
+ "disputeend": {
+  "frame": "disputeend",
+  "place": "The dispute is closed",
+  "wait": "It is already in your balance",
+  "settle": 1600,
+  "skipWords": [
+   "Ask about this dispute"
+  ],
+  "pieces": [
+   {
+    "name": "Page head",
+    "find": {
+     "testid": "head",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Glyph · grid",
+    "find": {
+     "testid": "ring"
+    }
+   },
+   {
+    "name": "₦20,000",
+    "find": {
+     "text": "₦20,000",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "nth": 0
+   },
+   {
+    "name": "back in Everyday at 11:40",
+    "find": {
+     "text": "back in Everyday at 11:40"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Card",
+    "nth": 0,
+    "find": {
+     "testid": "banner"
+    }
+   },
+   {
+    "name": "Glyph · pot",
+    "nth": 0,
+    "find": {
+     "testid": "banner",
+     "child": 0
+    }
+   },
+   {
+    "name": "Do not send it again. This one",
+    "find": {
+     "text": "It is already in your balance"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Card",
+    "nth": 1,
+    "find": {
+     "testid": "steps"
+    }
+   },
+   {
+    "name": "Row · Left your account",
+    "find": {
+     "text": "You reported it",
+     "up": 1
+    }
+   },
+   {
+    "name": "Row · GTBank has it",
+    "find": {
+     "text": "GTBank decided",
+     "exact": true,
+     "up": 1
+    }
+   },
+   {
+    "name": "Row · Reaching Sarah",
+    "find": {
+     "text": "Money returned",
+     "up": 1
+    }
+   },
+   {
+    "name": "Mark · 32",
+    "find": {
+     "testid": "say",
+     "child": 0
+    }
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "say",
+     "child": [
+      1,
+      0
+     ]
+    },
+    "nth": 2
+   },
+   {
+    "name": "Card",
+    "nth": 3,
+    "find": {
+     "testid": "offer"
+    }
+   },
+   {
+    "name": "Row",
+    "nth": 1,
+    "find": {
+     "testid": "offer",
+     "child": 0
+    }
+   },
+   {
+    "name": "Mark · 32",
+    "nth": 1,
+    "find": {
+     "testid": "offer",
+     "child": [
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   {
+    "name": "Card",
+    "nth": 4,
+    "find": {
+     "testid": "offer",
+     "child": [
+      0,
+      0,
+      1,
+      0
+     ]
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Button · Yes, tell me",
+    "find": {
+     "button": "Yes, tell me"
+    }
+   },
+   {
+    "name": "Dock · Ask about this transfer",
+    "find": {
+     "testid": "foot"
+    }
+   }
+  ]
+ },
+ "nonetwork": {
+  "frame": "nonetwork",
+  "place": "You are offline",
+  "wait": "Nothing you do here gets lost",
+  "settle": 1400,
+  "skipWords": [
+   "Ask what works offline"
+  ],
+  "pieces": [
+   {
+    "name": "Page head",
+    "find": {
+     "testid": "head",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Glyph · pot",
+    "nth": 0,
+    "find": {
+     "testid": "status",
+     "child": 0
+    }
+   },
+   {
+    "name": "₦595,320",
+    "find": {
+     "text": "₦595,320",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "nth": 0
+   },
+   {
+    "name": "as of 14:10, not live",
+    "find": {
+     "text": "as of 14:10, not live"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Card",
+    "nth": 0,
+    "find": {
+     "testid": "banner"
+    }
+   },
+   {
+    "name": "Your balance is exactly what i",
+    "find": {
+     "text": "Nothing you do here gets lost"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Mark · 32",
+    "find": {
+     "testid": "say",
+     "child": 0
+    }
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "say",
+     "child": [
+      1,
+      0
+     ]
+    },
+    "nth": 1
+   },
+   {
+    "name": "Card",
+    "nth": 2,
+    "find": {
+     "testid": "ways"
+    }
+   },
+   {
+    "name": "Row",
+    "nth": 1,
+    "find": {
+     "button": "Queue it for later"
+    }
+   },
+   {
+    "name": "Icon",
+    "nth": 0,
+    "find": {
+     "button": "Queue it for later",
+     "child": 0
+    }
+   },
+   {
+    "name": "Column",
+    "nth": 2,
+    "find": {
+     "button": "Queue it for later",
+     "child": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Queue it for later",
+    "find": {
+     "text": "Queue it for later"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Waits here until I can check",
+    "find": {
+     "text": "Waits here until I can check"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Glyph · check",
+    "nth": 0,
+    "find": {
+     "button": "Queue it for later",
+     "child": 2
+    }
+   },
+   {
+    "name": "Row",
+    "nth": 2,
+    "find": {
+     "button": "Pay by USSD instead"
+    }
+   },
+   {
+    "name": "Icon",
+    "nth": 1,
+    "find": {
+     "button": "Pay by USSD instead",
+     "child": 0
+    }
+   },
+   {
+    "name": "Column",
+    "nth": 3,
+    "find": {
+     "button": "Pay by USSD instead",
+     "child": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Pay by USSD instead",
+    "find": {
+     "text": "Pay by USSD instead"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Works with no data at all",
+    "find": {
+     "text": "Works with no data at all"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Glyph · check",
+    "nth": 1,
+    "find": {
+     "button": "Pay by USSD instead",
+     "child": 2
+    }
+   },
+   {
+    "name": "Card",
+    "nth": 3,
+    "find": {
+     "testid": "offer"
+    }
+   },
+   {
+    "name": "Row",
+    "nth": 3,
+    "find": {
+     "testid": "offer",
+     "child": 0
+    }
+   },
+   {
+    "name": "Mark · 32",
+    "nth": 1,
+    "find": {
+     "testid": "offer",
+     "child": [
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   {
+    "name": "Card",
+    "nth": 4,
+    "find": {
+     "testid": "offer",
+     "child": [
+      0,
+      0,
+      1,
+      0
+     ]
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Button · Do that",
+    "find": {
+     "button": "Do that"
+    }
+   },
+   {
+    "name": "Back",
+    "find": {
+     "button": "Back"
+    }
+   },
+   {
+    "name": "Ask bar",
+    "find": {
+     "testid": "dock-bar"
+    }
+   },
+   {
+    "name": "Mark · 32",
+    "nth": 2,
+    "find": {
+     "testid": "dock-bar",
+     "child": 0
+    }
+   },
+   {
+    "name": "Glyph · camera",
+    "find": {
+     "label": "Scan something",
+     "child": 0
+    }
+   }
+  ]
  }
 }

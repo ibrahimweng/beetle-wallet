@@ -62,7 +62,13 @@ export function Answer() {
           </View>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             {['Airtime and data', 'Last month'].map(t => (
-              <Tap key={t} accessibilityRole="button" accessibilityLabel={t} onPress={later('Changing the question')} style={s.term}>
+              <Tap
+                key={t}
+                accessibilityRole="button"
+                accessibilityLabel={t}
+                onPress={() => toast('Changing the question is not in the frames yet. Ask it in the chat and I answer there.')}
+                style={s.term}
+              >
                 <Label>{t}</Label>
                 <Icon name="check-small" size={12} colour={colour.textTertiary} />
               </Tap>

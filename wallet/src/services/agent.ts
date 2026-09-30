@@ -8,6 +8,7 @@
    paid before, it skips the asking. A real model slots in here later,
    behind the same interface, once there is a server to keep its key on;
    nothing on the screens changes. */
+import { OFFLINE_LINE, TRY_FIRST, refusalLine, refuses, wantsEverything } from './rules';
 import type { IconName } from '../icons';
 import { groupAccount, naira } from '../lib/format';
 import type { Account } from './auth';
@@ -153,6 +154,8 @@ export type Context = {
   transcript?: { who: 'you' | 'beetle'; text: string }[];
   /** the people, lines and meters paid before */
   saved?: Beneficiaries;
+  /** whether the network is there: false and Beetle holds a transfer rather than send it */
+  online?: boolean;
 };
 
 export type Reply = { blocks: Block[]; pending: Pending; reading?: Reading };
@@ -744,8 +747,13 @@ export class ScriptedAgent implements AgentService {
     }
 
     if (intent === 'transfer') {
+      if (ctx.online === false) return { blocks: [say(OFFLINE_LINE)], pending: keep };
       const number = accountIn(text);
       const person = number ? whose(number) : personIn(text);
+      /* the whole balance to an account never paid: Beetle stops, and says why */
+      const asked = wantsEverything(lower) ? ctx.balance : amount;
+      const paidBefore = !!person && (PEOPLE.some(p => p.number === person.number) || !!ctx.saved?.people.some(p => p.number === person.number));
+      if (person && asked && refuses(asked, ctx.balance, paidBefore)) return { blocks: [say(refusalLine(naira(ctx.balance), naira(TRY_FIRST)))], pending: keep };
       if (person && amount) {
         if (amount > ctx.balance) {
           const asking = newAsk('transfer', { who: person.name }, ctx, { person }, `That is more than the ${naira(ctx.balance)} you have.`);

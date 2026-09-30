@@ -69,17 +69,35 @@ export function Say({ children, style, testID }: { children: ReactNode; style?: 
    under the bubble: the frames box the bubble's row at 70 whatever the
    bubble's height and put the button 13 under the box, so a two-line bubble
    runs 3 short of the button and a one-line one leaves 27. */
-export function SayCard({ children, action, onAction, disabled = false, testID }: { children: ReactNode; action?: string; onAction?: () => void; disabled?: boolean; testID?: string }) {
+export function SayCard({
+  children,
+  action,
+  onAction,
+  disabled = false,
+  row = 70,
+  tight = false,
+  testID,
+}: {
+  children: ReactNode;
+  action?: string;
+  onAction?: () => void;
+  disabled?: boolean;
+  /** the bubble's row, as the frame boxes it: 70 on most offers */
+  row?: number;
+  /** the offline frame's card: the button 12 under the row, and 6 under the button */
+  tight?: boolean;
+  testID?: string;
+}) {
   return (
-    <View style={[s.sayCard, action ? s.sayCardOffer : null]} testID={testID}>
+    <View style={[s.sayCard, action ? s.sayCardOffer : null, tight ? { paddingBottom: 6 } : null]} testID={testID}>
       {action ? (
-        <View style={{ height: 70, overflow: 'visible' }}>
+        <View style={{ height: row, overflow: 'visible' }}>
           <Say>{children}</Say>
         </View>
       ) : (
         <Say>{children}</Say>
       )}
-      {action ? <Button label={action} size={48} onPress={onAction} disabled={disabled} style={{ marginTop: 13 }} /> : null}
+      {action ? <Button label={action} size={48} onPress={onAction} disabled={disabled} style={{ marginTop: tight ? 12 : 13 }} /> : null}
     </View>
   );
 }

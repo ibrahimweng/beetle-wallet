@@ -343,8 +343,10 @@ the moment it is added — and its receipt opens, with Back to home.
 
 Past the balance the slide leads to Not enough, from its frame: what is
 short, the three figures, and three ways to close it — from the Holiday
-goal (round 6), what there is now with the rest on payday, which puts
-that amount on the page, or asking someone who owes you (round 4). A
+goal, which takes the shortfall back as a line in the day and comes back
+with the whole amount on the page, what there is now with the rest on
+payday, which puts that amount on the page, or asking someone who owes
+you, which opens the request to Musa filled. A
 digit the reader was not sure of leads to Check this number, from its
 frame: the number as read, where it came from, the other reading in
 amber, Beetle's word that it will not choose on its own, and the three
@@ -364,9 +366,10 @@ warning not to send it again, the three steps with the last one waiting,
 Beetle's word on when it comes back on its own, and a message offered
 for the moment it lands. It did not go: the red mark, the green word that
 the balance is whole, whose afternoon it is, try again now — which opens
-the Send money page filled — or another way (round 6), and the offer to
-keep trying. It came back: the black mark, when it left and came back and
-why, the reference, and the account number to check or the same again,
+the Send money page filled — or another way, which says the Zenith
+account is not in the frames yet — and the offer to keep trying. It came
+back: the black mark, when it left and came back and why, the reference,
+and the account number to check or the same again,
 both on the page. The figures are the line's own: the day's failed
 transfer is Chidi Okafor's, the returned one Musa Danjuma's.
 
@@ -375,8 +378,10 @@ frame: the three things that can be wrong with a payment, Beetle's word
 on which it can do itself and which only a bank can, and the payment. The
 wrong person leads to Asking for it back: Beetle Recall at work on a
 light panel — reported, sent to the bank, the person asked to approve,
-their answer still to come — what this is and is not, and a message or a
-dispute (round 7). Where Beetle read the number off a photo, the wrong
+their answer still to come — what this is and is not, a message to her
+through the bank, which lands as a chat, and a dispute if she has not
+answered, which opens Your dispute. Where Beetle read the number off a
+photo, the wrong
 person leads instead to I sent it wrong: the digit was Beetle's own, so
 the money comes back today as a line in the day with its receipt, or the
 bank is asked to recall it. Beetle says they for everyone it has not been
@@ -384,6 +389,64 @@ told about. The passcode sheet, from the Face ID missed frame: a face
 that did not take says so in red, the face key tries again, and from
 then the foot says what three wrong tries cost — thirty seconds in this
 build, and the line says so.
+
+## When it goes wrong
+
+They say it never arrived, on What went wrong?, opens Your dispute
+(`src/features/dispute/`), from its frame: Beetle Dispute at work on a
+light panel with the day it is on — reported, the bank told, its answer
+due, the money back — Where this actually is, with what the bank has and
+the day it has to answer by, See what was filed, which lays out the
+wording and what went with it, and Add something to it, which opens the
+chat with the dispute named. I did not make this payment opens the same
+page as a fraud report and freezes the card first; Open a dispute on
+Asking for it back files one for a recall. A dispute filed on this phone
+is kept per account, opens as a card in a chat from Beetle that leads back
+to it, and counts its days from the day it was filed; the demo account's
+own dispute over Sarah's ₦20,000 is on its third day. The dispute is
+closed, from its frame, is the same page once the bank has decided: the
+tick, the green word that the money is already in the balance, the steps
+with their days, and the offer of the closing letter, which lands as a
+chat to share from. The demo's closed one is a lab place, since its open
+one has not been decided.
+
+Checking, from its frame, is Beetle's reasoning on a transfer it filled in
+off a photo (`src/features/send/Checking.tsx`): on Send money, where the
+reader filled the figure, the note under the person opens it — Beetle
+Reasoning on a light panel, How I decided with the times paid, the usual
+amount and its reference, and what was read — and the two ways go back
+to Send money with the usual amount, or to the keypad. I will not do this
+one, from its frame, is where the slide lands when the whole balance is
+about to go to an account this phone has never paid: the mark, what was
+typed, how old the account is and that it has never been paid, Beetle's
+word, three ways — ₦20,000 instead, which fills Send money, Wait until
+tomorrow, which files the chat that asks again then, or It really is me,
+Face ID and then a call, which files the chat that says the call is
+coming — and why it stopped, in a note. The chat refuses the same way:
+"send everything to 0123456789" gets Beetle's word to send ₦20,000 first.
+An account Beetle has never seen reads as four minutes old, the way the
+frame draws it, until a bank's look-up stands behind it
+(`src/services/rules.ts`).
+
+You are offline, from its frame, is where the slide lands with no network
+(`src/features/offline/`): the mark, how long the phone has been off,
+when the balance was last checked, Beetle's word that nothing done here
+is lost, Queue it for later, which files the queued transfer as a chat and
+goes home, Pay by USSD instead, which says the code to dial, and lite
+mode while data is short, a switch kept per account. The web knows when
+the network goes; a transfer asked for in the chat then gets Beetle's
+word that it will not send against a balance it cannot check, and nothing
+is filed. On a phone the network's own signal comes with a later build,
+so there the page is a lab place.
+
+A transfer's receipt now offers the same payment again next month — Rent
+again next month? — and Set this up? fills the offer from the line: when
+it would run (the first of every month for rent, every Friday for the
+grocer, the start of every term for school fees, the same day every month
+for the rest), and Set it up turns it on. Standing instructions lists it
+with the others, with a switch that pauses it like theirs. And everywhere
+a page once said a thing would come with a later round, it now says the
+thing is not in the frames yet.
 
 ## Being paid
 
@@ -780,6 +843,6 @@ they are not moving the way that file says.
 
 ## What comes next
 
-The rounds in `PLAN.md`: what goes wrong and what runs on its own next;
-then finishing setting up (the ID card and the income question that turn
-the last two limits on); a server for the model's key.
+The rounds in `PLAN.md`: finishing setting up next (where you live, the
+ID card and the income question that turn the last two limits on) and the
+first day of a new account; a server for the model's key.

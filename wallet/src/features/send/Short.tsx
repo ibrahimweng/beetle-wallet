@@ -7,19 +7,21 @@ import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { BigStatus, ChoiceList, Facts, PageHead, Say, Screen, colour, toast } from '../../design';
+import type { Move } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
 import { askHome } from '../more/More';
 import { holdingsFor } from '../home/account';
-import { balanceOf, useMoves } from '../home/moves';
+import { balanceOf, rowFrom, useMoves } from '../home/moves';
+import { usePrefs } from '../settings/prefs';
+import { DEMO_SUMS, GOAL, NO_SUMS, putAside } from '../goal/goal';
+import { requestDraft } from '../request/hand';
+import { payerIn } from '../request/people';
+import { clock } from '../../lib/clock';
 import { LAB } from '../../lab/enabled';
 import { naira } from '../../lib/format';
 import { draft } from './hand';
-
-const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
-/** What the Holiday goal holds, until round 6 draws it. */
-const HOLIDAY = 48_000;
 
 /** Back to Send money: the page under this one, or a fresh one from the lab. */
 export function useBackToSend() {
@@ -39,8 +41,12 @@ export function Short() {
   const ok = useSessionGuard();
   const asked = useLocalSearchParams<{ asked?: string; have?: string }>();
   const account = app.session?.account;
-  const { moves } = useMoves(account?.accountNumber);
+  const { moves, add: addMove } = useMoves(account?.accountNumber);
+  const { prefs } = usePrefs(account?.accountNumber);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
+  /* what the goal holds: what its feeds put in, plus what was added by hand, less what was taken back */
+  const added = moves.filter(r => r.kind === 'saving' && r.name === GOAL.name).reduce((a, r) => a - r.amount, 0);
+  const holiday = account && (account.demo || prefs.goal) ? putAside(account.demo ? DEMO_SUMS : NO_SUMS, added) : 0;
   /* the lab opens it with the balance the frame draws */
   const have = LAB && asked.have ? Number(asked.have) : (h?.everyday ?? 0) + balanceOf(moves);
   const want = Number(asked.asked ?? 0) || 0;
@@ -51,6 +57,24 @@ export function Short() {
   const sendNow = () => {
     draft.put({ amount: Math.floor(have), amountNote: 'What Everyday holds' });
     toSend();
+  };
+  /* the goal gives the shortfall back: a line in the day, and Everyday has it */
+  const fromHoliday = () => {
+    if (holiday < short) {
+      toast(`${GOAL.name} holds ${naira(holiday)}, ${naira(short - holiday)} short of what you need.`);
+      return;
+    }
+    const at = clock();
+    const move: Move = { name: GOAL.name, detail: `Taken back · ${at}`, amount: short, icon: 'pot', kind: 'saving' };
+    addMove(rowFrom(move, have, 17 + moves.length));
+    draft.put({ amount: want, amountNote: `${naira(short)} came back from ${GOAL.name}` });
+    toast(`${naira(short)} is back from ${GOAL.name}. Everyday has it now.`);
+    toSend();
+  };
+  /* a request to whoever owes you, with the shortfall filled in */
+  const askFor = () => {
+    requestDraft.put({ who: account.demo ? payerIn('musa') : undefined, amount: short, note: account.demo ? 'the rent balance' : undefined, said: `ask for ${naira(short)}` });
+    router.push('/request');
   };
   return (
     <Screen head={<PageHead title="Not enough in Everyday" sub="Nothing has been sent" />}>
@@ -75,13 +99,13 @@ export function Short() {
         <ChoiceList
           testID="ways"
           items={[
-            { glyph: 'pot', title: 'Move it from Holiday', sub: `${naira(HOLIDAY)} is sitting there`, onPress: later('Moving money out of Holiday', 6) },
+            { glyph: 'pot', title: `Move it from ${GOAL.name}`, sub: holiday ? `${naira(holiday)} is sitting there` : 'Nothing put aside yet', onPress: fromHoliday },
             { glyph: 'up', title: `Send ${naira(have)} now`, sub: 'The rest when your salary lands', onPress: sendNow },
             {
               glyph: 'down',
               title: `Ask ${account.demo ? 'Musa' : 'someone'} for ${naira(short)}`,
               sub: account.demo ? 'He owes you from the rent' : 'A request they answer in a tap',
-              onPress: later('Asking someone for money', 4),
+              onPress: askFor,
             },
           ]}
         />

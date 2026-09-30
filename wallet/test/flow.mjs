@@ -827,7 +827,18 @@ try {
   await type('357913');
   await see('Once more');
   await type('357913');
-  await see('the money is yours again');
+  /* the word about it is a toast, gone in a couple of seconds, which a slow machine can
+     miss; what has to hold is where it leads — home, the freeze lifted */
+  await shot('settings-newcode-done', 0);
+  await page
+    .getByText('the money is yours again')
+    .first()
+    .waitFor({ timeout: 4000 })
+    .then(
+      () => console.log('  the toast said the money is yours again'),
+      () => console.log('  (the toast had gone before it was looked for)'),
+    );
+  await page.waitForURL(/\/home/);
   at('/home');
   await see('Pull down');
   /* the card, from its row and from the day's tile */

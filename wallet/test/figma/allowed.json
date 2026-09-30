@@ -930,12 +930,36 @@
     "Your first transfer shows up here"
    ],
    "why": "the tile is the home frame's own, its words 12 from the disc where this frame's older tile runs 16"
+  },
+  {
+   "piece": "Frame 2",
+   "why": "the owner took the mark out of the card's header: Settings is the gear on the bar, so the header keeps only the word Wallet"
   }
  ],
  "firstask": [
   {
    "text": "Face ID first. Nothing leave",
    "why": "the layer keeps another frame's words; the picture reads 'I only tell you things I have seen in your own money.', which the build says"
+  }
+ ],
+ "home-card": [
+  {
+   "piece": "Frame 2",
+   "why": "the owner took the mark out of the card's header: Settings is the gear on the bar, so the header keeps only the word Wallet"
+  },
+  {
+   "piece": "Wallet",
+   "why": "with the mark gone, the word Wallet sits at the header's left edge, and the figure takes its place there as the card opens"
+  }
+ ],
+ "home-open": [
+  {
+   "piece": "Frame 2",
+   "why": "the owner took the mark out of the card's header: Settings is the gear on the bar, so the header keeps only the word Wallet"
+  },
+  {
+   "piece": "₦595,320",
+   "why": "with the mark gone, the word Wallet sits at the header's left edge, and the figure takes its place there as the card opens"
   }
  ]
 }

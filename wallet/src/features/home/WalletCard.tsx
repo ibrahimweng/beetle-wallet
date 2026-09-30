@@ -1,6 +1,6 @@
 /* The black card at the top of home, and what it becomes.
 
-   Closed, it holds the mark and the wallet's name, the balance with its
+   Closed, it holds the wallet's name, the balance with its
    reading in dollars, Send and Receive, and a grabber that says pull down.
    Pulled down, it grows to two thirds of the screen and turns into the chat:
    the balance glides up into the header, shrinking as it goes, the buttons
@@ -9,16 +9,13 @@
    other way. Everything is drawn against one number, `open`, from 0 to 1,
    so a finger can scrub it and the spring can finish it. */
 import React, { ReactNode, useEffect, useMemo, useState } from 'react';
-import { Image, LayoutChangeEvent, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { LayoutChangeEvent, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, type PanGesture } from 'react-native-gesture-handler';
 import Animated, { SharedValue, interpolate, runOnJS, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import { Caption, Icon, Label, Swap, Tap, blurred, colour, dark, keys, motion, settle as settleCurve, soft, useStill } from '../../design';
 import { useDeparture } from '../../design/journey';
 import { Frost } from './Frost';
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const MARK = require('../../../assets/wallet-mark.png');
 
 /** The card's height when closed, as the frame draws it. */
 export const CLOSED_H = 352;
@@ -30,14 +27,12 @@ const HEADER_H = 36;
 export const HEAD_BAND = TOP + HEADER_H + 20;
 /** the room the ask bar takes at the foot of the open card: gap, bar, padding */
 export const FOOT_BAND = 20 + 48 + 20;
-/** the mark in the header, as the frame draws it */
-const MARK_SIZE = 36;
 /** how far past its line a haze still thins, so its end is never seen */
 const HAZE_FEATHER = 12;
 /** the foot haze: the card's edge up to the middle of the bar, and the feather */
 export const FOOT_HAZE = 20 + 24 + HAZE_FEATHER;
-/** where the figure goes: after the mark */
-const FIGURE_LEFT = SIDE + 36 + 12 + 4;
+/** where the figure goes: the word Wallet's place at the left of the header, which it takes as the card opens */
+const FIGURE_LEFT = SIDE;
 /** the drag has to travel this far before the card takes it */
 const SLACK = 10;
 
@@ -129,9 +124,9 @@ export function useCardTop() {
   const insets = useSafeAreaInsets();
   const top = Math.max(TOP, Math.round(insets.top) + 2);
   const extra = top - TOP;
-  /* the top haze: the card's edge down to under the mark, and the feather;
+  /* the top haze: the card's edge down to under the header row, and the feather;
      near solid as far as the figure reaches, so the figure keeps its contrast */
-  return { top, extra, headBand: HEAD_BAND + extra, closedH: CLOSED_H + extra, haze: top + MARK_SIZE + HAZE_FEATHER, hazeSolid: top + 26 };
+  return { top, extra, headBand: HEAD_BAND + extra, closedH: CLOSED_H + extra, haze: top + HEADER_H + HAZE_FEATHER, hazeSolid: top + 26 };
 }
 
 export type CardProps = {
@@ -144,7 +139,6 @@ export type CardProps = {
   whole: string;
   kobo: string;
   dollars: string;
-  /** the mark at the top left: Settings */
   /** New, at the top right of the open card: this chat filed, a fresh one */
   onNew?: () => void;
   hint: string;
@@ -169,8 +163,7 @@ const clamp = (v: number, lo: number, hi: number) => {
 };
 
 export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onReceive, onDollars, chipLabel, onNew, chat, foot, over, flash }: CardProps) {
-  /* the mark is the way to Settings: the title arrives from it; Send is the way to the Send money page, the same way */
-  const mark = useDeparture({ id: 'mark', to: '/settings', words: 'Settings' });
+  /* Send is the way to the Send money page: its title arrives from the button. Settings is the gear on the bar, not the card */
   const send = useDeparture({ id: 'card:send', to: '/send', words: 'Send' });
   const { width: W } = useWindowDimensions();
   const still = useStill();
@@ -309,18 +302,15 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
         {over}
       </View>
 
-      {/* the header band: frosted glass over the conversation, the mark, and the
-          wallet's name until the figure takes its place */}
+      {/* the header band: frosted glass over the conversation, and the wallet's
+          name at the left until the figure takes its place */}
       <GestureDetector gesture={headPan}>
         <View style={[s.head, { height: headBand, paddingTop: top }]}>
           <Animated.View style={[StyleSheet.absoluteFill, frost]} pointerEvents="none">
             <Frost height={haze} solid={hazeSolid} />
           </Animated.View>
           <View style={s.headRow}>
-            <Tap ref={mark.ref} accessibilityRole="button" accessibilityLabel="Settings" onPress={mark.onPress} testID="mark">
-              <Image source={MARK} style={{ width: 36, height: 36, borderRadius: 18 }} />
-            </Tap>
-            <Animated.View style={wallet}>
+            <Animated.View style={wallet} testID="wallet">
               <Label style={{ color: '#ffffff' }}>Wallet</Label>
             </Animated.View>
             <View style={{ flex: 1 }} />

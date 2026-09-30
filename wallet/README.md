@@ -116,7 +116,7 @@ mocks in and says so on the code screen; a real `AuthService` and
 | `src/features/receipts/` | A receipt for every line in the day: the record and the frames' own figures (`receipts.ts`), the page (`ReceiptScreen.tsx`), the share sheet (`ShareSheet.tsx`); the card in the chat is `src/features/agent/ReceiptCard.tsx` |
 | `src/features/more/` | The one foot every screen shares (`Foot.tsx`): the bar on home, Back and the ask bar — or Back and the page's button, or Back and Slide to send — on a page, morphing from the one to the other; and More, the actions up out of its plus (`More.tsx`), with the way each page asks Beetle something from its ask bar |
 | `src/features/activities/` | The record (`Activities.tsx`) in the frame's order (`rows.ts`), and the answer to a question about spending (`Answer.tsx`) |
-| `src/features/settings/` | Settings from the mark at the top left (`Settings.tsx`), Your details on its sheet (`Details.tsx`), what the pages set, kept per account (`prefs.ts`), and the pages: Lock and privacy, Spending limits and Past your own limit (`words.ts` holds the three words), Standing instructions and Set this up?, Devices, Not your phone, A new passcode, Virtual card |
+| `src/features/settings/` | Settings from the gear on the bar (`Settings.tsx`), Your details on its sheet (`Details.tsx`), what the pages set, kept per account (`prefs.ts`), and the pages: Lock and privacy, Spending limits and Past your own limit (`words.ts` holds the three words), Standing instructions and Set this up?, Devices, Not your phone, A new passcode, Virtual card |
 | `src/lab/` | The lab: which builds have it (`enabled.ts`), every feature and the places in it with the state each needs (`catalogue.ts`), the screen, and the tab that comes back to it |
 | `src/services/` | `AuthService`, `IdentityService`, `AgentService` (Beetle: the model in `model.ts` where there is a key, the script in `agent.ts` where there is not), what Beetle knows of the country (`nigeria.ts`: the networks by prefix, the data plans, the electricity companies, what a meter number looks like, a `MeterService` that says whose a meter is, and the people, lines and meters paid before), `ReaderService` (the device's text reader, or a stand-in), storage and hashing behind interfaces, with the mocks this build runs on |
 | `src/lib/` | Formatting: digit groups, naira and kobo, dates |
@@ -201,14 +201,16 @@ money. The demo account, asked the same, hears what Beetle does.
 
 ## Home and the chat
 
-The black card at the top holds the balance, Send and Receive, and a
-grabber that says pull down. Pull it and it becomes the chat: it grows until
+The black card at the top holds the word Wallet at its left, the balance,
+Send and Receive, and a grabber that says pull down; Settings is the gear
+on the bar at the foot, so the header carries no mark of its own. Pull it and it becomes the chat: it grows until
 only the head of the day and its chips still show below it, while the figure
-glides up into the header, shrinking as it goes; the buttons soften away; the
+glides up into the header, shrinking as it goes, and takes the word Wallet's
+place at its left; the buttons soften away; the
 conversation arrives from below with the ask bar at the card's foot. The
 header and the foot are a haze: the conversation runs up under the one and
 down under the other and shows through, softened and darkened, near solid at
-the card's edge and thinning to nothing — the top haze ends under the mark
+the card's edge and thinning to nothing — the top haze ends under the header
 and the foot haze at the middle of the ask bar, so a bubble on its way out
 simply dims until it is gone, with no line anywhere; the figure keeps its
 contrast, the bar sits over the tail of the conversation, and the card keeps
@@ -792,7 +794,7 @@ behind it, where it went, and what Beetle would do about it.
 
 ## Settings
 
-The mark at the top left of home opens Settings, from its frame: the Plus
+The gear on the bar at the foot of home opens Settings, from its frame: the Plus
 card, and three groups of rows — what keeps the money yours, your account,
 about — with what each is set to at its end. Every row leads somewhere.
 Your details opens a sheet with the name, the number, the account number to
@@ -865,7 +867,7 @@ words up and growing into the title, with the body following out of a
 blur a beat later; on the way back the screen comes forward again and the
 thing you left from pulses once. A Settings row becomes its page's title,
 The full receipt sends the amount up into the receipt, the bar's clock
-becomes the head of Activities, the mark becomes the word Settings, Send
+becomes the head of Activities, the bar's gear becomes the word Settings, Send
 on the card becomes Send money, the amount on the page becomes the head
 of the keypad page, a line still on its way becomes the head of its own
 page, and Something wrong with this? becomes What went wrong?. All of

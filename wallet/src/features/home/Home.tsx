@@ -9,8 +9,8 @@
    card files the chat in the day; a pull down within the hour carries it
    on, after the hour a new one starts, New at the top right starts one at
    once, and a chat's row in the day picks it back up where it was. The
-   mark at the top left opens Settings; a line in the day opens its
-   receipt; Send on the card opens the Send money page. */
+   gear on the bar opens Settings; a line in the day opens its receipt;
+   Send on the card opens the Send money page. */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler, Keyboard, Platform, Pressable, TextInput, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';

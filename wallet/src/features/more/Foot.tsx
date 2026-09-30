@@ -383,7 +383,7 @@ function Glyphs({ home }: { home: boolean }) {
     <View style={s.items}>
       {item('home-filled', 'Home', home)}
       {item('clock-drawn', 'Activities', false, activities)}
-      {item('gear', 'Settings', false, settings)}
+      {item('settings-filled', 'Settings', false, settings)}
     </View>
   );
 }

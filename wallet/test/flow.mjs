@@ -330,7 +330,10 @@ try {
   at('/home');
 
   console.log('The lab, behind the version line');
-  /* the mark at the top left opens Settings; a long press on the version line
+  /* the card's header carries only the word Wallet: Settings is the gear on the bar */
+  must((await page.getByTestId('mark').count()) === 0, 'the card should carry no mark: Settings is on the bar');
+  must((await page.getByTestId('wallet').count()) === 1, 'the word Wallet should stay in the header');
+  /* the gear on the bar opens Settings; a long press on the version line
      at its foot opens the lab, and the tab back to it comes with it; Leave
      the lab puts the tab away and goes back into the app */
   await tap('Settings');
@@ -462,7 +465,10 @@ try {
   /* the reading in dollars sits after the figure in the header now, and the
      head of the day with its chips still shows under the card */
   const chip = await page.getByRole('button', { name: 'Your dollars', exact: true }).filter({ visible: true }).last().boundingBox();
-  must(chip && chip.x > 150 && chip.y < 80, `the dollars chip should sit after the figure in the header (at ${chip?.x},${chip?.y})`);
+  const fig = await page.getByTestId('balance').boundingBox();
+  /* the figure takes the word Wallet's place at the header's left edge, and the chip follows it */
+  must(fig && fig.x < 24 && fig.y < 80, `the figure should sit at the header's left edge (at ${fig?.x},${fig?.y})`);
+  must(chip && fig && chip.x >= fig.x + fig.width && chip.y < 80, `the dollars chip should sit after the figure in the header (at ${chip?.x},${chip?.y}; the figure ends at ${fig ? fig.x + fig.width : '?'})`);
   const chipsRow = await page.getByRole('button', { name: 'Chats', exact: true }).boundingBox();
   must(chipsRow && chipsRow.y > last.card.height && chipsRow.y + chipsRow.height <= 852, `the chips should show under the open card (at ${chipsRow?.y})`);
   /* and the shortcuts under the chips, whole, on the screen */
@@ -876,7 +882,7 @@ try {
   await shot('receipt-in', 500);
   await tap('Back to the lab');
   await see('Beetle Lab');
-  /* Settings, from the mark at the top left of home: Your details on its sheet, and Sign out */
+  /* Settings, from the gear on the bar at home: Your details on its sheet, and Sign out */
   await tap('The demo account');
   await see('Pull down');
   await tap('Settings');

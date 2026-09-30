@@ -443,6 +443,14 @@ pieces the two share; the first question is the chat's own state, drawn
 on the card as every chat is, with a lock line under the bubble as the
 frame draws it.
 
+## Since the rounds
+
+- [x] The mark leaves the card's header (the owner's word, testing on the
+      phone): Settings is the gear on the bar, so the header's mark was a
+      second way to the same place. The header keeps the word Wallet at its
+      left, and the figure takes that place as the card opens. The home
+      frames still draw the mark; the check allows its absence by name.
+
 ## Kept out on purpose
 
 - The file's older home (225:3): the card and the day in the app are the

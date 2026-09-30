@@ -1,7 +1,8 @@
-/* Activities: everything that moved. See src/features/activities. */
+/* Activities is the second of the three pages on home; this address turns
+   to it. See src/features/tabs. */
 import React from 'react';
-import { Activities } from '../../src/features/activities/Activities';
+import { TabRedirect } from '../../src/features/tabs/Redirect';
 
 export default function ActivitiesRoute() {
-  return <Activities />;
+  return <TabRedirect tab="activities" />;
 }

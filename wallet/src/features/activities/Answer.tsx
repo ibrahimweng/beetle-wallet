@@ -12,6 +12,7 @@ import type { IconName } from '../../icons';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { askHome } from '../more/More';
 import { naira } from '../../lib/format';
+import { openTab } from '../tabs/tabs';
 
 /* the frame's six bars, tallest last */
 const MONTHS: [string, number][] = [
@@ -74,7 +75,7 @@ export function Answer() {
               </Tap>
             ))}
           </View>
-          <Tap accessibilityRole="button" accessibilityLabel="Added up from 14 top ups, 1 to 31 July" onPress={() => router.push('/activities')} style={s.source}>
+          <Tap accessibilityRole="button" accessibilityLabel="Added up from 14 top ups, 1 to 31 July" onPress={() => openTab(router, 'activities')} style={s.source}>
             <Icon name="list" size={16} colour={colour.textTertiary} />
             <Meta tone="secondary" style={{ flex: 1 }}>
               Added up from 14 top ups, 1 to 31 July

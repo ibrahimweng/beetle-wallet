@@ -20,6 +20,7 @@ import { usePrefs } from '../settings/prefs';
 import { LAB } from '../../lab/enabled';
 import { naira } from '../../lib/format';
 import { lastCheckedLine, minutesOffline } from './online';
+import { openTab } from '../tabs/tabs';
 
 export function Offline() {
   const app = useApp();
@@ -55,7 +56,7 @@ export function Offline() {
       unread: true,
     });
     toast('Queued. It goes the second the network is back.');
-    router.dismissTo('/home');
+    openTab(router, 'home');
   };
   const ussd = () => toast('Dial *737# on the line this account is on. It goes through the network’s own channel, with no data.');
   const liteMode = () => {

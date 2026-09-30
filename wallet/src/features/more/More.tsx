@@ -1,5 +1,7 @@
 /* More, from the Actions frame: the screen behind goes soft under a real
-   blur, and the actions stand right aligned above the button, each with
+   blur and turns almost entirely white, the white see-through at the top
+   (the frame's 76%) and solid by the foot, as the owner asked and as Fuse
+   has it; the actions stand right aligned above the button, each with
    its own coloured glyph, rows 68 apart, glyphs 40 with their right edge 28
    in from the side. The frame draws five; the bar at the foot of home
    carries Activities and Settings, so the sheet keeps the other three —
@@ -15,22 +17,13 @@
    backwards before the screen goes, which is why leaving never feels like
    a cut. */
 import React, { useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { SharedValue, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import type { useRouter } from 'expo-router';
-import { Head, Icon, colour } from '../../design';
+import { Head, Icon, Veil, colour } from '../../design';
 import { arrive, bouncy, motion, settle, useStill } from '../../design/motion';
 import type { IconName } from '../../icons';
-
-type BlurModule = typeof import('expo-blur');
-const blur: BlurModule | null = (() => {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    return require('expo-blur') as BlurModule;
-  } catch {
-    return null;
-  }
-})();
+import { openTab } from '../tabs/tabs';
 
 export type MoreItem = 'camera' | 'send' | 'receive';
 
@@ -46,12 +39,12 @@ const AWAY = 190;
 type Router = ReturnType<typeof useRouter>;
 
 /** Where each action goes from a page that is not home: the camera and
-    Send money on their own screens; receiving back on home, with the
-    Receive sheet up. */
+    Send money on their own screens; receiving back on home, turned to Home
+    with the Receive sheet up. */
 export function moreTo(router: Router, item: MoreItem) {
   if (item === 'camera') router.push('/scan');
   else if (item === 'send') router.push('/send');
-  else router.dismissTo({ pathname: '/home', params: { receive: `pick-${Date.now()}` } });
+  else openTab(router, 'home', { receive: `pick-${Date.now()}` });
 }
 
 export function More({ onPick, onClose }: { onPick: (item: MoreItem) => void; onClose: () => void }) {
@@ -82,14 +75,11 @@ export function More({ onPick, onClose }: { onPick: (item: MoreItem) => void; on
      background that has already gone quiet */
   const soft = useAnimatedStyle(() => ({ opacity: Math.min(1, open.value * 1.9) }));
   const turning = useAnimatedStyle(() => ({ transform: [{ rotate: `${open.value * 45}deg` }] }));
-  const Blur = blur?.BlurView;
-
   return (
     <View style={StyleSheet.absoluteFill} testID="more">
       <Pressable style={StyleSheet.absoluteFill} accessibilityLabel="Close" accessibilityRole="button" onPress={() => leave(onClose)}>
         <Animated.View style={[StyleSheet.absoluteFill, soft]} pointerEvents="none">
-          {Blur ? <Blur intensity={44} tint="light" experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : 'none'} style={StyleSheet.absoluteFill} /> : null}
-          <View style={s.wash} />
+          <Veil tone="light" testID="more-veil" />
         </Animated.View>
       </Pressable>
       <View style={s.items} pointerEvents="box-none">
@@ -147,16 +137,15 @@ function Item({ item, open, step, frozen, onPress }: { item: (typeof ITEMS)[numb
 }
 
 const s = StyleSheet.create({
-  /* light enough that the screen is still there behind the blur, which is what the frame shows */
-  wash: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255,255,255,0.28)' },
   items: { position: 'absolute', right: 28, bottom: 100, alignItems: 'flex-end', gap: 16 },
   item: { flexDirection: 'row', alignItems: 'center', gap: 32, height: 52 },
   /* exactly where the dock's own button is, so the one you pressed is the one that closes this */
   fab: { position: 'absolute', right: 16, bottom: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' },
 });
 
-/** A question for Beetle from another page: back to home, with the chat
-    opening on it. Stamped, so the same words asked twice are asked twice. */
+/** A question for Beetle from another page: back to home, turned to Home,
+    with the chat opening on it. Stamped, so the same words asked twice are
+    asked twice. */
 export function askHome(router: Router, q: string, about?: string) {
-  router.dismissTo({ pathname: '/home', params: { say: `${q} #${Date.now()}`, ...(about ? { about } : {}) } });
+  openTab(router, 'home', { say: `${q} #${Date.now()}`, ...(about ? { about } : {}) });
 }

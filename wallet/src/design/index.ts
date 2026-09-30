@@ -21,3 +21,4 @@ export * from './motion';
 export * from './Pieces';
 export * from './journey';
 export * from './Progress';
+export * from './Veil';

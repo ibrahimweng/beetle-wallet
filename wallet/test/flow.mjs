@@ -104,6 +104,64 @@ const at = path => {
   const now = page.url().slice(base.length).split('?')[0] || '/';
   if (now !== path) throw new Error(`Expected to be at ${path}, but the address is ${now}`);
 };
+/* Home, Activities and Settings are three pages side by side at /home: the one showing */
+const showing = () =>
+  page.evaluate(
+    () =>
+      ['home', 'activities', 'settings'].find(t => {
+        const e = document.querySelector(`[data-testid="page-${t}"]`);
+        return e && getComputedStyle(e).display !== 'none' && e.getAttribute('aria-hidden') !== 'true';
+      }) ?? null,
+  );
+const onPage = async tab => {
+  at('/home');
+  for (let i = 0; i < 20; i++) {
+    if ((await showing()) === tab) return;
+    await page.waitForTimeout(100);
+  }
+  throw new Error(`Expected the ${tab} page to be showing, but it is ${await showing()}`);
+};
+/* a finger across the screen, in steps, then a beat for whatever it moved to settle */
+const drag = async (x0, y0, x1, y1, steps = 14) => {
+  await page.mouse.move(x0, y0);
+  await page.mouse.down();
+  for (let i = 1; i <= steps; i++) {
+    await page.mouse.move(x0 + ((x1 - x0) * i) / steps, y0 + ((y1 - y0) * i) / steps);
+    await page.waitForTimeout(16);
+  }
+  await page.mouse.up();
+  await page.waitForTimeout(800);
+};
+/* the words each home shows: the demo's Loan card, and a new account's Savings card */
+const DEMO_HOME = 'Borrow up to';
+const NEW_HOME = 'Start a goal';
+/* a tap on the white under the open card, clear of the shortcuts' row (whose
+   gaps answer nothing, so a shortcut just missed does not close the chat) */
+const backToHome = async () => {
+  const strip = button('Back to home');
+  const box = await strip.boundingBox();
+  must(box, 'the strip under the open card should be there');
+  await strip.click({ position: { x: box.width / 2, y: 8 } });
+  const closed = await page
+    .waitForFunction(() => (document.querySelector('[data-testid="card"]')?.getBoundingClientRect().height ?? 999) < 420, null, { timeout: 5000 })
+    .then(() => true)
+    .catch(() => false);
+  must(closed, 'a tap under the open card should close it');
+};
+/* the chat showing beside the drawer, tapped: the drawer goes back out */
+const closeChats = async () => {
+  const beside = button('Back to the chat');
+  const box = await beside.boundingBox();
+  must(box, 'the chat beside the drawer should answer a tap');
+  await beside.click({ position: { x: box.width - 24, y: box.height / 2 } });
+  await page.getByTestId('chats-drawer').getByRole('button', { name: 'New chat', exact: true }).waitFor({ state: 'hidden' });
+};
+/* the chats drawer, in from the open chat's left edge */
+const openChats = async () => {
+  await tap('Your chats');
+  await page.getByTestId('chats-drawer').getByRole('button', { name: 'New chat', exact: true }).waitFor();
+  await page.waitForTimeout(500);
+};
 /* How the screen is moving: every 40ms for `ms`, the opacity and blur of the
    first (or, `deep`, the innermost) element carrying a filter whose text
    includes `match`, and how many marks are still on their way in. The panes,
@@ -310,11 +368,9 @@ try {
   await shot('ready');
   await tap('Take me in');
 
-  await see('Nothing has moved yet');
-  at('/home');
+  await see(NEW_HOME);
+  await onPage('home');
   await shot('home-new');
-  await toBottom();
-  await shot('home-new-bottom');
 
   console.log('Coming back');
   /* opening the app again starts at the loading screen; the session was
@@ -323,37 +379,37 @@ try {
   await page.goto(`${base}/`, { waitUntil: 'load' });
   await page.getByText('Beetle', { exact: true }).first().waitFor();
   await shot('boot-again', 250);
-  await see('Nothing has moved yet');
-  at('/home');
+  await see(NEW_HOME);
+  await onPage('home');
   await page.goto(`${base}/way-in`, { waitUntil: 'load' });
-  await see('Nothing has moved yet');
-  at('/home');
+  await see(NEW_HOME);
+  await onPage('home');
 
   console.log('The lab, behind the version line');
   /* the card's header carries only the word Wallet: Settings is the gear on the bar */
   must((await page.getByTestId('mark').count()) === 0, 'the card should carry no mark: Settings is on the bar');
   must((await page.getByTestId('wallet').count()) === 1, 'the word Wallet should stay in the header');
-  /* the gear on the bar opens Settings; a long press on the version line
+  /* the gear on the bar turns to Settings; a long press on the version line
      at its foot opens the lab, and the tab back to it comes with it; Leave
      the lab puts the tab away and goes back into the app */
   await tap('Settings');
   await see('What keeps the money yours');
-  at('/settings');
+  await onPage('settings');
   must((await page.getByRole('button', { name: 'Back to the lab', exact: true }).count()) === 0, 'nothing of the lab should show before it is opened');
   await page.getByTestId('version').click({ delay: 900 });
   await see('Beetle Lab');
   at('/lab');
   await shot('lab');
   await tap('Leave the lab');
-  await see('Nothing has moved yet');
-  at('/home');
+  await see(NEW_HOME);
+  await onPage('home');
   must((await page.getByRole('button', { name: 'Back to the lab', exact: true }).count()) === 0, 'the tab should go with Leave the lab');
 
   console.log('Signing out');
   /* Sign out is in Settings */
   await tap('Settings');
   await see('What keeps the money yours');
-  at('/settings');
+  await onPage('settings');
   await tap('Sign out');
   await see('Open an account');
   at('/way-in');
@@ -383,7 +439,7 @@ try {
   await shot('sign-in-code');
   await type(CODE);
 
-  await arrives('Money health');
+  await arrives(DEMO_HOME);
   at('/home');
   const balance = await trace('home-balance', 1100, [['balance', '595,320', true]], { picture: { at: 220, name: 'home-resolving' } });
   const blurry = firstAt(balance, 'balance', b => b.blur > 1);
@@ -398,11 +454,36 @@ try {
   must(clear && clear.t <= 1100, 'the balance should be clear within 1.1s');
   console.log(`  balance ${blurry.balance.blur.toFixed(1)}px soft at ${blurry.t}ms, clear at ${clear.t}ms`);
   await shot('home');
-  await tap('In');
-  await shot('home-in', 400);
-  await tap('All');
-  await toBottom();
-  await shot('home-bottom');
+  /* under the black card, four cards two by two, Fuse's way: Savings with its ring and how it is going, Loan, Card, and Services */
+  await see('Holiday · 33%');
+  await see('A fortnight ahead');
+  await see('•••• 4471');
+  await see('Airtime');
+  must((await page.getByText('See all').count()) === 0, 'the record should have left home for Activities');
+  must((await page.getByTestId('grid-savings').boundingBox())?.height === 152, 'the cards are 152 tall');
+  /* the Services card swipes through its three inside itself: the swipe is the card's, and the pages stay */
+  const strip = await page.getByTestId('services-strip').boundingBox();
+  await drag(strip.x + strip.width - 12, strip.y + 40, strip.x + 12, strip.y + 42);
+  await onPage('home');
+  await see('Light, TV and more');
+  await shot('home-services-bills', 300);
+  await drag(strip.x + strip.width - 12, strip.y + 40, strip.x + 12, strip.y + 42);
+  await see('A plan for any line');
+  /* anywhere else a swipe to the left turns the pages on: Activities, then Settings, and no further; a swipe to the right comes back */
+  await drag(340, 450, 60, 455);
+  await onPage('activities');
+  await shot('pages-activities', 300);
+  await drag(340, 450, 60, 455);
+  await onPage('settings');
+  await drag(340, 450, 60, 455);
+  await onPage('settings');
+  await drag(60, 450, 340, 455);
+  await onPage('activities');
+  /* a drag short of a third of the way settles back */
+  await drag(300, 450, 240, 455);
+  await onPage('activities');
+  await tap('Home');
+  await onPage('home');
 
   console.log('Pulling the card down');
   /* the day scrolls back to the top; a pull on the card from there opens the
@@ -457,7 +538,7 @@ try {
   const first = opening[0];
   const last = opening[opening.length - 1];
   must(first && first.card && first.card.height < 420, `the card should start closed (${first?.card?.height}px)`);
-  must(last && last.card && last.card.height >= 600 && last.card.height <= 700, `the card should open until only the head of the day, its chips and the shortcuts show (${last?.card?.height}px)`);
+  must(last && last.card && last.card.height >= 720 && last.card.height <= 780, `the card should open until only the shortcuts show under it (${last?.card?.height}px)`);
   must(last.figure && last.figure.size <= 21, `the figure should have shrunk into the header (${last.figure?.size}px)`);
   const grew = opening.map(x => Math.round(x.card?.height ?? 0));
   must(new Set(grew).size >= 4, `the card should grow through the drag, not jump (${grew.join(' ')})`);
@@ -469,11 +550,12 @@ try {
   /* the figure takes the word Wallet's place at the header's left edge, and the chip follows it */
   must(fig && fig.x < 24 && fig.y < 80, `the figure should sit at the header's left edge (at ${fig?.x},${fig?.y})`);
   must(chip && fig && chip.x >= fig.x + fig.width && chip.y < 80, `the dollars chip should sit after the figure in the header (at ${chip?.x},${chip?.y}; the figure ends at ${fig ? fig.x + fig.width : '?'})`);
-  const chipsRow = await page.getByRole('button', { name: 'Chats', exact: true }).boundingBox();
-  must(chipsRow && chipsRow.y > last.card.height && chipsRow.y + chipsRow.height <= 852, `the chips should show under the open card (at ${chipsRow?.y})`);
-  /* and the shortcuts under the chips, whole, on the screen */
+  /* under it the shortcuts, whole, on the screen */
   const bills = await page.getByRole('button', { name: 'Bills', exact: true }).filter({ visible: true }).first().boundingBox();
-  must(bills && bills.y > chipsRow.y + chipsRow.height && bills.y + bills.height <= 852, `the shortcuts should sit under the chips (at ${bills?.y})`);
+  must(bills && bills.y > last.card.height && bills.y + bills.height <= 852, `the shortcuts should sit under the open card (at ${bills?.y})`);
+  /* and down the chat's left edge the soft light the chats drawer comes in from */
+  const edge = await page.getByTestId('chats-edge').boundingBox();
+  must(edge && edge.x === 0 && edge.width <= 20 && edge.height > 300, `a soft edge should run down the chat's left side (${JSON.stringify(edge)})`);
   await shot('home-chat-open');
 
   console.log('Sending money by asking');
@@ -532,9 +614,13 @@ try {
     await page.waitForTimeout(800);
   }
   must((await page.locator('[data-testid="card"]').boundingBox())?.height < 420, 'a push up on the chat should close the card');
+  /* the transfer is a line on Activities, the next page along */
+  await tap('Activities');
+  await onPage('activities');
   await see('GTBank · sent');
-  await see('Send 20k to Sarah');
-  await shot('home-after-transfer');
+  await shot('activities-after-transfer');
+  await tap('Home');
+  await onPage('home');
 
   console.log('Being paid');
   /* Receive on the card puts up the sheet with the four ways money can come;
@@ -606,10 +692,10 @@ try {
   await see('Nudge whoever I asked for money');
   await shot('rules-remind', 900);
   await page.goto(`${base}/home`, { waitUntil: 'load' });
-  await see('See all');
-  /* the chat Beetle filed carries the request's card, which opens the page again */
-  await tap('Chats');
-  await page.waitForTimeout(400);
+  await see(DEMO_HOME);
+  /* the chat Beetle filed is in the drawer, and carries the request's card, which opens the page again */
+  await pull('card-for-the-drawer', false);
+  await openChats();
   await see('₦20,000 asked of Musa');
   await tap('₦20,000 asked of Musa');
   await button('Request').waitFor();
@@ -619,9 +705,8 @@ try {
   await tap('Back');
   await page.waitForTimeout(700);
   at('/home');
-  await tap('Back to the day');
+  await backToHome();
   await page.waitForTimeout(700);
-  await tap('All');
   /* the photo way: the camera reads the message, and the sheet over it says what it read */
   await pull('card-for-the-camera', false);
   await tap('Show me a photo');
@@ -652,7 +737,7 @@ try {
   await tap('Back');
   await page.waitForTimeout(700);
   at('/home');
-  await tap('Back to the day');
+  await backToHome();
   await page.waitForTimeout(700);
   /* nothing yet: Ask someone on the sheet; Beetle asks, and a reply in the bar fills it */
   await tap('Receive');
@@ -696,37 +781,42 @@ try {
   await tap('Back');
   await page.waitForTimeout(700);
   at('/home');
-  await tap('Back to the day');
+  await backToHome();
   await page.waitForTimeout(700);
-  await tap('All');
 
-  console.log('The chats in the day');
-  /* under their own chip: the one just filed, and the one Beetle started */
-  await tap('Chats');
-  await page.waitForTimeout(400);
+  console.log('The chats, in the drawer in the chat');
+  /* the chats live in the chat: a swipe from its left edge brings the drawer in from the left, following the
+     finger, with New chat at its top and the chats under it — the one just filed, and the one Beetle started */
+  await pull('card-for-chats', false);
+  must((await page.getByTestId('chats-drawer').getAttribute('aria-hidden')) === 'true', 'the drawer should be out until it is asked for');
+  const edgeBox = await page.getByTestId('chats-edge').boundingBox();
+  await drag(4, edgeBox.y + 200, 300, edgeBox.y + 205, 16);
+  await page.getByTestId('chats-drawer').getByRole('button', { name: 'New chat', exact: true }).waitFor();
   await see('Your usual top up');
-  must((await page.getByText('Money health').filter({ visible: true }).count()) === 0, 'the Chats chip should show chats only');
-  await shot('home-chats');
-  /* a chat's row picks it back up where it was, panels and all */
+  await see('Send 20k to Sarah');
+  await shot('chat-drawer', 400);
+  /* a chat picked there picks up where it was, panels and all */
   await tap('Send 20k to Sarah');
   await see('Beetle Transfers');
   await page.waitForTimeout(700);
   await shot('chat-reopened');
-  /* and a push up on the day below closes it too; a slow machine may still be
+  /* and a push up below the open card closes it; a slow machine may still be
      settling the reopened chat, so give it a beat and try once more if so */
   for (let tries = 0; tries < 2; tries++) {
-    await pushUp(196, 690);
+    await pushUp(196, 812);
     if (((await page.locator('[data-testid="card"]').boundingBox())?.height ?? 999) < 420) break;
     await page.waitForTimeout(900);
   }
-  must((await page.locator('[data-testid="card"]').boundingBox())?.height < 420, 'a push up on the day below should close the card');
-  /* and Beetle's own prompt opens with the thing it wants handled */
+  must((await page.locator('[data-testid="card"]').boundingBox())?.height < 420, 'a push up below the open card should close it');
+  must((await page.getByTestId('chats-edge').count()) === 0, 'the edge and the drawer should go with the chat');
+  /* and Beetle's own prompt, from the drawer, opens with the thing it wants handled */
+  await pull('card-for-the-prompt', false);
+  await openChats();
   await tap('Your usual top up');
   await see('Beetle Bills');
   await shot('chat-prompt', 900);
-  await tap('Back to the day');
+  await backToHome();
   await page.waitForTimeout(700);
-  await tap('All');
 
   console.log('Reading a photo');
   /* the camera is on the bar, which lives in the open card now */
@@ -765,7 +855,7 @@ try {
   await page.keyboard.press('Enter');
   await button('Confirm ₦5,000').waitFor();
   await shot('chat-photo-transfer', 1900);
-  await tap('Back to the day');
+  await backToHome();
   await page.waitForTimeout(700);
 
   console.log('A place on its own');
@@ -791,8 +881,8 @@ try {
   await tap('Back to the lab');
   await see('Beetle Lab');
   await tap('A new account');
-  await see('Nothing has moved yet');
-  at('/home');
+  await see(NEW_HOME);
+  await onPage('home');
   await shot('lab-home-new', 400);
   await tap('Back to the lab');
   await see('Beetle Lab');
@@ -823,11 +913,12 @@ try {
   await tap('Back to the lab');
   await see('Beetle Lab');
   /* a chat that carries on: the one filed a quarter of an hour ago comes
-     back with the pull down, and New at the top right starts another */
+     back with the pull down, and New chat at the top of the drawer starts another */
   await tap('A chat that carries on');
   await see('Done. ₦20,000 is with Sarah Adeyemi.');
   at('/home');
   await shot('lab-carry', 900);
+  await openChats();
   await tap('New chat');
   /* the old chat's words leave the card; its row in the day keeps them */
   const inCard = page.locator('[data-testid="card"]').getByText('Done. ₦20,000 is with Sarah Adeyemi.');
@@ -836,14 +927,26 @@ try {
   must((await inCard.count()) === 0, 'New should start a fresh chat');
   await tap('Back to the lab');
   await see('Beetle Lab');
-  /* a receipt lands in the chat after the passcode, in a few words; a tap on it opens the page */
+  /* a receipt lands in the chat after the passcode, in a few words; a tap opens it where it is, a
+     little larger with a few lines more, over the chat gone soft under the dark veil — never half the screen */
   await tap('A receipt in the chat');
   await see('The full receipt');
   await shot('lab-receipt-card', 900);
+  const small = await page.getByTestId('receipt-card').boundingBox();
   await tap('Receipt');
-  await see('All done');
+  await page.getByTestId('chat-receipt-card').waitFor();
+  await page.waitForTimeout(800);
+  const big = await page.getByTestId('chat-receipt-card').boundingBox();
+  must(small && big && big.height > small.height + 60 && big.height < 852 / 2, `the receipt should open a little larger, never half the screen (${Math.round(small?.height ?? 0)} → ${Math.round(big?.height ?? 0)})`);
+  must(big.y <= small.y + 1, `and open where it is (${Math.round(small.y)} → ${Math.round(big.y)})`);
+  must((await page.getByTestId('chat-receipt-veil').count()) === 1, 'the chat should go soft under the dark veil');
   await see('Balance after');
-  must(page.url().includes('/receipt/'), 'the card should open the receipt page');
+  await shot('chat-receipt-open', 300);
+  console.log(`  the receipt opened from ${Math.round(small.height)} to ${Math.round(big.height)} tall, where it was`);
+  /* the full receipt is one tap further */
+  await tap('The full receipt');
+  await see('All done');
+  must(page.url().includes('/receipt/'), 'The full receipt should open the page');
   await shot('receipt-live', 500);
   await tap('Back to the lab');
   await see('Beetle Lab');
@@ -882,35 +985,46 @@ try {
   await shot('receipt-in', 500);
   await tap('Back to the lab');
   await see('Beetle Lab');
-  /* Settings, from the gear on the bar at home: Your details on its sheet, and Sign out */
+  /* Settings, from the gear on the bar: the pages slide across under the bar, which stays where it is,
+     its glyphs and its plus untouched; the gear is solid and black once its page is showing */
   await tap('The demo account');
   await see('Pull down');
-  await tap('Settings');
-  /* the foot is one for every screen: as the page arrives, Back slides in from the left
-     edge while the bar's glyphs become the ask bar and the plus scales away. Read the
-     moment the address changes, and again once the page has settled */
-  await page.waitForURL(/\/settings/);
-  const backEarly = await page.evaluate(() => {
-    const el = document.querySelector('[data-testid="foot"] [aria-label="Back"]');
-    return el ? { opacity: +getComputedStyle(el).opacity, left: el.getBoundingClientRect().left } : null;
+  /* home has come, and the foot has finished turning into the bar (from the receipt's Back and ask bar, a moment
+     ago): risen into its place, the plus grown to its size */
+  await page.waitForFunction(() => {
+    const bar = document.querySelector('[data-testid="bar"]');
+    const plus = bar?.querySelector('[aria-label="More"]');
+    return !!bar && !!plus && Math.abs(new DOMMatrix(getComputedStyle(bar).transform).m42) < 0.5 && plus.getBoundingClientRect().height > 55;
   });
-  const morph = await trace(
-    'foot-morph',
-    700,
-    [
-      ['back', '[data-testid="foot"] [aria-label="Back"]', false],
-      ['plus', '[data-testid="foot"] [aria-label="More"]', false],
-    ],
-    { picture: { at: 60, name: 'foot-morph-mid' } },
+  /* the tap and the trace together: the slide is quicker than a click takes to come back */
+  const gearTapped = Date.now();
+  const [slide] = await Promise.all([
+    trace(
+      'pages-slide',
+      900,
+      [
+        ['row', '[data-testid="pager"] > div', false],
+        ['bar', '[data-testid="bar"]', false],
+        ['plus', '[data-testid="bar"] [aria-label="More"]', false],
+      ],
+      { since: gearTapped, picture: { at: 110, name: 'pages-sliding' } },
+    ),
+    tap('Settings'),
+  ]);
+  const lefts = slide.map(x => x.row?.left).filter(v => v !== undefined);
+  must(lefts.length > 3 && lefts[0] > -200 && lefts[lefts.length - 1] < -700, `the pages should slide across to Settings (${Math.round(lefts[0] ?? 0)} → ${Math.round(lefts[lefts.length - 1] ?? 0)})`);
+  must(new Set(lefts.map(Math.round)).size >= 4, 'through the move, not a jump');
+  const barTops = slide.map(x => x.bar?.top).filter(v => v !== undefined);
+  must(barTops.length > 3 && barTops.every(t => Math.abs(t - barTops[0]) < 1), `the bar should stay where it is (${[...new Set(barTops.map(Math.round))].join(' ')})`);
+  must(
+    slide.every(x => x.plus && x.plus.height > 50),
+    `and keep its plus throughout (${slide.map(x => (x.plus ? Math.round(x.plus.height) : 'none')).join(' ')})`,
   );
-  const backThere = morph[morph.length - 1]?.back;
-  const plusGone = morph[morph.length - 1]?.plus;
-  must(backEarly && (backEarly.opacity < 0.9 || backEarly.left < 14), `Back should still be on its way in as the page arrives (${JSON.stringify(backEarly)})`);
-  must(backThere && backThere.opacity > 0.98 && backThere.left >= 14 && backThere.left <= 18, `Back should land at the bottom left (${JSON.stringify(backThere)})`);
-  must(plusGone && plusGone.height < 2, `the plus should scale away on a page without one (${JSON.stringify(plusGone)})`);
-  console.log(`  Back came in: ${Math.round(backEarly.left)} at ${backEarly.opacity.toFixed(2)} as the page arrived, ${Math.round(backThere.left)} at ${backThere.opacity.toFixed(2)} after`);
+  console.log(`  the pages went from ${Math.round(lefts[0])} to ${Math.round(lefts[lefts.length - 1])} under a bar that stayed at ${Math.round(barTops[0])}`);
   await see('What keeps the money yours');
-  at('/settings');
+  await onPage('settings');
+  must((await button('Settings').getAttribute('aria-selected')) === 'true', 'the gear should say its page is showing');
+  must((await page.getByTestId('foot').count()) === 0, 'Settings keeps the bar, not Back and the ask bar');
   await shot('settings', 500);
   await tap('Your details');
   await see('Member since');
@@ -1061,53 +1175,82 @@ try {
   await see('Send money');
   await shot('home-more', 900);
   must((await page.getByRole('button', { name: 'History', exact: true }).count()) === 0, 'More should carry three, not the two the bar has');
+  must((await page.getByTestId('more-veil').count()) === 1, 'More should open over the page under its white veil');
   await button('Close').last().click();
-  await page.getByText('Send money').first().waitFor({ state: 'hidden' });
+  /* More folds away and then goes (another Send money, on a page to the side, is not More's) */
+  await page.getByTestId('more').waitFor({ state: 'detached' });
+  must((await page.getByTestId('more-veil').count()) === 0, 'the veil should go with More');
   await tap('Settings');
   await see('What keeps the money yours');
-  at('/settings');
-  await tap('Back');
+  await onPage('settings');
+  await tap('Home');
   await see('Pull down');
+  await onPage('home');
   await tap('Activities');
   await see('Everything that moved');
-  at('/activities');
+  await onPage('activities');
+  /* all of the record is here now: Money health at the top, All / Insights / In / Out, what Beetle noticed among the lines */
+  await see('Money health');
+  await see('Your usual top up');
   await shot('activities', 700);
   await tap('In');
   must((await page.getByText('Pagrin Limited').filter({ visible: true }).count()) === 1, 'In should keep the salary');
   must((await page.getByText('Ikeja Electric').filter({ visible: true }).count()) === 0, 'and drop what went out');
+  await tap('Insights');
+  await see('Where your money went');
+  must((await page.getByText('Pagrin Limited').filter({ visible: true }).count()) === 0, 'Insights should hold what Beetle noticed, not the lines');
+  await shot('activities-insights', 400);
   await tap('All');
-  /* a line grows into its receipt in a few words, the rest receding; the full receipt arrives from the amount */
+  /* a settled line opens its receipt over the page in one step: the page goes soft under white, the amount
+     comes up out of the line's own figure, and the foot turns into Back and the ask bar */
   await button('Ikeja Electric').scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);
   const ikejaRow = await button('Ikeja Electric').boundingBox();
   await tap('Ikeja Electric');
-  const peeked = await trace('peek-open', 800, [['card', '[data-testid="peek-card"]']], { picture: { at: 120, name: 'peek-mid' } });
-  const cards = peeked.map(x => x.card).filter(Boolean);
+  const opened = await trace(
+    'receipt-over',
+    1100,
+    [
+      ['amount', '[data-testid="amount"]'],
+      ['back', '[data-testid="foot"] [aria-label="Back"]', false],
+    ],
+    { picture: { at: 120, name: 'receipt-over-mid' } },
+  );
+  const amounts = opened.map(x => x.amount).filter(a => a && a.opacity > 0.01);
   must(
-    cards.length > 3 && cards[cards.length - 1].height > cards[0].height + 40,
-    `the card should grow out of the line (${Math.round(cards[0]?.height ?? 0)} to ${Math.round(cards[cards.length - 1]?.height ?? 0)})`,
+    amounts.length > 3 && Math.abs(amounts[0].top - (ikejaRow?.y ?? 0)) < 60 && amounts[0].top > amounts[amounts.length - 1].top + 40,
+    `the amount should come up out of the line (${Math.round(amounts[0]?.top ?? 0)} to ${Math.round(amounts[amounts.length - 1]?.top ?? 0)}, the line at ${Math.round(ikejaRow?.y ?? 0)})`,
   );
-  must(Math.abs((cards[0]?.top ?? 0) - (ikejaRow?.y ?? 0)) < 6, 'and start where the line is');
-  await shot('peek', 300);
-  await tap('The full receipt');
-  const arrived = await trace('journey-receipt', 1200, [['amount', '[data-testid="amount"]']]);
-  const amounts = arrived.map(x => x.amount).filter(a => a && a.opacity > 0.01);
-  must(
-    amounts.length > 3 && amounts[0].top > amounts[amounts.length - 1].top + 40,
-    `the amount should travel up from the card (${Math.round(amounts[0]?.top ?? 0)} to ${Math.round(amounts[amounts.length - 1]?.top ?? 0)})`,
-  );
-  console.log(
-    `  the line grew from ${Math.round(cards[0].height)} to ${Math.round(cards[cards.length - 1].height)}, and the amount came up from ${Math.round(amounts[0].top)} to ${Math.round(amounts[amounts.length - 1].top)}`,
-  );
+  const backIn = opened.map(x => x.back).filter(Boolean);
+  const backLast = backIn[backIn.length - 1];
+  must(backLast && backLast.opacity > 0.98 && backLast.left >= 14 && backLast.left <= 18, `Back should land at the bottom left (${JSON.stringify(backLast)})`);
+  console.log(`  the amount came up from ${Math.round(amounts[0].top)} to ${Math.round(amounts[amounts.length - 1].top)}, the line being at ${Math.round(ikejaRow.y)}`);
   await see('Copy the token');
-  at('/receipt/l11');
+  await onPage('activities');
+  must((await page.getByTestId('receipt-veil').count()) === 1, 'the receipt should open over the page, under its veil');
+  await shot('receipt-over', 300);
+  /* what Beetle offers on it leads away and back, the receipt still up */
   await tap('Set it up');
   await see('Nothing is saved until you say yes');
   await tap('Not now');
   await see('Copy the token');
-  await tap('Back');
+  /* the pages hold still under it: a swipe to the left goes nowhere */
+  await drag(340, 420, 60, 425);
+  await onPage('activities');
+  must((await page.getByTestId('receipt-over').count()) === 1, 'a swipe to the left should leave the receipt where it is');
+  /* the swipe an iPhone goes back with closes it, the receipt following the finger off to the right */
+  await drag(30, 420, 330, 425, 18);
+  await page.getByTestId('receipt-over').waitFor({ state: 'detached' });
   await see('Everything that moved');
-  must((await page.locator('[data-testid="peek"]').count()) === 0, 'the peek should be gone once its receipt is left');
+  await onPage('activities');
+  must((await page.getByTestId('bar').count()) === 1, 'the bar should be back once the receipt is closed');
+  /* and Back closes it too */
+  await tap('Ikeja Electric');
+  await see('Copy the token');
+  await page.waitForTimeout(500);
+  await tap('Back');
+  await page.getByTestId('receipt-over').waitFor({ state: 'detached' });
+  await see('Everything that moved');
   /* a line still on its way opens its own page, its title coming up from the line's words */
   await tap('Sarah Adeyemi');
   await see('Do not send it again');
@@ -1134,13 +1277,18 @@ try {
   await see('+₦50,000 from Sarah');
   await see('₦645,320');
   await shot('lab-arrival', 300);
+  /* the chat Beetle started is in the drawer, and carries the receipt's card: opened where it is, it says who it came from */
+  await pull('card-for-the-arrival', false);
+  await openChats();
   await see('₦50,000 came in');
-  /* the chat Beetle started carries the receipt's card, which opens Money in */
   await tap('₦50,000 came in');
   await button('Receipt').waitFor();
   await tap('Receipt');
+  await page.getByTestId('chat-receipt-card').waitFor();
+  await see('None on money in');
+  await tap('The full receipt');
   await see('Money in');
-  must(page.url().includes('/receipt/'), 'the card in the chat should open the receipt');
+  must(page.url().includes('/receipt/'), 'the card in the chat should lead to the receipt');
   await shot('lab-arrival-receipt', 900);
   await tap('Back');
   await page.waitForTimeout(700);
@@ -1337,8 +1485,10 @@ try {
   await tap('Back');
   await see('Pull down');
   at('/home');
+  await tap('Activities');
+  await onPage('activities');
   await see('Kuda · sent');
-  await shot('send-home-after', 900);
+  await shot('send-activities-after', 900);
   await tap('Back to the lab');
   await see('Beetle Lab');
   /* the three parts filled from a message, as the frame draws it, sent the same way */
@@ -1405,7 +1555,7 @@ try {
   console.log('Bills, data and the drawer');
   /* the drawer, bills, data and borrowing: from home, with the demo account the lab left signed in */
   await page.goto(`${base}/home`, { waitUntil: 'load' });
-  await see('See all');
+  await see(DEMO_HOME);
   /* the Bills shortcut under the open card opens the month: what it comes to,
      what is covered, and the rows; a row opens the page that pays it */
   await pull('card-for-bills', false);
@@ -1487,9 +1637,9 @@ try {
   await shot('topup-receipt', 900);
   /* the chat Beetle filed carries the receipt's card */
   await page.goto(`${base}/home`, { waitUntil: 'load' });
-  await see('See all');
-  await tap('Chats');
-  await page.waitForTimeout(400);
+  await see(DEMO_HOME);
+  await pull('card-for-the-topup-chat', false);
+  await openChats();
   await see('5GB for Mum');
   /* borrowing: the whole cost before deciding, and the money landing as money in */
   await page.goto(`${base}/loan`, { waitUntil: 'load' });
@@ -1507,13 +1657,13 @@ try {
   await see('From Beetle Loans');
   await shot('loan-receipt', 900);
   await page.goto(`${base}/home`, { waitUntil: 'load' });
-  await see('See all');
-  await tap('Chats');
-  await page.waitForTimeout(400);
+  await see(DEMO_HOME);
+  await pull('card-for-the-loan-chat', false);
+  await openChats();
   await see('₦140,000 borrowed');
-  /* "borrow" typed at home is the page */
-  await tap('All');
-  await pull('card-for-borrowing', false);
+  /* "borrow" typed in the chat is the page */
+  await closeChats();
+  await page.waitForTimeout(600);
   await page.getByLabel('Ask Beetle').fill('how much can I borrow');
   await tap('Send this');
   await see('The whole cost, before you decide');
@@ -1541,7 +1691,7 @@ try {
   console.log('Dollars, the goal and money health');
   /* the dollars chip on the card opens Dollars; Convert takes a figure, the passcode, and lands on Converted */
   await page.goto(`${base}/home`, { waitUntil: 'load' });
-  await see('See all');
+  await see(DEMO_HOME);
   await page.getByTestId('chip').click();
   await see('Steady when the naira is not');
   at('/dollars');
@@ -1636,9 +1786,10 @@ try {
   await shot('goal-paused', 900);
   await tap('Start again');
   await see('₦250,000 by 12 March');
-  /* money health from the row on home, and its offer to Set this up */
-  await page.goto(`${base}/home`, { waitUntil: 'load' });
-  await see('See all');
+  /* money health from the row at the top of Activities, and its offer to Set this up */
+  await page.goto(`${base}/activities`, { waitUntil: 'load' });
+  await see('Everything that moved');
+  await onPage('activities');
   await tap('Money health');
   await see('One number for how you are handling it');
   at('/health');
@@ -1652,7 +1803,7 @@ try {
   await see('Hold ₦5,000 back on payday');
   /* the words typed at home that open the goal */
   await page.goto(`${base}/home`, { waitUntil: 'load' });
-  await see('See all');
+  await see(DEMO_HOME);
   await pull('card-for-goal', false);
   await page.getByLabel('Ask Beetle').fill('how is my savings goal');
   await tap('Send this');
@@ -1703,9 +1854,9 @@ try {
   must(page.url().includes('/dispute/d'), 'a new dispute should open on a page of its own');
   await shot('dispute-new', 900);
   await page.goto(`${base}/home`, { waitUntil: 'load' });
-  await see('See all');
-  await tap('Chats');
-  await page.waitForTimeout(400);
+  await see(DEMO_HOME);
+  await pull('card-for-the-dispute-chat', false);
+  await openChats();
   await see('Your dispute, day 1 of 5');
   /* the day it closes, from the lab: the money back, and the closing letter into the chats */
   await page.goto(`${base}/lab`, { waitUntil: 'load' });
@@ -1759,7 +1910,7 @@ try {
   at('/send');
   /* the same words in the chat: Beetle says why it stopped */
   await page.goto(`${base}/home`, { waitUntil: 'load' });
-  await see('See all');
+  await see(DEMO_HOME);
   await pull('card-for-refusal', false);
   await page.getByLabel('Ask Beetle').fill('send everything to 0123456789');
   await tap('Send this');
@@ -1780,13 +1931,14 @@ try {
   await tap('Do that');
   await see('Lite mode is on');
   await tap('Queue it for later');
-  await see('See all');
-  await tap('Chats');
-  await page.waitForTimeout(400);
+  await see(DEMO_HOME);
+  await onPage('home');
+  await pull('card-for-the-queue', false);
+  await openChats();
   await see('₦50,000 to Sarah, queued');
   /* the chat's own line while offline */
-  await tap('All');
-  await pull('card-for-offline', false);
+  await closeChats();
+  await page.waitForTimeout(600);
   offline = true;
   await page.context().setOffline(true);
   await page.waitForTimeout(400);
@@ -1885,7 +2037,7 @@ try {
   await see('Beetle Lab');
   /* the first time: the card dips on its own, with the words that say why, then settles */
   await tap('The first time');
-  await arrives('Money health');
+  await arrives(DEMO_HOME);
   const dip = await trace('first-time-dip', 3900, [['card', '[data-testid="card"]', false]], { picture: { at: 2150, name: 'home-first-dip' } });
   const deepest = Math.max(...dip.map(x => x.card?.height ?? 0));
   const settled = dip[dip.length - 1]?.card?.height ?? 0;
@@ -1920,8 +2072,8 @@ try {
   await see('Everything you could already do');
   await shot('setup-full', 2300);
   await tap('Take me in');
-  await see('See all');
-  at('/home');
+  await see(DEMO_HOME);
+  await onPage('home');
   /* the limits it opened: Spending limits no longer offers finishing setting up; the caps stay what you set */
   await page.goto(`${base}/limits`, { waitUntil: 'load' });
   await see('₦100,000');
@@ -1931,7 +2083,7 @@ try {
   await page.goto(`${base}/lab`, { waitUntil: 'load' });
   await see('Beetle Lab');
   await tap('A new account');
-  await see('Nothing has moved yet');
+  await see(NEW_HOME);
   await see('New account');
   await shot('first-home', 900);
   await tap('New account');
@@ -1939,8 +2091,8 @@ try {
   at('/way-in');
   /* Back sits beside Continue at the foot; the way in's own chevron at the top is the first Back in the page and hidden here */
   await page.getByTestId('back').click();
-  await see('Nothing has moved yet');
-  at('/home');
+  await see(NEW_HOME);
+  await onPage('home');
   await pull('first-question-card', false);
   await page.getByLabel('Ask Beetle').fill('What can you do?');
   await tap('Send this');

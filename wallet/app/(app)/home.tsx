@@ -1,7 +1,8 @@
-/* Home: the card, the chat inside it, and the day. See src/features/home. */
+/* Home, Activities and Settings: the three pages side by side under the
+   one bar, swiped between. See src/features/tabs. */
 import React from 'react';
-import { Home } from '../../src/features/home/Home';
+import { Pager } from '../../src/features/tabs/Pager';
 
 export default function HomeRoute() {
-  return <Home />;
+  return <Pager />;
 }

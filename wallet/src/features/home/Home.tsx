@@ -1,50 +1,31 @@
-/* Home. The black card at the top, and under it the day: what the agent
-   noticed, every naira that moved, and every chat — the ones you started
-   and the ones Beetle did. Pull the card down and it becomes the chat,
-   nearly the whole screen, with the head of the day and its chips still
-   showing below as the way back. The ask bar lives at the card's foot. The
-   first time on this phone, the card dips on its own so the pull is found.
-   Nothing here leaves anyone stuck: the header pulls back up, a tap on the
-   day below closes the chat, and so does the phone's own back. Closing the
-   card files the chat in the day; a pull down within the hour carries it
-   on, after the hour a new one starts, New at the top right starts one at
-   once, and a chat's row in the day picks it back up where it was. The
-   gear on the bar opens Settings; a line in the day opens its receipt;
-   Send on the card opens the Send money page. */
+/* Home, the first of the three pages. The black card at the top, and under
+   it four cards two by two: Savings, Loan, Card and Services (see Grid).
+   The record is Activities' now, the next page along. Pull the card down
+   and it becomes the chat, nearly the whole screen, with the row of
+   shortcuts still showing below it as the way back. The ask bar lives at
+   the card's foot. The first time on this phone, the card dips on its own
+   so the pull is found. Nothing here leaves anyone stuck: the header pulls
+   back up, a tap below the open card closes the chat, and so does the
+   phone's own back.
+
+   The chats live in the chat: a soft light down the left edge while it is
+   open, and a swipe from there brings in the drawer with New chat and the
+   chats (see Drawer). Closing the card files the chat; a pull down within
+   the hour carries it on, after the hour a new one starts. A receipt in
+   the chat opens where it is, a little larger (see ChatReceipt). Send on
+   the card opens the Send money page. */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, Keyboard, Platform, Pressable, TextInput, View, useWindowDimensions } from 'react-native';
+import { BackHandler, Keyboard, Platform, TextInput, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
-import {
-  Button,
-  Caption,
-  Filters,
-  Head,
-  Icon,
-  Insight,
-  Label,
-  LedgerRow,
-  Mark,
-  Meta,
-  Pane,
-  Row as RowText,
-  ScoreRow,
-  Tap,
-  Tile,
-  colour,
-  frame,
-  keys,
-  settle,
-  space,
-  toast,
-  useStill,
-} from '../../design';
+import { Caption, Icon, Pane, Tap, colour, frame, keys, settle, useStill } from '../../design';
 import type { IconName } from '../../icons';
 import { DEMO_SAVED, beneficiariesOf, ownLine, type AskPanel, type Beneficiary, type Move, type Panel } from '../../services';
 import { useApp } from '../onboarding/store';
-import { useSessionGuard } from '../onboarding/useGuard';
 import { Chat } from '../agent/Chat';
+import { ChatReceipt } from '../agent/ChatReceipt';
+import { ChatsDrawer, ChatsEdge, EDGE } from '../agent/Drawer';
 import { isPanel, transcriptOf, turn, useConversation, type Turn } from '../agent/conversation';
 import { clock, detailOf, titleOf, toCarryOn, useChats, type Chat as ChatRecord } from '../agent/chats';
 import { transferPanel, PEOPLE } from '../../services/agent';
@@ -54,32 +35,32 @@ import { PasscodeSheet, lockedFor } from '../passcode';
 import { ReceiveSheet, SAMPLE_ARRIVAL, arrivalChat, arrivalLine, arrivalMove, type Arrival } from '../receive';
 import { pageFor } from '../request/intent';
 import { LAB } from '../../lab/enabled';
-import { glance, holdingsFor } from './account';
+import { holdingsFor } from './account';
 import { balanceOf, rowFrom, useMoves } from './moves';
 import { AskBar } from './AskBar';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { CLOSED_H, FOOT_BAND, WalletCard, useCardDrag, useCardTop } from './WalletCard';
 import { BAR_H, foot, useFoot } from '../more/Foot';
 import { moreTo, type MoreItem } from '../more/More';
-import { ReceiptPeek } from '../receipts/Peek';
 import { useOnline } from '../offline';
 import { SavedPeek } from '../agent/SavedPeek';
 import type { SavedKind } from '../agent/AskPanel';
-import { receiptFor } from '../receipts/receipts';
-import { JourneyProvider, useDeparture, useRecession, type Rect } from '../../design/journey';
+import { JourneyProvider, useRecession, type Rect } from '../../design/journey';
 import type { ReceiptCard as Card } from '../agent/conversation';
 import { chatPointedOut, markChatPointedOut } from './first';
 import { useSetup } from '../setup/store';
-import { groupAccount, kobo, naira, signed } from '../../lib/format';
+import { tabs, useHoldPages, usePage } from '../tabs';
+import { Grid } from './Grid';
+import { groupAccount, kobo, naira } from '../../lib/format';
 
-/** What stays showing under the open card: the gap, the head of the day, its
-    chips, and the row of shortcuts under them. */
-const SHORTCUTS_TOP = 32 + 56 + 12 + 34 + 12;
+/** What stays showing under the open card: the row of shortcuts, 20 under
+    it, and the phone's own foot under them. */
+const SHORTCUTS_TOP = 20;
 const SHORTCUTS_H = 64;
-const BELOW = SHORTCUTS_TOP + SHORTCUTS_H + 16;
-
-type Filter = 'All' | 'Insights' | 'In' | 'Out' | 'Chats';
-const FILTERS: Filter[] = ['All', 'Insights', 'In', 'Out', 'Chats'];
+/** The grid, this far under the closed card. */
+const GRID_TOP = 24;
+/** The chats drawer: most of the width, the chat showing beside it. */
+const drawerWidth = (W: number) => Math.min(340, Math.round(W * 0.82));
 
 export function Home() {
   return (
@@ -92,20 +73,16 @@ export function Home() {
 function HomeScreen() {
   const router = useRouter();
   const app = useApp();
-  const ok = useSessionGuard();
+  /* the pager keeps the way in's guard for all three pages; here it is enough to know the session is there */
+  const ok = app.ready && !!app.session;
+  const { active } = usePage();
   const still = useStill();
-  const { height: H } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const { width: W, height: H } = useWindowDimensions();
   const { closedH, haze } = useCardTop();
   const asked = useLocalSearchParams<{ chat?: string; receive?: string; say?: string; about?: string; more?: string; face?: string; typing?: string; kb?: string }>();
-  /** a line's receipt in a few words, grown out of the line */
-  const [peek, setPeek] = useState<{ card: Card; at: Rect } | null>(null);
   const receding = useRecession();
-  const seeAll = useDeparture({ id: 'see-all', to: '/activities', words: 'Activities' });
-  /* back from a receipt: the peek it was opened from has done its job */
-  useFocusEffect(useCallback(() => setPeek(null), []));
 
-  const [filter, setFilter] = useState<Filter>('All');
-  const [put, setPut] = useState<string[]>([]);
   const [draft, setDraft] = useState('');
   const [hint, setHint] = useState('Pull down');
   const [opened, setOpened] = useState(false);
@@ -136,9 +113,11 @@ function HomeScreen() {
     };
   }, [kb]);
   const full = tallest.current;
+  /* what stays showing under the open card: the shortcuts, and the phone's own foot */
+  const below = SHORTCUTS_TOP + SHORTCUTS_H + Math.max(16, insets.bottom);
   /* what is visible above the keyboard: the window if it shrank for it, else the window less the keyboard */
   const visible = useDerivedValue(() => Math.min(H, full - kb.value));
-  const openH = useDerivedValue(() => Math.min(full - BELOW, visible.value - 8));
+  const openH = useDerivedValue(() => Math.min(full - below, visible.value - 8));
   const onScroll = useAnimatedScrollHandler(e => {
     scrollY.value = e.contentOffset.y;
   });
@@ -157,6 +136,11 @@ function HomeScreen() {
   );
   /** an ask panel's list of them, grown from the line under its fields */
   const [pick, setPick] = useState<{ ask: AskPanel; kind: SavedKind; at: Rect } | null>(null);
+  /** a receipt in the chat, opened where it is */
+  const [chatPeek, setChatPeek] = useState<{ card: Card; at: Rect } | null>(null);
+  /** the chats drawer, in or out, and how far in */
+  const [drawer, setDrawer] = useState(false);
+  const drawerIn = useSharedValue(0);
 
   /* ---- the conversation, and the chats it becomes ---- */
   const turnsRef = useRef<Turn[]>([]);
@@ -190,7 +174,7 @@ function HomeScreen() {
   const { chats, file, read } = useChats(account?.accountNumber, !!account?.demo);
   const chatsRef = useRef(chats);
   chatsRef.current = chats;
-  /** the chat the card holds, if it came from the day */
+  /** the chat the card holds, if it came from the drawer */
   const current = useRef<ChatRecord | null>(null);
   /** the last chat was filed; the next opening starts afresh */
   const stale = useRef(false);
@@ -200,6 +184,10 @@ function HomeScreen() {
   const [receive, setReceive] = useState(false);
   /** money that just arrived, for the card to show */
   const [flash, setFlash] = useState<{ text: string; at: number } | undefined>(undefined);
+
+  /* the pages stand still while the chat is open, or the Receive sheet is up */
+  useHoldPages('chat', opened);
+  useHoldPages('receive', receive);
 
   /* Beetle opens a fresh chat: with something it noticed, taking turns, or
      for a new account with what it can do */
@@ -232,7 +220,7 @@ function HomeScreen() {
   );
 
   /* the card closing files the chat, if anything was said in it; a chat
-     ended by New is filed too, and never carries on */
+     ended by New chat is filed too, and never carries on */
   const fileCurrent = useCallback(
     (opts: { ended?: boolean } = {}) => {
       const turns = turnsRef.current;
@@ -258,6 +246,12 @@ function HomeScreen() {
     [file],
   );
 
+  /* the drawer goes with the chat, and on a pick */
+  const closeDrawer = useCallback(() => {
+    setDrawer(false);
+    drawerIn.value = still ? 0 : withSpring(0, keys);
+  }, [drawerIn, still]);
+
   const show = useCallback(
     (to: boolean, opts: { greet?: boolean; opening?: string } = {}) => {
       setOpened(to);
@@ -267,14 +261,17 @@ function HomeScreen() {
       } else {
         Keyboard.dismiss();
         setGuard(null);
+        setChatPeek(null);
+        setDrawer(false);
+        drawerIn.value = 0;
         fileCurrent();
       }
       open.value = withSpring(to ? 1 : 0, keys);
     },
-    [open, begin, fileCurrent],
+    [open, begin, fileCurrent, drawerIn],
   );
 
-  /* New, at the top right of the open card: the chat so far is filed and
+  /* New chat, at the top of the drawer: the chat so far is filed and
      ended, and Beetle opens a fresh one */
   const startNew = useCallback(() => {
     fileCurrent({ ended: true });
@@ -283,6 +280,19 @@ function HomeScreen() {
     stale.current = false;
     talk.open(greeting());
   }, [fileCurrent, talk, greeting]);
+
+  /* a chat picked in the drawer: this one is filed, and that one picks up where it was left */
+  const switchTo = useCallback(
+    (chat: ChatRecord) => {
+      if (current.current?.id === chat.id) return;
+      fileCurrent();
+      talk.load(chat.turns, chat.pending);
+      current.current = chat;
+      stale.current = false;
+      read(chat.id);
+    },
+    [fileCurrent, talk, read],
+  );
 
   /* a panel's button: the passcode stands between it and the move, unless
      the gate is shut, in which case Beetle says how long for */
@@ -319,8 +329,8 @@ function HomeScreen() {
     setReceive(true);
   }, []);
 
-  /* money arriving lands in three places at once: the card, the day, and a
-     chat from Beetle — said in the open chat too, if one is open */
+  /* money arriving lands in three places at once: the card, the record, and
+     a chat from Beetle — said in the open chat too, if one is open */
   const arrive = useCallback(
     (a: Arrival) => {
       const after = balance + a.amount;
@@ -337,7 +347,7 @@ function HomeScreen() {
   const arriveRef = useRef(arrive);
   arriveRef.current = arrive;
 
-  /** a chat from the day, picked up where it was left */
+  /** a chat picked up where it was left, with the card opening on it */
   const reopen = useCallback(
     (chat: ChatRecord) => {
       talk.load(chat.turns, chat.pending);
@@ -349,17 +359,18 @@ function HomeScreen() {
     [talk, read, show],
   );
 
-  /* the phone's own back closes the chat before it leaves the screen */
+  /* the phone's own back puts the drawer away, then closes the chat, before it leaves the screen */
   useEffect(() => {
     if (!opened) return;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       if (guard) setGuard(null);
       else if (receive) setReceive(false);
+      else if (drawer) closeDrawer();
       else show(false);
       return true;
     });
     return () => sub.remove();
-  }, [opened, show, guard, receive]);
+  }, [opened, show, guard, receive, drawer, closeDrawer]);
 
   /* the first time: once the balance has resolved, the card dips and springs
      back with the words that say what it is for */
@@ -384,11 +395,12 @@ function HomeScreen() {
     };
   }, [ok, still, open]);
 
-  /* a photo the camera took comes straight into the chat */
+  /* a photo the camera took comes straight into the chat, on Home */
   useFocusEffect(
     useCallback(() => {
       const photo = handoff.take();
       if (!photo) return;
+      tabs.go('home');
       if (!openedRef.current) show(true, { greet: false });
       void talk.ask({ photo, text: draft.trim() || undefined });
       setDraft('');
@@ -427,6 +439,14 @@ function HomeScreen() {
     }
     staged.current = true;
     if (asked.chat === 'open') show(true);
+    if (asked.chat === 'drawer') {
+      /* the chat open with the drawer in, as a swipe from the left edge leaves it */
+      show(true);
+      setTimeout(() => {
+        setDrawer(true);
+        drawerIn.value = still ? 1 : withSpring(1, keys);
+      }, 700);
+    }
     if (asked.chat === 'carry') {
       /* a chat filed a quarter of an hour ago: the pull down picks it up */
       const panel = transferPanel(PEOPLE[0]!, 20_000);
@@ -504,11 +524,12 @@ function HomeScreen() {
       show(true, { greet: false });
       setTimeout(() => setGuard({ panelId: panel.id, panel }), 700);
     }
-  }, [ok, asked.chat, show, talk, chats, reopen, file, onMove]);
+  }, [ok, asked.chat, show, talk, chats, reopen, file, onMove]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* a question brought from a receipt, or from a Settings row: the chat
-     opens, with the receipt named where there is one, and asks it. Once per
-     asking: the same words brought again carry a fresh stamp. */
+  /* a question brought from a receipt, from Activities or from a Settings
+     row: the chat opens, with the receipt named where there is one, and
+     asks it. Once per asking: the same words brought again carry a fresh
+     stamp. */
   const said = useRef('');
   useEffect(() => {
     if (!ok || !asked.say) return;
@@ -523,6 +544,7 @@ function HomeScreen() {
       router.push(page as never);
       return;
     }
+    tabs.go('home');
     show(true);
     setTimeout(() => {
       if (about) talk.note('About this receipt', about);
@@ -544,8 +566,8 @@ function HomeScreen() {
     },
     [openReceive, router],
   );
-  /* the foot is the bar here: it goes down as the card opens, and More comes up out of its plus */
-  useFoot({ kind: 'bar', open, hidden: opened, onPick: pickMore, veil: peek ? 'recede' : undefined });
+  /* the foot is the bar, while this page is the one showing: it goes down as the card opens, and More comes up out of its plus */
+  useFoot({ kind: 'bar', open, hidden: opened, onPick: pickMore }, active);
 
   const send = () => {
     const text = draft.trim();
@@ -563,16 +585,21 @@ function HomeScreen() {
   const toCamera = () => router.push('/scan');
 
   const veilStyle = useAnimatedStyle(() => ({ top: openH.value }));
-  /* the shortcuts under the chips arrive with the rest of the open card, and
-     the day below the chips goes as the card opens, so the strip that stays
-     is the head, the chips and the shortcuts and nothing else */
+  /* the shortcuts arrive under the card with the rest of it opening, and
+     the grid goes as it opens, so what stays is the row and nothing else */
   const shortcutsStyle = useAnimatedStyle(() => ({
     opacity: Math.min(1, Math.max(0, (open.value - 0.6) / 0.4)),
   }));
-  const dayStyle = useAnimatedStyle(() => ({
+  const gridStyle = useAnimatedStyle(() => ({
     opacity: 1 - Math.min(1, Math.max(0, (open.value - 0.25) / 0.35)),
   }));
-  /* the day below the open card: a tap on it, or a push up on it, brings the card back up */
+  /* the chats' edge runs down the chat, between its header and its ask bar, shows as the chat does, and goes as the drawer comes in over it */
+  const edgeStyle = useAnimatedStyle(() => ({
+    top: haze,
+    height: Math.max(0, openH.value - haze - FOOT_BAND),
+    opacity: Math.min(1, Math.max(0, (open.value - 0.6) / 0.4)) * (1 - drawerIn.value),
+  }));
+  /* below the open card: a tap on it, or a push up on it, brings the card back up */
   const showRef = useRef(show);
   showRef.current = show;
   const close = useCallback(() => showRef.current(false), []);
@@ -583,7 +610,7 @@ function HomeScreen() {
     only: 'close',
     settle: to => !to && close(),
   });
-  /* a tap on the day closes the card — except on the shortcuts row, whose
+  /* a tap below the card closes it — except on the shortcuts row, whose
      buttons answer their own taps */
   const veilTap = useMemo(
     () =>
@@ -596,81 +623,10 @@ function HomeScreen() {
   const veilGesture = useMemo(() => Gesture.Exclusive(veilPan, veilTap), [veilPan, veilTap]);
 
   if (!ok || !app.session || !h || !account) return null;
-  const ledger = [...moves, ...h.ledger];
-  const away = (k: string) => setPut(p => [...p, k]);
-  const cardFor = (r: (typeof ledger)[number]): Card => {
-    const rc = receiptFor(r, { account, balanceNow: balance, rows: ledger });
-    return { rowId: r.id, to: r.kind === 'convert' ? `/converted/${r.id}` : undefined, amount: naira(rc.amount), line: rc.line, status: rc.status, time: r.time };
-  };
-  const rows = (day: 'today' | 'yesterday', from = 0, to = 99) =>
-    filter === 'Chats'
-      ? []
-      : glance(ledger, day, filter)
-          .slice(from, to)
-          .map(r => (
-            <LedgerRow
-              key={r.id}
-              glyph={r.icon}
-              name={r.name}
-              detail={`${r.detail}${r.detail.includes(':') ? '' : ` · ${r.time}`}`}
-              amount={signed(r.amount)}
-              good={r.amount > 0}
-              journey={`row:${r.id}`}
-              onOpen={at => setPeek({ card: cardFor(r), at })}
-            />
-          ));
-  const insight = (id: string, extra?: { onDismiss?: boolean }) => {
-    const i = h.insights.find(x => x.id === id);
-    if (!i || put.includes(id) || filter === 'In' || filter === 'Out' || filter === 'Chats') return null;
-    /* where the money went has its own page; the others hand their thing to Beetle */
-    return (
-      <Insight
-        kicker={i.kicker}
-        body={i.body}
-        action={i.action}
-        to={id === 'spend' ? '/answer' : undefined}
-        onAction={() => askFor(i.action)}
-        onDismiss={extra?.onDismiss ? () => away(id) : undefined}
-      />
-    );
-  };
-  /* an insight's button hands the thing to Beetle */
-  const askFor = (action: string) => {
-    show(true, { greet: false });
-    if (stale.current) {
-      talk.reset();
-      current.current = null;
-      stale.current = false;
-    }
-    void talk.ask({ text: action });
-  };
-  /* the chats, newest first, in All and under their own chip */
-  const chatRows = (day: 'today' | 'yesterday') => (filter === 'All' || filter === 'Chats' ? chats.filter(c => c.day === day).map(c => <ChatRow key={c.id} chat={c} onPress={() => reopen(c)} />) : []);
-  const todayChats = chatRows('today');
-
-  const empty = !ledger.length;
-  const dayHead = (sub: string) => (
-    <View style={{ gap: space.s2 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', height: 28 }}>
-        <Head style={{ flex: 1 }}>Activities</Head>
-        <Tap ref={seeAll.ref} accessibilityRole="button" onPress={seeAll.onPress} style={[{ flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 8 }, seeAll.style]}>
-          <Label style={{ color: colour.accentDeep }}>See all</Label>
-          <Icon name="chevron" size={12} colour={colour.accentDeep} />
-        </Tap>
-      </View>
-      <Meta tone={empty ? 'tertiary' : 'secondary'}>{sub}</Meta>
-    </View>
-  );
-  const chips = (
-    <View style={{ marginTop: -8 }}>
-      <Filters options={FILTERS} value={filter} onChange={v => setFilter(v as Filter)} />
-    </View>
-  );
+  const DW = drawerWidth(W);
 
   return (
     <View style={{ flex: 1, backgroundColor: colour.surface }}>
-      {/* the card at the top is black, so the clock and the battery go light here */}
-      <StatusBar style="light" />
       {/* everything that recedes when something here leads away; the sheets over it stay sharp */}
       <Animated.View style={[{ flex: 1 }, receding]}>
         <Animated.ScrollView
@@ -701,104 +657,48 @@ function HomeScreen() {
               dollars={setup.done ? `~ ${Math.round(balance / rate).toLocaleString('en-NG')} USD` : 'New account'}
               hint={hint}
               onReceive={openReceive}
-              onNew={startNew}
               flash={flash}
               onDollars={() => router.push(setup.done ? '/dollars' : '/way-in?setup=1')}
               chipLabel={setup.done ? undefined : 'New account'}
-              chat={<Chat talk={talk} active={opened} top={haze + 8} bottom={FOOT_BAND - 8} confirm={confirmWithPasscode} saved={saved} onSaved={(ask, kind, at) => setPick({ ask, kind, at })} />}
+              chat={
+                <Chat
+                  talk={talk}
+                  active={opened}
+                  top={haze + 8}
+                  bottom={FOOT_BAND - 8}
+                  confirm={confirmWithPasscode}
+                  saved={saved}
+                  onSaved={(ask, kind, at) => setPick({ ask, kind, at })}
+                  onReceipt={(card, at) => {
+                    /* only while the chat is open: the card may have closed while the line was being measured */
+                    if (!openedRef.current) return;
+                    Keyboard.dismiss();
+                    setChatPeek({ card, at });
+                  }}
+                />
+              }
               foot={<AskBar ref={input} value={draft} onChange={setDraft} onSubmit={send} onCamera={toCamera} />}
             />
-            <View
-              style={{
-                paddingHorizontal: frame.sidePad,
-                paddingTop: 32,
-                gap: frame.columnGap,
-              }}
-            >
-              {empty ? (
-                <>
-                  {dayHead('Nothing to notice yet.')}
-                  {chips}
-                  <Animated.View style={[{ gap: frame.columnGap }, dayStyle]}>
-                    {todayChats.length ? (
-                      <>
-                        <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
-                          Today
-                        </Meta>
-                        <View style={{ gap: 34 }}>{todayChats}</View>
-                      </>
-                    ) : filter === 'Chats' ? (
-                      <Meta tone="tertiary">No chats yet. Pull the card down to start one.</Meta>
-                    ) : null}
-                    {filter === 'Chats' ? null : (
-                      <>
-                        <Tile
-                          onPress={() => router.push('/ways')}
-                          lead={
-                            <View
-                              style={{
-                                width: 48,
-                                height: 48,
-                                borderRadius: 24,
-                                backgroundColor: colour.ink,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                              }}
-                            >
-                              <Head tone="inverse">₦</Head>
-                            </View>
-                          }
-                          title="Nothing has moved yet"
-                          sub="Your first transfer shows up here"
-                        />
-                        <View style={{ alignSelf: 'center', marginTop: 4 }}>
-                          <Button label="Receive" leading="receive-filled" badge size={40} full={false} onPress={openReceive} />
-                        </View>
-                      </>
-                    )}
-                  </Animated.View>
-                </>
-              ) : (
-                <>
-                  {dayHead('What I noticed, and every naira that moved.')}
-                  {chips}
-                  <Animated.View style={[{ gap: frame.columnGap }, dayStyle]}>
-                    <View style={{ gap: 8 }}>
-                      <Meta tone="secondary" style={{ fontSize: 16, lineHeight: 24 }}>
-                        Today
-                      </Meta>
-                      {h.health !== null && filter !== 'Chats' ? <ScoreRow score={h.health} title="Money health" sub={h.healthMove} onPress={() => router.push('/health')} /> : null}
-                    </View>
-                    {todayChats.length ? <View style={{ gap: 34 }}>{todayChats}</View> : filter === 'Chats' ? <Meta tone="tertiary">No chats yet. Pull the card down to start one.</Meta> : null}
-                    {insight('topup', { onDismiss: true })}
-                    <View style={{ gap: 34 }}>{rows('today', 0, 4)}</View>
-                    {insight('data')}
-                    <View style={{ gap: 34 }}>{rows('today', 4)}</View>
-                    {insight('changes')}
-                    {h.ledger.length && filter !== 'Chats' ? (
-                      <>
-                        <Meta tone="secondary">Yesterday</Meta>
-                        <Tile to="/card" plain go lead={<Mark glyph="card" />} title="Your card is ready" sub="Spend online anywhere" />
-                        <View style={{ gap: 34 }}>{rows('yesterday', 0, 2)}</View>
-                        {insight('spend')}
-                        <View style={{ gap: 34 }}>{rows('yesterday', 2)}</View>
-                      </>
-                    ) : null}
-                    {h.footer && filter !== 'Chats' ? <Meta tone="tertiary">{h.footer}</Meta> : null}
-                  </Animated.View>
-                </>
-              )}
-            </View>
+            {/* the four cards, going as the card opens */}
+            <Animated.View style={[{ paddingTop: GRID_TOP }, gridStyle]} pointerEvents={opened ? 'none' : 'auto'}>
+              <Grid width={W} accountNumber={account.accountNumber} demo={!!account.demo} moves={moves} borrowing={setup.done} />
+            </Animated.View>
           </Pane>
         </Animated.ScrollView>
 
-        {/* the day below the open card: a tap on it, or a push up, brings the card back up */}
+        {/* below the open card: a tap on it, or a push up, brings the card back up */}
         {opened ? (
           <Animated.View style={[{ position: 'absolute', left: 0, right: 0, bottom: 0 }, veilStyle]}>
             <GestureDetector gesture={veilGesture}>
-              <View accessibilityRole="button" accessibilityLabel="Back to the day" style={{ flex: 1 }}>
-                {/* the shortcuts under the chips: each hands its thing to the chat
-                  above; a push up that starts on one still closes the card */}
+              {/* a screen reader's activate lands at the middle, on the shortcuts' row, so it closes the card by name */}
+              <View
+                accessibilityRole="button"
+                accessibilityLabel="Back to home"
+                accessibilityActions={[{ name: 'activate' }]}
+                onAccessibilityAction={e => e.nativeEvent.actionName === 'activate' && close()}
+                style={{ flex: 1 }}
+              >
+                {/* the shortcuts: each opens a page of its own; a push up that starts on one still closes the card */}
                 <Animated.View
                   style={[
                     {
@@ -825,6 +725,9 @@ function HomeScreen() {
           </Animated.View>
         ) : null}
       </Animated.View>
+      {/* the chats: the soft edge down the open chat, and the drawer it brings in */}
+      {opened ? <ChatsEdge d={drawerIn} width={DW} style={edgeStyle} onOpen={() => setDrawer(true)} /> : null}
+      {opened ? <ChatsDrawer d={drawerIn} open={drawer} width={DW} chats={chats} currentId={current.current?.id} onNew={startNew} onPick={switchTo} onClose={() => setDrawer(false)} /> : null}
       {/* the passcode, on its sheet over everything, before money moves */}
       {guard ? (
         <PasscodeSheet
@@ -839,7 +742,6 @@ function HomeScreen() {
         />
       ) : null}
       {receive && account ? <ReceiveSheet account={account} onDismiss={() => setReceive(false)} /> : null}
-      {peek ? <ReceiptPeek card={peek.card} at={peek.at} onClose={() => setPeek(null)} /> : null}
       {pick ? (
         <SavedPeek
           kind={pick.kind}
@@ -853,6 +755,7 @@ function HomeScreen() {
           onClose={() => setPick(null)}
         />
       ) : null}
+      {chatPeek ? <ChatReceipt card={chatPeek.card} at={chatPeek.at} onClose={() => setChatPeek(null)} /> : null}
     </View>
   );
 }
@@ -898,33 +801,4 @@ function whoFor(panel: Panel): { name: string; detail?: string } {
   return { name: panel.title };
 }
 
-/* A chat in the day: the mark, what it was about, what it came to, and
-   when. One Beetle started and you have not opened yet carries a dot. */
-function ChatRow({ chat, onPress }: { chat: ChatRecord; onPress: () => void }) {
-  return (
-    <Tap accessibilityRole="button" accessibilityLabel={chat.title} onPress={onPress} style={{ flexDirection: 'row', alignItems: 'center', gap: space.s5 }}>
-      <Icon name="mark" size={20} colour={colour.accent} />
-      <View style={{ flex: 1, gap: 2 }}>
-        <RowText numberOfLines={1}>{chat.title}</RowText>
-        <Meta tone="secondary" numberOfLines={1}>
-          {chat.startedBy === 'beetle' ? 'Beetle' : 'You'} · {chat.detail}
-        </Meta>
-      </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-        {chat.unread ? (
-          <View
-            style={{
-              width: 6,
-              height: 6,
-              borderRadius: 3,
-              backgroundColor: colour.accent,
-            }}
-          />
-        ) : null}
-        <Label tone="secondary">{chat.time}</Label>
-      </View>
-    </Tap>
-  );
-}
-
-export { CLOSED_H };
+export { CLOSED_H, EDGE };

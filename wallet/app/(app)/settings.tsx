@@ -1,7 +1,8 @@
-/* Settings, from the mark at the top left of home. See src/features/settings. */
+/* Settings is the third of the three pages on home; this address turns to
+   it, with Your details open where it is asked for. See src/features/tabs. */
 import React from 'react';
-import { Settings } from '../../src/features/settings/Settings';
+import { TabRedirect } from '../../src/features/tabs/Redirect';
 
 export default function SettingsRoute() {
-  return <Settings />;
+  return <TabRedirect tab="settings" />;
 }

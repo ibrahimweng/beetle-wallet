@@ -12,6 +12,7 @@ import { useSessionGuard } from '../onboarding/useGuard';
 import { askHome } from '../more/More';
 import { useFoot } from '../more/Foot';
 import { usePrefs, type Prefs } from './prefs';
+import { openTab } from '../tabs/tabs';
 
 export const INSTRUCTIONS: { id: keyof Prefs['rules']; title: string; when: string; log: string; /** only listed once it is on */ offered?: boolean }[] = [
   { id: 'payday', title: 'Move ₦20,000 to Holiday on payday', when: 'The day your salary lands.', log: 'Moved 4 times · ₦80,000 put aside' },
@@ -69,7 +70,7 @@ export function Rules() {
                     <Meta tone="secondary" style={{ flex: 1 }}>
                       {i.log}
                     </Meta>
-                    <Tap accessibilityRole="button" accessibilityLabel={`See log: ${i.title}`} onPress={() => router.push('/activities')}>
+                    <Tap accessibilityRole="button" accessibilityLabel={`See log: ${i.title}`} onPress={() => openTab(router, 'activities')}>
                       <Label tone="accent">See log</Label>
                     </Tap>
                   </View>

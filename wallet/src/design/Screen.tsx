@@ -37,12 +37,14 @@ type ScreenProps = {
   wash?: { tone: string; height?: number };
   /* the way-in frames hang their column off the dock rather than the status bar */
   sink?: boolean;
+  /* no white of its own: the column over whatever it opens over (a receipt over its page) */
+  bare?: boolean;
 };
 
-function Body({ children, head, dock, still = false, wash, sink = false, leaving = false }: ScreenProps) {
+function Body({ children, head, dock, still = false, wash, sink = false, leaving = false, bare = false }: ScreenProps) {
   const receding = useRecession();
   return (
-    <View style={s.screen}>
+    <View style={[s.screen, bare && s.bare]}>
       {wash ? <Wash tone={wash.tone} height={wash.height} /> : null}
       <Animated.View style={[{ flex: 1 }, receding]}>
         <ScrollView style={{ flex: 1 }} contentContainerStyle={[s.body, sink && s.sunk]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
@@ -116,6 +118,7 @@ export function Note({ tone = 'secondary', children }: { tone?: 'secondary' | 'b
 
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colour.surface },
+  bare: { backgroundColor: 'transparent' },
   sunk: { flexGrow: 1, justifyContent: 'flex-end' },
   body: {
     paddingHorizontal: frame.sidePad,

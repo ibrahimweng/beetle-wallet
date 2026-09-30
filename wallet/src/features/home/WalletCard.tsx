@@ -13,7 +13,7 @@ import { LayoutChangeEvent, StyleSheet, View, useWindowDimensions } from 'react-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, type PanGesture } from 'react-native-gesture-handler';
 import Animated, { SharedValue, interpolate, runOnJS, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
-import { Caption, Icon, Label, Swap, Tap, blurred, colour, dark, keys, motion, settle as settleCurve, soft, useStill } from '../../design';
+import { Caption, Icon, Label, Swap, Tap, blurred, colour, dark, keys, motion, settle as settleCurve, soft, swipes, useStill } from '../../design';
 import { useDeparture } from '../../design/journey';
 import { Frost } from './Frost';
 
@@ -92,6 +92,10 @@ export function useCardDrag({
           else if (dy < -SLACK) state.activate();
           else if (dy > SLACK) state.fail();
         })
+        /* the drag is not a tap on whatever it ends over */
+        .onStart(() => {
+          runOnJS(swipes.start)();
+        })
         .onUpdate(e => {
           const travel = Math.max(1, openH.value - closedH);
           open.value = clamp(startOpen.value + e.translationY / travel, 0, 1);
@@ -102,6 +106,7 @@ export function useCardDrag({
           const to = v > 400 ? 1 : v < -400 ? 0 : open.value > (opening ? 0.35 : 0.65) ? 1 : 0;
           open.value = withSpring(to, keys);
           runOnJS(settle)(to === 1);
+          runOnJS(swipes.end)();
         })
         .onFinalize((_, success) => {
           if (!success && startOpen.value !== open.value) {
@@ -139,7 +144,7 @@ export type CardProps = {
   whole: string;
   kobo: string;
   dollars: string;
-  /** New, at the top right of the open card: this chat filed, a fresh one */
+  /** New, at the top right of the open card: this chat filed, a fresh one. Home keeps New in the chats drawer instead. */
   onNew?: () => void;
   hint: string;
   onReceive: () => void;
@@ -314,13 +319,15 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
               <Label style={{ color: '#ffffff' }}>Wallet</Label>
             </Animated.View>
             <View style={{ flex: 1 }} />
-            {/* New, at the top right once the card is the chat: this one is filed and a fresh one opens */}
-            <Animated.View style={coming} pointerEvents={opened ? 'auto' : 'none'}>
-              <Tap accessibilityRole="button" accessibilityLabel="New chat" onPress={onNew} style={s.newChat} testID="new">
-                <Icon name="plus" size={16} colour="#ffffff" />
-                <Label style={{ color: '#ffffff' }}>New</Label>
-              </Tap>
-            </Animated.View>
+            {/* New, at the top right once the card is the chat, where a screen gives one: home keeps it in the chats drawer */}
+            {onNew ? (
+              <Animated.View style={coming} pointerEvents={opened ? 'auto' : 'none'}>
+                <Tap accessibilityRole="button" accessibilityLabel="New chat" onPress={onNew} style={s.newChat} testID="new">
+                  <Icon name="plus" size={16} colour="#ffffff" />
+                  <Label style={{ color: '#ffffff' }}>New</Label>
+                </Tap>
+              </Animated.View>
+            ) : null}
           </View>
         </View>
       </GestureDetector>

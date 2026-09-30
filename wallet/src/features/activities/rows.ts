@@ -4,7 +4,8 @@
    still yours. */
 import type { LedgerRow } from '../home/account';
 
-export type Segment = 'All' | 'In' | 'Out';
+export type Segment = 'All' | 'Insights' | 'In' | 'Out';
+export const SEGMENTS: Segment[] = ['All', 'Insights', 'In', 'Out'];
 
 const minutes = (t: string) => {
   const [h, m] = t.split(':').map(Number);
@@ -12,6 +13,7 @@ const minutes = (t: string) => {
 };
 
 export function activityRows(ledger: LedgerRow[], day: LedgerRow['day'], segment: Segment): LedgerRow[] {
+  if (segment === 'Insights') return [];
   const inDay = ledger.filter(r => r.day === day && r.kind !== 'saving').filter(r => (segment === 'All' ? true : segment === 'In' ? r.amount > 0 : r.amount < 0));
   const byTime = (a: LedgerRow, b: LedgerRow) => minutes(b.time) - minutes(a.time);
   const open = inDay.filter(r => r.status !== 'done').sort(byTime);

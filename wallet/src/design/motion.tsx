@@ -14,7 +14,7 @@
    Reanimated runs these on the UI thread, so a screen still animates smoothly
    while JavaScript is busy putting the next one together. (No DOM animation
    library can be used here: on a phone there are no DOM nodes to animate.) */
-import React, { ReactNode, useCallback, useEffect, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, Platform, Pressable, PressableProps, StyleProp, View, ViewStyle } from 'react-native';
 import Animated, { AnimatedStyle, Easing, runOnJS, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 
@@ -313,13 +313,59 @@ export const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 /* Anything you can tap. A drop-in for Pressable that dips under the finger
    and springs back, so the press is answered before whatever it asks for
    arrives. Use it wherever a tap leads somewhere. */
+/* A sideways swipe that moves something (the pages, a card's strip) is not
+   a tap on what the finger let go over. On a phone the swipe cancels the
+   touch under it; the web does not, so a swipe says when it starts and
+   ends, and a tap that lands during one, or just after, is let go. */
+let swiping = false;
+let swipeEnded = 0;
+export const swipes = {
+  start() {
+    swiping = true;
+  },
+  end() {
+    swiping = false;
+    swipeEnded = Date.now();
+  },
+  /** a tap now would be the end of a swipe */
+  blocking: () => swiping || Date.now() - swipeEnded < 250,
+};
+
+/* The same on the web for a drag that nothing takes: a phone lets a press go
+   once the finger leaves it, the web presses whatever the pointer went down
+   on however far it went. A click let go this far from where it went down is
+   not a tap. A click from the keyboard has no place, and always counts. */
+const DRIFT = 16;
+type Spot = { x: number; y: number } | null;
+const spotOf = (e: GestureResponderEvent): Spot => {
+  const n = e?.nativeEvent as { pageX?: number; pageY?: number; detail?: number } | undefined;
+  if (!n || !Number.isFinite(n.pageX) || !Number.isFinite(n.pageY)) return null;
+  return { x: n.pageX!, y: n.pageY! };
+};
+const drifted = (from: Spot, e: GestureResponderEvent) => {
+  if (Platform.OS !== 'web' || !from || (e?.nativeEvent as { detail?: number } | undefined)?.detail === 0) return false;
+  const to = spotOf(e);
+  return !!to && Math.hypot(to.x - from.x, to.y - from.y) > DRIFT;
+};
+
 export function Tap({ style, scale, children, ref, ...rest }: PressableProps & { scale?: number; style?: StyleProp<AnimatedStyle<ViewStyle>>; ref?: React.Ref<View> }) {
   const tap = useTap(scale);
+  /** where the pointer went down, on the web */
+  const from = useRef<Spot>(null);
   return (
     <AnimatedPressable
       ref={ref}
       {...rest}
+      onPress={
+        rest.onPress
+          ? (e: GestureResponderEvent) => {
+              if (swipes.blocking() || drifted(from.current, e)) return;
+              rest.onPress?.(e);
+            }
+          : undefined
+      }
       onPressIn={(e: GestureResponderEvent) => {
+        from.current = spotOf(e);
         tap.onPressIn();
         rest.onPressIn?.(e);
       }}

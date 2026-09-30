@@ -22,7 +22,7 @@ import { PasscodeSheet, lockedFor } from '../passcode';
 import { LAB } from '../../lab/enabled';
 import { clock } from '../../lib/clock';
 import { naira } from '../../lib/format';
-import { DEMO_SUMS, FEEDS, GOAL, NO_SUMS, feedRow, goalLine, pctOf, putAside, type FeedId } from './goal';
+import { FEEDS, GOAL, feedRow, goalLine, standing, type FeedId } from './goal';
 import { goalDraft } from './hand';
 import { FeedSheet } from './FeedSheet';
 
@@ -40,15 +40,9 @@ export function Goal() {
   const [amount, setAmount] = useState(0);
   const [guard, setGuard] = useState(false);
 
-  const has = !!account && (account.demo || prefs.goal);
-  const paused = has && (prefs.tight || (LAB && asked.paused === '1'));
   const on: Record<FeedId, boolean> = { payday: prefs.rules.payday, roundups: prefs.feeds.roundups, cashback: prefs.feeds.cashback };
-  const sums = account?.demo ? DEMO_SUMS : NO_SUMS;
-  /* what was put in by hand on this phone, less what was taken back */
-  const added = moves.filter(r => r.kind === 'saving' && r.name === GOAL.name).reduce((a, r) => a - r.amount, 0);
-  const aside = has ? putAside(sums, added) : 0;
-  const pct = pctOf(aside);
-  const state = !has ? 'none' : paused ? 'paused' : aside ? 'running' : 'empty';
+  /* what was put in by hand on this phone counts, less what was taken back */
+  const { has, paused, sums, aside, pct, state } = standing({ demo: !!account?.demo, goal: !!account && prefs.goal, tight: prefs.tight || (LAB && asked.paused === '1'), moves });
 
   /* back in front: the figure the keypad handed back goes to the passcode */
   useFocusEffect(

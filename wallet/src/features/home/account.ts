@@ -103,21 +103,3 @@ export function holdingsFor(account: Account): Holdings {
   }
   return { everyday: 0, dollars: 0, rate: 1552, health: null, healthMove: '', ledger: [], insights: [], footer: null };
 }
-
-/* The day at a glance, the way the home frame draws it: what settled, once
-   per name, led by the biggest thing that moved, then the rest in the order
-   it happened, with what you put away at the end. Yesterday is closed and
-   keeps the ledger's own order. */
-export function glance(ledger: LedgerRow[], day: LedgerRow['day'], filter: 'All' | 'Insights' | 'In' | 'Out'): LedgerRow[] {
-  const seen = new Set<string>();
-  const list = ledger
-    .filter(r => r.day === day && r.status === 'done')
-    .filter(r => !seen.has(r.name) && seen.add(r.name))
-    .filter(r => (filter === 'All' ? true : filter === 'In' ? r.amount > 0 : filter === 'Out' ? r.amount < 0 : false));
-  if (day !== 'today' || list.length < 2) return list;
-  const rest = [...list];
-  const bigAt = rest.reduce((m, r, i) => (Math.abs(r.amount) > Math.abs(rest[m]?.amount ?? 0) ? i : m), 0);
-  const [big] = rest.splice(bigAt, 1);
-  const asItHappened = rest.reverse();
-  return [big!, ...asItHappened.filter(r => r.kind !== 'saving'), ...asItHappened.filter(r => r.kind === 'saving')];
-}

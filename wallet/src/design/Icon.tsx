@@ -1,7 +1,7 @@
 /* A glyph from the Figma set. The vectors are the exported ones, so an icon
    here is the same shape as the icon in the file. `colour` maps onto
    currentColor inside the SVG, which is how the set is drawn. */
-import React from 'react';
+import React, { useId } from 'react';
 import { View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { ICONS, IconName } from '../icons';
@@ -10,11 +10,16 @@ import { colour as palette } from './tokens';
 export type IconProps = { name: IconName; size?: number; colour?: string };
 
 export function Icon({ name, size = 24, colour = palette.ink }: IconProps) {
-  const body = ICONS[name];
-  if (!body) {
+  /* a solid glyph's details are cut out through a mask; each glyph drawn has
+     its own, since a page to the side is taken out of the web's page and a
+     mask shared by id would go with it */
+  const cut = 'cut' + useId().replace(/[^a-zA-Z0-9]/g, '');
+  const raw: string | undefined = ICONS[name];
+  if (!raw) {
     if (__DEV__) console.warn(`No icon called "${name}".`);
     return null;
   }
+  const body = raw.includes('__CUT__') ? raw.split('__CUT__').join(cut) : raw;
   const xml = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}" fill="none">${body}</svg>`;
   /* A glyph is a fixed size, not a share of what is left. Without the box
      around it a row that runs tight — the dock with a back arrow and a button

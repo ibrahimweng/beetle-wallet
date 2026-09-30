@@ -443,6 +443,127 @@ pieces the two share; the first question is the chat's own state, drawn
 on the card as every chat is, with a lock line under the bubble as the
 frame draws it.
 
+## Round 9 · Three pages, the home grid, and the receipt over its page
+
+Asked by the owner after testing on the phone, with four questions
+answered. The interface, as it is to be:
+
+- **Three pages side by side**, in the bar's order: Home, Activities,
+  Settings. A swipe to the left goes forward, a swipe to the right goes
+  back; the pages follow the finger and settle on the nearest one. A tap
+  on a glyph goes there too. The bar is drawn once, over all three: the
+  page you are on in black, the others grey, the gear solid like the house
+  and the clock, and the plus with More. It does not move or redraw as the
+  pages change. A page deeper than these (a receipt, Lock, Send money)
+  keeps Back at the bottom left as before.
+- **The pages stand still** while something is open over them: a
+  transaction's receipt (a swipe to the right closes it, as the back swipe
+  on an iPhone does), the chat on home, a sheet, More. A swipe that starts
+  on the Services card belongs to that card.
+- **Home** is the black card as it is (the word Wallet, the balance, the
+  dollars chip, Send, Receive, the pull down into the chat) and under it a
+  grid of four cards, two by two, laid out the way Fuse lays out its own:
+  pale grey, a 32 glyph at the top left, a small grey label and a bold
+  figure at the foot. **Savings** says the most: the goal's ring, what is
+  put aside against the target and the pace; Paused when money is tight;
+  Start a goal where there is none. **Loan** is what could be borrowed.
+  **Card** is the virtual card's last digits, or Frozen. **Services** holds
+  Airtime, Bills and Data to swipe through inside the card, three small
+  dots under them; a tap on the one showing opens it, a tap on the word
+  Services opens All services. No dollar wallet yet.
+- **Activities** takes everything the day held: Money health at the top,
+  All / Insights / In / Out, the insights among the lines, today and
+  yesterday, and Beetle's word at the foot. A line opens its receipt in
+  one step, grown out of the line.
+- **A receipt opens over the page it came from**, not instead of it: that
+  page blurred under a progressive gradient, see-through at the top and
+  solid at the foot, white over a light page and dark over the chat. Back,
+  or a swipe to the right, closes it.
+- **In the chat**, the receipt card opens in place a little larger, with a
+  few lines more than it had and Share: never a full or half screen. The
+  recent chats leave the day for a drawer in the chat: a soft gradient at
+  the screen's left edge while the chat is open, and a swipe to the right
+  brings the drawer in from the left with New chat at its top and the
+  chats under it. New leaves the header for it. None of this shows outside
+  the chat.
+- **More** opens over the page blurred under white: 76% at the top, as the
+  owner's Actions frame (204:85) sets it, and solid at the foot.
+
+Measured from Fuse (its home and More, frame by frame from the case
+study's video): the cards 167 × 150 on a 393 screen, 24 in from the sides
+and 10 apart; the glyph 32, 20 in from the corner; the label 14 grey and
+the figure 18 bold at the foot; More's backdrop nearly white, the page
+under it heavily blurred. On this app's grid: 20 in, 12 apart, 170 × 152,
+rounded 20.
+
+- [x] The pager and the fixed bar; the gear solid
+- [x] Activities off home; the chats into the drawer in the chat
+- [x] The grid: Savings, Loan, Card, Services with its three pages
+- [x] The receipt over its page, grown from the line; the chat's receipt
+      in place
+- [x] More's white backdrop
+- [x] Lab places, the Figma check, the walk, README, the artifact
+
+Settled while building:
+
+- **The gear.** The file has a solid house and a solid clock but only the
+  outline gear, and what it calls `settings-filled` is a receipt's slip —
+  which is what the bar showed after the last round. The solid gear is
+  derived from the file's own gear in `scripts/generate-icons.mjs`: its
+  cog filled, the same line run round its edge so it keeps the outline's
+  size, and its centre left open.
+- **The receipt over its page is not a route.** A native modal is
+  presented over the whole window on iOS, and would cover the one foot
+  that has to stay over it with Back and the ask bar; so the receipt over
+  Activities is drawn by the page itself, with Back closing it. The flows
+  that end on a receipt (Send money, a bill, data, the loan) still open
+  `/receipt/[id]` as a page, and so does The full receipt from the chat.
+- **In the chat the card opens where it is** and says a few lines more
+  (who and where, the fee, the balance after), with Share and the full
+  receipt: never a full or a half screen, as asked. A request's card is
+  not a receipt and still opens the request.
+- **Under the open card** only the row of shortcuts is left (the day was
+  there), so the chat is taller, as the frame draws it.
+- **A tap that ends a swipe is not a tap.** A phone cancels the touch under
+  a swipe; the web does not, so the pager, the Services card, the drawer
+  and the receipt's back swipe say when they swipe and `Tap` lets the tap
+  at its end go (`swipes` in `src/design/motion.tsx`). A drag that no
+  swipe takes is held the same way: on the web `Tap` lets a click go once
+  the pointer has travelled 16 from where it went down, as a phone lets a
+  press go once the finger leaves it.
+- **Back to home** is the white under the open card, clear of the
+  shortcuts: the gaps between them answer nothing, so a shortcut just
+  missed does not close the chat. A screen reader's activate, which would
+  land on that row, closes it by name.
+- **The drawer, put away, is not drawn**, so its shadow does not lie along
+  the screen's left edge over the white under the card.
+- **The bar stays put through the card's first-time dip.** It used to dip
+  with the card, and the pages turning in the middle of that dip made it
+  jump; it now goes down only as the card opens past the dip.
+- **A look at every screen, and what it found.** A solid glyph's details
+  are drawn in the file as white lines over the fill, and once every line
+  took the screen's colour they vanished into it: Lock and privacy showed a
+  blank square, the card a blob with its stripe's ends poking out, the
+  shield no tick, the clock no hands. They are cut out now, through a mask
+  (sixteen glyphs). The bar's clock is the file's own again and the three
+  glyphs are sized to look one size. On home the ring is the size of the
+  other glyphs, the card's glyph is its line one like the rest, and
+  Services is laid out like the other three (the glyph at the top, the
+  dots level with it, the word and the name at the foot); each card's last
+  line is short enough not to be cut on any phone. On Activities the four
+  segments span the column. A receipt opens over paper-white, near solid
+  from the top, so the page under it is no smudge behind its words. The
+  drawer's head sits level with the chat's, its edges on one line, and the
+  edge's light fades up and down as well as across.
+- **A browser will not blur through a clipped box.** More now sits outside
+  the foot's clip, and the pager does not clip on the web, so the veils
+  blur the page on the web as they do on the phone.
+
+Decided with the owner: the recent chats live in a drawer in the chat,
+not on Activities; the four cards are Savings, Loan, Card and Services,
+with airtime and bills under Services; the cards are equal and Savings is
+the richest of them; a transaction opens its receipt in one step.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

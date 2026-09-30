@@ -73,3 +73,20 @@ export function goalLine(state: 'none' | 'empty' | 'running' | 'paused'): string
   if (state === 'paused') return `You told me money is tight, so I have stopped moving it. Your date moves from ${GOAL.by} to ${GOAL.pausedBy}. Nothing has been taken and nothing has been charged.`;
   return `You are a fortnight ahead. Keep this up and you will get there on ${GOAL.early}.`;
 }
+
+export type GoalState = 'none' | 'empty' | 'running' | 'paused';
+
+/** Where the goal stands, as the goal page and home's Savings card both read
+    it: whether there is one, whether it waits while money is tight, what it
+    holds (the feeds' sums and what was put in by hand, less what was taken
+    back), how far along it is, and so which of the four words it gets. */
+export function standing({ demo, goal, tight, moves }: { demo: boolean; goal: boolean; tight: boolean; moves: { kind: string; name: string; amount: number }[] }) {
+  const has = demo || goal;
+  const paused = has && tight;
+  const sums = demo ? DEMO_SUMS : NO_SUMS;
+  const added = moves.filter(r => r.kind === 'saving' && r.name === GOAL.name).reduce((a, r) => a - r.amount, 0);
+  const aside = has ? putAside(sums, added) : 0;
+  const pct = pctOf(aside);
+  const state: GoalState = !has ? 'none' : paused ? 'paused' : aside ? 'running' : 'empty';
+  return { has, paused, sums, aside, pct, state };
+}

@@ -8,7 +8,7 @@
    it where the card offers something. The transfer states add a ring that
    turns while money is on its way, the steps it has taken, a tool at work
    on a light panel, and a few ways out on one card. */
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -502,8 +502,9 @@ export function Usage({ out, of, pct, note }: { out: string; of: string; pct: nu
 
 /* ---- the record ---- */
 
-/* All, In, Out: a grey pill with the chosen one on white, each 40 tall with
-   24 either side of its word, 4 in from the pill. */
+/* All, Insights, In, Out: a grey pill the width of the column, with the
+   chosen one on white, each an equal share of it and 40 tall, 4 in from the
+   pill, so its edges keep to the cards above and the lines below. */
 export function Segments({ options, value, onChange }: { options: string[]; value: string; onChange: (v: string) => void }) {
   return (
     <View style={s.segments} testID="segments">
@@ -542,20 +543,21 @@ export function HistoryRow({
   amount: string;
   status?: boolean;
   onPress?: () => void;
-  /** opened in place: given where the row is, so the detail can grow out of it */
-  onOpen?: (at: Rect) => void;
+  /** opened in place: given where the row is and where its figure is, so the receipt can grow out of it */
+  onOpen?: (at: Rect, figure: Rect) => void;
   /** the row's id on a journey, so it pulses when its receipt is left */
   journey?: string;
   /** the page a line that is not done leads to; its title arrives from the line's own words */
   to?: string;
 }) {
   const j = useDeparture({ id: journey ?? `row:${name}`, to, words: to ? detail.split(' · ')[0] : undefined });
+  const figure = useRef<View>(null);
   return (
     <Tap
       ref={j.ref}
       accessibilityRole="button"
       accessibilityLabel={name}
-      onPress={() => (onOpen ? void measure(j.ref).then(onOpen) : to ? void j.onPress() : onPress?.())}
+      onPress={() => (onOpen ? void Promise.all([measure(j.ref), measure(figure)]).then(([at, fig]) => onOpen(at, fig)) : to ? void j.onPress() : onPress?.())}
       style={[status ? s.statusRow : s.doneRow, j.style]}
       testID={status ? 'status-row' : 'done-row'}
     >
@@ -570,7 +572,9 @@ export function HistoryRow({
         <Row>{name}</Row>
         {status ? <Caption tone="secondary">{detail}</Caption> : <Meta tone="secondary">{detail}</Meta>}
       </View>
-      {status ? <Body tone="secondary">{amount}</Body> : <Row>{amount}</Row>}
+      <View ref={figure} collapsable={false}>
+        {status ? <Body tone="secondary">{amount}</Body> : <Row>{amount}</Row>}
+      </View>
       {status ? <Icon name="chevron" size={16} colour={colour.textTertiary} /> : null}
     </Tap>
   );
@@ -687,8 +691,8 @@ const s = StyleSheet.create({
   device: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 74 },
   tag: { height: 24, borderRadius: 12, paddingHorizontal: 12, justifyContent: 'center' },
   cap: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, height: 66 },
-  segments: { flexDirection: 'row', alignSelf: 'center', padding: 4, gap: 4, borderRadius: 24, backgroundColor: colour.surface2 },
-  segment: { height: 40, paddingHorizontal: 24, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  segments: { flexDirection: 'row', alignSelf: 'stretch', padding: 4, gap: 4, borderRadius: 24, backgroundColor: colour.surface2 },
+  segment: { flex: 1, height: 40, paddingHorizontal: 8, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   segmentOn: { backgroundColor: colour.surface },
   statusRow: { flexDirection: 'row', alignItems: 'center', height: 64, paddingLeft: 5, gap: 16, borderRadius: 16 },
   doneRow: { flexDirection: 'row', alignItems: 'center', height: 70, gap: 12, borderRadius: 16 },

@@ -21,6 +21,7 @@ import { groupAccount, naira } from '../../lib/format';
 import { draft } from './hand';
 import { TRY_FIRST, accountAge } from './rules';
 import { useBackToSend } from './Short';
+import { openTab } from '../tabs/tabs';
 
 export function Refused() {
   const app = useApp();
@@ -59,7 +60,7 @@ export function Refused() {
       `Tomorrow I ask you again about the ${naira(amount)} to ${groupAccount(number)}. Nothing has been sent, and nothing will be until you say so then.`,
     );
     toast('I will ask you again tomorrow. Nothing has been sent.');
-    router.dismissTo('/home');
+    openTab(router, 'home');
   };
   const itIsMe = () => {
     setGuard(false);
@@ -70,7 +71,7 @@ export function Refused() {
       `Face ID matched at ${at}. Someone from Beetle calls you within the hour to hear it from you, and the ${naira(amount)} goes after that call, not before.`,
     );
     toast('Face ID matched. A call from us comes within the hour; it goes after that.');
-    router.dismissTo('/home');
+    openTab(router, 'home');
   };
   return (
     <>

@@ -5,6 +5,7 @@ import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Pane, type Rect } from '../../design';
+import type { ReceiptCard as Card } from './conversation';
 import type { AskPanel, Beneficiaries } from '../../services';
 import { CardGesturesContext } from '../home/WalletCard';
 import { AskPanelView, type SavedKind } from './AskPanel';
@@ -25,6 +26,7 @@ export function Chat({
   confirm,
   saved,
   onSaved,
+  onReceipt,
 }: {
   talk: Conversation;
   active: boolean;
@@ -39,6 +41,8 @@ export function Chat({
   saved?: Beneficiaries;
   /** an ask panel's line under its fields: the list of them, grown from the line */
   onSaved?: (ask: AskPanel, kind: SavedKind, at: Rect) => void;
+  /** a receipt card, opened where it is */
+  onReceipt?: (card: Card, at: Rect) => void;
 }) {
   const list = useRef<ScrollView>(null);
   const count = talk.turns.length + (talk.thinking ? 1 : 0);
@@ -92,7 +96,7 @@ export function Chat({
           const card = t.block.card;
           body = (
             <View style={{ marginRight: PANEL_INSET }}>
-              <ReceiptCard card={card} to={card.to ?? `/receipt/${card.rowId}`} />
+              <ReceiptCard card={card} to={card.to ?? `/receipt/${card.rowId}`} onOpen={onReceipt && card.kind !== 'request' ? at => onReceipt(card, at) : undefined} />
             </View>
           );
         } else if (isAsk(t)) {

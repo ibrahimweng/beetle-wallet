@@ -175,6 +175,13 @@
   {
    "text": "Version 1.0.4",
    "why": "the version is the build's own"
+  },
+  {
+   "pieces": [
+    "Back",
+    "Ask bar"
+   ],
+   "why": "Activities and Settings are two of the three pages under the one bar now, which the owner asked to stay put across all three, so the foot is the bar rather than Back and the ask bar; a receipt opened over Activities brings Back and the ask bar"
   }
  ],
  "actions": [
@@ -206,6 +213,87 @@
   {
    "text": "History",
    "why": "the page is titled Activities, as the bar and the day call it"
+  },
+  {
+   "pieces": [
+    "Segment item",
+    "All",
+    "In",
+    "Out"
+   ],
+   "why": "the segments are four now, All, Insights, In and Out, since what Beetle noticed moved here from home, so each is narrower and sits further left than the frame's three, and they sit lower, under Money health"
+  },
+  {
+   "piece": "Card",
+   "nth": 0,
+   "why": "the segments' pill: the segments are four now, All, Insights, In and Out, since what Beetle noticed moved here from home, so each is narrower and sits further left than the frame's three"
+  },
+  {
+   "pieces": [
+    "Today",
+    "Row · ₦20,000",
+    "Glyph · wait-filled",
+    "Sarah Adeyemi",
+    "Still on its way · 14:22",
+    "−₦20,000",
+    "Glyph · chevron",
+    "Glyph · warn-filled",
+    "Chidi Okafor",
+    "Did not go · 13:40",
+    "₦12,000",
+    "Glyph · undo-filled",
+    "Musa Danjuma",
+    "Came back · 11:15",
+    "₦20,000",
+    "Row · −₦3,500",
+    "Icon",
+    "Glyph · card",
+    "Netflix",
+    "Monthly Subscription · 12:00",
+    "−₦3,500",
+    "Row · −₦8,000",
+    "John Doe",
+    "Grocery Shopping · 10:45",
+    "−₦8,000",
+    "Row · −₦50,000",
+    "Flat deposit · 09:14",
+    "−₦50,000",
+    "Row · −₦2,500",
+    "MTN",
+    "5GB for Mum · 08:02",
+    "−₦2,500",
+    "Row · −₦20,000",
+    "Rent part payment · 07:55",
+    "Yesterday",
+    "Row · +₦640,000",
+    "Pagrin Limited",
+    "August salary · 16:40",
+    "+₦640,000",
+    "Ikeja Electric",
+    "Meter 4457 8891 · 11:22",
+    "Row · −₦5,200",
+    "Virtual card · 09:00",
+    "−₦5,200",
+    "Glyph · mark"
+   ],
+   "why": "all of the record lives here now, none of it on home: Money health heads the page and what Beetle noticed sits among the lines, so every line after them sits lower than the frame draws it"
+  },
+  {
+   "piece": "Card",
+   "nth": 1,
+   "why": "Beetle's word at the foot, lower for Money health and what Beetle noticed above it"
+  },
+  {
+   "piece": "Card",
+   "nth": 2,
+   "why": "Beetle's word at the foot, lower for Money health and what Beetle noticed above it"
+  },
+  {
+   "pieces": [
+    "Back",
+    "Ask bar"
+   ],
+   "why": "Activities and Settings are two of the three pages under the one bar now, which the owner asked to stay put across all three, so the foot is the bar rather than Back and the ask bar; a receipt opened over Activities brings Back and the ask bar"
   }
  ],
  "answer": [
@@ -873,6 +961,27 @@
    "piece": "Card",
    "nth": 2,
    "why": "the bubble's words wrap into three lines in the frame's Inter and two in the check's font, so its height is not held"
+  },
+  {
+   "pieces": [
+    "Segment item",
+    "All",
+    "In",
+    "Out"
+   ],
+   "why": "the segments are four now, All, Insights, In and Out, since what Beetle noticed moved here from home, so each is narrower and sits further left than the frame's three"
+  },
+  {
+   "piece": "Card",
+   "nth": 0,
+   "why": "the segments' pill: the segments are four now, All, Insights, In and Out, since what Beetle noticed moved here from home, so each is narrower and sits further left than the frame's three"
+  },
+  {
+   "pieces": [
+    "Back",
+    "Ask bar"
+   ],
+   "why": "Activities and Settings are two of the three pages under the one bar now, which the owner asked to stay put across all three, so the foot is the bar rather than Back and the ask bar; a receipt opened over Activities brings Back and the ask bar"
   }
  ],
  "finish": [
@@ -934,6 +1043,60 @@
   {
    "piece": "Frame 2",
    "why": "the owner took the mark out of the card's header: Settings is the gear on the bar, so the header keeps only the word Wallet"
+  },
+  {
+   "pieces": [
+    "Button",
+    "Receive",
+    "Button · $",
+    "Activities",
+    "See all",
+    "What I noticed, and every na",
+    "Chip · All",
+    "All",
+    "Chip · Insights",
+    "Insights",
+    "Chip · In",
+    "Chip · Out"
+   ],
+   "why": "the owner moved the day off home: its head, See all, the chips and the empty tile are Activities' now (the Nothing yet frame), and home holds the grid of Savings, Loan, Card and Services under the card"
+  },
+  {
+   "piece": "Card",
+   "nth": 1,
+   "why": "the owner moved the day off home: its head, See all, the chips and the empty tile are Activities' now (the Nothing yet frame), and home holds the grid of Savings, Loan, Card and Services under the card"
+  },
+  {
+   "text": "Nothing has moved yet",
+   "why": "the owner moved the day off home: its head, See all, the chips and the empty tile are Activities' now (the Nothing yet frame), and home holds the grid of Savings, Loan, Card and Services under the card"
+  },
+  {
+   "text": "Your first transfer shows up here",
+   "why": "the owner moved the day off home: its head, See all, the chips and the empty tile are Activities' now (the Nothing yet frame), and home holds the grid of Savings, Loan, Card and Services under the card"
+  },
+  {
+   "text": "Activities",
+   "why": "the owner moved the day off home: its head, See all, the chips and the empty tile are Activities' now (the Nothing yet frame), and home holds the grid of Savings, Loan, Card and Services under the card"
+  },
+  {
+   "text": "See all",
+   "why": "the owner moved the day off home: its head, See all, the chips and the empty tile are Activities' now (the Nothing yet frame), and home holds the grid of Savings, Loan, Card and Services under the card"
+  },
+  {
+   "text": "All",
+   "why": "the owner moved the day off home: its head, See all, the chips and the empty tile are Activities' now (the Nothing yet frame), and home holds the grid of Savings, Loan, Card and Services under the card"
+  },
+  {
+   "text": "Insights",
+   "why": "the owner moved the day off home: its head, See all, the chips and the empty tile are Activities' now (the Nothing yet frame), and home holds the grid of Savings, Loan, Card and Services under the card"
+  },
+  {
+   "text": "In",
+   "why": "the owner moved the day off home: its head, See all, the chips and the empty tile are Activities' now (the Nothing yet frame), and home holds the grid of Savings, Loan, Card and Services under the card"
+  },
+  {
+   "text": "Out",
+   "why": "the owner moved the day off home: its head, See all, the chips and the empty tile are Activities' now (the Nothing yet frame), and home holds the grid of Savings, Loan, Card and Services under the card"
   }
  ],
  "firstask": [

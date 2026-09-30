@@ -13,6 +13,7 @@ import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { PASSCODE_WORDS, passcodeProblem } from '../onboarding/validation';
 import { usePrefs } from './prefs';
+import { openTab } from '../tabs/tabs';
 
 const STEPS: { icon: IconName; label: string }[] = [
   { icon: 'phone-filled', label: 'Frozen' },
@@ -62,7 +63,7 @@ export function NewCode() {
       if (frozen) {
         set({ frozen: false });
         toast('Your passcode is new, and the money is yours again. Sending waits twelve hours.');
-        router.dismissTo('/home');
+        openTab(router, 'home');
       } else {
         toast('Your passcode is new.');
         router.back();

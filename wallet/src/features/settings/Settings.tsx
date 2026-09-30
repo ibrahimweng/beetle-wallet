@@ -1,19 +1,19 @@
-/* Settings, from its frame: the title, the Plus card, and three groups of
-   rows — what keeps the money yours, your account, about — with what each
-   is set to at its end, and the version at the foot. Every row leads
-   somewhere: its own page, Your details on its sheet, or the chat for what
-   Beetle answers itself. The dock is the way back, the ask bar, and the
-   camera. A long press on the version line opens the lab, in a build that
-   has one. */
-import React, { useState } from 'react';
+/* Settings, the third of the three pages, from its frame: the title, the
+   Plus card, and three groups of rows — what keeps the money yours, your
+   account, about — with what each is set to at its end, and the version at
+   the foot. Every row leads somewhere: its own page, Your details on its
+   sheet, or the chat for what Beetle answers itself. The foot is the bar,
+   as on home and Activities. A long press on the version line opens the
+   lab, in a build that has one. */
+import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import { Arrive, Card, Icon, Meta, Row, Screen, SectionLabel, SettingRow, Tap, Title, colour, toast } from '../../design';
 import { useFoot } from '../more/Foot';
 import { useApp } from '../onboarding/store';
-import { useSessionGuard } from '../onboarding/useGuard';
 import { askHome } from '../more/More';
+import { useHoldPages, usePage } from '../tabs';
 import { Details } from './Details';
 import { rulesRunning, usePrefs } from './prefs';
 import { LAB } from '../../lab/enabled';
@@ -21,20 +21,20 @@ import { LAB } from '../../lab/enabled';
 export function Settings() {
   const app = useApp();
   const router = useRouter();
-  const ok = useSessionGuard();
+  const { active } = usePage();
   const asked = useLocalSearchParams<{ details?: string }>();
   const [details, setDetails] = useState(asked.details === '1');
+  /* Your details asked for again, from a link, once the pages are up */
+  useEffect(() => {
+    if (asked.details === '1') setDetails(true);
+  }, [asked.details]);
   const account = app.session?.account;
   const { prefs } = usePrefs(account?.accountNumber);
-  /* the foot: Back, and the ask bar with this page's question */
-  useFoot({
-    kind: 'ask',
-    placeholder: 'Ask me to change something',
-    onAsk: q => router.push({ pathname: '/home', params: { say: q } }),
-    onScan: () => router.push('/scan'),
-    veil: details ? 'away' : undefined,
-  });
-  if (!ok || !account) return null;
+  /* the foot: the bar, going out of the way under Your details */
+  useFoot({ kind: 'bar', veil: details ? 'away' : undefined }, active);
+  /* the pages stand still while Your details is up */
+  useHoldPages('details', details);
+  if (!app.ready || !account) return null;
 
   const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
   const ask = (q: string) => () => askHome(router, q);

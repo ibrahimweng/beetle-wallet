@@ -489,6 +489,7 @@ export function Insight({
   onDismiss,
   children,
   to,
+  inline = false,
 }: {
   kicker: string;
   body?: string;
@@ -498,6 +499,8 @@ export function Insight({
   children?: ReactNode;
   /** the page the action leads to */
   to?: string;
+  /** set among the lines of a record rather than close under a line of the day */
+  inline?: boolean;
 }) {
   const j = useDeparture({ id: `insight:${kicker}`, to });
   return (
@@ -511,9 +514,10 @@ export function Insight({
         borderRadius: radius.lg,
         padding: space.s4,
         gap: space.s3,
-        marginTop: -11,
-        marginBottom: 11,
+        marginTop: inline ? 8 : -11,
+        marginBottom: inline ? 16 : 11,
       }}
+      testID="insight"
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s2 }}>
         <Icon name="mark" size={32} colour={colour.accent} />

@@ -13,13 +13,16 @@
    plus does. The dock's numbers are the frames': 104 tall, the row 56 and
    24 above and below, 16 in from either side, Back 44, the bar 48, the
    button 56; the slide is 60 tall and 20 in, as the Send money frame
-   draws it. */
+   draws it. Home, Activities and Settings are three pages of one screen
+   (see features/tabs): the bar is drawn once over all three, its glyphs
+   turn the pages, and the page showing is the one whose foot is said. */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Keyboard, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useNavigation, usePathname, useRouter } from 'expo-router';
+import { openTab, tabs, useHoldPages, useTab, type Tab } from '../tabs';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { SharedValue, runOnJS, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
-import { ActionButton, Body, Button, Icon, Row, Tap, blurred, colour, frame, keys, motion, settle, useDeparture, useStill, type ButtonSize, type ButtonTone } from '../../design';
+import { ActionButton, Body, Button, Icon, Row, Tap, blurred, colour, frame, keys, motion, settle, useStill, type ButtonSize, type ButtonTone } from '../../design';
 import type { IconName } from '../../icons';
 import { More, moreTo, type MoreItem } from './More';
 
@@ -33,7 +36,7 @@ export type FootSpec =
   /** home: the bar, going down with the card as it opens */
   | { kind: 'bar'; open?: SharedValue<number>; hidden?: boolean; onPick?: (item: MoreItem) => void; veil?: Veil }
   /** a page: Back and the ask bar, with the plus where the frame draws one */
-  | { kind: 'ask'; placeholder: string; onAsk: (q: string) => void; onScan?: () => void; more?: boolean; onPick?: (item: MoreItem) => void; veil?: Veil }
+  | { kind: 'ask'; placeholder: string; onAsk: (q: string) => void; onScan?: () => void; more?: boolean; onPick?: (item: MoreItem) => void; veil?: Veil; onBack?: () => void }
   /** a page with one thing to do: Back beside its button */
   | {
       kind: 'button';
@@ -44,9 +47,10 @@ export type FootSpec =
       /** grey where a frame draws it so, with a glyph before the word */ tone?: ButtonTone;
       leading?: IconName;
       size?: ButtonSize;
+      onBack?: () => void;
     }
   /** money about to move: Back beside Slide to send, with the figure under the words */
-  | { kind: 'slide'; label: string; amount: string; onSlide: () => void; disabled?: boolean; veil?: Veil }
+  | { kind: 'slide'; label: string; amount: string; onSlide: () => void; disabled?: boolean; veil?: Veil; onBack?: () => void }
   | { kind: 'none' };
 
 /* ---- what the screen with focus declared ---- */
@@ -83,8 +87,9 @@ const shapeOf = (s: FootSpec) => {
 };
 
 /** What a screen's foot holds while it has focus. Callbacks are read at
-    press time, so the spec may be written inline. */
-export function useFoot(spec: FootSpec) {
+    press time, so the spec may be written inline. A page of the three says
+    it only while it is the one showing (`enabled`). */
+export function useFoot(spec: FootSpec, enabled = true) {
   const path = usePathname();
   const navigation = useNavigation();
   const latest = useRef(spec);
@@ -93,6 +98,14 @@ export function useFoot(spec: FootSpec) {
   const push = useCallback(() => {
     const s = latest.current;
     let wrapped: FootSpec = s;
+    /* Back that closes something on the screen rather than leaving it: read at press time too */
+    const back =
+      s.kind !== 'bar' && s.kind !== 'none' && s.onBack
+        ? () => {
+            const n = latest.current;
+            if (n.kind !== 'bar' && n.kind !== 'none') n.onBack?.();
+          }
+        : undefined;
     if (s.kind === 'ask') {
       wrapped = {
         ...s,
@@ -110,6 +123,7 @@ export function useFoot(spec: FootSpec) {
               if (n.kind === 'ask') n.onPick?.(item);
             }
           : undefined,
+        onBack: back,
       };
     } else if (s.kind === 'button') {
       wrapped = {
@@ -118,6 +132,7 @@ export function useFoot(spec: FootSpec) {
           const n = latest.current;
           if (n.kind === 'button') n.onPress();
         },
+        onBack: back,
       };
     } else if (s.kind === 'slide') {
       wrapped = {
@@ -126,6 +141,7 @@ export function useFoot(spec: FootSpec) {
           const n = latest.current;
           if (n.kind === 'slide') n.onSlide();
         },
+        onBack: back,
       };
     } else if (s.kind === 'bar') {
       wrapped = {
@@ -143,14 +159,15 @@ export function useFoot(spec: FootSpec) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path, shape]);
   /* said as the screen mounts, if it is the one with focus — so the foot
-     morphs as the screen arrives, not after — and again whenever focus returns */
+     morphs as the screen arrives, not after — and again whenever focus
+     returns, or the page it is on comes to be the one showing */
   useEffect(() => {
-    if (navigation.isFocused()) push();
-  }, [push, navigation]);
+    if (enabled && navigation.isFocused()) push();
+  }, [push, navigation, enabled]);
   useFocusEffect(
     useCallback(() => {
-      push();
-    }, [push]),
+      if (enabled) push();
+    }, [push, enabled]),
   );
 }
 
@@ -158,6 +175,10 @@ export function useFoot(spec: FootSpec) {
 
 /** How far the foot goes down to be out of the way. */
 const AWAY = BAR_H + 16;
+/** The card's dip the first time is a hint about the card: the bar stays put
+    through it (and so does not jump if the pages turn in the middle of it),
+    and goes down only as the card opens past it. */
+const HINT = 0.2;
 /** The glyph row: three 44 targets 12 apart, the first 18 in. */
 const PILL_LEFT = 18;
 const PILL_W = 44 * 3 + 12 * 2;
@@ -169,6 +190,8 @@ export function Foot() {
   const { width: W } = useWindowDimensions();
   const [cur, setCur] = useState<Held>(held);
   const [more, setMore] = useState(false);
+  /* the pages stand still while More is up */
+  useHoldPages('more', more);
   useEffect(() => {
     const l = () => {
       setCur({ ...held });
@@ -274,7 +297,7 @@ export function Foot() {
 
   const surface = useAnimatedStyle(
     () => ({
-      transform: [{ translateY: hide.value * AWAY + (open ? open.value : 0) * AWAY - kb.value * t.value }],
+      transform: [{ translateY: hide.value * AWAY + (open ? Math.max(0, open.value - HINT) / (1 - HINT) : 0) * AWAY - kb.value * t.value }],
       borderTopLeftRadius: 32 * (1 - t.value),
       borderTopRightRadius: 32 * (1 - t.value),
       shadowOpacity: 0.06 * (1 - t.value),
@@ -317,73 +340,77 @@ export function Foot() {
   const live = kind !== 'none' && !barHidden && !veil;
 
   return (
-    /* clipped at the window's edge: a foot gone down out of the way must not lengthen the page under it */
-    <View style={[StyleSheet.absoluteFill, { overflow: 'hidden' }]} pointerEvents="box-none">
-      <Animated.View style={[s.surface, surface]} pointerEvents={live ? 'box-none' : 'none'} testID={kind === 'bar' ? 'bar' : 'foot'}>
-        <Animated.View style={[s.back, backStyle]} pointerEvents={page ? 'auto' : 'none'}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={() => router.back()} style={s.backHit}>
-            <Icon name="back" size={22} />
-          </Pressable>
+    <>
+      {/* clipped at the window's edge: a foot gone down out of the way must not lengthen the page under it */}
+      <View style={[StyleSheet.absoluteFill, { overflow: 'hidden' }]} pointerEvents="box-none">
+        <Animated.View style={[s.surface, surface]} pointerEvents={live ? 'box-none' : 'none'} testID={kind === 'bar' ? 'bar' : 'foot'}>
+          <Animated.View style={[s.back, backStyle]} pointerEvents={page ? 'auto' : 'none'}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Back"
+              onPress={() => (spec.kind !== 'bar' && spec.kind !== 'none' && spec.onBack ? spec.onBack() : router.back())}
+              style={s.backHit}
+            >
+              <Icon name="back" size={22} />
+            </Pressable>
+          </Animated.View>
+          <Animated.View style={[s.box, boxStyle]} pointerEvents="box-none">
+            {glyphsUp ? (
+              <Animated.View style={[StyleSheet.absoluteFill, glyphsStyle]} pointerEvents={kind === 'bar' ? 'auto' : 'none'}>
+                <Glyphs here={pathname === '/home'} />
+              </Animated.View>
+            ) : null}
+            {barUp && !button ? (
+              <Animated.View style={[StyleSheet.absoluteFill, barStyle]} pointerEvents={kind === 'ask' ? 'auto' : 'none'}>
+                <AskField
+                  placeholder={spec.kind === 'ask' ? spec.placeholder : 'Ask, or show me a photo'}
+                  onAsk={q => spec.kind === 'ask' && spec.onAsk(q)}
+                  onScan={() => (spec.kind === 'ask' ? spec.onScan?.() : undefined)}
+                />
+              </Animated.View>
+            ) : null}
+            {kind === 'button' ? (
+              <Animated.View style={[StyleSheet.absoluteFill, buttonStyle]}>
+                <Button label={spec.label} disabled={spec.disabled} onPress={spec.onPress} tone={spec.tone} leading={spec.leading} size={spec.size} />
+              </Animated.View>
+            ) : null}
+            {kind === 'slide' ? (
+              <Animated.View style={[StyleSheet.absoluteFill, buttonStyle]}>
+                <Slide label={spec.label} amount={spec.amount} disabled={!!spec.disabled} onSlide={spec.onSlide} />
+              </Animated.View>
+            ) : null}
+          </Animated.View>
+          <Animated.View style={[s.plus, plusStyle]} pointerEvents={hasAction ? 'auto' : 'none'}>
+            <ActionButton onPress={() => setMore(true)} label="More" />
+          </Animated.View>
         </Animated.View>
-        <Animated.View style={[s.box, boxStyle]} pointerEvents="box-none">
-          {glyphsUp ? (
-            <Animated.View style={[StyleSheet.absoluteFill, glyphsStyle]} pointerEvents={kind === 'bar' ? 'auto' : 'none'}>
-              <Glyphs home={pathname === '/home'} />
-            </Animated.View>
-          ) : null}
-          {barUp && !button ? (
-            <Animated.View style={[StyleSheet.absoluteFill, barStyle]} pointerEvents={kind === 'ask' ? 'auto' : 'none'}>
-              <AskField
-                placeholder={spec.kind === 'ask' ? spec.placeholder : 'Ask, or show me a photo'}
-                onAsk={q => spec.kind === 'ask' && spec.onAsk(q)}
-                onScan={() => (spec.kind === 'ask' ? spec.onScan?.() : undefined)}
-              />
-            </Animated.View>
-          ) : null}
-          {kind === 'button' ? (
-            <Animated.View style={[StyleSheet.absoluteFill, buttonStyle]}>
-              <Button label={spec.label} disabled={spec.disabled} onPress={spec.onPress} tone={spec.tone} leading={spec.leading} size={spec.size} />
-            </Animated.View>
-          ) : null}
-          {kind === 'slide' ? (
-            <Animated.View style={[StyleSheet.absoluteFill, buttonStyle]}>
-              <Slide label={spec.label} amount={spec.amount} disabled={!!spec.disabled} onSlide={spec.onSlide} />
-            </Animated.View>
-          ) : null}
-        </Animated.View>
-        <Animated.View style={[s.plus, plusStyle]} pointerEvents={hasAction ? 'auto' : 'none'}>
-          <ActionButton onPress={() => setMore(true)} label="More" />
-        </Animated.View>
-      </Animated.View>
+      </View>
+      {/* More sits outside the clip: a browser will not blur through a clipped box to the page behind it */}
       {more ? <More onPick={pick} onClose={() => setMore(false)} /> : null}
-    </View>
+    </>
   );
 }
 
-/* The three glyphs, the one you are on in black and the others in grey.
-   The clock is drawn here, a disc with white hands, since the set's filled
-   clock has its hands in the disc's own colour. The pages arrive from their
-   glyphs: the record's clock from this one, Settings from the gear. */
-function Glyphs({ home }: { home: boolean }) {
-  const activities = useDeparture({ id: 'bar:activities', to: '/activities' });
-  const settings = useDeparture({ id: 'bar:settings', to: '/settings' });
-  const item = (glyph: IconName | 'clock-drawn', label: string, on: boolean, j?: ReturnType<typeof useDeparture>) => (
-    <Tap ref={j?.ref} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ selected: on }} onPress={j?.onPress} scale={0.9} style={s.item}>
-      {glyph === 'clock-drawn' ? (
-        <View style={[s.disc, { backgroundColor: on ? colour.ink : colour.textTertiary }]}>
-          <View style={s.handUp} />
-          <View style={s.handRight} />
-        </View>
-      ) : (
-        <Icon name={glyph} size={24} colour={on ? colour.ink : colour.textTertiary} />
-      )}
+/* The three glyphs, the page showing in black and the others in grey, each
+   one solid. They are sized to what they draw rather than to their boxes:
+   the house and the clock each fill 19 of their 24, the gear nearly all of
+   it, so the gear is drawn smaller for the three to look one size. A tap
+   turns the pages to its own; from anywhere else it goes back to them
+   first. */
+function Glyphs({ here }: { here: boolean }) {
+  const router = useRouter();
+  const tab = useTab();
+  const go = (t: Tab) => (here ? tabs.go(t) : openTab(router, t));
+  const item = (glyph: IconName, size: number, label: string, t: Tab) => (
+    <Tap accessibilityRole="button" accessibilityLabel={label} aria-selected={tab === t} onPress={() => go(t)} scale={0.9} style={s.item} testID={`glyph-${t}`}>
+      <Icon name={glyph} size={size} colour={tab === t ? colour.ink : colour.textTertiary} />
     </Tap>
   );
   return (
     <View style={s.items}>
-      {item('home-filled', 'Home', home)}
-      {item('clock-drawn', 'Activities', false, activities)}
-      {item('settings-filled', 'Settings', false, settings)}
+      {item('home-filled', 24, 'Home', 'home')}
+      {item('clock-filled', 24, 'Activities', 'activities')}
+      {item('gear-filled', 21, 'Settings', 'settings')}
     </View>
   );
 }
@@ -494,9 +521,6 @@ const s = StyleSheet.create({
   box: { position: 'absolute' },
   items: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
   item: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  disc: { width: 24, height: 24, borderRadius: 12 },
-  handUp: { position: 'absolute', left: 11, top: 5, width: 2, height: 8, borderRadius: 1, backgroundColor: colour.surface },
-  handRight: { position: 'absolute', left: 11, top: 11, width: 7, height: 2, borderRadius: 1, backgroundColor: colour.surface },
   bar: {
     flex: 1,
     height: frame.askBarHeight,

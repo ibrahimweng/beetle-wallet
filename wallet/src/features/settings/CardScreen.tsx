@@ -14,8 +14,7 @@ import { askHome } from '../more/More';
 import { useFoot } from '../more/Foot';
 import { naira } from '../../lib/format';
 import { usePrefs } from './prefs';
-
-const CARD = { only: 'NETFLIX ONLY', hidden: '5399 •••• •••• 4471', full: '5399 8123 4567 4471', expiry: '09/28', spent: 21000, ceiling: 50000 };
+import { CARD } from './card';
 
 export function CardScreen() {
   const app = useApp();

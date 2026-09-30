@@ -1,15 +1,18 @@
 /* The receipt in the chat, on the dark card, in a few words: the amount,
-   who it went to, when, and that it went through. A tap opens the full one. */
+   who it went to, when, and that it went through. A tap opens it where it
+   is, a little larger with a few lines more (see ChatReceipt); where there
+   is nothing to open it in, the full one. */
 import React, { useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Caption, Head, Icon, Label, Meta, Tap, colour, dark, useDeparture } from '../../design';
+import { Caption, Head, Icon, Label, Meta, Tap, colour, dark, measure, useDeparture, type Rect } from '../../design';
 import type { ReceiptCard as Card } from './conversation';
 
-export function ReceiptCard({ card, to }: { card: Card; to: string }) {
+export function ReceiptCard({ card, to, onOpen }: { card: Card; to: string; onOpen?: (at: Rect) => void }) {
   const amount = useRef<View>(null);
   const j = useDeparture({ id: `chat-receipt:${card.rowId}`, to, words: card.amount, anchor: amount });
+  const press = () => (onOpen ? void measure(j.ref).then(onOpen) : void j.onPress());
   return (
-    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={card.kind === 'request' ? 'Request' : 'Receipt'} onPress={j.onPress} style={s.card} testID="receipt-card">
+    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={card.kind === 'request' ? 'Request' : 'Receipt'} onPress={press} style={s.card} testID="receipt-card">
       <View style={s.head}>
         <View style={s.disc}>
           <Icon name={card.kind === 'request' ? 'request' : 'receipt'} size={16} colour="#ffffff" />

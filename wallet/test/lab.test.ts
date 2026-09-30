@@ -8,7 +8,7 @@ vi.mock('expo-crypto', () => ({ getRandomBytes: (n: number) => new Uint8Array(n)
 
 import { FEATURES, HOME, WAY_IN } from '@/lab/catalogue';
 import { nextStep, type Step } from '@/features/onboarding/machine';
-import { initialStage, isStage, STAGES, type Stage } from '@/features/onboarding/stages';
+import { initialStage, isSetupStage, isStage, STAGES, type Stage } from '@/features/onboarding/stages';
 
 /* What the way in should still have to do when the lab opens each stage: the
    stage's own step, or for the ones off the main path (nothing came back,
@@ -25,6 +25,11 @@ const STILL_TO_DO: Record<Stage, Step> = {
   ready: 'ready',
   signin: 'welcome',
   signcode: 'welcome',
+  /* finishing setting up comes after the account is ready, so the ready screen's way there */
+  address: 'ready',
+  idcard: 'ready',
+  income: 'ready',
+  full: 'ready',
 };
 
 describe('the lab', () => {
@@ -39,7 +44,7 @@ describe('the lab', () => {
       const asked = new URL('http://app' + p.href).searchParams;
       expect(asked.get('stage')).toBe(stage);
       expect(isStage(asked.get('stage'))).toBe(true);
-      if (stage === 'ready') expect(initialStage(p.seed.progress, p.seed.session)).toBe('ready');
+      if (stage === 'ready' || isSetupStage(stage)) expect(initialStage(p.seed.progress, p.seed.session)).toBe('ready');
       else expect(p.seed.session, `${stage} should open without a session`).toBeNull();
       if (stage === 'signcode') expect(asked.get('phone')).toMatch(/^0\d{10}$/);
     }

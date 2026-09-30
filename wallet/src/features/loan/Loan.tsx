@@ -17,6 +17,8 @@ import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
 import { holdingsFor } from '../home/account';
 import { balanceOf, rowFrom, useMoves } from '../home/moves';
+import { useSetup } from '../setup';
+import { SetupOffer } from '../setup/Offer';
 import { clock, useChats } from '../agent/chats';
 import { turn } from '../agent/turns';
 import { PasscodeSheet, lockedFor } from '../passcode';
@@ -29,6 +31,7 @@ export function Loan() {
   const ok = useSessionGuard();
   const account = app.session?.account;
   const { moves, add: addMove } = useMoves(account?.accountNumber);
+  const { setup } = useSetup(account?.accountNumber, !!account?.demo);
   const { file } = useChats(account?.accountNumber, !!account?.demo);
   const balance = (account ? holdingsFor(account).everyday : 0) + balanceOf(moves);
   /* the frame opens on ₦150,000 for 90 days */
@@ -81,6 +84,8 @@ export function Loan() {
     <>
       <Screen head={<PageHead lead title="Borrow" sub="The whole cost, before you decide" />}>
         <Say testID="say">You asked what you could borrow. Here is the whole cost.</Say>
+        {/* borrowing against the history is one of the things finishing setting up turns on */}
+        {setup.done ? null : <SetupOffer sub="Two minutes, and you can borrow against your history" />}
         {/* the frame runs the grey card 12 under the bubble */}
         <View style={s.card} testID="loan-card">
           <Body tone="secondary">How much you want</Body>

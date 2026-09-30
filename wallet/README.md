@@ -10,8 +10,10 @@ screen.
 
 What is here so far is the way in: the first loading screen, the welcome,
 opening an account (number, six digits by text, NIN or BVN, the record that
-comes back, a face, a passcode typed twice, the account being ready), signing
-in, and home — the black card with the balance, the day under it, and the
+comes back, a face, a passcode typed twice, the account being ready, and
+finishing setting up: where you live, a photo of an ID, where the money comes
+from, and everything being on), signing in, and home — the black card with
+the balance, the day under it, and the
 chat the card turns into when it is pulled down, where Beetle sends money,
 tops up, buys data and reads an account number off a photo.
 
@@ -77,6 +79,7 @@ mocks in and says so on the code screen; a real `AuthService` and
 | Who you are | `1234 5678 900` comes back as Ibrahim Musa, born 14 June 1996 | eleven digits with `0000` in them match nothing; the rest come back as a name made from the digits |
 | Your face | on a phone, the device's own face check; on the web, a moment's wait | a face check that does not take, with try again; or do it later |
 | A passcode | six digits typed twice; this build also lets `654321` and `123456` through, so trying it never means thinking one up | the same digit six times, a run, a repeated pair, your year of birth, and the handful everybody picks |
+| Finishing setting up | Finish setting up on the ready screen, or wherever a limit it lifts is in the way (Spending limits, Dollars, Borrow, the New account chip on the card): a street and an area typed into one card, Take it for the ID (the camera on a phone, a moment on the web), one tap on where the money comes from, and Take me in; the day's cap can then be raised to ₦1,000,000, and dollars and borrowing open | a street or an area under three letters; Continue waits for a source to be picked; Back on every step, to the ready screen or to the page that opened it |
 | Welcome back | `0906 911 3588`, the owner's own number, opens the demo account, history and all; any number that opened an account on this device opens that one | a number nobody has opened an account with, with a way to open one |
 | The chat | "Send 20k to Sarah", "top up my light", "buy data", "what about dollars", "how much do I have"; the people it knows are Sarah Adeyemi, Chidi Okafor, Musa Danjuma and John Doe, by name or account number | more than the balance; a name it does not know; anything else, with what it can do |
 | Send money | Send on the card, or Send money in More: someone paid before, a ten-digit number typed, or one read off a photo; any amount up to what Everyday holds; a reference; Slide to send, then the passcode | more than the balance: Not enough, with three ways to close it; a digit the reader was not sure of: Check this number, with both readings |
@@ -158,6 +161,43 @@ under `app/`, and add it to `FEATURES` in `src/lab/catalogue.ts` with the
 places to open and the state each needs. `npm test` checks the catalogue —
 every stage of the way in listed once, each seeded with exactly the way
 there.
+
+## Finishing setting up, and the first day
+
+The ready screen's Finish setting up card opens the three answers every
+Nigerian bank asks for, as stages of the same one-screen way in
+(`src/features/onboarding/setupViews.tsx`, the answers kept per account in
+`src/features/setup/`): Where you live, from its frame — the street and
+the area, town and state typed into one card, the two steps still to come
+greyed under it, What it opens with the three things on dashed rings, and
+the word that this is the same check every bank runs, asked once and not
+sold; A photo of an ID — the frame to lay it flat in, Take it, which is
+the camera on a phone (the number read off the card comes back to the
+step) and a moment on the web, and the word that only the name and the
+number are read and the photo stays on the phone; Where your money comes
+from — one tap on a salary, a business, family or friends, or something
+else; and Everything is on, with the three steps done above, the tick
+beside the title, the four things now on landing one after another, and
+Take me in. Back sits at the bottom left beside Continue on every step,
+as the frames draw it, and goes to the ready screen or to the page that
+opened setting up. Until it is done the ready screen's list keeps Hold
+dollars and Send up to ₦1,000,000 a day off, Spending limits carries the
+offer with how far the day's cap can then go, Dollars and Borrow carry it
+too, and the card's chip reads New account and opens it; once it is done
+the cap can be raised to a million (the caps you set stay yours, as the
+Spending limits frame draws them) and the chip is the dollars again.
+The demo account has finished, by its frames.
+
+A new account's first day is the frames' words on the app's own screens:
+the card with ₦0.00 and the New account chip, the day with Nothing to
+notice yet, the tile that nothing has moved yet and the first transfer
+shows up here, and Receive under it; Activities with Nothing has moved
+yet, the three segments, and Beetle's word that every line here will open
+a receipt you can keep, send on, or dispute, with the bar asking what
+shows up here; and the first question — "What can you do?" on an account
+with nothing in it gets Very little yet, and I would rather say so, with
+the lock line that Beetle only tells you things it has seen in your own
+money. The demo account, asked the same, hears what Beetle does.
 
 ## Home and the chat
 
@@ -843,6 +883,6 @@ they are not moving the way that file says.
 
 ## What comes next
 
-The rounds in `PLAN.md`: finishing setting up next (where you live, the
-ID card and the income question that turn the last two limits on) and the
-first day of a new account; a server for the model's key.
+The rounds in `PLAN.md` are built. What is left is what no frame draws:
+a server for the model's key, the bank's own services behind the
+interfaces, and the frames' later rounds as they are drawn.

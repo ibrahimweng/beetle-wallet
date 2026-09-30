@@ -58,6 +58,8 @@ const account = (phone: string) => ({
 const sessionFor = (a: Session['account']): Session => ({ token: 'lab', account: a });
 
 const none: Seed = { progress: {}, session: null };
+/** The account just opened, on the ready screen: where finishing setting up starts from. */
+const READY: Seed = { progress: { ...done.who, face: 'later', passcodeSet: true, accountNumber: accountNumberFor(LAB_PHONE) }, session: sessionFor(account(LAB_PHONE)) };
 
 /** A stage of the way in, with the way there walked. */
 const stage = (id: Stage, icon: IconName, title: string, sub: string, seed: Seed = none, query = ''): Place => ({ id, icon, title, sub, href: `/way-in?stage=${id}${query}`, seed });
@@ -85,12 +87,14 @@ export const WAY_IN: Feature = {
       progress: { ...done.who, face: 'later' },
       session: null,
     }),
-    stage('ready', 'check', 'Ready', 'The account open, the ticks landing', {
-      progress: { ...done.who, face: 'later', passcodeSet: true, accountNumber: accountNumberFor(LAB_PHONE) },
-      session: sessionFor(account(LAB_PHONE)),
-    }),
+    stage('ready', 'check', 'Ready', 'The account open, the ticks landing', READY),
     stage('signin', 'mark', 'Welcome back', 'A number the app already knows'),
     stage('signcode', 'mark', 'Six digits, coming back', 'The code on the way back in, for the demo account', none, `&phone=${DEMO_PHONE}`),
+    /* finishing setting up: the three answers after the account is ready, and everything on */
+    stage('address', 'home-filled', 'Where you live', 'The street and the area typed into one card, and what it opens', READY, '&street=12%20Bode%20Thomas%20Street&area=Surulere%2C%20Lagos%20State'),
+    stage('idcard', 'camera-filled', 'A photo of an ID', 'The frame to fill, and Take it', READY),
+    stage('income', 'receive-filled', 'Where your money comes from', 'One tap on four rows, a salary picked', READY, '&income=salary'),
+    stage('full', 'check', 'Everything is on', 'The three done above, and the four things on, landing one after another', READY),
   ],
 };
 
@@ -116,6 +120,14 @@ export const HOME: Feature = {
       title: 'A new account',
       sub: 'Nothing has moved yet',
       href: '/home',
+      seed: { progress: {}, session: sessionFor(account(LAB_PHONE)) },
+    },
+    {
+      id: 'home-first-question',
+      icon: 'chat',
+      title: 'The first question',
+      sub: 'What can you do?, on an account with no history, from the frame',
+      href: '/home?chat=first',
       seed: { progress: {}, session: sessionFor(account(LAB_PHONE)) },
     },
     {
@@ -394,6 +406,14 @@ export const ACTIVITIES: Feature = {
       sub: 'The record, newest first, All / In / Out, each line to its receipt, from the frame',
       href: '/activities',
       seed: demo,
+    },
+    {
+      id: 'activities-empty',
+      icon: 'history-filled',
+      title: 'Nothing has moved yet',
+      sub: 'A new account: nothing yet, and what every line here will open, from the frame',
+      href: '/activities',
+      seed: { progress: {}, session: sessionFor(account(LAB_PHONE)) },
     },
     {
       id: 'activities-answer',

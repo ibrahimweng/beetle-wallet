@@ -1888,6 +1888,66 @@ try {
   must(settled < closed + 16, `and settle back (${settled}px, from ${closed}px)`);
   must((await page.getByText('Pull down to ask Beetle').count()) > 0, 'the grabber should say what the pull is for');
   console.log(`  the card dipped to ${Math.round(deepest)}px and settled at ${Math.round(settled)}px`);
+
+  /* ---- Finishing setting up, and the first day ---- */
+  console.log('Finishing setting up, and the first day');
+  /* the lab's ready screen: Finish setting up opens Where you live, the street and the area typed in one card */
+  await page.goto(`${base}/lab`, { waitUntil: 'load' });
+  await see('Beetle Lab');
+  await tap('Ready');
+  await see('Your account is ready');
+  await tap('Finish setting up');
+  await see('Street, town and state');
+  at('/way-in');
+  await page.getByLabel('Street').fill('12 Bode Thomas Street');
+  await page.getByLabel('Area, town and state').fill('Surulere, Lagos State');
+  await shot('setup-address', 700);
+  await tap('Continue');
+  await see('Lay it flat and fill the frame');
+  await shot('setup-idcard', 700);
+  await tap('Take it');
+  await see('One tap. It is the last question');
+  await shot('setup-income', 700);
+  /* the four sources are radio rows, not buttons */
+  await page.getByRole('radio', { name: 'A salary' }).click();
+  await tap('Continue');
+  await see('Everything you could already do');
+  await shot('setup-full', 2300);
+  await tap('Take me in');
+  await see('See all');
+  at('/home');
+  /* the limits it opened: Spending limits no longer offers finishing setting up; the caps stay what you set */
+  await page.goto(`${base}/limits`, { waitUntil: 'load' });
+  await see('₦100,000');
+  must((await page.getByText('Finish setting up').count()) === 0, 'the offer should be gone once setting up is done');
+  await shot('limits-after-setup', 700);
+  /* a new account's first day: the New account chip, the empty day, Activities with nothing yet, and the first question */
+  await page.goto(`${base}/lab`, { waitUntil: 'load' });
+  await see('Beetle Lab');
+  await tap('A new account');
+  await see('Nothing has moved yet');
+  await see('New account');
+  await shot('first-home', 900);
+  await tap('New account');
+  await see('Street, town and state');
+  at('/way-in');
+  /* Back sits beside Continue at the foot; the way in's own chevron at the top is the first Back in the page and hidden here */
+  await page.getByTestId('back').click();
+  await see('Nothing has moved yet');
+  at('/home');
+  await pull('first-question-card', false);
+  await page.getByLabel('Ask Beetle').fill('What can you do?');
+  await tap('Send this');
+  await arrives('I have no history to read');
+  await see('I only tell you things I have seen in your own money');
+  await shot('first-question', 700);
+  await page.goto(`${base}/activities`, { waitUntil: 'load' });
+  await see('Every line here will open a receipt');
+  await shot('activities-empty', 700);
+  /* the offer where a limit is in the way: Dollars and Borrow say to finish setting up */
+  await page.goto(`${base}/dollars`, { waitUntil: 'load' });
+  await see('Finish setting up');
+  await shot('dollars-before-setup', 700);
 } catch (e) {
   await page.screenshot({ path: join(SHOTS, '00-failed.png') }).catch(() => {});
   const text = await page.evaluate(() => document.body.innerText || '').catch(() => '');

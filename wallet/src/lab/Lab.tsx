@@ -15,6 +15,7 @@ import { useApp } from '../features/onboarding/store';
 import { storage } from '../services';
 import { forgetMoves, movesKey } from '../features/home/moves';
 import { forgetChats } from '../features/agent/chats';
+import { forgetSetup, setupKey } from '../features/setup/store';
 import { forgetRequests, requestsKey } from '../features/request/requests';
 import { prefsKey } from '../features/settings/prefs';
 import { FEATURES, type Place } from './catalogue';
@@ -59,6 +60,8 @@ export function Lab() {
         forgetMoves(p.seed.session.account.accountNumber);
         forgetChats(p.seed.session.account.accountNumber);
         forgetRequests(p.seed.session.account.accountNumber);
+        await storage.remove(setupKey(p.seed.session.account.accountNumber));
+        forgetSetup(p.seed.session.account.accountNumber);
       }
       await app.seed(p.seed.progress, p.seed.session);
       router.push(p.href);

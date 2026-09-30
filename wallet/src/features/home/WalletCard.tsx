@@ -150,6 +150,8 @@ export type CardProps = {
   hint: string;
   onReceive: () => void;
   onDollars: () => void;
+  /** what the chip is called when it is not the dollars: New account, until setting up is done */
+  chipLabel?: string;
   chat: ReactNode;
   /** the ask bar, at the foot of the open card */
   foot: ReactNode;
@@ -166,7 +168,7 @@ const clamp = (v: number, lo: number, hi: number) => {
   return Math.min(hi, Math.max(lo, v));
 };
 
-export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onReceive, onDollars, onNew, chat, foot, over, flash }: CardProps) {
+export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onReceive, onDollars, chipLabel, onNew, chat, foot, over, flash }: CardProps) {
   /* the mark is the way to Settings: the title arrives from it; Send is the way to the Send money page, the same way */
   const mark = useDeparture({ id: 'mark', to: '/settings', words: 'Settings' });
   const send = useDeparture({ id: 'card:send', to: '/send', words: 'Send' });
@@ -340,7 +342,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
             <Swap value={line ?? 'Total balance'}>{w => <Caption style={{ color: line ? colour.good : dark.chipText }}>{w}</Caption>}</Swap>
             {/* the figure is drawn once, below, and travels; the chip has its place here */}
             <View style={{ height: 40 }} />
-            <Tap accessibilityRole="button" accessibilityLabel="Your dollars" onPress={onDollars} style={s.chip} testID="chip">
+            <Tap accessibilityRole="button" accessibilityLabel={chipLabel ?? 'Your dollars'} onPress={onDollars} style={s.chip} testID="chip">
               <Caption style={[s.chipText, { color: dark.chipText }]}>{dollars}</Caption>
             </Tap>
           </View>

@@ -69,6 +69,7 @@ import { receiptFor } from '../receipts/receipts';
 import { JourneyProvider, useDeparture, useRecession, type Rect } from '../../design/journey';
 import type { ReceiptCard as Card } from '../agent/conversation';
 import { chatPointedOut, markChatPointedOut } from './first';
+import { useSetup } from '../setup/store';
 import { groupAccount, kobo, naira, signed } from '../../lib/format';
 
 /** What stays showing under the open card: the gap, the head of the day, its
@@ -144,6 +145,8 @@ function HomeScreen() {
 
   const account = app.session?.account;
   const { moves, add: addMove } = useMoves(account?.accountNumber);
+  /* finishing setting up: until it is done the chip reads New account and opens it */
+  const { setup } = useSetup(account?.accountNumber, !!account?.demo);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
   const balance = (h?.everyday ?? 0) + balanceOf(moves);
   const rate = h?.rate ?? 1552;
@@ -446,6 +449,15 @@ function HomeScreen() {
       });
       setTimeout(() => show(true), 250);
     }
+    if (asked.chat === 'first') {
+      /* the first question, from its frame: an account with no history, asked what Beetle can do */
+      talk.preload([
+        turn.you('What can you do?'),
+        turn.say('Very little yet, and I would rather say so. I have no history to read.'),
+        turn.aside('I only tell you things I have seen in your own money.'),
+      ]);
+      show(true, { greet: false });
+    }
     if (asked.chat === 'sent') {
       /* a transfer just through the passcode: the panel done, the receipt, and Beetle's word */
       const panel = transferPanel(PEOPLE[0]!, 20_000);
@@ -686,12 +698,13 @@ function HomeScreen() {
               }}
               whole={naira(balance)}
               kobo={kobo(balance)}
-              dollars={`~ ${Math.round(balance / rate).toLocaleString('en-NG')} USD`}
+              dollars={setup.done ? `~ ${Math.round(balance / rate).toLocaleString('en-NG')} USD` : 'New account'}
               hint={hint}
               onReceive={openReceive}
               onNew={startNew}
               flash={flash}
-              onDollars={() => router.push('/dollars')}
+              onDollars={() => router.push(setup.done ? '/dollars' : '/way-in?setup=1')}
+              chipLabel={setup.done ? undefined : 'New account'}
               chat={<Chat talk={talk} active={opened} top={haze + 8} bottom={FOOT_BAND - 8} confirm={confirmWithPasscode} saved={saved} onSaved={(ask, kind, at) => setPick({ ask, kind, at })} />}
               foot={<AskBar ref={input} value={draft} onChange={setDraft} onSubmit={send} onCamera={toCamera} />}
             />

@@ -21565,5 +21565,905 @@
     }
    }
   ]
+ },
+ "finish": {
+  "frame": "finish",
+  "place": "Where you live",
+  "wait": "What it opens",
+  "settle": 1400,
+  "pieces": [
+   {
+    "name": "Where you live",
+    "find": {
+     "text": "Where you live"
+    }
+   },
+   {
+    "name": "Street, town and state. No u",
+    "find": {
+     "text": "Street, town and state"
+    }
+   },
+   {
+    "name": "Card",
+    "nth": 0,
+    "find": {
+     "testid": "address"
+    }
+   },
+   {
+    "name": "12 Bode Thomas Street",
+    "find": {
+     "testid": "street"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Surulere, Lagos State",
+    "find": {
+     "testid": "area"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · A photo of an ID",
+    "find": {
+     "testid": "later",
+     "nth": 0
+    }
+   },
+   {
+    "name": "Glyph · camera-filled",
+    "find": {
+     "testid": "later",
+     "nth": 0,
+     "child": 0
+    }
+   },
+   {
+    "name": "A photo of an ID",
+    "find": {
+     "text": "A photo of an ID"
+    }
+   },
+   {
+    "name": "Row · Where your money com",
+    "find": {
+     "testid": "later",
+     "nth": 1
+    }
+   },
+   {
+    "name": "Glyph · receive-filled",
+    "find": {
+     "testid": "later",
+     "nth": 1,
+     "child": 0
+    }
+   },
+   {
+    "name": "Where your money comes from",
+    "find": {
+     "text": "Where your money comes from"
+    }
+   },
+   {
+    "name": "What it opens",
+    "find": {
+     "text": "What it opens"
+    }
+   },
+   {
+    "name": "Card",
+    "nth": 1,
+    "find": {
+     "testid": "opens"
+    }
+   },
+   {
+    "name": "Box",
+    "nth": 1,
+    "find": {
+     "text": "Send up to ₦1,000,000",
+     "up": 1,
+     "child": 0
+    }
+   },
+   {
+    "name": "Send up to ₦1,000,000 a day",
+    "find": {
+     "text": "Send up to ₦1,000,000"
+    }
+   },
+   {
+    "name": "Hold dollars",
+    "find": {
+     "text": "Hold dollars"
+    }
+   },
+   {
+    "name": "Borrow against your history",
+    "find": {
+     "text": "Borrow against your history"
+    }
+   },
+   {
+    "name": "Glyph · lock",
+    "find": {
+     "text": "This is the same check",
+     "up": 1,
+     "child": 0
+    }
+   },
+   {
+    "name": "This is the same check every",
+    "find": {
+     "text": "This is the same check"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Back",
+    "find": {
+     "testid": "back"
+    }
+   },
+   {
+    "name": "Button · Continue",
+    "find": {
+     "button": "Continue"
+    }
+   }
+  ]
+ },
+ "idcard": {
+  "frame": "idcard",
+  "place": "A photo of an ID",
+  "wait": "Lay it flat",
+  "settle": 1400,
+  "pieces": [
+   {
+    "name": "Where you live",
+    "find": {
+     "text": "Where you live"
+    }
+   },
+   {
+    "name": "A photo of an ID",
+    "find": {
+     "text": "A photo of an ID"
+    }
+   },
+   {
+    "name": "A driver’s licence, a passpo",
+    "find": {
+     "text": "A driver’s licence"
+    }
+   },
+   {
+    "name": "Card",
+    "nth": 0,
+    "find": {
+     "testid": "idframe"
+    }
+   },
+   {
+    "name": "Card",
+    "nth": 1,
+    "find": {
+     "testid": "idframe",
+     "child": 0
+    }
+   },
+   {
+    "name": "Lay it flat and fill the fra",
+    "find": {
+     "text": "Lay it flat"
+    }
+   },
+   {
+    "name": "Row · I read the name and ",
+    "find": {
+     "testid": "id-note"
+    }
+   },
+   {
+    "name": "Glyph · eye",
+    "find": {
+     "text": "I read the name",
+     "up": 1,
+     "child": 0
+    }
+   },
+   {
+    "name": "I read the name and the numb",
+    "find": {
+     "text": "I read the name"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · Where your money com",
+    "find": {
+     "testid": "later",
+     "nth": 0
+    }
+   },
+   {
+    "name": "Glyph · receive-filled",
+    "find": {
+     "testid": "later",
+     "nth": 0,
+     "child": 0
+    }
+   },
+   {
+    "name": "Where your money comes from",
+    "find": {
+     "text": "Where your money comes from"
+    }
+   },
+   {
+    "name": "Back",
+    "find": {
+     "testid": "back"
+    }
+   },
+   {
+    "name": "Button · Take it",
+    "find": {
+     "button": "Take it"
+    }
+   }
+  ]
+ },
+ "income": {
+  "frame": "income",
+  "place": "Where your money comes from",
+  "wait": "One tap",
+  "settle": 1400,
+  "pieces": [
+   {
+    "name": "Where you live",
+    "find": {
+     "text": "Where you live"
+    }
+   },
+   {
+    "name": "A photo of an ID",
+    "find": {
+     "text": "A photo of an ID"
+    }
+   },
+   {
+    "name": "Where your money comes from",
+    "find": {
+     "text": "Where your money comes from"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "One tap. It is the last ques",
+    "find": {
+     "text": "One tap."
+    }
+   },
+   {
+    "name": "Row · A salary",
+    "find": {
+     "text": "A salary",
+     "up": 1
+    }
+   },
+   {
+    "name": "A salary",
+    "find": {
+     "text": "A salary"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "text": "A salary",
+     "up": 1,
+     "child": 1
+    }
+   },
+   {
+    "name": "Row · My own business",
+    "find": {
+     "text": "My own business",
+     "up": 1
+    }
+   },
+   {
+    "name": "My own business",
+    "find": {
+     "text": "My own business"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Box",
+    "nth": 0,
+    "find": {
+     "text": "My own business",
+     "up": 1,
+     "child": 1
+    }
+   },
+   {
+    "name": "Row · Family or friends",
+    "find": {
+     "text": "Family or friends",
+     "up": 1
+    }
+   },
+   {
+    "name": "Family or friends",
+    "find": {
+     "text": "Family or friends"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Box",
+    "nth": 1,
+    "find": {
+     "text": "Family or friends",
+     "up": 1,
+     "child": 1
+    }
+   },
+   {
+    "name": "Row · Something else",
+    "find": {
+     "text": "Something else",
+     "up": 1
+    }
+   },
+   {
+    "name": "Something else",
+    "find": {
+     "text": "Something else"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Box",
+    "nth": 2,
+    "find": {
+     "text": "Something else",
+     "up": 1,
+     "child": 1
+    }
+   },
+   {
+    "name": "Back",
+    "find": {
+     "testid": "back"
+    }
+   },
+   {
+    "name": "Button · Continue",
+    "find": {
+     "button": "Continue"
+    }
+   }
+  ]
+ },
+ "full": {
+  "frame": "full",
+  "place": "Everything is on",
+  "wait": "Everything you could already do",
+  "settle": 2200,
+  "pieces": [
+   {
+    "name": "Where you live",
+    "find": {
+     "text": "Where you live"
+    }
+   },
+   {
+    "name": "A photo of an ID",
+    "find": {
+     "text": "A photo of an ID"
+    }
+   },
+   {
+    "name": "Where your money comes from",
+    "find": {
+     "text": "Where your money comes from"
+    }
+   },
+   {
+    "name": "Everything is on",
+    "find": {
+     "text": "Everything is on"
+    }
+   },
+   {
+    "name": "You can send a million naira",
+    "find": {
+     "text": "You can send a million"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "opens"
+    }
+   },
+   {
+    "name": "Icon",
+    "nth": 1,
+    "find": {
+     "text": "Send up to ₦1,000,000",
+     "up": 1,
+     "child": 0
+    }
+   },
+   {
+    "name": "Send up to ₦1,000,000 a day",
+    "find": {
+     "text": "Send up to ₦1,000,000"
+    }
+   },
+   {
+    "name": "Hold dollars",
+    "find": {
+     "text": "Hold dollars"
+    }
+   },
+   {
+    "name": "Borrow against your history",
+    "find": {
+     "text": "Borrow against your history"
+    }
+   },
+   {
+    "name": "Everything you could already d",
+    "find": {
+     "text": "Everything you could already do"
+    }
+   },
+   {
+    "name": "Button · Take me in",
+    "find": {
+     "button": "Take me in"
+    }
+   }
+  ]
+ },
+ "emptyactivity": {
+  "frame": "emptyactivity",
+  "place": "Nothing has moved yet",
+  "wait": "Every line here",
+  "settle": 1400,
+  "pieces": [
+   {
+    "name": "Card",
+    "nth": 0,
+    "find": {
+     "testid": "segments"
+    }
+   },
+   {
+    "name": "Segment item",
+    "find": {
+     "button": "All"
+    },
+    "nth": 0
+   },
+   {
+    "name": "Segment item",
+    "find": {
+     "button": "In"
+    },
+    "nth": 1
+   },
+   {
+    "name": "Segment item",
+    "find": {
+     "button": "Out"
+    },
+    "nth": 2
+   },
+   {
+    "name": "All",
+    "find": {
+     "text": "All",
+     "exact": true
+    }
+   },
+   {
+    "name": "In",
+    "find": {
+     "text": "In",
+     "exact": true
+    }
+   },
+   {
+    "name": "Out",
+    "find": {
+     "text": "Out",
+     "exact": true
+    }
+   },
+   {
+    "name": "Card",
+    "nth": 1,
+    "find": {
+     "testid": "footer"
+    }
+   },
+   {
+    "name": "Glyph · mark",
+    "find": {
+     "testid": "footer",
+     "child": [
+      0,
+      0
+     ]
+    }
+   },
+   {
+    "name": "Card",
+    "nth": 2,
+    "find": {
+     "testid": "footer",
+     "child": [
+      0,
+      1,
+      0
+     ]
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Back",
+    "find": {
+     "button": "Back"
+    }
+   },
+   {
+    "name": "Ask bar",
+    "find": {
+     "testid": "dock-bar"
+    }
+   },
+   {
+    "name": "Action button",
+    "find": {
+     "button": "More"
+    }
+   }
+  ]
+ },
+ "firsthome": {
+  "frame": "firsthome",
+  "place": "A new account",
+  "wait": "Nothing has moved yet",
+  "settle": 1600,
+  "pieces": [
+   {
+    "name": "Frame 2",
+    "find": {
+     "testid": "mark"
+    }
+   },
+   {
+    "name": "Wallet",
+    "find": {
+     "text": "Wallet"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Total balance",
+    "find": {
+     "text": "Total balance"
+    },
+    "only": [
+     "h"
+    ]
+   },
+   {
+    "name": "Chip · +9% this month",
+    "find": {
+     "testid": "chip"
+    },
+    "only": [
+     "h"
+    ]
+   },
+   {
+    "name": "New account",
+    "find": {
+     "text": "New account"
+    },
+    "only": [
+     "h"
+    ]
+   },
+   {
+    "name": "₦0",
+    "find": {
+     "testid": "balance"
+    },
+    "only": [
+     "h"
+    ]
+   },
+   {
+    "name": "Button",
+    "find": {
+     "button": "Receive",
+     "nth": 1
+    },
+    "only": [
+     "x",
+     "w",
+     "h"
+    ]
+   },
+   {
+    "name": "Receive",
+    "find": {
+     "text": "Receive",
+     "nth": 1
+    },
+    "nth": 0,
+    "only": [
+     "h"
+    ]
+   },
+   {
+    "name": "Card",
+    "nth": 1,
+    "find": {
+     "text": "Nothing has moved yet",
+     "up": 2
+    },
+    "only": [
+     "x",
+     "w",
+     "h"
+    ]
+   },
+   {
+    "name": "Button · $",
+    "find": {
+     "text": "Nothing has moved yet",
+     "up": 2,
+     "child": 0
+    },
+    "only": [
+     "x",
+     "w",
+     "h"
+    ]
+   },
+   {
+    "name": "Nothing has moved yet",
+    "find": {
+     "text": "Nothing has moved yet"
+    },
+    "only": [
+     "h"
+    ]
+   },
+   {
+    "name": "Your first transfer shows up here",
+    "find": {
+     "text": "Your first transfer shows up here"
+    },
+    "only": [
+     "h"
+    ]
+   },
+   {
+    "name": "Activities",
+    "find": {
+     "text": "Activities",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "h"
+    ]
+   },
+   {
+    "name": "See all",
+    "find": {
+     "text": "See all"
+    },
+    "only": [
+     "x",
+     "h"
+    ]
+   },
+   {
+    "name": "What I noticed, and every na",
+    "find": {
+     "text": "Nothing to notice yet."
+    },
+    "only": [
+     "x",
+     "h"
+    ]
+   },
+   {
+    "name": "Chip · All",
+    "find": {
+     "button": "All"
+    },
+    "only": [
+     "x",
+     "h"
+    ]
+   },
+   {
+    "name": "All",
+    "find": {
+     "text": "All",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "h"
+    ]
+   },
+   {
+    "name": "Chip · Insights",
+    "find": {
+     "button": "Insights"
+    },
+    "only": [
+     "h"
+    ]
+   },
+   {
+    "name": "Insights",
+    "find": {
+     "text": "Insights",
+     "exact": true
+    },
+    "only": [
+     "h"
+    ]
+   },
+   {
+    "name": "Chip · In",
+    "find": {
+     "button": "In"
+    },
+    "only": [
+     "h"
+    ]
+   },
+   {
+    "name": "Chip · Out",
+    "find": {
+     "button": "Out"
+    },
+    "only": [
+     "h"
+    ]
+   },
+   {
+    "name": "Action button",
+    "find": {
+     "button": "More"
+    },
+    "only": [
+     "y",
+     "w",
+     "h"
+    ]
+   }
+  ]
+ },
+ "firstask": {
+  "frame": "firstask",
+  "place": "The first question",
+  "wait": "no history to read",
+  "settle": 1600,
+  "pieces": [
+   {
+    "name": "Card",
+    "nth": 0,
+    "find": {
+     "text": "What can you do?",
+     "up": 1
+    },
+    "only": [
+     "h"
+    ]
+   },
+   {
+    "name": "Card",
+    "nth": 1,
+    "find": {
+     "text": "Very little yet",
+     "up": 1
+    },
+    "only": [
+     "h"
+    ]
+   },
+   {
+    "name": "Glyph · lock",
+    "find": {
+     "testid": "aside",
+     "child": [
+      0,
+      0
+     ]
+    },
+    "only": [
+     "w",
+     "h"
+    ]
+   },
+   {
+    "name": "Face ID first. Nothing leave",
+    "find": {
+     "text": "I only tell you things"
+    },
+    "only": [
+     "h"
+    ]
+   }
+  ]
  }
 }

@@ -21,8 +21,9 @@ import { TopupSheet } from '../data/TopupSheet';
 import { topupDraft } from '../data/hand';
 import { billDraft } from '../bills/hand';
 import { LAB } from '../../lab/enabled';
-import { groupAccount } from '../../lib/format';
+import { groupAccount, groupDigits } from '../../lib/format';
 import { handoff } from './handoff';
+import { idPhoto } from '../setup/hand';
 import { SAMPLES, sampleOfKind, type SampleKind } from './sample';
 
 type CameraModule = typeof import('expo-camera');
@@ -48,7 +49,7 @@ export function Scan() {
   const router = useRouter();
   const asked = useLocalSearchParams<{
     demo?: string;
-    /** what the camera is pointed at: a bill, where the Bills pages opened it */ for?: string;
+    /** what the camera is pointed at: a bill, where the Bills pages opened it; an ID, where setting up did */ for?: string;
     /** the lab: hold the photo as read, rather than going on */ hold?: string;
   }>();
   const forBill = asked.for === 'bill' || asked.demo === 'bill';
@@ -118,6 +119,10 @@ export function Scan() {
       if (reading?.bill) {
         billDraft.put({ reading: reading.bill, read: 'photo' });
         router.replace('/meter');
+      } else if (asked.for === 'id') {
+        /* the ID: the number read off it goes back to setting up; the name is the account's own */
+        idPhoto.put({ name: '', number: reading?.numbers[0] ? groupDigits(reading.numbers[0], [4, 4, 3]) : 'not read' });
+        router.back();
       } else {
         handoff.put({ ...photo, reading });
         router.back();

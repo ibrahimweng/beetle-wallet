@@ -39,9 +39,11 @@ import { groupAccount, groupDigits, groupPhone, initialsOf, longDate } from '../
 import { checkPhone, passcodeProblem, PASSCODE_WORDS } from './validation';
 import type { useApp } from './store';
 import type { Stage } from './stages';
+import type { Income, Setup } from '../setup/setup';
+import { address, full, idcard, income } from './setupViews';
 
 export type Note = { text: string; tone?: 'secondary' | 'bad' | 'accent' } | null;
-export type Bar = { label: string; onPress: () => void; disabled?: boolean };
+export type Bar = { label: string; onPress: () => void; disabled?: boolean; /** Back at the bottom left, beside the button, where a frame draws it there */ back?: () => void };
 
 export type StageView = {
   /** the glyph above the title, and the colour it and the wash carry */
@@ -101,6 +103,20 @@ export type Ctx = {
   lastNumber: string;
   setLastNumber: (n: string) => void;
   words: number;
+  /* finishing setting up: what is typed and picked on its stages, and what is kept */
+  setup: Setup;
+  setSetup: (patch: Partial<Setup>) => void;
+  street: string;
+  setStreet: (s: string) => void;
+  area: string;
+  setArea: (s: string) => void;
+  idState: 'idle' | 'checking';
+  /** the camera on a phone, a moment on the web; the reading comes back through the hand-off */
+  takeId: () => void;
+  income: Income | null;
+  setIncome: (i: Income) => void;
+  /** out of setting up: back to the ready screen, or to the page that opened it */
+  exit: () => void;
   go: (next: Stage, direction?: 1 | -1) => void;
   /** leave the screen for home, after doing something */
   toHome: (after?: () => Promise<void>) => void;
@@ -554,16 +570,18 @@ function passcode(c: Ctx): StageView {
   };
 }
 
-const CAN: { text: string; on: boolean }[] = [
+/** What the account can do: the last two come on with finishing setting up. */
+const canDo = (done: boolean): { text: string; on: boolean }[] => [
   { text: 'Receive money from any Nigerian bank', on: true },
   { text: 'Send up to ₦50,000 a day', on: true },
   { text: 'Buy airtime, data and pay bills', on: true },
-  { text: 'Hold dollars', on: false },
-  { text: 'Send up to ₦1,000,000 a day', on: false },
+  { text: 'Hold dollars', on: done },
+  { text: 'Send up to ₦1,000,000 a day', on: done },
 ];
 
 function ready(c: Ctx): StageView {
   const number = c.app.session ? groupAccount(c.app.session.account.accountNumber) : '';
+  const CAN = canDo(c.setup.done);
   return {
     icon: 'tick',
     title: 'Your account is ready',
@@ -585,12 +603,12 @@ function ready(c: Ctx): StageView {
             </View>
           ))}
         </Card>
-        <Tap accessibilityRole="button" onPress={() => toast('Finishing up is the next flow to build.')}>
+        <Tap accessibilityRole="button" accessibilityLabel={c.setup.done ? 'Everything is on' : 'Finish setting up'} onPress={() => (c.setup.done ? c.go('full') : c.go('address'))}>
           <Card outline style={{ flexDirection: 'row', alignItems: 'center', gap: space.s4, paddingVertical: space.s3, paddingHorizontal: space.s4, borderRadius: 16 }}>
             <Icon name="shield-filled" size={24} colour={colour.ink} />
             <View style={{ flex: 1 }}>
-              <Label>Finish setting up</Label>
-              <Caption tone="tertiary">Two minutes, and the last two come on</Caption>
+              <Label>{c.setup.done ? 'Everything is on' : 'Finish setting up'}</Label>
+              <Caption tone="tertiary">{c.setup.done ? 'A million a day, dollars and borrowing' : 'Two minutes, and the last two come on'}</Caption>
             </View>
             <Icon name="chevron" size={16} colour={colour.textTertiary} />
           </Card>
@@ -687,5 +705,13 @@ export function buildView(c: Ctx): StageView {
       return signin(c);
     case 'signcode':
       return signcode(c);
+    case 'address':
+      return address(c);
+    case 'idcard':
+      return idcard(c);
+    case 'income':
+      return income(c);
+    case 'full':
+      return full(c);
   }
 }

@@ -14,6 +14,8 @@ import { useMoves } from '../home/moves';
 import { naira } from '../../lib/format';
 import { askHome } from '../more/More';
 import { s } from './Lock';
+import { dayCap, useSetup } from '../setup';
+import { SetupOffer } from '../setup/Offer';
 
 export const CAPS = { transfer: 50000, day: 100000, month: 900000 } as const;
 
@@ -23,6 +25,7 @@ export function Limits() {
   const ok = useSessionGuard();
   const account = app.session?.account;
   const { moves, ready } = useMoves(account?.accountNumber);
+  const { setup } = useSetup(account?.accountNumber, !!account?.demo);
   /* the foot: Back, and the ask bar with this page's question */
   useFoot({ kind: 'ask', placeholder: 'Ask me to change a limit', onAsk: q => askHome(router, q), onScan: () => router.push('/scan') });
   if (!ok || !account) return null;
@@ -33,19 +36,22 @@ export function Limits() {
       </Screen>
     );
   const out = [...moves, ...holdingsFor(account).ledger].filter(r => r.day === 'today' && r.status === 'done' && r.amount < 0 && r.kind !== 'saving').reduce((a, r) => a - r.amount, 0);
-  const left = Math.max(0, CAPS.day - out);
+  /* the caps are what you set; finishing setting up is what lets the day's go up to a million */
+  const day = CAPS.day;
+  const left = Math.max(0, day - out);
   const cap = (what: string) => () => askHome(router, `Change the cap for ${what}`);
   return (
     <Screen head={<PageHead lead title="Spending limits" sub="What you set, and where today stands" />}>
       <Card style={{ paddingVertical: 16, paddingHorizontal: 16 }} testID="usage">
-        <Usage out={naira(out)} of={naira(CAPS.day)} pct={(out / CAPS.day) * 100} note={`${naira(left)} left before I stop and ask you twice.`} />
+        <Usage out={naira(out)} of={naira(day)} pct={(out / day) * 100} note={`${naira(left)} left before I stop and ask you twice.`} />
       </Card>
+      {setup.done ? null : <SetupOffer sub={`Two minutes, and the day’s cap can go up to ${naira(dayCap(true))}`} />}
       {/* the frame puts 16 under the first card, not the column's 20 */}
       <View style={{ gap: 12, marginTop: -4 }}>
         <Head>Your caps</Head>
         <Card style={s.group} testID="caps">
           <CapRow title="One transfer" sub="The most that can leave in a single go" value={naira(CAPS.transfer)} onPress={cap('one transfer')} />
-          <CapRow title="One day" sub="Midnight to midnight" value={naira(CAPS.day)} onPress={cap('one day')} />
+          <CapRow title="One day" sub="Midnight to midnight" value={naira(day)} onPress={cap('one day')} />
           <CapRow title="One month" sub="Resets on the first" value={naira(CAPS.month)} onPress={cap('one month')} />
         </Card>
       </View>

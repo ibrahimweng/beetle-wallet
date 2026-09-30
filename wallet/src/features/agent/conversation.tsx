@@ -293,6 +293,7 @@ export function transcriptOf(turns: Turn[]): { who: 'you' | 'beetle'; text: stri
     if (t.who === 'you') out.push({ who: 'you', text: t.photo && t.text === 'A photo' ? '[a photo]' : t.text });
     else if (t.block.kind === 'say') out.push({ who: 'beetle', text: t.block.text });
     else if (t.block.kind === 'note') out.push({ who: 'beetle', text: `${t.block.title}. ${t.block.body}` });
+    else if (t.block.kind === 'aside') out.push({ who: 'beetle', text: t.block.text });
     else if (t.block.kind === 'receipt') out.push({ who: 'beetle', text: `[Receipt: ${t.block.card.amount} ${t.block.card.line}, ${t.block.card.status} at ${t.block.card.time}]` });
     else if (t.block.kind === 'ask') {
       const a = t.block.ask;

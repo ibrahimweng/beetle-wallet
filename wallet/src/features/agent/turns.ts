@@ -10,7 +10,7 @@ export type AskState = 'open' | 'busy' | 'done';
 
 export type Turn =
   | { id: string; who: 'you'; text: string; photo?: Photo }
-  | { id: string; who: 'beetle'; block: Extract<Block, { kind: 'say' | 'note' }>; /** the part said so far, while the words stream in */ shown?: string }
+  | { id: string; who: 'beetle'; block: Extract<Block, { kind: 'say' | 'note' | 'aside' }>; /** the part said so far, while the words stream in */ shown?: string }
   | { id: string; who: 'beetle'; block: { kind: 'panel'; panel: Panel }; state: PanelState; quick?: boolean }
   /** the fields a thing still needs */
   | { id: string; who: 'beetle'; block: { kind: 'ask'; ask: AskPanel }; state: AskState }
@@ -40,6 +40,7 @@ export const turn = {
   say: (text: string): Turn => ({ id: id(), who: 'beetle', block: { kind: 'say', text } }),
   thought: (lines: string[]): Turn => ({ id: id(), who: 'beetle', block: { kind: 'thought', lines } }),
   note: (title: string, body: string): Turn => ({ id: id(), who: 'beetle', block: { kind: 'note', title, body } }),
+  aside: (text: string): Turn => ({ id: id(), who: 'beetle', block: { kind: 'aside', text } }),
   panel: (panel: Panel, state: PanelState = 'ready'): Turn => ({ id: id(), who: 'beetle', block: { kind: 'panel', panel }, state }),
   ask: (ask: AskPanel, state: AskState = 'open'): Turn => ({ id: id(), who: 'beetle', block: { kind: 'ask', ask }, state }),
   receipt: (card: ReceiptCard): Turn => ({ id: id(), who: 'beetle', block: { kind: 'receipt', card } }),

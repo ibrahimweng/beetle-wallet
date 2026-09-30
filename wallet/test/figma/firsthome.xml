@@ -1,0 +1,120 @@
+<frame id="964:20807" name="FirstHome" x="80" y="80" width="393" height="852">
+  <frame id="964:20808" name="Frame 4" x="0" y="0" width="393" height="376">
+    <frame id="964:20809" name="Frame 3" x="16" y="52" width="361" height="36">
+      <frame id="964:20810" name="Frame 2" x="0" y="0" width="36" height="36">
+        <rounded-rectangle id="964:20811" name="image 1" x="-6.510643005371094" y="-6.510643005371094" width="49.02128601074219" height="49.02128601074219" />
+      </frame>
+      <text id="964:20812" name="Wallet" x="159" y="8" width="43" height="20" />
+      <frame id="964:20813" name="Frame 3" x="325" y="0" width="36" height="36">
+        <frame id="964:20814" name="lucide/bell" x="10" y="10" width="16" height="16" />
+      </frame>
+    </frame>
+    <frame id="964:20817" name="Frame 7" x="16" y="112" width="361" height="132">
+      <frame id="964:20818" name="Column" x="0" y="0" width="361" height="68">
+        <frame id="964:20819" name="Row · Total balance" x="0" y="0" width="361" height="24">
+          <text id="964:20820" name="Total balance" x="73.7750015258789" y="4" width="76" height="16" />
+          <frame id="964:20821" name="Chip · +9% this month" x="157.77499389648438" y="0" width="129.4499969482422" height="24">
+            <text id="964:20822" name="New account" x="20.724998474121094" y="2" width="88" height="20" />
+          </frame>
+        </frame>
+        <frame id="964:20823" name="Row · ₦595,320" x="139" y="28" width="83" height="40">
+          <text id="964:20824" name="₦0" x="4" y="0" width="43" height="40" />
+          <text id="964:20825" name=".00" x="47" y="8" width="32" height="24" />
+        </frame>
+      </frame>
+      <frame id="964:20826" name="Frame 1" x="0" y="92" width="361" height="40">
+        <frame id="964:20827" name="Button" x="98.5" y="0" width="164" height="40">
+          <frame id="964:20828" name="Frame 19" x="36" y="8" width="92" height="24">
+            <frame id="964:20829" name="Icon" x="0" y="0" width="24" height="24">
+              <frame id="964:20830" name="icon" x="4" y="4" width="16" height="16" />
+            </frame>
+            <text id="964:20832" name="Receive" x="32" y="0" width="60" height="24" />
+          </frame>
+        </frame>
+      </frame>
+    </frame>
+    <frame id="964:20833" name="Card" x="16" y="268" width="361" height="88">
+      <frame id="964:20834" name="Row" x="8" y="12" width="345" height="64">
+        <frame id="964:20835" name="Shortcut" x="0" y="0" width="83.25" height="64">
+          <frame id="964:20836" name="icon" x="25.625" y="4" width="32" height="32">
+            <instance id="964:20837" name="Glyph · ring" x="0" y="0" width="32" height="32" />
+          </frame>
+          <text id="964:20838" name="Airtime" x="21.125" y="44" width="41" height="16" />
+        </frame>
+        <frame id="964:20839" name="Shortcut" x="87.25" y="0" width="83.25" height="64">
+          <frame id="964:20840" name="icon" x="25.625" y="4" width="32" height="32">
+            <instance id="964:20841" name="Glyph · bank" x="0" y="0" width="32" height="32" />
+          </frame>
+          <text id="964:20842" name="Bills" x="29.625" y="44" width="24" height="16" />
+        </frame>
+        <frame id="964:20843" name="Shortcut" x="174.5" y="0" width="83.25" height="64">
+          <frame id="964:20844" name="icon" x="25.625" y="4" width="32" height="32">
+            <instance id="964:20845" name="Glyph · pot-tone" x="0" y="0" width="32" height="32" />
+          </frame>
+          <text id="964:20846" name="Savings" x="19.125" y="44" width="45" height="16" />
+        </frame>
+        <frame id="964:20847" name="Shortcut" x="261.75" y="0" width="83.25" height="64">
+          <frame id="964:20848" name="icon" x="25.625" y="4" width="32" height="32">
+            <instance id="964:20849" name="Glyph · grid-tone" x="0" y="0" width="32" height="32" />
+          </frame>
+          <text id="964:20850" name="Services" x="17.125" y="44" width="49" height="16" />
+        </frame>
+      </frame>
+    </frame>
+  </frame>
+  <frame id="964:20851" name="Page" x="0" y="376" width="393" height="194">
+    <frame id="964:20852" name="Content" x="20" y="0" width="353" height="194">
+      <frame id="964:20853" name="Frame 5" x="0" y="0" width="353" height="194">
+        <frame id="964:20854" name="Card" x="0" y="0" width="353" height="72">
+          <frame id="964:20855" name="Button · $" x="16" y="12" width="48" height="48">
+            <text id="964:20856" name="₦" x="17.520000457763672" y="12" width="14" height="24" />
+          </frame>
+          <frame id="964:20857" name="Column" x="80" y="12" width="140.6999969482422" height="48">
+            <text id="964:20858" name="Nothing has moved yet" x="0" y="2" width="176" height="24" />
+            <text id="964:20859" name="Your first transfer shows up here" x="0" y="30" width="211" height="20" />
+          </frame>
+          <text id="964:20860" name="Text" x="236.6999969482422" y="26" width="0" height="24" />
+          <frame id="964:20861" name="Glyph · chevron" x="321" y="28" width="16" height="16" />
+        </frame>
+        <frame id="964:20872" name="Frame 11" x="0" y="92" width="353" height="102">
+          <frame id="964:20873" name="Column" x="0" y="0" width="353" height="56">
+            <frame id="964:20874" name="Row · Activities" x="0" y="0" width="353" height="28">
+              <text id="964:20875" name="Activities" x="0" y="2" width="87" height="24" />
+              <frame id="964:20876" name="Row · See all" x="293.1000061035156" y="5" width="59.900001525878906" height="18">
+                <text id="964:20877" name="See all" x="0" y="-1" width="45" height="20" />
+                <instance id="964:20878" name="Glyph · check" x="49" y="3" width="12" height="12" />
+              </frame>
+            </frame>
+            <text id="964:20879" name="What I noticed, and every na" x="0" y="36" width="140" height="20" />
+          </frame>
+          <frame id="964:20880" name="Row" x="0" y="68" width="223" height="34">
+            <frame id="964:20881" name="Chip · All" x="0" y="0" width="41" height="34">
+              <text id="964:20882" name="All" x="12" y="8" width="18" height="20" />
+            </frame>
+            <frame id="964:20883" name="Chip · Insights" x="49" y="0" width="77.30000305175781" height="34">
+              <text id="964:20884" name="Insights" x="12" y="8" width="54" height="20" />
+            </frame>
+            <frame id="964:20885" name="Chip · In" x="134.3000030517578" y="0" width="36.20000076293945" height="34">
+              <text id="964:20886" name="In" x="12" y="8" width="13" height="20" />
+            </frame>
+            <frame id="964:20887" name="Chip · Out" x="178.5" y="0" width="50.400001525878906" height="34">
+              <text id="964:20888" name="Out" x="12" y="8" width="25" height="20" />
+            </frame>
+          </frame>
+        </frame>
+      </frame>
+    </frame>
+  </frame>
+  <frame id="964:21009" name="Dock" x="0" y="748" width="393" height="104">
+    <frame id="964:21010" name="Row" x="20" y="24" width="353" height="56">
+      <frame id="964:21011" name="Ask bar" x="0" y="4" width="289" height="48">
+        <instance id="964:21012" name="Glyph · mark" x="8" y="8" width="32" height="32" />
+        <text id="964:21013" name="Ask, or just say what you need" x="48" y="16" width="107" height="16" />
+        <instance id="964:21014" name="Glyph · camera" x="163" y="14" width="20" height="20" />
+      </frame>
+      <frame id="964:21016" name="Action button" x="297" y="0" width="56" height="56">
+        <instance id="964:21017" name="Glyph · plus" x="16" y="16" width="24" height="24" />
+      </frame>
+    </frame>
+  </frame>
+</frame>

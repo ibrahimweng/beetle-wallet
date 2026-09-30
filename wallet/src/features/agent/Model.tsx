@@ -44,7 +44,7 @@ export function Model() {
     const account = app.session?.account ?? DEMO_ACCOUNT;
     try {
       const r = await agent.ask({ text: 'What can you do for me?' }, { account, balance: 595_320.75, rate: 1552, pending: null }, line => setSteps(s => [...s, line]));
-      setAnswer(r.blocks.map(b => (b.kind === 'say' ? b.text : b.kind === 'note' ? `${b.title}: ${b.body}` : `[a ${b.kind}]`)).join('\n\n'));
+      setAnswer(r.blocks.map(b => (b.kind === 'say' ? b.text : b.kind === 'note' ? `${b.title}: ${b.body}` : b.kind === 'aside' ? b.text : `[a ${b.kind}]`)).join('\n\n'));
     } catch (e) {
       setAnswer(`It did not answer: ${(e as Error).message}`);
     } finally {

@@ -1,0 +1,46 @@
+<frame id="317:9488" name="Income" x="1066" y="80" width="393" height="852">
+  <frame id="317:9489" name="Page" x="0" y="0" width="393" height="852">
+    <frame id="317:9490" name="Group" x="0" y="0" width="393" height="220" />
+    <frame id="317:9491" name="Content" x="20" y="220" width="353" height="514">
+      <frame id="317:9492" name="Row · Where you live" x="0" y="24" width="353" height="40">
+        <instance id="564:15925" name="Glyph · home-filled" x="0" y="8" width="24" height="24" />
+        <text id="317:9496" name="Where you live" x="36" y="8" width="108" height="24" />
+      </frame>
+      <frame id="317:9497" name="Row · A photo of an ID" x="0" y="64" width="353" height="40">
+        <instance id="564:15929" name="Glyph · camera-filled" x="0" y="8" width="24" height="24" />
+        <text id="317:9501" name="A photo of an ID" x="36" y="8" width="119" height="24" />
+      </frame>
+      <frame id="317:9502" name="Column" x="0" y="104" width="353" height="186">
+        <instance id="564:15933" name="Glyph · receive-filled" x="0" y="4" width="32" height="32" />
+        <text id="317:9505" name="Where your money comes from" x="0" y="44" width="290" height="80" />
+        <text id="317:9506" name="One tap. It is the last ques" x="0" y="132" width="349" height="40" />
+      </frame>
+      <frame id="317:9507" name="Column" x="0" y="290" width="353" height="224">
+        <frame id="317:9508" name="Row · A salary" x="0" y="0" width="353" height="56">
+          <text id="317:9509" name="A salary" x="0" y="16" width="319" height="24" />
+          <frame id="317:9510" name="Icon" x="331" y="17" width="22" height="22">
+            <instance id="564:15936" name="Glyph · check" x="5" y="5" width="12" height="12" />
+          </frame>
+        </frame>
+        <frame id="317:9513" name="Row · My own business" x="0" y="56" width="353" height="56">
+          <text id="317:9514" name="My own business" x="0" y="16" width="319" height="24" />
+          <frame id="317:9515" name="Box" x="331" y="17" width="22" height="22" />
+        </frame>
+        <frame id="317:9516" name="Row · Family or friends" x="0" y="112" width="353" height="56">
+          <text id="317:9517" name="Family or friends" x="0" y="16" width="319" height="24" />
+          <frame id="317:9518" name="Box" x="331" y="17" width="22" height="22" />
+        </frame>
+        <frame id="317:9519" name="Row · Something else" x="0" y="168" width="353" height="56">
+          <text id="317:9520" name="Something else" x="0" y="16" width="331" height="24" />
+          <frame id="317:9521" name="Box" x="331" y="17" width="22" height="22" />
+        </frame>
+      </frame>
+    </frame>
+  </frame>
+  <frame id="317:9522" name="Dock" x="0" y="740" width="393" height="112">
+    <frame id="317:9523" name="Back" x="20" y="38" width="44" height="44">
+      <instance id="564:15939" name="Glyph · back" x="11" y="11" width="22" height="22" />
+    </frame>
+    <instance id="577:18482" name="Button · Continue" x="72" y="32" width="301" height="56" />
+  </frame>
+</frame>

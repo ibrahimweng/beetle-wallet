@@ -13,6 +13,8 @@ import { useFoot } from '../more/Foot';
 import { askHome } from '../more/More';
 import { holdingsFor } from '../home/account';
 import { useMoves } from '../home/moves';
+import { useSetup } from '../setup';
+import { SetupOffer } from '../setup/Offer';
 import { naira } from '../../lib/format';
 import { DEMO_SOURCES, RATE_MOVE, dollarsOf, heldLine, nairaOf, sourcesOf, usdFull, type DollarSource } from './dollars';
 
@@ -22,6 +24,7 @@ export function Dollars() {
   const ok = useSessionGuard();
   const account = app.session?.account;
   const { moves } = useMoves(account?.accountNumber);
+  const { setup } = useSetup(account?.accountNumber, !!account?.demo);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
   const rate = h?.rate ?? 1_552;
   const dollars = dollarsOf(h?.dollars ?? 0, moves);
@@ -30,13 +33,21 @@ export function Dollars() {
   if (!ok || !account) return null;
   return (
     <Screen head={<PageHead lead title="Dollars" sub="Steady when the naira is not, and yours to turn back" />}>
+      {/* holding dollars is one of the things finishing setting up turns on */}
+      {setup.done ? null : <SetupOffer sub="Two minutes, and you can hold dollars" />}
       <View style={s.card} testID="dollars-card">
         <View>
           <Display>{usdFull(dollars)}</Display>
           <Body tone="secondary" style={{ marginTop: 8 }}>{`${naira(nairaOf(dollars, rate))} at today’s rate`}</Body>
         </View>
         <View style={{ flexDirection: 'row', gap: 8, marginTop: 18, height: 50, alignItems: 'flex-start' }}>
-          <Button label="Convert" size={48} to="/convert" style={{ flex: 1 }} />
+          <Button
+            label="Convert"
+            size={48}
+            to={setup.done ? '/convert' : undefined}
+            onPress={setup.done ? undefined : () => toast('Finish setting up first, and you can hold dollars. It takes two minutes.')}
+            style={{ flex: 1 }}
+          />
           <Button
             label="Send"
             size={48}

@@ -133,6 +133,8 @@ export type AskPanel = {
 export type Block =
   | { kind: 'say'; text: string }
   | { kind: 'note'; title: string; body: string }
+  /** a line of small print beside a lock, under what was said */
+  | { kind: 'aside'; text: string }
   | { kind: 'panel'; panel: Panel }
   /** a change to a panel already up: the amount was corrected */
   | { kind: 'amend'; panelId: string; amount: number }
@@ -742,6 +744,18 @@ export class ScriptedAgent implements AgentService {
     }
     const keep: Pending = ctx.pending?.need === 'ask' ? ctx.pending : null;
 
+    /* the first question, from its frame: an account with nothing in it yet gets the plain answer, and the line under it */
+    if (/\b(what can you do|what do you do|what are you|who are you|what is this)\b/.test(lower)) {
+      if (!ctx.account.demo && ctx.balance === 0)
+        return {
+          blocks: [say('Very little yet, and I would rather say so. I have no history to read.'), { kind: 'aside', text: 'I only tell you things I have seen in your own money.' }],
+          pending: keep,
+        };
+      return {
+        blocks: [say('I can send money, buy airtime and data, pay the light bill, read an account number off a photo, and say what I see in your money. Ask, or just say what you need.')],
+        pending: keep,
+      };
+    }
     if (/\b(hi|hello|hey|good (morning|afternoon|evening))\b/.test(lower) && lower.length < 24) {
       return { blocks: [say(`Hello ${first}. I can send money, buy airtime and data, pay the light bill, and read an account number off a photo. What do you need?`)], pending: keep };
     }

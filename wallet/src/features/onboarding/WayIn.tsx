@@ -12,7 +12,7 @@
 
    What each stage shows is in views.tsx. This file is the choreography. */
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { LayoutChangeEvent, Pressable, StyleProp, View, ViewStyle } from 'react-native';
+import { KeyboardAvoidingView, LayoutChangeEvent, Platform, Pressable, StyleProp, View, ViewStyle } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, { interpolateColor, runOnJS, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import {
@@ -44,7 +44,10 @@ import {
 import type { IconName } from '../../icons';
 import { useApp } from './store';
 import { useFocused } from './useGuard';
-import { initialStage, isStage, rowsFor, type Row, type Stage } from './stages';
+import { initialStage, isSetupStage, isStage, rowsFor, type Row, type Stage } from './stages';
+import { nextSetup, type Income } from '../setup/setup';
+import { useSetup } from '../setup/store';
+import { idPhoto } from '../setup/hand';
 import { buildView, type Bar, type Ctx, type Note } from './views';
 import { LAB } from '../../lab/enabled';
 
@@ -71,8 +74,13 @@ export function WayIn() {
   const still = useStill();
   const focused = useFocused();
   const { leaving, leave } = useLeave();
-  /* the lab opens the screen at a stage of its choosing; nothing else can */
-  const asked = useLocalSearchParams<{ stage?: string; phone?: string }>();
+  /* the lab opens the screen at a stage of its choosing; nothing else can.
+     Settings and the pages that want the last limits open it at finishing
+     setting up, at the first step still to answer */
+  const asked = useLocalSearchParams<{ stage?: string; phone?: string; setup?: string; income?: string; street?: string; area?: string }>();
+  const forSetup = asked.setup === '1';
+  const account = app.session?.account;
+  const { setup, ready: setupReady, set: setSetup } = useSetup(account?.accountNumber, !!account?.demo);
 
   const [stage, setStage] = useState<Stage | null>(null);
   const [dir, setDir] = useState<Dir>(1);
@@ -89,6 +97,13 @@ export function WayIn() {
   const [phoneIn, setPhoneIn] = useState('');
   const [lastNumber, setLastNumber] = useState('');
   const [words, setWords] = useState(1);
+  /* finishing setting up: what is typed and picked on its stages */
+  const [street, setStreet] = useState(() => (LAB && asked.street) || '');
+  const [area, setArea] = useState(() => (LAB && asked.area) || '');
+  const [idState, setIdState] = useState<'idle' | 'checking'>('idle');
+  const [income, setIncome] = useState<Income | null>(() =>
+    LAB && (asked.income === 'salary' || asked.income === 'business' || asked.income === 'family' || asked.income === 'else') ? asked.income : null,
+  );
   const gone = useRef(false);
   const stageRef = useRef<Stage | null>(null);
   stageRef.current = stage;
@@ -99,13 +114,28 @@ export function WayIn() {
     if (LAB && isStage(asked.stage)) {
       if (asked.stage === 'signcode' && asked.phone) setPhoneIn(asked.phone);
       setStage(asked.stage);
+    } else if (forSetup) {
+      if (!app.session || !setupReady) return;
+      setStage(nextSetup(setup));
     } else setStage(initialStage(app.progress, app.session));
-  }, [app.ready, stage, app.progress, app.session, asked.stage, asked.phone]);
+  }, [app.ready, stage, app.progress, app.session, asked.stage, asked.phone, forSetup, setupReady, setup]);
 
-  /* a session that has seen the ready screen belongs at home */
+  /* a session that has seen the ready screen belongs at home, unless it came
+     back to finish setting up */
   useEffect(() => {
-    if (app.ready && focused && app.session && !app.progress.accountNumber && !gone.current) router.replace('/home');
-  }, [app.ready, focused, app.session, app.progress.accountNumber, router]);
+    if (app.ready && focused && app.session && !app.progress.accountNumber && !gone.current && !forSetup && !(stage && isSetupStage(stage))) router.replace('/home');
+  }, [app.ready, focused, app.session, app.progress.accountNumber, router, forSetup, stage]);
+
+  /* the photo of the ID, back from the camera: the name is the account's, the number what was read */
+  useEffect(() => {
+    if (!focused || stage !== 'idcard') return;
+    const read = idPhoto.take();
+    if (!read) return;
+    const name = account ? `${account.lastName} ${account.firstName}`.toUpperCase() : read.name;
+    setSetup({ id: { name, number: read.number } });
+    setIdState('idle');
+    go('income');
+  }, [focused, stage]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* the half minute a code is given before another can be asked for */
   useEffect(() => {
@@ -153,6 +183,28 @@ export function WayIn() {
     [leave, router],
   );
 
+  /* the ID: the camera on a phone, which hands back what it read; a moment on the web */
+  const takeId = useCallback(() => {
+    if (Platform.OS === 'web') {
+      setIdState('checking');
+      setTimeout(() => {
+        idPhoto.put({ name: '', number: '1234 5678 900' });
+        const name = account ? `${account.lastName} ${account.firstName}`.toUpperCase() : '';
+        setSetup({ id: { name, number: '1234 5678 900' } });
+        setIdState('idle');
+        go('income');
+      }, 900);
+      return;
+    }
+    router.push('/scan?for=id');
+  }, [account, go, router, setSetup]);
+
+  /* out of setting up: back to the ready screen it came from, or to the page that opened it */
+  const exit = useCallback(() => {
+    if (forSetup) router.back();
+    else go('ready', -1);
+  }, [forSetup, go, router]);
+
   const keyRef = useRef<((k: string) => void) | undefined>(undefined);
   const rows = useMemo(() => (stage ? rowsFor(stage) : []), [stage]);
 
@@ -185,6 +237,17 @@ export function WayIn() {
     lastNumber,
     setLastNumber,
     words,
+    setup,
+    setSetup,
+    street,
+    setStreet,
+    area,
+    setArea,
+    idState,
+    takeId,
+    income,
+    setIncome,
+    exit,
     go,
     toHome,
   };
@@ -201,7 +264,11 @@ export function WayIn() {
           the keypad's first row and the bar's block alike, and 36 above the
           welcome's two ways in. The 12 between the band and what sits under
           it belongs to the body, so a stage with nothing there adds nothing */}
-      <View style={{ flex: 1, paddingHorizontal: SIDE, justifyContent: 'flex-end', paddingBottom: bottomKind === 'welcome' ? 36 : 12 }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1, paddingHorizontal: SIDE, justifyContent: 'flex-end', paddingBottom: bottomKind === 'welcome' ? 36 : 12 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        enabled={stage === 'address'}
+      >
         <Stack rows={rows} above={view.above} aboveKey={view.above ? stage : 'none'} dir={dir} />
         <HeadBand
           icon={view.icon}
@@ -219,7 +286,7 @@ export function WayIn() {
         <Slot id={view.bodyKey} from={dir * 24} to={dir * -24}>
           {view.body ? <View style={{ paddingTop: STACK_GAP }}>{view.body}</View> : null}
         </Slot>
-      </View>
+      </KeyboardAvoidingView>
       <Slot id={`bottom:${bottomKind}`} from={120} to={120} delay={120} spring>
         {bottomKind === 'keypad' ? (
           <View style={{ paddingHorizontal: SIDE, opacity: busy ? 0.5 : 1 }}>
@@ -708,6 +775,18 @@ function Leaving({ children, to }: { children: ReactNode; to: number }) {
 
 /* The black button at the foot of a stage that is not typing. */
 function BarBlock({ bar }: { bar: Bar }) {
+  if (bar.back)
+    return (
+      /* the frame's dock: Back on a 44 circle at the left, the button across the rest, 8 between */
+      <View style={{ paddingHorizontal: SIDE, paddingVertical: 24, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={bar.back} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }} testID="back">
+          <Icon name="back" size={22} />
+        </Pressable>
+        <View style={{ flex: 1 }}>
+          <Button label={bar.label} onPress={bar.onPress} disabled={bar.disabled} />
+        </View>
+      </View>
+    );
   return (
     <View style={{ paddingHorizontal: SIDE, paddingVertical: 24 }}>
       <Button label={bar.label} onPress={bar.onPress} disabled={bar.disabled} />

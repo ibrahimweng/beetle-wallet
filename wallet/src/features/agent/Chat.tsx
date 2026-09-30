@@ -8,7 +8,7 @@ import { Pane, type Rect } from '../../design';
 import type { AskPanel, Beneficiaries } from '../../services';
 import { CardGesturesContext } from '../home/WalletCard';
 import { AskPanelView, type SavedKind } from './AskPanel';
-import { Said, Thinking, Thoughts, ToolPanel, Yours } from './Dark';
+import { AsideLine, Said, Thinking, Thoughts, ToolPanel, Yours } from './Dark';
 import { ReceiptCard } from './ReceiptCard';
 import { isAsk, isPanel, type Conversation } from './conversation';
 
@@ -86,6 +86,7 @@ export function Chat({
         if (t.who === 'you') body = <Yours photo={!!t.photo}>{t.text}</Yours>;
         else if (t.block.kind === 'say') body = <Said>{'shown' in t && t.shown !== undefined ? t.shown : t.block.text}</Said>;
         else if (t.block.kind === 'note') body = <Said title={t.block.title}>{t.block.body}</Said>;
+        else if (t.block.kind === 'aside') body = <AsideLine>{t.block.text}</AsideLine>;
         else if (t.block.kind === 'thought') body = <Thoughts lines={t.block.lines} live={false} />;
         else if (t.block.kind === 'receipt') {
           const card = t.block.card;

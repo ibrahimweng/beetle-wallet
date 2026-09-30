@@ -1,0 +1,54 @@
+<frame id="316:9491" name="Finish" x="80" y="80" width="393" height="852">
+  <frame id="316:9492" name="Page" x="0" y="0" width="393" height="852">
+    <frame id="316:9493" name="Group" x="0" y="0" width="393" height="156.8000030517578" />
+    <frame id="316:9494" name="Content" x="20" y="156.8000030517578" width="353" height="577.2000122070312">
+      <frame id="316:9495" name="Column" x="0" y="24" width="353" height="141.00001525878906">
+        <instance id="564:15889" name="Glyph · home-filled" x="0" y="4" width="32" height="32" />
+        <text id="316:9499" name="Where you live" x="0" y="44" width="222" height="40" />
+        <text id="316:9500" name="Street, town and state. No u" x="0" y="92" width="321" height="40" />
+      </frame>
+      <frame id="316:9501" name="Card" x="0" y="165.00001525878906" width="353" height="66.19999694824219">
+        <frame id="316:9502" name="Row · 12 Bode Thomas Stree" x="16" y="12" width="321" height="23.200000762939453">
+          <text id="316:9503" name="12 Bode Thomas Street" x="0" y="-0.39999961853027344" width="178" height="24" />
+          <frame id="316:9504" name="Box" x="195.60000610351562" y="1.6000003814697266" width="2" height="20" />
+        </frame>
+        <text id="316:9505" name="Surulere, Lagos State" x="16" y="39.20000076293945" width="122" height="16" />
+      </frame>
+      <frame id="316:9506" name="Row · A photo of an ID" x="-1.4210854715202004e-14" y="231.20001220703125" width="353" height="40">
+        <instance id="564:15893" name="Glyph · camera-filled" x="0" y="8" width="24" height="24" />
+        <text id="316:9510" name="A photo of an ID" x="36" y="8" width="119" height="24" />
+      </frame>
+      <frame id="316:9511" name="Row · Where your money com" x="-1.4210854715202004e-14" y="271.20001220703125" width="353" height="40">
+        <instance id="564:15897" name="Glyph · receive-filled" x="0" y="8" width="24" height="24" />
+        <text id="316:9514" name="Where your money comes from" x="36" y="8" width="230" height="24" />
+      </frame>
+      <frame id="316:9515" name="Column" x="0" y="311.20001220703125" width="353" height="266">
+        <text id="316:9516" name="What it opens" x="0" y="20" width="130" height="24" />
+        <frame id="316:9517" name="Card" x="0" y="52" width="353" height="154">
+          <frame id="316:9518" name="Row · Send up to ₦1,000,00" x="16" y="4" width="321" height="50">
+            <frame id="316:9519" name="Box" x="0" y="15" width="20" height="20" />
+            <text id="316:9520" name="Send up to ₦1,000,000 a day" x="32" y="15" width="289" height="20" />
+          </frame>
+          <frame id="316:9521" name="Row · Hold dollars" x="16" y="54" width="321" height="50">
+            <frame id="316:9522" name="Box" x="0" y="15" width="20" height="20" />
+            <text id="316:9523" name="Hold dollars" x="32" y="15" width="289" height="20" />
+          </frame>
+          <frame id="316:9524" name="Row · Borrow against your " x="16" y="104" width="321" height="50">
+            <frame id="316:9525" name="Box" x="0" y="15" width="20" height="20" />
+            <text id="316:9526" name="Borrow against your history" x="32" y="15" width="289" height="20" />
+          </frame>
+        </frame>
+        <frame id="316:9527" name="Row · This is the same che" x="0" y="214" width="353" height="48">
+          <instance id="564:15900" name="Glyph · lock" x="0" y="12" width="16" height="16" />
+          <text id="316:9531" name="This is the same check every" x="24" y="12" width="322" height="40" />
+        </frame>
+      </frame>
+    </frame>
+  </frame>
+  <frame id="316:9532" name="Dock" x="0" y="740" width="393" height="112">
+    <frame id="316:9533" name="Back" x="20" y="38" width="44" height="44">
+      <instance id="564:15904" name="Glyph · back" x="11" y="11" width="22" height="22" />
+    </frame>
+    <instance id="577:18464" name="Button · Continue" x="72" y="32" width="301" height="56" />
+  </frame>
+</frame>

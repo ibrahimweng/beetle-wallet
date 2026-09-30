@@ -31,11 +31,20 @@ export function Activities() {
   const { moves, ready } = useMoves(account?.accountNumber);
   const [segment, setSegment] = useState<Segment>('All');
   const [peek, setPeek] = useState<{ card: Card; at: Rect } | null>(null);
+  const h = account ? holdingsFor(account) : null;
+  const ledger = [...moves, ...(h?.ledger ?? [])];
+  /* a new account's day, from the Nothing yet frame: nothing has moved, and the bar asks what shows up here */
+  const nothing = ready && ledger.length === 0;
   /* the foot: Back, the ask bar with this page's question, and the plus the frame draws */
-  useFoot({ kind: 'ask', placeholder: 'Ask about any of these', onAsk: q => askHome(router, q), onScan: () => router.push('/scan'), more: true, veil: peek ? 'recede' : undefined });
-  if (!ok || !account) return null;
-  const h = holdingsFor(account);
-  const ledger = [...moves, ...h.ledger];
+  useFoot({
+    kind: 'ask',
+    placeholder: nothing ? 'Ask what shows up here' : 'Ask about any of these',
+    onAsk: q => askHome(router, q),
+    onScan: () => router.push('/scan'),
+    more: true,
+    veil: peek ? 'recede' : undefined,
+  });
+  if (!ok || !account || !h) return null;
   const balanceNow = h.everyday + balanceOf(moves);
   const cardFor = (r: LedgerRow): Card => {
     const rc = receiptFor(r, { account, balanceNow, rows: ledger });
@@ -67,7 +76,7 @@ export function Activities() {
   return (
     <JourneyProvider>
       <View style={{ flex: 1 }}>
-        <Screen head={<GlyphHead glyph="clock" title="Activities" sub="Everything that moved, newest first" />}>
+        <Screen head={<GlyphHead glyph="clock" title="Activities" sub={nothing ? 'Nothing has moved yet' : 'Everything that moved, newest first'} />}>
           {/* the frame puts 16 between the segments and the record, and 10 between a day's name and its lines, and between one day and the next */}
           <View style={{ gap: 16 }}>
             <Segments options={['All', 'In', 'Out']} value={segment} onChange={v => setSegment(v as Segment)} />
@@ -76,8 +85,8 @@ export function Activities() {
               {today.length ? <View>{today}</View> : null}
               {yesterday.length ? <Body tone="secondary">Yesterday</Body> : null}
               {yesterday.length ? <View>{yesterday}</View> : null}
-              {!today.length && !yesterday.length ? <Body tone="tertiary">Nothing {segment === 'In' ? 'came in' : segment === 'Out' ? 'went out' : 'moved'} yet.</Body> : null}
-              {h.footer ? <SayCard testID="footer">{h.footer}</SayCard> : null}
+              {!today.length && !yesterday.length && !nothing ? <Body tone="tertiary">Nothing {segment === 'In' ? 'came in' : segment === 'Out' ? 'went out' : 'moved'} yet.</Body> : null}
+              {nothing ? <SayCard testID="footer">Every line here will open a receipt you can keep, send on, or dispute.</SayCard> : h.footer ? <SayCard testID="footer">{h.footer}</SayCard> : null}
             </View>
           </View>
         </Screen>

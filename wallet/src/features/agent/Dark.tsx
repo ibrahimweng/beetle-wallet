@@ -24,6 +24,19 @@ export function Said({ title, children }: { title?: string; children: ReactNode 
   );
 }
 
+/* A line of small print beside a lock under what Beetle said, the way the
+   first question's frame reassures: 16 glyph, 8 to the words, 14 on 20. */
+export function AsideLine({ children }: { children: ReactNode }) {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, paddingTop: 4, paddingRight: 16 }} testID="aside">
+      <View style={{ paddingTop: 2 }}>
+        <Icon name="lock" size={16} colour={dark.textSoft} />
+      </View>
+      <Meta style={{ color: dark.textSoft, flex: 1 }}>{children}</Meta>
+    </View>
+  );
+}
+
 export function Yours({ photo = false, children }: { photo?: boolean; children: ReactNode }) {
   return (
     <View style={{ alignItems: 'flex-end' }}>

@@ -857,5 +857,85 @@
    "text": "Your balance is exactly what i",
    "why": "the layer keeps the It did not go frame's words; the picture reads 'Nothing you do here gets lost.', which the build says"
   }
+ ],
+ "full": [
+  {
+   "piece": "Button · Take me in",
+   "why": "the frame insets this one button 34 where every other frame's runs from 20; the build keeps 20"
+  }
+ ],
+ "emptyactivity": [
+  {
+   "text": "Ask what shows up here",
+   "why": "the ask bar's words are its placeholder, not text on the page"
+  },
+  {
+   "piece": "Card",
+   "nth": 2,
+   "why": "the bubble's words wrap into three lines in the frame's Inter and two in the check's font, so its height is not held"
+  }
+ ],
+ "finish": [
+  {
+   "text": "12 Bode Thomas Street",
+   "why": "typed into the card: the words are the field's value, not text on the page"
+  },
+  {
+   "text": "Surulere, Lagos State",
+   "why": "typed into the card: the words are the field's value, not text on the page"
+  }
+ ],
+ "firsthome": [
+  {
+   "text": "Airtime",
+   "why": "the shortcuts sit under the open chat, as the home frame draws them: Bills, Data, Services and Photo"
+  },
+  {
+   "text": "Bills",
+   "why": "the shortcuts sit under the open chat, as the home frame draws them"
+  },
+  {
+   "text": "Savings",
+   "why": "the shortcuts sit under the open chat, as the home frame draws them"
+  },
+  {
+   "text": "Services",
+   "why": "the shortcuts sit under the open chat, as the home frame draws them"
+  },
+  {
+   "text": "₦",
+   "why": "the tile's disc carries the naira sign as a glyph"
+  },
+  {
+   "text": "Text",
+   "why": "an empty text layer in the frame"
+  },
+  {
+   "text": "What I noticed, and every na",
+   "why": "the layer keeps the home frame's words; the picture reads 'Nothing to notice yet.', which the build says"
+  },
+  {
+   "text": "Ask, or just say what you need",
+   "why": "the ask bar lives in the card, as the home frame draws it, and its words are its placeholder"
+  },
+  {
+   "pieces": [
+    "Wallet"
+   ],
+   "why": "the frame centres the word in the older header; the app's header keeps it beside the mark, as the home frame draws it"
+  },
+  {
+   "pieces": [
+    "Nothing has moved yet",
+    "Your first transfer shows up here"
+   ],
+   "why": "the tile is the home frame's own, its words 12 from the disc where this frame's older tile runs 16"
+  }
+ ],
+ "firstask": [
+  {
+   "text": "Face ID first. Nothing leave",
+   "why": "the layer keeps another frame's words; the picture reads 'I only tell you things I have seen in your own money.', which the build says"
+  }
  ]
 }

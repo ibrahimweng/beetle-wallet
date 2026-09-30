@@ -407,14 +407,41 @@ once it is on, rather than a kind of rule per reference; "is not in the
 frames yet" is what every unbuilt thing now says, so the app never
 promises a round.
 
-## Round 8 · Finishing setting up, and the first day
+## Round 8 · Finishing setting up, and the first day — done
 
-- [ ] Where you live (finish 316:9491), A photo of an ID (idcard 316:9538),
+- [x] Where you live (finish 316:9491), A photo of an ID (idcard 316:9538),
       Where your money comes from (income 317:9488), Everything is on (full
-      317:9528); the limits these turn on
-- [ ] The first home (firsthome 964:20807), The first question (firstask
+      317:9528), as stages of the way in from the ready screen's card and
+      from wherever a limit is in the way; the limits these turn on (the
+      day's cap up to ₦1,000,000, dollars, borrowing) read by the ready
+      list, the offer on Spending limits, Dollars and Borrow, and the
+      card's chip
+- [x] The first home (firsthome 964:20807), The first question (firstask
       964:21033), Nothing yet (emptyactivity 964:21113) — the new account's
-      day, which the app already shows in part
+      day on the app's own screens: the New account chip, the empty
+      Activities with Beetle's word, the chat's plain answer with its lock
+      line
+- [x] Lab places for the four stages, the first question and the empty
+      Activities; the Figma check for the frames; the walk through finishing
+      setting up from the ready screen, the limits after, the new account's
+      home, its first question and its Activities
+
+Decided while building: the three answers are stages of the one-screen way
+in rather than pages of their own, so the trail, the wash and the motion
+are the ones the account was opened with; they are kept apart from the way
+in's progress, per account, so Settings can open them on any later day;
+the caps on Spending limits are what you set, so the demo keeps its
+frame's ₦100,000 a day while Everything is on says a million: finishing
+raises the ceiling, not the cap;
+the ID photo is the camera on a phone and the face step's moment on the
+web, and only the number read off it is kept beside the account's own
+name; an account Beetle has never seen finishing setting up turns the
+frames' figures on, since no bank's check stands behind this build; the
+first home keeps the app's own home (the older layout's words are taken,
+its layout is not, as the rule for home says), so its check measures the
+pieces the two share; the first question is the chat's own state, drawn
+on the card as every chat is, with a lock line under the bubble as the
+frame draws it.
 
 ## Kept out on purpose
 

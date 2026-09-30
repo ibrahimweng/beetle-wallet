@@ -1,0 +1,34 @@
+<frame id="316:9538" name="Idcard" x="573" y="80" width="393" height="852">
+  <frame id="316:9539" name="Page" x="0" y="0" width="393" height="852">
+    <frame id="316:9540" name="Group" x="0" y="0" width="393" height="227" />
+    <frame id="316:9541" name="Content" x="20" y="227" width="353" height="507">
+      <frame id="316:9542" name="Row · Where you live" x="0" y="24" width="353" height="40">
+        <instance id="564:15907" name="Glyph · home-filled" x="0" y="8" width="24" height="24" />
+        <text id="316:9546" name="Where you live" x="36" y="8" width="108" height="24" />
+      </frame>
+      <frame id="316:9547" name="Column" x="0" y="64" width="353" height="141">
+        <instance id="564:15911" name="Glyph · camera-filled" x="0" y="4" width="32" height="32" />
+        <text id="316:9551" name="A photo of an ID" x="0" y="44" width="241" height="40" />
+        <text id="316:9552" name="A driver’s licence, a passpo" x="0" y="92" width="352" height="40" />
+      </frame>
+      <frame id="316:9553" name="Card" x="0" y="205" width="353" height="196">
+        <frame id="316:9554" name="Card" x="53.5" y="12" width="246" height="152" />
+        <text id="316:9555" name="Lay it flat and fill the fra" x="90" y="168" width="173" height="20" />
+      </frame>
+      <frame id="316:9556" name="Row · I read the name and " x="0" y="401" width="353" height="66">
+        <instance id="564:15915" name="Glyph · eye" x="0" y="12" width="16" height="16" />
+        <text id="316:9560" name="I read the name and the numb" x="24" y="12" width="292" height="60" />
+      </frame>
+      <frame id="316:9561" name="Row · Where your money com" x="0" y="467" width="353" height="40">
+        <instance id="564:15919" name="Glyph · receive-filled" x="0" y="8" width="24" height="24" />
+        <text id="316:9564" name="Where your money comes from" x="36" y="8" width="230" height="24" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="316:9565" name="Dock" x="0" y="740" width="393" height="112">
+    <frame id="316:9566" name="Back" x="20" y="38" width="44" height="44">
+      <instance id="564:15922" name="Glyph · back" x="11" y="11" width="22" height="22" />
+    </frame>
+    <instance id="577:18473" name="Button · Take it" x="72" y="32" width="301" height="56" />
+  </frame>
+</frame>

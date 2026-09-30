@@ -1,0 +1,56 @@
+<frame id="317:9528" name="Full" x="1559" y="80" width="393" height="852">
+  <frame id="317:9529" name="Page" x="0" y="0" width="393" height="852">
+    <frame id="317:9530" name="Content" x="20" y="300.80078125" width="353" height="433.20001220703125">
+      <frame id="317:9531" name="Row · Where you live" x="0" y="24" width="353" height="40">
+        <instance id="564:15942" name="Glyph · home-filled" x="0" y="8" width="24" height="24" />
+        <text id="317:9535" name="Where you live" x="36" y="8" width="108" height="24" />
+      </frame>
+      <frame id="317:9536" name="Row · A photo of an ID" x="0" y="64" width="353" height="40">
+        <instance id="564:15946" name="Glyph · camera-filled" x="0" y="8" width="24" height="24" />
+        <text id="317:9540" name="A photo of an ID" x="36" y="8" width="119" height="24" />
+      </frame>
+      <frame id="317:9541" name="Row · Where your money com" x="0" y="104" width="353" height="40">
+        <instance id="564:15950" name="Glyph · receive-filled" x="0" y="8" width="24" height="24" />
+        <text id="317:9544" name="Where your money comes from" x="36" y="8" width="230" height="24" />
+      </frame>
+      <frame id="317:9545" name="Row" x="0" y="144" width="353" height="85.20001220703125">
+        <frame id="317:9546" name="Icon" x="0" y="4" width="23.299999237060547" height="26">
+          <instance id="564:15953" name="Glyph · check" x="5.599999904632568" y="7" width="12.000000953674316" height="12.000000953674316" />
+        </frame>
+        <frame id="317:9549" name="Column" x="35.29999923706055" y="4" width="317.70001220703125" height="63.20000076293945">
+          <text id="317:9550" name="Everything is on" x="0" y="0" width="150" height="24" />
+          <text id="317:9551" name="You can send a million naira" x="0" y="28" width="283" height="40" />
+        </frame>
+      </frame>
+      <frame id="317:9552" name="Card" x="0" y="229.20001220703125" width="353" height="204">
+        <frame id="317:9553" name="Row · Send up to ₦1,000,00" x="16" y="4" width="321" height="50">
+          <frame id="317:9554" name="Icon" x="0" y="15" width="20" height="20">
+            <instance id="564:15956" name="Glyph · check" x="4" y="4" width="12" height="12" />
+          </frame>
+          <text id="317:9557" name="Send up to ₦1,000,000 a day" x="32" y="15" width="289" height="20" />
+        </frame>
+        <frame id="317:9558" name="Row · Hold dollars" x="16" y="54" width="321" height="50">
+          <frame id="317:9559" name="Icon" x="0" y="15" width="20" height="20">
+            <instance id="564:15959" name="Glyph · check" x="4" y="4" width="12" height="12" />
+          </frame>
+          <text id="317:9562" name="Hold dollars" x="32" y="15" width="289" height="20" />
+        </frame>
+        <frame id="317:9563" name="Row · Borrow against your " x="16" y="104" width="321" height="50">
+          <frame id="317:9564" name="Icon" x="0" y="15" width="20" height="20">
+            <instance id="564:15962" name="Glyph · check" x="4" y="4" width="12" height="12" />
+          </frame>
+          <text id="317:9567" name="Borrow against your history" x="32" y="15" width="289" height="20" />
+        </frame>
+        <frame id="317:9568" name="Row · Everything you could" x="16" y="154" width="321" height="50">
+          <frame id="317:9569" name="Icon" x="0" y="15" width="20" height="20">
+            <instance id="564:15965" name="Glyph · check" x="4" y="4" width="12" height="12" />
+          </frame>
+          <text id="317:9572" name="Everything you could already d" x="32" y="15" width="289" height="20" />
+        </frame>
+      </frame>
+    </frame>
+  </frame>
+  <frame id="317:9573" name="Dock" x="0" y="740" width="393" height="112">
+    <instance id="577:18491" name="Button · Take me in" x="34" y="32" width="339" height="56" />
+  </frame>
+</frame>

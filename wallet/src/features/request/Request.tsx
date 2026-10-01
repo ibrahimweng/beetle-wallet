@@ -1,8 +1,9 @@
-/* Asking someone for money, from its frame: what you said (or what the
-   camera read) as a black pill, Beetle's word on who it found, and Beetle
-   Requests at work on a light panel — the person, where it reaches them,
-   the amount, what it is for, and when it lapses, with Send the request
-   under them — then the lock line that says asking cannot move money.
+/* Asking someone for money: what you said (or what the camera read), then
+   Beetle Requests at work on a light panel — the person, where it reaches
+   them, the amount, what it is for, and when it lapses — with the word on
+   who it found on the line under the panel (a form has no bubble from
+   Beetle: see DESIGN.md), then the lock line that says asking cannot move
+   money.
    Reached from "ask musa for 20k" at home, from a photo of the message,
    from Ask someone on the Receive sheet and Ask for money on Three ways.
    What is missing is asked for, and a tap on its row fills it where it is:
@@ -13,7 +14,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { AmountPicker, Avatar, Button, Head, Icon, Label, LightPanel, Meta, Row, Say, Screen, Sheet, Tap, colour } from '../../design';
+import { AmountPicker, Avatar, Button, Head, Icon, Label, LightPanel, Meta, PageHead, Row, Screen, Sheet, Tap, YouTyped, colour } from '../../design';
 import { phoneIn } from '../../services/nigeria';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -49,14 +50,7 @@ export function Request() {
   const [amount, setAmount] = useState(demo?.amount ?? 0);
   const [note, setNote] = useState(demo?.note ?? '');
   const [read, setRead] = useState<'photo' | undefined>(demo?.read);
-  const [said, setSaid] = useState<Said[]>(() =>
-    demo
-      ? [
-          { id: 1, who: 'you', text: demo.said, photo: !!demo.read },
-          { id: 2, who: 'beetle', text: lineFor(demo.who, demo.amount) },
-        ]
-      : [],
-  );
+  const [said, setSaid] = useState<Said[]>(() => (demo ? [{ id: 1, who: 'you', text: demo.said, photo: !!demo.read }] : []));
   const [dated, setDated] = useState(false);
   const [busy, setBusy] = useState(false);
   const [picking, setPicking] = useState(false);
@@ -69,26 +63,13 @@ export function Request() {
     useCallback(() => {
       const d = requestDraft.take();
       if (!d) return;
-      let w = who;
-      let a = amount;
-      if (d.who !== undefined) {
-        w = d.who;
-        setWho(d.who);
-      }
-      if (d.amount !== undefined) {
-        a = d.amount;
-        setAmount(d.amount);
-      }
+      if (d.who !== undefined) setWho(d.who);
+      if (d.amount !== undefined) setAmount(d.amount);
       if (d.note !== undefined) setNote(d.note);
       if (d.read) setRead(d.read);
       if (d.said) say({ who: 'you', text: d.said, photo: d.read === 'photo' });
-      if (d.said || d.who !== undefined || d.amount !== undefined) say({ who: 'beetle', text: lineFor(w, a) });
-    }, [who, amount, say]),
+    }, [say]),
   );
-  /* nothing was handed and nothing said: Beetle opens */
-  useEffect(() => {
-    if (said.length === 0) say({ who: 'beetle', text: lineFor(null, 0) });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* the date is picked once the person and the amount are there */
   const complete = !!who && amount > 0;
@@ -116,7 +97,6 @@ export function Request() {
     setWho(p);
     setPicking(false);
     setFresh({ open: false, name: '', number: '' });
-    say({ who: 'beetle', text: lineFor(p, amount) });
   };
 
   const send = () => {
@@ -151,30 +131,11 @@ export function Request() {
   useFoot({ kind: 'button', label: busy ? `Asking ${first}…` : 'Send the request', disabled: !dated || busy, onPress: send, veil: picking || sheet ? 'away' : undefined });
   if (!ok || !account) return null;
   const status = busy ? 'Sending' : !complete ? 'Waiting' : dated ? 'Ready' : 'Running';
+  const yours = [...said].reverse().find(t => t.who === 'you');
   return (
-    <Screen>
-      {/* the frame's head: Beetle's mark and its name in the middle; Back keeps its place at the foot */}
-      <View style={s.head} testID="chat-head">
-        <Icon name="mark" size={24} colour={colour.accent} />
-        <Head>Beetle</Head>
-      </View>
-      <View style={{ gap: 16, marginTop: -4 }} testID="said">
-        {said.map(t =>
-          t.who === 'you' ? (
-            <View key={t.id} style={{ alignItems: 'flex-end' }}>
-              <View style={s.pill} testID="you-said">
-                {t.photo ? <Icon name="camera" size={16} colour={colour.textInverse} /> : null}
-                <Row tone="inverse">{t.text}</Row>
-              </View>
-            </View>
-          ) : (
-            <Say key={t.id} testID="say">
-              {t.text}
-            </Say>
-          ),
-        )}
-      </View>
-      <View style={{ marginTop: -14 }}>
+    <Screen head={<PageHead lead title="Request money" sub="They get it on WhatsApp and by text" />}>
+      {yours ? <YouTyped said={yours.text} /> : null}
+      <View style={{ gap: 12 }}>
         <LightPanel
           glyph="up"
           title="Beetle Requests"
@@ -208,8 +169,12 @@ export function Request() {
             { label: 'Expires', value: dated ? 'In 7 days' : 'Picking a date', done: dated, working: complete && !dated },
           ]}
         />
+        {/* what the bubble used to say, under the panel it is about */}
+        <Meta tone="secondary" style={{ paddingHorizontal: 4 }} testID="request-note">
+          {lineFor(who, amount)}
+        </Meta>
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginTop: -4 }} testID="lock-line">
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }} testID="lock-line">
         <View style={{ marginTop: 2 }}>
           <Icon name="lock" size={16} colour={colour.textTertiary} />
         </View>
@@ -232,7 +197,6 @@ export function Request() {
                 onPress={() => {
                   setWho(p);
                   setPicking(false);
-                  say({ who: 'beetle', text: lineFor(p, amount) });
                 }}
                 style={[s.person, i ? s.hairTop : null]}
               >
@@ -297,7 +261,6 @@ export function Request() {
               onPress={() => {
                 setAmount(pickAmount);
                 setSheet(null);
-                say({ who: 'beetle', text: lineFor(who, pickAmount) });
               }}
             />
           </View>
@@ -341,8 +304,6 @@ export function Request() {
 }
 
 const s = StyleSheet.create({
-  head: { height: 44, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', gap: 8 },
-  pill: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 47, borderRadius: 24, backgroundColor: colour.ink, paddingLeft: 16, paddingRight: 19 },
   plusDisc: { width: 40, height: 40, borderRadius: 20, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },
   fresh: { gap: 12, paddingTop: 16 },
   input: { height: 48, borderRadius: 16, backgroundColor: colour.surface2, paddingHorizontal: 16, fontSize: 16, color: colour.ink, outlineWidth: 0 },

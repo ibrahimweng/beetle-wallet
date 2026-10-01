@@ -193,7 +193,22 @@ export function Goal() {
           testID="goal-amount"
         />
       ) : null}
-      {guard ? <PasscodeSheet amount={naira(amount)} name={GOAL.name} detail="Put away, from Everyday" glyph="pot" verify={app.checkPasscode} onDone={done} onCancel={() => setGuard(false)} /> : null}
+      {guard ? (
+        <PasscodeSheet
+          amount={naira(amount)}
+          name={GOAL.name}
+          detail="Put away, from Everyday"
+          glyph="pot"
+          rows={[
+            { label: 'Into', value: `${GOAL.name}, toward ${naira(GOAL.target)}` },
+            { label: 'Taken out', value: 'Whenever you want, free' },
+            { label: 'Leaves Everyday', value: naira(amount), strong: true },
+          ]}
+          verify={app.checkPasscode}
+          onDone={done}
+          onCancel={() => setGuard(false)}
+        />
+      ) : null}
     </>
   );
 }

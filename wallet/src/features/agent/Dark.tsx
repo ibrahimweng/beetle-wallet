@@ -188,11 +188,6 @@ export function ToolPanel({
                 borderColor: dark.edgeStrong,
                 alignItems: 'center',
                 justifyContent: 'center',
-                shadowColor: '#000',
-                shadowOpacity: 0.4,
-                shadowRadius: 12,
-                shadowOffset: { width: 0, height: 8 },
-                elevation: 6,
                 opacity: state === 'done' ? 0.7 : 1,
               }}
             >

@@ -112,7 +112,8 @@ export function Pane({ children, style, leaving = false, delay = 0 }: { children
       t.value = leaving ? 0 : 1;
       return;
     }
-    t.value = leaving ? withTiming(0, { duration: motion.leave, easing: away }) : withDelay(delay, withTiming(1, { duration: motion.enter, easing: standard }));
+    /* in on settle: it starts moving at once and comes to rest slowly, which reads as smooth where an ease-in reads as a beat late */
+    t.value = leaving ? withTiming(0, { duration: motion.leave, easing: away }) : withDelay(delay, withTiming(1, { duration: motion.enter, easing: settle }));
   }, [leaving]); // eslint-disable-line react-hooks/exhaustive-deps
   const moving = useAnimatedStyle(() => ({
     opacity: t.value,
@@ -189,7 +190,7 @@ export function Swap({ value, children, style }: { value: string; children: (sho
     if (!still && t.value < 1)
       t.value = withTiming(1, {
         duration: motion.swap * 1.5,
-        easing: standard,
+        easing: settle,
       });
   }, [shown]); // eslint-disable-line react-hooks/exhaustive-deps
   const moving = useAnimatedStyle(() => ({

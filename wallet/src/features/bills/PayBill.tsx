@@ -1,8 +1,8 @@
 /* Pay a bill, from its frame: the biller and the account it is paid on,
    the figure, and from where and what lands, each on its own white card in
-   one grey one, with Beetle's word above them, three figures to pick from
-   under, the line about what lands, and Slide to pay at the foot beside
-   Back. A row on Bills, a tile on All services and the lab open it; the
+   one grey one, three figures to pick from under, the line about what
+   lands, and Slide to pay at the foot beside Back. No bubble from Beetle
+   over it (see DESIGN.md): each card says what matters on its own line. A row on Bills, a tile on All services and the lab open it; the
    account card opens the meters paid before with the camera under them,
    the amount is picked where it is (the ruler, stopping at what there is
    to pay from, or the figure typed), and the slide leads to the passcode
@@ -10,7 +10,7 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { AmountPicker, Body, Caption, Icon, Label, Meta, PageHead, Picks, Say, Screen, Tap, YouTyped, colour, measure, toast, type Rect } from '../../design';
+import { AmountPicker, Body, Caption, Icon, Label, Meta, PageHead, Picks, Screen, Tap, YouTyped, colour, measure, toast, type Rect } from '../../design';
 import { DEMO_SAVED, PEOPLE, beneficiariesOf, billPanelFor, discoById, groupMeter, ownLine, type MeterPaid, type Move } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -120,14 +120,8 @@ export function PayBill() {
   if (!ok || !account) return null;
   /* a meter at another company: the page is that company's */
   const name = (meter && discoById(meter.disco)?.name) || biller.name;
-  const line =
-    power && !meter
-      ? 'Which meter? Tap the card to pick one you have paid, or point the camera at a bill.'
-      : !fromDollars && amount > balance
-        ? `That is ${naira(amount - balance)} more than Everyday holds. Slide, and I show you three ways to close it.`
-        : meter && meter.disco !== biller.id
-          ? `${name}, the meter you picked.`
-          : biller.say;
+  /* over what Everyday holds (a pick can be): said under the figure, where it is about */
+  const short = !fromDollars && amount > balance ? `${naira(amount - balance)} more than Everyday holds; slide and I show three ways to close it` : null;
   const openSaved = () => {
     if (!power) {
       toast(`Only the ${biller.accountLabel.toLowerCase()} you have paid is drawn yet.`);
@@ -141,10 +135,7 @@ export function PayBill() {
     <>
       <Screen head={<PageHead lead title="Pay a bill" sub={`${name}, ${meter && meter.disco !== biller.id ? 'on the meter you picked' : biller.sub}`} />}>
         {said ? <YouTyped said={said} /> : null}
-        <View style={said ? { marginTop: -4 } : null}>
-          <Say testID="say">{line}</Say>
-        </View>
-        {/* the frame runs the grey card 7 under the bubble, and 12 around the white cards, 8 between them */}
+        {/* 12 around the white cards, 8 between them */}
         <View style={s.card} testID="pay-card">
           <Tap ref={accountCard} accessibilityRole="button" accessibilityLabel={meter ? `${name}, ${detail}` : name} onPress={openSaved} style={[s.sub, s.account]} testID="pay-account">
             <View style={s.accountRow}>
@@ -170,7 +161,8 @@ export function PayBill() {
                 setAmountNote('You picked it');
               }}
               max={fromDollars ? Math.floor(dollars * rate) : Math.max(0, Math.floor(balance))}
-              note={amountNote}
+              note={short ?? amountNote}
+              warn={!!short}
             />
           </View>
           <View style={[s.sub, s.rows]} testID="pay-rows">
@@ -253,7 +245,7 @@ export function PayBill() {
 }
 
 const s = StyleSheet.create({
-  card: { marginTop: -13, backgroundColor: colour.surface2, borderRadius: 24, padding: 12, gap: 8 },
+  card: { backgroundColor: colour.surface2, borderRadius: 24, padding: 12, gap: 8 },
   sub: { backgroundColor: colour.surface, borderRadius: 20, paddingHorizontal: 16 },
   /* the frame boxes the biller's row at 38 — the glyph and the chevron sit on that — and lets the two lines beside them run to 44 */
   account: { paddingTop: 12, paddingBottom: 9, gap: 8 },

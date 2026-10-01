@@ -9,7 +9,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { BackHandler, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming, useDerivedValue } from 'react-native-reanimated';
 import { Caption, Head, Icon, Label, Meta, Tap, Veil, colour, dark, lift, motion, settle, useStill, type Rect } from '../../design';
 import { ReceiptShare, useReceipt } from '../receipts/ReceiptScreen';
 import type { Receipt } from '../receipts/receipts';
@@ -74,7 +74,7 @@ export function ChatReceipt({ card, at, onClose }: { card: Card; at: Rect; onClo
     width: at.w + (w1 - at.w) * t.value,
     height: at.h + (h1 - at.h) * t.value,
   }));
-  const veil = useAnimatedStyle(() => ({ opacity: Math.min(1, t.value * 1.6) }));
+  const veil = useDerivedValue(() => Math.min(1, t.value * 1.6));
   const more = useAnimatedStyle(() => ({ opacity: Math.max(0, (t.value - 0.45) / 0.55), transform: [{ translateY: 8 * (1 - t.value) }] }));
   const full = () => {
     router.push((card.to ?? `/receipt/${card.rowId}`) as never);
@@ -85,9 +85,7 @@ export function ChatReceipt({ card, at, onClose }: { card: Card; at: Rect; onClo
   return (
     <View style={StyleSheet.absoluteFill} testID="chat-receipt">
       <Pressable style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel="Close" onPress={() => leave()}>
-        <Animated.View style={[StyleSheet.absoluteFill, veil]} pointerEvents="none">
-          <Veil tone="dark" testID="chat-receipt-veil" />
-        </Animated.View>
+        <Veil tone="dark" t={veil} testID="chat-receipt-veil" />
       </Pressable>
       <Animated.View ref={box} collapsable={false} style={[s.card, grown]} testID="chat-receipt-card">
         <View style={s.head}>

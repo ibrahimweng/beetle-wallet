@@ -10,7 +10,7 @@
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { AmountPicker, Body, Caption, Facts, Icon, Meta, PageHead, Row, Say, Screen, Tap, colour, toast, useStill } from '../../design';
+import { AmountPicker, Body, Caption, Facts, Icon, Meta, PageHead, Row, Screen, Tap, colour, toast, useStill } from '../../design';
 import type { Move } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -137,15 +137,15 @@ export function Convert() {
         <View style={{ paddingHorizontal: 16, marginTop: -4 }}>
           <Facts
             inset={10}
+            row={44}
             testID="facts"
             rows={[
-              { label: 'Rate', value: rateLine(rate) },
+              { label: `Rate · up ₦${RATE_MOVE} this week`, value: rateLine(rate) },
               { label: 'Our fee', value: fee ? `${usdFull(fee)}, one percent` : 'Free under $500', tone: fee ? undefined : colour.goodText },
               { label: 'You get', value: gets },
             ]}
           />
         </View>
-        <Say testID="say">{`The rate moved ₦${RATE_MOVE} your way this week. If you were waiting for a better day, this is one of them.`}</Say>
         <View style={s.lock} testID="lock-line">
           <Icon name="lock" size={16} colour={colour.textTertiary} />
           <Meta tone="secondary">The rate is held for sixty seconds once you slide.</Meta>
@@ -157,6 +157,12 @@ export function Convert() {
           name={toDollars ? 'Dollars' : 'Everyday'}
           detail={toDollars ? `From Everyday at ${rateLine(rate)}` : `From your dollars at ${rateLine(rate)}`}
           glyph="swap"
+          rows={[
+            { label: 'Rate', value: rateLine(rate) },
+            { label: 'Our fee', value: fee ? usdFull(fee) : 'Free' },
+            { label: 'You get', value: gets },
+            toDollars ? { label: 'Leaves Everyday', value: naira(amount), strong: true } : { label: 'Leaves Dollars', value: usdFull(usd), strong: true },
+          ]}
           verify={app.checkPasscode}
           onDone={done}
           onCancel={() => setGuard(false)}
@@ -174,6 +180,6 @@ const s = StyleSheet.create({
   figure: { marginTop: -4, backgroundColor: colour.surface2, borderRadius: 24, paddingTop: 14, paddingHorizontal: 12, paddingBottom: 12 },
   /* the picker on its own white inside the grey, as the amounts on the paying pages sit */
   picker: { backgroundColor: colour.surface, borderRadius: 20, paddingTop: 20, paddingBottom: 16 },
-  /* the frame boxes the bubble's row 10 shorter than the bubble and sets the lock line 16 under the box */
-  lock: { marginTop: -14, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  /* no bubble over the lock line: the rate's move this week is said on the rate's own row */
+  lock: { marginTop: -8, flexDirection: 'row', alignItems: 'center', gap: 8 },
 });

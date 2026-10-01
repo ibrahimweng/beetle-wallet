@@ -6,6 +6,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { storage, type Move } from '../../services';
 import type { LedgerRow } from './account';
+import { fromEveryday } from './everyday';
+
+export { fromEveryday };
 
 export const movesKey = (account: string) => `beetle.moves.${account}.v1`;
 
@@ -17,8 +20,8 @@ export function sessionId(at = new Date(), seq = 16): string {
   return `${String(seq).padStart(6, '0')} ${String(at.getFullYear()).slice(2)}${two(at.getMonth() + 1)}${two(at.getDate())} ${two(at.getHours())}${two(at.getMinutes())}${two(at.getSeconds())} ${group()} ${group()}`;
 }
 
-/** What the rows moved in naira: a line paid from the dollars leaves Everyday alone. */
-export const balanceOf = (rows: { amount: number; usd?: number; kind: string }[]) => rows.reduce((a, r) => a + (r.usd !== undefined && r.kind !== 'convert' ? 0 : r.amount), 0);
+/** What the rows moved in naira, fees and all. */
+export const balanceOf = (rows: { amount: number; usd?: number; kind: string; fee?: number }[]) => rows.reduce((a, r) => a + fromEveryday(r), 0);
 
 /** The line the day gets for a move, with what its receipt will need. */
 export function rowFrom(m: Move, balanceBefore: number, seq: number, at = new Date()): LedgerRow {
@@ -39,7 +42,7 @@ export function rowFrom(m: Move, balanceBefore: number, seq: number, at = new Da
     read: m.read,
     usd: m.usd,
     session: sessionId(at, seq),
-    after: Math.round((balanceBefore + (m.usd !== undefined && m.kind !== 'convert' ? 0 : m.amount)) * 100) / 100,
+    after: Math.round((balanceBefore + fromEveryday(m)) * 100) / 100,
   };
 }
 

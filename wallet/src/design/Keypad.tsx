@@ -23,6 +23,15 @@ import { Tap } from './motion';
 
 /** The pad on the page, or on the dark card before money moves. */
 export type PadTone = 'light' | 'dark';
+/** A cell's size: its width and height, the disc in it, and the room between rows. */
+export type PadCell = { w: number; h: number; key: number; gap: number };
+/** The passcode sheet's pad, as big as it can be: the frame's 76 keys where there is room, then a snug 68 and a small 60. */
+export const PAD_CELLS = {
+  big: { w: 100, h: 76, key: 76, gap: 16 },
+  snug: { w: 100, h: 70, key: 66, gap: 8 },
+  small: { w: 96, h: 60, key: 56, gap: 6 },
+} as const satisfies Record<string, PadCell>;
+export const padHeight = (c: PadCell) => c.h * 4 + c.gap * 3;
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'face', '0', 'del'] as const;
 const AMOUNT_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '000', '0', 'del'] as const;
@@ -36,14 +45,17 @@ export function Keypad({
   big = false,
   zeros = false,
   tone = 'light',
+  size,
 }: {
   onKey: (k: string) => void;
   onFace?: () => void;
   big?: boolean;
   /** the amount pad, with 000 */ zeros?: boolean;
   tone?: PadTone;
+  /** the cell, where the screen has worked out how much room there is */
+  size?: PadCell;
 }) {
-  const cell = zeros ? { w: 94, h: 74, key: 74, gap: 16 } : big ? { w: 100, h: 76, key: 76, gap: 16 } : { w: 84, h: 76, key: 68, gap: 0 };
+  const cell = size ?? (zeros ? { w: 94, h: 74, key: 74, gap: 16 } : big ? PAD_CELLS.big : { w: 84, h: 76, key: 68, gap: 0 });
   const keys: readonly string[] = zeros ? AMOUNT_KEYS : KEYS;
   const ink = tone === 'dark' ? '#ffffff' : colour.ink;
   const disc = tone === 'dark' ? dark.edge : colour.surface2;

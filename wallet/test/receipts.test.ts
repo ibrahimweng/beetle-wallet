@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { balanceAfter, clock12, fixedSession, nairaFull, receiptFor, shareLine } from '@/features/receipts/receipts';
+import { fromEveryday } from '@/features/home/everyday';
 import { DEMO_LEDGER, type LedgerRow } from '@/features/home/account';
 import type { Account } from '@/services/auth';
 
@@ -68,6 +69,12 @@ describe('receipts', () => {
     expect(shareLine(r)).toBe('₦20,000 to Sarah Adeyemi, 2:22 PM');
   });
 
+  it('takes a transfer fee off Everyday with the amount, and a conversion fee off the dollars', () => {
+    expect(fromEveryday({ amount: -20_000, kind: 'transfer', fee: 26.88 })).toBeCloseTo(-20_026.88, 2);
+    expect(fromEveryday({ amount: -155_200, kind: 'convert', usd: 100, fee: 1_552 })).toBe(-155_200);
+    expect(fromEveryday({ amount: -50_000, kind: 'transfer', usd: -32.22, fee: 0 })).toBe(0);
+    expect(fromEveryday({ amount: 20_000, kind: 'in' })).toBe(20_000);
+  });
   it('works the balance after a line the frames draw back from today, and keeps a fixed session id', () => {
     const rows: LedgerRow[] = [
       { id: 'a', day: 'today', time: '10:00', icon: 'send', name: 'A', detail: '', amount: -1000, status: 'done', kind: 'transfer' },

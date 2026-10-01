@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Constants from 'expo-constants';
-import { Arrive, Card, Icon, Meta, Row, Screen, SectionLabel, SettingRow, Tap, Title, colour, toast } from '../../design';
+import { Arrive, Card, ConfirmSheet, Icon, Meta, Row, Screen, SectionLabel, SettingRow, Tap, Title, colour, toast } from '../../design';
 import { useFoot } from '../more/Foot';
 import { useApp } from '../onboarding/store';
 import { askHome } from '../more/More';
@@ -30,10 +30,12 @@ export function Settings() {
   }, [asked.details]);
   const account = app.session?.account;
   const { prefs } = usePrefs(account?.accountNumber);
-  /* the foot: the bar, going out of the way under Your details */
-  useFoot({ kind: 'bar', veil: details ? 'away' : undefined }, active);
-  /* the pages stand still while Your details is up */
-  useHoldPages('details', details);
+  /** Sign out, asked about first */
+  const [leaving, setLeaving] = useState(false);
+  /* the foot: the bar, going out of the way under Your details or the question */
+  useFoot({ kind: 'bar', veil: details || leaving ? 'away' : undefined }, active);
+  /* the pages stand still while Your details, or the question, is up */
+  useHoldPages('details', details || leaving);
   if (!app.ready || !account) return null;
 
   const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
@@ -95,7 +97,7 @@ export function Settings() {
             <>
               <SettingRow glyph="chat-filled" title="Contact support" onPress={ask('I need a human to look at something')} />
               <SettingRow glyph="star-filled" title="Give feedback" onPress={ask('I have some feedback about the app')} />
-              <SettingRow glyph="lock-filled" title="Sign out" onPress={signOut} />
+              <SettingRow glyph="lock-filled" title="Sign out" onPress={() => setLeaving(true)} />
             </>,
           )}
         </View>
@@ -113,6 +115,16 @@ export function Settings() {
         </Pressable>
       </Screen>
       {details ? <Details account={account} onDismiss={() => setDetails(false)} /> : null}
+      {leaving ? (
+        <ConfirmSheet
+          title="Sign out of Beetle?"
+          body="You come back in with your phone number and your passcode. Nothing in your account changes, and nothing moves while you are out."
+          action="Sign out"
+          onConfirm={signOut}
+          onCancel={() => setLeaving(false)}
+          testID="confirm-sign-out"
+        />
+      ) : null}
     </>
   );
 }

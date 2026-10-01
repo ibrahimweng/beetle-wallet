@@ -27,8 +27,14 @@ export type Conversation = {
   confirm(panelId: string): void;
   /** a row that can be corrected was tapped */
   edit(panelId: string, row: PanelRow): void;
-  /** an ask panel's fields, as they are filled */
-  fill(askId: string, values: AskValues, found?: AskFound): void;
+  /** an ask panel's fields, as they are filled; `extra` changes whether it asks about the person, and what the To field holds */
+  fill(askId: string, values: AskValues, found?: AskFound, extra?: Partial<Pick<AskPanel, 'confirmWho' | 'hint'>>): void;
+  /** an ask card's own button went through the passcode: what it stands for moves */
+  settleAsk(askId: string, panel: Panel): void;
+  /** the loan card taken through the passcode */
+  takeLoan(turnId: string, panel: Panel, taken: { amount: number; days: number }): void;
+  /** Beetle puts a card up without being asked: a chip's, with what you tapped and Beetle's one line */
+  offer(you: string, text: string, block: { kind: 'ask'; ask: AskPanel } | { kind: 'receive' } | { kind: 'loan' }): void;
   /** an ask panel's Continue: what is in it goes to Beetle */
   answer(askId: string): Promise<void>;
   /** a conversation already under way, for the lab */
@@ -156,10 +162,22 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
             patchAsk(block.askId, turn => ({
               ...turn,
               state: block.done ? 'done' : 'open',
-              block: { kind: 'ask', ask: { ...turn.block.ask, values: block.values, found: block.found ?? turn.block.ask.found, note: block.note } },
+              block: {
+                kind: 'ask',
+                ask: {
+                  ...turn.block.ask,
+                  values: block.values,
+                  found: block.found ?? turn.block.ask.found,
+                  note: block.note,
+                  confirmWho: block.confirmWho ?? turn.block.ask.confirmWho,
+                  hint: block.hint ?? turn.block.ask.hint,
+                },
+              },
             }));
           } else if (block.kind === 'ask') add({ id: id(), who: 'beetle', block, state: 'open' });
           else if (block.kind === 'panel') add({ id: id(), who: 'beetle', block, state: 'running' });
+          else if (block.kind === 'loan') add({ id: id(), who: 'beetle', block, state: 'open' });
+          else if (block.kind === 'receive') add({ id: id(), who: 'beetle', block });
           else add({ id: id(), who: 'beetle', block });
         }
         keep(reply.pending);
@@ -181,16 +199,22 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
   );
 
   const fill = useCallback(
-    (askId: string, values: AskValues, found?: AskFound) => {
+    (askId: string, values: AskValues, found?: AskFound, extra: Partial<Pick<AskPanel, 'confirmWho' | 'hint'>> = {}) => {
       patchAsk(askId, turn => ({
         ...turn,
         block: {
           kind: 'ask',
-          ask: { ...turn.block.ask, values: { ...turn.block.ask.values, ...values }, found: found ? { ...turn.block.ask.found, ...found } : turn.block.ask.found, note: undefined },
+          ask: { ...turn.block.ask, values: { ...turn.block.ask.values, ...values }, found: found ? { ...turn.block.ask.found, ...found } : turn.block.ask.found, note: undefined, ...extra },
         },
       }));
+      /* what Beetle is waiting for is the card as it is now */
+      const p = pendingRef.current;
+      if (p?.need === 'ask' && p.ask.id === askId) {
+        const t = turnsRef.current.find(x => isAsk(x) && x.block.ask.id === askId);
+        if (t && isAsk(t)) keep({ need: 'ask', ask: t.block.ask });
+      }
     },
-    [patchAsk],
+    [patchAsk, keep],
   );
 
   const answer = useCallback(
@@ -209,34 +233,79 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
 
   const ready = useCallback((panelId: string) => patchPanel(panelId, t => (t.state === 'running' ? { ...t, state: 'ready' } : t)), [patchPanel]);
 
-  const confirm = useCallback(
-    (panelId: string) => {
-      const turn = turns.find(t => isPanel(t) && t.block.panel.id === panelId);
-      if (!turn || !isPanel(turn) || turn.state === 'done') return;
-      const panel = turn.block.panel;
-      patchPanel(panelId, t => ({ ...t, state: 'done' }));
+  /* what a panel stands for moves: the line in the day, its receipt, and Beetle's word on it */
+  const land = useCallback(
+    (panel: Panel) => {
       const at = clock();
       const move = panel.move;
       const rowId = move ? onMove({ ...move, detail: `${move.detail} · ${at}` }) : undefined;
       keep(null);
+      const to = panel.person;
       const what =
-        panel.tool === 'transfer'
-          ? `Done. ${naira(-(panel.move?.amount ?? 0))} is with ${panel.rows[0]?.value ?? 'them'}. It left your account at ${at}.`
+        panel.done ??
+        (panel.tool === 'transfer'
+          ? `Done. ${naira(-(panel.move?.amount ?? 0))} is with ${to?.name ?? panel.rows[0]?.value ?? 'them'}${to ? ` at ${to.bank}` : ''}. It left your account at ${at}.`
           : panel.tool === 'pay'
             ? panel.move?.reference
               ? `Paid. The token is ${panel.move.reference}; it is on the receipt too, and in your messages.`
               : 'Paid. It is on the account already.'
             : panel.tool === 'airtime'
               ? 'Done. The airtime is on the line.'
-              : 'Done. The data is on the line.';
+              : 'Done. The data is on the line.');
       /* the receipt lands first, then the word about it */
       if (move && rowId) {
-        const card: ReceiptCard = { rowId, amount: naira(Math.abs(move.amount)), line: receiptLine(move), status: 'Successful', time: at };
+        const card: ReceiptCard = { rowId, amount: naira(Math.abs(move.amount)), line: receiptLine(move), status: move.kind === 'in' ? 'Received' : 'Successful', time: at };
         setTimeout(() => add({ id: id(), who: 'beetle', block: { kind: 'receipt', card } }), BEAT);
         setTimeout(() => add({ id: id(), who: 'beetle', block: { kind: 'say', text: what } }), BEAT * 2);
       } else setTimeout(() => add({ id: id(), who: 'beetle', block: { kind: 'say', text: what } }), BEAT);
     },
-    [turns, patchPanel, onMove, keep, add],
+    [onMove, keep, add],
+  );
+
+  const confirm = useCallback(
+    (panelId: string) => {
+      const turn = turns.find(t => isPanel(t) && t.block.panel.id === panelId);
+      if (!turn || !isPanel(turn) || turn.state === 'done') return;
+      patchPanel(panelId, t => ({ ...t, state: 'done' }));
+      land(turn.block.panel);
+    },
+    [turns, patchPanel, land],
+  );
+
+  const settleAsk = useCallback(
+    (askId: string, panel: Panel) => {
+      const t = turnsRef.current.find(x => isAsk(x) && x.block.ask.id === askId);
+      if (!t || !isAsk(t) || t.state === 'done') return;
+      patchAsk(askId, turn => ({ ...turn, state: 'done' }));
+      land(panel);
+    },
+    [patchAsk, land],
+  );
+
+  const takeLoan = useCallback(
+    (turnId: string, panel: Panel, taken: { amount: number; days: number }) => {
+      setTurns(list => list.map(x => (x.id === turnId && x.who === 'beetle' && x.block.kind === 'loan' ? { ...x, state: 'done' as const, taken } : x)));
+      land(panel);
+    },
+    [land],
+  );
+
+  const offer = useCallback(
+    (you: string, text: string, block: { kind: 'ask'; ask: AskPanel } | { kind: 'receive' } | { kind: 'loan' }) => {
+      add({ id: id(), who: 'you', text: you });
+      setTimeout(
+        () => {
+          add({ id: id(), who: 'beetle', block: { kind: 'say', text } });
+          if (block.kind === 'ask') {
+            add({ id: id(), who: 'beetle', block, state: 'open' });
+            keep({ need: 'ask', ask: block.ask });
+          } else if (block.kind === 'loan') add({ id: id(), who: 'beetle', block, state: 'open' });
+          else add({ id: id(), who: 'beetle', block });
+        },
+        still ? 0 : BEAT,
+      );
+    },
+    [add, keep, still],
   );
 
   const edit = useCallback(
@@ -270,8 +339,8 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
   }, [keep]);
 
   return useMemo(
-    () => ({ turns, thinking, pending, ask, ready, confirm, edit, fill, answer, preload, open, note, load, reset }),
-    [turns, thinking, pending, ask, ready, confirm, edit, fill, answer, preload, open, note, load, reset],
+    () => ({ turns, thinking, pending, ask, ready, confirm, edit, fill, settleAsk, takeLoan, offer, answer, preload, open, note, load, reset }),
+    [turns, thinking, pending, ask, ready, confirm, edit, fill, settleAsk, takeLoan, offer, answer, preload, open, note, load, reset],
   );
 }
 
@@ -303,7 +372,9 @@ export function transcriptOf(turns: Turn[]): { who: 'you' | 'beetle'; text: stri
         .join(', ');
       const state = 'state' in t && t.state === 'done' ? 'answered' : 'waiting to be filled';
       out.push({ who: 'beetle', text: `[Ask panel ${a.id} for ${a.tool}: ${filled || 'nothing filled'}; missing ${askMissing(a).join(', ') || 'nothing'} — ${state}]` });
-    } else if (t.block.kind === 'panel') {
+    } else if (t.block.kind === 'receive') out.push({ who: 'beetle', text: "[The owner's account details card: name, Beetle, the account number and the $tag, to copy or share]" });
+    else if (t.block.kind === 'loan') out.push({ who: 'beetle', text: `[Loan card: ${'state' in t && t.state === 'done' ? 'taken' : 'up, the owner picking how much and for how long'}]` });
+    else if (t.block.kind === 'panel') {
       const p = t.block.panel;
       const state = 'state' in t && t.state === 'done' ? 'confirmed by the owner' : 'up, waiting for the owner';
       out.push({ who: 'beetle', text: `[Panel ${p.id}: ${p.title} — ${p.rows.map(r => `${r.label}: ${r.value}`).join(', ')} — ${state}]` });

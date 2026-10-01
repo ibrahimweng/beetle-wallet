@@ -6,17 +6,19 @@ import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Pane, type Rect } from '../../design';
 import type { ReceiptCard as Card } from './conversation';
-import type { AskPanel, Beneficiaries } from '../../services';
+import type { Account, AskPanel, Beneficiaries } from '../../services';
 import { CardGesturesContext } from '../home/WalletCard';
-import { AskPanelView, type SavedKind } from './AskPanel';
+import { AskPanelView } from './AskPanel';
+import { LoanCard, ReceiveCard } from './Cards';
+import type { Term } from '../loan/loan';
 import { AsideLine, Said, Thinking, Thoughts, ToolPanel, Yours } from './Dark';
 import { ReceiptCard } from './ReceiptCard';
 import { isAsk, isPanel, type Conversation } from './conversation';
 
 /** A panel stops short of the right edge, as the frame draws it. */
 const PANEL_INSET = 60;
-/** An ask panel, with fields to fill, keeps more of the width. */
-const ASK_INSET = 32;
+/** A card with fields to fill keeps nearly all of the width: the picker's ruler needs it. */
+const ASK_INSET = 12;
 
 export function Chat({
   talk,
@@ -25,7 +27,13 @@ export function Chat({
   bottom = 8,
   confirm,
   saved,
-  onSaved,
+  balance,
+  account,
+  tag,
+  canBorrow = false,
+  onConfirmAsk,
+  onBorrow,
+  onSetUp,
   onReceipt,
 }: {
   talk: Conversation;
@@ -39,8 +47,20 @@ export function Chat({
   confirm?: (panelId: string) => void;
   /** the people, lines and meters paid before, for the ask panels */
   saved?: Beneficiaries;
-  /** an ask panel's line under its fields: the list of them, grown from the line */
-  onSaved?: (ask: AskPanel, kind: SavedKind, at: Rect) => void;
+  /** what Everyday holds: a card's picker stops there */
+  balance?: number;
+  /** whose chat it is, for the Receive card */
+  account?: Account;
+  /** the account's own $tag */
+  tag?: string;
+  /** borrowing is turned on */
+  canBorrow?: boolean;
+  /** a card's own button, with all it needs: on to the passcode */
+  onConfirmAsk?: (ask: AskPanel) => void;
+  /** the Loan card's Borrow */
+  onBorrow?: (turnId: string, amount: number, days: Term) => void;
+  /** the Loan card's way to finish setting up */
+  onSetUp?: () => void;
   /** a receipt card, opened where it is */
   onReceipt?: (card: Card, at: Rect) => void;
 }) {
@@ -107,10 +127,29 @@ export function Chat({
                 ask={ask}
                 state={t.state}
                 saved={saved}
-                onFill={(values, found) => talk.fill(ask.id, values, found)}
-                onContinue={() => void talk.answer(ask.id)}
-                onSaved={onSaved ? (kind, at) => onSaved(ask, kind, at) : undefined}
+                balance={balance}
+                onFill={(values, found, extra) => talk.fill(ask.id, values, found, extra)}
+                onConfirm={() => onConfirmAsk?.(ask)}
                 onFocus={() => setTimeout(() => list.current?.scrollToEnd({ animated: true }), 350)}
+              />
+            </View>
+          );
+        } else if (t.block.kind === 'receive') {
+          body = account ? (
+            <View style={{ marginRight: PANEL_INSET }}>
+              <ReceiveCard account={account} tag={tag ?? account.firstName.toLowerCase()} />
+            </View>
+          ) : null;
+        } else if (t.block.kind === 'loan' && 'state' in t) {
+          const turnId = t.id;
+          body = (
+            <View style={{ marginRight: ASK_INSET }}>
+              <LoanCard
+                state={t.state as 'open' | 'done'}
+                taken={'taken' in t ? t.taken : undefined}
+                canBorrow={canBorrow}
+                onSetUp={() => onSetUp?.()}
+                onBorrow={(amount, days) => onBorrow?.(turnId, amount, days)}
               />
             </View>
           );

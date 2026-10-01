@@ -19,6 +19,11 @@ like pages on an iPhone, and the chat the card turns into when it is
 pulled down, where Beetle sends money, tops up, buys data and reads an
 account number off a photo.
 
+How it looks and moves is set down in [`DESIGN.md`](DESIGN.md): no drop
+shadows, forms that speak under their fields, the amount picker, the bank
+always said, asking before what cannot be undone, and the rest. A screen
+keeps those rules; where a Figma frame disagrees, the rule is the newer word.
+
 Each feature is a folder under `src/features/`. The app opens as itself in
 every build; every build but the production one also carries the **lab**, a
 screen behind a long press on the version line in Settings that lists the
@@ -44,7 +49,7 @@ every screen. It needs a Chromium (`npx playwright install chromium`, or set
 | `npm run typecheck` | it compiles, with `strict` and `noUncheckedIndexedAccess` on |
 | `npm test` | the rules of the way in: what counts as a Nigerian number, what a passcode may not be, where each step leads, how the mock services answer; the scripted Beetle and what it asks for; the model against a fake API, its ask panel and its tools; what Beetle knows of the country — the networks by prefix, the plans, the companies, the meters, what was paid before; the gate before money moves; the hour a chat carries on for; the receipts' figures; the order of the record; the three words past a limit |
 | `npm run bundle` | the same JavaScript the phone runs, exported for the web into `dist/` |
-| `npm run flow` | from the boot to the welcome and on to home, then out and back in as the demo account, with the doors that should be shut tried on the way and the lab opened from the version line; the card pulled down and traced as it opens down to the bar that stays under it, with Bills, Data and Services as chips on the ask bar, Activities and back to the chat as it was and Home again closing it, money sent by asking and let through by the passcode, the account's details opened and copied, a photo taken with the browser's stand-in camera and read, money arriving, the model screen, the four cards on home, the Services card swiped through and the pages swiped between, a chat carried on and New chat in the drawer, the receipt card opened where it is and the receipt pages with the share sheet, Settings with every row followed — the switches kept, a new passcode, the three words past a limit, an instruction offered and set up, the other devices signed out, the phone that is not yours frozen, the card revealed and frozen — the bar and More under its white veil, the pages sliding under a bar that stays put, the record narrowed to In and to Insights and a line opened in place over the frost — not who, not the total, the session id kept back, its ··· with Ask Beetle about this — and closed with a tap off it, the four asks — a transfer with no amount, data for a new number, airtime by the slider, a bill from a new meter and from one paid before — each filled from the panel or from the list of what was paid before and taken through the passcode to its receipt; money sent from the Send money page in its four taps — who from the people paid before, the amount moved on the ruler and typed in place, a reference typed, the slide, the passcode, the receipt, and the line on Activities — then filled from a message, from a photo, stopped hard at what Everyday can send, and from a digit the reader was not sure of; every state of a transfer and every way out of it; the face that did not take; and the lab's places opened on their own; every screen photographed into `shots/` |
+| `npm run flow` | from the boot to the welcome and on to home, then out (Sign out asking first) and back in as the demo account, with the doors that should be shut tried on the way and the lab opened from the version line; the card pulled down and traced as it opens down to the bar that stays under it, with the five chips over the input putting their cards up in the chat, Activities and back to the chat as it was and Home again closing it, money sent by asking and let through by the passcode, the account's details opened and copied, a photo taken with the browser's stand-in camera and read, money arriving, the model screen, the four cards on home, the Services card swiped through and the pages swiped between, a chat carried on and New chat in the drawer, the receipt card opened where it is and the receipt pages with the share sheet, Settings with every row followed — the switches kept, a new passcode, the three words past a limit, an instruction offered and set up, the other devices signed out, the phone that is not yours frozen, the card revealed and frozen — the bar and More under its white veil, the pages sliding under a bar that stays put, the record narrowed to In and to Insights and a line opened in place over the frost — not who, not the total, the session id kept back, its ··· with Ask Beetle about this — and closed with a tap off it, the four asks — a transfer with no amount, data for a new number, airtime on the own line, a bill from a new meter and from one paid before — each filled on its card or from Recent, its button saying what is still missing, and taken from that button through the passcode to its receipt; money sent from the Send money page — To as a $tag, as a number with its bank picked and the name checked, and from the people paid before; the amount moved on the ruler and typed in place, a reference typed, the slide, the passcode with the whole of it and Cancel, the receipt, and the line on Activities — then filled from a message, from a photo, stopped hard at what Everyday can send, and from a digit the reader was not sure of; every state of a transfer and every way out of it; the face that did not take; and the lab's places opened on their own; every screen photographed into `shots/` |
 | `npm run figma` | every built screen — thirty-eight of them — against its Figma frame: each named piece where the frame puts it, within three of the frame's figure or of that figure snapped to the 4-point grid; the frame's words on the screen; what is off on purpose listed with its reason; the frame and the screen side by side in `shots/figma/` |
 
 ## On the frame
@@ -371,79 +376,106 @@ kept on the phone, per account.
 
 ## What Beetle asks for
 
-Money does not move on half an ask. A request that carries everything the
-thing needs — "send 20k to Sarah", "2GB for mum", "pay my light bill" —
-goes straight to the panel to confirm. One that does not gets an ask panel
-in the chat: the same dark card as the panels, with the fields the thing
-needs, what was said already in them and the rest empty (the user's
-choice: one panel with the missing fields, not one question at a time).
-A transfer needs who and how much; data needs the number and the plan;
-airtime needs the number and the amount; a bill needs prepaid or postpaid,
-the company, the meter number and the amount. The pill reads Needs a bit
-until every field is in, then Ready; Continue hands it all back to Beetle,
-which says what it is doing, and the panel to confirm lands under it, then
-the passcode, then the receipt card. Words work as well as fields: an
-amount, a number, a plan, a company typed into the ask bar go into the
-panel that is up, and a question in the middle — the balance, dollars — is
-answered without losing it.
+Money does not move on half an ask, and it moves from where it is asked.
+Every ask in the chat is a card: the same dark card, with the fields the
+thing needs, what was said already in them and the rest empty (the user's
+choice: one card with the missing fields, not one question at a time). A
+transfer needs who and how much; data needs the number and the plan;
+airtime needs the number and the amount; a bill needs the company, prepaid
+or postpaid, the meter number and the amount. The card says nothing above
+its fields unless something is wrong; while something is missing its
+button says what, greyed (Pick the bank, Pick how much, Type the meter
+number), and once it has all it needs the button says what it does —
+Confirm ₦20,000, Pay ₦8,000, Buy 1GB · ₦800 — and goes to the passcode,
+which shows the whole of it while the digits go in, then the receipt card
+and Beetle's word. There is no second card to confirm the first. Words work
+as well as fields: an amount or a bank typed into the ask bar goes into the
+card that is up; a new ask while one is up ("send 5k to 0123456785" under
+Sarah's card) gets its own card under the words; and a question in the
+middle — the balance, dollars — is answered without losing the card.
+
+The chips over the input are things to do, not doors: **Send, Bills, Data,
+Receive, Loan**, in that order. Each puts its card up in the chat with
+Beetle's one line above it — Bills is the light: the company, Prepaid or
+Postpaid, the meter number; Receive is the account's number and its $tag,
+to copy or share; Loan is the amount, the days, what is paid back and when,
+and Borrow. "borrow" or "my account number" typed in the chat is the same
+card as its chip.
 
 What Beetle knows (`src/services/nigeria.ts`) fills in what it can. A
 phone number shows its network as it is typed, read off its first four
 digits — MTN, Airtel, Glo, 9mobile — and a number that does not start like
 one is said so. Data is typed as a size or an amount ("5gb", "2000"), or
 picked from the three likeliest plans as chips under the field, with All
-plans a tap away; a plan on the wrong network is refused. Airtime has an
-amount field and a slider under it, ₦100 to ₦10,000 in hundreds, its
-stops spaced evenly so the small amounts get as much room as the big
-ones; when the number is already known it sits compact with Change beside
-it. A bill's meter is looked up as soon as it reads right and the company
+plans a tap away; a plan on the wrong network is refused. Amounts are the
+amount picker, dark (see Amounts); when the number is already known it
+sits compact with Change beside it. A bill's meter is looked up as soon as it reads right and the company
 and the kind are known, and the name and address on it appear under the
 field; a meter the company does not know is said so. Prepaid amounts say
 about how many units they buy. Nothing over the balance goes through.
 
-Under the fields a small line — Someone you have paid before, A number you
-have topped up, A meter you have paid — blurs the screen and lists them,
-the list growing out of the line the way a receipt grows out of its row:
-the people the day and the ledger show paid (with their bank and account,
-when, how many times), the lines topped up (with the network and the last
-plan or amount), the meters paid (the company, the kind, the number). A
-tap fills the panel and the list folds back. The list is built from what
+A small **Recent** at the card's top right grows the card itself into the
+list of what was paid before, which scrolls: the people the day and the
+ledger show paid (with their bank and account, when, how many times), the
+lines topped up (with the network and the last plan or amount), the meters
+paid (the company, the kind, the number). A tap fills the card and it
+settles back. The list is built from what
 moved on this phone, the day the frames draw, and what the demo account
 paid in earlier months; a repeat needs no asking: "data for mum" is Mum's
 MTN line and the 5GB she had last time, "airtime for dad" is Dad's ₦1,000,
 "pay my light bill" or "the usual" is the Ikeja Electric meter and the
 ₦8,000 it usually takes, "mum's flat" the postpaid one at Eko. Both
 Beetles ask the same way: the script reads the words; the model has
-`find_line`, `find_meter`, `list_plans`, `lookup_meter` and `ask_for`,
-which puts up or fills the same panel, and `prepare_data`,
-`prepare_airtime` and `prepare_bill` once nothing is missing. The lab has
-a place for each ask, and the walk fills them from the panel and from the
-list and takes them through the passcode to the receipt. The ask panel has
+`find_account`, `find_line`, `find_meter`, `list_plans`, `lookup_meter`
+and `ask_for`, which puts up or fills the same card, and
+`prepare_transfer`, `prepare_data`, `prepare_airtime` and `prepare_bill`,
+which put up the card ready to pay. The lab has
+a place for each ask, and the walk fills them from the card and from
+Recent and takes them through the passcode to the receipt. The ask panel has
 no frame of its own; its sub-cards, chips (the frame's 112×62, two lines)
 and the initials row are read off the Pay a bill and Buy data frames.
 
 ## Sending money
 
-Send on the card and Send money in More open the Send money page, from
-its frame (`src/features/send/Send.tsx`): the amount, who it is going to,
-a reference, and from where, when it lands and the fee, each on its own
-white card in one grey one, Beetle saying where things stand above them,
-and Slide to send at the foot beside Back. Four taps: Send, who, the
-amount, and the passcode — the slide is a drag. A tap on the person opens
-the people paid before, the list growing out of the card the way the ask
-panel's does, with a number to type and the camera under them; a typed
-number becomes somebody at its tenth digit, and a photo goes through the
-reader and comes back as the person on it. The amount is picked where it
-is, on the amount picker (see Amounts): the ruler, which stops hard at all
-Everyday can send once the fee is counted, what was sent to them before
-and a round figure as chips with All of it, or the figure tapped and typed.
-There is no page of its own for it any more. The reference is typed in
-place. The fee is the receipts' rule: nothing
-under ₦10,000, the banks' own with the tax on it above. The slide's knob
+Send on the card and Send money in More open the Send money page
+(`src/features/send/Send.tsx`): who it is going to first, since it decides
+the rest, then the amount, a reference, and from where, when it lands and
+the fee, each on its own white card in one grey one, and Slide to send at
+the foot beside Back. No bubble from Beetle over it: each card says what
+matters on its own line.
+
+**Two kinds of transfer, always told apart.** The To field
+(`src/features/send/ToField.tsx`) takes all three ways of saying who:
+
+- a **$tag** (`$tobi`) is looked up in Beetle's own directory
+  (`src/services/recipients.ts`) and the Beetle account comes back: free,
+  and there at once;
+- a **name** brings the closest names, from Beetle's accounts and from the
+  people paid before, each with its bank;
+- **ten digits** ask which bank, the likely ones first — worked out from
+  the number itself, the way the CBN's check digit is, and the newer banks
+  first for a phone number — then the name on the account is looked up
+  there and shown, so it is seen to be the right person before anything can
+  move. A bank the number cannot be at says so.
+
+The people paid before wait under the empty field, one tap each, and the
+camera at its end reads a number off a slip. The bank is always said: on
+the page, in the chat, on the passcode sheet, on the receipt and in
+Activities; a Beetle account says Beetle with its $tag. The amount is
+picked where it is, on the amount picker (see Amounts): the ruler, which
+stops hard at all Everyday can send once the fee is counted, what was sent
+to them before and a round figure as chips with All of it, or the figure
+tapped and typed. The reference is typed in place. The fee: nothing to a
+Beetle account; to another bank nothing under ₦10,000, ₦26.88 up to
+₦50,000 and ₦53.75 above. It lands Instantly to Beetle, In a few seconds to
+a bank, Under a minute above ₦50,000. The slide's knob
 follows the finger; let go past four fifths of the way and it lands at
 the end and the passcode comes up, before that and it springs back; until
-there is someone and an amount the pill is the pale grey. After the
-passcode the line goes into the record — Activities sees it the moment it
+there is someone and an amount the pill is the pale grey. The passcode
+sheet shows the whole of it at its top while the six digits go in — who,
+their bank and number or $tag, what they receive, the fee, what leaves
+which account — and Cancel sits plainly under the pad, since the sixth
+digit sends it. After the passcode the line goes into the record — Activities sees it the moment it
 is added — and its receipt opens, with Back to home.
 
 Past the balance the slide leads to Not enough, from its frame: what is
@@ -705,19 +737,23 @@ photo and the lab.
 
 ## Borrowing
 
-Borrow, from its frame, shows the whole cost before deciding: the figure
-with less and more either side and the bar under it against the limit, the
-three terms, and the cost row by row — what you get today, the interest at
-4% a month, the one-off fee, what it comes to, the payments and the first
-of them, a month from today — with the word about paying late at the foot,
-and Slide to take beside Back. The figures are this build's own
+Borrow is short: the amount first, on the picker, up to the limit; under
+it a tight breakdown — Pay back over "90 days ▾", a plain row that opens a
+short list of 30, 60 and 90 days with the payments each comes to; what is
+paid back in all, the strongest line; the payments and the first of them;
+and how it is taken (from Everyday, on the day). If a payment is missed and
+the cost line by line are a tap away: no collateral; a late fee each week a
+payment is overdue; what is due taken from money arriving in Everyday; the
+credit bureau told after 30 days late. Finish setting up sits at the foot
+where borrowing still waits on it, and Slide to take beside Back. The figures are this build's own
 (`src/features/loan/loan.ts`) until a lender stands behind the app; the
 frame's ₦150,000 for 90 days comes to ₦169,500 in three payments of
 ₦56,500. The slide leads to the passcode, and the money then lands the way
 any money in does: on the card, as a line in the record, and as a chat from
 Beetle with the receipt's card, which opens Money in from Beetle Loans.
-"borrow" or "how much can I borrow" typed at home opens the page; so does
-Loan on All services.
+"borrow" or "how much can I borrow" typed in the chat is the Loan card
+there (see What Beetle asks for); Loan on All services and the Loan card
+on home open the page.
 
 ## Dollars
 
@@ -914,8 +950,13 @@ Money health at the top, All / Insights / In / Out to narrow it, today and
 yesterday, what Beetle noticed set among the lines, and what Beetle makes
 of it at the foot. What is still on its way, did not go or came back
 stands first with its status glyph and a chevron, and opens its own page;
-what settled follows on the grey square, each line opening its receipt
-over the page (see Receipts). What you moved into your own goal is not in
+what settled follows on the grey square, each line opening where it is:
+the line stays sharp, the page goes soft under a white frost, and its facts
+come in under the line's own words as plain rows — the way Fuse's Solana
+widget does it, no card, no border, no shadow — the bank and the number
+first (Paid at for a card, Number for a top-up, Meter for a bill), then
+the money, then what was written, with the session id kept back until it
+is asked for, and Share receipt beside the offer at the foot. What you moved into your own goal is not in
 it: that money is still yours. "Where your money went" opens the answer, from its frame: what was asked as
 the head, Beetle's line, the figure with its change and the six months
 behind it, where it went, and what Beetle would do about it.
@@ -926,7 +967,8 @@ The gear on the bar turns to Settings, the third page, from its frame: the Plus
 card, and three groups of rows — what keeps the money yours, your account,
 about — with what each is set to at its end. Every row leads somewhere.
 Your details opens a sheet with the name, the number, the account number to
-copy and when the account was opened; Sign out signs out. Lock and privacy
+copy and when the account was opened; Sign out asks first, in a small
+sheet that says what signing out does, with Sign out in red and Cancel. Lock and privacy
 has the switches — Face ID, what other people can see — kept on this phone
 per account (`src/features/settings/prefs.ts`), Passcode leading to a new
 one on the keypad, six digits twice with the weak ones refused, and Ask
@@ -939,7 +981,9 @@ instructions has the one switch that pauses the saving, the three
 instructions with a switch and a log each, and Add an instruction, which
 offers one on Set this up? — the same page a receipt's offer opens — and
 Set it up turns it on. Devices lists everywhere the account is open with
-the odd one marked, and Sign out everywhere else leaves this phone alone.
+the odd one marked, and Sign out everywhere else asks first, then leaves
+this phone alone. Freezing does not ask: it has to be quick in a bad
+moment, and it lifts as easily as it went on.
 Keys and recovery opens Not your phone, what recovery looks like: freeze
 the money, then prove it is you with a new passcode, which lifts the
 freeze. Cards opens the virtual card: its face, Reveal for ten seconds,
@@ -979,8 +1023,15 @@ past full. A marker lands beside a step 140ms after the step's label has
 changed. A button's label changes through a blur rather than being swapped.
 The wash at the top of a step recedes while you type. The ticks on the ready
 screen land one after another, and the balance on home comes into focus
-rather than counting up. All of it runs on one family of curves, and all of
-it stops for anyone who has asked their phone to reduce motion.
+rather than counting up. Things arrive on the settle curve — moving at
+once and coming to rest slowly — and the stack's own cross-fade is short,
+so the page's column coming out of its blur is the movement. A frost or a
+veil comes in by its blur growing, never by fading a layer that is already
+blurred (the phone draws that badly, and it reads as a jerk); and where
+something lifts to make room, as a line on Activities does for its facts,
+what comes in is measured first, so the lift and the arrival are one
+movement. All of it runs on one family of curves, and all of it stops for
+anyone who has asked their phone to reduce motion.
 
 Between screens the thread is kept, the way Fuse keeps it. Fuse hardly
 ever pushes a page: the thing you tapped stays where it is, the rest

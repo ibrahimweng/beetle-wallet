@@ -1,25 +1,34 @@
-/* The ask panel: Beetle's question with the fields in it, on the dark card.
-   What was said is already filled; what was not is empty and asks. A phone
-   number shows its network as it is typed; a plan is typed or picked from
-   the likely ones, with the rest a tap away; airtime has a slider for the
-   amount; a meter is looked up as soon as it reads right. A small line
-   under the fields — someone you have paid before, a number you have topped
-   up, a meter you have paid — blurs the screen and lists them. Continue
-   hands it all back to Beetle. Read off the Pay a bill and Buy data frames'
-   sub-cards and chips. */
+/* A card in the chat: Beetle's question with the fields in it, on the dark
+   card, and its own button that pays. What was said is already filled; what
+   was not is empty and asks.
+
+   Sending: To takes a $tag, a name or an account number, the way it does on
+   Send money (see send/ToField); somebody found by a name is shown with
+   their bank and number and asked about — "Is this the person?" — with Not
+   them beside it. The amount is the picker, dark: the ruler, chips, and the
+   figure tapped to type. Paying the light: the company, Prepaid or
+   Postpaid, the meter (looked up as soon as it reads right), the amount.
+   Data: the number (its network shown as it is typed) and the plan.
+
+   A small Recent at the card's top right grows the card itself into the
+   list of what was paid before — people, lines or meters — which scrolls;
+   one tap fills the card and it settles back. Once it has all it needs the
+   button says what it does (Confirm ₦5,000, Pay ₦8,000, Buy 5GB) and goes
+   to the passcode; nothing else needs confirming after it. */
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { Caption, Icon, Label, Meta, Row, Swap, Tap, dark, measure, useStill, type Rect } from '../../design';
-import { accountIn, askMissing, personIn, whose } from '../../services/agent';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { AmountPicker, Avatar, Caption, Chevron, Icon, Label, Meta, Row, Swap, Tap, dark, settle, useStill } from '../../design';
 import {
   AIRTIME,
   BILL_AMOUNTS,
-  airtimeAt,
-  airtimeFrom,
   DISCOS,
+  arrivesAt,
+  askMissing,
+  discoById,
+  feeTo,
   groupMeter,
+  isBeetle,
   likelyPlans,
   meters,
   meterProblem,
@@ -32,60 +41,102 @@ import {
   planSize,
   plansFor,
   unitsFor,
-  type AskFound,
-  type AskPanel,
-  type AskValues,
-  type Beneficiaries,
-  type MeterKind,
-  type Network,
-  type Plan,
 } from '../../services';
+import type { AskField, AskFound, AskPanel, AskValues, Beneficiaries, Beneficiary, MeterKind, Network, Person, Plan } from '../../services';
 import { amountIn } from '../../services/agent';
 import { dataIn, groupPhoneNumber } from '../../services/nigeria';
-import { naira } from '../../lib/format';
+import { groupAccount, initialsOf, naira } from '../../lib/format';
+import { ToField, whereOf } from '../send/ToField';
 import type { AskState } from './conversation';
 
 export type SavedKind = 'person' | 'line' | 'meter';
 
 /** What the pill says. */
-export function askWord(state: AskState, missing: number): string {
-  if (state === 'done') return 'Filled';
+export function askWord(state: AskState, missing: number, tool?: AskPanel['tool']): string {
+  if (state === 'done') return tool === 'transfer' ? 'Sent' : tool === 'pay' ? 'Paid' : tool ? 'Bought' : 'Filled';
   if (state === 'busy') return 'Checking';
   return missing ? 'Needs a bit' : 'Ready';
 }
 
-const SAVED_LINE: Record<SavedKind, string> = { person: 'Someone you have paid before', line: 'A number you have topped up', meter: 'A meter you have paid' };
+/** What the card's button says once the card has all it needs. */
+export function actionWord(ask: AskPanel): string {
+  const v = ask.values;
+  if (ask.tool === 'transfer') return `Confirm ${naira(v.amount ?? 0)}`;
+  if (ask.tool === 'pay') return `Pay ${naira(v.amount ?? 0)}`;
+  if (ask.tool === 'data') {
+    const plan = v.plan ? planById(v.plan) : null;
+    return plan ? `Buy ${planSize(plan)} · ${naira(plan.price)}` : 'Buy';
+  }
+  return `Buy ${naira(v.amount ?? 0)} airtime`;
+}
+
+/** What the button says while the card still needs something: the one thing left to do. */
+export function stillWord(ask: AskPanel, first: AskField | undefined): string {
+  switch (first) {
+    case 'who':
+      return ask.hint && /^\d{10}$/.test(ask.hint) ? 'Pick the bank' : 'Who is it to?';
+    case 'amount':
+      return 'Pick how much';
+    case 'disco':
+      return 'Pick the company';
+    case 'meterKind':
+      return 'Prepaid or postpaid?';
+    case 'meter':
+      return 'Type the meter number';
+    case 'number':
+      return 'Type the number';
+    case 'plan':
+      return 'Pick a plan';
+    default:
+      return 'Fill in the rest';
+  }
+}
+
+const RECENT: Record<SavedKind, string> = { person: 'People you have paid', line: 'Numbers you top up', meter: 'Meters you have paid' };
 
 export function AskPanelView({
   ask,
   state,
   saved,
+  balance = Infinity,
   onFill,
-  onContinue,
-  onSaved,
+  onConfirm,
   onFocus,
 }: {
   ask: AskPanel;
   state: AskState;
   saved?: Beneficiaries;
-  onFill: (values: AskValues, found?: AskFound) => void;
-  onContinue: () => void;
-  /** the line under the fields: the list, grown from where the line is */
-  onSaved?: (kind: SavedKind, at: Rect) => void;
+  /** what Everyday holds: the picker stops there */
+  balance?: number;
+  onFill: (values: AskValues, found?: AskFound, extra?: Partial<Pick<AskPanel, 'confirmWho' | 'hint'>>) => void;
+  /** the card has all it needs and its button is pressed: on to the passcode */
+  onConfirm: () => void;
   /** a field took the keyboard */
   onFocus?: () => void;
 }) {
   const missing = askMissing(ask);
   const open = state === 'open';
-  const link = useRef<View>(null);
   const v = ask.values;
   const network = v.number ? networkOf(v.number) : null;
   const line = v.number ? saved?.lines.find(l => l.number === v.number) : undefined;
   const prefilled = useRef(Object.values(v).some(x => x !== undefined && x !== '')).current;
-  const lead = ask.note ?? (prefilled ? 'Check the parts I filled in before it goes' : 'I need a few things first');
-  const set = (values: AskValues, found?: AskFound) => {
-    if (open) onFill(values, found);
+  const [recent, setRecent] = useState(false);
+  const set = (values: AskValues, found?: AskFound, extra?: Partial<Pick<AskPanel, 'confirmWho' | 'hint'>>) => {
+    if (open) onFill(values, found, extra);
   };
+  const list: Beneficiary[] = !saved || !ask.saved ? [] : ask.saved === 'person' ? saved.people : ask.saved === 'line' ? saved.lines.filter(l => !l.own) : saved.meters;
+  const pick = (b: Beneficiary) => {
+    setRecent(false);
+    if (b.kind === 'person') set({ who: b.name }, { person: { name: b.name, bank: b.bank, number: b.number } }, { confirmWho: false, hint: undefined });
+    else if (b.kind === 'line') set({ number: b.number, plan: ask.tool === 'data' ? b.plan : undefined, amount: ask.tool === 'airtime' ? (b.amount ?? v.amount) : v.amount });
+    else set({ disco: b.disco, meterKind: b.meterKind, meter: b.meter, amount: v.amount ?? b.amount }, { meter: { name: b.name, address: '' } });
+  };
+  const person = ask.found?.person ?? null;
+  const fee = ask.tool === 'transfer' && v.amount ? feeTo(v.amount, person?.bank) : 0;
+  const cap = ask.tool === 'transfer' ? Math.max(0, Math.floor(balance - feeTo(balance, person?.bank))) : ask.tool === 'airtime' ? Math.min(AIRTIME.max, Math.floor(balance)) : Math.floor(balance);
+  /* a word on the card only when something is wrong: what is missing, the chat above has said, and the button says */
+  const lead = state === 'done' ? null : (ask.note ?? null);
+  const ready = open && missing.length === 0;
   return (
     <View style={s.panel} testID="ask">
       <View style={s.head}>
@@ -93,86 +144,256 @@ export function AskPanelView({
           <Icon name={ask.icon} size={16} colour="#ffffff" />
         </View>
         <Label style={{ flex: 1, color: '#ffffff' }}>{ask.title}</Label>
-        <View style={s.pill} testID="ask-pill">
-          <View style={[s.dot, { backgroundColor: missing.length && open ? '#f5a524' : '#34c759' }]} />
-          <Swap value={askWord(state, missing.length)}>{w => <Caption style={{ color: dark.pillText, fontWeight: '600' }}>{w}</Caption>}</Swap>
-        </View>
-      </View>
-      <View style={[s.body, !open && { opacity: 0.72 }]} pointerEvents={open ? 'auto' : 'none'}>
-        <Caption style={{ color: ask.note ? '#ffd48a' : dark.textSoft }} testID="ask-lead">
-          {lead}
-        </Caption>
-        {ask.fields.map(f => {
-          switch (f) {
-            case 'who':
-              return <WhoField key={f} value={v.who ?? ''} found={ask.found?.person} onChange={(who, person) => set({ who }, { person })} onFocus={onFocus} />;
-            case 'amount':
-              return ask.tool === 'airtime' ? (
-                <AirtimeField key={f} value={v.amount} usual={line?.amount} onChange={amount => set({ amount })} onFocus={onFocus} />
-              ) : (
-                <AmountField key={f} value={v.amount} chips={ask.tool === 'pay' ? BILL_AMOUNTS : undefined} units={v.meterKind !== 'postpaid'} onChange={amount => set({ amount })} onFocus={onFocus} />
-              );
-            case 'number':
-              return (
-                <NumberField
-                  key={f}
-                  value={v.number ?? ''}
-                  label={line?.label}
-                  times={line?.times}
-                  prefilled={prefilled && !!v.number}
-                  onChange={number => set({ number, plan: undefined })}
-                  onFocus={onFocus}
-                />
-              );
-            case 'plan':
-              return <PlanField key={f} network={network} value={v.plan} usual={line?.plan} onChange={plan => set({ plan })} onFocus={onFocus} />;
-            case 'meterKind':
-              return <KindField key={f} value={v.meterKind} onChange={meterKind => set({ meterKind }, { meter: undefined })} />;
-            case 'disco':
-              return <DiscoField key={f} value={v.disco} onChange={disco => set({ disco }, { meter: undefined })} />;
-            case 'meter':
-              return (
-                <MeterField
-                  key={f}
-                  value={v.meter ?? ''}
-                  disco={v.disco}
-                  kind={v.meterKind}
-                  found={ask.found?.meter}
-                  onChange={meter => set({ meter }, { meter: undefined })}
-                  onFound={record => set({}, { meter: record })}
-                  onFocus={onFocus}
-                />
-              );
-          }
-        })}
-        {ask.saved && onSaved && open ? (
+        {/* Recent: the card grows into the list of what was paid before */}
+        {list.length && open ? (
           <Tap
-            ref={link}
             accessibilityRole="button"
-            accessibilityLabel={SAVED_LINE[ask.saved]}
-            onPress={async () => {
-              const at = await measure(link);
-              onSaved(ask.saved!, at);
-            }}
-            style={s.link}
-            testID="ask-saved"
+            accessibilityLabel={recent ? 'Back to the card' : 'Recent'}
+            accessibilityState={{ expanded: recent }}
+            onPress={() => setRecent(r => !r)}
+            hitSlop={8}
+            style={[s.recent, recent && s.recentOn]}
+            testID="ask-recent"
           >
-            <Caption style={{ color: '#9fb0ff' }}>{SAVED_LINE[ask.saved]}</Caption>
-            <Icon name="chevron" size={12} colour="#9fb0ff" />
+            <Caption style={{ color: recent ? '#000000' : dark.pillText, fontWeight: '600' }}>Recent</Caption>
+            <Chevron dir={recent ? 'up' : 'down'} size={12} colour={recent ? '#000000' : dark.label} />
           </Tap>
+        ) : (
+          <View style={s.pill} testID="ask-pill">
+            <View style={[s.dot, { backgroundColor: missing.length && open ? '#f5a524' : '#34c759' }]} />
+            <Swap value={askWord(state, missing.length, ask.tool)}>{w => <Caption style={{ color: dark.pillText, fontWeight: '600' }}>{w}</Caption>}</Swap>
+          </View>
+        )}
+      </View>
+      <Grow>
+        {recent ? (
+          <RecentList title={RECENT[ask.saved ?? 'person']} list={list} onPick={pick} />
+        ) : (
+          <View style={[s.body, !open && { opacity: 0.72 }]} pointerEvents={open ? 'auto' : 'none'}>
+            {lead ? (
+              <Caption style={{ color: ask.note ? '#ffd48a' : dark.textSoft }} testID="ask-lead">
+                {lead}
+              </Caption>
+            ) : null}
+            {ask.fields.map(f => {
+              switch (f) {
+                case 'who':
+                  return (
+                    <WhoField
+                      key={f}
+                      person={person}
+                      confirm={!!ask.confirmWho && open}
+                      hint={ask.hint ?? (person ? undefined : v.who)}
+                      paid={saved?.people ?? []}
+                      onPick={(p, how) => set({ who: p.name }, { person: p }, { confirmWho: false, hint: undefined, ...(how ? {} : {}) })}
+                      onNotThem={() => set({ who: undefined }, { person: undefined }, { confirmWho: false, hint: person?.name.split(' ')[0] })}
+                      onFocus={onFocus}
+                    />
+                  );
+                case 'amount':
+                  /* the amount comes once what it is for is known: the person, the meter, the line */
+                  if (!amountShows(ask)) return null;
+                  return (
+                    <View key={f} style={s.amount} testID="ask-amount">
+                      <AmountPicker
+                        tone="dark"
+                        value={v.amount ?? 0}
+                        onChange={amount => set({ amount: amount || undefined })}
+                        max={cap}
+                        note={amountNote(ask, cap, fee, person)}
+                        chips={ask.tool === 'pay' ? [...BILL_AMOUNTS] : ask.tool === 'airtime' ? [500, 1_000, 2_000] : likelyFor(ask, saved)}
+                        all={ask.tool === 'transfer' ? 'All of it' : undefined}
+                        testID="ask-picker"
+                      />
+                    </View>
+                  );
+                case 'number':
+                  return (
+                    <NumberField
+                      key={f}
+                      value={v.number ?? ''}
+                      label={line?.label}
+                      times={line?.times}
+                      prefilled={prefilled && !!v.number}
+                      onChange={number => set({ number, plan: undefined })}
+                      onFocus={onFocus}
+                    />
+                  );
+                case 'plan':
+                  return <PlanField key={f} network={network} value={v.plan} usual={line?.plan} onChange={plan => set({ plan })} onFocus={onFocus} />;
+                case 'meterKind':
+                  return <KindField key={f} value={v.meterKind} onChange={meterKind => set({ meterKind }, { meter: undefined })} />;
+                case 'disco':
+                  return <DiscoField key={f} value={v.disco} onChange={disco => set({ disco }, { meter: undefined })} />;
+                case 'meter':
+                  return (
+                    <MeterField
+                      key={f}
+                      value={v.meter ?? ''}
+                      disco={v.disco}
+                      kind={v.meterKind}
+                      found={ask.found?.meter}
+                      onChange={meter => set({ meter }, { meter: undefined })}
+                      onFound={record => set({}, { meter: record })}
+                      onFocus={onFocus}
+                    />
+                  );
+              }
+            })}
+          </View>
+        )}
+      </Grow>
+      {recent ? null : (
+        <View style={{ paddingHorizontal: 12, paddingTop: 4 }}>
+          <Tap
+            accessibilityRole="button"
+            accessibilityLabel={state === 'done' ? askWord(state, 0, ask.tool) : ready ? actionWord(ask) : stillWord(ask, missing[0])}
+            disabled={!ready}
+            onPress={onConfirm}
+            style={[s.action, ready ? s.actionReady : null, !ready && state !== 'done' && { opacity: 0.55 }]}
+            testID="ask-action"
+          >
+            <Swap value={state === 'done' ? askWord(state, 0, ask.tool) : state === 'busy' ? 'Checking…' : ready ? actionWord(ask) : stillWord(ask, missing[0])}>
+              {label => <Row style={{ color: ready ? '#000000' : '#ffffff' }}>{label}</Row>}
+            </Swap>
+          </Tap>
+        </View>
+      )}
+    </View>
+  );
+}
+
+/** Whether the card is far enough along for the amount: who it is for found, the meter found, the line right. */
+function amountShows(ask: AskPanel): boolean {
+  const missing = askMissing(ask).filter(f => f !== 'amount');
+  return missing.length === 0 || (ask.values.amount ?? 0) > 0;
+}
+
+/** The line under the figure: what it can be, what it costs, when it lands. */
+function amountNote(ask: AskPanel, cap: number, fee: number, person: Person | null): string {
+  const v = ask.values;
+  if (ask.tool === 'transfer') {
+    if (!v.amount) return `Everyday can send ${naira(cap)}`;
+    if (isBeetle(person)) return 'Free · Beetle to Beetle · there at once';
+    return `${fee ? `Fee ₦${fee.toFixed(2)}` : 'No fee'} · ${arrivesAt(v.amount, person?.bank).toLowerCase()}`;
+  }
+  if (ask.tool === 'pay') return v.amount && v.meterKind !== 'postpaid' ? `About ${unitsFor(v.amount)} kWh` : `Everyday has ${naira(cap)}`;
+  return `Lands at once · up to ${naira(cap)}`;
+}
+
+/** The likely amounts to someone: what was sent to them before, then the round figures. */
+function likelyFor(ask: AskPanel, saved?: Beneficiaries): number[] {
+  const usual = ask.tool === 'transfer' && ask.found?.person ? saved?.people.find(p => p.number === ask.found?.person?.number) : undefined;
+  return [...new Set([...(usual ? [] : []), 5_000, 10_000, 20_000])];
+}
+
+/* Who, on the card: the person found — their bank and number, or Beetle and
+   their tag — asked about where they were found by a name; or the To field. */
+function WhoField({
+  person,
+  confirm,
+  hint,
+  paid,
+  onPick,
+  onNotThem,
+  onFocus,
+}: {
+  person: Person | null;
+  confirm: boolean;
+  hint?: string;
+  paid: import('../../services').PersonPaid[];
+  onPick: (p: Person, how?: string) => void;
+  onNotThem: () => void;
+  onFocus?: () => void;
+}) {
+  if (person)
+    return (
+      <View style={s.person} testID="ask-who">
+        {confirm ? (
+          <Caption style={{ color: dark.pillText, fontWeight: '600' }} testID="ask-is-this">
+            Is this the person?
+          </Caption>
         ) : null}
+        <View style={s.personRow}>
+          <Avatar initials={initialsOf(person.name)} size={38} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <Label style={{ color: '#ffffff' }} numberOfLines={1}>
+              {person.name}
+            </Label>
+            <Meta style={{ color: dark.textSoft }} numberOfLines={1} testID="ask-who-where">
+              {whereOf(person)}
+            </Meta>
+          </View>
+          <Tap accessibilityRole="button" accessibilityLabel={confirm ? 'Not them' : 'Change who it is for'} onPress={onNotThem} hitSlop={8} style={s.tertiary} testID="ask-not-them">
+            <Caption style={{ color: '#9fb0ff', fontWeight: '600' }}>{confirm ? 'Not them' : 'Change'}</Caption>
+          </Tap>
+        </View>
+        {isBeetle(person) ? <Caption style={{ color: '#7fd99a' }}>A Beetle account · free, and there at once</Caption> : null}
       </View>
-      <View style={{ paddingHorizontal: 20, paddingTop: 4 }}>
-        <Tap
-          accessibilityRole="button"
-          accessibilityLabel={state === 'done' ? 'Filled' : state === 'busy' ? 'Checking' : 'Continue'}
-          disabled={!open || missing.length > 0}
-          onPress={onContinue}
-          style={[s.action, (!open || missing.length > 0) && { opacity: 0.55 }]}
-        >
-          <Swap value={state === 'done' ? 'Filled' : state === 'busy' ? 'Checking…' : 'Continue'}>{label => <Row style={{ color: '#ffffff' }}>{label}</Row>}</Swap>
-        </Tap>
+    );
+  return <ToField tone="dark" value={null} onChange={p => p && onPick(p)} paid={paid} initial={hint} onFocus={onFocus} testID="ask-to" />;
+}
+
+/* The card's own height, following what is in it: the fields, or the list
+   it grows into, one movement either way. */
+function Grow({ children }: { children: ReactNode }) {
+  const still = useStill();
+  const h = useSharedValue(-1);
+  const style = useAnimatedStyle(() => (h.value < 0 ? {} : { height: h.value }));
+  return (
+    <Animated.View style={[{ overflow: 'hidden' }, style]}>
+      <View
+        onLayout={e => {
+          const next = e.nativeEvent.layout.height;
+          h.value = h.value < 0 || still ? next : withTiming(next, { duration: 280, easing: settle });
+        }}
+      >
+        {children}
       </View>
+    </Animated.View>
+  );
+}
+
+/* What was paid before, in the card: a list that scrolls, one tap each. */
+function RecentList({ title, list, onPick }: { title: string; list: Beneficiary[]; onPick: (b: Beneficiary) => void }) {
+  return (
+    <View style={s.recentList} testID="ask-recent-list">
+      <Caption style={{ color: dark.label, paddingHorizontal: 4, paddingBottom: 6 }}>{title}</Caption>
+      <ScrollView style={{ maxHeight: 280 }} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+        {list.map(b => {
+          const name = b.kind === 'person' ? b.name : b.label;
+          const detail =
+            b.kind === 'person'
+              ? `${b.bank} · ${groupAccount(b.number)}`
+              : b.kind === 'line'
+                ? `${groupPhoneNumber(b.number)} · ${b.network}${b.plan ? ` · ${planName(planById(b.plan)!)}` : b.amount ? ` · ${naira(b.amount)}` : ''}`
+                : `${discoById(b.disco)?.short ?? b.disco} · ${b.meterKind === 'prepaid' ? 'Prepaid' : 'Postpaid'} · ${groupMeter(b.meter)}`;
+          return (
+            <Tap key={b.id} accessibilityRole="button" accessibilityLabel={name} onPress={() => onPick(b)} style={s.recentRow} scale={0.98} testID="ask-recent-row">
+              {b.kind === 'person' ? (
+                <Avatar initials={initialsOf(b.name)} size={34} />
+              ) : b.kind === 'line' ? (
+                <View style={[s.mark, { backgroundColor: networkInfo(b.network).colour }]}>
+                  <Label style={{ color: networkInfo(b.network).ink }}>{name.charAt(0).toUpperCase()}</Label>
+                </View>
+              ) : (
+                <View style={[s.mark, { backgroundColor: dark.edgeStrong }]}>
+                  <Icon name="power" size={16} colour="#ffffff" />
+                </View>
+              )}
+              <View style={{ flex: 1, gap: 2 }}>
+                <Label style={{ color: '#ffffff' }} numberOfLines={1}>
+                  {name}
+                </Label>
+                <Caption style={{ color: dark.textSoft }} numberOfLines={1}>
+                  {detail}
+                </Caption>
+              </View>
+              {b.kind === 'meter' && b.amount ? <Caption style={{ color: dark.label }}>{naira(b.amount)}</Caption> : b.when ? <Caption style={{ color: dark.label }}>{b.when}</Caption> : null}
+            </Tap>
+          );
+        })}
+      </ScrollView>
     </View>
   );
 }
@@ -204,151 +425,6 @@ function Box({ children, right }: { children: ReactNode; right?: ReactNode }) {
 }
 
 const inputStyle = { flex: 1, color: '#ffffff', fontSize: 16, fontWeight: '600' as const, paddingVertical: 0, height: 46 };
-
-function WhoField({
-  value,
-  found,
-  onChange,
-  onFocus,
-}: {
-  value: string;
-  found?: import('../../services').Person | null;
-  onChange: (who: string, person: import('../../services').Person | null) => void;
-  onFocus?: () => void;
-}) {
-  const change = (text: string) => {
-    const digits = text.replace(/\D/g, '');
-    const number = accountIn(text) ?? (digits.length === 10 && /^\d[\d\s-]*$/.test(text.trim()) ? digits : null);
-    const person = number ? whose(number) : text.trim().length > 1 ? personIn(text) : null;
-    onChange(text, person);
-  };
-  const under = found
-    ? `${found.name} · ${found.bank}`
-    : value.trim()
-      ? /^\d/.test(value.trim())
-        ? 'Ten digits, and I will find whose it is'
-        : 'Nobody I know by that name; their account number would do'
-      : null;
-  return (
-    <Field label="Who to" under={under} tone={found ? 'good' : 'soft'} testID="ask-who">
-      <Box>
-        <TextInput
-          value={value}
-          onChangeText={change}
-          onFocus={onFocus}
-          placeholder="A name I know, or ten digits"
-          placeholderTextColor={dark.label}
-          style={inputStyle}
-          accessibilityLabel="Who to"
-          autoCapitalize="words"
-          autoCorrect={false}
-        />
-      </Box>
-    </Field>
-  );
-}
-
-/** Digits with their thousands, as typed. */
-const withCommas = (n: number) => Math.floor(n).toLocaleString('en-NG');
-
-function AmountField({ value, chips, units, onChange, onFocus }: { value?: number; chips?: readonly number[]; units?: boolean; onChange: (amount: number | undefined) => void; onFocus?: () => void }) {
-  const [text, setText] = useState(value ? withCommas(value) : '');
-  useEffect(() => {
-    const typed = amountIn(text.replace(/,/g, '')) ?? undefined;
-    if (typed !== value) setText(value ? withCommas(value) : '');
-  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
-  const change = (t: string) => {
-    const digits = t.replace(/[^\d]/g, '');
-    setText(digits ? withCommas(Number(digits)) : '');
-    onChange(digits ? Number(digits) : undefined);
-  };
-  return (
-    <Field label="Amount" testID="ask-amount">
-      <Box>
-        <Row style={{ color: text ? '#ffffff' : dark.label }}>₦</Row>
-        <TextInput value={text} onChangeText={change} onFocus={onFocus} placeholder="0" placeholderTextColor={dark.label} style={inputStyle} accessibilityLabel="Amount" keyboardType="number-pad" />
-      </Box>
-      {chips ? (
-        <View style={s.chips}>
-          {chips.map(c => (
-            <Chip key={c} on={value === c} label={naira(c)} sub={units ? `About ${unitsFor(c)} kWh` : undefined} onPress={() => onChange(c)} />
-          ))}
-        </View>
-      ) : null}
-    </Field>
-  );
-}
-
-/** Airtime: the amount, and a slider to set it by feel. */
-function AirtimeField({ value, usual, onChange, onFocus }: { value?: number; usual?: number; onChange: (amount: number | undefined) => void; onFocus?: () => void }) {
-  return (
-    <View style={{ gap: 8 }}>
-      <AmountField value={value} onChange={onChange} onFocus={onFocus} />
-      <Slider value={value ?? usual ?? AIRTIME.min} onChange={onChange} />
-    </View>
-  );
-}
-
-function Slider({ value, onChange }: { value: number; onChange: (amount: number) => void }) {
-  const still = useStill();
-  const [w, setW] = useState(0);
-  const x = useSharedValue(0);
-  useEffect(() => {
-    if (!w) return;
-    const px = airtimeAt(value) * w;
-    x.value = still ? px : withTiming(px, { duration: 160 });
-  }, [value, w, still, x]);
-  const commit = (px: number) => {
-    if (w) onChange(airtimeFrom(px / w));
-  };
-  const pan = Gesture.Pan()
-    .activeOffsetX([-6, 6])
-    .failOffsetY([-12, 12])
-    .onUpdate(e => {
-      x.value = Math.min(Math.max(e.x, 0), w);
-    })
-    .onEnd(e => runOnJS(commit)(e.x));
-  const tap = Gesture.Tap().onEnd(e => runOnJS(commit)(e.x));
-  const fill = useAnimatedStyle(() => ({ width: x.value }));
-  const knob = useAnimatedStyle(() => ({ transform: [{ translateX: x.value - 12 }] }));
-  const stops = AIRTIME.stops;
-  return (
-    <View style={{ gap: 2, marginHorizontal: 8 }} testID="ask-slider">
-      <GestureDetector gesture={Gesture.Race(pan, tap)}>
-        <View
-          style={{ height: 40, justifyContent: 'center' }}
-          onLayout={e => setW(e.nativeEvent.layout.width)}
-          accessibilityRole="adjustable"
-          accessibilityLabel="Amount slider"
-          accessibilityValue={{ min: AIRTIME.min, max: AIRTIME.max, now: value, text: naira(value) }}
-          accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
-          onAccessibilityAction={e => onChange(Math.min(AIRTIME.max, Math.max(AIRTIME.min, value + (e.nativeEvent.actionName === 'increment' ? AIRTIME.step : -AIRTIME.step))))}
-        >
-          <View style={s.track} />
-          <Animated.View style={[s.trackOn, fill]} />
-          {stops.map(m => (
-            <View key={m} style={[s.tick, { left: airtimeAt(m) * w - 1 }]} />
-          ))}
-          <Animated.View style={[s.knob, knob]} />
-        </View>
-      </GestureDetector>
-      <View style={{ height: 16 }}>
-        {stops.map(m => (
-          <Pressable
-            key={m}
-            accessibilityRole="button"
-            accessibilityLabel={`Airtime ${naira(m)}`}
-            onPress={() => onChange(m)}
-            hitSlop={6}
-            style={{ position: 'absolute', left: airtimeAt(m) * w - 24, width: 48, alignItems: 'center' }}
-          >
-            <Caption style={{ color: value === m ? '#ffffff' : dark.label }}>{m >= 1000 ? `${m / 1000}k` : String(m)}</Caption>
-          </Pressable>
-        ))}
-      </View>
-    </View>
-  );
-}
 
 export function NetworkBadge({ network }: { network: Network }) {
   const info = networkInfo(network);
@@ -693,12 +769,20 @@ const s = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     backgroundColor: '#ffffff',
-    shadowColor: '#000',
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
   },
   link: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 24, alignSelf: 'flex-start' },
+  /* the small tertiary Recent at the head's right: a pill that lights white while the list is out */
+  recent: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 26, paddingHorizontal: 10, borderRadius: 13, backgroundColor: dark.edge, borderWidth: 1, borderColor: dark.edgeStrong },
+  recentOn: { backgroundColor: '#ffffff', borderColor: '#ffffff' },
+  recentList: { paddingHorizontal: 8, paddingTop: 12, paddingBottom: 8 },
+  recentRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 54, paddingHorizontal: 4, borderRadius: 12 },
+  mark: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
+  /* the picker sits on the card itself, the ruler running edge to edge inside it */
+  amount: { marginHorizontal: -4, paddingTop: 4 },
+  person: { gap: 8 },
+  personRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 40 },
+  /* ready: the button lights white, the one thing to press */
+  actionReady: { backgroundColor: '#ffffff', borderColor: '#ffffff' },
   action: {
     height: 52,
     borderRadius: 26,
@@ -707,10 +791,5 @@ const s = StyleSheet.create({
     borderColor: dark.edgeStrong,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 6,
   },
 });

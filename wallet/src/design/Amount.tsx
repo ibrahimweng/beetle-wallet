@@ -18,7 +18,7 @@ import Svg, { Path } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Label, Meta } from './text';
 import { Tap, settle, swipes, useStill } from './motion';
-import { colour, type as face } from './tokens';
+import { colour, dark, type as face } from './tokens';
 import { feel } from './haptics';
 import { lastStep, pickedAt, stepFor, stepOf, valueAt } from '../lib/steps';
 
@@ -50,6 +50,56 @@ const koboOf = (n: number) => {
   return k ? '.' + String(k).padStart(2, '0') : '';
 };
 
+/** The picker on a light page, or on the dark card in the chat. */
+export type PickerTone = 'light' | 'dark';
+type Palette = {
+  ink: string;
+  faint: string;
+  minor: string;
+  major: string;
+  bg: string;
+  bg0: string;
+  chip: string;
+  chipText: string;
+  chipOn: string;
+  chipOnText: string;
+  note: string;
+  cap: string;
+  bad: string;
+};
+const PALETTE: Record<PickerTone, Palette> = {
+  light: {
+    ink: colour.ink,
+    faint: colour.textTertiary,
+    minor: colour.ruleStrong,
+    major: colour.textSecondary,
+    bg: '#ffffff',
+    bg0: 'rgba(255,255,255,0)',
+    chip: colour.surface2,
+    chipText: colour.ink,
+    chipOn: colour.ink,
+    chipOnText: colour.textInverse,
+    note: colour.textTertiary,
+    cap: colour.accent,
+    bad: colour.bad,
+  },
+  dark: {
+    ink: '#ffffff',
+    faint: dark.label,
+    minor: dark.edgeStrong,
+    major: dark.label,
+    bg: dark.panel,
+    bg0: 'rgba(28,28,30,0)',
+    chip: dark.edge,
+    chipText: '#ffffff',
+    chipOn: '#ffffff',
+    chipOnText: '#000000',
+    note: dark.textSoft,
+    cap: '#9fb0ff',
+    bad: '#ffd48a',
+  },
+};
+
 export type AmountPickerProps = {
   value: number;
   onChange: (amount: number) => void;
@@ -62,10 +112,15 @@ export type AmountPickerProps = {
   /** a chip for all of it, with its own word */
   all?: string;
   unit?: Unit;
+  /** light on a page, dark on the chat's card */
+  tone?: PickerTone;
+  /** the note is a warning: more than there is */
+  warn?: boolean;
   testID?: string;
 };
 
-export function AmountPicker({ value, onChange, max, note, chips = [], all, unit = 'naira', testID = 'amount-picker' }: AmountPickerProps) {
+export function AmountPicker({ value, onChange, max, note, chips = [], all, unit = 'naira', tone = 'light', warn = false, testID = 'amount-picker' }: AmountPickerProps) {
+  const pal = PALETTE[tone];
   const cap = max ?? Infinity;
   const k = SCALE[unit];
   const end = max ?? RULER_END * k;
@@ -84,6 +139,7 @@ export function AmountPicker({ value, onChange, max, note, chips = [], all, unit
     <View style={s.picker} testID={testID}>
       <View style={{ alignItems: 'center', gap: 2 }}>
         <Figure
+          pal={pal}
           unit={unit}
           value={value}
           typing={typing}
@@ -95,18 +151,18 @@ export function AmountPicker({ value, onChange, max, note, chips = [], all, unit
           }}
         />
         {note ? (
-          <Meta tone={atCap ? 'accent' : 'tertiary'} testID="amount-note">
+          <Meta style={{ color: warn ? pal.bad : atCap ? pal.cap : pal.note, textAlign: 'center' }} testID="amount-note">
             {atCap && max !== undefined ? `All of it: ${money(max, unit)}${koboOf(max)}` : note}
           </Meta>
         ) : null}
       </View>
-      <Ruler handle={ruler} value={value} last={last} end={end} scale={k} unit={unit} onPick={onChange} />
+      <Ruler pal={pal} handle={ruler} value={value} last={last} end={end} scale={k} unit={unit} onPick={onChange} />
       {shown.length || all ? (
         <View style={s.chips} testID="amount-chips">
           {shown.map(c => (
-            <Chip key={c} label={money(c, unit)} on={value === c} onPress={() => pick(c)} />
+            <Chip pal={pal} key={c} label={money(c, unit)} on={value === c} onPress={() => pick(c)} />
           ))}
-          {all && max !== undefined && max > 0 ? <Chip label={all} on={value === max} onPress={() => pick(max)} /> : null}
+          {all && max !== undefined && max > 0 ? <Chip pal={pal} label={all} on={value === max} onPress={() => pick(max)} /> : null}
         </View>
       ) : null}
     </View>
@@ -120,7 +176,23 @@ const KOBO: TextStyle = { ...face.head, fontSize: 22, lineHeight: 28, color: col
 
 /* The figure, each character rolling on its own as it changes — up as the
    amount grows, down as it shrinks — or, tapped, the field it is typed in. */
-function Figure({ value, typing, onTyping, onType, cap, unit }: { value: number; typing: boolean; onTyping: (on: boolean) => void; onType: (v: number) => void; cap: number; unit: Unit }) {
+function Figure({
+  pal,
+  value,
+  typing,
+  onTyping,
+  onType,
+  cap,
+  unit,
+}: {
+  pal: Palette;
+  value: number;
+  typing: boolean;
+  onTyping: (on: boolean) => void;
+  onType: (v: number) => void;
+  cap: number;
+  unit: Unit;
+}) {
   const before = useRef(value);
   const dir = useSharedValue(1);
   if (value !== before.current) {
@@ -141,7 +213,7 @@ function Figure({ value, typing, onTyping, onType, cap, unit }: { value: number;
   if (typing)
     return (
       <View style={s.figureRow}>
-        <Animated.Text style={[FIG, { color: colour.ink }]}>{SIGN[unit]}</Animated.Text>
+        <Animated.Text style={[FIG, { color: pal.ink }]}>{SIGN[unit]}</Animated.Text>
         <TextInput
           ref={field}
           value={text}
@@ -160,8 +232,8 @@ function Figure({ value, typing, onTyping, onType, cap, unit }: { value: number;
           keyboardType="number-pad"
           returnKeyType="done"
           placeholder={hint}
-          placeholderTextColor={colour.textTertiary}
-          style={[FIG, s.field, { width: w }]}
+          placeholderTextColor={pal.faint}
+          style={[FIG, s.field, { width: w, color: pal.ink }]}
           accessibilityLabel="Type the amount"
           testID="amount-field"
         />
@@ -177,9 +249,9 @@ function Figure({ value, typing, onTyping, onType, cap, unit }: { value: number;
       <View style={s.figureRow}>
         {whole.split('').map((ch, i, all) => (
           /* keyed from the right, so the thousands stay put as a digit is added at the left */
-          <Roll key={all.length - i} char={ch} dir={dir} style={[FIG, { color: value ? colour.ink : colour.textTertiary }]} height={48} />
+          <Roll key={all.length - i} char={ch} dir={dir} style={[FIG, { color: value ? pal.ink : pal.faint }]} height={48} />
         ))}
-        {k ? <Animated.Text style={[KOBO, { marginTop: 6 }]}>{k}</Animated.Text> : null}
+        {k ? <Animated.Text style={[KOBO, { marginTop: 6, color: pal.faint }]}>{k}</Animated.Text> : null}
       </View>
     </Tap>
   );
@@ -216,6 +288,7 @@ function Roll({ char, dir, style, height }: { char: string; dir: { value: number
 type RulerHandle = { to: (v: number, driven: boolean) => void };
 
 function Ruler({
+  pal,
   handle,
   value,
   last,
@@ -224,6 +297,7 @@ function Ruler({
   unit,
   onPick,
 }: {
+  pal: Palette;
   handle: React.MutableRefObject<RulerHandle | null>;
   value: number;
   last: number;
@@ -339,20 +413,20 @@ function Ruler({
       >
         <Animated.View style={[StyleSheet.absoluteFill, strip]} pointerEvents="none">
           {chunks.map(c => (
-            <Ticks key={c} from={c * CHUNK} to={Math.min(last, c * CHUNK + CHUNK - 1)} />
+            <Ticks key={c} from={c * CHUNK} to={Math.min(last, c * CHUNK + CHUNK - 1)} minorFill={pal.minor} majorFill={pal.major} />
           ))}
         </Animated.View>
         {/* the ends fade, so the ruler runs on rather than stops at the page's edge */}
-        <LinearGradient colors={['#ffffff', 'rgba(255,255,255,0)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[s.fade, { left: 0 }]} pointerEvents="none" />
-        <LinearGradient colors={['rgba(255,255,255,0)', '#ffffff']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[s.fade, { right: 0 }]} pointerEvents="none" />
-        <View style={[s.line, { left: width / 2 - 1.5 }]} pointerEvents="none" testID="amount-line" />
+        <LinearGradient colors={[pal.bg, pal.bg0]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[s.fade, { left: 0 }]} pointerEvents="none" />
+        <LinearGradient colors={[pal.bg0, pal.bg]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[s.fade, { right: 0 }]} pointerEvents="none" />
+        <View style={[s.line, { left: width / 2 - 1.5, backgroundColor: pal.ink }]} pointerEvents="none" testID="amount-line" />
       </View>
     </GestureDetector>
   );
 }
 
 /* One stretch of ticks, drawn as two paths: the short grey ones, and the longer ones at the round figures. */
-const Ticks = React.memo(function Ticks({ from, to }: { from: number; to: number }) {
+const Ticks = React.memo(function Ticks({ from, to, minorFill, majorFill }: { from: number; to: number; minorFill: string; majorFill: string }) {
   let minor = '';
   let big = '';
   for (let i = from; i <= to; i++) {
@@ -363,18 +437,26 @@ const Ticks = React.memo(function Ticks({ from, to }: { from: number; to: number
   const w = (to - from) * GAP + 2;
   return (
     <Svg width={w + 2} height={H} style={{ position: 'absolute', left: from * GAP - 1, top: 0 }}>
-      <Path d={minor} fill={colour.ruleStrong} transform="translate(1 0)" />
-      <Path d={big} fill={colour.textSecondary} transform="translate(1 0)" />
+      <Path d={minor} fill={minorFill} transform="translate(1 0)" />
+      <Path d={big} fill={majorFill} transform="translate(1 0)" />
     </Svg>
   );
 });
 
 /* ---- a chip ---- */
 
-function Chip({ label, on, onPress }: { label: string; on: boolean; onPress: () => void }) {
+function Chip({ pal, label, on, onPress }: { pal: Palette; label: string; on: boolean; onPress: () => void }) {
   return (
-    <Tap accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ selected: on }} onPress={onPress} scale={0.94} style={[s.chip, on ? s.chipOn : null]} testID="amount-chip">
-      <Label tone={on ? 'inverse' : 'ink'}>{label}</Label>
+    <Tap
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: on }}
+      onPress={onPress}
+      scale={0.94}
+      style={[s.chip, { backgroundColor: on ? pal.chipOn : pal.chip }]}
+      testID="amount-chip"
+    >
+      <Label style={{ color: on ? pal.chipOnText : pal.chipText }}>{label}</Label>
     </Tap>
   );
 }
@@ -389,6 +471,5 @@ const s = StyleSheet.create({
   fade: { position: 'absolute', top: 0, bottom: 0, width: 56 },
   line: { position: 'absolute', top: 8, width: 3, height: 32, borderRadius: 1.5, backgroundColor: colour.ink },
   chips: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 },
-  chip: { height: 36, borderRadius: 18, paddingHorizontal: 14, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },
-  chipOn: { backgroundColor: colour.ink },
+  chip: { height: 36, borderRadius: 18, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center' },
 });

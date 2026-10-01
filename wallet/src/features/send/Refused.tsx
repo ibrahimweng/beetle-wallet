@@ -107,6 +107,10 @@ export function Refused() {
           name={name}
           detail={`${groupAccount(number)} · never paid before`}
           glyph="faceid"
+          rows={[
+            { label: 'This account', value: 'Never paid before' },
+            { label: 'What it is for', value: 'Saying it is you asking' },
+          ]}
           verify={app.checkPasscode}
           onDone={itIsMe}
           onCancel={() => setGuard(false)}

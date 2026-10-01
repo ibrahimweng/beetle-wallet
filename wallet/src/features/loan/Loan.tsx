@@ -1,17 +1,21 @@
-/* Borrow, from its frame: Beetle's word that here is the whole cost, the
-   amount on the picker — the ruler stopping hard at what can be borrowed,
-   two likely figures and the limit as chips, or the figure typed — the
-   three terms, and the cost laid out row by row — what you get today, the
-   interest, the fee, what it comes to, the payments and the first of them
-   — with the word about paying late at the foot, and Slide to take beside
-   Back. The slide leads to the passcode; the money then lands the way any
+/* Borrow, made short. Someone here wants to borrow, so the amount comes
+   first: the picker, the ruler stopping hard at what can be borrowed, the
+   likely figures and the limit as chips, or the figure typed. Under it, on
+   one tight card, what it comes to: the days as a plain "30 days" with a
+   chevron — tapped, the three terms open in place — and as it changes the
+   figures under it follow: what is paid back in all, the payments and the
+   first of them, and where they are taken from. Then what happens if a
+   payment is missed, said plainly before anything is taken, and the cost
+   line by line behind a tap for whoever wants it. Labels at the left,
+   figures at the right, the total the strongest line. Finishing setting up,
+   where borrowing still waits on it, is at the foot. Slide to take beside
+   Back; the slide leads to the passcode, and the money lands the way any
    money in does: on the card, in the day, and in a chat from Beetle with
-   the receipt. Reached from Loan on All services and from "borrow" typed
-   at home. */
+   the receipt. Reached from Loan on the home grid and All services. */
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AmountPicker, Body, Facts, Icon, Label, Meta, PageHead, Say, Screen, Tap, colour, toast } from '../../design';
+import { AmountPicker, Caption, Chevron, Icon, Label, Meta, PageHead, Row, Screen, Tap, colour, toast } from '../../design';
 import type { Move } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -24,7 +28,7 @@ import { clock, useChats } from '../agent/chats';
 import { turn } from '../agent/turns';
 import { PasscodeSheet, lockedFor } from '../passcode';
 import { naira } from '../../lib/format';
-import { LOAN, TERMS, costOf, countWord, dayOf, held, type Term } from './loan';
+import { COLLECTED, LOAN, MISSED, TERMS, costOf, countWord, dayOf, type Term } from './loan';
 
 export function Loan() {
   const app = useApp();
@@ -38,8 +42,11 @@ export function Loan() {
   /* the frame opens on ₦150,000 for 90 days */
   const [amount, setAmount] = useState(150_000);
   const [days, setDays] = useState<Term>(90);
+  /** what is open in place: the days, what happens if a payment is missed, the cost line by line */
+  const [open, setOpen] = useState<null | 'days' | 'missed' | 'cost'>(null);
   const [guard, setGuard] = useState(false);
   const cost = useMemo(() => costOf(amount, days), [amount, days]);
+  const toggle = (k: 'days' | 'missed' | 'cost') => setOpen(o => (o === k ? null : k));
 
   const slide = () => {
     const shut = lockedFor();
@@ -77,71 +84,115 @@ export function Loan() {
     router.replace(`/receipt/${row.id}`);
   };
 
-  useFoot({ kind: 'slide', label: 'Slide to take', amount: naira(amount), disabled: amount < LOAN.least, onSlide: slide, veil: guard ? 'away' : undefined });
+  useFoot({ kind: 'slide', label: 'Slide to take', amount: naira(amount), disabled: amount < LOAN.least || !setup.done, onSlide: slide, veil: guard ? 'away' : undefined });
   if (!ok || !account) return null;
+  const payments = `${countWord(cost.payments)} payment${cost.payments === 1 ? '' : 's'} of`;
   return (
     <>
-      <Screen head={<PageHead lead title="Borrow" sub="The whole cost, before you decide" />}>
-        <Say testID="say">You asked what you could borrow. Here is the whole cost.</Say>
-        {/* borrowing against the history is one of the things finishing setting up turns on */}
-        {setup.done ? null : <SetupOffer sub="Two minutes, and you can borrow against your history" />}
-        {/* the frame runs the grey card 12 under the bubble */}
+      <Screen head={<PageHead lead title="Borrow" sub={`Up to ${naira(LOAN.most)}, paid back monthly`} />}>
         <View style={s.card} testID="loan-card">
-          <Body tone="secondary">How much you want</Body>
-          {/* picked where it is: the ruler stops hard at what you can borrow, and the least is in the note */}
+          {/* how much: the first thing, picked where it is */}
           <View style={s.picker} testID="loan-amount">
             <AmountPicker
               value={amount}
               onChange={setAmount}
               max={LOAN.most}
               note={amount && amount < LOAN.least ? `The least is ${naira(LOAN.least)}` : `${naira(LOAN.most)} is your limit`}
+              warn={!!amount && amount < LOAN.least}
               chips={[50_000, 100_000]}
               all="Your limit"
             />
           </View>
-          <View style={{ flexDirection: 'row', gap: 8, marginTop: 12, height: 46, overflow: 'visible' }} testID="terms">
-            {TERMS.map(t => (
-              <Tap
-                key={t}
-                accessibilityRole="button"
-                accessibilityLabel={`${t} days`}
-                accessibilityState={{ selected: t === days }}
-                onPress={() => setDays(t)}
-                style={[s.term, t === days ? s.termOn : null]}
-              >
-                <Label tone={t === days ? 'inverse' : 'ink'}>{`${t} days`}</Label>
-              </Tap>
-            ))}
+          {/* what it comes to: tight, labels left and figures right, the total the strongest */}
+          <View style={s.sheet} testID="facts">
+            <Tap
+              accessibilityRole="button"
+              accessibilityLabel={`Pay back over ${days} days`}
+              accessibilityState={{ expanded: open === 'days' }}
+              onPress={() => toggle('days')}
+              style={s.line}
+              testID="terms"
+            >
+              <Meta tone="secondary">Pay back over</Meta>
+              <View style={s.pick}>
+                <Label>{`${days} days`}</Label>
+                <Chevron dir={open === 'days' ? 'up' : 'down'} size={14} colour={colour.textSecondary} />
+              </View>
+            </Tap>
+            {open === 'days' ? (
+              <View style={s.choices} testID="term-list">
+                {TERMS.map(t => (
+                  <Tap
+                    key={t}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${t} days`}
+                    accessibilityState={{ selected: t === days }}
+                    onPress={() => {
+                      setDays(t);
+                      setOpen(null);
+                    }}
+                    style={s.choice}
+                  >
+                    <Label style={{ flex: 1 }}>{`${t} days`}</Label>
+                    <Caption tone="secondary">{`${countWord(t / 30).toLowerCase()} payment${t === 30 ? '' : 's'} of ${naira(costOf(amount, t).each)}`}</Caption>
+                    {t === days ? <Icon name="check" size={14} colour={colour.ink} /> : <View style={{ width: 14 }} />}
+                  </Tap>
+                ))}
+              </View>
+            ) : null}
+            <View style={s.line}>
+              <Row>You pay back</Row>
+              <Row testID="loan-total">{naira(cost.total)}</Row>
+            </View>
+            <View style={s.line}>
+              <Meta tone="secondary">{payments}</Meta>
+              <Label>{naira(cost.each)}</Label>
+            </View>
+            <View style={s.line}>
+              <Meta tone="secondary">First payment</Meta>
+              <Label>{dayOf(cost.first)}</Label>
+            </View>
+            <View style={s.line}>
+              <Meta tone="secondary">Taken</Meta>
+              <Label>From Everyday, on the day</Label>
+            </View>
+            <View style={s.rule} />
+            <More label="If a payment is missed" open={open === 'missed'} onPress={() => toggle('missed')} testID="loan-missed">
+              {[MISSED.collateral, MISSED.fee, MISSED.collect, MISSED.bureau].map(w => (
+                <Caption key={w} tone="secondary">{`· ${w}`}</Caption>
+              ))}
+            </More>
+            <More label="The cost, line by line" open={open === 'cost'} onPress={() => toggle('cost')} testID="loan-cost">
+              <Small label="You get today" value={naira(amount)} />
+              <Small label={`Interest, ${Math.round(LOAN.monthly * 100)}% a month`} value={naira(cost.interest)} />
+              <Small label="One off fee" value={naira(cost.fee)} />
+              <Caption tone="tertiary">{COLLECTED}. Paying early costs nothing extra.</Caption>
+            </More>
           </View>
-        </View>
-        <View style={{ marginTop: -8 }}>
-          <Facts
-            row={54}
-            inset={10}
-            testID="facts"
-            rows={[
-              { label: 'You get today', value: naira(amount) },
-              { label: `Interest, ${Math.round(LOAN.monthly * 100)}% a month`, value: naira(cost.interest) },
-              { label: 'One off fee', value: naira(cost.fee) },
-              { label: 'You pay back in all', value: naira(cost.total), strong: true },
-              { label: `${countWord(cost.payments)} payment${cost.payments === 1 ? '' : 's'} of`, value: naira(cost.each) },
-              { label: 'First payment', value: dayOf(cost.first) },
-            ]}
-          />
         </View>
         <View style={s.lock} testID="lock-line">
           <View style={{ marginTop: 2 }}>
             <Icon name="lock" size={16} colour={colour.textTertiary} />
           </View>
-          <Meta tone="secondary" style={{ flex: 1 }}>{`Pay late and it costs ${naira(LOAN.late)} a week on top, and I tell you before it does.`}</Meta>
+          <Meta tone="secondary" style={{ flex: 1 }}>
+            No collateral. Nothing comes in or goes out until you slide and enter your passcode.
+          </Meta>
         </View>
+        {/* borrowing is one of the things finishing setting up turns on: at the foot, not in the way */}
+        {setup.done ? null : <SetupOffer sub="Two minutes, and you can borrow against your history" />}
       </Screen>
       {guard ? (
         <PasscodeSheet
           amount={naira(amount)}
           name="Beetle Loans"
-          detail={`${days} days · ${countWord(cost.payments).toLowerCase()} payments of ${naira(cost.each)}`}
+          detail={`${days} days · ${countWord(cost.payments).toLowerCase()} payment${cost.payments === 1 ? '' : 's'} of ${naira(cost.each)}`}
           glyph="loan"
+          rows={[
+            { label: 'You get today', value: naira(amount) },
+            { label: 'First payment', value: `${naira(cost.each)} on ${dayOf(cost.first)}` },
+            { label: 'If one is missed', value: `${naira(LOAN.late)} a week` },
+            { label: 'You pay back', value: naira(cost.total), strong: true },
+          ]}
           verify={app.checkPasscode}
           onDone={done}
           onCancel={() => setGuard(false)}
@@ -151,12 +202,40 @@ export function Loan() {
   );
 }
 
+/* A row that opens in place: its words, a chevron, and under it what it holds. */
+function More({ label, open, onPress, children, testID }: { label: string; open: boolean; onPress: () => void; children: React.ReactNode; testID?: string }) {
+  return (
+    <View>
+      <Tap accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ expanded: open }} onPress={onPress} style={s.line} testID={testID}>
+        <Meta tone="secondary">{label}</Meta>
+        <Chevron dir={open ? 'up' : 'down'} size={14} colour={colour.textSecondary} />
+      </Tap>
+      {open ? <View style={s.more}>{children}</View> : null}
+    </View>
+  );
+}
+
+function Small({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={s.small}>
+      <Caption tone="secondary">{label}</Caption>
+      <Caption style={{ color: colour.ink }}>{value}</Caption>
+    </View>
+  );
+}
+
 const s = StyleSheet.create({
-  /* the frame boxes the bubble's row at 70 and runs the grey card 12 under that: 82 under the row's top, which the 80 bubble and no gap make here */
-  card: { marginTop: -20, backgroundColor: colour.surface2, borderRadius: 24, paddingTop: 16, paddingHorizontal: 16, paddingBottom: 14 },
+  card: { backgroundColor: colour.surface2, borderRadius: 24, padding: 12, gap: 8 },
   /* the picker on its own white, as the amounts on the paying pages sit */
-  picker: { marginTop: 12, backgroundColor: colour.surface, borderRadius: 20, paddingTop: 20, paddingBottom: 16 },
-  term: { flex: 1, height: 48, borderRadius: 24, backgroundColor: colour.surface, borderWidth: 1, borderColor: colour.rule, alignItems: 'center', justifyContent: 'center' },
-  termOn: { backgroundColor: colour.ink, borderColor: colour.ink },
-  lock: { marginTop: -8, flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
+  picker: { backgroundColor: colour.surface, borderRadius: 20, paddingTop: 20, paddingBottom: 16 },
+  /* the breakdown: one white card, rows 36 tall, nothing boxed */
+  sheet: { backgroundColor: colour.surface, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 6 },
+  line: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, minHeight: 36, borderRadius: 10 },
+  pick: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  choices: { backgroundColor: colour.surface2, borderRadius: 14, paddingHorizontal: 12, marginBottom: 4 },
+  choice: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 42, borderRadius: 10 },
+  rule: { height: 1, backgroundColor: colour.rule, marginVertical: 4 },
+  more: { gap: 4, paddingBottom: 8 },
+  small: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
+  lock: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginTop: -6 },
 });

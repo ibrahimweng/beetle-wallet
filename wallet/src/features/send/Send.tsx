@@ -1,44 +1,48 @@
-/* Send money, from its frame: the amount, who it is going to, a reference,
-   and from where, when it lands and the fee, each on its own white card in
-   one grey one, with Beetle saying where things stand above them and Slide
-   to send at the foot beside Back. Send on the card and Send money in More
-   open it empty. The amount is picked where it is (see design/Amount): the
+/* Send money. The first field is To, and it takes all three ways of saying
+   who (see ToField): a $tag finds a Beetle account, free and there at once;
+   a name brings the closest names with their banks; ten digits ask which
+   bank, and the name on the account is looked up and shown before anything
+   can move. Then the amount, picked where it is (see design/Amount): the
    ruler, stepped and stopping hard at what Everyday can send, chips of the
-   likely amounts, or the figure tapped and typed. A tap on the person
-   opens the people paid before with a number to type and the camera under
-   them, and the reference is typed in place. The slide leads to the
-   passcode, and the receipt after it, with the line in the day. Four
-   taps: Send, who, the amount, and the passcode — the slide is a drag. */
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+   likely amounts, or the figure tapped and typed. Then the reference, typed
+   in place, and from where, when it lands and the fee, the bank always said.
+   No bubble from Beetle over it (see DESIGN.md): each card says what matters
+   on its own line. Slide to send leads to the passcode, which shows the
+   whole of it while the six digits go in, and the receipt after it, with
+   the line in the day. Send on the card and Send money in More open it
+   empty; the people paid before are under the empty To field, one tap each. */
+import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { AmountPicker, Avatar, Body, Caption, Icon, Label, Meta, PageHead, Say, Screen, Tap, colour, measure, toast, type Rect } from '../../design';
-import { DEMO_SAVED, PEOPLE, beneficiariesOf, feeFor, feeLabel, ownLine, reader, whose, type Move, type Person, type Reading } from '../../services';
+import { AmountPicker, Body, Caption, Icon, Label, Meta, PageHead, Screen, Tap, YouTyped, colour, toast } from '../../design';
+import { DEMO_SAVED, PEOPLE, arrivesAt, beneficiariesOf, feeLabel, feeTo, isBeetle, ownLine, reader, whose, type Move, type Person, type Reading } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
 import { holdingsFor } from '../home/account';
 import { balanceOf, rowFrom, useMoves } from '../home/moves';
 import { clock } from '../agent/chats';
-import { SavedPeek } from '../agent/SavedPeek';
 import { PasscodeSheet, lockedFor } from '../passcode';
 import { handoff } from '../scan/handoff';
 import { LAB } from '../../lab/enabled';
-import { groupAccount, initialsOf, naira } from '../../lib/format';
+import { moneyExact, naira } from '../../lib/format';
 import { checkFor, draft, softReading } from './hand';
 import { refuses } from './rules';
 import { useOnline } from '../offline';
 import { PayFromSheet, dollarsOf, usdFull, usdOf, type Source } from '../dollars';
+import { ToField, howOf, whereOf } from './ToField';
 
 /** The three parts the frame's message fills in, for the lab. */
 const DEMO = { who: PEOPLE[0]!, amount: 50_000, reference: 'Flat deposit', said: 'send Sarah 50k for the flat deposit' };
 const FROM_MESSAGE = 'I took this from your message';
 
+const money = moneyExact;
+
 export function Send() {
   const app = useApp();
   const router = useRouter();
   const ok = useSessionGuard();
-  const asked = useLocalSearchParams<{ demo?: string; from?: string }>();
+  const asked = useLocalSearchParams<{ demo?: string; from?: string; to?: string }>();
   const demo = LAB && asked.demo === '1';
   const account = app.session?.account;
   const { moves, add: addMove } = useMoves(account?.accountNumber);
@@ -59,9 +63,8 @@ export function Send() {
   const [reference, setReference] = useState(demo ? DEMO.reference : '');
   const [refNote, setRefNote] = useState(demo ? FROM_MESSAGE : '');
   const [said] = useState(demo ? DEMO.said : '');
-  const [typing, setTyping] = useState(false);
-  const [number, setNumber] = useState('');
-  const [pick, setPick] = useState<Rect | null>(null);
+  /* the To field opened for typing, by a page that handed back "type the number" */
+  const [typeAgain, setTypeAgain] = useState(0);
   const [guard, setGuard] = useState(false);
   const [busy, setBusy] = useState(false);
   const online = useOnline();
@@ -70,8 +73,6 @@ export function Send() {
   const [choosing, setChoosing] = useState(LAB && asked.from === 'pick');
   const fromDollars = source === 'dollars';
   const usd = fromDollars ? usdOf(amount, rate) : 0;
-  const whoCard = useRef<View>(null);
-  const numberField = useRef<TextInput>(null);
 
   /* a photo the camera took: the number on it, or both readings where the reader was not sure */
   const readPhoto = useCallback(
@@ -90,14 +91,13 @@ export function Send() {
         return;
       }
       setWho(whose(n, r));
-      setWhoNote('Read off the photo');
+      setWhoNote('Read off the photo · check the name before you slide');
       setRead('photo');
-      setTyping(false);
     },
     [router],
   );
 
-  /* back in front: what the keypad, Check this number or Not enough handed back, or the photo the camera took */
+  /* back in front: what Check this number or Not enough handed back, or the photo the camera took */
   useFocusEffect(
     useCallback(() => {
       const d = draft.take();
@@ -106,7 +106,6 @@ export function Send() {
           setWho(d.who);
           setWhoNote(d.whoNote ?? '');
           setRead(d.read);
-          setTyping(false);
         }
         if (d.amount !== undefined) {
           setAmount(d.amount);
@@ -114,9 +113,8 @@ export function Send() {
         }
         if (d.reference !== undefined) setReference(d.reference);
         if (d.typing) {
-          setTyping(true);
-          setNumber('');
-          setTimeout(() => numberField.current?.focus(), 400);
+          setWho(null);
+          setTypeAgain(n => n + 1);
         }
       }
       const photo = handoff.take();
@@ -124,19 +122,7 @@ export function Send() {
     }, [readPhoto]),
   );
 
-  /* the account number typed: ten digits and it is somebody */
-  const typed = (digits: string) => {
-    const n = digits.replace(/\D/g, '').slice(0, 10);
-    setNumber(n);
-    if (n.length < 10) return;
-    const p = whose(n);
-    const known = saved.people.find(x => x.number === n);
-    setWho(known ? { name: known.name, bank: known.bank, number: known.number } : p);
-    setWhoNote(known ? `${known.name}, who you have paid before` : 'You typed the number');
-    setRead(undefined);
-    setTyping(false);
-  };
-
+  const fee = fromDollars ? 0 : feeTo(amount, who?.bank);
   /* Slide to send: past the balance it is Not enough; otherwise the passcode */
   const slide = () => {
     if (!who || !amount) return;
@@ -161,7 +147,7 @@ export function Send() {
       toast(`That is more than the ${usdFull(dollars)} you hold. Pay from Everyday, or convert some first.`);
       return;
     }
-    if (!fromDollars && amount > balance) {
+    if (!fromDollars && amount + fee > balance) {
       router.push(`/short?asked=${amount}`);
       return;
     }
@@ -176,10 +162,9 @@ export function Send() {
   const done = () => {
     if (!who || !account) return;
     const at = clock();
-    const fee = fromDollars ? 0 : feeFor(amount);
     const move: Move = {
       name: who.name,
-      detail: `${who.bank} · ${fromDollars ? 'sent from dollars' : 'sent'} · ${at}`,
+      detail: `${whereShort(who)} · ${fromDollars ? 'sent from dollars' : 'sent'} · ${at}`,
       amount: -amount,
       icon: 'send',
       kind: 'transfer',
@@ -199,53 +184,84 @@ export function Send() {
     kind: 'slide',
     label: 'Slide to send',
     amount: naira(amount),
-    disabled: !who || !amount || busy || typing,
+    disabled: !who || !amount || busy,
     onSlide: slide,
-    veil: guard || choosing ? 'away' : pick ? 'recede' : undefined,
+    veil: guard || choosing ? 'away' : undefined,
   });
   if (!ok || !account) return null;
   const first = who?.name.split(' ')[0] ?? '';
-  const fee = fromDollars ? 0 : feeFor(amount);
-  const over = fromDollars ? usd > dollars : amount > balance;
-  const line = busy
-    ? 'Reading the photo…'
-    : said && who && amount
-      ? 'Here it is, ready to go. Check the three parts I filled in.'
-      : over && who
-        ? fromDollars
-          ? `That is more than the ${usdFull(dollars)} you hold. Pay from Everyday, or convert some first.`
-          : `That is ${naira(amount - balance)} more than Everyday holds. Slide, and I show you three ways to close it.`
-        : who && amount
-          ? 'Here it is, ready to go. Check it, then slide.'
-          : who
-            ? `How much for ${first}? Move the ruler, pick one of the amounts, or tap the figure to type it.`
-            : amount
-              ? `Who is the ${naira(amount)} for? Tap the card to choose.`
-              : 'Who is it for, and how much? Tap a card to fill it in, or point the camera at an account number.';
-  const openPeople = () => void measure(whoCard).then(setPick);
+  const beetle = isBeetle(who);
   /* the most it can be: all Everyday holds less the fee on it, or all the dollars at the rate */
-  const cap = fromDollars ? Math.floor(dollars * rate) : Math.max(0, Math.floor(balance - feeFor(balance)));
+  const cap = fromDollars ? Math.floor(dollars * rate) : Math.max(0, Math.floor(balance - feeTo(balance, who?.bank)));
   /* what was sent to them before, then the round figures */
   const before = who ? [...new Set([...moves, ...(h?.ledger ?? [])].filter(r => r.kind === 'transfer' && r.name === who.name && r.amount < 0).map(r => Math.abs(r.amount)))].slice(0, 2) : [];
   const chips = [...new Set([...before, 10_000, 20_000, 50_000])]
     .filter(c => c <= cap)
     .slice(0, 2)
     .sort((a, b) => a - b);
+  const over = fromDollars ? usd > dollars : amount + fee > balance;
+  const amountLine = busy
+    ? 'Reading the photo…'
+    : over
+      ? fromDollars
+        ? `More than the ${usdFull(dollars)} you hold`
+        : `${naira(amount + fee - balance)} more than Everyday holds; slide and I show three ways to close it`
+      : fromDollars && amount
+        ? `About ${usdFull(usd)} from your dollars`
+        : amountNote || (fromDollars ? `Your dollars come to ${naira(cap)}` : `Everyday can send ${naira(cap)}`);
+  /* the whole of it, for the passcode sheet: what they receive, the fee, what leaves where */
+  const breakdown = who
+    ? [
+        { label: 'They receive', value: money(amount) },
+        { label: 'Fee', value: beetle ? 'Free · Beetle to Beetle' : feeLabel(fee) },
+        { label: 'Arrives', value: arrivesAt(amount, who.bank) },
+        fromDollars ? { label: 'Leaves Dollars', value: usdFull(usd), strong: true } : { label: 'Leaves Everyday', value: money(amount + fee), strong: true },
+      ]
+    : [];
 
   return (
     <>
-      <Screen head={<PageHead title="Send money" sub={who ? `To ${who.name}` : fromDollars ? 'From Dollars' : 'From Everyday'} />}>
-        {said ? (
-          <View style={{ gap: 8 }} testID="you-typed">
-            <Caption tone="secondary">You typed</Caption>
-            <Body tone="secondary">{said}</Body>
-          </View>
-        ) : null}
-        <View style={said ? { marginTop: -4 } : null}>
-          <Say testID="say">{line}</Say>
-        </View>
-        {/* the frame runs the grey card 7 under the bubble, and 12 around the white cards, 8 between them */}
+      <Screen head={<PageHead title="Send money" sub={who ? `To ${who.name} · ${beetle ? 'Beetle' : who.bank}` : fromDollars ? 'From Dollars' : 'From Everyday'} />}>
+        {said ? <YouTyped said={said} /> : null}
+        {/* 12 around the white cards, 8 between them; To first, since it decides the rest */}
         <View style={s.card} testID="send-card">
+          <View style={[s.sub, s.who]} testID="send-who">
+            <ToField
+              label="To"
+              key={typeAgain}
+              value={who}
+              note={who ? (read === 'photo' ? undefined : whoNote || howOf(who, saved.people.find(p => p.number === who.number)?.times)) : undefined}
+              onChange={(p, how) => {
+                setWho(p);
+                setWhoNote(how ?? '');
+                setRead(undefined);
+              }}
+              paid={saved.people}
+              onCamera={() => router.push('/scan')}
+              showRecent
+              autoFocus={typeAgain > 0}
+            />
+            {who && read === 'photo' ? (
+              <Tap
+                accessibilityRole="button"
+                accessibilityLabel="Before I filled this in"
+                onPress={() => {
+                  const past = [...moves, ...(h?.ledger ?? [])].find(r => r.kind === 'transfer' && r.name === who.name);
+                  checkFor.put({
+                    who,
+                    times: saved.people.find(p => p.number === who.number)?.times ?? 0,
+                    usual: past ? { amount: Math.abs(past.amount), reference: past.reference } : undefined,
+                    amount,
+                    read: true,
+                  });
+                  router.push('/checking');
+                }}
+                testID="check-photo"
+              >
+                <Caption tone="accent">{`${whoNote} · before I filled this in`}</Caption>
+              </Tap>
+            ) : null}
+          </View>
           <View style={[s.sub, s.amount]} testID="send-amount">
             <AmountPicker
               value={amount}
@@ -254,75 +270,12 @@ export function Send() {
                 setAmountNote('');
               }}
               max={cap}
-              note={fromDollars && amount ? `About ${usdFull(usd)} from your dollars` : amountNote || (fromDollars ? `Your dollars come to ${naira(cap)}` : `Everyday can send ${naira(cap)}`)}
+              note={amountLine}
+              warn={over}
               chips={chips}
               all="All of it"
             />
           </View>
-          {typing ? (
-            <View style={[s.sub, s.who]} testID="send-who">
-              <View style={s.typingRow}>
-                <View style={s.disc}>
-                  <Icon name="grid" size={18} colour={colour.ink} />
-                </View>
-                <TextInput
-                  ref={numberField}
-                  accessibilityLabel="Account number"
-                  value={number}
-                  onChangeText={typed}
-                  keyboardType="number-pad"
-                  placeholder="Ten digits"
-                  placeholderTextColor={colour.textTertiary}
-                  style={s.input}
-                  autoFocus
-                />
-              </View>
-              <Caption tone="secondary">{number.length ? `${groupAccount(number)} · ${10 - number.length} to go` : 'As it is on their slip or their screen'}</Caption>
-            </View>
-          ) : (
-            <Tap ref={whoCard} accessibilityRole="button" accessibilityLabel={who ? who.name : 'Who is it for?'} onPress={openPeople} style={[s.sub, s.who]} testID="send-who">
-              <View style={s.person}>
-                {who ? (
-                  <Avatar initials={initialsOf(who.name)} size={38} />
-                ) : (
-                  <View style={s.disc}>
-                    <Icon name="person" size={18} colour={colour.ink} />
-                  </View>
-                )}
-                <View style={{ flex: 1, gap: 4 }}>
-                  <Label>{busy ? 'Reading…' : who ? who.name : 'Who is it for?'}</Label>
-                  <Meta tone="secondary" numberOfLines={1}>
-                    {who ? `${who.bank} · ${groupAccount(who.number)}` : 'A name, a number or a photo'}
-                  </Meta>
-                </View>
-                <View style={{ marginTop: 11 }}>
-                  <Icon name="chevron" size={16} colour={colour.textTertiary} />
-                </View>
-              </View>
-              {whoNote && read === 'photo' && who ? (
-                <Tap
-                  accessibilityRole="button"
-                  accessibilityLabel="Before I filled this in"
-                  onPress={() => {
-                    const past = [...moves, ...(h?.ledger ?? [])].find(r => r.kind === 'transfer' && r.name === who.name);
-                    checkFor.put({
-                      who,
-                      times: saved.people.find(p => p.number === who.number)?.times ?? 0,
-                      usual: past ? { amount: Math.abs(past.amount), reference: past.reference } : undefined,
-                      amount,
-                      read: true,
-                    });
-                    router.push('/checking');
-                  }}
-                  testID="check-photo"
-                >
-                  <Caption tone="accent">{`${whoNote} · before I filled this in`}</Caption>
-                </Tap>
-              ) : whoNote ? (
-                <Caption tone="secondary">{whoNote}</Caption>
-              ) : null}
-            </Tap>
-          )}
           <View style={[s.sub, s.ref]} testID="send-ref">
             <View style={s.refRow}>
               <Body tone="secondary">Reference</Body>
@@ -339,7 +292,7 @@ export function Send() {
                 returnKeyType="done"
               />
             </View>
-            <Caption tone="secondary">{refNote || 'They see it on their statement'}</Caption>
+            <Caption tone="secondary">{refNote || (who ? `${first} sees it on their statement` : 'They see it on their statement')}</Caption>
           </View>
           <View style={[s.sub, s.rows]} testID="send-rows">
             <Tap accessibilityRole="button" accessibilityLabel="From" onPress={() => setChoosing(true)} style={s.row}>
@@ -349,89 +302,49 @@ export function Send() {
               <Label style={s.value}>{fromDollars ? `Dollars · ${usdFull(dollars)}` : `Everyday · ${naira(balance)}`}</Label>
               <Icon name="chevron" size={16} colour={colour.textTertiary} />
             </Tap>
-            <Tap accessibilityRole="button" accessibilityLabel="Arrives" onPress={() => toast('Sending it later is not in the frames yet. Slide when you are ready and it goes now.')} style={s.row}>
+            <View style={s.row}>
               <Body tone="secondary" style={{ flex: 1 }}>
                 Arrives
               </Body>
-              <Label style={s.value}>{amount > 50_000 ? 'Under a minute' : 'In a few seconds'}</Label>
-              <Icon name="chevron" size={16} colour={colour.textTertiary} />
-            </Tap>
+              <Label style={s.value}>{arrivesAt(amount, who?.bank)}</Label>
+            </View>
             <View style={s.row}>
               <Body tone="secondary" style={{ flex: 1 }}>
                 Fee
               </Body>
-              <Label style={[s.value, { color: fee ? colour.ink : colour.goodText }]}>{feeLabel(fee)}</Label>
+              <Label style={[s.value, { color: fee ? colour.ink : colour.goodText }]}>{beetle ? 'Free · Beetle to Beetle' : feeLabel(fee)}</Label>
             </View>
           </View>
         </View>
         <View style={[s.lock, fromDollars ? { alignItems: 'flex-start' } : null]}>
           <Icon name="lock" size={16} colour={colour.textTertiary} />
           <Meta tone="secondary" style={{ flex: 1 }}>
-            {fromDollars ? 'The rate is held for sixty seconds once you slide.' : 'Nothing moves until you slide'}
+            {fromDollars ? 'The rate is held for sixty seconds once you slide.' : 'Nothing moves until you slide and enter your passcode'}
           </Meta>
         </View>
       </Screen>
-      {pick ? (
-        <SavedPeek
-          kind="person"
-          list={saved.people}
-          at={pick}
-          extras={[
-            {
-              glyph: 'grid',
-              label: 'Type an account number',
-              onPress: () => {
-                setPick(null);
-                setTyping(true);
-                setNumber('');
-                setTimeout(() => numberField.current?.focus(), 300);
-              },
-            },
-            {
-              glyph: 'camera',
-              label: 'Point the camera at one',
-              onPress: () => {
-                setPick(null);
-                router.push('/scan');
-              },
-            },
-          ]}
-          onPick={b => {
-            if (b.kind !== 'person') return;
-            setWho({ name: b.name, bank: b.bank, number: b.number });
-            setWhoNote(b.times > 1 ? `Paid ${b.times} times, the last ${b.when.toLowerCase()}` : `Paid once, ${b.when.toLowerCase()}`);
-            setRead(undefined);
-            setPick(null);
-          }}
-          onClose={() => setPick(null)}
-        />
-      ) : null}
       {choosing ? (
         <PayFromSheet everyday={balance} dollars={dollars} rate={rate} value={source} who={who ? first : 'Whoever it is for'} onPick={setSource} onDismiss={() => setChoosing(false)} />
       ) : null}
-      {guard && who ? (
-        <PasscodeSheet amount={naira(amount)} name={who.name} detail={`${who.bank} · ${groupAccount(who.number)}`} verify={app.checkPasscode} onDone={done} onCancel={() => setGuard(false)} />
-      ) : null}
+      {guard && who ? <PasscodeSheet amount={naira(amount)} name={who.name} detail={whereOf(who)} rows={breakdown} verify={app.checkPasscode} onDone={done} onCancel={() => setGuard(false)} /> : null}
     </>
   );
 }
 
+/** The bank on the line in the day: GTBank, or Beetle and the tag. */
+export const whereShort = (p: Person) => (isBeetle(p) && p.tag ? `Beetle · $${p.tag}` : p.bank);
+
 const s = StyleSheet.create({
-  card: { marginTop: -13, backgroundColor: colour.surface2, borderRadius: 24, padding: 12, gap: 8 },
+  card: { backgroundColor: colour.surface2, borderRadius: 24, padding: 12, gap: 8 },
   sub: { backgroundColor: colour.surface, borderRadius: 20, paddingHorizontal: 16 },
+  who: { paddingTop: 12, paddingBottom: 14, gap: 10 },
   amount: { paddingTop: 20, paddingBottom: 16, paddingHorizontal: 0 },
-  /* the frame boxes the person's row at 38 — the chip and the chevron sit on that — and lets the two lines beside them run to 44 */
-  who: { paddingTop: 12, paddingBottom: 9, gap: 8 },
-  person: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, height: 38, overflow: 'visible' },
-  typingRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 38 },
-  disc: { width: 38, height: 38, borderRadius: 19, backgroundColor: colour.surface3, alignItems: 'center', justifyContent: 'center' },
-  /* outlineWidth 0: the browser's own focus ring has no place on the card */
-  input: { flex: 1, minWidth: 0, fontSize: 20, lineHeight: 24, fontWeight: '600', color: colour.ink, padding: 0, letterSpacing: 1, outlineWidth: 0 },
   ref: { paddingTop: 11, paddingBottom: 8, gap: 8 },
   refRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 22, overflow: 'visible' },
+  /* outlineWidth 0: the browser's own focus ring has no place on the card */
   refInput: { flex: 1, minWidth: 0, textAlign: 'right', fontSize: 16, lineHeight: 24, color: colour.ink, padding: 0, outlineWidth: 0 },
   rows: { paddingHorizontal: 16, paddingVertical: 0 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 56 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 52 },
   value: { fontSize: 16, lineHeight: 24 },
   lock: { marginTop: -6, flexDirection: 'row', alignItems: 'center', gap: 8 },
 });

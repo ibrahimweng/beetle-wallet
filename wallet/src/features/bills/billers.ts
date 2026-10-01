@@ -26,8 +26,6 @@ export type Biller = {
   picks: number[];
   /** the page's line under the title */
   sub: string;
-  /** Beetle's word when the saved account is in place */
-  say: string;
   /** the lock line at the foot: what lands, and where */
   lock: string;
   /** what a pick of a figure buys: kWh, months, gigabytes */
@@ -47,7 +45,6 @@ export const BILLERS: Biller[] = [
     usual: 8_000,
     picks: [3_000, 8_000, 15_000],
     sub: 'on your saved meter',
-    say: 'Ikeja Electric, the meter you always use.',
     lock: 'The token appears here and in your messages.',
     buys: 'kwh',
   },
@@ -63,7 +60,6 @@ export const BILLERS: Biller[] = [
     usual: 12_500,
     picks: [12_500, 25_000, 37_500],
     sub: 'on your saved smartcard',
-    say: 'DStv Compact, the smartcard you always use.',
     lock: 'The decoder comes back on the moment it goes through.',
     buys: 'months',
   },
@@ -79,7 +75,6 @@ export const BILLERS: Biller[] = [
     usual: 15_000,
     picks: [7_500, 15_000, 30_000],
     sub: 'on your home account',
-    say: 'Spectranet, the account you always use.',
     lock: 'The data lands the moment it goes through.',
     buys: 'gb',
   },
@@ -95,7 +90,6 @@ export const BILLERS: Biller[] = [
     usual: 2_000,
     picks: [2_000, 4_000, 6_000],
     sub: 'for the flat',
-    say: 'LAWMA, for the flat, as every month.',
     lock: 'The month settles the moment it goes through.',
     buys: 'months',
   },

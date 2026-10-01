@@ -14,7 +14,7 @@ vi.mock('expo-crypto', () => ({
 }));
 
 import { Beetle, ModelAgent, ModelError, TOOLS, type ModelConfig } from '@/services/model';
-import { ScriptedAgent, type Context } from '@/services/agent';
+import { ScriptedAgent, panelFromAsk, type Context } from '@/services/agent';
 import { MockReader } from '@/services/reader';
 import { MockMeters } from '@/services/nigeria';
 import { DEMO_ACCOUNT } from '@/services/auth';
@@ -98,7 +98,7 @@ describe('Beetle with a model behind it', () => {
     expect(req?.body.messages).toEqual([{ role: 'user', content: 'hi' }]);
   });
 
-  it('runs the tools it is asked for, says the steps, and puts up the panel', async () => {
+  it('runs the tools it is asked for, says the steps, and puts up the card', async () => {
     const api = fakeApi([
       {
         content: [use('t1', 'find_account', { query: 'Sarah', saying: "I'm finding Sarah's account…" })],
@@ -111,6 +111,8 @@ describe('Beetle with a model behind it', () => {
             bank: 'GTBank',
             number: '0234567890',
             amount: 20000,
+            tag: null,
+            ask_about: true,
             saying: "I'm checking the fee…",
           }),
         ],
@@ -125,9 +127,11 @@ describe('Beetle with a model behind it', () => {
     const agent = new ModelAgent(new MockReader(0), async () => cfg, api.fetchFn);
     const r = await agent.ask({ text: 'Send 20k to Sarah' }, ctx(), l => steps.push(l));
     expect(steps).toEqual(["I'm finding Sarah's account…", "I'm checking the fee…"]);
-    expect(r.blocks.map(b => b.kind)).toEqual(['say', 'say', 'panel']);
-    const panel = r.blocks.find(b => b.kind === 'panel');
-    expect(panel && panel.kind === 'panel' && panel.panel.rows.map(x => x.value)).toEqual(['Sarah Adeyemi', 'GTBank', '₦20,000', '₦26.88', 'In a moment']);
+    expect(r.blocks.map(b => b.kind)).toEqual(['say', 'say', 'ask']);
+    const card = r.blocks.find(b => b.kind === 'ask');
+    expect(card && card.kind === 'ask' && card.ask).toMatchObject({ tool: 'transfer', values: { amount: 20_000 }, found: { person: { name: 'Sarah Adeyemi', bank: 'GTBank' } }, confirmWho: true });
+    expect(card && card.kind === 'ask' && panelFromAsk(card.ask)?.rows.map(x => x.value)).toEqual(['Sarah Adeyemi', 'GTBank', '₦20,000', '₦26.88', 'In a few seconds']);
+    expect(r.pending?.need).toBe('ask');
     /* what the tools answered went back as results, in one message each round */
     const second = api.requests[1]?.body.messages as { role: string; content: unknown }[];
     expect(second.map(m => m.role)).toEqual(['user', 'assistant', 'user']);
@@ -138,6 +142,8 @@ describe('Beetle with a model behind it', () => {
       name: 'Sarah Adeyemi',
       bank: 'GTBank',
       number: '0234567890',
+      tag: null,
+      ask_about: true,
     });
     const third = api.requests[2]?.body.messages as { role: string; content: unknown }[];
     const prepared = JSON.parse((third[4]!.content as { content: string }[])[0]!.content) as {

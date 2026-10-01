@@ -306,12 +306,13 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
     <Animated.View style={[s.card, card]} testID="card">
       {/* the open card: the conversation, running up under the header and down
           under the bar, and the bar at its foot on its own haze */}
-      <Animated.View style={[s.opened, coming]} pointerEvents={opened && !over ? 'auto' : 'none'}>
+      {/* closed, the chat and its foot are not there for a finger or a screen reader: the card's own Send and Receive are */}
+      <Animated.View style={[s.opened, coming]} pointerEvents={opened && !over ? 'auto' : 'none'} aria-hidden={!opened}>
         <Animated.View style={[{ flex: 1 }, receding]}>
           <CardGesturesContext.Provider value={gestures}>{chat}</CardGesturesContext.Provider>
         </Animated.View>
       </Animated.View>
-      <Animated.View style={[s.foot, coming]} pointerEvents={opened && !over ? 'box-none' : 'none'}>
+      <Animated.View style={[s.foot, coming]} pointerEvents={opened && !over ? 'box-none' : 'none'} aria-hidden={!opened}>
         <Frost height={FOOT_HAZE} side="bottom" solid={20} />
         <Animated.View style={[s.bar, fading]}>{foot}</Animated.View>
       </Animated.View>

@@ -1,6 +1,7 @@
 /* Buy data, from its frame: whose line, the bundle, and from where and
    what the round-up feeds, each on its own white card in one grey one,
-   with Beetle's word above them; the other bundles to pick from, the
+   each saying what matters on its own line (no bubble from Beetle over
+   them: see DESIGN.md); the other bundles to pick from, the
    other lines topped up, and Slide to buy at the foot beside Back. Buy
    airtime is the same page with a figure in the bundle's place. Data on
    All services, the Data shortcut under the open chat and the lab open
@@ -10,7 +11,7 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { AmountPicker, Avatar, Body, Caption, Icon, Label, Meta, PageHead, Picks, Say, Screen, Tap, YouTyped, colour, measure, toast, type Rect } from '../../design';
+import { AmountPicker, Avatar, Body, Caption, Icon, Label, Meta, PageHead, Picks, Screen, Tap, YouTyped, colour, measure, toast, type Rect } from '../../design';
 import {
   AIRTIME,
   DEMO_SAVED,
@@ -191,16 +192,8 @@ export function BuyData() {
   useFoot({ kind: 'slide', label: 'Slide to buy', amount: naira(price), disabled: !line || !price || typing, onSlide: slide, veil: guard || choosing ? 'away' : pick ? 'recede' : undefined });
 
   if (!ok || !account) return null;
-  const whose = line ? (line.own ? 'your' : `${line.label}'s`) : '';
-  const say = !line
-    ? `Whose line? Tap the card to pick one you have topped up, or type a number.`
-    : price > balance
-      ? `That is ${naira(price - balance)} more than Everyday holds. Slide, and I show you three ways to close it.`
-      : airtime
-        ? `${naira(amount)} of airtime on ${whose} ${line.network} line.`
-        : plan
-          ? `${planName(plan)}, on ${whose} ${line.network} line.`
-          : `Which bundle for ${line.label}? Pick one below.`;
+  /* over what Everyday holds: said under the figure or the bundle, where it is about */
+  const short = !fromDollars && price > balance ? `${naira(price - balance)} more than Everyday holds; slide and I show three ways to close it` : null;
   const others = airtime ? null : plan ? otherPlans(plan) : [];
   const alsoLines = saved.lines.filter(l => !l.own && l.number !== line?.number).slice(0, 4);
   const openLines = () => void measure(lineCard).then(setPick);
@@ -209,9 +202,6 @@ export function BuyData() {
     <>
       <Screen head={<PageHead lead title={airtime ? 'Buy airtime' : 'Buy data'} sub="Check the parts I filled in before it goes" />}>
         {said ? <YouTyped said={said} /> : null}
-        <View style={said ? { marginTop: -4 } : null}>
-          <Say testID="say">{say}</Say>
-        </View>
         <View style={s.card} testID="buy-card">
           {typing ? (
             <View style={[s.sub, s.line]} testID="buy-line">
@@ -270,7 +260,8 @@ export function BuyData() {
                   setAmountNote('You picked it');
                 }}
                 max={fromDollars ? Math.floor(dollars * rate) : Math.max(0, Math.floor(balance))}
-                note={amountNote}
+                note={short ?? amountNote}
+                warn={!!short}
               />
             </View>
           ) : (
@@ -285,7 +276,7 @@ export function BuyData() {
                 </View>
                 {plan ? <Label style={[s.value, { marginTop: 5 }]}>{naira(plan.price)}</Label> : null}
               </View>
-              <Caption tone="secondary">{planNote}</Caption>
+              <Caption tone={short ? 'bad' : 'secondary'}>{short ?? planNote}</Caption>
             </View>
           )}
           <View style={[s.sub, s.rows]} testID="buy-rows">
@@ -389,6 +380,12 @@ export function BuyData() {
           name={airtime || !plan ? `${line.network} · Airtime` : `${line.network} · ${planSize(plan)}`}
           detail={`${line.own ? 'Your line' : line.label} · ${groupPhoneNumber(line.number)}`}
           glyph={airtime ? 'airtime' : 'data'}
+          rows={[
+            airtime || !plan ? { label: 'Airtime', value: naira(price) } : { label: 'Plan', value: planName(plan) },
+            { label: 'Lands', value: 'At once' },
+            { label: 'Fee', value: 'Free' },
+            fromDollars ? { label: 'Leaves Dollars', value: usdFull(usdOf(price, rate)), strong: true } : { label: 'Leaves Everyday', value: naira(price), strong: true },
+          ]}
           verify={app.checkPasscode}
           onDone={done}
           onCancel={() => setGuard(false)}
@@ -399,7 +396,7 @@ export function BuyData() {
 }
 
 const s = StyleSheet.create({
-  card: { marginTop: -13, backgroundColor: colour.surface2, borderRadius: 24, padding: 12, gap: 8 },
+  card: { backgroundColor: colour.surface2, borderRadius: 24, padding: 12, gap: 8 },
   sub: { backgroundColor: colour.surface, borderRadius: 20, paddingHorizontal: 16 },
   /* the frame boxes the line's row at 38 — the chip and the chevron sit on that — and lets the two lines beside them run to 44 */
   line: { paddingTop: 12, paddingBottom: 9, gap: 8 },

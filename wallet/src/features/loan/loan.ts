@@ -39,3 +39,16 @@ export const countWord = (n: number) => ['No', 'One', 'Two', 'Three', 'Four', 'F
 
 /** The figure held to the frame's range and step. */
 export const held = (n: number) => Math.min(LOAN.most, Math.max(LOAN.least, Math.round(n / LOAN.step) * LOAN.step));
+
+/** What happens if a payment is missed, in the owner's words: no collateral; a
+    late fee for each week it is overdue; what is due is taken from money
+    arriving in Everyday; reported to the credit bureau after 30 days late. */
+export const MISSED = {
+  collateral: 'No collateral',
+  fee: `₦${LOAN.late.toLocaleString('en-NG')} late fee for each week a payment is overdue`,
+  collect: 'What is due is taken from money arriving in Everyday',
+  bureau: 'Reported to the credit bureau after 30 days late',
+} as const;
+
+/** How payments are taken: from Everyday on the day, with a word the day before. */
+export const COLLECTED = 'From Everyday on the day; I tell you the day before';

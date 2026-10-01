@@ -3,8 +3,9 @@
    The record is Activities' now, the next page along. Pull the card down
    and it becomes the chat, the whole screen down to just over the bar,
    which stays: the same bar as everywhere, so the app is still there to go
-   round. The ask bar lives at the card's foot, with Bills, Data and
-   Services as chips on top of it. The first time on this phone, the card
+   round. The ask bar lives at the card's foot, with Send, Bills, Data,
+   Receive and Loan as chips on top of it: each puts its card up in the
+   chat, and none leaves it. The first time on this phone, the card
    dips on its own so the pull is found. Nothing here leaves anyone stuck:
    the header pulls back up, Home on the bar closes the chat, and so does
    the phone's own back. Activities or Settings on the bar turn the pages
@@ -18,25 +19,27 @@
    the chat opens where it is, a little larger (see ChatReceipt). Send on
    the card opens the Send money page. */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, Keyboard, Platform, TextInput, View, useWindowDimensions } from 'react-native';
+import { BackHandler, Keyboard, Platform, ScrollView, TextInput, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
-import { Icon, Meta, Pane, Tap, colour, dark, frame, keys, settle, standard, useStill } from '../../design';
+import { Meta, Pane, Tap, colour, dark, frame, keys, settle, standard, useStill } from '../../design';
 import type { IconName } from '../../icons';
-import { DEMO_SAVED, beneficiariesOf, ownLine, type AskPanel, type Beneficiary, type Move, type Panel } from '../../services';
+import { DEMO_SAVED, OFFLINE_LINE, beneficiariesOf, newAsk, ownLine, ownTag, panelFromAsk, type AskPanel, type Move, type Panel } from '../../services';
 import { useApp } from '../onboarding/store';
 import { Chat } from '../agent/Chat';
 import { ChatReceipt } from '../agent/ChatReceipt';
 import { ChatsDrawer, ChatsEdge, EDGE, drawerWidth } from '../agent/Drawer';
 import { isPanel, transcriptOf, turn, useConversation, type Turn } from '../agent/conversation';
 import { clock, detailOf, titleOf, toCarryOn, useChats, type Chat as ChatRecord } from '../agent/chats';
-import { transferPanel, PEOPLE } from '../../services/agent';
+import { lineOf, transferPanel, PEOPLE } from '../../services/agent';
 import { handoff } from '../scan/handoff';
 import { samplePhoto } from '../scan/sample';
 import { PasscodeSheet, lockedFor } from '../passcode';
+import { sheetFor } from '../passcode/breakdown';
+import { costOf, countWord, dayOf, type Term } from '../loan/loan';
 import { ReceiveSheet, SAMPLE_ARRIVAL, arrivalChat, arrivalLine, arrivalMove, type Arrival } from '../receive';
-import { pageFor } from '../request/intent';
+import { isLoan, isRequest, isWays, pageFor } from '../request/intent';
 import { LAB } from '../../lab/enabled';
 import { holdingsFor } from './account';
 import { balanceOf, rowFrom, useMoves } from './moves';
@@ -45,15 +48,13 @@ import { CHIPS_GAP, CHIPS_H, CLOSED_H, FOOT_BAND, WalletCard, useCardTop } from 
 import { BAR_H, foot, useFoot } from '../more/Foot';
 import { moreTo, type MoreItem } from '../more/More';
 import { useOnline } from '../offline';
-import { SavedPeek } from '../agent/SavedPeek';
-import type { SavedKind } from '../agent/AskPanel';
 import { JourneyProvider, useRecession, type Rect } from '../../design/journey';
 import type { ReceiptCard as Card } from '../agent/conversation';
 import { chatPointedOut, markChatPointedOut } from './first';
 import { useSetup } from '../setup/store';
 import { tabs, useHoldPages, usePage, useTabAgain } from '../tabs';
 import { Grid } from './Grid';
-import { groupAccount, kobo, naira } from '../../lib/format';
+import { kobo, naira } from '../../lib/format';
 
 /** What stays showing under the open card: the bar's row of glyphs, 16
     under the card's edge, and the 24 under the row the bar keeps for the
@@ -140,8 +141,6 @@ function HomeScreen() {
     () => beneficiariesOf([...moves, ...(h?.ledger ?? [])], account?.demo ? DEMO_SAVED : { lines: [], meters: [] }, PEOPLE, account ? ownLine(account.phone) : null),
     [moves, h, account],
   );
-  /** an ask panel's list of them, grown from the line under its fields */
-  const [pick, setPick] = useState<{ ask: AskPanel; kind: SavedKind; at: Rect } | null>(null);
   /** a receipt in the chat, opened where it is */
   const [chatPeek, setChatPeek] = useState<{ card: Card; at: Rect } | null>(null);
   /** the chats drawer, in or out, and how far in */
@@ -184,8 +183,8 @@ function HomeScreen() {
   const current = useRef<ChatRecord | null>(null);
   /** the last chat was filed; the next opening starts afresh */
   const stale = useRef(false);
-  /** a panel's move waiting on the passcode */
-  const [guard, setGuard] = useState<{ panelId: string; panel: Panel } | null>(null);
+  /** a move waiting on the passcode: a panel's, a card's, or the loan card's */
+  const [guard, setGuard] = useState<{ panelId?: string; askId?: string; loanId?: string; taken?: { amount: number; days: number }; panel: Panel } | null>(null);
   /** the Receive sheet, over everything */
   const [receive, setReceive] = useState(false);
   /** money that just arrived, for the card to show */
@@ -321,12 +320,79 @@ function HomeScreen() {
     },
     [talk],
   );
+  /* a card with all it needs: what it stands for goes to the passcode, with the whole of it on the sheet */
+  const confirmAsk = useCallback(
+    (ask: AskPanel) => {
+      const panel = panelFromAsk(ask, saved);
+      if (!panel) return;
+      if (!online && ask.tool === 'transfer') {
+        talk.open(OFFLINE_LINE);
+        return;
+      }
+      const shut = lockedFor();
+      if (shut) {
+        talk.open(`That was three wrong tries. Give it ${shut} seconds and press it again.`);
+        return;
+      }
+      Keyboard.dismiss();
+      setGuard({ askId: ask.id, panel });
+    },
+    [saved, online, talk],
+  );
+  /* the loan card's Borrow: what comes in, what is paid back and when, to the passcode */
+  const borrow = useCallback(
+    (turnId: string, amount: number, days: Term) => {
+      const cost = costOf(amount, days);
+      const panel: Panel = {
+        id: `loan-${turnId}`,
+        tool: 'loan',
+        title: 'Beetle Loans',
+        icon: 'loan',
+        rows: [
+          { label: 'Term', value: `${days} days` },
+          { label: 'You get today', value: naira(amount) },
+          { label: 'You pay back', value: naira(cost.total) },
+          { label: 'First payment', value: `${naira(cost.each)} on ${dayOf(cost.first)}` },
+        ],
+        action: { label: `Borrow ${naira(amount)}`, amount },
+        move: { name: 'Beetle Loans', detail: `Loan · ${days} days`, amount, icon: 'loan', kind: 'in', reference: `Paid back over ${days} days` },
+        done: `${naira(amount)} is in Everyday now. The first of ${countWord(cost.payments).toLowerCase()} payment${cost.payments === 1 ? '' : 's'}, ${naira(cost.each)}, is on ${dayOf(cost.first)}; I tell you the day before.`,
+      };
+      const shut = lockedFor();
+      if (shut) {
+        talk.open(`That was three wrong tries. Give it ${shut} seconds and press it again.`);
+        return;
+      }
+      Keyboard.dismiss();
+      setGuard({ loanId: turnId, panel, taken: { amount, days } });
+    },
+    [talk],
+  );
   const guardDone = useCallback(() => {
     if (!guard) return;
-    const id = guard.panelId;
+    const g = guard;
     setGuard(null);
-    talk.confirm(id);
+    if (g.askId) talk.settleAsk(g.askId, g.panel);
+    else if (g.loanId && g.taken) talk.takeLoan(g.loanId, g.panel, g.taken);
+    else if (g.panelId) talk.confirm(g.panelId);
   }, [guard, talk]);
+
+  /* the chips over the input: each puts its card up in the chat, with what was tapped (or typed) and Beetle's one line */
+  const offer = useCallback(
+    (what: 'send' | 'bills' | 'data' | 'receive' | 'loan', said?: string) => {
+      if (!account) return;
+      const c = { ...context(), pending: null };
+      if (what === 'send')
+        talk.offer(said ?? 'Send money', 'Who to? A $tag, a name, or an account number; the people you have paid are under Recent.', { kind: 'ask', ask: newAsk('transfer', {}, c) });
+      if (what === 'bills')
+        talk.offer(said ?? 'Pay for light', 'Your company, prepaid or postpaid, and the meter number. The meters you have paid are under Recent.', { kind: 'ask', ask: newAsk('pay', {}, c) });
+      if (what === 'data')
+        talk.offer(said ?? 'Buy data', 'Which line, and which plan? It is on your line unless you change it.', { kind: 'ask', ask: newAsk('data', { number: lineOf(account.phone)?.number }, c) });
+      if (what === 'receive') talk.offer(said ?? 'Receive money', 'Here is how to pay you: your number from any bank, or your tag from Beetle, which is free.', { kind: 'receive' });
+      if (what === 'loan') talk.offer(said ?? 'Borrow', 'Pick how much and for how long. Everything it costs is on the card before you take it.', { kind: 'loan' });
+    },
+    [account, context, talk],
+  );
 
   /* Receive: the sheet with the four ways money can come, over everything */
   const openReceive = useCallback(() => {
@@ -608,13 +674,18 @@ function HomeScreen() {
   /* the foot is the bar, while this page is the one showing, and it stays
      under the open chat; More comes up out of its plus. A sheet or a peek
      over home sends it down out of the way. */
-  useFoot({ kind: 'bar', open, onPick: pickMore, veil: guard || receive || chatPeek || pick ? 'away' : undefined }, active);
+  useFoot({ kind: 'bar', open, onPick: pickMore, veil: guard || receive || chatPeek ? 'away' : undefined }, active);
 
   const send = () => {
     const text = draft.trim();
     if (!text) return;
     setDraft('');
-    /* asking somebody for money, or how to be paid, is a page of its own */
+    /* what the Loan and Receive chips do, typed, is the same card in the chat */
+    if (!isRequest(text) && (isLoan(text) || isWays(text))) {
+      offer(isLoan(text) ? 'loan' : 'receive', text);
+      return;
+    }
+    /* asking somebody for money, the month's bills, the services: a page of its own */
     const page = pageFor(text);
     if (page) {
       Keyboard.dismiss();
@@ -681,7 +752,13 @@ function HomeScreen() {
                   bottom={FOOT_BAND - 8}
                   confirm={confirmWithPasscode}
                   saved={saved}
-                  onSaved={(ask, kind, at) => setPick({ ask, kind, at })}
+                  balance={balance}
+                  account={account}
+                  tag={ownTag(account.firstName)}
+                  canBorrow={setup.done}
+                  onConfirmAsk={confirmAsk}
+                  onBorrow={borrow}
+                  onSetUp={() => router.push('/way-in?setup=1')}
                   onReceipt={(card, at) => {
                     /* only while the chat is open: the card may have closed while the line was being measured */
                     if (!openedRef.current) return;
@@ -695,9 +772,11 @@ function HomeScreen() {
                 <ChatFoot
                   typing={draft.trim().length > 0}
                   chips={[
-                    { glyph: 'power', label: 'Bills', onPress: () => router.push('/bills') },
-                    { glyph: 'data', label: 'Data', onPress: () => router.push('/buy') },
-                    { glyph: 'grid', label: 'Services', onPress: () => router.push('/services') },
+                    { glyph: 'send', label: 'Send', onPress: () => offer('send') },
+                    { glyph: 'power', label: 'Bills', onPress: () => offer('bills') },
+                    { glyph: 'data', label: 'Data', onPress: () => offer('data') },
+                    { glyph: 'down', label: 'Receive', onPress: () => offer('receive') },
+                    { glyph: 'loan', label: 'Loan', onPress: () => offer('loan') },
                   ]}
                 >
                   {/* a tap on the ask bar puts the drawer away, and the bar is the chat's again */}
@@ -730,39 +809,18 @@ function HomeScreen() {
       ) : null}
       {/* the passcode, on its sheet over everything, before money moves */}
       {guard ? (
-        <PasscodeSheet
-          key={guard.panelId}
-          amount={naira(Math.abs(guard.panel.move?.amount ?? guard.panel.action?.amount ?? 0))}
-          name={whoFor(guard.panel).name}
-          detail={whoFor(guard.panel).detail}
-          verify={app.checkPasscode}
-          onDone={guardDone}
-          onCancel={() => setGuard(null)}
-          faceMissed={LAB && asked.face === 'missed'}
-        />
+        <PasscodeSheet key={guard.panel.id} {...sheetFor(guard.panel)} verify={app.checkPasscode} onDone={guardDone} onCancel={() => setGuard(null)} faceMissed={LAB && asked.face === 'missed'} />
       ) : null}
       {receive && account ? <ReceiveSheet account={account} onDismiss={() => setReceive(false)} /> : null}
-      {pick ? (
-        <SavedPeek
-          kind={pick.kind}
-          list={pick.kind === 'person' ? saved.people : pick.kind === 'line' ? saved.lines.filter(l => !l.own) : saved.meters}
-          at={pick.at}
-          onPick={b => {
-            const { values, found } = pickedValues(b, pick.ask);
-            talk.fill(pick.ask.id, values, found);
-            setPick(null);
-          }}
-          onClose={() => setPick(null)}
-        />
-      ) : null}
       {chatPeek ? <ChatReceipt card={chatPeek.card} at={chatPeek.at} onClose={() => setChatPeek(null)} /> : null}
     </View>
   );
 }
 
-/* The foot of the open chat: Bills, Data and Services as quiet chips,
-   left-aligned right on top of the ask bar — each a way into what the chat
-   can do, without a row of its own under the card. They step out of the way
+/* The foot of the open chat: Send, Bills, Data, Receive and Loan as quiet
+   chips, left-aligned right on top of the ask bar, in the order they are
+   most wanted — each puts its card up in the chat, and none leads away. The
+   row scrolls sideways where the five do not fit. They step out of the way
    while something is typed. The camera stays in the bar. */
 function ChatFoot({ chips, typing, children }: { chips: { glyph: IconName; label: string; onPress: () => void }[]; typing: boolean; children: React.ReactNode }) {
   const still = useStill();
@@ -773,39 +831,25 @@ function ChatFoot({ chips, typing, children }: { chips: { glyph: IconName; label
   const row = useAnimatedStyle(() => ({ opacity: t.value, transform: [{ translateY: 6 * (1 - t.value) }] }));
   return (
     <View testID="chat-foot">
-      <Animated.View style={[{ flexDirection: 'row', gap: 8, height: CHIPS_H, marginBottom: CHIPS_GAP }, row]} pointerEvents={typing ? 'none' : 'auto'} testID="chat-chips">
-        {chips.map(c => (
-          <Tap
-            key={c.label}
-            accessibilityRole="button"
-            accessibilityLabel={c.label}
-            onPress={c.onPress}
-            scale={0.94}
-            style={{ flexDirection: 'row', alignItems: 'center', gap: 6, height: CHIPS_H, borderRadius: CHIPS_H / 2, paddingLeft: 10, paddingRight: 12, backgroundColor: 'rgba(255,255,255,0.08)' }}
-          >
-            <Icon name={c.glyph} size={14} colour={dark.label} />
-            <Meta style={{ color: dark.pillText, fontWeight: '500' }}>{c.label}</Meta>
-          </Tap>
-        ))}
+      <Animated.View style={[{ height: CHIPS_H, marginBottom: CHIPS_GAP }, row]} pointerEvents={typing ? 'none' : 'auto'} testID="chat-chips">
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 8, paddingRight: 8 }}>
+          {chips.map(c => (
+            <Tap
+              key={c.label}
+              accessibilityRole="button"
+              accessibilityLabel={c.label}
+              onPress={c.onPress}
+              scale={0.94}
+              style={{ alignItems: 'center', justifyContent: 'center', height: CHIPS_H, borderRadius: CHIPS_H / 2, paddingHorizontal: 14, backgroundColor: 'rgba(255,255,255,0.08)' }}
+            >
+              <Meta style={{ color: dark.pillText, fontWeight: '500' }}>{c.label}</Meta>
+            </Tap>
+          ))}
+        </ScrollView>
       </Animated.View>
       {children}
     </View>
   );
-}
-
-/** What a pick from the list puts into the ask panel. */
-function pickedValues(b: Beneficiary, ask: AskPanel): { values: Parameters<ReturnType<typeof useConversation>['fill']>[1]; found?: Parameters<ReturnType<typeof useConversation>['fill']>[2] } {
-  if (b.kind === 'person') return { values: { who: b.name }, found: { person: { name: b.name, bank: b.bank, number: b.number } } };
-  if (b.kind === 'line') return { values: { number: b.number, plan: ask.tool === 'data' ? b.plan : undefined, amount: ask.tool === 'airtime' ? (b.amount ?? ask.values.amount) : ask.values.amount } };
-  return { values: { disco: b.disco, meterKind: b.meterKind, meter: b.meter, amount: ask.values.amount ?? b.amount }, found: { meter: { name: b.name, address: '' } } };
-}
-
-/** Who the money is going to, for the row on the passcode sheet: the person
-    with their bank and account for a transfer, what it is for otherwise. */
-function whoFor(panel: Panel): { name: string; detail?: string } {
-  if (panel.person) return { name: panel.person.name, detail: `${panel.person.bank} · ${groupAccount(panel.person.number)}` };
-  if (panel.move) return { name: panel.move.name, detail: panel.move.detail };
-  return { name: panel.title };
 }
 
 export { CLOSED_H, EDGE };

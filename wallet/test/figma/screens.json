@@ -10095,14 +10095,14 @@
    {
     "name": "Card",
     "find": {
-     "testid": "you-said"
+     "testid": "you-typed"
     },
     "nth": 0
    },
    {
     "name": "Glyph · camera",
     "find": {
-     "testid": "you-said",
+     "testid": "you-typed",
      "child": 0
     },
     "nth": 0
@@ -11530,7 +11530,7 @@
  "powerpay": {
   "frame": "powerpay",
   "place": "Pay a bill",
-  "wait": "the meter you always use",
+  "wait": "on your saved meter",
   "settle": 1400,
   "pieces": [
    {
@@ -13691,7 +13691,7 @@
  "airtime": {
   "frame": "airtime",
   "place": "Buy data",
-  "wait": "on Mum's MTN line",
+  "wait": "The number you top up most",
   "settle": 1400,
   "pieces": [
    {
@@ -14210,7 +14210,7 @@
    {
     "name": "Card",
     "find": {
-     "testid": "you-said"
+     "testid": "you-typed"
     },
     "nth": 0,
     "only": [
@@ -15004,7 +15004,7 @@
  "loan": {
   "frame": "loan",
   "place": "Borrow",
-  "wait": "The whole cost, before you decide",
+  "wait": "paid back monthly",
   "settle": 1400,
   "pieces": [
    {

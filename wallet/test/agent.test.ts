@@ -5,7 +5,7 @@ vi.mock('react-native', () => ({ Platform: { OS: 'web', select: (o: Record<strin
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: async () => null, setItem: async () => undefined, removeItem: async () => undefined } }));
 vi.mock('expo-crypto', () => ({ getRandomBytes: (n: number) => new Uint8Array(n), CryptoDigestAlgorithm: { SHA256: 'SHA-256' }, digestStringAsync: async () => 'h' }));
 
-import { ScriptedAgent, accountIn, amountIn, askMissing, feeFor, personIn, whose, type Context } from '@/services/agent';
+import { ScriptedAgent, accountIn, amountIn, askMissing, feeFor, panelFromAsk, personIn, resolveWho, savedOf, transferPanel, whose, PEOPLE, type Context } from '@/services/agent';
 import { MockMeters } from '@/services/nigeria';
 import { MockReader } from '@/services/reader';
 import { DEMO_ACCOUNT } from '@/services/auth';
@@ -51,52 +51,99 @@ describe('reading an ask', () => {
 });
 
 describe('the scripted Beetle', () => {
-  it('puts up a transfer for a whole ask', async () => {
+  it('puts up the card for a whole ask, and asks whether a name is the person', async () => {
     const r = await agent.ask({ text: 'Send 20k to Sarah' }, ctx());
-    const [p] = panels(r.blocks);
-    expect(p?.tool).toBe('transfer');
-    expect(p?.rows.map(x => x.value)).toEqual(['Sarah Adeyemi', 'GTBank', '₦20,000', '₦26.88', 'In a moment']);
+    expect(panels(r.blocks)).toHaveLength(0);
+    const [card] = asks(r.blocks);
+    expect(card).toMatchObject({ tool: 'transfer', values: { who: 'Sarah Adeyemi', amount: 20_000 }, found: { person: { name: 'Sarah Adeyemi', bank: 'GTBank' } }, confirmWho: true });
+    expect(askMissing(card!)).toEqual([]);
+    /* the card asks "Is this the person?"; the words say who was found, and where */
+    expect(said(r.blocks)).toContain('I found Sarah Adeyemi at GTBank.');
+    expect(r.pending).toEqual({ need: 'ask', ask: card });
+    /* the card stands for this, on the passcode sheet and once it is through */
+    const p = panelFromAsk(card!);
+    expect(p?.rows.map(x => x.value)).toEqual(['Sarah Adeyemi', 'GTBank', '₦20,000', '₦26.88', 'In a few seconds']);
     expect(p?.action).toEqual({ label: 'Confirm ₦20,000', amount: 20_026.88 });
     expect(p?.move?.amount).toBe(-20_000);
-    expect(r.pending).toBeNull();
   });
-  it('asks for what is missing in a panel of fields, and takes the rest in words', async () => {
+  it('gives the Beetle account for a $tag: free, and there at once', async () => {
+    const r = await agent.ask({ text: 'send 5k to $tobi' }, ctx());
+    const [card] = asks(r.blocks);
+    expect(card).toMatchObject({ values: { amount: 5_000 }, found: { person: { name: 'Tobi Bakare', bank: 'Beetle', tag: 'tobi' } }, confirmWho: false });
+    expect(said(r.blocks)).toContain('Free, and there at once');
+    const p = panelFromAsk(card!);
+    expect(p?.rows.map(x => x.value)).toEqual(['Tobi Bakare', 'Beetle · $tobi', '₦5,000', 'Free', 'Instantly']);
+    expect(p?.move?.detail).toBe('Beetle · $tobi · sent');
+  });
+  it('asks which bank a number is at, and looks the name up there', async () => {
+    const r = await agent.ask({ text: 'send 5k to 0123456785' }, ctx());
+    const [card] = asks(r.blocks);
+    expect(card).toMatchObject({ hint: '0123456785', found: { person: null } });
+    expect(askMissing(card!)).toEqual(['who']);
+    expect(said(r.blocks)).toContain('Which bank is 0123 4567 85 at?');
+    const r2 = await agent.ask({ text: 'GTBank' }, ctx(r.pending));
+    expect(fills(r2.blocks)[0]).toMatchObject({ found: { person: { bank: 'GTBank', number: '0123456785' } }, confirmWho: true });
+    expect(said(r2.blocks)).toContain('All there');
+    /* a bank the number cannot be at says so */
+    const r3 = await agent.ask({ text: 'send 5k to 0123456785 at Unity Bank' }, ctx());
+    expect(said(r3.blocks)).toContain('no account 0123 4567 85 at Unity Bank');
+  });
+  it('gives a new ask its own card, and fills the one up with anything less', async () => {
+    const first = await agent.ask({ text: 'Send 20k to Sarah' }, ctx());
+    const [sarah] = asks(first.blocks);
+    const r = await agent.ask({ text: 'send 5k to 0123456785' }, ctx(first.pending));
+    expect(fills(r.blocks)).toHaveLength(0);
+    const [card] = asks(r.blocks);
+    expect(card!.id).not.toBe(sarah!.id);
+    expect(card).toMatchObject({ tool: 'transfer', values: { amount: 5_000 }, hint: '0123456785' });
+    /* the same person again is the same card, with the new amount */
+    const again = await agent.ask({ text: 'send 30k to Sarah' }, ctx(first.pending));
+    expect(fills(again.blocks)[0]).toMatchObject({ askId: sarah!.id, values: { amount: 30_000 } });
+    /* and an amount alone goes onto the card that is up */
+    const more = await agent.ask({ text: 'make it 10k' }, ctx(r.pending));
+    expect(fills(more.blocks)[0]).toMatchObject({ askId: card!.id, values: { amount: 10_000 } });
+  });
+  it('reads who the way the To field does', () => {
+    expect(resolveWho('send to $amaka').person?.bank).toBe('Beetle');
+    expect(resolveWho('pay sarah').confirm).toBe(true);
+    expect(resolveWho('0234567890').person?.name).toBe('Sarah Adeyemi');
+    expect(resolveWho('give it to bola')).toEqual({ person: null, hint: 'bola' });
+    expect(resolveWho("send 2k to tobi's beetle account").person?.tag).toBe('tobi');
+  });
+  it('asks for what is missing on the card, and takes the rest in words', async () => {
     const r1 = await agent.ask({ text: 'send something to Chidi' }, ctx());
     expect(panels(r1.blocks)).toHaveLength(0);
     const [ask] = asks(r1.blocks);
     expect(ask).toMatchObject({ tool: 'transfer', fields: ['who', 'amount'], values: { who: 'Chidi Okafor' }, found: { person: expect.objectContaining({ bank: 'Access Bank' }) }, saved: 'person' });
     expect(askMissing(ask!)).toEqual(['amount']);
     expect(r1.pending).toEqual({ need: 'ask', ask });
-    /* the amount typed goes into the panel, and the panel to confirm follows */
+    /* the amount typed goes onto the card, which is then ready for its own button */
     const r2 = await agent.ask({ text: '5k' }, ctx(r1.pending));
-    expect(fills(r2.blocks)[0]).toMatchObject({ askId: ask!.id, values: { who: 'Chidi Okafor', amount: 5_000 }, done: true });
-    expect(panels(r2.blocks)[0]?.rows[0]?.value).toBe('Chidi Okafor');
-    expect(r2.pending).toBeNull();
-    /* an amount with nobody named: the panel asks who */
+    expect(fills(r2.blocks)[0]).toMatchObject({ askId: ask!.id, values: { who: 'Chidi Okafor', amount: 5_000 } });
+    expect(fills(r2.blocks)[0]?.done).toBeFalsy();
+    expect(said(r2.blocks)).toContain('All there');
+    expect(r2.pending?.need).toBe('ask');
+    /* an amount with nobody named: the card asks who */
     const r3 = await agent.ask({ text: 'transfer 3000' }, ctx());
     const [who] = asks(r3.blocks);
     expect(who?.values).toEqual({ who: undefined, amount: 3_000 });
     expect(askMissing(who!)).toEqual(['who']);
     const r4 = await agent.ask({ text: '0234567891' }, ctx(r3.pending));
-    expect(
-      panels(r4.blocks)[0]
-        ?.rows.map(x => x.value)
-        .slice(0, 3),
-    ).toEqual(['Chidi Okafor', 'Access Bank', '₦3,000']);
+    expect(fills(r4.blocks)[0]?.found?.person).toMatchObject({ name: 'Chidi Okafor', bank: 'Access Bank' });
     /* a name it does not know stays open, with a word about it */
-    const r5 = await agent.ask({ text: 'amaka' }, ctx(r3.pending));
-    expect(fills(r5.blocks)[0]).toMatchObject({ values: { who: 'amaka' }, found: { person: null } });
-    expect(fills(r5.blocks)[0]?.done).toBeFalsy();
-    expect(said(r5.blocks)).toContain('do not know anyone called amaka');
+    const r5 = await agent.ask({ text: 'bola' }, ctx(r3.pending));
+    expect(fills(r5.blocks)[0]).toMatchObject({ values: { who: 'bola' }, found: { person: null }, hint: 'bola' });
+    expect(said(r5.blocks)).toContain('not paid anyone called bola');
     expect(r5.pending?.need).toBe('ask');
   });
-  it('takes the panel filled in and continued', async () => {
+  it('takes the card filled in by hand', async () => {
     const r1 = await agent.ask({ text: 'send money' }, ctx());
     const [ask] = asks(r1.blocks);
     expect(askMissing(ask!)).toEqual(['who', 'amount']);
     const r2 = await agent.ask({ answers: { askId: ask!.id, values: { who: 'Sarah', amount: 2_000 } } }, ctx(r1.pending));
-    expect(fills(r2.blocks)[0]?.done).toBe(true);
-    expect(panels(r2.blocks)[0]?.rows.map(x => x.value)).toEqual(['Sarah Adeyemi', 'GTBank', '₦2,000', 'Free', 'In a moment']);
+    const filled = r2.pending?.need === 'ask' ? r2.pending.ask : null;
+    expect(askMissing(filled!)).toEqual([]);
+    expect(panelFromAsk(filled!)?.rows.map(x => x.value)).toEqual(['Sarah Adeyemi', 'GTBank', '₦2,000', 'Free', 'In a few seconds']);
   });
   it('will not send more than there is', async () => {
     const r = await agent.ask({ text: 'send 900k to Sarah' }, ctx());
@@ -105,20 +152,28 @@ describe('the scripted Beetle', () => {
     expect(asks(r.blocks)[0]?.values.amount).toBeUndefined();
     expect(asks(r.blocks)[0]?.note).toContain('more than');
   });
+  it('will not send all of it to a number never paid, whatever bank it is at', async () => {
+    const r = await agent.ask({ text: 'send everything to 0123456789' }, ctx());
+    expect(asks(r.blocks)).toHaveLength(0);
+    expect(said(r.blocks)).toContain('I will not do this one from here');
+    /* a number paid before is somebody known: the card comes up */
+    const known = await agent.ask({ text: 'send 5k to 0234567890' }, ctx());
+    expect(asks(known.blocks)[0]?.found?.person?.name).toBe('Sarah Adeyemi');
+  });
   it('corrects an amount on a panel already up', async () => {
-    const first = await agent.ask({ text: 'Send 20k to Sarah' }, ctx());
-    const panel = panels(first.blocks)[0]!;
+    const panel = transferPanel(PEOPLE[0]!, 20_000);
     const r = await agent.ask({ text: '15k' }, ctx({ need: 'amount-for', panel }));
     expect(r.blocks[0]).toEqual({ kind: 'amend', panelId: panel.id, amount: 15_000 });
   });
-  it('reads a photo and goes on from the number', async () => {
+  it('reads a photo and asks whether that is the person', async () => {
     const r = await agent.ask({ photo: { uri: 'file:///slip.jpg' } }, ctx());
     expect(r.reading?.numbers).toEqual(['0234567890']);
     expect(panels(r.blocks)[0]?.tool).toBe('found');
     expect(said(r.blocks)).toContain('Sarah Adeyemi at GTBank');
-    expect(r.pending).toMatchObject({ need: 'ask', ask: { tool: 'transfer', values: { who: 'Sarah Adeyemi' } } });
+    expect(r.pending).toMatchObject({ need: 'ask', ask: { tool: 'transfer', values: { who: 'Sarah Adeyemi' }, confirmWho: true } });
     const both = await agent.ask({ photo: { uri: 'file:///slip.jpg' }, text: 'send 20k' }, ctx());
-    expect(panels(both.blocks).map(p => p.tool)).toEqual(['found', 'transfer']);
+    expect(panels(both.blocks).map(p => p.tool)).toEqual(['found']);
+    expect(asks(both.blocks)[0]?.values.amount).toBe(20_000);
   });
   it('knows the bills, the data, the dollars and the balance', async () => {
     const bill = panels((await agent.ask({ text: 'top up my light' }, ctx())).blocks)[0];
@@ -162,8 +217,9 @@ describe('what Beetle asks for', () => {
     expect(askMissing(ask!)).toEqual(['plan']);
     expect(said(r.blocks)).toContain('Airtel');
     const r2 = await agent.ask({ text: '2gb' }, ctx(r.pending));
-    expect(fills(r2.blocks)[0]).toMatchObject({ values: { number: '08123456789', plan: 'airtel-2gb-30d' }, done: true });
-    expect(panels(r2.blocks)[0]?.rows.map(x => x.value)).toEqual(['0812 345 6789', 'Airtel', '2GB for 30 days', '₦1,800']);
+    expect(fills(r2.blocks)[0]).toMatchObject({ values: { number: '08123456789', plan: 'airtel-2gb-30d' } });
+    const ready = r2.pending?.need === 'ask' ? r2.pending.ask : null;
+    expect(panelFromAsk(ready!)?.rows.map(x => x.value)).toEqual(['0812 345 6789', 'Airtel', '2GB for 30 days', '₦1,800']);
     /* a plan on the wrong network is not one */
     const wrong = await agent.ask({ answers: { askId: ask!.id, values: { number: '08123456789', plan: 'mtn-5gb-30d' } } }, ctx(r.pending));
     expect(panels(wrong.blocks)).toHaveLength(0);
@@ -180,17 +236,19 @@ describe('what Beetle asks for', () => {
     expect(ask).toMatchObject({ tool: 'airtime', values: { number: '09069113588' } });
     expect(askMissing(ask!)).toEqual(['amount']);
     const r2 = await agent.ask({ text: '500' }, ctx(r.pending));
-    expect(panels(r2.blocks)[0]?.rows.map(x => x.value)).toEqual(['0906 911 3588 · your line', 'MTN', '₦500', 'At once']);
+    const ready = r2.pending?.need === 'ask' ? r2.pending.ask : null;
+    expect(panelFromAsk(ready!, savedOf(ctx()))?.rows.map(x => x.value)).toEqual(['0906 911 3588 · your line', 'MTN', '₦500', 'At once']);
     expect(panels((await agent.ask({ text: '1k airtime for 0803 214 4471' }, ctx())).blocks)[0]?.rows[0]?.value).toBe('Mum · 0803 214 4471');
   });
   it('asks for a new meter piece by piece, and looks it up', async () => {
     const r = await agent.ask({ text: 'pay a bill' }, ctx());
     const [ask] = asks(r.blocks);
-    expect(ask).toMatchObject({ tool: 'pay', fields: ['meterKind', 'disco', 'meter', 'amount'], saved: 'meter' });
-    expect(askMissing(ask!)).toEqual(['meterKind', 'disco', 'meter', 'amount']);
+    expect(ask).toMatchObject({ tool: 'pay', fields: ['disco', 'meterKind', 'meter', 'amount'], saved: 'meter' });
+    expect(askMissing(ask!)).toEqual(['disco', 'meterKind', 'meter', 'amount']);
     const r2 = await agent.ask({ text: 'prepaid, JED, 12345678901, 5k' }, ctx(r.pending));
-    expect(fills(r2.blocks)[0]).toMatchObject({ values: { meterKind: 'prepaid', disco: 'jos', meter: '12345678901', amount: 5_000 }, done: true });
-    const [p] = panels(r2.blocks);
+    expect(fills(r2.blocks)[0]).toMatchObject({ values: { meterKind: 'prepaid', disco: 'jos', meter: '12345678901', amount: 5_000 } });
+    const ready = r2.pending?.need === 'ask' ? r2.pending.ask : null;
+    const p = panelFromAsk(ready!);
     expect(p?.rows[0]?.value).toBe('Jos Electricity');
     expect(p?.rows[2]?.value).toBeTruthy();
     expect(p?.rows[4]?.value).toBe('About 24 kWh');

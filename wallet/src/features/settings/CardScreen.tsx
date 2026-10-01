@@ -131,8 +131,13 @@ export function CardScreen() {
         <PasscodeSheet
           amount={naira(amount)}
           name="Virtual card"
-          detail={`From Everyday · •••• ${lastFour()}`}
+          detail={`Card •••• ${lastFour()}`}
           glyph="card"
+          rows={[
+            { label: 'The card can spend', value: `${naira(amount)} more this month` },
+            { label: 'Fee', value: 'Free' },
+            { label: 'Leaves Everyday', value: naira(amount), strong: true },
+          ]}
           verify={app.checkPasscode}
           onDone={done}
           onCancel={() => setGuard(false)}

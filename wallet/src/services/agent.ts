@@ -8,7 +8,8 @@
    paid before, it skips the asking. A real model slots in here later,
    behind the same interface, once there is a server to keep its key on;
    nothing on the screens changes. */
-import { OFFLINE_LINE, TRY_FIRST, feeFor, refusalLine, refuses, wantsEverything } from './rules';
+import { OFFLINE_LINE, TRY_FIRST, arrivesAt, feeFor, feeTo, refusalLine, refuses, wantsEverything } from './rules';
+import { BEETLE, BEETLE_USERS, bankIn, beetlePerson, closest, nameAt, tagIn, tagged } from './recipients';
 import type { IconName } from '../icons';
 import { groupAccount, naira } from '../lib/format';
 import type { Account } from './auth';
@@ -55,7 +56,8 @@ export type Photo = { uri: string; width?: number; height?: number; reading?: Re
 /** What is asked: words, a photo, or an ask panel's fields, filled. */
 export type Ask = { text?: string; photo?: Photo; answers?: { askId: string; values: AskValues } };
 
-export type Person = { name: string; bank: string; number: string };
+/** Who a transfer goes to: the bank (Beetle, for a Beetle account) and the account number, with the $tag where it is a Beetle account. */
+export type Person = { name: string; bank: string; number: string; tag?: string };
 
 export type PanelRow = { label: string; value: string; editable?: boolean };
 
@@ -63,7 +65,7 @@ export type PanelRow = { label: string; value: string; editable?: boolean };
     thing to do about it. */
 export type Panel = {
   id: string;
-  tool: 'transfer' | 'found' | 'pay' | 'data' | 'airtime';
+  tool: 'transfer' | 'found' | 'pay' | 'data' | 'airtime' | 'loan';
   title: string;
   icon: IconName;
   rows: PanelRow[];
@@ -73,6 +75,8 @@ export type Panel = {
   move?: Move;
   /** who a transfer is to, for the row on the passcode sheet */
   person?: Person;
+  /** Beetle's word once it has gone through, where it is not the usual one */
+  done?: string;
 };
 
 export type Move = {
@@ -128,6 +132,10 @@ export type AskPanel = {
   saved?: 'person' | 'line' | 'meter';
   /** a word about why it is asking, or what was wrong */
   note?: string;
+  /** the person was found by a name: the card asks "Is this the person?" */
+  confirmWho?: boolean;
+  /** what was said for who, still to be found: a name, a $tag or the digits, put into the To field */
+  hint?: string;
 };
 
 export type Block =
@@ -141,7 +149,11 @@ export type Block =
   /** the fields a thing still needs */
   | { kind: 'ask'; ask: AskPanel }
   /** an ask panel's fields filled by words; `done` once it has all it needs and the panel to confirm follows */
-  | { kind: 'fill'; askId: string; values: AskValues; found?: AskFound; note?: string; done?: boolean };
+  | { kind: 'fill'; askId: string; values: AskValues; found?: AskFound; note?: string; done?: boolean; confirmWho?: boolean; hint?: string }
+  /** the account's own details to be paid into, to copy and share */
+  | { kind: 'receive' }
+  /** what can be borrowed, to pick and take */
+  | { kind: 'loan' };
 
 /** What the model is waiting for. Whoever holds the conversation keeps it
     and hands it back with the next ask. */
@@ -276,11 +288,49 @@ export function whose(number: string, reading?: Reading): Person {
   return { name, bank: bank === 'Guaranty Trust' ? 'GTBank' : bank, number };
 }
 
+/** Who some words mean, the way the To field reads them: a $tag is a Beetle
+    account; ten digits with a bank named are looked up there, and ten
+    digits paid before are who they were; a name is checked against the
+    people paid before (and Beetle's accounts, where the words say Beetle),
+    and the card asks whether that is the person. Anything else is kept as a
+    hint for the To field, with why it was not found. */
+export type Who = { person: Person | null; confirm?: boolean; hint?: string; why?: string };
+export function resolveWho(text: string, paid: Pick<Person, 'name' | 'bank' | 'number'>[] = PEOPLE): Who {
+  const tag = tagIn(text);
+  if (tag) {
+    const p = tagged(tag);
+    return p ? { person: p } : { person: null, hint: `$${tag}`, why: `No Beetle account is $${tag}. Check the tag, or use their account number.` };
+  }
+  const number = accountIn(text) ?? (/^\s*\d{10}\s*$/.test(text) ? text.trim() : null);
+  if (number) {
+    const bank = bankIn(text);
+    if (bank) {
+      const r = nameAt(number, bank, paid);
+      return r.found ? { person: r.person, confirm: true } : { person: null, hint: number, why: r.why };
+    }
+    const had = paid.find(p => p.number === number);
+    if (had) return { person: { name: had.name, bank: had.bank, number }, confirm: true };
+    const user = BEETLE_USERS.find(u => u.number === number);
+    if (user) return { person: beetlePerson(user), confirm: true };
+    return { person: null, hint: number };
+  }
+  const known = personIn(text, paid as Person[]);
+  if (known) return { person: { name: known.name, bank: known.bank, number: known.number }, confirm: true };
+  /* "Tobi's Beetle account", "tobi on beetle": Beetle's own accounts by name */
+  const words = (text.match(/\b(?:to|for)\s+([a-z][a-z' ]+?)(?:'s)?(?:\s+(?:on|at|account|beetle)\b|[,.]|$)/i)?.[1] ?? text).trim();
+  if (/\bbeetle\b/i.test(text)) {
+    const m = closest(words.replace(/'s$/, ''), []).filter(x => x.person.bank === BEETLE);
+    if (m.length === 1) return { person: m[0]!.person, confirm: true };
+  }
+  return { person: null, hint: looksLikeName(words) ? words : undefined };
+}
+
 let ids = 0;
 const nextId = (tool: string) => `${tool}-${++ids}-${Date.now().toString(36)}`;
 
 export function transferPanel(to: Person, amount: number): Panel {
-  const fee = feeFor(amount);
+  const fee = feeTo(amount, to.bank);
+  const beetle = to.bank === BEETLE;
   return {
     id: nextId('transfer'),
     tool: 'transfer',
@@ -288,15 +338,36 @@ export function transferPanel(to: Person, amount: number): Panel {
     icon: 'up',
     rows: [
       { label: 'Recipient', value: to.name },
-      { label: 'Bank', value: to.bank },
+      { label: 'Bank', value: beetle && to.tag ? `Beetle · $${to.tag}` : to.bank },
       { label: 'Amount', value: naira(amount), editable: true },
-      { label: 'Fee', value: feeLabel(fee) },
-      { label: 'Arrives', value: amount > 50_000 ? 'Under a minute' : 'In a moment' },
+      { label: 'Fee', value: beetle ? 'Free' : feeLabel(fee) },
+      { label: 'Arrives', value: arrivesAt(amount, to.bank) },
     ],
     action: { label: `Confirm ${naira(amount)}`, amount: amount + fee },
     person: to,
-    move: { name: to.name, detail: `${to.bank} · sent`, amount: -amount, icon: 'send', kind: 'transfer', fee, person: to },
+    move: { name: to.name, detail: `${beetle && to.tag ? `Beetle · $${to.tag}` : to.bank} · sent`, amount: -amount, icon: 'send', kind: 'transfer', fee, person: to },
   };
+}
+
+/** The panel an ask card stands for, once it has all it needs: what the
+    passcode sheet reads, and what moves once it is through. */
+export function panelFromAsk(ask: AskPanel, saved?: Beneficiaries): Panel | null {
+  const v = ask.values;
+  if (askMissing(ask).length) return null;
+  if (ask.tool === 'transfer') return ask.found?.person ? transferPanel(ask.found.person, v.amount!) : null;
+  if (ask.tool === 'pay') {
+    const known = saved?.meters.find(m => m.meter === v.meter);
+    return billPanelFor({ disco: v.disco!, meterKind: v.meterKind!, meter: v.meter!, name: ask.found?.meter?.name ?? known?.name ?? 'the account holder', label: known?.label }, v.amount!);
+  }
+  const network = networkOf(v.number ?? '');
+  if (!network) return null;
+  const known = saved?.lines.find(l => l.number === v.number);
+  const line: PhoneLine = { number: v.number!, network, label: known?.own ? 'Your line' : known?.label };
+  if (ask.tool === 'data') {
+    const plan = planById(v.plan ?? '');
+    return plan ? dataPanelFor(line, plan) : null;
+  }
+  return airtimePanelFor(line, v.amount!);
 }
 
 export function foundPanel(p: Person): Panel {
@@ -421,7 +492,7 @@ const ASK_FIELDS: Record<AskTool, AskField[]> = {
   transfer: ['who', 'amount'],
   data: ['number', 'plan'],
   airtime: ['number', 'amount'],
-  pay: ['meterKind', 'disco', 'meter', 'amount'],
+  pay: ['disco', 'meterKind', 'meter', 'amount'],
 };
 const ASK_LOOK: Record<AskTool, { title: string; icon: IconName; saved: 'person' | 'line' | 'meter' }> = {
   transfer: { title: 'Beetle Transfers', icon: 'up', saved: 'person' },
@@ -445,9 +516,9 @@ export function savedFor(tool: AskTool, saved?: Beneficiaries): boolean {
   return saved.lines.some(l => !l.own);
 }
 
-export function newAsk(tool: AskTool, values: AskValues, ctx: Context, found?: AskFound, note?: string): AskPanel {
+export function newAsk(tool: AskTool, values: AskValues, ctx: Context, found?: AskFound, note?: string, extra: Pick<AskPanel, 'confirmWho' | 'hint'> = {}): AskPanel {
   const look = ASK_LOOK[tool];
-  return { id: nextId('ask'), tool, title: look.title, icon: look.icon, fields: ASK_FIELDS[tool], values, found, saved: savedFor(tool, savedOf(ctx)) ? look.saved : undefined, note };
+  return { id: nextId('ask'), tool, title: look.title, icon: look.icon, fields: ASK_FIELDS[tool], values, found, saved: savedFor(tool, savedOf(ctx)) ? look.saved : undefined, note, ...extra };
 }
 
 /** The fields an ask still needs, given what is in it and what was found. */
@@ -478,7 +549,7 @@ export function askMissing(ask: Pick<AskPanel, 'fields' | 'values' | 'found'>): 
 
 /** The question for the first thing still missing. */
 export const askQuestion: Record<AskField, string> = {
-  who: 'Who is it for? A name I know, or the account number.',
+  who: 'Who is it for? A $tag, a name, or the account number.',
   amount: 'How much?',
   number: 'Which number?',
   plan: 'Which plan?',
@@ -513,8 +584,49 @@ export class ScriptedAgent implements AgentService {
   }
 
   private async transfer(onStep: OnStep | undefined, to: Person) {
-    await this.step(onStep, `I'm finding ${firstName(to)}'s account at ${to.bank}…`, 1.4);
+    await this.step(onStep, to.bank === BEETLE ? `I'm finding ${firstName(to)}'s Beetle account…` : `I'm finding ${firstName(to)}'s account at ${to.bank}…`, 1.4);
     await this.step(onStep, "I'm checking the fee and how fast it lands…", 1.2);
+  }
+
+  /** Money to somebody: who the words mean, read the way the To field reads
+      them, and the card for it — a Beetle account by its tag straight away,
+      somebody named asked about ("Is this the person?"), a number asked for
+      its bank. The card's own button goes to the passcode. */
+  private async sendTo(text: string, amount: number | null, ctx: Context, onStep: OnStep | undefined, keep: Pending): Promise<Reply> {
+    const lower = text.toLowerCase();
+    const paid = savedOf(ctx).people;
+    const w = resolveWho(text, paid);
+    const person = w.person;
+    /* the whole balance to an account never paid: Beetle stops, and says why — a number nobody has been paid at
+       is never paid whatever bank it turns out to be at, so that stops before the bank is asked for */
+    const asked = wantsEverything(lower) ? ctx.balance : amount;
+    const number = person ? null : accountIn(text);
+    const paidBefore = person ? paid.some(p => p.number === person.number) : !!number && paid.some(p => p.number === number);
+    if ((person || number) && asked && refuses(asked, ctx.balance, paidBefore)) return { blocks: [say(refusalLine(naira(ctx.balance), naira(TRY_FIRST)))], pending: keep };
+    const over = !!person && !!amount && amount + feeTo(amount, person.bank) > ctx.balance;
+    if (person) await this.transfer(onStep, person);
+    const note = over ? `That is more than the ${naira(ctx.balance)} you have.` : w.why;
+    const asking = newAsk('transfer', { who: person?.name ?? w.hint, amount: over ? undefined : (amount ?? undefined) }, ctx, person ? { person } : w.hint ? { person: null } : undefined, note, {
+      confirmWho: !!w.confirm,
+      hint: person ? undefined : w.hint,
+    });
+    const times = person ? paid.find(p => p.number === person.number)?.times : undefined;
+    const words = person
+      ? over
+        ? `That is more than the ${naira(ctx.balance)} you have. How much should I send ${firstName(person)} instead?`
+        : w.confirm
+          ? `I found ${person.name} at ${person.bank}.${times ? ` You have paid them ${timesWord(times)}.` : ''}${amount ? '' : ' How much should I send?'}`
+          : `${person.name}'s Beetle account, $${person.tag}. Free, and there at once.${amount ? ' Check it, then confirm.' : ' How much?'}`
+      : w.why
+        ? w.why
+        : w.hint && /^\d{10}$/.test(w.hint)
+          ? whichBank(w.hint)
+          : w.hint
+            ? `I have not paid anyone called ${w.hint}. Their $tag or account number finds them; the closest names are on the card.`
+            : amount
+              ? `${naira(amount)}, to whom? A $tag, a name, or the account number.`
+              : 'Who to, and how much? A $tag, a name or an account number, or show me a photo of one.';
+    return { blocks: [say(words), { kind: 'ask', ask: asking }], pending: { need: 'ask', ask: asking } };
   }
 
   /* ---- the lines and meters the words mean ---- */
@@ -571,18 +683,13 @@ export class ScriptedAgent implements AgentService {
     const found: AskFound = {};
     const amount = amountIn(text);
     if (tool === 'transfer') {
-      const number = accountIn(text);
-      const person = number ? whose(number) : personIn(text);
-      if (person) {
-        out.who = person.name;
-        found.person = person;
-      } else if (number) {
-        out.who = number;
-        found.person = null;
-      } else if (looksLikeName(text) && !amount) {
-        out.who = text.trim();
-        found.person = null;
-      }
+      /* who is read in settle, the way the To field reads them; a bank said after a number joins the number already there */
+      const bank = bankIn(text);
+      const before = values.who && /^\d{10}$/.test(values.who) ? values.who : null;
+      const number = accountIn(text) ?? (bank ? before : null);
+      if (number) out.who = bank ? `${number} at ${bank}` : number;
+      else if (tagIn(text) || personIn(text, savedOf(ctx).people as Person[])) out.who = text.trim();
+      else if (looksLikeName(text) && !amount) out.who = text.trim();
       if (amount) out.amount = amount;
     } else if (tool === 'data' || tool === 'airtime') {
       const known = savedLineIn(text, savedOf(ctx).lines);
@@ -621,10 +728,18 @@ export class ScriptedAgent implements AgentService {
   private async settle(ask: AskPanel, values: AskValues, found: AskFound, ctx: Context, onStep: OnStep | undefined, answered: boolean): Promise<Reply> {
     const v = { ...ask.values, ...values };
     const f: AskFound = { ...ask.found, ...found };
-    /* the person the words name, or the number they give */
+    /* the person the words name, the tag, or the number they give, read the way the To field reads them */
+    let confirmWho = ask.confirmWho;
+    let hint = ask.hint;
+    let why: string | undefined;
+    /* new words for who are read afresh */
+    if (ask.tool === 'transfer' && values.who !== undefined && values.who !== ask.values.who) delete f.person;
     if (ask.tool === 'transfer' && v.who && f.person === undefined) {
-      const number = accountIn(v.who) ?? (/^\d{10}$/.test(v.who) ? v.who : null);
-      f.person = number ? whose(number) : personIn(v.who);
+      const w = resolveWho(v.who, savedOf(ctx).people);
+      f.person = w.person;
+      confirmWho = !!w.confirm;
+      hint = w.person ? undefined : (w.hint ?? v.who);
+      why = w.why;
     }
     /* whose the meter is */
     let note: string | undefined;
@@ -633,47 +748,25 @@ export class ScriptedAgent implements AgentService {
       f.meter = await this.meters.lookup(v.disco, v.meterKind, v.meter);
       if (!f.meter) note = `There is no ${v.meterKind} meter ${groupMeter(v.meter)} at ${discoById(v.disco)?.name ?? 'that company'}. Check the digits, or the company.`;
     }
-    if (ask.tool === 'transfer' && v.who && f.person === null) note = /^\d{10}$/.test(v.who) ? undefined : `I do not know anyone called ${v.who}. Their account number would do it.`;
+    if (ask.tool === 'transfer' && v.who && f.person === null)
+      note = why ?? (/^\d{10}$/.test(v.who) ? undefined : `I have not paid anyone called ${v.who}. Their $tag or account number finds them; the closest names are on the card.`);
     const missing = askMissing({ fields: ask.fields, values: v, found: f });
-    const filled: Block = { kind: 'fill', askId: ask.id, values: v, found: f, note };
+    const filled: Block = { kind: 'fill', askId: ask.id, values: v, found: f, note, confirmWho, hint };
+    const kept: AskPanel = { ...ask, values: v, found: f, note, confirmWho, hint };
     if (missing.length) {
       const first = missing[0]!;
       const lead = answered ? '' : Object.keys(values).length ? 'Got it. ' : '';
-      const question = note && (first === 'who' || first === 'meter') ? note : `${lead}${askQuestion[first]}`;
-      return { blocks: [filled, say(question)], pending: { need: 'ask', ask: { ...ask, values: v, found: f, note } } };
+      const question = note && (first === 'who' || first === 'meter') ? note : first === 'who' && hint && /^\d{10}$/.test(hint) ? whichBank(hint) : `${lead}${askQuestion[first]}`;
+      return { blocks: [filled, say(question)], pending: { need: 'ask', ask: kept } };
     }
-    if (ask.tool === 'transfer' && v.amount! > ctx.balance) {
+    if (ask.tool === 'transfer' && v.amount! + feeTo(v.amount!, f.person!.bank) > ctx.balance) {
       return {
-        blocks: [filled, say(`That is more than the ${naira(ctx.balance)} you have. How much should I send ${firstName(f.person!)} instead?`)],
-        pending: { need: 'ask', ask: { ...ask, values: { ...v, amount: undefined }, found: f } },
+        blocks: [{ ...filled, values: { ...v, amount: undefined } }, say(`That is more than the ${naira(ctx.balance)} you have. How much should I send ${firstName(f.person!)} instead?`)],
+        pending: { need: 'ask', ask: { ...kept, values: { ...v, amount: undefined } } },
       };
     }
-    const done: Block = { ...filled, done: true };
-    const rest = await this.complete(ask.tool, v, f, ctx, onStep);
-    return { ...rest, blocks: [done, ...rest.blocks] };
-  }
-
-  /** Everything is there: the steps, the words and the panel to confirm. */
-  private async complete(tool: AskTool, v: AskValues, f: AskFound, ctx: Context, onStep: OnStep | undefined): Promise<Reply> {
-    if (tool === 'transfer') {
-      await this.transfer(onStep, f.person!);
-      return {
-        blocks: [
-          say(`${naira(v.amount!)} to ${f.person!.name} at ${f.person!.bank}. Here is what I have; the amount is yours to change.`),
-          { kind: 'panel', panel: transferPanel(f.person!, v.amount!) },
-        ],
-        pending: null,
-      };
-    }
-    const network = networkOf(v.number ?? '');
-    if (tool === 'data' || tool === 'airtime') {
-      const known = this.savedLine({ number: v.number!, network: network! }, ctx);
-      const line: PhoneLine = { number: v.number!, network: network!, label: known?.label };
-      if (tool === 'data') return this.finishData(onStep, line, planById(v.plan!)!, false);
-      return this.finishAirtime(onStep, line, v.amount!);
-    }
-    const known = savedOf(ctx).meters.find(m => m.meter === v.meter);
-    return this.finishBill(onStep, { disco: v.disco!, meterKind: v.meterKind!, meter: v.meter!, name: f.meter?.name ?? known?.name ?? 'the account holder', label: known?.label }, v.amount!, false);
+    /* all there: the card is ready, and its own button goes to the passcode */
+    return { blocks: [filled, say(readyWords(kept))], pending: { need: 'ask', ask: kept } };
   }
 
   /* ---- the ask itself ---- */
@@ -712,12 +805,9 @@ export class ScriptedAgent implements AgentService {
       const to = whose(number, reading);
       const amount = amountIn(text);
       const blocks: Block[] = [say(`I read ${groupAccount(number)} off that${reading.real ? '' : ' (a sample, on this device)'}: ${to.name} at ${to.bank}.`), { kind: 'panel', panel: foundPanel(to) }];
-      if (amount) {
-        blocks.push(say(`${naira(amount)} to ${firstName(to)}, then. Here is what I have.`), { kind: 'panel', panel: transferPanel(to, amount) });
-        return { blocks, pending: null, reading };
-      }
-      const asking = newAsk('transfer', { who: to.name }, ctx, { person: to });
-      blocks.push(say(`How much should I send ${firstName(to)}?`), { kind: 'ask', ask: asking });
+      const fits = !!amount && amount + feeTo(amount, to.bank) <= ctx.balance;
+      const asking = newAsk('transfer', { who: to.name, amount: fits ? amount! : undefined }, ctx, { person: to }, undefined, { confirmWho: true });
+      blocks.push(say(fits ? `${naira(amount!)} to ${firstName(to)}, then. Is this the person?` : `Is this the person? Then how much should I send ${firstName(to)}?`), { kind: 'ask', ask: asking });
       return { blocks, pending: { need: 'ask', ask: asking }, reading };
     }
 
@@ -732,11 +822,11 @@ export class ScriptedAgent implements AgentService {
 
     const intent = intentOf(lower, ctx);
 
-    /* words for an ask panel already up: what they carry goes into it */
+    /* words for an ask panel already up: what they carry goes into it — unless they start a new one, which gets its own card below */
     if (ctx.pending?.need === 'ask' && (!intent || intent === ctx.pending.ask.tool)) {
       const pending = ctx.pending.ask;
       const { values, found } = this.pieces(pending.tool, text, ctx, pending.values);
-      if (Object.keys(values).length) return this.settle(pending, values, found, ctx, onStep, false);
+      if (Object.keys(values).length && !startsAnother(pending, values, lower, ctx)) return this.settle(pending, values, found, ctx, onStep, false);
       if (!intent) {
         const missing = askMissing(pending)[0];
         if (missing && !/\b(hi|hello|hey|balance|how much|dollar|help|what can)\b/.test(lower)) return { blocks: [say(`I did not catch that. ${askQuestion[missing]}`)], pending: ctx.pending };
@@ -762,30 +852,7 @@ export class ScriptedAgent implements AgentService {
 
     if (intent === 'transfer') {
       if (ctx.online === false) return { blocks: [say(OFFLINE_LINE)], pending: keep };
-      const number = accountIn(text);
-      const person = number ? whose(number) : personIn(text);
-      /* the whole balance to an account never paid: Beetle stops, and says why */
-      const asked = wantsEverything(lower) ? ctx.balance : amount;
-      const paidBefore = !!person && (PEOPLE.some(p => p.number === person.number) || !!ctx.saved?.people.some(p => p.number === person.number));
-      if (person && asked && refuses(asked, ctx.balance, paidBefore)) return { blocks: [say(refusalLine(naira(ctx.balance), naira(TRY_FIRST)))], pending: keep };
-      if (person && amount) {
-        if (amount > ctx.balance) {
-          const asking = newAsk('transfer', { who: person.name }, ctx, { person }, `That is more than the ${naira(ctx.balance)} you have.`);
-          return {
-            blocks: [say(`That is more than the ${naira(ctx.balance)} you have. How much should I send ${firstName(person)} instead?`), { kind: 'ask', ask: asking }],
-            pending: { need: 'ask', ask: asking },
-          };
-        }
-        return this.complete('transfer', { who: person.name, amount }, { person }, ctx, onStep);
-      }
-      const who = person?.name ?? number ?? undefined;
-      const asking = newAsk('transfer', { who, amount: amount ?? undefined }, ctx, person ? { person } : who ? { person: null } : undefined);
-      const words = person
-        ? `${person.name} at ${person.bank}. How much?`
-        : amount
-          ? `${naira(amount)} — to whom? A name I know, or the account number.`
-          : 'Who to, and how much? A name I know, or an account number — or show me a photo of one.';
-      return { blocks: [say(words), { kind: 'ask', ask: asking }], pending: { need: 'ask', ask: asking } };
+      return this.sendTo(text, amount, ctx, onStep, keep);
     }
 
     if (intent === 'pay') {
@@ -878,13 +945,50 @@ export class ScriptedAgent implements AgentService {
         pending: keep,
       };
     }
-    const person = accountIn(text) ? whose(accountIn(text)!) : personIn(text);
-    if (person) {
-      const asking = newAsk('transfer', { who: person.name }, ctx, { person });
-      return { blocks: [say(`${person.name} at ${person.bank}, ${groupAccount(person.number)}. Send them something?`), { kind: 'ask', ask: asking }], pending: { need: 'ask', ask: asking } };
+    const named = tagIn(text) || accountIn(text) || personIn(text, savedOf(ctx).people as Person[]) ? resolveWho(text, savedOf(ctx).people) : null;
+    if (named?.person) {
+      const person = named.person;
+      const asking = newAsk('transfer', { who: person.name }, ctx, { person }, undefined, { confirmWho: !!named.confirm });
+      return { blocks: [say(`${person.name} at ${bankWords(person)}. Send them something?`), { kind: 'ask', ask: asking }], pending: { need: 'ask', ask: asking } };
     }
     return { blocks: [say('I can send money, buy airtime and data, pay the light bill, say how much you have, and read an account number off a photo. Which one?')], pending: keep };
   }
+}
+
+/** GTBank, 0234 567 890; or Beetle, $tobi: a person's bank as Beetle says it. */
+/** Once, twice, 3 times. */
+const timesWord = (n: number) => (n === 1 ? 'once' : n === 2 ? 'twice' : `${n} times`);
+
+/** Asking for the bank of a number given without one. */
+const whichBank = (number: string) => `Which bank is ${groupAccount(number)} at? Pick it on the card, and I'll check the name on the account.`;
+
+/** Words that start another ask while one is up: the verb said, and somebody
+    (or a line, or a meter) other than the one on the card named. "Send 5k
+    to 0123456785" under Sarah's card is a new card; "make it 10k", or a
+    name for a card still asking who, fills the card that is up. */
+function startsAnother(pending: AskPanel, values: AskValues, lower: string, ctx: Context): boolean {
+  if (!/\b(send|transfer|give|move|pay|buy|get|top ?up|recharge)\b/.test(lower)) return false;
+  if (pending.tool === 'transfer') {
+    if (!values.who || !pending.values.who) return false;
+    const now = resolveWho(values.who, savedOf(ctx).people);
+    const was = pending.found?.person;
+    return (now.person?.number ?? now.hint ?? values.who) !== (was?.number ?? pending.values.who);
+  }
+  const key = pending.tool === 'pay' ? 'meter' : 'number';
+  return !!values[key] && !!pending.values[key] && values[key] !== pending.values[key];
+}
+
+export const bankWords = (p: Person) => (p.bank === BEETLE ? `Beetle, $${p.tag ?? ''}` : `${p.bank}, ${groupAccount(p.number)}`);
+
+/** What Beetle says once a card has all it needs. */
+export function readyWords(ask: AskPanel): string {
+  const v = ask.values;
+  if (ask.tool === 'transfer' && ask.found?.person) {
+    const p = ask.found.person;
+    return `All there: ${naira(v.amount!)} to ${p.name} at ${p.bank === BEETLE ? 'Beetle' : p.bank}${p.bank === BEETLE ? ', free and at once' : ''}. Check it, then confirm.`;
+  }
+  if (ask.tool === 'pay') return 'All there. Check the meter and the name on it, then pay.';
+  return 'All there. Check it, then buy.';
 }
 
 /** The account's own line, from its number. */

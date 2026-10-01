@@ -26,3 +26,4 @@ export * from './agent';
 export * from './model';
 export * from './nigeria';
 export * from './rules';
+export * from './recipients';

@@ -6,6 +6,7 @@
 import type { Account } from '../../services';
 import { groupAccount, longDate, naira } from '../../lib/format';
 import type { LedgerRow } from '../home/account';
+import { fromEveryday } from '../home/everyday';
 import { usdFull } from '../dollars/dollars';
 
 export type Field = [label: string, value: string, note?: string];
@@ -61,7 +62,7 @@ export function balanceAfter(row: LedgerRow, rows: LedgerRow[], balanceNow: numb
   if (row.after !== undefined) return row.after;
   const order = (r: LedgerRow) => (r.day === 'yesterday' ? 0 : 1) * 10_000 + Number(r.time.replace(':', ''));
   const newer = rows.filter(r => r.status === 'done' && r.id !== row.id && (order(r) > order(row) || r.after !== undefined));
-  return Math.round((balanceNow - newer.reduce((a, r) => a + (r.usd !== undefined && r.kind !== 'convert' ? 0 : r.amount), 0)) * 100) / 100;
+  return Math.round((balanceNow - newer.reduce((a, r) => a + fromEveryday(r), 0)) * 100) / 100;
 }
 
 /** A session id for a line the frames draw, the same every time it is asked for. */

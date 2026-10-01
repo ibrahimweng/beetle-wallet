@@ -9,21 +9,12 @@
    Measured off the passcode frame: the panel 373 wide from 10, its grabber
    44 by 4 at 16, its content 20 in, 32 below the top and 24 above the foot. */
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { colour } from './tokens';
 import { away, lift, motion, useStill } from './motion';
-
-type BlurModule = typeof import('expo-blur');
-const blur: BlurModule | null = (() => {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    return require('expo-blur') as BlurModule;
-  } catch {
-    return null;
-  }
-})();
+import { GrowingBlur } from './Veil';
 
 const SIDE = 10;
 const RADIUS = 28;
@@ -98,20 +89,15 @@ export function Sheet({
       else pull.value = withSpring(0, lift);
     });
 
-  const behind = useAnimatedStyle(() => ({ opacity: t.value }));
   const rising = useAnimatedStyle(() => ({
     opacity: Math.min(1, t.value * 2),
     transform: [{ translateY: (1 - t.value) * RISE + pull.value }],
   }));
-  const Blur = blur?.BlurView;
-
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents={out ? 'none' : 'auto'}>
       <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={dismiss} style={StyleSheet.absoluteFill}>
-        <Animated.View style={[StyleSheet.absoluteFill, behind]} pointerEvents="none">
-          {Blur ? <Blur intensity={52} tint="light" experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : 'none'} style={StyleSheet.absoluteFill} /> : null}
-          <View style={s.wash} />
-        </Animated.View>
+        {/* the screen behind goes out of focus by its blur growing, not by a blur fading in */}
+        <GrowingBlur t={t} intensity={52} wash="rgba(0,0,0,0.25)" />
       </Pressable>
       <Animated.View style={[s.panel, { paddingBottom: foot }, rising]} testID={testID}>
         <GestureDetector gesture={pan}>
@@ -126,9 +112,6 @@ export function Sheet({
 }
 
 const s = StyleSheet.create({
-  /* the frames read #c5c5c7 where white sits behind a sheet: the screen
-     turned down a quarter, on top of the blur */
-  wash: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.25)' },
   panel: {
     position: 'absolute',
     left: SIDE,

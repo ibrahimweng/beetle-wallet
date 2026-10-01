@@ -11,7 +11,7 @@ import { colour } from './tokens';
 import { AnimatedPressable, Swap, useTap } from './motion';
 import { useDeparture } from './journey';
 
-export type ButtonTone = 'black' | 'grey' | 'white' | 'blue';
+export type ButtonTone = 'black' | 'grey' | 'white' | 'blue' | 'red';
 export type ButtonSize = 40 | 44 | 48 | 56;
 
 /* `disc` is the white circle a leading glyph sits on where the frames give it
@@ -28,6 +28,8 @@ const TONES = {
   grey: { fill: colour.surface2, ink: colour.ink },
   white: { fill: colour.surface, ink: colour.ink },
   blue: { fill: colour.accent, ink: colour.textInverse },
+  /* what takes something away: signing out, signing other phones out */
+  red: { fill: colour.bad, ink: colour.textInverse },
 } as const;
 
 export function Button({

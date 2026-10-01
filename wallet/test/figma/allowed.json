@@ -33,6 +33,21 @@
   {
    "text": "Nothing moves until the four",
    "why": "the passcode is six digits, as the way in sets it; the line says 'sixth'"
+  },
+  {
+   "pieces": [
+    "Box",
+    "Chip · SA",
+    "Enter your passcode",
+    "GTBank · 0234 5678 90",
+    "Nothing moves until the four",
+    "Or tap the face to use Face ID.",
+    "Passcode keypad",
+    "Row",
+    "Sarah Adeyemi",
+    "Sheet"
+   ],
+   "why": "Since Round 11 the passcode sheet shows the whole of it at its top while the six digits go in — who, their bank and number, what they receive, the fee and what leaves which account — so the sheet reaches up to 69 and everything under its head comes down to make room, the pad a step smaller to fit; and Cancel sits plainly under the pad where the frame's line about the sixth digit was (the owner's word: a clear Cancel, since the sixth digit sends it)"
   }
  ],
  "donesend": [
@@ -619,6 +634,12 @@
     "Knob"
    ],
    "why": "Back sits on the page's 20 (see Back), so the button beside it starts 4 further right; it keeps its width and ends on the page's 20"
+  },
+  {
+   "pieces": [
+    "Mark · 32"
+   ],
+   "why": "no Beetle bubble on a form page since Round 11 (DESIGN.md, Forms): what it said that mattered is on the line under its field, and the cards come up into the room it left"
   }
  ],
  "short": [
@@ -828,6 +849,20 @@
   {
    "piece": "Three wrong tries locks the passcode for",
    "why": "the frame centres the two lines on an 18-tall row, so they start 11 above it; the build gives the lines their room, and the sheet stands 20 taller for it"
+  },
+  {
+   "pieces": [
+    "Chip · SA",
+    "Enter your passcode",
+    "Face ID did not catch you. Tap the face ",
+    "GTBank · 0234 5678 90",
+    "Glyph · lock",
+    "Passcode keypad",
+    "Row",
+    "Row · Nothing moves until ",
+    "Sarah Adeyemi"
+   ],
+   "why": "Since Round 11 the passcode sheet shows the whole of it at its top while the six digits go in — who, their bank and number, what they receive, the fee and what leaves which account — so the sheet reaches up to 69 and everything under its head comes down to make room, the pad a step smaller to fit; and Cancel sits plainly under the pad where the frame's line about the sixth digit was (the owner's word: a clear Cancel, since the sixth digit sends it)"
   }
  ],
  "ways": [
@@ -896,6 +931,33 @@
     "Asking cannot move money. Noth"
    ],
    "why": "the panel's button is the page's own button in the foot beside Back since Round 10, so the panel ends after its rows and the line under it comes up"
+  },
+  {
+   "pieces": [
+    "Ask Musa for 20k",
+    "Beetle",
+    "Beetle Requests",
+    "Card",
+    "Chip · Running",
+    "Glyph · camera",
+    "Group",
+    "Icon",
+    "Mark · 32",
+    "Row",
+    "Row · Amount",
+    "Row · Arrives",
+    "Row · Bank",
+    "Row · Beetle Requests",
+    "Row · Fee",
+    "Row · Recipient"
+   ],
+   "why": "what the camera read stands in the page's You typed column at the left since Round 11, as on every form page, rather than as a chat bubble at the right; and with Beetle's bubble gone the panel comes up into its room"
+  },
+  {
+   "pieces": [
+    "Musa Danjuma, the line ending "
+   ],
+   "why": "Beetle's word about who it is moved from the bubble to the line under the panel it is about (Round 11: forms speak under their fields)"
   }
  ],
  "typedask": [
@@ -999,6 +1061,21 @@
    "piece": "Box",
    "why": "the frame draws this sheet's grabber at its left edge, 20 in; every sheet here centres it",
    "nth": 3
+  },
+  {
+   "pieces": [
+    "Enter your passcode",
+    "Glyph · power",
+    "Icon",
+    "Ikeja Electric",
+    "Meter 4457 8891",
+    "Nothing moves until the four",
+    "Or tap the face to use Face ID.",
+    "Passcode keypad",
+    "Row",
+    "Sheet"
+   ],
+   "why": "Since Round 11 the passcode sheet shows the whole of it at its top while the six digits go in — who, their bank and number, what they receive, the fee and what leaves which account — so the sheet reaches up to 69 and everything under its head comes down to make room, the pad a step smaller to fit; and Cancel sits plainly under the pad where the frame's line about the sixth digit was (the owner's word: a clear Cancel, since the sixth digit sends it)"
   }
  ],
  "services": [
@@ -1117,6 +1194,22 @@
   {
    "text": "Nothing moves until the four",
    "why": "the passcode is six digits, as the way in sets it; the line says 'sixth'"
+  },
+  {
+   "pieces": [
+    "Box",
+    "Enter your passcode",
+    "Glyph · down",
+    "Icon",
+    "MTN · 5GB",
+    "Mum · 0803 4457 881",
+    "Nothing moves until the four",
+    "Or tap the face to use Face ID.",
+    "Passcode keypad",
+    "Row",
+    "Sheet"
+   ],
+   "why": "Since Round 11 the passcode sheet shows the whole of it at its top while the six digits go in — who, their bank and number, what they receive, the fee and what leaves which account — so the sheet reaches up to 69 and everything under its head comes down to make room, the pad a step smaller to fit; and Cancel sits plainly under the pad where the frame's line about the sixth digit was (the owner's word: a clear Cancel, since the sixth digit sends it)"
   }
  ],
  "loan": [
@@ -1174,6 +1267,46 @@
   {
    "text": "₦10,000",
    "why": "the frame's slider ran from ₦10,000; the picker's ruler starts at nothing and stops hard at the limit, which it says under the figure"
+  },
+  {
+   "pieces": [
+    "How much you want",
+    "Mark · 32",
+    "₦250,000 is your limit"
+   ],
+   "why": "Borrow is short since Round 11, at the owner's word: the amount first on the picker, then a tight breakdown — Pay back over '90 days ▾', what is paid back in all, the payments, the first of them, how it is taken — with the cost line by line (the interest, the fee) and what a missed payment costs behind a tap; no Beetle bubble, and no label over the figure"
+  },
+  {
+   "text": "How much you want",
+   "why": "Borrow is short since Round 11, at the owner's word: the amount first on the picker, then a tight breakdown — Pay back over '90 days ▾', what is paid back in all, the payments, the first of them, how it is taken — with the cost line by line (the interest, the fee) and what a missed payment costs behind a tap; no Beetle bubble, and no label over the figure"
+  },
+  {
+   "text": "You get today",
+   "why": "Borrow is short since Round 11, at the owner's word: the amount first on the picker, then a tight breakdown — Pay back over '90 days ▾', what is paid back in all, the payments, the first of them, how it is taken — with the cost line by line (the interest, the fee) and what a missed payment costs behind a tap; no Beetle bubble, and no label over the figure"
+  },
+  {
+   "text": "Interest, 4% a month",
+   "why": "Borrow is short since Round 11, at the owner's word: the amount first on the picker, then a tight breakdown — Pay back over '90 days ▾', what is paid back in all, the payments, the first of them, how it is taken — with the cost line by line (the interest, the fee) and what a missed payment costs behind a tap; no Beetle bubble, and no label over the figure"
+  },
+  {
+   "text": "₦18,000",
+   "why": "Borrow is short since Round 11, at the owner's word: the amount first on the picker, then a tight breakdown — Pay back over '90 days ▾', what is paid back in all, the payments, the first of them, how it is taken — with the cost line by line (the interest, the fee) and what a missed payment costs behind a tap; no Beetle bubble, and no label over the figure"
+  },
+  {
+   "text": "One off fee",
+   "why": "Borrow is short since Round 11, at the owner's word: the amount first on the picker, then a tight breakdown — Pay back over '90 days ▾', what is paid back in all, the payments, the first of them, how it is taken — with the cost line by line (the interest, the fee) and what a missed payment costs behind a tap; no Beetle bubble, and no label over the figure"
+  },
+  {
+   "text": "₦1,500",
+   "why": "Borrow is short since Round 11, at the owner's word: the amount first on the picker, then a tight breakdown — Pay back over '90 days ▾', what is paid back in all, the payments, the first of them, how it is taken — with the cost line by line (the interest, the fee) and what a missed payment costs behind a tap; no Beetle bubble, and no label over the figure"
+  },
+  {
+   "text": "You pay back in all",
+   "why": "Borrow is short since Round 11, at the owner's word: the amount first on the picker, then a tight breakdown — Pay back over '90 days ▾', what is paid back in all, the payments, the first of them, how it is taken — with the cost line by line (the interest, the fee) and what a missed payment costs behind a tap; no Beetle bubble, and no label over the figure"
+  },
+  {
+   "text": "Pay late and it costs ₦2,000 a",
+   "why": "Borrow is short since Round 11, at the owner's word: the amount first on the picker, then a tight breakdown — Pay back over '90 days ▾', what is paid back in all, the payments, the first of them, how it is taken — with the cost line by line (the interest, the fee) and what a missed payment costs behind a tap; no Beetle bubble, and no label over the figure"
   }
  ],
  "sharebuy": [
@@ -1329,6 +1462,12 @@
     "Knob"
    ],
    "why": "Back sits on the page's 20 (see Back), so the button beside it starts 4 further right; it keeps its width and ends on the page's 20"
+  },
+  {
+   "pieces": [
+    "Mark · 32"
+   ],
+   "why": "no Beetle bubble on a form page since Round 11 (DESIGN.md, Forms): what it said that mattered is on the line under its field, and the cards come up into the room it left"
   }
  ],
  "goal": [
@@ -1822,6 +1961,16 @@
     "Knob"
    ],
    "why": "Back sits on the page's 20 (see Back), so the button beside it starts 4 further right; it keeps its width and ends on the page's 20"
+  },
+  {
+   "pieces": [
+    "Glyph · bank",
+    "Ikeja Electric",
+    "Mark · 32",
+    "Prepaid · 4457 8891",
+    "The meter you paid last mont"
+   ],
+   "why": "no Beetle bubble on a form page since Round 11 (DESIGN.md, Forms): what it said that mattered is on the line under its field, and the cards come up into the room it left"
   }
  ],
  "meter": [
@@ -1837,6 +1986,45 @@
     "Knob"
    ],
    "why": "Back sits on the page's 20 (see Back), so the button beside it starts 4 further right; it keeps its width and ends on the page's 20"
+  },
+  {
+   "pieces": [
+    "0803 214 4471 · MTN",
+    "10GB",
+    "1GB",
+    "2GB",
+    "5GB for 30 days",
+    "Box",
+    "Button · B",
+    "Button · D",
+    "Button · K",
+    "Button · T",
+    "Card",
+    "Chip · M",
+    "Column",
+    "Everyday · 0102 4457 88",
+    "From",
+    "Glyph · check",
+    "Glyph · down",
+    "Goes to your Holiday goal",
+    "It will not renew on its own",
+    "Mark · 32",
+    "Mum",
+    "Other bundles",
+    "Row",
+    "Row · From",
+    "Row · Goes to your Holiday",
+    "Row · ₦2,500",
+    "The bundle you bought last m",
+    "The number you top up most",
+    "You also top up",
+    "₦2,000",
+    "₦2,500",
+    "₦25",
+    "₦4,000",
+    "₦800"
+   ],
+   "why": "no Beetle bubble on a form page since Round 11 (DESIGN.md, Forms): what it said that mattered is on the line under its field, and the cards come up into the room it left"
   }
  ],
  "buy": [
@@ -1848,6 +2036,15 @@
     "Face ID first. Nothing leave"
    ],
    "why": "the panel's button is the page's own button in the foot beside Back since Round 10, so the panel ends after its rows and the line under it comes up"
+  },
+  {
+   "pieces": [
+    "Card",
+    "Group",
+    "Mark · 32",
+    "Row"
+   ],
+   "why": "what the camera read stands in the page's You typed column at the left since Round 11, as on every form page, rather than as a chat bubble at the right; and with Beetle's bubble gone the panel comes up into its room"
   }
  ],
  "converted": [

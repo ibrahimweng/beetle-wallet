@@ -18,7 +18,9 @@
    supports, and the request is small. */
 import { groupAccount, naira } from '../lib/format';
 import type { AgentService, Ask, AskFound, AskTool, AskValues, Block, Context, OnStep, Panel, Pending, Person, Reply } from './agent';
-import { PEOPLE, accountIn, airtimePanelFor, askMissing, billPanelFor, dataPanelFor, feeFor, foundPanel, lineOf, newAsk, personIn, savedOf, transferPanel, whose } from './agent';
+import { accountIn, airtimePanelFor, askMissing, billPanelFor, dataPanelFor, foundPanel, lineOf, newAsk, resolveWho, savedOf, whose } from './agent';
+import { BEETLE, likelyBanks, nameAt, tagged } from './recipients';
+import { arrivesAt, feeTo } from './rules';
 import {
   MockMeters,
   discoById,
@@ -107,9 +109,14 @@ const tool = (name: string, description: string, properties: Record<string, unkn
 const maybe = (type: 'string' | 'number', description: string) => ({ type: [type, 'null'], description });
 
 export const TOOLS = [
-  tool('find_account', 'Call this before any transfer, with the name or the ten-digit account number the owner gave. It answers with the account, or that there is no such person.', {
-    query: { type: 'string', description: 'the name as the owner said it, or the account number' },
-  }),
+  tool(
+    'find_account',
+    'Call this before any transfer, with what the owner gave for who: a $tag (a Beetle account), a name, or a ten-digit account number with its bank. A tag answers with the Beetle account. A name answers with the person paid before by that name, to be asked about. A number with a bank answers with the name on the account there; a number without one answers with the banks it is likely at, to ask which.',
+    {
+      query: { type: 'string', description: 'the $tag, the name as the owner said it, or the account number' },
+      bank: maybe('string', "the bank's name, for an account number, where the owner said it"),
+    },
+  ),
   tool(
     'find_line',
     'Which phone line data or airtime is for. Call it with what the owner said — "mum", "my line", "me", or an eleven-digit number. It answers with the number, its network, whose it is and what was bought for it before, or that the number is new and which network it is on, or that there is nobody saved by that name.',
@@ -133,7 +140,8 @@ export const TOOLS = [
     'Puts up the panel of fields a thing still needs, with what the owner has said already in it, so they can fill the rest. Call it whenever a piece is missing — the amount, who to, the number, the plan, the company, prepaid or postpaid, the meter — with everything you know so far; null for what was not said. Call it again with more when the owner says more. Once nothing is missing, call prepare_transfer, prepare_data, prepare_airtime or prepare_bill instead.',
     {
       tool: { type: 'string', enum: ['transfer', 'data', 'airtime', 'pay'] },
-      who: maybe('string', 'a name or ten-digit account number, for a transfer'),
+      who: maybe('string', 'for a transfer: a $tag, a name, or a ten-digit account number'),
+      bank: maybe('string', 'for a transfer to an account number: the bank, where the owner said it'),
       amount: maybe('number', 'in naira'),
       number: maybe('string', 'eleven digits, for data or airtime'),
       plan_id: maybe('string', 'a plan id from list_plans, for data'),
@@ -144,12 +152,14 @@ export const TOOLS = [
   ),
   tool(
     'prepare_transfer',
-    'Puts up the transfer for the owner to confirm, once find_account has found the person. It answers with the fee and when it lands, or that the amount is more than the balance.',
+    'Puts up the transfer card for the owner to confirm with their passcode, once find_account has found the account: the person, their bank and number (or Beetle and their tag), the amount on a picker they can change, the fee and when it lands. It answers with the fee and when it lands, or that the amount is more than the balance.',
     {
       name: { type: 'string' },
-      bank: { type: 'string' },
+      bank: { type: 'string', description: 'the bank, or Beetle for a Beetle account' },
       number: { type: 'string', description: 'ten digits' },
+      tag: maybe('string', 'the $tag, for a Beetle account'),
       amount: { type: 'number', description: 'in naira' },
+      ask_about: { type: 'boolean', description: 'true where the person was found by a name the owner said, so the card asks "Is this the person?"' },
     },
   ),
   tool('prepare_bill', 'Puts up the electricity payment for the owner to confirm: the company, the meter, the name on it and the amount. Call it once all four are known.', {
@@ -181,7 +191,9 @@ Voice: warm, plain, brief. First person. One to three short sentences, no more. 
 
 What you do: send money to a person or an account number, buy airtime and data for a phone line, pay an electricity bill on a meter, say the balance and what it is worth in dollars, and read an account number off a photo the owner sends. Nothing else moves money; for anything else, say what you can do.
 
-How money moves: you never move it yourself. A tool puts up a panel; the owner reads it, presses its button and confirms with their passcode. Before any panel, work out what the thing needs: a transfer needs who and how much; data needs the number and the plan; airtime needs the number and the amount; a bill needs the company, prepaid or postpaid, the meter number and the amount. Use find_account, find_line and find_meter to fill in from what the owner has paid before — "mum", "my light", "the usual" mean what they paid before, and a name or a meter paid before needs no asking. When something is still missing, call ask_for with everything you know: it puts up the fields for the owner to fill, so do not ask in words as well beyond one short line. When the owner types a missing piece, call ask_for again with everything; when the owner fills the panel in and continues, you get its values — then call prepare_transfer, prepare_data, prepare_airtime or prepare_bill. For a meter not paid before, lookup_meter first, and refuse a meter it does not find. If the amount is more than the balance, say so and ask for another. After a panel is up, say one short line about it — the fee, when it lands — and do not repeat the panel's rows.
+Two kinds of transfer, and always say which: to a Beetle account, by its tag written $name — free, and there at once; or to another bank, by the ten-digit account number and the bank — the name on the account is looked up there and shown before anything moves. Always say the bank. When the owner gives a tag, or says it is a Beetle account, give that Beetle account. When they give a name, find_account checks the people they have paid; prepare the card with ask_about true, so it asks "Is this the person?". When they give a number without a bank, ask which bank (find_account says the likely ones), and never guess a bank or a name.
+
+How money moves: you never move it yourself. A tool puts up a card or a panel; the owner reads it, presses its button and confirms with their passcode. Before any card, work out what the thing needs: a transfer needs who and how much; data needs the number and the plan; airtime needs the number and the amount; a bill needs the company, prepaid or postpaid, the meter number and the amount. Use find_account, find_line and find_meter to fill in from what the owner has paid before — "mum", "my light", "the usual" mean what they paid before, and a name or a meter paid before needs no asking. When something is still missing, call ask_for with everything you know: it puts up the fields for the owner to fill, so do not ask in words as well beyond one short line. When the owner types a missing piece, call ask_for again with everything; when the owner fills the panel in and continues, you get its values — then call prepare_transfer, prepare_data, prepare_airtime or prepare_bill. For a meter not paid before, lookup_meter first, and refuse a meter it does not find. If the amount is more than the balance, say so and ask for another. After a panel is up, say one short line about it — the fee, when it lands — and do not repeat the panel's rows.
 
 Save the owner time and trouble: fill in what you can, offer the usual, and never let more go than they have.
 
@@ -355,14 +367,33 @@ export class ModelAgent implements AgentService {
     switch (name) {
       case 'find_account': {
         const q = str('query');
-        const number = accountIn(q);
-        const p = number ? whose(number, reading) : personIn(q, PEOPLE);
-        if (!p)
-          return {
-            found: false,
-            hint: 'No such person among the accounts the owner has paid. Ask for the account number.',
-          };
-        return { found: true, name: p.name, bank: p.bank, number: p.number };
+        const bank = str('bank');
+        const number = accountIn(q) ?? (/^\d{10}$/.test(q.replace(/\D/g, '')) && q.replace(/\D/g, '').length === 10 ? q.replace(/\D/g, '') : null);
+        if (q.trim().startsWith('$')) {
+          const p = tagged(q);
+          return p
+            ? { found: true, beetle: true, name: p.name, bank: BEETLE, tag: p.tag, number: p.number, fee: 0, arrives: 'instantly' }
+            : { found: false, hint: `No Beetle account is ${q.trim()}. Ask for their account number and bank.` };
+        }
+        if (number) {
+          if (!bank) {
+            const had = saved.people.find(p => p.number === number);
+            if (had) return { found: true, name: had.name, bank: had.bank, number, paid_before: true };
+            const read = reading ? whose(number, reading) : null;
+            return {
+              found: false,
+              number,
+              likely_banks: likelyBanks(number, saved.people).slice(0, 5),
+              read_off_photo: read ? { name: read.name, bank: read.bank } : null,
+              hint: 'Ask which bank it is at; then call find_account again with the bank.',
+            };
+          }
+          const r = nameAt(number, bank, saved.people);
+          return r.found ? { found: true, name: r.person.name, bank: r.person.bank, number, tag: r.person.tag ?? null } : { found: false, problem: r.why };
+        }
+        const w = resolveWho(q, saved.people);
+        if (w.person) return { found: true, name: w.person.name, bank: w.person.bank, number: w.person.number, tag: w.person.tag ?? null, ask_about: !!w.confirm };
+        return { found: false, hint: 'Nobody the owner has paid by that name. Ask for their $tag, or their account number and bank.' };
       }
       case 'find_line': {
         const q = str('query');
@@ -426,10 +457,12 @@ export class ModelAgent implements AgentService {
         if (!['transfer', 'data', 'airtime', 'pay'].includes(tool)) throw new Error('tool must be transfer, data, airtime or pay');
         const values: AskValues = {};
         const found: AskFound = {};
+        let extra: { confirmWho?: boolean; hint?: string } = {};
         if (str('who')) {
-          values.who = str('who');
-          const number = accountIn(values.who);
-          found.person = number ? whose(number, reading) : personIn(values.who);
+          values.who = str('bank') ? `${str('who')} at ${str('bank')}` : str('who');
+          const w = resolveWho(values.who, saved.people);
+          found.person = w.person;
+          extra = { confirmWho: !!w.confirm, hint: w.person ? undefined : (w.hint ?? str('who')) };
         }
         if (num('amount') > 0) values.amount = num('amount');
         if (str('number')) values.number = normalisePhone(str('number'));
@@ -438,8 +471,8 @@ export class ModelAgent implements AgentService {
         if (str('meter_kind')) values.meterKind = str('meter_kind') as MeterKind;
         if (str('meter')) values.meter = str('meter').replace(/\D/g, '');
         const up = ctx.pending?.need === 'ask' && ctx.pending.ask.tool === tool ? ctx.pending.ask : null;
-        const ask = up ? { ...up, values: { ...up.values, ...values }, found: { ...up.found, ...found }, note: undefined } : newAsk(tool, values, ctx, found);
-        if (up) panels.push({ kind: 'fill', askId: ask.id, values: ask.values, found: ask.found });
+        const ask = up ? { ...up, values: { ...up.values, ...values }, found: { ...up.found, ...found }, note: undefined, ...extra } : newAsk(tool, values, ctx, found, undefined, extra);
+        if (up) panels.push({ kind: 'fill', askId: ask.id, values: ask.values, found: ask.found, ...extra });
         else panels.push({ kind: 'ask', ask });
         hold({ need: 'ask', ask });
         const missing = askMissing(ask);
@@ -463,15 +496,27 @@ export class ModelAgent implements AgentService {
             reason: `more than the balance of ${naira(ctx.balance)}`,
             balance: ctx.balance,
           };
-        const to: Person = { name: str('name'), bank: str('bank'), number };
-        const panel = transferPanel(to, amount);
-        panels.push({ kind: 'panel', panel });
+        const bank = /^beetle$/i.test(str('bank')) ? BEETLE : str('bank');
+        const beetleUser = bank === BEETLE ? (tagged(str('tag') || '') ?? null) : null;
+        const to: Person = beetleUser ?? { name: str('name'), bank, number };
+        const fee = feeTo(amount, to.bank);
+        if (amount + fee > ctx.balance) return { ok: false, reason: `more than the balance of ${naira(ctx.balance)}`, balance: ctx.balance };
+        /* the card: one already up for a transfer is filled; otherwise a new one */
+        const up = ctx.pending?.need === 'ask' && ctx.pending.ask.tool === 'transfer' ? ctx.pending.ask : null;
+        const extra = { confirmWho: input.ask_about === true, hint: undefined };
+        const card = up
+          ? { ...up, values: { ...up.values, who: to.name, amount }, found: { ...up.found, person: to }, note: undefined, ...extra }
+          : newAsk('transfer', { who: to.name, amount }, ctx, { person: to }, undefined, extra);
+        if (up) panels.push({ kind: 'fill', askId: card.id, values: card.values, found: card.found, ...extra });
+        else panels.push({ kind: 'ask', ask: card });
+        hold({ need: 'ask', ask: card });
         return {
           ok: true,
-          panel_id: panel.id,
-          fee: feeFor(amount),
-          total: amount + feeFor(amount),
-          arrives: panel.rows[4]?.value ?? 'in a moment',
+          card_id: card.id,
+          fee,
+          total: amount + fee,
+          arrives: arrivesAt(amount, to.bank).toLowerCase(),
+          hint: 'The card is up; the owner confirms it there with their passcode. One short line at most.',
         };
       }
       case 'prepare_bill': {
@@ -537,8 +582,15 @@ export class ModelAgent implements AgentService {
       case 'change_amount': {
         const amount = num('amount');
         if (!(amount > 0)) throw new Error('amount must be a number of naira above zero');
+        /* a card's amount is a field on it */
+        if (str('panel_id').startsWith('ask-') && ctx.pending?.need === 'ask' && ctx.pending.ask.id === str('panel_id')) {
+          const card = ctx.pending.ask;
+          panels.push({ kind: 'fill', askId: card.id, values: { ...card.values, amount } });
+          hold({ need: 'ask', ask: { ...card, values: { ...card.values, amount } } });
+          return { ok: true, amount };
+        }
         panels.push({ kind: 'amend', panelId: str('panel_id'), amount });
-        return { ok: true, amount, fee: feeFor(amount) };
+        return { ok: true, amount, fee: feeTo(amount) };
       }
       default:
         throw new Error(`no tool called ${name}`);

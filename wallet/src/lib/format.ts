@@ -13,6 +13,9 @@ export const groupPhone = (digits: string) => groupDigits(digits, [4, 3, 4]);
 export const groupIdentity = (digits: string) => groupDigits(digits, [4, 4, 3]);
 export const groupAccount = (digits: string) => groupDigits(digits, [4, 4, 2]);
 
+/** ₦50,026.88: the kobo shown only where there are some. */
+export const moneyExact = (n: number) => '₦' + Math.abs(n).toLocaleString('en-NG', { minimumFractionDigits: Math.abs(n) % 1 ? 2 : 0, maximumFractionDigits: 2 });
+
 /** ₦ with thousands, no kobo. */
 export const naira = (n: number) => '₦' + Math.floor(Math.abs(n)).toLocaleString('en-NG');
 /** The kobo part, with its point: 595320.75 → '.75'. */

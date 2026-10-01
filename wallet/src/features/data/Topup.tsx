@@ -1,9 +1,9 @@
-/* A top-up from a message, from its frame: what the camera read (or what
-   was typed) as a black pill, Beetle's word on whose line it is and why
-   it priced the bundle it did, and Beetle Data at work on a light panel
-   — the line, whose, the plan, the price, and whether there is anything
-   cheaper, which it checks — with Confirm under the rows; then the lock
-   line that says nothing leaves before the face and the passcode.
+/* A top-up from a message: what the camera read (or what was typed), then
+   Beetle Data at work on a light panel — the line, whose, the plan, the
+   price, and whether there is anything cheaper, which it checks — with the
+   word on whose line it is and why it priced the bundle it did on the line
+   under the panel (a form has no bubble from Beetle: see DESIGN.md); then
+   the lock line that says nothing leaves before the face and the passcode.
    Reached from Read from your photo over the camera when the message
    asks for data or airtime. Confirm leads to the passcode, the line goes
    into the day, Beetle files the chat with the receipt's card in it, and
@@ -13,7 +13,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { AmountPicker, Button, Head, Icon, Label, LightPanel, Meta, Row, Say, Screen, Sheet, Tap, colour, toast } from '../../design';
+import { AmountPicker, Button, Head, Icon, Label, LightPanel, Meta, PageHead, Row, Screen, Sheet, Tap, YouTyped, colour, toast } from '../../design';
 import { DEMO_SAVED, airtimePanelFor, dataPanelFor, groupPhoneNumber, planById, planFor, planName, planSize, plansFor, type LinePaid, type Plan } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -36,14 +36,14 @@ const DEMO: TopupDraft = { line: DEMO_SAVED.lines[0]!, asked: 2_000, read: 'phot
 const pronounOf = (label: string) =>
   /^(mum|mummy|mother|sister|aunt|wife|kemi|bola|sarah)$/i.test(label) ? 'She' : /^(dad|daddy|father|brother|uncle|husband|tunde|musa|chidi)$/i.test(label) ? 'He' : 'They';
 
-/** Beetle's word on the line and the bundle it priced. */
+/** The word under the panel: whose line it is, and why the bundle is the one priced. */
 export function topupLine(line: LinePaid | null, plan: Plan | null, asked: Plan | null, airtime: number | undefined): string {
-  if (!line) return 'Whose line is it? Tap the row to pick one you have topped up, or type a number.';
-  const whose = `${line.label}'s ${line.network} line, the one ending ${line.number.slice(-3)}.`;
+  if (!line) return 'Pick the line from the ones you have topped up, or type a number.';
+  const whose = `${line.label}'s ${line.network} line, ending ${line.number.slice(-3)}.`;
   if (airtime) return `${whose} ${naira(airtime)} of airtime, as the message asks.`;
-  if (!plan) return `${whose} Which bundle? Say a size, or a figure.`;
-  if (asked && plan.price > asked.price) return `${whose} ${pronounOf(line.label)} ran dry eleven days early last month, so I have priced the bigger bundle too.`;
-  return `${whose} ${planName(plan)} for ${naira(plan.price)}, as last time.`;
+  if (!plan) return `${whose} Pick a bundle: tap Plan.`;
+  if (asked && plan.price > asked.price) return `${whose} ${pronounOf(line.label)} ran dry eleven days early last month, so this is the bigger bundle.`;
+  return `${whose} ${planName(plan)}, as last time.`;
 }
 
 export function Topup() {
@@ -63,14 +63,7 @@ export function Topup() {
   const [plan, setPlan] = useState<Plan | null>(() => (demo && DEMO.line?.plan ? planById(DEMO.line.plan) : null));
   const [airtime, setAirtime] = useState<number | undefined>(undefined);
   const [read, setRead] = useState<'photo' | undefined>(demo ? 'photo' : undefined);
-  const [said, setSaid] = useState<Said[]>(() =>
-    demo
-      ? [
-          { id: 1, who: 'you', text: DEMO.said!, photo: true },
-          { id: 2, who: 'beetle', text: topupLine(DEMO.line!, planById(DEMO.line!.plan!), planFor(DEMO.line!.network, { amount: DEMO.asked }), undefined) },
-        ]
-      : [],
-  );
+  const [said, setSaid] = useState<Said[]>(() => (demo ? [{ id: 1, who: 'you', text: DEMO.said!, photo: true }] : []));
   const [checked, setChecked] = useState(false);
   const [busy, setBusy] = useState(false);
   const [guard, setGuard] = useState(!!(LAB && asked.guard === '1'));
@@ -96,16 +89,8 @@ export function Topup() {
       if (d.amount !== undefined) setAirtime(d.amount);
       if (d.read) setRead(d.read);
       if (d.said) say({ who: 'you', text: d.said, photo: d.read === 'photo' });
-      say({ who: 'beetle', text: topupLine(l, p, wanted, d.amount) });
     }, [line, askedPlan, say]),
   );
-  /* nothing handed and nothing said, once the hand-off has had its moment: Beetle opens */
-  useEffect(() => {
-    const t = setTimeout(() => {
-      if (!handed.current && said.length === 0) say({ who: 'beetle', text: topupLine(null, null, null, undefined) });
-    }, 60);
-    return () => clearTimeout(t);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* whether there is anything cheaper: checked once the line and the bundle are there */
   const complete = !!line && (!!plan || !!airtime);
@@ -126,14 +111,12 @@ export function Topup() {
     setAirtime(undefined);
     setPlan(p);
     setChoosing(false);
-    say({ who: 'beetle', text: `${planName(p)} for ${naira(p.price)}, then.` });
   };
   const useAirtime = () => {
     if (!line || !pickAirtime) return;
     setAirtime(pickAirtime);
     setPlan(null);
     setChoosing(false);
-    say({ who: 'beetle', text: `${naira(pickAirtime)} of airtime on ${line.label}'s line, then.` });
   };
   const openChoosing = () => {
     if (!line) {
@@ -195,31 +178,12 @@ export function Topup() {
   if (!ok || !account) return null;
   const status = busy ? 'Buying' : !complete ? 'Waiting' : checked ? 'Ready' : 'Running';
   const cheaper = askedPlan && plan && askedPlan.price < plan.price ? askedPlan : null;
+  const yours = [...said].reverse().find(t => t.who === 'you');
   return (
     <>
-      <Screen>
-        {/* the frame's head: Beetle's mark and its name in the middle; Back keeps its place at the foot */}
-        <View style={s.head} testID="chat-head">
-          <Icon name="mark" size={24} colour={colour.accent} />
-          <Head>Beetle</Head>
-        </View>
-        <View style={{ gap: 16, marginTop: -4 }} testID="said">
-          {said.map(t =>
-            t.who === 'you' ? (
-              <View key={t.id} style={{ alignItems: 'flex-end' }}>
-                <View style={s.pill} testID="you-said">
-                  {t.photo ? <Icon name="camera" size={16} colour={colour.textInverse} /> : null}
-                  <Row tone="inverse">{t.text}</Row>
-                </View>
-              </View>
-            ) : (
-              <Say key={t.id} testID="say">
-                {t.text}
-              </Say>
-            ),
-          )}
-        </View>
-        <View style={{ marginTop: -14 }}>
+      <Screen head={<PageHead lead title={airtime ? 'Buy airtime' : 'Buy data'} sub={read === 'photo' ? 'From the message on your photo' : 'From what you typed'} />}>
+        {yours ? <YouTyped said={yours.text} /> : null}
+        <View style={{ gap: 12 }}>
           <LightPanel
             glyph={airtime ? 'airtime' : 'data'}
             title={airtime ? 'Beetle Airtime' : 'Beetle Data'}
@@ -248,8 +212,12 @@ export function Topup() {
               },
             ]}
           />
+          {/* what the bubble used to say, under the panel it is about */}
+          <Meta tone="secondary" style={{ paddingHorizontal: 4 }} testID="topup-note">
+            {topupLine(line, plan, askedPlan, airtime)}
+          </Meta>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginTop: -4 }} testID="lock-line">
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }} testID="lock-line">
           <View style={{ marginTop: 2 }}>
             <Icon name="lock" size={16} colour={colour.textTertiary} />
           </View>
@@ -302,6 +270,12 @@ export function Topup() {
           name={airtime || !plan ? `${line.network} · Airtime` : `${line.network} · ${planSize(plan)}`}
           detail={`${line.label} · ${groupPhoneNumber(line.number)}`}
           glyph={airtime ? 'airtime' : 'data'}
+          rows={[
+            airtime || !plan ? { label: 'Airtime', value: naira(price) } : { label: 'Plan', value: planName(plan) },
+            { label: 'Lands', value: 'At once' },
+            { label: 'Fee', value: 'Free' },
+            { label: 'Leaves Everyday', value: naira(price), strong: true },
+          ]}
           verify={app.checkPasscode}
           onDone={done}
           onCancel={() => setGuard(false)}
@@ -312,8 +286,6 @@ export function Topup() {
 }
 
 const s = StyleSheet.create({
-  head: { height: 44, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', gap: 8 },
-  pill: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 47, borderRadius: 24, backgroundColor: colour.ink, paddingLeft: 16, paddingRight: 19 },
   modes: { flexDirection: 'row', gap: 8, marginTop: 16 },
   mode: { height: 36, borderRadius: 18, paddingHorizontal: 16, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },
   modeOn: { backgroundColor: colour.ink },

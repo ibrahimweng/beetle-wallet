@@ -7,6 +7,12 @@
 /** What a transfer costs on top of itself: free under ₦10,000, ₦26.88 up to ₦50,000, ₦53.75 above. */
 export const feeFor = (amount: number) => (amount < 10_000 ? 0 : amount <= 50_000 ? 26.88 : 53.75);
 
+/** What a transfer to somebody costs: nothing to a Beetle account, which is free and lands at once; the banks' fee to any other bank. */
+export const feeTo = (amount: number, bank?: string) => (bank === 'Beetle' ? 0 : feeFor(amount));
+
+/** When it lands: at once at Beetle; in seconds, or under a minute for a large sum, at another bank. */
+export const arrivesAt = (amount: number, bank?: string) => (bank === 'Beetle' ? 'Instantly' : amount > 50_000 ? 'Under a minute' : 'In a few seconds');
+
 /** The whole balance, or all of it that can be sent once the fee is counted, to an account never paid before. */
 export const refuses = (amount: number, balance: number, paidBefore: boolean) => amount > 0 && amount + feeFor(amount) >= balance && !paidBefore;
 

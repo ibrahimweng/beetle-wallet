@@ -18,7 +18,7 @@
    a cut. */
 import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import Animated, { SharedValue, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { SharedValue, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming, useDerivedValue } from 'react-native-reanimated';
 import type { useRouter } from 'expo-router';
 import { Head, Icon, Veil, colour } from '../../design';
 import { arrive, bouncy, motion, settle, useStill } from '../../design/motion';
@@ -73,14 +73,12 @@ export function More({ onPick, onClose }: { onPick: (item: MoreItem) => void; on
 
   /* the softening arrives ahead of the buttons, so they come up onto a
      background that has already gone quiet */
-  const soft = useAnimatedStyle(() => ({ opacity: Math.min(1, open.value * 1.9) }));
+  const soft = useDerivedValue(() => Math.min(1, open.value * 1.9));
   const turning = useAnimatedStyle(() => ({ transform: [{ rotate: `${open.value * 45}deg` }] }));
   return (
     <View style={StyleSheet.absoluteFill} testID="more">
       <Pressable style={StyleSheet.absoluteFill} accessibilityLabel="Close" accessibilityRole="button" onPress={() => leave(onClose)}>
-        <Animated.View style={[StyleSheet.absoluteFill, soft]} pointerEvents="none">
-          <Veil tone="light" testID="more-veil" />
-        </Animated.View>
+        <Veil tone="light" t={soft} testID="more-veil" />
       </Pressable>
       <View style={s.items} pointerEvents="box-none">
         {ITEMS.map((it, i) => (

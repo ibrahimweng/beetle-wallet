@@ -1,7 +1,8 @@
 /* One foot for the whole app, over the stack, the way Fuse keeps its own.
    On Home, Activities and Settings it is the bar: Home, Activities and
    Settings as bare glyphs at the left, the black plus at the right, on a
-   white surface with its top corners rounded and a soft shadow above. It
+   white surface, what scrolls under it fading into its white (no shadow:
+   see DESIGN.md). It
    stays under the open chat too — its white going bare as the card comes
    down to just over the glyphs — so there is always a way round the app.
    On any other page it becomes Back beside the page's one button, or Back
@@ -276,14 +277,13 @@ export function Foot() {
   }, [kb, kbOn]);
 
   const surface = useAnimatedStyle(() => {
-    /* under home's open card the bar's white and its shadow go, the glyphs staying put */
+    /* under home's open card the bar's white and its fade go, the glyphs staying put */
     const bare = open ? Math.min(1, Math.max(0, (open.value - 0.6) / 0.4)) * (1 - t.value) : 0;
     return {
       transform: [{ translateY: hide.value * AWAY + kbOn.value * (1 - t.value) * AWAY - kb.value * t.value }],
       backgroundColor: `rgba(255,255,255,${1 - bare})`,
       borderTopLeftRadius: 32 * (1 - t.value),
       borderTopRightRadius: 32 * (1 - t.value),
-      shadowOpacity: 0.06 * (1 - t.value) * (1 - bare),
       opacity: 1 - dim.value * 0.55,
       ...blurred(dim.value * 6),
     };
@@ -303,8 +303,13 @@ export function Foot() {
       top: frame.dockPad + (56 - height) / 2,
     };
   });
-  /* on a page, what scrolls under the foot fades into its white instead of being cut by its edge */
-  const fadeStyle = useAnimatedStyle(() => ({ opacity: t.value }));
+  /* what scrolls under the foot fades into its white instead of being cut by its edge — on a page and
+     on the bar alike, but not under home's open card, which comes down over the bar's top */
+  const fadeStyle = useAnimatedStyle(() => {
+    const opening = open ? Math.min(1, open.value * 2.5) : 0;
+    /* and none when the foot goes down out of the way: the fade sits above it, so going down alone leaves it showing */
+    return { opacity: (t.value + (1 - t.value) * (1 - opening)) * (1 - hide.value) };
+  }, [open]);
   const glyphsStyle = useAnimatedStyle(() => ({ opacity: 1 - t.value }));
   const buttonStyle = useAnimatedStyle(() => ({ opacity: t.value }));
   const plusStyle = useAnimatedStyle(() => {
@@ -466,9 +471,6 @@ const s = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: BAR_H,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowRadius: 16,
   },
   /* 40 of fade over the page, above the foot's own white */
   fade: { position: 'absolute', left: 0, right: 0, top: -40, height: 40 },

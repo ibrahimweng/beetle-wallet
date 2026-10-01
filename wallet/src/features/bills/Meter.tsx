@@ -7,6 +7,7 @@
    Back leads to the passcode, and the receipt with the token after it.
    Reached from the camera when the photo is a bill. */
 import React, { useEffect, useState } from 'react';
+import { unitsFor } from '../../services/nigeria';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Body, Button, Caption, Head, Icon, Label, Meta, PageHead, Screen, Tap, colour, toast } from '../../design';
@@ -190,7 +191,21 @@ export function Meter() {
         ) : null}
       </Screen>
       {guard ? (
-        <PasscodeSheet amount={naira(amount)} name={name} detail={`Meter ${groupMeter(reading.meter)}`} glyph="power" verify={app.checkPasscode} onDone={done} onCancel={() => setGuard(false)} />
+        <PasscodeSheet
+          amount={naira(amount)}
+          name={name}
+          detail={`${reading.meterKind === 'prepaid' ? 'Prepaid' : 'Postpaid'} · ${groupMeter(reading.meter)}`}
+          glyph="power"
+          rows={[
+            { label: 'Name on the meter', value: record?.name ?? 'Looked up' },
+            reading.meterKind === 'prepaid' ? { label: 'Units', value: `About ${unitsFor(amount)} kWh` } : { label: 'Settles', value: 'The account, at once' },
+            { label: 'Fee', value: 'Free' },
+            { label: 'Leaves Everyday', value: naira(amount), strong: true },
+          ]}
+          verify={app.checkPasscode}
+          onDone={done}
+          onCancel={() => setGuard(false)}
+        />
       ) : null}
     </>
   );

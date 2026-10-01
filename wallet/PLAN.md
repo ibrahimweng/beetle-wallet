@@ -712,6 +712,180 @@ Request money and loading the virtual card as well.
   receipt's ···).
 
 
+## Round 11 · Forms that speak under their fields, two kinds of transfer, the chat that does it all, and Borrow made short
+
+Asked by the owner after the Round 10 screens, in five messages, with eight
+questions answered. The interface, as it is to be:
+
+**Forms speak under their fields**
+
+- [x] Send money loses Beetle's bubble at the top ("How much for The? Move
+      the ruler…"), and so does every form page: Pay a bill, Buy data,
+      Airtime, Borrow, Convert, Add money to a goal, Request money. What a
+      bubble said that mattered goes on the line under the field it is
+      about; what it said that a field already says goes.
+
+**Two kinds of transfer**
+
+- [x] **One first field takes all of it.** On Send money the first field
+      is To, and it takes a $tag, a name or an account number:
+  - a **$tag** is looked up among Beetle's own accounts, and the Beetle
+    account comes back: free, and there at once;
+  - a **name** (with a $ or without) brings the closest names, from
+    Beetle's accounts and from the people paid before, each with its bank;
+  - **ten digits** ask for the bank, the likely ones first (worked out from
+    the number itself, the way the banks' check digit does), then the name
+    on the account is looked up and shown, so the owner sees it is the
+    right person before anything can move.
+- [x] **The bank is always said**: on Send money, in the chat, on the
+      passcode sheet, on the receipt and in Activities. A Beetle account
+      says Beetle, with its $tag.
+- [x] **Beetle to Beetle is free and instant.** To another bank: free under
+      ₦10,000, ₦26.88 up to ₦50,000, ₦53.75 above.
+- [x] **In the chat**: a $tag, or someone named as a Beetle account, gives
+      the Beetle account. Any other name is looked for among the people
+      paid before, and a card asks "Is this the person?" with the account
+      number and the bank filled in, the amount picker (its figure tapped to
+      type), and Confirm. A number asks for the bank, and the name is looked
+      up in the card.
+
+**The passcode says what it sends**
+
+- [x] While the six digits go in, the sheet shows the whole of it at the
+      top: who, their bank and account number (or $tag), what they receive,
+      the fee, and what leaves which account. Bills, data, airtime, loans
+      and conversions say what they are in the same rows.
+- [x] **Cancel**, plainly, under the pad: the sixth digit sends it.
+
+**The chat does it in the chat**
+
+- [x] The chips over the input are things to do, not doors: **Send, Bills,
+      Data, Receive, Loan**, in that order. None leaves the chat; each puts
+      its card up in the conversation, with Beetle's one line above it.
+- [x] **Bills is electricity**: the company, then Prepaid or Postpaid (two
+      toggles), then the meter number, looked up as soon as it reads right;
+      then the amount and Pay. A small **Recent** at the card's top right
+      grows the card itself into a list of the meters paid before, which
+      scrolls; one tap fills the card and it settles back.
+- [x] **Data**: the number (its network shown as it is typed), the plan,
+      Buy; Recent lists the lines topped up before.
+- [x] **Send**: the To field as on Send money, the amount, Confirm; Recent
+      lists the people paid before.
+- [x] **Receive**: the account's details to copy or share, and its $tag.
+- [x] **Loan**: the amount, the days, what is paid back and when, Borrow.
+- [x] A card that has all it needs pays from where it is: its button goes
+      to the passcode, and the receipt and Beetle's word follow. No second
+      card to confirm the first.
+
+**No drop shadows; DESIGN.md**
+
+- [x] No drop shadow anywhere. Surfaces part by tone, by a hairline, by
+      frost and by space.
+- [x] **DESIGN.md** in the app's folder sets the rules down: the shadows,
+      the amount picker, round press states, the foot, forms without
+      bubbles, the bank always said, the passcode's breakdown, asking before
+      what cannot be undone.
+- [x] **An open line of Activities is plain**, the way Fuse's Solana widget
+      is: its facts as rows on the frost, labels left and figures right,
+      lined up under the line's own words, a dashed rule between the groups.
+      No card, no border, no shadow.
+
+**Smoother**
+
+- [x] The frost and the veils come in by their blur growing, not by fading
+      a blur (the phone draws a fading blur badly, which is the jerk).
+- [x] An opening line lifts and its facts come in as one movement, measured
+      before it moves, not lifted after.
+- [x] Rows arrive one after another with a short stagger, on the same
+      easing everywhere.
+
+**Are you sure?**
+
+- [x] Sign out and Sign out everywhere else ask first, in a small sheet
+      that says what will happen, with the action in red and Cancel. (The
+      freezes and the pause switch were on this list; they do not ask — see
+      Settled while building.)
+
+**Borrow, short**
+
+- [x] The amount picker stays at the top, the first thing on the page.
+- [x] The days are a row of the breakdown: "30 days ▾", no box, a small
+      list to pick from; the figures under it change as it changes.
+- [x] The breakdown is tight: labels left, figures right, the total the
+      strongest line. What matters is there: what is paid back in all, the
+      payments and the first of them, how it is collected, and what happens
+      if a payment is missed.
+- [x] Missing a payment: no collateral; a late fee each week it is overdue;
+      what is due is taken from money arriving in Everyday; after 30 days
+      late it is reported to the credit bureau. Said plainly, before the
+      slide.
+- [x] The rest (the interest and the fee one by one, paying early) is behind
+      a tap.
+- [x] Finish setting up moves to the bottom.
+
+**A pass over spacing and placement**, on every page this round touches and
+the ones beside them: nothing too loose, nothing cramped, the main thing
+first.
+
+Decided with the owner: the bubble goes from every form page; a typed
+number gets the bank and the name check; tags are written $name; the first
+field takes a $tag, a name or a number (a number asks for the bank); in the
+chat a tag gives the Beetle account and any other name is checked against
+the people paid before in a card with the amount picker and Confirm; Beetle
+to Beetle is free and instant; the days on Borrow are a plain "30 days ▾"
+in the breakdown; a missed payment costs a late fee and is taken from money
+coming in, with no collateral.
+
+**Settled while building**
+
+- The overview pages (the goal, Dollars, Bills, the card, Money health) keep
+  Beetle's word at the top: they are not forms, and what Beetle says there is
+  the point of the page. Request money and the top-up from a photo lost
+  theirs and read as forms, with the page's own head.
+- Asking first is for signing out and signing the other phones out. Freezing
+  (from Not your phone, or the card) does not ask: it protects, it has to be
+  quick in a bad moment, and it lifts as easily as it went on. Standing
+  instructions pause with a switch that flips back, so that does not ask
+  either; nothing in the app ends one for good.
+- The five chips are words only, so all five fit across the phone.
+- In a card the amount comes once what it is for is known (the person, the
+  meter, the line), or straight away if it was said.
+- The passcode pad shrinks a step when the breakdown above it is long, so
+  the sheet never runs off the screen.
+- The model puts up the same cards as the scripted Beetle (prepare_transfer
+  is a card), so the phone looks the same whichever is answering.
+- Recent, on the card, replaces the saved-people peek over the chat.
+- A new ask while a card is up gets its own card under the words; anything
+  less (an amount, the bank) fills the card that is up.
+- A card says nothing above its fields unless something is wrong; its
+  greyed button says what is still missing (Pick the bank, Pick how much).
+  Beetle's line over a name says who was found and at which bank; the card
+  asks "Is this the person?".
+- An open line in Activities names its note by what it is: the bank for a
+  transfer, Paid at for a card, Number for a top-up, Meter for a bill; a
+  saving's note says nothing the line does not, so it goes. "Renews 28
+  September" is a row of its own instead of a cut-off line.
+- When money lands is said one way everywhere: Instantly to a Beetle
+  account, In a few seconds to another bank, Under a minute above ₦50,000.
+- A transfer's fee comes off Everyday with it. The balance had been taking
+  the amount alone; now what the passcode says leaves Everyday (₦20,026.88
+  for ₦20,000 at GTBank) is what leaves, and Balance after on the receipt
+  agrees. A conversion's fee still comes out of the dollars.
+- Change on a picked person keeps what was typed, so another bank is a tap
+  away; emptying the field brings the people paid before back under it.
+- Words that are a chip's ("borrow", "my account number") put up that
+  chip's card in the chat; words that are a page (the month's bills,
+  asking someone for money) still open the page.
+- Closed, the chat and its chips are hidden from a screen reader and from a
+  finger, so the card's own Send and Receive are the only ones there.
+- Pages arrive on the settle curve (moving at once, coming to rest slowly)
+  and the stack's own cross-fade is short, so the page's column arriving out
+  of its blur is the movement.
+- A breakdown on a page is 44 a row (Convert's), a tighter 28–32 on a card
+  or a sheet; DESIGN.md says so.
+- The web build draws no browser focus ring on a field: the phone never does.
+
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

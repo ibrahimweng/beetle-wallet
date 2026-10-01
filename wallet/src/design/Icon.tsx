@@ -50,3 +50,13 @@ export function Mark({ glyph, big = false }: { glyph: IconName; big?: boolean })
     </View>
   );
 }
+
+/** The chevron turned to point down, or up: what a row that opens in place
+    wears, where an arrow would read as "download". */
+export function Chevron({ dir = 'down', size = 14, colour }: { dir?: 'down' | 'up'; size?: number; colour?: string }) {
+  return (
+    <View style={{ width: size, height: size, transform: [{ rotate: dir === 'down' ? '90deg' : '-90deg' }] }}>
+      <Icon name="chevron" size={size} colour={colour} />
+    </View>
+  );
+}

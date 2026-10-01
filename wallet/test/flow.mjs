@@ -415,6 +415,14 @@ try {
   await see('What keeps the money yours');
   await onPage('settings');
   await tap('Sign out');
+  /* it asks first: what signing out does, Sign out in red, and Cancel */
+  await see('Sign out of Beetle?');
+  await shot('sign-out-ask');
+  await page.getByTestId('confirm-sign-out').getByRole('button', { name: 'Cancel', exact: true }).click();
+  await page.getByText('Sign out of Beetle?').waitFor({ state: 'hidden' });
+  await onPage('settings');
+  await tap('Sign out');
+  await page.getByTestId('confirm-sign-out').getByRole('button', { name: 'Sign out', exact: true }).click();
   await see('Open an account');
   at('/way-in');
   /* and home, or a later step, is not for somebody who is not */
@@ -593,7 +601,7 @@ try {
   const growing = [];
   const t1 = Date.now();
   while (Date.now() - t1 < 2600) {
-    growing.push(await page.evaluate(() => (document.body.innerText.match(/₦20,000 to Sarah Adeyemi[^\n]*/) || [''])[0].length));
+    growing.push(await page.evaluate(() => (document.body.innerText.match(/I found Sarah Adeyemi[^\n]*/) || [''])[0].length));
     await page.waitForTimeout(50);
   }
   const lengths = growing.filter(n => n > 0);
@@ -619,7 +627,8 @@ try {
   await shot('chat-passcode-wrong', 200);
   await type(PASSCODE);
   await see('is with Sarah Adeyemi');
-  await see('₦575,320');
+  /* what the passcode said leaves Everyday is what leaves: the ₦20,000 and the ₦26.88 fee */
+  await see('₦575,293');
   /* and the receipt lands in the chat, in a few words */
   await see('The full receipt');
   await shot('chat-transfer-sent', 500);
@@ -751,7 +760,7 @@ try {
   await tap('Ask Musa');
   await see('the line ending 4471');
   at('/request');
-  must((await page.locator('[data-testid="you-said"]').count()) === 1, 'what the camera read should stand as the first thing said');
+  must((await page.locator('[data-testid="you-typed"]').count()) === 1, 'what the camera read should stand as the first thing said');
   await see('In 7 days');
   await shot('request-photo', 600);
   await tap('Back');
@@ -763,14 +772,15 @@ try {
   await tap('Receive');
   await see('Pick how you want the money to reach you');
   await tap('Ask someone');
-  await see('Who should I ask, and for how much?');
+  /* no bubble on the page: the line under the panel says what to tap */
+  await see('Tap Person and Amount to fill them in.');
   at('/request');
   await shot('request-empty', 900);
   must((await page.getByLabel('Ask Beetle').filter({ visible: true }).count()) === 0, 'no page but home should carry an ask bar');
   await tap('Person');
   await see('Who should I ask?');
   await tap('Sarah Adeyemi');
-  await see('How much should I ask Sarah for? Tap the amount.');
+  await see('Tap Amount to say how much to ask Sarah for.');
   await tap('Amount');
   await page.getByTestId('pick-amount').waitFor();
   await page.getByTestId('pick-amount').getByRole('button', { name: '₦5,000', exact: true }).click();
@@ -800,15 +810,14 @@ try {
   await tap('Back');
   await page.waitForTimeout(700);
   at('/home');
-  /* and asking how to be paid is Three ways to be paid */
+  /* and asking how to be paid is the Receive chip's card, in the chat: the number from any bank, and the $tag */
   await pull('card-for-the-ways', false);
   await page.getByLabel('Ask Beetle').fill('how do I get paid');
   await tap('Send this');
-  await see('All of them safe to hand out');
-  at('/ways');
-  await tap('Back');
-  await page.waitForTimeout(700);
+  await page.getByTestId('receive-card').last().waitFor();
+  await page.getByTestId('receive-tag').last().waitFor();
   at('/home');
+  await shot('chat-receive-typed', 900);
   await backToHome();
   await page.waitForTimeout(700);
 
@@ -929,8 +938,8 @@ try {
   await see('Enter your passcode');
   at('/home');
   await shot('lab-passcode', 700);
-  /* the screen behind the sheet, tapped above it, puts it away */
-  await button('Close').click({ position: { x: 196, y: 90 } });
+  /* the screen behind the sheet, tapped above it, puts it away (the sheet, with the whole of it at its top, now reaches up to 69) */
+  await button('Close').click({ position: { x: 196, y: 24 } });
   await button('Confirm ₦20,000').waitFor();
   await tap('Back to the lab');
   await see('Beetle Lab');
@@ -1127,6 +1136,10 @@ try {
   at('/devices');
   await shot('settings-devices', 500);
   await tap('Sign out everywhere else');
+  /* it asks first, saying which ones go and that the money is not touched */
+  await see('Sign out every other device?');
+  await shot('settings-devices-ask', 500);
+  await tap('Sign them out');
   await see('Only this phone is signed in now');
   must((await page.getByText('Chrome on Windows').count()) === 0, 'the odd one should be gone');
   await tap('Back');
@@ -1184,6 +1197,7 @@ try {
   await tap('Settings');
   await see('What keeps the money yours');
   await tap('Sign out');
+  await page.getByTestId('confirm-sign-out').getByRole('button', { name: 'Sign out', exact: true }).click();
   await see('Open an account');
   at('/way-in');
   await tap('Back to the lab');
@@ -1341,44 +1355,41 @@ try {
   await shot('lab-model', 300);
   await tap('Back to the lab');
   await see('Beetle Lab');
-  /* a shortcut under the open card opens its page: Data is Buy data, on the line topped up most */
+  /* a chip over the input puts its card up in the chat, and nothing leaves it: Data is the line and the plan, on the own line */
   await tap('The chat, open');
   await button('Data').waitFor();
   await page.waitForTimeout(900);
   await tap('Data');
-  await see("5GB for 30 days, on Mum's MTN line.");
-  at('/buy');
-  await shot('lab-shortcut-data', 1200);
+  await see('Which line, and which plan?');
+  await page.locator('[data-testid="ask"]').last().waitFor();
+  at('/home');
+  await shot('chat-chip-data', 1200);
   await tap('Back to the lab');
   await see('Beetle Lab');
   console.log('What Beetle asks for');
-  /* a transfer with no amount: the ask panel, Sarah filled in, the amount to type; the
-     people paid before grow out of the line under the fields, and a pick fills the panel */
+  /* a transfer with no amount: the card, Sarah found by her name and asked about, the amount on the
+     picker; Recent grows the card into the people paid before, and a pick fills it */
   const askPanel = page.locator('[data-testid="ask"]').last();
   const inAsk = name => askPanel.getByRole('button', { name, exact: true }).first().click();
   const askField = label => askPanel.getByLabel(label, { exact: true }).first();
+  const stillSays = async words => must((await askPanel.getByTestId('ask-action').innerText()).includes(words), `the card's button should say what is still missing: ${words}`);
   await tap('Send, no amount given');
   await askPanel.waitFor();
-  await see('Sarah Adeyemi · GTBank');
+  await askPanel.getByText('Is this the person?').waitFor();
+  await askPanel.getByText('GTBank · 0234 5678 90').waitFor();
+  await stillSays('Pick how much');
   await shot('ask-send', 900);
-  await inAsk('Someone you have paid before');
-  const listGrew = await trace('saved-grow', 700, [['card', '[data-testid="saved-card"]', false]], { picture: { at: 110, name: 'ask-saved-mid' } });
-  const grewFrom = firstAt(listGrew, 'card', c => c.height > 0)?.card?.height ?? 0;
-  const grewTo = listGrew[listGrew.length - 1]?.card?.height ?? 0;
-  must(grewTo - grewFrom >= 60, `the list should grow out of the line (${grewFrom} → ${grewTo})`);
-  console.log(`  the list grew from ${Math.round(grewFrom)} to ${Math.round(grewTo)} tall`);
+  await askPanel.getByTestId('ask-recent').click();
+  await askPanel.getByTestId('ask-recent-list').waitFor();
   await see('People you have paid');
-  await shot('ask-saved-people', 300);
-  await page.locator('[data-testid="saved"]').getByRole('button', { name: 'John Doe', exact: true }).click();
-  await page.locator('[data-testid="saved"]').waitFor({ state: 'hidden' });
-  await see('John Doe · Kuda');
-  await askField('Amount').fill('2500');
+  await shot('ask-saved-people', 600);
+  await askPanel.getByRole('button', { name: 'John Doe', exact: true }).click();
+  await askPanel.getByTestId('ask-recent-list').waitFor({ state: 'detached' });
+  await askPanel.getByText('Kuda · 3012 3456 78').waitFor();
+  await typeAmount(2500);
   await shot('ask-send-filled', 300);
-  await inAsk('Continue');
-  await button('Confirm ₦2,500').waitFor();
-  await see('Filled');
-  await shot('ask-send-panel', 1900);
-  await tap('Confirm ₦2,500');
+  /* the card's own button goes to the passcode: no second card to confirm the first */
+  await inAsk('Confirm ₦2,500');
   await see('Enter your passcode');
   await type(PASSCODE);
   await see('is with John Doe');
@@ -1392,6 +1403,7 @@ try {
   await askPanel.waitFor();
   await askPanel.getByTestId('network').first().waitFor();
   must((await askPanel.getByTestId('network').first().innerText()).trim() === 'Airtel', 'the badge should read the network off the digits');
+  await stillSays('Pick a plan');
   await shot('ask-data', 900);
   await inAsk('All Airtel plans');
   await inAsk('18GB, ₦6,000');
@@ -1399,64 +1411,46 @@ try {
   await shot('ask-data-plans', 300);
   await askField('Plan').fill('1gb');
   await see('1GB for a week · ₦800');
-  await inAsk('Continue');
-  await button('Buy ₦800').waitFor();
-  await shot('ask-data-panel', 1900);
+  await askPanel.getByRole('button', { name: 'Buy 1GB · ₦800', exact: true }).waitFor();
+  await shot('ask-data-panel', 900);
   await tap('Back to the lab');
   await see('Beetle Lab');
-  /* airtime: the own line compact with Change beside it, the amount by slider or by
-     hand; Change reveals the field and the numbers topped up before */
-  await tap('Airtime, with the slider');
+  /* airtime: the own line with Change beside it, the amount on the picker; Recent grows the
+     card into the numbers topped up before, and Mum fills it */
+  await tap('Airtime, on your own line');
   await askPanel.waitFor();
   await see('Your own line');
   await shot('ask-airtime', 900);
-  await inAsk('Airtime ₦2,000');
-  must((await askField('Amount').inputValue()) === '2,000', 'a mark on the slider should set the amount');
-  const track = await askPanel.getByTestId('ask-slider').boundingBox();
-  await page.mouse.move(track.x + 4, track.y + 20);
-  await page.mouse.down();
-  await page.mouse.move(track.x + track.width * 0.25, track.y + 20, { steps: 8 });
-  await page.mouse.move(track.x + track.width * 0.5, track.y + 20, { steps: 8 });
-  await page.mouse.up();
-  await page.waitForTimeout(300);
-  const slid = await askField('Amount').inputValue();
-  console.log(`  the slider set ₦${slid}`);
-  must(/^(9|1,0|1,1)00$/.test(slid), `the slider should set the amount by where it stops, a thousand at the middle (${slid})`);
-  await shot('ask-airtime-slid', 200);
-  await inAsk('Change the number');
-  await inAsk('A number you have topped up');
+  await askPanel.getByRole('button', { name: '₦2,000', exact: true }).click();
+  await askPanel.getByRole('button', { name: 'Buy ₦2,000 airtime', exact: true }).waitFor();
+  await askPanel.getByTestId('ask-recent').click();
   await see('Numbers you top up');
   await shot('ask-saved-lines', 600);
-  await page.locator('[data-testid="saved"]').getByRole('button', { name: 'Mum', exact: true }).click();
-  await page.locator('[data-testid="saved"]').waitFor({ state: 'hidden' });
-  await see('Mum · topped up 7 times');
-  await inAsk('Airtime ₦1,000');
-  await inAsk('Continue');
-  await button('Buy ₦1,000').waitFor();
-  await shot('ask-airtime-panel', 1900);
+  await askPanel.getByRole('button', { name: 'Mum', exact: true }).click();
+  await askPanel.getByTestId('ask-recent-list').waitFor({ state: 'detached' });
+  await askPanel.getByText('0803 214 4471').waitFor();
+  await shot('ask-airtime-panel', 900);
   await tap('Back to the lab');
   await see('Beetle Lab');
-  /* a bill: prepaid or postpaid, the company, the meter looked up as its digits land;
-     or one paid before, from the list, then the passcode and the receipt with its token */
+  /* a bill: the company, prepaid or postpaid, the meter looked up as its digits land, then the
+     amount; or one paid before, from Recent; then the passcode and the receipt with its token */
   await tap('A bill, from the meters paid');
   await askPanel.waitFor();
+  await stillSays('Pick the company');
   await shot('ask-bill', 900);
-  await inAsk('Prepaid');
   await inAsk('JED');
+  await inAsk('Prepaid');
   await askField('Meter number').fill('12345678901');
   await askPanel.getByTestId('ask-meter-under').filter({ hasText: 'Jos' }).waitFor();
-  await inAsk('₦8,000, About 38 kWh');
+  await askPanel.getByRole('button', { name: '₦8,000', exact: true }).click();
   await shot('ask-bill-new', 400);
-  await inAsk('A meter you have paid');
+  await askPanel.getByTestId('ask-recent').click();
   await see('Meters you have paid');
   await shot('ask-saved-meters', 600);
-  await page.locator('[data-testid="saved"]').getByRole('button', { name: 'Home', exact: true }).click();
-  await page.locator('[data-testid="saved"]').waitFor({ state: 'hidden' });
+  await askPanel.getByRole('button', { name: 'Home', exact: true }).click();
+  await askPanel.getByTestId('ask-recent-list').waitFor({ state: 'detached' });
   await see('Ibrahim Musa');
-  await inAsk('Continue');
-  await button('Pay ₦8,000').waitFor();
-  await shot('ask-bill-panel', 1900);
-  await tap('Pay ₦8,000');
+  await inAsk('Pay ₦8,000');
   await see('Enter your passcode');
   await type(PASSCODE);
   await see('The token is');
@@ -1465,9 +1459,9 @@ try {
   await tap('Back to the lab');
   await see('Beetle Lab');
   console.log('Sending money');
-  /* Send money, from the card, in the four taps: who from the people paid before, the
-     amount on the keypad page, a reference typed in place, the slide, the passcode, and
-     the receipt, with the line in the day after */
+  /* Send money, from the card: To first, which takes a $tag, a name or a number; the amount
+     picked where it is; a reference typed in place; the slide; the passcode with the whole
+     of it on it; and the receipt, with the line in the day after */
   const slideToSend = async () => {
     const knob = await page.getByTestId('slide-knob').boundingBox();
     const pill = await page.getByTestId('slide').boundingBox();
@@ -1487,12 +1481,25 @@ try {
   const slideFill = () => page.getByTestId('slide').evaluate(el => getComputedStyle(el).backgroundColor);
   must((await slideFill()) === 'rgb(245, 245, 247)', `the slide should wait, in the pale grey, for someone and an amount (${await slideFill()})`);
   await shot('send-empty', 900);
-  await tap('Who is it for?');
-  await see('People you have paid');
-  await see('Point the camera at one');
-  await shot('send-people', 600);
-  await inSaved('John Doe');
-  await page.locator('[data-testid="saved"]').waitFor({ state: 'hidden' });
+  /* a $tag is a Beetle account, looked up in Beetle's own directory: free, and there at once */
+  await page.getByTestId('to-input').fill('$tobi');
+  await page.getByTestId('to-choice').filter({ hasText: 'Tobi Bakare' }).first().click();
+  await see('A Beetle account · free, and there at once');
+  await see('To Tobi Bakare · Beetle');
+  await shot('send-tag', 500);
+  await page.getByTestId('to-change').click();
+  /* ten digits ask for the bank, the likely ones first, and the name is looked up there before anything can move */
+  await page.getByTestId('to-input').fill('0123456785');
+  await page.getByTestId('to-banks').waitFor();
+  await shot('send-number', 400);
+  await page.getByTestId('to-bank').filter({ hasText: 'GTBank' }).first().click();
+  await see('Name checked at GTBank');
+  await shot('send-checked', 500);
+  /* Change keeps what was typed, so another bank is a tap away; emptied, the field has the people paid before under it, one tap each */
+  await page.getByTestId('to-change').click();
+  await page.getByTestId('to-banks').waitFor();
+  await page.getByTestId('to-input').fill('');
+  await page.getByTestId('to-choice').filter({ hasText: 'John Doe' }).first().click();
   await see('Kuda · 3012 3456 78');
   /* the amount, picked on the page: the ruler dragged rolls the figure on, step by step; then the figure typed exactly */
   const ruler = await page.getByTestId('amount-ruler').boundingBox();
@@ -1505,11 +1512,15 @@ try {
   await shot('send-amount', 400);
   at('/send');
   await page.getByLabel('Reference', { exact: true }).fill('Lunch');
-  await see('Check it, then slide');
+  await see('John sees it on their statement');
   must((await slideFill()) === 'rgb(0, 0, 0)', 'the slide should be black once there is someone and an amount');
   await shot('send-filled', 500);
   await slideToSend();
   await see('Enter your passcode');
+  /* the passcode says the whole of it while the digits go in, and Cancel is plain under the pad */
+  await see('They receive');
+  await see('Leaves Everyday');
+  await button('Cancel').waitFor();
   await shot('send-passcode', 600);
   await type(PASSCODE);
   await see('Sent to John Doe');
@@ -1537,11 +1548,10 @@ try {
   await shot('send-message-receipt', 900);
   await tap('Back to the lab');
   await see('Beetle Lab');
-  /* who from a photo: the camera from the list, the sample slip, and the person read off it */
+  /* who from a photo: the camera in the To field, the sample slip, and the person read off it */
   await tap('Send money');
   await see('Nothing moves until you slide');
-  await tap('Who is it for?');
-  await inSaved('Point the camera at one');
+  await page.getByTestId('to-camera').click();
   /* the camera screen offers the sample slip whatever state the camera is in */
   const sample = page.getByRole('button', { name: /sample photo/ }).first();
   await sample.waitFor();
@@ -1588,16 +1598,18 @@ try {
   /* the drawer, bills, data and borrowing: from home, with the demo account the lab left signed in */
   await page.goto(`${base}/home`, { waitUntil: 'load' });
   await see(DEMO_HOME);
-  /* the Bills shortcut under the open card opens the month: what it comes to,
+  /* the month's bills, asked for in words, are a page of their own: what it comes to,
      what is covered, and the rows; a row opens the page that pays it */
   await pull('card-for-bills', false);
-  await tap('Bills');
+  await page.getByLabel('Ask Beetle').fill('my bills');
+  await tap('Send this');
   await see('Everything that repeats each month');
   at('/bills');
   await see('3 of 5 covered');
   await shot('bills', 900);
   await tap('Ikeja Electric');
-  await see('Ikeja Electric, the meter you always use.');
+  await see('Ikeja Electric, on your saved meter');
+  await see('The meter you paid last month');
   at('/pay');
   await shot('pay-bill', 900);
   /* a figure picked, and one typed on the page itself */
@@ -1612,7 +1624,7 @@ try {
     .first()
     .click();
   await inSaved("Mum's flat");
-  await see('Eko Electricity, the meter you picked.');
+  await see('Eko Electricity, on the meter you picked');
   await shot('pay-bill-picked', 600);
   await slideToSend();
   await see('Enter your passcode');
@@ -1627,14 +1639,15 @@ try {
   at('/services');
   await shot('services', 900);
   await tap('Data');
-  await see("5GB for 30 days, on Mum's MTN line.");
+  await see('The number you top up most');
+  await see('5GB for 30 days');
   at('/buy');
   await shot('buy-data', 900);
   /* another bundle, another line, then the slide, the passcode and the receipt */
   await tap('2GB');
-  await see('2GB for 30 days, on');
+  await see('2GB for 30 days');
   await tap('Dad');
-  await see("on Dad's Glo line.");
+  await see('0805 331 0921');
   await shot('buy-data-dad', 600);
   await slideToSend();
   await see('Enter your passcode');
@@ -1651,7 +1664,7 @@ try {
   await see('2k data for mum');
   await shot('found-topup', 900);
   await tap('Top up Mum');
-  await see('the one ending 471');
+  await see('ending 471');
   at('/topup');
   await see('Checking MTN plans');
   await see('2GB at ₦2,000 ran out early');
@@ -1670,9 +1683,12 @@ try {
   await see('5GB for Mum');
   /* borrowing: the whole cost before deciding, and the money landing as money in */
   await page.goto(`${base}/loan`, { waitUntil: 'load' });
-  await see('The whole cost, before you decide');
+  await see('paid back monthly');
   at('/loan');
-  await tap('60 days');
+  /* the days are a row of the breakdown, "90 days ▾": tapped, a short list to pick from */
+  await page.getByTestId('terms').click();
+  await page.getByTestId('term-list').getByRole('button', { name: '60 days', exact: true }).click();
+  await page.getByTestId('term-list').waitFor({ state: 'detached' });
   await see('Two payments of');
   await page.getByTestId('loan-amount').getByRole('button', { name: '₦100,000', exact: true }).click();
   await see('₦100,000');
@@ -1693,8 +1709,10 @@ try {
   await page.waitForTimeout(600);
   await page.getByLabel('Ask Beetle').fill('how much can I borrow');
   await tap('Send this');
-  await see('The whole cost, before you decide');
-  at('/loan');
+  /* the Loan chip's card, typed: borrowing is done in the chat, where it was asked */
+  await see('Pick how much and for how long');
+  await page.getByTestId('loan-borrow').last().waitFor();
+  at('/home');
   /* a bill read off a photo: the camera pointed at a bill, What I found, the meter confirmed, the passcode, the token */
   await page.goto(`${base}/scan?for=bill`, { waitUntil: 'load' });
   await see('Point at a bill or a meter');
@@ -1744,8 +1762,7 @@ try {
   await tap('Send');
   await see('The rate is held for sixty seconds');
   at('/send');
-  await page.getByRole('button', { name: 'Who is it for?' }).click();
-  await inSaved('Sarah Adeyemi');
+  await page.getByTestId('to-choice').filter({ hasText: 'Sarah Adeyemi' }).first().click();
   await typeAmount(50000);
   await see('About $32.22 from your dollars');
   await tap('From');
@@ -1896,8 +1913,7 @@ try {
   /* Before I filled this in: a person read off a photo on Send money carries the note that opens it; the usual figure comes back */
   await page.goto(`${base}/send`, { waitUntil: 'load' });
   await see('Nothing moves until you slide');
-  await tap('Who is it for?');
-  await inSaved('Point the camera at one');
+  await page.getByTestId('to-camera').click();
   const sample7 = page.getByRole('button', { name: /sample photo/ }).first();
   await sample7.waitFor();
   await sample7.click();
@@ -1916,10 +1932,9 @@ try {
   /* I will not do this one: the whole balance to a number never paid, from Slide to send; a smaller figure instead */
   await page.goto(`${base}/send`, { waitUntil: 'load' });
   await see('Nothing moves until you slide');
-  await tap('Who is it for?');
-  await inSaved('Type an account number');
-  await page.getByLabel('Account number', { exact: true }).fill('0123456789');
-  await see('You typed the number');
+  await page.getByTestId('to-input').fill('0123456785');
+  await page.getByTestId('to-bank').filter({ hasText: 'GTBank' }).first().click();
+  await see('Name checked at GTBank');
   await tap('All of it');
   await see(/All of it: ₦/);
   await slideToSend();
@@ -1939,7 +1954,7 @@ try {
   await arrives('I will not do this one from here');
   /* offline: the browser goes dark, and Slide to send goes to You are offline; queue it, and Beetle's chat holds it */
   await page.goto(`${base}/send?demo=1`, { waitUntil: 'load' });
-  await see('Check the three parts I filled in');
+  await see('I took this from your message');
   offline = true;
   await page.context().setOffline(true);
   await page.waitForTimeout(400);
@@ -2051,10 +2066,10 @@ try {
   at('/wrong/l08');
   await tap('Back to the lab');
   await see('Beetle Lab');
-  /* the face that did not take: the line in red, the face key, and what three wrong tries cost */
+  /* the face that did not take: the line in red, the face key, and Cancel plain under the pad (the sixth digit sends it) */
   await tap('Face ID missed');
   await see('Face ID did not catch you');
-  await see('for half a minute');
+  await button('Cancel').waitFor();
   await shot('passcode-face-missed', 900);
   await tap('Back to the lab');
   await see('Beetle Lab');

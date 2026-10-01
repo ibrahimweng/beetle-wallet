@@ -17,7 +17,11 @@ export type Turn =
   /** what Beetle said it was doing, kept above the answer once it is done */
   | { id: string; who: 'beetle'; block: { kind: 'thought'; lines: string[] } }
   /** the receipt for what a panel moved, in a few words; the full one is a tap away */
-  | { id: string; who: 'beetle'; block: { kind: 'receipt'; card: ReceiptCard } };
+  | { id: string; who: 'beetle'; block: { kind: 'receipt'; card: ReceiptCard } }
+  /** the account's own details, to copy and share */
+  | { id: string; who: 'beetle'; block: { kind: 'receive' } }
+  /** what can be borrowed: open to pick, done once it is taken */
+  | { id: string; who: 'beetle'; block: { kind: 'loan' }; state: 'open' | 'done'; taken?: { amount: number; days: number } };
 
 export type ReceiptCard = {
   rowId: string;
@@ -44,4 +48,6 @@ export const turn = {
   panel: (panel: Panel, state: PanelState = 'ready'): Turn => ({ id: id(), who: 'beetle', block: { kind: 'panel', panel }, state }),
   ask: (ask: AskPanel, state: AskState = 'open'): Turn => ({ id: id(), who: 'beetle', block: { kind: 'ask', ask }, state }),
   receipt: (card: ReceiptCard): Turn => ({ id: id(), who: 'beetle', block: { kind: 'receipt', card } }),
+  receive: (): Turn => ({ id: id(), who: 'beetle', block: { kind: 'receive' } }),
+  loan: (): Turn => ({ id: id(), who: 'beetle', block: { kind: 'loan' }, state: 'open' }),
 };

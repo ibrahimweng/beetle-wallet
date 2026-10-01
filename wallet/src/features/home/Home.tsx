@@ -1,12 +1,15 @@
 /* Home, the first of the three pages. The black card at the top, and under
    it four cards two by two: Savings, Loan, Card and Services (see Grid).
    The record is Activities' now, the next page along. Pull the card down
-   and it becomes the chat, nearly the whole screen, with the row of
-   shortcuts still showing below it as the way back. The ask bar lives at
-   the card's foot. The first time on this phone, the card dips on its own
-   so the pull is found. Nothing here leaves anyone stuck: the header pulls
-   back up, a tap below the open card closes the chat, and so does the
-   phone's own back.
+   and it becomes the chat, the whole screen down to just over the bar,
+   which stays: the same bar as everywhere, so the app is still there to go
+   round. The ask bar lives at the card's foot, with Bills, Data and
+   Services as chips on top of it. The first time on this phone, the card
+   dips on its own so the pull is found. Nothing here leaves anyone stuck:
+   the header pulls back up, Home on the bar closes the chat, and so does
+   the phone's own back. Activities or Settings on the bar turn the pages
+   with the chat left open; Home once comes back to it just as it was, and
+   Home again closes it.
 
    The chats live in the chat: a soft light down the left edge while it is
    open, and a swipe from there brings in the drawer with New chat and the
@@ -19,13 +22,13 @@ import { BackHandler, Keyboard, Platform, TextInput, View, useWindowDimensions }
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
-import { Caption, Icon, Pane, Tap, colour, frame, keys, settle, useStill } from '../../design';
+import { Icon, Meta, Pane, Tap, colour, dark, frame, keys, settle, standard, useStill } from '../../design';
 import type { IconName } from '../../icons';
 import { DEMO_SAVED, beneficiariesOf, ownLine, type AskPanel, type Beneficiary, type Move, type Panel } from '../../services';
 import { useApp } from '../onboarding/store';
 import { Chat } from '../agent/Chat';
 import { ChatReceipt } from '../agent/ChatReceipt';
-import { ChatsDrawer, ChatsEdge, EDGE } from '../agent/Drawer';
+import { ChatsDrawer, ChatsEdge, EDGE, drawerWidth } from '../agent/Drawer';
 import { isPanel, transcriptOf, turn, useConversation, type Turn } from '../agent/conversation';
 import { clock, detailOf, titleOf, toCarryOn, useChats, type Chat as ChatRecord } from '../agent/chats';
 import { transferPanel, PEOPLE } from '../../services/agent';
@@ -38,8 +41,7 @@ import { LAB } from '../../lab/enabled';
 import { holdingsFor } from './account';
 import { balanceOf, rowFrom, useMoves } from './moves';
 import { AskBar } from './AskBar';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { CLOSED_H, FOOT_BAND, WalletCard, useCardDrag, useCardTop } from './WalletCard';
+import { CHIPS_GAP, CHIPS_H, CLOSED_H, FOOT_BAND, WalletCard, useCardTop } from './WalletCard';
 import { BAR_H, foot, useFoot } from '../more/Foot';
 import { moreTo, type MoreItem } from '../more/More';
 import { useOnline } from '../offline';
@@ -49,18 +51,20 @@ import { JourneyProvider, useRecession, type Rect } from '../../design/journey';
 import type { ReceiptCard as Card } from '../agent/conversation';
 import { chatPointedOut, markChatPointedOut } from './first';
 import { useSetup } from '../setup/store';
-import { tabs, useHoldPages, usePage } from '../tabs';
+import { tabs, useHoldPages, usePage, useTabAgain } from '../tabs';
 import { Grid } from './Grid';
 import { groupAccount, kobo, naira } from '../../lib/format';
 
-/** What stays showing under the open card: the row of shortcuts, 20 under
-    it, and the phone's own foot under them. */
-const SHORTCUTS_TOP = 20;
-const SHORTCUTS_H = 64;
+/** What stays showing under the open card: the bar's row of glyphs, 16
+    under the card's edge, and the 24 under the row the bar keeps for the
+    phone's own foot. The bar's white goes bare as the card opens, so the
+    card can come down over the top of it. */
+const ROW_GAP = 16;
+const UNDER = BAR_H - frame.dockPad + ROW_GAP;
 /** The grid, this far under the closed card. */
 const GRID_TOP = 24;
-/** The chats drawer: most of the width, the chat showing beside it. */
-const drawerWidth = (W: number) => Math.min(340, Math.round(W * 0.82));
+/** The chats drawer stops this far above the card's foot: at the top of the ask bar, which stays clear; its blur runs down over the chips. */
+const DRAWER_CLEAR = 20 + 48 + 4;
 
 export function Home() {
   return (
@@ -80,7 +84,7 @@ function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { width: W, height: H } = useWindowDimensions();
   const { closedH, haze } = useCardTop();
-  const asked = useLocalSearchParams<{ chat?: string; receive?: string; say?: string; about?: string; more?: string; face?: string; typing?: string; kb?: string }>();
+  const asked = useLocalSearchParams<{ chat?: string; receive?: string; say?: string; about?: string; fresh?: string; more?: string; face?: string; typing?: string; kb?: string }>();
   const receding = useRecession();
 
   const [draft, setDraft] = useState('');
@@ -113,11 +117,13 @@ function HomeScreen() {
     };
   }, [kb]);
   const full = tallest.current;
-  /* what stays showing under the open card: the shortcuts, and the phone's own foot */
-  const below = SHORTCUTS_TOP + SHORTCUTS_H + Math.max(16, insets.bottom);
-  /* what is visible above the keyboard: the window if it shrank for it, else the window less the keyboard */
+  /* what is visible above the keyboard: the window if it shrank for it, else the window less the keyboard;
+     with the keyboard down, the card stops just over the bar's glyphs */
   const visible = useDerivedValue(() => Math.min(H, full - kb.value));
-  const openH = useDerivedValue(() => Math.min(full - below, visible.value - 8));
+  const openH = useDerivedValue(() => Math.min(full - UNDER, visible.value - 8));
+  /* the chats drawer, inside the card: from under its header to just over the ask bar */
+  const drawerTop = haze - 8;
+  const drawerH = useDerivedValue(() => Math.max(0, openH.value - drawerTop - DRAWER_CLEAR));
   const onScroll = useAnimatedScrollHandler(e => {
     scrollY.value = e.contentOffset.y;
   });
@@ -359,9 +365,19 @@ function HomeScreen() {
     [talk, read, show],
   );
 
+  /* Home on the bar while the chat is open — or the second tap, coming back
+     to it from another page — closes it */
+  useTabAgain('home', () => {
+    if (openedRef.current) show(false);
+  });
+  /* the pages turning away from the chat take the keyboard down with them */
+  useEffect(() => {
+    if (!active) Keyboard.dismiss();
+  }, [active]);
+
   /* the phone's own back puts the drawer away, then closes the chat, before it leaves the screen */
   useEffect(() => {
-    if (!opened) return;
+    if (!opened || !active) return;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       if (guard) setGuard(null);
       else if (receive) setReceive(false);
@@ -370,7 +386,7 @@ function HomeScreen() {
       return true;
     });
     return () => sub.remove();
-  }, [opened, show, guard, receive, drawer, closeDrawer]);
+  }, [opened, active, show, guard, receive, drawer, closeDrawer]);
 
   /* the first time: once the balance has resolved, the card dips and springs
      back with the words that say what it is for */
@@ -533,6 +549,7 @@ function HomeScreen() {
   const said = useRef('');
   useEffect(() => {
     if (!ok || !asked.say) return;
+    if (asked.fresh) return;
     const stamp = `${asked.say}|${asked.about ?? ''}`;
     if (said.current === stamp) return;
     said.current = stamp;
@@ -552,6 +569,28 @@ function HomeScreen() {
     }, 300);
   }, [ok, asked.say, asked.about, show, talk, router]);
 
+  /* Ask Beetle about this, from a transaction's ···: whatever chat there was
+     is filed, and a fresh one opens about that one transaction — what it is
+     about set down as a note Beetle reads, and Beetle asking what you want
+     to know. Once per asking. */
+  const freshly = useRef('');
+  useEffect(() => {
+    if (!ok || !asked.fresh || !asked.about) return;
+    if (freshly.current === asked.fresh) return;
+    freshly.current = asked.fresh;
+    const about = asked.about;
+    tabs.go('home');
+    if (turnsRef.current.some(t => t.who === 'you') || current.current) fileCurrent();
+    talk.reset();
+    current.current = null;
+    stale.current = false;
+    show(true, { greet: false });
+    setTimeout(() => {
+      talk.note('About this transaction', about);
+      talk.open('What would you like to know about this one?');
+    }, 300);
+  }, [ok, asked.fresh, asked.about]); // eslint-disable-line react-hooks/exhaustive-deps
+
   /* the lab opens home with More already up */
   useEffect(() => {
     if (LAB && ok && asked.more === '1') setTimeout(() => foot.openMore(), 400);
@@ -566,8 +605,10 @@ function HomeScreen() {
     },
     [openReceive, router],
   );
-  /* the foot is the bar, while this page is the one showing: it goes down as the card opens, and More comes up out of its plus */
-  useFoot({ kind: 'bar', open, hidden: opened, onPick: pickMore }, active);
+  /* the foot is the bar, while this page is the one showing, and it stays
+     under the open chat; More comes up out of its plus. A sheet or a peek
+     over home sends it down out of the way. */
+  useFoot({ kind: 'bar', open, onPick: pickMore, veil: guard || receive || chatPeek || pick ? 'away' : undefined }, active);
 
   const send = () => {
     const text = draft.trim();
@@ -584,12 +625,7 @@ function HomeScreen() {
   };
   const toCamera = () => router.push('/scan');
 
-  const veilStyle = useAnimatedStyle(() => ({ top: openH.value }));
-  /* the shortcuts arrive under the card with the rest of it opening, and
-     the grid goes as it opens, so what stays is the row and nothing else */
-  const shortcutsStyle = useAnimatedStyle(() => ({
-    opacity: Math.min(1, Math.max(0, (open.value - 0.6) / 0.4)),
-  }));
+  /* the grid goes as the card opens, so what stays under it is the bar and nothing else */
   const gridStyle = useAnimatedStyle(() => ({
     opacity: 1 - Math.min(1, Math.max(0, (open.value - 0.25) / 0.35)),
   }));
@@ -599,29 +635,6 @@ function HomeScreen() {
     height: Math.max(0, openH.value - haze - FOOT_BAND),
     opacity: Math.min(1, Math.max(0, (open.value - 0.6) / 0.4)) * (1 - drawerIn.value),
   }));
-  /* below the open card: a tap on it, or a push up on it, brings the card back up */
-  const showRef = useRef(show);
-  showRef.current = show;
-  const close = useCallback(() => showRef.current(false), []);
-  const veilPan = useCardDrag({
-    open,
-    openH,
-    closedH,
-    only: 'close',
-    settle: to => !to && close(),
-  });
-  /* a tap below the card closes it — except on the shortcuts row, whose
-     buttons answer their own taps */
-  const veilTap = useMemo(
-    () =>
-      Gesture.Tap().onEnd(e => {
-        if (e.y >= SHORTCUTS_TOP && e.y <= SHORTCUTS_TOP + SHORTCUTS_H) return;
-        runOnJS(close)();
-      }),
-    [close],
-  );
-  const veilGesture = useMemo(() => Gesture.Exclusive(veilPan, veilTap), [veilPan, veilTap]);
-
   if (!ok || !app.session || !h || !account) return null;
   const DW = drawerWidth(W);
 
@@ -677,7 +690,20 @@ function HomeScreen() {
                   }}
                 />
               }
-              foot={<AskBar ref={input} value={draft} onChange={setDraft} onSubmit={send} onCamera={toCamera} />}
+              recede={drawerIn}
+              foot={
+                <ChatFoot
+                  typing={draft.trim().length > 0}
+                  chips={[
+                    { glyph: 'power', label: 'Bills', onPress: () => router.push('/bills') },
+                    { glyph: 'data', label: 'Data', onPress: () => router.push('/buy') },
+                    { glyph: 'grid', label: 'Services', onPress: () => router.push('/services') },
+                  ]}
+                >
+                  {/* a tap on the ask bar puts the drawer away, and the bar is the chat's again */}
+                  <AskBar ref={input} value={draft} onChange={setDraft} onSubmit={send} onCamera={toCamera} onFocus={() => drawer && closeDrawer()} />
+                </ChatFoot>
+              }
             />
             {/* the four cards, going as the card opens */}
             <Animated.View style={[{ paddingTop: GRID_TOP }, gridStyle]} pointerEvents={opened ? 'none' : 'auto'}>
@@ -685,49 +711,23 @@ function HomeScreen() {
             </Animated.View>
           </Pane>
         </Animated.ScrollView>
-
-        {/* below the open card: a tap on it, or a push up, brings the card back up */}
-        {opened ? (
-          <Animated.View style={[{ position: 'absolute', left: 0, right: 0, bottom: 0 }, veilStyle]}>
-            <GestureDetector gesture={veilGesture}>
-              {/* a screen reader's activate lands at the middle, on the shortcuts' row, so it closes the card by name */}
-              <View
-                accessibilityRole="button"
-                accessibilityLabel="Back to home"
-                accessibilityActions={[{ name: 'activate' }]}
-                onAccessibilityAction={e => e.nativeEvent.actionName === 'activate' && close()}
-                style={{ flex: 1 }}
-              >
-                {/* the shortcuts: each opens a page of its own; a push up that starts on one still closes the card */}
-                <Animated.View
-                  style={[
-                    {
-                      position: 'absolute',
-                      left: frame.sidePad,
-                      right: frame.sidePad,
-                      top: SHORTCUTS_TOP,
-                      height: SHORTCUTS_H,
-                    },
-                    shortcutsStyle,
-                  ]}
-                >
-                  <Shortcuts
-                    items={[
-                      { glyph: 'power', label: 'Bills', onPress: () => router.push('/bills') },
-                      { glyph: 'data', label: 'Data', onPress: () => router.push('/buy') },
-                      { glyph: 'grid', label: 'Services', onPress: () => router.push('/services') },
-                      { glyph: 'camera', label: 'Photo', onPress: toCamera },
-                    ]}
-                  />
-                </Animated.View>
-              </View>
-            </GestureDetector>
-          </Animated.View>
-        ) : null}
       </Animated.View>
       {/* the chats: the soft edge down the open chat, and the drawer it brings in */}
       {opened ? <ChatsEdge d={drawerIn} width={DW} style={edgeStyle} onOpen={() => setDrawer(true)} /> : null}
-      {opened ? <ChatsDrawer d={drawerIn} open={drawer} width={DW} chats={chats} currentId={current.current?.id} onNew={startNew} onPick={switchTo} onClose={() => setDrawer(false)} /> : null}
+      {opened ? (
+        <ChatsDrawer
+          d={drawerIn}
+          open={drawer}
+          width={DW}
+          top={drawerTop}
+          height={drawerH}
+          chats={chats}
+          currentId={current.current?.id}
+          onNew={startNew}
+          onPick={switchTo}
+          onClose={() => setDrawer(false)}
+        />
+      ) : null}
       {/* the passcode, on its sheet over everything, before money moves */}
       {guard ? (
         <PasscodeSheet
@@ -760,28 +760,35 @@ function HomeScreen() {
   );
 }
 
-/* The row of shortcuts under the open card: a glyph on a disc and a word,
-   four across, each a quick way into what the chat above can do. */
-function Shortcuts({ items }: { items: { glyph: IconName; label: string; onPress: () => void }[] }) {
+/* The foot of the open chat: Bills, Data and Services as quiet chips,
+   left-aligned right on top of the ask bar — each a way into what the chat
+   can do, without a row of its own under the card. They step out of the way
+   while something is typed. The camera stays in the bar. */
+function ChatFoot({ chips, typing, children }: { chips: { glyph: IconName; label: string; onPress: () => void }[]; typing: boolean; children: React.ReactNode }) {
+  const still = useStill();
+  const t = useSharedValue(typing ? 0 : 1);
+  useEffect(() => {
+    t.value = still ? (typing ? 0 : 1) : withTiming(typing ? 0 : 1, { duration: 200, easing: standard });
+  }, [typing, still, t]);
+  const row = useAnimatedStyle(() => ({ opacity: t.value, transform: [{ translateY: 6 * (1 - t.value) }] }));
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-      {items.map(i => (
-        <Tap key={i.label} accessibilityRole="button" accessibilityLabel={i.label} onPress={i.onPress} style={{ width: 72, alignItems: 'center', gap: 4 }}>
-          <View
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 22,
-              backgroundColor: colour.surface2,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+    <View testID="chat-foot">
+      <Animated.View style={[{ flexDirection: 'row', gap: 8, height: CHIPS_H, marginBottom: CHIPS_GAP }, row]} pointerEvents={typing ? 'none' : 'auto'} testID="chat-chips">
+        {chips.map(c => (
+          <Tap
+            key={c.label}
+            accessibilityRole="button"
+            accessibilityLabel={c.label}
+            onPress={c.onPress}
+            scale={0.94}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 6, height: CHIPS_H, borderRadius: CHIPS_H / 2, paddingLeft: 10, paddingRight: 12, backgroundColor: 'rgba(255,255,255,0.08)' }}
           >
-            <Icon name={i.glyph} size={20} colour={colour.ink} />
-          </View>
-          <Caption tone="secondary">{i.label}</Caption>
-        </Tap>
-      ))}
+            <Icon name={c.glyph} size={14} colour={dark.label} />
+            <Meta style={{ color: dark.pillText, fontWeight: '500' }}>{c.label}</Meta>
+          </Tap>
+        ))}
+      </Animated.View>
+      {children}
     </View>
   );
 }

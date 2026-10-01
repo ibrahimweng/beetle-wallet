@@ -21,7 +21,7 @@ export function Wrong({ id }: { id: string }) {
   const { ok, ready, row, account } = useLine(id);
   const open = useOpenDispute(account?.accountNumber, !!account?.demo);
   const about = row ? `${naira(row.amount)} to ${row.name}, ${whenOf(row).toLowerCase()}` : undefined;
-  useFoot({ kind: 'ask', placeholder: 'Tell me what happened', onAsk: q => askHome(router, q, about), onScan: () => router.push('/scan') });
+  useFoot({ kind: 'back' });
   if (!ok) return null;
   if (!ready)
     return (

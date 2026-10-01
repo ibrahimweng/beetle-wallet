@@ -51,7 +51,7 @@ export function Converted({ id }: { id: string }) {
   const usd = row?.usd ?? 0;
   const intoDollars = usd > 0;
   const setUp = useDeparture({ id: 'converted:rule', to: '/rule?offer=dollars', words: 'Set it up' });
-  useFoot({ kind: 'ask', placeholder: 'Ask me about this', onAsk: q => askHome(router, q, row ? `${usdFull(usd)} converted, ${row.time}` : undefined), onScan: () => router.push('/scan') });
+  useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   if (!ready && !row)
     return (
@@ -105,7 +105,8 @@ export function Converted({ id }: { id: string }) {
 function Link({ label, to, onPress, testID }: { label: string; to?: string; onPress?: () => void; testID?: string }) {
   const j = useDeparture({ id: `link:${label}`, to, words: label });
   return (
-    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={label} onPress={to ? j.onPress : onPress} style={[s.link, j.style]} testID={testID}>
+    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={label} onPress={to ? j.onPress : onPress} style={[s.link]} testID={testID}>
+      {j.wash}
       <Label tone="accent">{label}</Label>
       <Icon name="chevron" size={12} colour={colour.accent} />
     </Tap>

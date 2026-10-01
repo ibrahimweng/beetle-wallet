@@ -4,12 +4,13 @@
    question of what happens when money gets tight. While things are tight
    (the switch on the Rules page) the goal is Paused: the feeds wait, the
    date moves, and Start again lifts it. An account with no goal sees Goals
-   with Start a goal. Savings pot on All services opens it; so does
-   "my goal" typed at home. */
-import React, { useCallback, useMemo, useState } from 'react';
+   with Start a goal. Add money puts the amount picker up over the page —
+   stopping hard at what Everyday holds — and the passcode after it.
+   Savings pot on All services opens it; so does "my goal" typed at home. */
+import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { Button, Display, Head, Icon, Label, Meta, PageHead, Progress, Row, Say, Screen, Tap, colour, toast } from '../../design';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { AmountSheet, Button, Display, Head, Icon, Label, Meta, PageHead, Progress, Row, Say, Screen, Tap, colour, toast } from '../../design';
 import type { Move } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -23,7 +24,6 @@ import { LAB } from '../../lab/enabled';
 import { clock } from '../../lib/clock';
 import { naira } from '../../lib/format';
 import { FEEDS, GOAL, feedRow, goalLine, standing, type FeedId } from './goal';
-import { goalDraft } from './hand';
 import { FeedSheet } from './FeedSheet';
 
 export function Goal() {
@@ -39,29 +39,24 @@ export function Goal() {
   const [feeding, setFeeding] = useState(LAB && asked.feed === '1');
   const [amount, setAmount] = useState(0);
   const [guard, setGuard] = useState(false);
+  /** the amount picker, up over the page */
+  const [adding, setAdding] = useState(false);
+  /* a figure picked: the passcode, unless the gate is shut */
+  const put = (v: number) => {
+    setAdding(false);
+    const shut = lockedFor();
+    if (shut) {
+      toast(`That was three wrong tries. Give it ${shut} seconds and try again.`);
+      return;
+    }
+    setAmount(v);
+    setGuard(true);
+  };
 
   const on: Record<FeedId, boolean> = { payday: prefs.rules.payday, roundups: prefs.feeds.roundups, cashback: prefs.feeds.cashback };
   /* what was put in by hand on this phone counts, less what was taken back */
   const { has, paused, sums, aside, pct, state } = standing({ demo: !!account?.demo, goal: !!account && prefs.goal, tight: prefs.tight || (LAB && asked.paused === '1'), moves });
 
-  /* back in front: the figure the keypad handed back goes to the passcode */
-  useFocusEffect(
-    useCallback(() => {
-      const d = goalDraft.take();
-      if (!d?.amount) return;
-      if (d.amount > balance) {
-        router.push(`/short?asked=${d.amount}`);
-        return;
-      }
-      const shut = lockedFor();
-      if (shut) {
-        toast(`That was three wrong tries. Give it ${shut} seconds and try again.`);
-        return;
-      }
-      setAmount(d.amount);
-      setGuard(true);
-    }, [balance, router]),
-  );
   /* the passcode landed: the line goes into the day, and its receipt opens */
   const done = () => {
     if (!account) return;
@@ -82,14 +77,7 @@ export function Goal() {
     toast(`Moving again. Your date goes back to ${GOAL.by}.`);
   };
 
-  useFoot({
-    kind: 'ask',
-    placeholder: has ? 'Ask about this goal' : 'Ask about saving',
-    onAsk: q => askHome(router, q, has ? `${GOAL.name}, ${naira(aside)} of ${naira(GOAL.target)}` : undefined),
-    onScan: () => router.push('/scan'),
-    more: true,
-    veil: guard || feeding ? 'away' : undefined,
-  });
+  useFoot({ kind: 'back', veil: guard || feeding || adding ? 'away' : undefined });
   if (!ok || !account) return null;
   if (!ready)
     return (
@@ -143,7 +131,7 @@ export function Goal() {
         <View style={[s.buttons, { marginTop: has ? 2 : 12 }]} testID="buttons">
           {has ? (
             <>
-              <Button label={paused ? 'Add money anyway' : 'Add money'} size={56} to="/amend?to=goal" style={{ flex: 1 }} />
+              <Button label={paused ? 'Add money anyway' : 'Add money'} size={56} onPress={() => setAdding(true)} style={{ flex: 1 }} />
               {paused ? (
                 <Button label="Start again" tone="grey" size={56} onPress={again} style={{ flex: 1 }} />
               ) : (
@@ -186,9 +174,23 @@ export function Goal() {
           }}
           onFixed={() => {
             setFeeding(false);
-            router.push('/amend?to=goal');
+            setAdding(true);
           }}
           onDismiss={() => setFeeding(false)}
+        />
+      ) : null}
+      {adding ? (
+        <AmountSheet
+          title={`Into ${GOAL.name}`}
+          sub="From Everyday. Nothing here is locked; take it back whenever you need it."
+          start={Math.min(10_000, Math.floor(balance))}
+          max={Math.max(0, Math.floor(balance))}
+          note={`Everyday has ${naira(balance)}`}
+          chips={[5_000, 10_000, 20_000]}
+          action={v => (v ? `Put ${naira(v)} away` : 'Pick an amount')}
+          onDone={put}
+          onDismiss={() => setAdding(false)}
+          testID="goal-amount"
         />
       ) : null}
       {guard ? <PasscodeSheet amount={naira(amount)} name={GOAL.name} detail="Put away, from Everyday" glyph="pot" verify={app.checkPasscode} onDone={done} onCancel={() => setGuard(false)} /> : null}

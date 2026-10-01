@@ -7,7 +7,7 @@ import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { BigStatus, ChoiceList, Facts, PageHead, Say, Screen, colour, toast } from '../../design';
-import type { Move } from '../../services';
+import { feeFor, type Move } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
@@ -51,11 +51,13 @@ export function Short() {
   const have = LAB && asked.have ? Number(asked.have) : (h?.everyday ?? 0) + balanceOf(moves);
   const want = Number(asked.asked ?? 0) || 0;
   const short = Math.max(0, want - have);
+  /* what can go now: what Everyday holds, less the transfer's own fee, which is where Send money stops too */
+  const can = Math.max(0, Math.floor(have - feeFor(have)));
   const toSend = useBackToSend();
-  useFoot({ kind: 'ask', placeholder: 'Ask me about this', onAsk: q => askHome(router, q), onScan: () => router.push('/scan') });
+  useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   const sendNow = () => {
-    draft.put({ amount: Math.floor(have), amountNote: 'What Everyday holds' });
+    draft.put({ amount: can, amountNote: 'What Everyday holds, less the fee' });
     toSend();
   };
   /* the goal gives the shortfall back: a line in the day, and Everyday has it */
@@ -100,7 +102,7 @@ export function Short() {
           testID="ways"
           items={[
             { glyph: 'pot', title: `Move it from ${GOAL.name}`, sub: holiday ? `${naira(holiday)} is sitting there` : 'Nothing put aside yet', onPress: fromHoliday },
-            { glyph: 'up', title: `Send ${naira(have)} now`, sub: 'The rest when your salary lands', onPress: sendNow },
+            { glyph: 'up', title: `Send ${naira(can)} now`, sub: 'The rest when your salary lands', onPress: sendNow },
             {
               glyph: 'down',
               title: `Ask ${account.demo ? 'Musa' : 'someone'} for ${naira(short)}`,

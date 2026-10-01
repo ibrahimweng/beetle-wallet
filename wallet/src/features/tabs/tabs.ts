@@ -1,9 +1,11 @@
 /* The three pages that sit side by side, Home, Activities and Settings,
    and which one is showing. The pager moves between them, the bar draws
-   the one showing in black, and a link from anywhere can turn to one.
+   the one showing in black, and a link from anywhere can turn to one. A
+   glyph tapped for the page already showing is heard too: home closes its
+   chat on it.
    Also what holds the pages still: something open over them (the chat on
    home, a sheet, a receipt) when a swipe must not turn the page. */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { useRouter } from 'expo-router';
 
 export type Tab = 'home' | 'activities' | 'settings';
@@ -12,6 +14,7 @@ export const isTab = (s: unknown): s is Tab => typeof s === 'string' && (TABS as
 
 let current: Tab = 'home';
 const listeners = new Set<(t: Tab) => void>();
+const againListeners = new Set<(t: Tab) => void>();
 
 export const tabs = {
   get: (): Tab => current,
@@ -20,6 +23,11 @@ export const tabs = {
     if (t === current) return;
     current = t;
     listeners.forEach(l => l(t));
+  },
+  /** The glyph of the page already showing, tapped again: home closes its chat. */
+  again(t: Tab) {
+    if (t !== current) return;
+    againListeners.forEach(l => l(t));
   },
 };
 
@@ -34,6 +42,21 @@ export function useTab(): Tab {
     };
   }, []);
   return t;
+}
+
+/** What a page does when its glyph is tapped while it is already showing. */
+export function useTabAgain(t: Tab, fn: () => void) {
+  const latest = useRef(fn);
+  latest.current = fn;
+  useEffect(() => {
+    const l = (x: Tab) => {
+      if (x === t) latest.current();
+    };
+    againListeners.add(l);
+    return () => {
+      againListeners.delete(l);
+    };
+  }, [t]);
 }
 
 /* ---- what holds the pages still ---- */

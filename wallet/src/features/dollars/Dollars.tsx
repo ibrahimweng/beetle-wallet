@@ -29,7 +29,7 @@ export function Dollars() {
   const rate = h?.rate ?? 1_552;
   const dollars = dollarsOf(h?.dollars ?? 0, moves);
   const sources: DollarSource[] = useMemo(() => [...sourcesOf(moves, rate), ...(account?.demo ? DEMO_SOURCES : [])], [moves, rate, account]);
-  useFoot({ kind: 'ask', placeholder: 'Ask me about your dollars', onAsk: q => askHome(router, q), onScan: () => router.push('/scan'), more: true });
+  useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   return (
     <Screen head={<PageHead lead title="Dollars" sub="Steady when the naira is not, and yours to turn back" />}>

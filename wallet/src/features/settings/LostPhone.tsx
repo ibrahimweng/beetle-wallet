@@ -20,8 +20,8 @@ export function LostPhone() {
   const ok = useSessionGuard();
   const account = app.session?.account;
   const { prefs, ready, set } = usePrefs(account?.accountNumber);
-  /* the foot: Back, and the ask bar with this page's question */
-  useFoot({ kind: 'ask', placeholder: 'Ask what freezing does', onAsk: q => askHome(router, q), onScan: () => router.push('/scan') });
+  /* the foot: Back */
+  useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   if (!ready)
     return (

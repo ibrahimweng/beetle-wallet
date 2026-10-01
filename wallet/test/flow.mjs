@@ -135,18 +135,22 @@ const drag = async (x0, y0, x1, y1, steps = 14) => {
 /* the words each home shows: the demo's Loan card, and a new account's Savings card */
 const DEMO_HOME = 'Borrow up to';
 const NEW_HOME = 'Start a goal';
-/* a tap on the white under the open card, clear of the shortcuts' row (whose
-   gaps answer nothing, so a shortcut just missed does not close the chat) */
+/* Home on the bar, under the open chat: the card goes back up */
 const backToHome = async () => {
-  const strip = button('Back to home');
-  const box = await strip.boundingBox();
-  must(box, 'the strip under the open card should be there');
-  await strip.click({ position: { x: box.width / 2, y: 8 } });
+  await page.getByTestId('glyph-home').click();
   const closed = await page
     .waitForFunction(() => (document.querySelector('[data-testid="card"]')?.getBoundingClientRect().height ?? 999) < 420, null, { timeout: 5000 })
     .then(() => true)
     .catch(() => false);
-  must(closed, 'a tap under the open card should close it');
+  must(closed, 'Home on the bar should close the open chat');
+};
+/* the amount picker: the figure tapped, and the amount typed in place */
+const typeAmount = async figure => {
+  await page.getByTestId('amount-figure').filter({ visible: true }).first().click();
+  const field = page.getByTestId('amount-field').filter({ visible: true }).first();
+  await field.fill(String(figure));
+  await field.press('Enter');
+  await page.waitForTimeout(300);
 };
 /* the chat showing beside the drawer, tapped: the drawer goes back out */
 const closeChats = async () => {
@@ -538,7 +542,7 @@ try {
   const first = opening[0];
   const last = opening[opening.length - 1];
   must(first && first.card && first.card.height < 420, `the card should start closed (${first?.card?.height}px)`);
-  must(last && last.card && last.card.height >= 720 && last.card.height <= 780, `the card should open until only the shortcuts show under it (${last?.card?.height}px)`);
+  must(last && last.card && last.card.height >= 720 && last.card.height <= 780, `the card should open until just over the bar (${last?.card?.height}px)`);
   must(last.figure && last.figure.size <= 21, `the figure should have shrunk into the header (${last.figure?.size}px)`);
   const grew = opening.map(x => Math.round(x.card?.height ?? 0));
   must(new Set(grew).size >= 4, `the card should grow through the drag, not jump (${grew.join(' ')})`);
@@ -549,14 +553,30 @@ try {
   const fig = await page.getByTestId('balance').boundingBox();
   /* the figure takes the word Wallet's place at the header's left edge, and the chip follows it */
   must(fig && fig.x < 24 && fig.y < 80, `the figure should sit at the header's left edge (at ${fig?.x},${fig?.y})`);
-  must(chip && fig && chip.x >= fig.x + fig.width && chip.y < 80, `the dollars chip should sit after the figure in the header (at ${chip?.x},${chip?.y}; the figure ends at ${fig ? fig.x + fig.width : '?'})`);
-  /* under it the shortcuts, whole, on the screen */
-  const bills = await page.getByRole('button', { name: 'Bills', exact: true }).filter({ visible: true }).first().boundingBox();
-  must(bills && bills.y > last.card.height && bills.y + bills.height <= 852, `the shortcuts should sit under the open card (at ${bills?.y})`);
+  must(
+    chip && fig && chip.x >= fig.x + fig.width && chip.y < 80,
+    `the dollars chip should sit after the figure in the header (at ${chip?.x},${chip?.y}; the figure ends at ${fig ? fig.x + fig.width : '?'})`,
+  );
+  /* Bills, Data and Services as chips, left-aligned right on top of the ask bar inside the card; and under
+     the card the same bar as everywhere, the way round the app */
+  const chips = await page.getByTestId('chat-chips').boundingBox();
+  const askBar = await page.getByTestId('ask-bar').boundingBox();
+  must(
+    chips && askBar && chips.y + chips.height <= askBar.y && askBar.y - (chips.y + chips.height) <= 14 && Math.abs(chips.x - askBar.x) < 2,
+    `the chips should sit left-aligned right on top of the ask bar (${JSON.stringify(chips)} over ${JSON.stringify(askBar)})`,
+  );
+  const homeGlyph = await page.getByTestId('glyph-home').boundingBox();
+  must(homeGlyph && homeGlyph.y > last.card.height, `the bar should stay under the open chat (Home at ${homeGlyph?.y}, the card ${last.card.height} tall)`);
   /* and down the chat's left edge the soft light the chats drawer comes in from */
   const edge = await page.getByTestId('chats-edge').boundingBox();
   must(edge && edge.x === 0 && edge.width <= 20 && edge.height > 300, `a soft edge should run down the chat's left side (${JSON.stringify(edge)})`);
   await shot('home-chat-open');
+  /* the bar works with the chat open: Activities turns the page and leaves the chat as it is; Home once comes back to it */
+  await page.getByTestId('glyph-activities').click();
+  await onPage('activities');
+  await page.getByTestId('glyph-home').click();
+  await onPage('home');
+  must(((await page.locator('[data-testid="card"]').boundingBox())?.height ?? 0) > 700, 'Home once should come back to the chat just as it was');
 
   console.log('Sending money by asking');
   /* typing turns the bar active: the ring, and the send disc where the camera was */
@@ -739,28 +759,36 @@ try {
   at('/home');
   await backToHome();
   await page.waitForTimeout(700);
-  /* nothing yet: Ask someone on the sheet; Beetle asks, and a reply in the bar fills it */
+  /* nothing yet: Ask someone on the sheet; Beetle asks, and each row fills where it is: who, how much on the picker, what for */
   await tap('Receive');
   await see('Pick how you want the money to reach you');
   await tap('Ask someone');
   await see('Who should I ask, and for how much?');
   at('/request');
   await shot('request-empty', 900);
-  await page.getByPlaceholder('Reply, or just keep typing').fill('sarah 5k for lunch');
-  await page.keyboard.press('Enter');
+  must((await page.getByLabel('Ask Beetle').filter({ visible: true }).count()) === 0, 'no page but home should carry an ask bar');
+  await tap('Person');
+  await see('Who should I ask?');
+  await tap('Sarah Adeyemi');
+  await see('How much should I ask Sarah for? Tap the amount.');
+  await tap('Amount');
+  await page.getByTestId('pick-amount').waitFor();
+  await page.getByTestId('pick-amount').getByRole('button', { name: '₦5,000', exact: true }).click();
+  await tap('Ask for ₦5,000');
   await see('Sarah Adeyemi, the line ending 8842');
   await see('₦5,000');
+  await tap('For');
+  await see('What is it for?');
+  await tap('Lunch');
+  await tap('Done');
   await see('Lunch');
   await see('In 7 days');
   await shot('request-reply', 600);
-  /* the amount row opens the keypad, which hands the figure back */
+  /* the amount again, typed this time, on the picker over the page: no page of its own */
   await tap('Amount');
-  await see('Nothing has been asked yet');
-  at('/amend');
-  /* the keypad opens on the figure as it stands: clear it, then 25,000 */
-  await wipe(6);
-  await type(['2', '5', '000']);
-  await tap('Use ₦25,000');
+  await page.getByTestId('pick-amount').waitFor();
+  await typeAmount(25000);
+  await tap('Ask for ₦25,000');
   await see('₦25,000');
   at('/request');
   /* the person row opens the list of who has paid before */
@@ -800,14 +828,8 @@ try {
   await see('Beetle Transfers');
   await page.waitForTimeout(700);
   await shot('chat-reopened');
-  /* and a push up below the open card closes it; a slow machine may still be
-     settling the reopened chat, so give it a beat and try once more if so */
-  for (let tries = 0; tries < 2; tries++) {
-    await pushUp(196, 812);
-    if (((await page.locator('[data-testid="card"]').boundingBox())?.height ?? 999) < 420) break;
-    await page.waitForTimeout(900);
-  }
-  must((await page.locator('[data-testid="card"]').boundingBox())?.height < 420, 'a push up below the open card should close it');
+  /* and Home on the bar, tapped in the chat, closes it: the edge and the drawer go with it */
+  await backToHome();
   must((await page.getByTestId('chats-edge').count()) === 0, 'the edge and the drawer should go with the chat');
   /* and Beetle's own prompt, from the drawer, opens with the thing it wants handled */
   await pull('card-for-the-prompt', false);
@@ -937,7 +959,10 @@ try {
   await page.getByTestId('chat-receipt-card').waitFor();
   await page.waitForTimeout(800);
   const big = await page.getByTestId('chat-receipt-card').boundingBox();
-  must(small && big && big.height > small.height + 60 && big.height < 852 / 2, `the receipt should open a little larger, never half the screen (${Math.round(small?.height ?? 0)} → ${Math.round(big?.height ?? 0)})`);
+  must(
+    small && big && big.height > small.height + 60 && big.height < 852 / 2,
+    `the receipt should open a little larger, never half the screen (${Math.round(small?.height ?? 0)} → ${Math.round(big?.height ?? 0)})`,
+  );
   must(big.y <= small.y + 1, `and open where it is (${Math.round(small.y)} → ${Math.round(big.y)})`);
   must((await page.getByTestId('chat-receipt-veil').count()) === 1, 'the chat should go soft under the dark veil');
   await see('Balance after');
@@ -1031,17 +1056,14 @@ try {
   await shot('settings-details', 900);
   await tap('Done');
   /* every row leads somewhere: Lock and privacy, and its switches kept on the phone. The page's
-     title arrives from the row's own place, carrying its words up, and the row pulses on the way back */
-  const lockRow = await button('Lock and privacy').boundingBox();
+     title arrives with the rest of the page, in its own place: it does not travel from the row or grow */
   await tap('Lock and privacy');
   const journey = await trace('journey-lock', 1100, [['head', '[data-testid="head"]']], { picture: { at: 140, name: 'journey-lock-mid' } });
   const heads = journey.map(x => x.head).filter(h => h && h.opacity > 0.01);
-  must(heads.length > 3, 'the title should be on the way');
-  must(
-    heads[0].top > heads[heads.length - 1].top + 60 && heads[0].top > (lockRow?.y ?? 0) - 120,
-    `the title should travel up from the row (from ${Math.round(heads[0].top)} to ${Math.round(heads[heads.length - 1].top)}, the row at ${Math.round(lockRow?.y ?? 0)})`,
-  );
-  console.log(`  the title came up from ${Math.round(heads[0].top)} to ${Math.round(heads[heads.length - 1].top)}, the row being at ${Math.round(lockRow?.y ?? 0)}`);
+  must(heads.length > 3, 'the title should be arriving');
+  const headTops = heads.map(h => h.top);
+  must(Math.max(...headTops) - Math.min(...headTops) < 4, `the title should arrive in its own place, not travel (${headTops.map(t => Math.round(t)).join(' ')})`);
+  console.log(`  the title arrived in its place at ${Math.round(headTops[headTops.length - 1])}, with the page`);
   await see('What other people can see');
   at('/lock');
   await shot('settings-lock', 500);
@@ -1201,56 +1223,71 @@ try {
   must((await page.getByText('Pagrin Limited').filter({ visible: true }).count()) === 0, 'Insights should hold what Beetle noticed, not the lines');
   await shot('activities-insights', 400);
   await tap('All');
-  /* a settled line opens its receipt over the page in one step: the page goes soft under white, the amount
-     comes up out of the line's own figure, and the foot turns into Back and the ask bar */
+  /* a settled line opens where it is: the line stays put and sharp, the page goes soft under a frost of
+     white, and what the line does not say grows in under it — nothing pushed, nothing filling the screen */
   await button('Ikeja Electric').scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);
   const ikejaRow = await button('Ikeja Electric').boundingBox();
   await tap('Ikeja Electric');
   const opened = await trace(
-    'receipt-over',
-    1100,
+    'in-place',
+    900,
     [
-      ['amount', '[data-testid="amount"]'],
-      ['back', '[data-testid="foot"] [aria-label="Back"]', false],
+      ['line', '[data-testid="in-place-line"]'],
+      ['card', '[data-testid="in-place-card"]'],
     ],
-    { picture: { at: 120, name: 'receipt-over-mid' } },
+    { picture: { at: 140, name: 'in-place-mid' } },
   );
-  const amounts = opened.map(x => x.amount).filter(a => a && a.opacity > 0.01);
-  must(
-    amounts.length > 3 && Math.abs(amounts[0].top - (ikejaRow?.y ?? 0)) < 60 && amounts[0].top > amounts[amounts.length - 1].top + 40,
-    `the amount should come up out of the line (${Math.round(amounts[0]?.top ?? 0)} to ${Math.round(amounts[amounts.length - 1]?.top ?? 0)}, the line at ${Math.round(ikejaRow?.y ?? 0)})`,
-  );
-  const backIn = opened.map(x => x.back).filter(Boolean);
-  const backLast = backIn[backIn.length - 1];
-  must(backLast && backLast.opacity > 0.98 && backLast.left >= 14 && backLast.left <= 18, `Back should land at the bottom left (${JSON.stringify(backLast)})`);
-  console.log(`  the amount came up from ${Math.round(amounts[0].top)} to ${Math.round(amounts[amounts.length - 1].top)}, the line being at ${Math.round(ikejaRow.y)}`);
-  await see('Copy the token');
-  await onPage('activities');
-  must((await page.getByTestId('receipt-veil').count()) === 1, 'the receipt should open over the page, under its veil');
-  await shot('receipt-over', 300);
-  /* what Beetle offers on it leads away and back, the receipt still up */
-  await tap('Set it up');
+  const held = opened.map(x => x.line).filter(Boolean);
+  must(held.length > 3 && Math.abs(held[0].top - (ikejaRow?.y ?? 0)) < 6, `the line should stay where it was (${Math.round(held[0]?.top ?? 0)}, the line at ${Math.round(ikejaRow?.y ?? 0)})`);
+  await page.getByTestId('in-place-card').waitFor();
+  must((await page.getByTestId('in-place-veil').count()) === 1, 'the page should go soft under the frost');
+  /* the bar goes down under the bottom of the screen while a line is open */
+  const barAway = await page
+    .waitForFunction(() => (document.querySelector('[data-testid="glyph-home"]')?.getBoundingClientRect().top ?? 9999) >= window.innerHeight - 2, null, { timeout: 3000 })
+    .then(() => true)
+    .catch(() => false);
+  must(barAway, 'the bar should step out of the way');
+  /* what the line already says is not said again: not who, not the total */
+  const card = page.getByTestId('in-place-card');
+  must((await card.getByText('To', { exact: true }).count()) === 0, 'who it went to is the line, not the card');
+  must((await card.getByText(/^Total /).count()) === 0, 'the total is the amount and the fee, not a row of its own');
+  await card.getByText('Balance after', { exact: true }).waitFor();
+  /* the session id is kept back until asked for */
+  must((await page.getByTestId('in-place-session').count()) === 0, 'the session id should wait to be asked for');
+  await page.getByRole('button', { name: /^Show the / }).click();
+  await page.getByTestId('in-place-session').waitFor();
+  await shot('in-place', 300);
+  /* the ··· at the top right beside the title: Ask Beetle about this, and Report a problem */
+  await page.getByTestId('in-place-more').click();
+  await page.getByTestId('menu-card').waitFor();
+  await see('Ask Beetle about this');
+  await see('Report a problem');
+  await shot('in-place-menu', 300);
+  await page.getByTestId('menu-wash').click();
+  await page.getByTestId('menu-card').waitFor({ state: 'detached' });
+  /* Share receipt and Set it up side by side: Set it up leads to the instruction, offered */
+  await page.getByTestId('in-place-repeat').click();
   await see('Nothing is saved until you say yes');
   await tap('Not now');
-  await see('Copy the token');
-  /* the pages hold still under it: a swipe to the left goes nowhere */
-  await drag(340, 420, 60, 425);
-  await onPage('activities');
-  must((await page.getByTestId('receipt-over').count()) === 1, 'a swipe to the left should leave the receipt where it is');
-  /* the swipe an iPhone goes back with closes it, the receipt following the finger off to the right */
-  await drag(30, 420, 330, 425, 18);
-  await page.getByTestId('receipt-over').waitFor({ state: 'detached' });
   await see('Everything that moved');
-  await onPage('activities');
-  must((await page.getByTestId('bar').count()) === 1, 'the bar should be back once the receipt is closed');
-  /* and Back closes it too */
+  /* the pages hold still while a line is open: a swipe to the left goes nowhere */
   await tap('Ikeja Electric');
-  await see('Copy the token');
+  await page.getByTestId('in-place-card').waitFor();
   await page.waitForTimeout(500);
-  await tap('Back');
-  await page.getByTestId('receipt-over').waitFor({ state: 'detached' });
+  await drag(340, 60, 60, 65);
+  await onPage('activities');
+  must((await page.getByTestId('in-place').count()) === 1, 'a swipe to the left should leave the line open');
+  /* and a tap off it puts it all back */
+  await page.getByTestId('in-place-away').click({ position: { x: 200, y: 40 } });
+  await page.getByTestId('in-place').waitFor({ state: 'detached' });
   await see('Everything that moved');
+  await onPage('activities');
+  const barBack = await page
+    .waitForFunction(() => (document.querySelector('[data-testid="glyph-home"]')?.getBoundingClientRect().top ?? 9999) < window.innerHeight - 20, null, { timeout: 3000 })
+    .then(() => true)
+    .catch(() => false);
+  must(barBack, 'the bar should be back once the line is closed');
   /* a line still on its way opens its own page, its title coming up from the line's words */
   await tap('Sarah Adeyemi');
   await see('Do not send it again');
@@ -1457,18 +1494,15 @@ try {
   await inSaved('John Doe');
   await page.locator('[data-testid="saved"]').waitFor({ state: 'hidden' });
   await see('Kuda · 3012 3456 78');
-  await tap('The amount');
-  await see('Change the amount');
-  at('/amend');
-  await tap('2');
-  await tap('5');
-  await tap('000');
-  await see('₦25,000');
-  await wipe(1);
+  /* the amount, picked on the page: the ruler dragged rolls the figure on, step by step; then the figure typed exactly */
+  const ruler = await page.getByTestId('amount-ruler').boundingBox();
+  await drag(ruler.x + ruler.width / 2, ruler.y + 24, ruler.x + ruler.width / 2 - 140, ruler.y + 25, 14);
+  await page.waitForTimeout(900);
+  const rolled = (await page.getByTestId('amount-figure').innerText()).replace(/\s/g, '');
+  must(rolled !== '₦0', `the ruler should have moved the figure on (${rolled})`);
+  await typeAmount(2500);
   await see('₦2,500');
-  await shot('send-amend', 400);
-  await tap('Use ₦2,500');
-  await see('Kuda · 3012 3456 78');
+  await shot('send-amount', 400);
   at('/send');
   await page.getByLabel('Reference', { exact: true }).fill('Lunch');
   await see('Check it, then slide');
@@ -1518,28 +1552,26 @@ try {
   await see('Sarah Adeyemi');
   at('/send');
   await shot('send-photo', 900);
-  /* past the balance: the slide leads to Not enough, and what there is can go now */
-  await tap('The amount');
-  await see('Change the amount');
-  await tap('9');
-  await tap('000');
-  await tap('000');
-  await see('₦9,000,000');
-  await tap('Use ₦9,000,000');
-  await see('more than Everyday holds');
+  /* past the balance it cannot go: typed or dragged, the amount stops hard at all Everyday can send */
+  await typeAmount(9000000);
+  await see(/All of it: ₦/);
+  const most = (await page.getByTestId('amount-figure').innerText()).replace(/\s/g, '');
+  must(most !== '₦9,000,000', `the figure should stop at what Everyday can send (${most})`);
   await shot('send-over', 400);
-  await slideToSend();
+  /* and Not enough, where an amount asked for elsewhere is past the balance: what there is, less the fee, can go now —
+     the same figure Send money stops at, so it opens on All of it */
+  await page.goto(`${base}/short?asked=900000`, { waitUntil: 'load' });
   await see('Not enough in Everyday');
   at('/short');
   await shot('send-short', 900);
-  await page
-    .getByRole('button', { name: /^Send ₦[\d,]+ now$/ })
-    .first()
-    .click();
-  await see('What Everyday holds');
+  const offered = page.getByRole('button', { name: /^Send ₦[\d,]+ now$/ }).first();
+  const canGo = ((await offered.getAttribute('aria-label')) ?? '').replace(/^Send | now$/g, '');
+  await offered.click();
+  await see(`All of it: ${canGo}`);
   at('/send');
   await shot('send-short-taken', 600);
-  await tap('Back to the lab');
+  /* the page was opened by its address, which the lab's tab does not survive: back by the address too */
+  await page.goto(`${base}/lab`, { waitUntil: 'load' });
   await see('Beetle Lab');
   /* a digit the reader was not sure of: both readings, and the one chosen goes onto the page */
   await tap('Check this number');
@@ -1568,16 +1600,11 @@ try {
   await see('Ikeja Electric, the meter you always use.');
   at('/pay');
   await shot('pay-bill', 900);
-  /* a figure picked, and one typed on the keypad page, which hands it back */
+  /* a figure picked, and one typed on the page itself */
   await tap('₦15,000');
   await see('You picked it');
-  await tap('The amount');
-  await see('Nothing has been paid yet');
-  at('/amend');
-  await wipe(5);
-  await type(['5', '000']);
-  await tap('Use ₦5,000');
-  await see('You typed it');
+  await typeAmount(5000);
+  await see('₦5,000');
   at('/pay');
   /* the meter card opens the meters paid before, with the camera under them */
   await page
@@ -1647,8 +1674,8 @@ try {
   at('/loan');
   await tap('60 days');
   await see('Two payments of');
-  await tap('Less');
-  await see('₦140,000');
+  await page.getByTestId('loan-amount').getByRole('button', { name: '₦100,000', exact: true }).click();
+  await see('₦100,000');
   await shot('loan', 600);
   await slideToSend();
   await see('Enter your passcode');
@@ -1660,7 +1687,7 @@ try {
   await see(DEMO_HOME);
   await pull('card-for-the-loan-chat', false);
   await openChats();
-  await see('₦140,000 borrowed');
+  await see('₦100,000 borrowed');
   /* "borrow" typed in the chat is the page */
   await closeChats();
   await page.waitForTimeout(600);
@@ -1700,7 +1727,7 @@ try {
   await tap('Convert');
   await see('Naira into dollars');
   at('/convert');
-  await page.getByLabel('Amount to convert').fill('155200');
+  await typeAmount(155200);
   await see('You get about $100.00');
   await shot('convert', 600);
   await slideToSend();
@@ -1719,10 +1746,7 @@ try {
   at('/send');
   await page.getByRole('button', { name: 'Who is it for?' }).click();
   await inSaved('Sarah Adeyemi');
-  await tap('The amount');
-  await see('Nothing has been sent');
-  await type(['5', '0', '000']);
-  await tap('Use ₦50,000');
+  await typeAmount(50000);
   await see('About $32.22 from your dollars');
   await tap('From');
   await see('Two places the money can leave');
@@ -1740,7 +1764,7 @@ try {
   await see('All done');
   await see('$32.22 at ₦1,552 to $1');
   await shot('send-dollars-receipt', 900);
-  /* the goal: Savings pot on the drawer opens Holiday; Feed it more is the sheet; Add money goes through the keypad and the passcode to a receipt */
+  /* the goal: Savings pot on the drawer opens Holiday; Feed it more is the sheet; Add money puts the picker up over the page, then the passcode and a receipt */
   await page.goto(`${base}/services`, { waitUntil: 'load' });
   await see('Everything you can pay for from here');
   await tap('Savings pot');
@@ -1762,10 +1786,10 @@ try {
   await tap('Done');
   await see('₦2,280');
   await tap('Add money');
-  await see('Nothing has been put away yet');
-  at('/amend');
-  await type(['5', '000']);
-  await tap('Use ₦5,000');
+  await page.getByTestId('goal-amount').waitFor();
+  await see('Into Holiday');
+  await tap('₦5,000');
+  await tap('Put ₦5,000 away');
   await see('Enter your passcode');
   await type(PASSCODE);
   await see('All done');
@@ -1829,10 +1853,11 @@ try {
   await page.goto(`${base}/lab`, { waitUntil: 'load' });
   await see('Beetle Lab');
   console.log('When it goes wrong');
-  /* a dispute from a receipt: Something wrong with this? then They say it never arrived opens the day-three dispute the day already holds for Sarah's rent */
+  /* a dispute from a receipt: Report a problem under its ··· then They say it never arrived opens the day-three dispute the day already holds for Sarah's rent */
   await page.goto(`${base}/receipt/l08`, { waitUntil: 'load' });
   await see('Sent to Sarah Adeyemi');
-  await tap('Something wrong with this?');
+  await page.getByTestId('more-menu').click();
+  await tap('Report a problem');
   await see('Tell me which and I start it now');
   at('/wrong/l08');
   await tap('They say it never arrived');
@@ -1846,7 +1871,8 @@ try {
   /* a payment that was not yours: the card is frozen first, and a dispute opens on day one, with Beetle's chat carrying its card */
   await page.goto(`${base}/receipt/l06`, { waitUntil: 'load' });
   await see('Sent to Sarah Adeyemi');
-  await tap('Something wrong with this?');
+  await page.getByTestId('more-menu').click();
+  await tap('Report a problem');
   await see('Tell me which and I start it now');
   await tap('I did not make this payment');
   await see('Your dispute, day 1 of 5');
@@ -1894,12 +1920,8 @@ try {
   await inSaved('Type an account number');
   await page.getByLabel('Account number', { exact: true }).fill('0123456789');
   await see('You typed the number');
-  await tap('The amount');
-  await see('Nothing has been sent');
-  await wipe(5);
-  await type(['9', '000', '000']);
-  await tap('Use ₦9,000,000');
-  await see('₦9,000,000');
+  await tap('All of it');
+  await see(/All of it: ₦/);
   await slideToSend();
   await see('to an account I have never seen');
   at('/refused');
@@ -2020,10 +2042,11 @@ try {
   await shot('transfer-cover', 900);
   await tap('Back to the lab');
   await see('Beetle Lab');
-  /* a receipt's way to say something is wrong leads to What went wrong? */
+  /* a receipt's way to say something is wrong, under its ···, leads to What went wrong? */
   await tap('A transfer');
-  await see('Something wrong with this?');
-  await tap('Something wrong with this?');
+  await see('Rent part payment');
+  await page.getByTestId('more-menu').click();
+  await tap('Report a problem');
   await see('Tell me which and I start it now');
   at('/wrong/l08');
   await tap('Back to the lab');

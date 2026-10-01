@@ -39,7 +39,7 @@ export function Offline() {
   const [lite, setLite] = useState(false);
   const amount = Number(asked.asked ?? 0) || 0;
   const who = asked.name ?? '';
-  useFoot({ kind: 'ask', placeholder: 'Ask what works offline', onAsk: q => askHome(router, q, 'offline'), onScan: () => router.push('/scan') });
+  useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   const queue = () => {
     const at = clock();

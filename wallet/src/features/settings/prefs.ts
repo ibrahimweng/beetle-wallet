@@ -38,6 +38,8 @@ export type Prefs = {
   /** how long the app stays open before it asks again */
   askAfter: string;
   cardFrozen: boolean;
+  /** what has been loaded onto the virtual card from Everyday, on top of what its month allows */
+  cardLoaded: number;
   othersSignedOut: boolean;
   /** the money frozen from Not your phone, until a new passcode is set */
   frozen: boolean;
@@ -55,6 +57,7 @@ export const DEFAULT_PREFS: Prefs = {
   goal: false,
   askAfter: '2 minutes',
   cardFrozen: false,
+  cardLoaded: 0,
   othersSignedOut: false,
   frozen: false,
 };

@@ -1,16 +1,16 @@
 /* The receipt on its own page, from the frames: the head with the day and
-   the time, the amount on its tick, the slip, a button to share it, what
-   Beetle offers about it, and the way to say something is wrong, which for
-   a transfer opens What went wrong?. The dock is the way back, the ask bar
-   to ask about it, and the camera. A bill's token sits above the slip with
-   a button to copy it. The same receipt opens over the page it came from
-   (see ReceiptOver): the pieces here are shared by both. */
+   the time and a ··· at its right, the amount on its tick, the slip, and
+   what Beetle offers about it. The foot is Back with Share receipt beside
+   it. The ··· opens a small pop-up with Ask Beetle about this — a fresh
+   chat on home, about this one transaction — and Report a problem, which
+   for a transfer opens What went wrong?. A bill's token sits above the
+   slip with a button to copy it. */
 import React, { RefObject, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Body, Button, Caption, Card, Head, Icon, Label, Meta, Receipt, Screen, Tap, colour, frame, toast, Arrive, useDeparture } from '../../design';
+import { Body, Button, Caption, Card, Head, Icon, Label, Meta, MoreButton, Receipt, Screen, Tap, colour, frame, toast, Arrive, useDeparture } from '../../design';
 import { useFoot } from '../more/Foot';
-import { askHome } from '../more/More';
+import { askAbout, askHome } from '../more/More';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { holdingsFor } from '../home/account';
@@ -49,11 +49,8 @@ export function ReceiptScreen({ id }: { id: string }) {
   /* the receipt as drawn, for the picture the share sheet hands out */
   const slip = useRef<View>(null);
 
-  const askAbout = (q: string) => {
-    if (receipt) askHome(router, q, aboutOf(receipt));
-  };
-  /* the foot: Back, and the ask bar with the receipt's own question */
-  useFoot({ kind: 'ask', placeholder: receipt?.ask ?? 'Ask about this', onAsk: askAbout, onScan: () => router.push('/scan'), veil: sharing ? 'away' : undefined });
+  /* the foot: Back, and Share receipt beside it */
+  useFoot({ kind: 'button', label: 'Share receipt', leading: 'share', disabled: !receipt, onPress: () => setSharing(true), veil: sharing ? 'away' : undefined });
   if (!ok || !account) return null;
   if (!ready)
     return (
@@ -70,7 +67,7 @@ export function ReceiptScreen({ id }: { id: string }) {
     );
   return (
     <>
-      <Screen head={<ReceiptHead receipt={receipt} />}>
+      <Screen head={<ReceiptHead receipt={receipt} id={id} />}>
         <ReceiptBody id={id} receipt={receipt} slip={slip} onShare={() => setSharing(true)} />
       </Screen>
       {sharing ? <ReceiptShare receipt={receipt} slip={slip} onDismiss={() => setSharing(false)} /> : null}
@@ -79,14 +76,31 @@ export function ReceiptScreen({ id }: { id: string }) {
 }
 
 /* The frame's head: the title, 8, the day and the time, and 24 to the
-   amount; the amount is what travels here, so the head only fades in. */
-export function ReceiptHead({ receipt }: { receipt: ReceiptModel }) {
+   amount; the ··· at the right of the title. */
+export function ReceiptHead({ receipt, id }: { receipt: ReceiptModel; id: string }) {
+  const items = useReceiptMenu(receipt, id);
   return (
-    <Arrive carry={false} style={{ gap: 8, marginBottom: 4 }}>
-      <Head>{receipt.head}</Head>
-      <Body tone="tertiary">{receipt.when}</Body>
+    <Arrive carry={false} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginBottom: 4 }}>
+      <View style={{ flex: 1, gap: 8 }}>
+        <Head>{receipt.head}</Head>
+        <Body tone="tertiary">{receipt.when}</Body>
+      </View>
+      <MoreButton items={items} />
     </Arrive>
   );
+}
+
+/** What the ··· offers on a transaction: Beetle, about this one; and a problem reported, which for a transfer is What went wrong?. */
+export function useReceiptMenu(receipt: ReceiptModel, id: string) {
+  const router = useRouter();
+  return [
+    { glyph: 'chat' as const, label: 'Ask Beetle about this', onPress: () => askAbout(router, aboutOf(receipt)) },
+    {
+      glyph: 'alert' as const,
+      label: 'Report a problem',
+      onPress: () => (receipt.kind === 'transfer' ? router.push(`/wrong/${id}` as never) : askHome(router, receipt.wrong, `${naira(receipt.amount)} ${receipt.line.toLowerCase()}`)),
+    },
+  ];
 }
 
 /* The column under the head: the amount and the slip, Share receipt, what
@@ -95,9 +109,6 @@ export function ReceiptHead({ receipt }: { receipt: ReceiptModel }) {
    white under them for the picture's sake (`white`); over a page, only
    while the picture is being taken. */
 export function ReceiptBody({ id, receipt, slip, onShare, white = true }: { id: string; receipt: ReceiptModel; slip: RefObject<View | null>; onShare: () => void; white?: boolean }) {
-  const router = useRouter();
-  /* something wrong with a transfer: What went wrong? arrives from the line */
-  const wrong = useDeparture({ id: 'wrong', to: `/wrong/${id}`, words: receipt.wrong });
   const copy = async (text: string, what: string) => {
     toast((await copyText(text)) ? `${what} copied. Paste it anywhere.` : 'This build cannot reach the clipboard.');
   };
@@ -117,7 +128,6 @@ export function ReceiptBody({ id, receipt, slip, onShare, white = true }: { id: 
           head={receipt.token ? <Token token={receipt.token} onCopy={() => void copy(receipt.token ?? '', 'The token')} /> : undefined}
         />
       </View>
-      <Button label="Share receipt" leading="share" badge onPress={onShare} />
       <Nudge
         text={receipt.nudge.text}
         action={receipt.nudge.action}
@@ -127,16 +137,6 @@ export function ReceiptBody({ id, receipt, slip, onShare, white = true }: { id: 
             : `/rule?offer=${receipt.kind === 'in' ? 'salary' : receipt.kind === 'convert' ? 'dollars' : receipt.kind === 'saving' ? 'salary' : 'ikeja'}`
         }
       />
-      <Tap
-        ref={wrong.ref}
-        accessibilityRole="button"
-        accessibilityLabel={receipt.wrong}
-        onPress={receipt.kind === 'transfer' ? wrong.onPress : () => askHome(router, receipt.wrong, `${naira(receipt.amount)} ${receipt.line.toLowerCase()}`)}
-        style={[s.wrong, wrong.style]}
-      >
-        <Label tone="accent">{receipt.wrong}</Label>
-        <Icon name="chevron" size={12} colour={colour.accent} />
-      </Tap>
     </>
   );
 }
@@ -188,5 +188,4 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: colour.rule,
   },
-  wrong: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, height: 44 },
 });

@@ -35,7 +35,7 @@ export function Dispute({ id }: { id: string }) {
   const [filed, setFiled] = useState(false);
   const [letter, setLetter] = useState(false);
   const about = d ? `${naira(d.amount)} to ${d.name}, ${d.status === 'closed' ? 'the dispute closed' : `dispute day ${d.day} of ${DAYS}`}` : undefined;
-  useFoot({ kind: 'ask', placeholder: d?.status === 'closed' ? 'Ask about this dispute' : 'Ask where this stands', onAsk: q => askHome(router, q, about), onScan: () => router.push('/scan') });
+  useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   if (!ready)
     return (

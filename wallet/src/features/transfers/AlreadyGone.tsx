@@ -21,7 +21,7 @@ export function AlreadyGone({ id }: { id: string }) {
   const { ok, ready, row, balance, moves, add } = useLine(id);
   const [asked, setAsked] = useState(false);
   const about = row ? `${naira(row.amount)} sent to the wrong account, covered by Beetle` : undefined;
-  useFoot({ kind: 'ask', placeholder: 'Ask about the cover', onAsk: q => askHome(router, q, about), onScan: () => router.push('/scan') });
+  useFoot({ kind: 'back' });
   if (!ok) return null;
   if (!ready)
     return (

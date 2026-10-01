@@ -26,8 +26,8 @@ export function Limits() {
   const account = app.session?.account;
   const { moves, ready } = useMoves(account?.accountNumber);
   const { setup } = useSetup(account?.accountNumber, !!account?.demo);
-  /* the foot: Back, and the ask bar with this page's question */
-  useFoot({ kind: 'ask', placeholder: 'Ask me to change a limit', onAsk: q => askHome(router, q), onScan: () => router.push('/scan') });
+  /* the foot: Back */
+  useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   if (!ready)
     return (

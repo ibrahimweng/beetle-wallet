@@ -26,7 +26,7 @@ export function Asked({ id }: { id: string }) {
   const { requests, ready } = useRequests(account?.accountNumber);
   const r = requests.find(x => x.id === id) ?? (LAB && id === 'demo' ? DEMO_REQUEST : null);
   const about = r ? `${naira(r.amount)} asked of ${r.who.name}, ${r.reference}` : undefined;
-  useFoot({ kind: 'ask', placeholder: 'Ask about this request', onAsk: q => askHome(router, q, about), onScan: () => router.push('/scan') });
+  useFoot({ kind: 'back' });
   const remind = useDeparture({ id: 'remind', to: '/rule?offer=remind', words: 'Set that up' });
   if (!ok || !account) return null;
   if (!ready && !r)
@@ -71,7 +71,8 @@ export function Asked({ id }: { id: string }) {
       {/* the frame's card: 16 round the bubble's row, the button 12 under it, 46 tall */}
       <View style={[s.offer, { marginTop: -4 }]} testID="offer">
         <Say>{`Want me to remind ${objectOf(r.who.pronoun)} if nothing comes by ${by}?`}</Say>
-        <Tap ref={remind.ref} accessibilityRole="button" accessibilityLabel="Set that up" onPress={remind.onPress} style={[s.setUp, remind.style]}>
+        <Tap ref={remind.ref} accessibilityRole="button" accessibilityLabel="Set that up" onPress={remind.onPress} style={[s.setUp]}>
+          {remind.wash}
           <Label>Set that up</Label>
           <Icon name="chevron" size={12} colour={colour.ink} />
         </Tap>

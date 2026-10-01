@@ -5833,14 +5833,14 @@
    {
     "name": "Column",
     "find": {
-     "button": "Fund"
+     "button": "Load"
     },
     "nth": 7
    },
    {
     "name": "Glyph · plus",
     "find": {
-     "button": "Fund",
+     "button": "Load",
      "child": 0
     },
     "nth": 0
@@ -5848,7 +5848,7 @@
    {
     "name": "Fund",
     "find": {
-     "text": "Fund",
+     "text": "Load",
      "exact": true
     },
     "only": [
@@ -6406,188 +6406,6 @@
    }
   ]
  },
- "amend": {
-  "frame": "amend",
-  "place": "Change the amount",
-  "wait": "I read",
-  "settle": 1400,
-  "pieces": [
-   {
-    "name": "Page head",
-    "find": {
-     "testid": "head",
-     "up": 1
-    },
-    "only": [
-     "x",
-     "y",
-     "w"
-    ]
-   },
-   {
-    "name": "I read",
-    "find": {
-     "text": "I read",
-     "exact": true
-    },
-    "only": [
-     "y",
-     "h"
-    ]
-   },
-   {
-    "name": "₦200,000",
-    "find": {
-     "text": "₦200,000",
-     "exact": true
-    },
-    "only": [
-     "y",
-     "h"
-    ]
-   },
-   {
-    "name": "₦20,000",
-    "find": {
-     "text": "₦20,000",
-     "exact": true
-    },
-    "only": [
-     "y",
-     "h"
-    ]
-   },
-   {
-    "name": "Key",
-    "nth": 0,
-    "find": {
-     "button": "1",
-     "child": 0
-    }
-   },
-   {
-    "name": "Key",
-    "nth": 1,
-    "find": {
-     "button": "2",
-     "child": 0
-    }
-   },
-   {
-    "name": "Key",
-    "nth": 2,
-    "find": {
-     "button": "3",
-     "child": 0
-    }
-   },
-   {
-    "name": "Key",
-    "nth": 3,
-    "find": {
-     "button": "4",
-     "child": 0
-    }
-   },
-   {
-    "name": "Key",
-    "nth": 4,
-    "find": {
-     "button": "5",
-     "child": 0
-    }
-   },
-   {
-    "name": "Key",
-    "nth": 5,
-    "find": {
-     "button": "6",
-     "child": 0
-    }
-   },
-   {
-    "name": "Key",
-    "nth": 6,
-    "find": {
-     "button": "7",
-     "child": 0
-    }
-   },
-   {
-    "name": "Key",
-    "nth": 7,
-    "find": {
-     "button": "8",
-     "child": 0
-    }
-   },
-   {
-    "name": "Key",
-    "nth": 8,
-    "find": {
-     "button": "9",
-     "child": 0
-    }
-   },
-   {
-    "name": "Key",
-    "nth": 9,
-    "find": {
-     "button": "000",
-     "child": 0
-    }
-   },
-   {
-    "name": "Key",
-    "nth": 10,
-    "find": {
-     "button": "0",
-     "child": 0
-    }
-   },
-   {
-    "name": "Key",
-    "nth": 11,
-    "find": {
-     "button": "Delete",
-     "child": 0
-    }
-   },
-   {
-    "name": "Mark · 32",
-    "find": {
-     "testid": "say",
-     "child": 0
-    }
-   },
-   {
-    "name": "Card",
-    "find": {
-     "testid": "say",
-     "child": [
-      1,
-      0
-     ]
-    }
-   },
-   {
-    "name": "Button · Use ₦20,000",
-    "find": {
-     "button": "Use ₦20,000"
-    }
-   },
-   {
-    "name": "What if it is more than I ha",
-    "find": {
-     "text": "What if it is more than I have?"
-    },
-    "only": [
-     "y",
-     "h"
-    ]
-   }
-  ]
- },
  "short": {
   "frame": "short",
   "place": "Not enough in Everyday",
@@ -6823,21 +6641,21 @@
     "name": "Row",
     "nth": 2,
     "find": {
-     "button": "Send ₦12,480 now"
+     "button": "Send ₦12,453 now"
     }
    },
    {
     "name": "Icon",
     "nth": 1,
     "find": {
-     "button": "Send ₦12,480 now",
+     "button": "Send ₦12,453 now",
      "child": 0
     }
    },
    {
     "name": "Glyph · up",
     "find": {
-     "button": "Send ₦12,480 now",
+     "button": "Send ₦12,453 now",
      "child": [
       0,
       0
@@ -6849,7 +6667,7 @@
     "name": "Column",
     "nth": 4,
     "find": {
-     "button": "Send ₦12,480 now",
+     "button": "Send ₦12,453 now",
      "child": 1
     },
     "only": [
@@ -6861,7 +6679,7 @@
    {
     "name": "Send ₦12,480 now",
     "find": {
-     "text": "Send ₦12,480 now"
+     "text": "Send ₦12,453 now"
     },
     "only": [
      "x",
@@ -6884,7 +6702,7 @@
     "name": "Glyph · check",
     "nth": 1,
     "find": {
-     "button": "Send ₦12,480 now",
+     "button": "Send ₦12,453 now",
      "child": 2
     }
    },
@@ -20239,14 +20057,14 @@
     "name": "Row",
     "nth": 1,
     "find": {
-     "button": "Let me type it"
+     "button": "Let me pick it"
     }
    },
    {
     "name": "Icon",
     "nth": 5,
     "find": {
-     "button": "Let me type it",
+     "button": "Let me pick it",
      "child": 0
     }
    },
@@ -20254,7 +20072,7 @@
     "name": "Column",
     "nth": 3,
     "find": {
-     "button": "Let me type it",
+     "button": "Let me pick it",
      "child": 1
     },
     "only": [
@@ -20266,7 +20084,7 @@
    {
     "name": "Let me type it",
     "find": {
-     "text": "Let me type it"
+     "text": "Let me pick it"
     },
     "only": [
      "x",
@@ -20277,7 +20095,7 @@
    {
     "name": "If she has not answered by F",
     "find": {
-     "text": "Any figure, on the keypad"
+     "text": "Any figure, on the ruler or typed"
     },
     "only": [
      "x",

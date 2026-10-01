@@ -27,7 +27,7 @@ export function Health() {
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
   const score = h?.health ?? null;
   const rows = useMemo(() => healthRows(prefs, moves.filter(r => r.kind === 'transfer').length), [prefs, moves]);
-  useFoot({ kind: 'ask', placeholder: 'Ask me how to move it', onAsk: q => askHome(router, q, score !== null ? `Money health ${score}` : undefined), onScan: () => router.push('/scan') });
+  useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   return (
     <Screen head={<PageHead lead title="Money health" sub="One number for how you are handling it" />}>

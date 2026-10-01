@@ -37,13 +37,7 @@ export function Refused() {
   const name = demo ? 'The account holder' : (asked.name ?? 'The account holder');
   const said = demo ? 'send everything' : (asked.said ?? `${naira(amount)} to ${groupAccount(number)}`);
   const toSend = useBackToSend();
-  useFoot({
-    kind: 'ask',
-    placeholder: 'Ask why I stopped this',
-    onAsk: q => askHome(router, q, `${naira(amount)} to ${groupAccount(number)}, stopped`),
-    onScan: () => router.push('/scan'),
-    veil: guard ? 'away' : undefined,
-  });
+  useFoot({ kind: 'back', veil: guard ? 'away' : undefined });
   if (!ok || !account) return null;
   const at = clock();
   const chat = (id: string, title: string, detail: string, words: string) =>

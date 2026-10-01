@@ -14,9 +14,9 @@ import Animated from 'react-native-reanimated';
 
 /* The column and the dock arrive together, out of a blur, and when the screen
    is `leaving` they go back into one before the next screen comes. The
-   `head` sits above the pane and arrives on its own: from the thing that
-   opened the screen, where there was one (see journey.tsx). When something
-   on the screen leads away, the whole of it recedes until it is come back to. */
+   `head` sits above the pane and arrives with it, at the same moment and
+   the same way (see journey.tsx). When something on the screen leads away,
+   the whole of it recedes until it is come back to. */
 export function Screen(props: ScreenProps) {
   return (
     <JourneyProvider>
@@ -27,7 +27,7 @@ export function Screen(props: ScreenProps) {
 
 type ScreenProps = {
   children: ReactNode;
-  /* the page's head, arriving on its own ahead of the pane */
+  /* the page's head, arriving with the pane */
   head?: ReactNode;
   dock?: ReactNode;
   still?: boolean;
@@ -52,7 +52,7 @@ function Body({ children, head, dock, still = false, wash, sink = false, leaving
           {still ? (
             children
           ) : (
-            <Pane leaving={leaving} delay={head ? 60 : 0} style={{ gap: frame.columnGap }}>
+            <Pane leaving={leaving} style={{ gap: frame.columnGap }}>
               {children}
             </Pane>
           )}

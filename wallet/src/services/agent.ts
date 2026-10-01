@@ -8,7 +8,7 @@
    paid before, it skips the asking. A real model slots in here later,
    behind the same interface, once there is a server to keep its key on;
    nothing on the screens changes. */
-import { OFFLINE_LINE, TRY_FIRST, refusalLine, refuses, wantsEverything } from './rules';
+import { OFFLINE_LINE, TRY_FIRST, feeFor, refusalLine, refuses, wantsEverything } from './rules';
 import type { IconName } from '../icons';
 import { groupAccount, naira } from '../lib/format';
 import type { Account } from './auth';
@@ -80,7 +80,7 @@ export type Move = {
   detail: string;
   amount: number;
   icon: IconName;
-  kind: 'transfer' | 'bill' | 'airtime' | 'service' | 'in' | 'saving' | 'convert';
+  kind: 'transfer' | 'bill' | 'airtime' | 'service' | 'in' | 'saving' | 'convert' | 'card';
   /** what its receipt needs beyond the line: the fee, who, what was written */
   fee?: number;
   person?: Person;
@@ -257,7 +257,7 @@ export function personIn(text: string, people = PEOPLE): Person | null {
 /** Nothing under ₦10,000 — Beetle carries those — then the banks' own ₦25
     with the tax on it up to ₦50,000, and ₦50 with the tax above, which is
     what the receipts print. */
-export const feeFor = (amount: number) => (amount < 10_000 ? 0 : amount <= 50_000 ? 26.88 : 53.75);
+export { feeFor };
 /** The fee as a row says it: Free, or the figure with its kobo. */
 export const feeLabel = (fee: number) => (fee ? '₦' + fee.toFixed(2) : 'Free');
 

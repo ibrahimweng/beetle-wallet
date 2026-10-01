@@ -25,7 +25,7 @@ export function Recall({ id }: { id: string }) {
   /* the moment it was reported: now, and kept while the page is up */
   const [at] = useState(() => clock());
   const about = row ? `${naira(row.amount)} to ${row.name}, being asked back` : undefined;
-  useFoot({ kind: 'ask', placeholder: 'Ask what happens next', onAsk: q => askHome(router, q, about), onScan: () => router.push('/scan') });
+  useFoot({ kind: 'back' });
   if (!ok) return null;
   if (!ready)
     return (

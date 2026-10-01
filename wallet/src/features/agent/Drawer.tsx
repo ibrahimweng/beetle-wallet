@@ -1,30 +1,57 @@
-/* The chats, in a drawer at the chat's left, and nowhere else.
+/* The chats, in a drawer inside the chat's own dark card, and nowhere else.
 
-   While the chat is open a soft light runs down the screen's left edge. A
+   While the chat is open a soft light runs down the card's left edge. A
    swipe from there to the right brings the drawer in from the left,
-   following the finger — or a tap on the edge does. New chat is at its
-   top; under it the chats, today's and yesterday's, the ones you started
-   and the ones Beetle did, with a dot on one not yet opened and the one
-   open now marked. A chat picked there picks up where it was left; New
-   chat files this one and starts afresh. A swipe back to the left, a tap
-   on the chat beside it, or the phone's back puts it away. With the chat
-   closed there is no edge and no drawer. */
-import React, { useId, useMemo } from 'react';
-import { Keyboard, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+   following the finger — or a tap on the edge does. It lives inside the
+   card, under the header, and stops short of the ask bar: its dark is solid
+   at the top and thins as it goes down, into a blur of the chat, so the
+   bar under it stays in sight and in reach. At its top a quiet New chat —
+   the glyph and the words, 12 apart — then a hairline, then the chats,
+   today's and yesterday's, a line each, the open one on a faint ground.
+   The rows come in one after another, out of a blur, as it opens, and the
+   chat behind steps back a little. A swipe to the left anywhere on it, a
+   tap on the chat beside it, a tap on the ask bar, or the phone's back puts
+   it away. With the chat closed there is no edge and no drawer. */
+import React, { useId, useLayoutEffect, useMemo, useRef } from 'react';
+import { Keyboard, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, withSpring, type AnimatedStyle, type SharedValue } from 'react-native-reanimated';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { Caption, Head, Icon, Label, Meta, Row, Tap, colour, dark, swipes } from '../../design';
+import { Caption, Icon, Meta, Tap, blurred, colour, dark, swipes } from '../../design';
+import { Frost } from '../home/Frost';
 import type { Chat } from './chats';
 
+type BlurModule = typeof import('expo-blur');
+const blurKit: BlurModule | null = (() => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require('expo-blur') as BlurModule;
+  } catch {
+    return null;
+  }
+})();
+type MaskModule = typeof import('@react-native-masked-view/masked-view');
+const Masked: MaskModule['default'] | null = (() => {
+  if (Platform.OS === 'web') return null;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return (require('@react-native-masked-view/masked-view') as MaskModule).default;
+  } catch {
+    return null;
+  }
+})();
+
+/** How tall the blur at the drawer's foot is: it runs down over the chips to the top of the ask bar. */
+const FOG = 120;
+
 /** How the drawer settles, in or out. */
-const SPRING = { damping: 28, stiffness: 280, mass: 0.9, overshootClamping: true } as const;
+export const SPRING = { damping: 28, stiffness: 260, mass: 0.9, overshootClamping: true } as const;
 /** The edge a swipe starts from: the card's own margin, clear of everything in the chat. */
 export const EDGE = 16;
-/** Where a screen's head starts, clear of the phone's clock, as the black card has it. */
-const TOP = 52;
+/** The drawer's width inside the card: most of it, the chat showing beside it. */
+export const drawerWidth = (W: number) => Math.min(304, Math.round(W * 0.78));
 
 const clamp = (v: number) => {
   'worklet';
@@ -60,7 +87,7 @@ export function ChatsEdge({
       })
       .onEnd(e => {
         runOnJS(swipes.end)();
-        const open = d.value > 0.4 || e.velocityX > 500;
+        const open = d.value > 0.35 || e.velocityX > 500;
         d.value = withSpring(open ? 1 : 0, { ...SPRING, velocity: e.velocityX / width });
         runOnJS(opened)(open);
       });
@@ -88,8 +115,8 @@ export function ChatsEdge({
 }
 
 /* The light itself: brightest at the middle of the edge and fading every
-   way from there — into the chat, and up and down the edge — so it reads as
-   a glow on the card's side rather than a line down it. */
+   way from there, so it reads as a glow on the card's side rather than a
+   line down it. */
 function Glow() {
   const id = 'glow' + useId().replace(/[^a-zA-Z0-9]/g, '');
   return (
@@ -106,10 +133,21 @@ function Glow() {
   );
 }
 
+/** What the chat behind wears as the drawer comes in: a step to the right, dimmer, a little soft. */
+export function useChatRecedes(d: SharedValue<number>) {
+  return useAnimatedStyle(() => ({
+    opacity: 1 - 0.55 * d.value,
+    transform: [{ translateX: 28 * d.value }],
+    ...blurred(d.value * 3),
+  }));
+}
+
 export function ChatsDrawer({
   d,
   open,
   width,
+  top,
+  height,
   chats,
   currentId,
   onNew,
@@ -120,28 +158,29 @@ export function ChatsDrawer({
   /** in, and so answering touches; out, it lets them through to the chat */
   open: boolean;
   width: number;
+  /** where the drawer starts in the card: under its header */
+  top: number;
+  /** how far down the card it reaches: short of the ask bar, which stays clear */
+  height: SharedValue<number>;
   chats: Chat[];
-  /** the chat open now, marked in the list */
+  /** the chat open now, on its faint ground */
   currentId?: string;
   onNew: () => void;
   onPick: (chat: Chat) => void;
   onClose: () => void;
 }) {
-  const insets = useSafeAreaInsets();
-  /* the head sits where the chat's own does: under the phone's clock, which a browser does not have */
-  const top = Math.max(TOP, Math.round(insets.top) + 2) + 8;
   const shut = (then?: () => void) => {
     d.value = withSpring(0, SPRING);
     onClose();
     then?.();
   };
-  /* a swipe to the left takes it back out, following the finger */
+  /* a swipe to the left, anywhere on it or the chat beside it, takes it back out, following the finger */
   const pan = useMemo(() => {
-    const closed = (open: boolean) => {
-      if (!open) onClose();
+    const closed = (stays: boolean) => {
+      if (!stays) onClose();
     };
     return Gesture.Pan()
-      .activeOffsetX(-8)
+      .activeOffsetX(-10)
       .failOffsetY([-14, 14])
       .onStart(() => {
         runOnJS(swipes.start)();
@@ -151,97 +190,143 @@ export function ChatsDrawer({
       })
       .onEnd(e => {
         runOnJS(swipes.end)();
-        const open = d.value > 0.6 && e.velocityX > -500;
-        d.value = withSpring(open ? 1 : 0, { ...SPRING, velocity: e.velocityX / width });
-        runOnJS(closed)(open);
+        const stays = d.value > 0.6 && e.velocityX > -500;
+        d.value = withSpring(stays ? 1 : 0, { ...SPRING, velocity: e.velocityX / width });
+        runOnJS(closed)(stays);
       });
   }, [d, width, onClose]);
-  /* put away, the panel is not drawn at all: its shadow would otherwise lie along the screen's left edge */
+  const area = useAnimatedStyle(() => ({ height: height.value }));
+  /* put away, the panel is not drawn at all */
   const panel = useAnimatedStyle(() => ({ transform: [{ translateX: -width * (1 - d.value) }], opacity: d.value > 0.001 ? 1 : 0 }));
-  const scrim = useAnimatedStyle(() => ({ opacity: d.value }));
   const today = chats.filter(c => c.day === 'today');
   const yesterday = chats.filter(c => c.day !== 'today');
+  /* New chat comes first; the groups and their chats after it, in order */
+  let n = 1;
   const group = (name: string, list: Chat[]) =>
     list.length ? (
-      <View style={{ gap: 4 }}>
-        <Caption style={{ color: dark.label, marginBottom: 4, paddingHorizontal: 8 }}>{name}</Caption>
+      <View style={{ gap: 2 }}>
+        <Arrives d={d} i={n++}>
+          <Caption style={s.group}>{name}</Caption>
+        </Arrives>
         {list.map(c => (
-          <ChatRow key={c.id} chat={c} on={c.id === currentId} onPress={() => shut(() => onPick(c))} />
+          <Arrives key={c.id} d={d} i={n++}>
+            <ChatRow chat={c} on={c.id === currentId} onPress={() => shut(() => onPick(c))} />
+          </Arrives>
         ))}
       </View>
     ) : null;
   return (
     <GestureDetector gesture={pan}>
-      <View style={StyleSheet.absoluteFill} pointerEvents={open ? 'box-none' : 'none'} aria-hidden={!open} testID="chats-drawer">
-        <Animated.View style={[StyleSheet.absoluteFill, s.scrim, scrim]}>
-          <Pressable style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel="Back to the chat" onPress={() => shut()} />
-        </Animated.View>
-        <Animated.View style={[s.panel, { width, paddingTop: top, paddingBottom: insets.bottom + 16 }, panel]}>
-          <Head style={{ color: '#ffffff', paddingHorizontal: 20 }}>Chats</Head>
-          <Tap accessibilityRole="button" accessibilityLabel="New chat" onPress={() => shut(onNew)} style={s.new} testID="new">
-            <Icon name="plus" size={16} colour={colour.ink} />
-            <Label>New chat</Label>
-          </Tap>
-          <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: 20, paddingHorizontal: 12, paddingBottom: 8 }} showsVerticalScrollIndicator={false}>
+      <Animated.View style={[s.area, { top }, area]} pointerEvents={open ? 'box-none' : 'none'} aria-hidden={!open} testID="chats-drawer">
+        {/* the chat beside it: a tap there puts it away */}
+        <Pressable style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel="Back to the chat" onPress={() => shut()} />
+        <Animated.View style={[s.panel, { width }, panel]}>
+          {/* solid at the top, thinning into a blur of the chat on the way down */}
+          <PanelGround />
+          <Arrives d={d} i={0}>
+            <Tap accessibilityRole="button" accessibilityLabel="New chat" onPress={() => shut(onNew)} style={s.new} testID="new">
+              <Icon name="plus" size={20} colour={dark.pillText} />
+              <Meta style={s.newWords}>New chat</Meta>
+            </Tap>
+          </Arrives>
+          <View style={s.hair} />
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={s.list} showsVerticalScrollIndicator={false}>
             {chats.length ? (
               <>
                 {group('Today', today)}
                 {group('Yesterday', yesterday)}
               </>
             ) : (
-              <Meta style={{ color: dark.label, paddingHorizontal: 8 }}>No chats yet. What you ask is kept here, a line for each.</Meta>
+              <Meta style={{ color: dark.label, paddingHorizontal: 12 }}>No chats yet. What you ask is kept here, a line for each.</Meta>
             )}
           </ScrollView>
         </Animated.View>
-      </View>
+      </Animated.View>
     </GestureDetector>
   );
 }
 
-/* A chat in the drawer: the mark, what it was about, what it came to, and
-   when. One Beetle started and you have not opened yet carries a dot; the
-   one open now sits on a lighter ground. */
+/* The panel's ground: the card's dark, near solid down most of it, then
+   thinning to nothing over the blur, so its foot has no edge. */
+function PanelGround() {
+  const [h, setH] = React.useState(0);
+  return (
+    <View style={StyleSheet.absoluteFill} pointerEvents="none" onLayout={e => setH(e.nativeEvent.layout.height)}>
+      {h ? <Frost height={h} side="top" solid={Math.round(h * 0.62)} /> : null}
+      <Fog />
+    </View>
+  );
+}
+
+/* The blur the drawer thins into at its foot: over the chips, and gone by
+   the top of the ask bar, so the bar is read clearly through it. Masked to
+   come in and go out again, so it has no edge of its own. */
+function Fog() {
+  const Blur = blurKit?.BlurView;
+  if (!Blur) return null;
+  const glass = <Blur intensity={22} tint="dark" experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : 'none'} style={StyleSheet.absoluteFill} />;
+  const box = { position: 'absolute' as const, left: 0, right: 0, bottom: 0, height: FOG };
+  if (Platform.OS === 'web') return <WebFog style={box} />;
+  if (Masked)
+    return (
+      <Masked style={box} maskElement={<LinearGradient colors={['transparent', '#000', '#000', 'transparent']} locations={[0, 0.4, 0.8, 1]} style={StyleSheet.absoluteFill} />}>
+        {glass}
+      </Masked>
+    );
+  return null;
+}
+
+/* On the web the blur and its mask go on one node: a mask on the blur's
+   parent would cut the blur off from what is behind it. */
+function WebFog({ style }: { style: object }) {
+  const ref = useRef<View>(null);
+  useLayoutEffect(() => {
+    const el = ref.current as unknown as { style?: Record<string, string> } | null;
+    if (!el?.style) return;
+    const mask = 'linear-gradient(to bottom, transparent 0%, #000 40%, #000 80%, transparent 100%)';
+    el.style.maskImage = mask;
+    el.style.webkitMaskImage = mask;
+    el.style.backdropFilter = 'blur(6px)';
+    el.style.webkitBackdropFilter = 'blur(6px)';
+    el.style.backgroundColor = 'rgba(20,20,20,0.18)';
+  }, []);
+  return <View ref={ref} style={style} />;
+}
+
+/* One thing in the drawer, arriving in its turn as the drawer comes in: out of a blur, from a little to the left. */
+function Arrives({ d, i, children }: { d: SharedValue<number>; i: number; children: React.ReactNode }) {
+  const style = useAnimatedStyle(() => {
+    const k = clamp((d.value - 0.3 - i * 0.05) / 0.4);
+    return { opacity: k, transform: [{ translateX: -12 * (1 - k) }], ...blurred((1 - k) * 4) };
+  });
+  return <Animated.View style={style}>{children}</Animated.View>;
+}
+
+/* A chat in the drawer: what it was about, and when, on one line; a dot on
+   one Beetle started that is not opened yet; the open one on a faint ground. */
 function ChatRow({ chat, on, onPress }: { chat: Chat; on: boolean; onPress: () => void }) {
   return (
-    <Tap accessibilityRole="button" accessibilityLabel={chat.title} accessibilityState={{ selected: on }} onPress={onPress} style={[s.row, on ? s.rowOn : null]}>
-      <Icon name="mark" size={20} colour={colour.accent} />
-      <View style={{ flex: 1, gap: 2 }}>
-        <Row style={{ color: '#ffffff' }} numberOfLines={1}>
-          {chat.title}
-        </Row>
-        <Meta style={{ color: dark.textSoft }} numberOfLines={1}>
-          {chat.startedBy === 'beetle' ? 'Beetle' : 'You'} · {chat.detail}
-        </Meta>
-      </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-        {chat.unread ? <View style={s.unread} /> : null}
-        <Label style={{ color: dark.label }}>{chat.time}</Label>
-      </View>
+    <Tap accessibilityRole="button" accessibilityLabel={chat.title} accessibilityState={{ selected: on }} onPress={onPress} scale={0.98} style={[s.row, on ? s.rowOn : null]}>
+      {chat.unread ? <View style={s.unread} /> : null}
+      <Meta style={s.title} numberOfLines={1}>
+        {chat.title}
+      </Meta>
+      <Caption style={{ color: dark.label }}>{chat.time}</Caption>
     </Tap>
   );
 }
 
 const s = StyleSheet.create({
   edge: { position: 'absolute', left: 0, width: EDGE },
-  scrim: { backgroundColor: 'rgba(0,0,0,0.45)' },
-  panel: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    backgroundColor: dark.panel,
-    borderTopRightRadius: 28,
-    borderBottomRightRadius: 28,
-    borderRightWidth: 1,
-    borderColor: dark.edge,
-    gap: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.4,
-    shadowRadius: 24,
-    shadowOffset: { width: 8, height: 0 },
-  },
-  new: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, height: 44, marginHorizontal: 20, borderRadius: 22, backgroundColor: '#ffffff' },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 8, paddingVertical: 10, borderRadius: 16 },
-  rowOn: { backgroundColor: dark.edge },
+  area: { position: 'absolute', left: 0, right: 0, overflow: 'hidden' },
+  panel: { position: 'absolute', left: 0, top: 0, bottom: 0, borderTopRightRadius: 24, overflow: 'hidden', paddingTop: 8 },
+  new: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 48, marginHorizontal: 8, paddingHorizontal: 12, borderRadius: 14 },
+  newWords: { color: '#ffffff', fontWeight: '500' },
+  hair: { height: 1, backgroundColor: dark.divider, marginHorizontal: 20, marginTop: 8, marginBottom: 12 },
+  list: { gap: 20, paddingHorizontal: 8, paddingBottom: 96 },
+  group: { color: dark.label, paddingHorizontal: 12, marginBottom: 4 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 44, paddingHorizontal: 12, borderRadius: 14 },
+  rowOn: { backgroundColor: 'rgba(255,255,255,0.07)' },
+  title: { flex: 1, color: dark.pillText },
   unread: { width: 6, height: 6, borderRadius: 3, backgroundColor: colour.accent },
 });

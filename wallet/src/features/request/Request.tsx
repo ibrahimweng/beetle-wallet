@@ -5,14 +5,15 @@
    under them — then the lock line that says asking cannot move money.
    Reached from "ask musa for 20k" at home, from a photo of the message,
    from Ask someone on the Receive sheet and Ask for money on Three ways.
-   What is missing is asked for: a tap on the row, or a reply in the bar at
-   the foot beside Back, fills it. Sending files the request, and the page
-   that says so takes its place. */
+   What is missing is asked for, and a tap on its row fills it where it is:
+   the person from those who have paid before or somebody new, the amount
+   on the picker (no cap: anyone can be asked for anything), what it is for
+   in a word or two. Send the request sits in the foot beside Back.
+   Sending files the request, and the page that says so takes its place. */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { Avatar, Head, Icon, Label, LightPanel, Meta, Row, Say, Screen, Sheet, Tap, colour } from '../../design';
-import { amountIn } from '../../services/agent';
+import { AmountPicker, Avatar, Button, Head, Icon, Label, LightPanel, Meta, Row, Say, Screen, Sheet, Tap, colour } from '../../design';
 import { phoneIn } from '../../services/nigeria';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -21,7 +22,7 @@ import { clock, useChats } from '../agent/chats';
 import { turn } from '../agent/conversation';
 import { LAB } from '../../lab/enabled';
 import { groupPhone, initialsOf, naira } from '../../lib/format';
-import { PAYERS, firstOf, lineEnding, noteIn, objectOf, payerIn, type Payer } from './people';
+import { PAYERS, firstOf, lineEnding, objectOf, type Payer } from './people';
 import { requestDraft } from './hand';
 import { lineFor, shortMoney } from './words';
 import { requestFrom, useRequests } from './requests';
@@ -101,41 +102,21 @@ export function Request() {
     return () => clearTimeout(t);
   }, [complete]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* a reply in the bar: a name, a figure, what it is for, a new line */
-  const reply = (q: string) => {
-    say({ who: 'you', text: q });
-    let w = who;
-    let a = amount;
-    let got = false;
-    const p = payerIn(q);
-    if (p) {
-      w = p;
-      got = true;
-    } else {
-      const phone = phoneIn(q);
-      if (phone) {
-        const name = q
-          .replace(/[\d\s+\-()]{7,}/g, ' ')
-          .replace(/\b(ask|for|and|at|on|the|number|line)\b/gi, ' ')
-          .replace(/\s+/g, ' ')
-          .trim();
-        w = { name: name ? name.replace(/\b\w/g, c => c.toUpperCase()) : groupPhone(phone), phone, pronoun: 'they', note: 'new' };
-        got = true;
-      }
-    }
-    const figure = amountIn(q);
-    if (figure) {
-      a = figure;
-      got = true;
-    }
-    const what = noteIn(q);
-    if (what) {
-      setNote(what);
-      got = true;
-    }
-    setWho(w);
-    setAmount(a);
-    say({ who: 'beetle', text: got ? lineFor(w, a) : 'I did not catch a name or a figure in that. Try "Musa" or "20k", or tap a row.' });
+  /** the sheet up over the page: the amount, or what it is for */
+  const [sheet, setSheet] = useState<null | 'amount' | 'for'>(null);
+  const [pickAmount, setPickAmount] = useState(0);
+  const [pickNote, setPickNote] = useState('');
+  /** somebody new, typed into the person sheet */
+  const [fresh, setFresh] = useState<{ open: boolean; name: string; number: string }>({ open: false, name: '', number: '' });
+  const freshPhone = phoneIn(fresh.number);
+  const askFresh = () => {
+    if (!freshPhone) return;
+    const name = fresh.name.trim().replace(/\b\w/g, c => c.toUpperCase()) || groupPhone(freshPhone);
+    const p: Payer = { name, phone: freshPhone, pronoun: 'they', note: 'new' };
+    setWho(p);
+    setPicking(false);
+    setFresh({ open: false, name: '', number: '' });
+    say({ who: 'beetle', text: lineFor(p, amount) });
   };
 
   const send = () => {
@@ -165,9 +146,10 @@ export function Request() {
     }, 900);
   };
 
-  useFoot({ kind: 'ask', placeholder: 'Reply, or just keep typing', onAsk: reply, onScan: () => router.push('/scan'), veil: picking ? 'away' : undefined });
-  if (!ok || !account) return null;
   const first = who ? firstOf(who.name) : '';
+  /* the foot: Back, and Send the request beside it once there is someone, an amount and a date */
+  useFoot({ kind: 'button', label: busy ? `Asking ${first}…` : 'Send the request', disabled: !dated || busy, onPress: send, veil: picking || sheet ? 'away' : undefined });
+  if (!ok || !account) return null;
   const status = busy ? 'Sending' : !complete ? 'Waiting' : dated ? 'Ready' : 'Running';
   return (
     <Screen>
@@ -203,22 +185,28 @@ export function Request() {
           rows={[
             { label: 'Person', value: who ? who.name : 'Pick someone', done: !!who, onPress: () => setPicking(true), chevron: !who },
             { label: who ? `Reaches ${objectOf(who.pronoun)}` : 'Reaches them', value: who ? 'WhatsApp and SMS' : 'Their line', done: !!who },
-            { label: 'Amount', value: amount ? naira(amount) : 'Type it', done: amount > 0, onPress: () => router.push(`/amend?amount=${amount || ''}&to=request`), chevron: true },
-            { label: 'For', value: note || 'Anything, or nothing', done: !!note },
+            {
+              label: 'Amount',
+              value: amount ? naira(amount) : 'Pick it',
+              done: amount > 0,
+              onPress: () => {
+                setPickAmount(amount);
+                setSheet('amount');
+              },
+              chevron: true,
+            },
+            {
+              label: 'For',
+              value: note || 'Anything, or nothing',
+              done: !!note,
+              onPress: () => {
+                setPickNote(note);
+                setSheet('for');
+              },
+              chevron: !note,
+            },
             { label: 'Expires', value: dated ? 'In 7 days' : 'Picking a date', done: dated, working: complete && !dated },
           ]}
-          foot={
-            <Tap
-              accessibilityRole="button"
-              accessibilityLabel="Send the request"
-              accessibilityState={{ disabled: !dated || busy }}
-              disabled={!dated || busy}
-              onPress={send}
-              style={[s.send, !dated || busy ? s.sendOff : null]}
-            >
-              <Row tone={!dated || busy ? 'tertiary' : 'inverse'}>{busy ? `Asking ${first}…` : 'Send the request'}</Row>
-            </Tap>
-          }
         />
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginTop: -4 }} testID="lock-line">
@@ -233,7 +221,7 @@ export function Request() {
         <Sheet onDismiss={() => setPicking(false)} testID="pick-person">
           <Head>Who should I ask?</Head>
           <Meta tone="secondary" style={{ marginTop: 8 }}>
-            People who have paid you before. Somebody else: type their name and number in the bar.
+            People who have paid you before, or somebody new.
           </Meta>
           <View style={{ marginTop: 12 }}>
             {PAYERS.map((p, i) => (
@@ -256,6 +244,95 @@ export function Request() {
                 <Icon name="chevron" size={16} colour={colour.textTertiary} />
               </Tap>
             ))}
+            {fresh.open ? (
+              <View style={[s.fresh, s.hairTop]} testID="someone-new">
+                <TextInput
+                  value={fresh.name}
+                  onChangeText={v => setFresh(f => ({ ...f, name: v }))}
+                  placeholder="Their name"
+                  placeholderTextColor={colour.textTertiary}
+                  style={s.input}
+                  accessibilityLabel="Their name"
+                  autoFocus
+                />
+                <TextInput
+                  value={fresh.number}
+                  onChangeText={v => setFresh(f => ({ ...f, number: v }))}
+                  placeholder="Their phone number"
+                  placeholderTextColor={colour.textTertiary}
+                  keyboardType="phone-pad"
+                  style={s.input}
+                  accessibilityLabel="Their phone number"
+                />
+                <Button label={fresh.name.trim() ? `Ask ${firstOf(fresh.name.trim())}` : 'Ask them'} size={48} disabled={!freshPhone} onPress={askFresh} />
+              </View>
+            ) : (
+              <Tap accessibilityRole="button" accessibilityLabel="Somebody new" onPress={() => setFresh(f => ({ ...f, open: true }))} style={[s.person, s.hairTop]}>
+                <View style={s.plusDisc}>
+                  <Icon name="plus" size={18} colour={colour.ink} />
+                </View>
+                <View style={{ flex: 1, gap: 2 }}>
+                  <Row>Somebody new</Row>
+                  <Meta tone="secondary">A name and a phone number</Meta>
+                </View>
+                <Icon name="chevron" size={16} colour={colour.textTertiary} />
+              </Tap>
+            )}
+          </View>
+        </Sheet>
+      ) : null}
+      {sheet === 'amount' ? (
+        <Sheet onDismiss={() => setSheet(null)} testID="pick-amount">
+          <Head>{who ? `How much should ${firstOf(who.name)} pay?` : 'How much?'}</Head>
+          <Meta tone="secondary" style={{ marginTop: 8 }}>
+            Ask for anything. They choose whether to pay.
+          </Meta>
+          <View style={{ marginTop: 20 }}>
+            <AmountPicker value={pickAmount} onChange={setPickAmount} chips={[5_000, 10_000, 20_000, 50_000]} />
+          </View>
+          <View style={{ marginTop: 20 }}>
+            <Button
+              label={pickAmount ? `Ask for ${naira(pickAmount)}` : 'Ask for it'}
+              disabled={!pickAmount}
+              onPress={() => {
+                setAmount(pickAmount);
+                setSheet(null);
+                say({ who: 'beetle', text: lineFor(who, pickAmount) });
+              }}
+            />
+          </View>
+        </Sheet>
+      ) : null}
+      {sheet === 'for' ? (
+        <Sheet onDismiss={() => setSheet(null)} testID="pick-note">
+          <Head>What is it for?</Head>
+          <Meta tone="secondary" style={{ marginTop: 8 }}>
+            {who ? `${firstOf(who.name)} sees it with the request.` : 'They see it with the request.'}
+          </Meta>
+          <TextInput
+            value={pickNote}
+            onChangeText={setPickNote}
+            placeholder="Rent balance, lunch, the tickets…"
+            placeholderTextColor={colour.textTertiary}
+            style={[s.input, { marginTop: 16 }]}
+            accessibilityLabel="What it is for"
+            autoFocus
+          />
+          <View style={s.notes}>
+            {['Rent balance', 'Lunch', 'Transport', 'What you owe me'].map(n => (
+              <Tap key={n} accessibilityRole="button" accessibilityLabel={n} onPress={() => setPickNote(n)} style={[s.note, pickNote === n ? s.noteOn : null]}>
+                <Label tone={pickNote === n ? 'inverse' : 'ink'}>{n}</Label>
+              </Tap>
+            ))}
+          </View>
+          <View style={{ marginTop: 20 }}>
+            <Button
+              label="Done"
+              onPress={() => {
+                setNote(pickNote.trim());
+                setSheet(null);
+              }}
+            />
           </View>
         </Sheet>
       ) : null}
@@ -266,8 +343,12 @@ export function Request() {
 const s = StyleSheet.create({
   head: { height: 44, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', gap: 8 },
   pill: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 47, borderRadius: 24, backgroundColor: colour.ink, paddingLeft: 16, paddingRight: 19 },
-  send: { height: 52, borderRadius: 26, backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' },
-  sendOff: { backgroundColor: colour.surface2 },
+  plusDisc: { width: 40, height: 40, borderRadius: 20, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },
+  fresh: { gap: 12, paddingTop: 16 },
+  input: { height: 48, borderRadius: 16, backgroundColor: colour.surface2, paddingHorizontal: 16, fontSize: 16, color: colour.ink, outlineWidth: 0 },
+  notes: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
+  note: { height: 36, borderRadius: 18, paddingHorizontal: 14, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },
+  noteOn: { backgroundColor: colour.ink },
   person: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 64 },
   hairTop: { borderTopWidth: 1, borderTopColor: colour.rule },
 });

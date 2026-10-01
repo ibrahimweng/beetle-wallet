@@ -89,8 +89,9 @@ async function measure(spec) {
     }
     if (!el) return null;
     for (let i = 0; i < (spec.up ?? 0); i++) el = el.parentElement ?? el;
-    /* down into it: one child, or a path of them */
-    for (const i of spec.child === undefined ? [] : [].concat(spec.child)) el = el.children[i] ?? el;
+    /* down into it: one child, or a path of them; a pressed row's wash, drawn first under the rest, is not one of them */
+    const kids = e => [...e.children].filter(c => c.getAttribute('data-testid') !== 'wash');
+    for (const i of spec.child === undefined ? [] : [].concat(spec.child)) el = kids(el)[i] ?? el;
     return box(el);
   }, spec);
 }

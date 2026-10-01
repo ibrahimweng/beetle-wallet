@@ -23,7 +23,7 @@ export function MyCode() {
   const ok = useSessionGuard();
   const account = app.session?.account;
   const card = useRef<View>(null);
-  useFoot({ kind: 'ask', placeholder: 'Ask about your code', onAsk: q => askHome(router, q), onScan: () => router.push('/scan'), more: true });
+  useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   const name = `${account.firstName} ${account.lastName}`;
   const number = groupAccount(account.accountNumber);

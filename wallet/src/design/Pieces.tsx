@@ -26,26 +26,28 @@ import { measure, useArrival, useDeparture, type Rect } from './journey';
 /* The record's frame sets a 40 box with the glyph in it before the title,
    and the line under both. The box and the title's box share the top of the
    column, so nothing is pulled up here the way the plain head is. */
-export function GlyphHead({ glyph, title, sub }: { glyph: IconName; title: string; sub: string }) {
-  /* opened from the bar, the glyph arrives from the bar's own; from words, the title carries them; otherwise the head fades in */
+export function GlyphHead({ glyph, title, sub, rowRef }: { glyph: IconName; title: string; sub: string; rowRef?: React.RefObject<View | null> }) {
+  /* the head arrives with the rest of the page */
   const a = useArrival();
-  const target = !a.from ? 'all' : a.from.words ? 'title' : 'glyph';
-  const box = (
-    <View style={s.box40} testID="head-glyph">
-      <Icon name={glyph} size={22} colour={colour.ink} />
-    </View>
-  );
-  const on = (which: string) => (target === which ? { ref: a.ref, onLayout: a.onLayout, style: a.style } : {});
   return (
-    <Animated.View {...on('all')} style={[{ gap: 8, marginBottom: -5 }, target === 'all' ? a.style : null]}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <Animated.View {...on('glyph')}>{box}</Animated.View>
-        <Animated.View {...on('title')}>
-          <Title>{title}</Title>
-        </Animated.View>
+    <Animated.View style={[{ gap: 8, marginBottom: -5 }, a.style]}>
+      <View ref={rowRef} collapsable={false}>
+        <GlyphTitle glyph={glyph} title={title} />
       </View>
       <Body tone="tertiary">{sub}</Body>
     </Animated.View>
+  );
+}
+
+/** The head's first row on its own: the 40 box with the glyph, and the title. Activities draws it again, sharp, over the frost of an open line. */
+export function GlyphTitle({ glyph, title }: { glyph: IconName; title: string }) {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+      <View style={s.box40} testID="head-glyph">
+        <Icon name={glyph} size={22} colour={colour.ink} />
+      </View>
+      <Title>{title}</Title>
+    </View>
   );
 }
 
@@ -269,7 +271,8 @@ export function Step({ n, done, children, right }: { n: number; done?: boolean; 
 export function ChoiceRow({ glyph, title, sub, onPress, to, testID }: { glyph: IconName; title: string; sub: string; onPress?: () => void; to?: string; testID?: string }) {
   const j = useDeparture({ id: `choice:${title}`, to, words: title });
   return (
-    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={title} onPress={to ? j.onPress : onPress} style={[s.choice, j.style]} testID={testID}>
+    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={title} onPress={to ? j.onPress : onPress} style={[s.choice]} testID={testID}>
+      {j.wash}
       <View style={[s.box32, { backgroundColor: colour.surface }]}>
         <Icon name={glyph} size={16} colour={colour.ink} />
       </View>
@@ -409,7 +412,8 @@ export function ChoiceList({ items, testID }: { items: Way[]; testID?: string })
 function BigChoice({ glyph, title, sub, onPress, to, first, testID }: Way & { first: boolean }) {
   const j = useDeparture({ id: `choice:${title}`, to, words: title });
   return (
-    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={title} onPress={to ? j.onPress : onPress} style={[s.bigChoice, first ? null : s.hairTop, j.style]} testID={testID}>
+    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={title} onPress={to ? j.onPress : onPress} style={[s.bigChoice, first ? null : s.hairTop]} testID={testID}>
+      {j.wash}
       <View style={[s.box40, { backgroundColor: colour.surface }]}>
         <Icon name={glyph} size={20} colour={colour.ink} />
       </View>
@@ -558,9 +562,10 @@ export function HistoryRow({
       accessibilityRole="button"
       accessibilityLabel={name}
       onPress={() => (onOpen ? void Promise.all([measure(j.ref), measure(figure)]).then(([at, fig]) => onOpen(at, fig)) : to ? void j.onPress() : onPress?.())}
-      style={[status ? s.statusRow : s.doneRow, j.style]}
+      style={[status ? s.statusRow : s.doneRow]}
       testID={status ? 'status-row' : 'done-row'}
     >
+      {j.wash}
       {status ? (
         <Icon name={glyph} size={28} colour={tone ?? colour.ink} />
       ) : (

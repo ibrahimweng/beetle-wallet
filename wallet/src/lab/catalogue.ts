@@ -262,14 +262,6 @@ export const SEND: Feature = {
       seed: demo,
     },
     {
-      id: 'send-amend',
-      icon: 'dial',
-      title: 'Change the amount',
-      sub: 'The keypad with 000 on it, what was read, and Use it, from the frame',
-      href: '/amend?read=200000&amount=20000',
-      seed: demo,
-    },
-    {
       id: 'send-short',
       icon: 'warn-filled',
       title: 'Not enough in Everyday',

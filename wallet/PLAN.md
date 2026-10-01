@@ -564,6 +564,154 @@ not on Activities; the four cards are Savings, Loan, Card and Services,
 with airtime and bills under Services; the cards are equal and Savings is
 the richest of them; a transaction opens its receipt in one step.
 
+## Round 10 · The chat with the bar under it, one ask bar, and amounts picked on the page
+
+Asked by the owner after the Round 9 screens, in three messages, with seven
+questions answered. The interface, as it is to be:
+
+**The open chat**
+
+- [x] **Chips on top of the input.** Bills, Data and Services, left-aligned
+      exactly on top of the chat's input, quiet on the dark card. The row of
+      Bills, Data, Services and Photo under the card goes: Photo repeated the
+      camera in the input, and one thing should have one place.
+- [x] **The bar under the open chat.** The bar stays when the card opens, the
+      same bar as everywhere (Home, Activities, Settings, the plus); the open
+      card ends just above it.
+- [x] **The bar with the chat open.** Activities or Settings slides the pages
+      across and keeps the chat as it is. Home, once, comes back to the chat
+      exactly as it was left. Home again, or Home tapped in the chat, closes
+      the card back up; pulling down reveals it again.
+
+**The chats drawer**
+
+- [x] **Inside the dark card**, not over the whole page.
+- [x] **New chat, quietly**: a small plus and the words 12 beside it,
+      left-aligned, as Claude Code draws New session; a line and some room
+      before the recent chats. No white pill, no big title, no mark repeated
+      on every row.
+- [x] **Short, and fading**: solid at the top, softening into a blur toward
+      the input, ending above the chips so the input stays in view.
+- [x] **In and out**: a swipe right from the edge brings it in; a swipe left
+      on the chat, a tap on the chat beside it, or a tap on the input puts it
+      away.
+- [x] **The Fuse way of moving**: the panel springs in with the finger, its
+      rows blur in one after another, and the chat behind recedes a little.
+
+**One ask bar, on home**
+
+- [x] Every page except home loses the ask bar. Its foot is Back beside the
+      page's own button, spaced so both are easy to hit, or Back alone. The
+      plus stays on the bar of the three pages only.
+- [x] All services keeps its search, as a search field at the top of the
+      page rather than a chat bar at its foot.
+- [x] **A transaction's actions.** The receipt's foot is Back beside Share
+      receipt. A ··· at the top right opens a soft pop-up with Ask Beetle
+      about this and Report a problem (which leaves the receipt's body).
+- [x] **Ask Beetle about this** opens a fresh chat on home with that
+      transaction as its context: its card at the top, Beetle's word about
+      it, and the conversation about that one transaction.
+
+**Amounts, picked on the page**
+
+The rule, from now on: wherever money is put in, the page offers chips of
+likely amounts and a stepped ruler, and the amount changes on the page
+itself, never on a page of its own.
+
+- [x] **The picker**: the figure, chips of likely amounts, and a ruler of
+      ticks that scrolls under a fixed line as the finger drags, snapping to
+      each step with a light haptic click and rolling the figure as it
+      goes. It stops hard at the balance, with a firmer click. Steps: ₦100
+      up to ₦10,000, ₦500 up to ₦100,000, ₦1,000 above. A tap on the figure
+      types any exact amount in place.
+- [x] **Where**: Send money, Pay a bill, Airtime, Add money to a goal and
+      Convert, capped at the balance; Borrow, capped at what can be borrowed;
+      Request money, with no cap; and a new Load card on the virtual card's
+      page, capped at the balance, through the passcode to a receipt.
+- [x] **Change the amount** as a page of its own goes.
+- [x] **No sharp press states**: a row's highlight gets round corners.
+
+**Asked while it was being built**
+
+- [x] **Titles arrive with the page.** A page's title no longer flies up
+      from the button that opened it or grows into its size: it comes in
+      with the rest of the page, out of the same blur, at the same moment.
+- [x] **A line of Activities opens in place**, the way Fuse opens a coin in
+      its list: the line stays where it is, sharp, the page goes soft under a
+      frost of white, and the rest of it grows in under the line — from
+      where, the fee, the amount and the balance after (not who, which the
+      line says, and not the total), the session id kept back until asked
+      for, then Share receipt and Set it up side by side. No page fills the
+      screen.
+- [x] **The ··· for an open line** sits at the top right beside the
+      Activities title, the title kept sharp over the frost with it: Ask
+      Beetle about this, Report a problem.
+
+Decided with the owner: the chips are Bills, Data and Services; the bar
+with the chat open works as above; the plus is on the bar everywhere the
+bar is; Share receipt sits in the foot with a ··· at the top; the ruler
+over a track and knob; steps finer when small; the picker on Borrow,
+Request money and loading the virtual card as well.
+
+**Settled while building**
+
+- The open card stops 16 above the bar's row of glyphs, and the bar's white
+  and its shadow go bare as the card opens, so the card can come down over
+  the top of the surface without a seam. The bar goes down under the
+  keyboard (the keyboard is always the chat's there) and out of the way
+  under home's sheets — the Receive sheet, the passcode, a receipt or the
+  saved list over the chat — which also mends the Receive sheet, whose foot
+  the bar had been drawn over.
+- Home tapped again is heard by the pages (`tabs.again`): home closes its
+  chat on it. The keyboard goes down when the pages turn away from the chat.
+- The two chat pages lose their reply bar too, and every row fills where it
+  is: on Request, Person (those who have paid before, or somebody new: a
+  name and a number), Amount on the picker with no cap, and For (a word, or
+  one of four); on the top-up from a message, the plan row opens the
+  network's bundles, or airtime on the picker. Send the request and Confirm
+  sit in the foot beside Back.
+- The whole-balance refusal counts the fee now that the picker stops at all
+  that can be sent: All of it, to an account never paid, still stops.
+- The ruler takes a finger, a fling (it settles on the step where the fling
+  would come to rest) or a tap on a tick, and a chip moves it too; it is
+  read as adjustable, a step at a time. The clicks are expo-haptics, held to
+  one every 28ms so a fling ticks like a wheel; the web has none. Dollars
+  run the same steps a hundred times smaller: $1, $5 and $10.
+- Goal's Add money and the card's Load put the picker up on a sheet over
+  their page, since neither page has room of its own for it; Send money,
+  Pay a bill, Airtime, Convert and Borrow carry it in their own card.
+- The card's Load adds to what the card can spend on top of its month; the
+  card on home says so too.
+- The set's "more" is the four-dot grid, which reads as apps; the three
+  dots of the ··· are drawn where they are used.
+- A thing that leads somewhere lights with a rounded wash 8 wider than it
+  on either side, its own layer, instead of a background on its box.
+- The receipt over Activities (ReceiptOver) goes: a line opens in place,
+  and the receipt page keeps the full slip for the chat's card and a share.
+- Found in the design pass: a page's foot was a flat white band, so a row
+  under it was sliced mid-line. On a page (not the bar) 40 of white fade
+  sit over the band, and what scrolls under the foot dissolves into it.
+- Found by the walk: a swipe across the frost of an open line counted as a
+  tap and put it away. Only a tap does now (a finger that moves more than
+  12 is a swipe, and the pages hold still under it).
+- Found by the walk: with the picker making Send money taller, the list of
+  people paid before reached down under the foot, and the receded Slide to
+  send took the tap meant for its last row (on the web a part set to take
+  touches keeps taking them under a foot set to take none). The list stops
+  above the foot now, and every part of a veiled foot lets touches through.
+- Found by the walk: All of it set the cap (₦595,267) and the ruler then
+  settled on its nearest step (₦595,000) and said that. The cap is the
+  ruler's last step, wherever it falls between steps (`stepFor`, tested).
+- Found by the walk: Not enough offered the whole balance, which Send money
+  could not take once the fee counted. It offers the balance less the fee
+  now, and Send money opens on All of it.
+- The Figma check steps over a row's wash when it walks into the row's
+  children, and finds the card's Load tile and Checking's Let me pick it by
+  their new words; everything else this round moves is in allowed.json
+  with its reason (the foot, the picker, the search on All services, the
+  receipt's ···).
+
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

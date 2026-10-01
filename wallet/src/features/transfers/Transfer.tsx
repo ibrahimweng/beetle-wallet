@@ -23,7 +23,7 @@ export function Transfer({ id }: { id: string }) {
   const { ok, ready, row } = useLine(id);
   const ask = row?.status === 'failed' ? 'Ask why this failed' : row?.status === 'pending' ? 'Ask about this transfer' : 'Ask about this';
   const about = row ? `${naira(row.amount)} to ${row.name}, ${row.detail.toLowerCase()} at ${row.time}` : undefined;
-  useFoot({ kind: 'ask', placeholder: ask, onAsk: q => askHome(router, q, about), onScan: () => router.push('/scan') });
+  useFoot({ kind: 'back' });
   if (!ok) return null;
   if (!ready)
     return (

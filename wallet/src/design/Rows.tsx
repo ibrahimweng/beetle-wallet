@@ -37,7 +37,8 @@ export function SettingRow({
 }) {
   const j = useDeparture({ id: `row:${title}`, to, words: title });
   return (
-    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={title} onPress={to ? j.onPress : onPress} style={[s.row, j.style]} testID={testID}>
+    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={title} onPress={to ? j.onPress : onPress} style={[s.row]} testID={testID}>
+      {j.wash}
       <Icon name={glyph} size={28} colour={ink ?? colour.ink} />
       <Row style={{ flex: 1 }}>{title}</Row>
       {value ? <Meta tone="secondary">{value}</Meta> : null}

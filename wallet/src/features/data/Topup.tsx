@@ -7,13 +7,14 @@
    Reached from Read from your photo over the camera when the message
    asks for data or airtime. Confirm leads to the passcode, the line goes
    into the day, Beetle files the chat with the receipt's card in it, and
-   the receipt opens. A reply in the bar at the foot changes the bundle. */
+   the receipt opens. A tap on the plan row changes the bundle where it
+   is — the network's bundles in a list, or airtime on the amount picker —
+   and Confirm sits in the foot beside Back. */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { Head, Icon, LightPanel, Meta, Row, Say, Screen, Tap, colour, toast } from '../../design';
-import { amountIn } from '../../services/agent';
-import { DEMO_SAVED, airtimePanelFor, dataIn, dataPanelFor, groupPhoneNumber, planById, planFor, planName, planSize, type LinePaid, type Plan } from '../../services';
+import { AmountPicker, Button, Head, Icon, Label, LightPanel, Meta, Row, Say, Screen, Sheet, Tap, colour, toast } from '../../design';
+import { DEMO_SAVED, airtimePanelFor, dataPanelFor, groupPhoneNumber, planById, planFor, planName, planSize, plansFor, type LinePaid, type Plan } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
@@ -117,29 +118,31 @@ export function Topup() {
     return () => clearTimeout(t);
   }, [complete, plan?.id, airtime]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* a reply in the bar: a size, a figure, or airtime */
-  const reply = (q: string) => {
-    say({ who: 'you', text: q });
-    if (!line) {
-      say({ who: 'beetle', text: 'Tap the line row first, so I know whose it is.' });
-      return;
-    }
-    const gb = dataIn(q);
-    const figure = amountIn(q);
-    if (/\bairtime\b|\bcredit\b/i.test(q) && figure) {
-      setAirtime(figure);
-      setPlan(null);
-      say({ who: 'beetle', text: `${naira(figure)} of airtime on ${line.label}'s line, then.` });
-      return;
-    }
-    const p = planFor(line.network, { gb, amount: figure });
-    if (!p) {
-      say({ who: 'beetle', text: 'I did not catch a bundle in that. Try "2GB", or a figure like "₦1,000".' });
-      return;
-    }
+  /** the bundles sheet: data by plan, or airtime on the picker */
+  const [choosing, setChoosing] = useState(false);
+  const [mode, setMode] = useState<'data' | 'airtime'>('data');
+  const [pickAirtime, setPickAirtime] = useState(0);
+  const choose = (p: Plan) => {
     setAirtime(undefined);
     setPlan(p);
+    setChoosing(false);
     say({ who: 'beetle', text: `${planName(p)} for ${naira(p.price)}, then.` });
+  };
+  const useAirtime = () => {
+    if (!line || !pickAirtime) return;
+    setAirtime(pickAirtime);
+    setPlan(null);
+    setChoosing(false);
+    say({ who: 'beetle', text: `${naira(pickAirtime)} of airtime on ${line.label}'s line, then.` });
+  };
+  const openChoosing = () => {
+    if (!line) {
+      router.push('/buy');
+      return;
+    }
+    setMode(airtime ? 'airtime' : 'data');
+    setPickAirtime(airtime ?? 1_000);
+    setChoosing(true);
   };
 
   const price = airtime ?? plan?.price ?? 0;
@@ -186,11 +189,12 @@ export function Topup() {
     router.replace(`/receipt/${row.id}`);
   };
 
-  useFoot({ kind: 'ask', placeholder: 'Reply, or just keep typing', onAsk: reply, onScan: () => router.push('/scan'), veil: guard ? 'away' : undefined });
+  const ready = complete && checked && !busy;
+  /* the foot: Back, and Confirm beside it once the line, the bundle and the check are there */
+  useFoot({ kind: 'button', label: busy ? 'Buying…' : price ? `Confirm ${naira(price)}` : 'Confirm', disabled: !ready, onPress: confirm, veil: guard || choosing ? 'away' : undefined });
   if (!ok || !account) return null;
   const status = busy ? 'Buying' : !complete ? 'Waiting' : checked ? 'Ready' : 'Running';
   const cheaper = askedPlan && plan && askedPlan.price < plan.price ? askedPlan : null;
-  const ready = complete && checked && !busy;
   return (
     <>
       <Screen>
@@ -226,7 +230,9 @@ export function Topup() {
             rows={[
               { label: 'Line', value: line ? `${line.network} · ${groupPhoneNumber(line.number)}` : 'Pick one', done: !!line, onPress: () => router.push('/buy'), chevron: !line },
               { label: 'Whose', value: line ? line.label : 'Their name', done: !!line },
-              airtime ? { label: 'Airtime', value: naira(airtime), done: true } : { label: 'Plan', value: plan ? planName(plan) : 'Say a size', done: !!plan },
+              airtime
+                ? { label: 'Airtime', value: naira(airtime), done: true, onPress: openChoosing, chevron: true }
+                : { label: 'Plan', value: plan ? planName(plan) : 'Pick one', done: !!plan, onPress: openChoosing, chevron: true },
               { label: 'Price', value: price ? naira(price) : 'To come', done: price > 0 },
               {
                 label: 'Cheaper?',
@@ -241,18 +247,6 @@ export function Topup() {
                 working: complete && !checked,
               },
             ]}
-            foot={
-              <Tap
-                accessibilityRole="button"
-                accessibilityLabel={`Confirm ${naira(price)}`}
-                accessibilityState={{ disabled: !ready }}
-                disabled={!ready}
-                onPress={confirm}
-                style={[s.confirm, !ready ? s.confirmOff : null]}
-              >
-                <Row tone={!ready ? 'tertiary' : 'inverse'}>{busy ? 'Buying…' : `Confirm ${naira(price)}`}</Row>
-              </Tap>
-            }
           />
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginTop: -4 }} testID="lock-line">
@@ -264,6 +258,44 @@ export function Topup() {
           </Meta>
         </View>
       </Screen>
+      {choosing && line ? (
+        <Sheet onDismiss={() => setChoosing(false)} testID="pick-plan">
+          <Head>{mode === 'data' ? `Which bundle for ${line.label}?` : `How much airtime for ${line.label}?`}</Head>
+          <View style={s.modes}>
+            {(['data', 'airtime'] as const).map(m => (
+              <Tap
+                key={m}
+                accessibilityRole="button"
+                accessibilityLabel={m === 'data' ? 'Data' : 'Airtime'}
+                accessibilityState={{ selected: mode === m }}
+                onPress={() => setMode(m)}
+                style={[s.mode, mode === m ? s.modeOn : null]}
+              >
+                <Label tone={mode === m ? 'inverse' : 'ink'}>{m === 'data' ? 'Data' : 'Airtime'}</Label>
+              </Tap>
+            ))}
+          </View>
+          {mode === 'data' ? (
+            <View style={{ marginTop: 8 }} testID="plans">
+              {plansFor(line.network).map((p, i) => (
+                <Tap key={p.id} accessibilityRole="button" accessibilityLabel={planName(p)} onPress={() => choose(p)} style={[s.plan, i ? s.hairTop : null]}>
+                  <View style={{ flex: 1, gap: 2 }}>
+                    <Row>{planSize(p)}</Row>
+                    <Meta tone="secondary">{p.days === 1 ? 'A day' : p.days === 7 ? 'A week' : `${p.days} days`}</Meta>
+                  </View>
+                  <Label>{naira(p.price)}</Label>
+                  {plan?.id === p.id ? <Icon name="check" size={18} colour={colour.ink} /> : <View style={{ width: 18 }} />}
+                </Tap>
+              ))}
+            </View>
+          ) : (
+            <View style={{ marginTop: 20, gap: 20 }}>
+              <AmountPicker value={pickAirtime} onChange={setPickAirtime} max={balance} note={`Everyday has ${naira(balance)}`} chips={[500, 1_000, 2_000, 5_000]} />
+              <Button label={pickAirtime ? `${naira(pickAirtime)} of airtime` : 'Pick an amount'} disabled={!pickAirtime} onPress={useAirtime} />
+            </View>
+          )}
+        </Sheet>
+      ) : null}
       {guard && line ? (
         <PasscodeSheet
           amount={naira(price)}
@@ -282,6 +314,9 @@ export function Topup() {
 const s = StyleSheet.create({
   head: { height: 44, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', gap: 8 },
   pill: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 47, borderRadius: 24, backgroundColor: colour.ink, paddingLeft: 16, paddingRight: 19 },
-  confirm: { height: 52, borderRadius: 26, backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' },
-  confirmOff: { backgroundColor: colour.surface2 },
+  modes: { flexDirection: 'row', gap: 8, marginTop: 16 },
+  mode: { height: 36, borderRadius: 18, paddingHorizontal: 16, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },
+  modeOn: { backgroundColor: colour.ink },
+  plan: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 60 },
+  hairTop: { borderTopWidth: 1, borderTopColor: colour.rule },
 });

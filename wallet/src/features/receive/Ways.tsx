@@ -23,7 +23,7 @@ export function Ways() {
   const router = useRouter();
   const ok = useSessionGuard();
   const account = app.session?.account;
-  useFoot({ kind: 'ask', placeholder: 'Ask about getting paid', onAsk: q => askHome(router, q), onScan: () => router.push('/scan'), more: true });
+  useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   const number = groupAccount(account.accountNumber);
   const name = `${account.firstName} ${account.lastName}`;
@@ -95,7 +95,8 @@ function WayCard({
 export function Pill({ label, onPress, to }: { label: string; onPress?: () => void; to?: string }) {
   const j = useDeparture({ id: `pill:${label}`, to, words: label });
   return (
-    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={label} onPress={to ? j.onPress : onPress} style={[s.pill, j.style]}>
+    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={label} onPress={to ? j.onPress : onPress} style={[s.pill]}>
+      {j.wash}
       <Label>{label}</Label>
       <Icon name="chevron" size={12} colour={colour.textSecondary} />
     </Tap>

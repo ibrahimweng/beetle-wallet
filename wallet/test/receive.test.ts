@@ -103,7 +103,7 @@ describe('a request, and what Beetle says', () => {
   it('says who it found, or asks for what is missing', () => {
     expect(lineFor(PAYERS[0]!, 20_000)).toBe('Musa Danjuma, the line ending 4471. He is the only Musa who has ever paid you.');
     expect(lineFor(PAYERS[1]!, 5_000)).toContain('She is the only Sarah');
-    expect(lineFor(PAYERS[0]!, 0)).toBe('How much should I ask Musa for? Tap the amount, or just type it.');
+    expect(lineFor(PAYERS[0]!, 0)).toBe('How much should I ask Musa for? Tap the amount.');
     expect(lineFor(null, 20_000)).toContain('Who should I ask for ₦20,000?');
     expect(lineFor(null, 0)).toContain('Who should I ask, and for how much?');
   });

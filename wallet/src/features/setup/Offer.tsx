@@ -8,7 +8,8 @@ import { Caption, Card, Icon, Label, Tap, colour, space, useDeparture } from '..
 export function SetupOffer({ sub, testID = 'setup-offer' }: { sub: string; testID?: string }) {
   const j = useDeparture({ id: 'setup-offer', to: '/way-in?setup=1', words: 'Finish setting up' });
   return (
-    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel="Finish setting up" onPress={j.onPress} style={j.style} testID={testID}>
+    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel="Finish setting up" onPress={j.onPress} testID={testID}>
+      {j.wash}
       <Card outline style={{ flexDirection: 'row', alignItems: 'center', gap: space.s4, paddingVertical: space.s3, paddingHorizontal: space.s4, borderRadius: 16 }}>
         <Icon name="shield-filled" size={24} colour={colour.ink} />
         <View style={{ flex: 1 }}>

@@ -37,8 +37,37 @@
  ],
  "donesend": [
   {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Something wrong with this?",
+   "why": "the receipt's ··· at the top right holds Report a problem and Ask Beetle about this since Round 10, so the line under the slip goes"
+  },
+  {
+   "piece": "Chip · Set it up",
+   "why": "with Share receipt down in the foot, the offer under the slip comes up into the room it left"
+  },
+  {
+   "piece": "She has it. Rent again next mo",
+   "why": "with Share receipt down in the foot, the offer under the slip comes up into the room it left"
+  },
+  {
+   "piece": "Button",
+   "why": "Share receipt is the page's own button in the foot beside Back since Round 10, where the frame puts it across the body under the slip"
+  },
+  {
+   "piece": "Card",
+   "nth": 1,
+   "why": "with Share receipt down in the foot, the offer under the slip comes up into the room it left"
+  },
+  {
    "text": "Ask about this transfer",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "piece": "Chip · Successful",
@@ -51,12 +80,45 @@
   {
    "piece": "GTBank · 0234 5678 90",
    "why": "the frame boxes this line at 89 wide so it wraps; the build gives it the column, and it fits on one line"
+  },
+  {
+   "text": "Something wrong with this?",
+   "why": "the receipt's ··· at the top right holds Report a problem and Ask Beetle about this since Round 10, so the line under the slip goes"
   }
  ],
  "done": [
   {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Something wrong with this?",
+   "why": "the receipt's ··· at the top right holds Report a problem and Ask Beetle about this since Round 10, so the line under the slip goes"
+  },
+  {
+   "piece": "Chip · Set it up",
+   "why": "with Share receipt down in the foot, the offer under the slip comes up into the room it left"
+  },
+  {
+   "piece": "Mum has it. Every month, witho",
+   "why": "with Share receipt down in the foot, the offer under the slip comes up into the room it left"
+  },
+  {
+   "piece": "Button",
+   "why": "Share receipt is the page's own button in the foot beside Back since Round 10, where the frame puts it across the body under the slip"
+  },
+  {
+   "piece": "Card",
+   "nth": 1,
+   "why": "with Share receipt down in the foot, the offer under the slip comes up into the room it left"
+  },
+  {
    "text": "Ask about this",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "piece": "Chip · Successful",
@@ -65,12 +127,45 @@
   {
    "piece": "Chip · Cleared",
    "why": "the chip is as wide as its word"
+  },
+  {
+   "text": "Something wrong with this?",
+   "why": "the receipt's ··· at the top right holds Report a problem and Ask Beetle about this since Round 10, so the line under the slip goes"
   }
  ],
  "power": [
   {
+   "piece": "Button",
+   "why": "Share receipt is the page's own button in the foot beside Back since Round 10, where the frame puts it across the body under the slip"
+  },
+  {
+   "piece": "Card",
+   "nth": 2,
+   "why": "with Share receipt down in the foot, the offer under the slip comes up into the room it left"
+  },
+  {
+   "piece": "Pay this every month, without ",
+   "why": "with Share receipt down in the foot, the offer under the slip comes up into the room it left"
+  },
+  {
+   "piece": "Chip · Set it up",
+   "why": "with Share receipt down in the foot, the offer under the slip comes up into the room it left"
+  },
+  {
+   "piece": "The token did not work?",
+   "why": "the receipt's ··· at the top right holds Report a problem and Ask Beetle about this since Round 10, so the line under the slip goes"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
    "text": "Ask about this payment",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "piece": "Chip · Successful",
@@ -96,19 +191,48 @@
     "Ikeja reference",
     "IKJ 4457 8891 2208",
     "Icon",
-    "Card",
-    "Button",
-    "Pay this every month, without ",
-    "Chip · Set it up",
-    "The token did not work?"
+    "Card"
    ],
    "why": "two of the four receipt frames put 24 between the slip's blocks, the other two 20; the build keeps 20, so everything after the first block sits a little higher"
+  },
+  {
+   "text": "The token did not work?",
+   "why": "the receipt's ··· at the top right holds Report a problem and Ask Beetle about this since Round 10, so the line under the slip goes"
   }
  ],
  "donein": [
   {
+   "piece": "Button",
+   "why": "Share receipt is the page's own button in the foot beside Back since Round 10, where the frame puts it across the body under the slip"
+  },
+  {
+   "piece": "Card",
+   "nth": 1,
+   "why": "with Share receipt down in the foot, the offer under the slip comes up into the room it left"
+  },
+  {
+   "piece": "Put ₦50,000 away before it goe",
+   "why": "with Share receipt down in the foot, the offer under the slip comes up into the room it left"
+  },
+  {
+   "piece": "Chip · Set it up",
+   "why": "with Share receipt down in the foot, the offer under the slip comes up into the room it left"
+  },
+  {
+   "piece": "Expecting more than this?",
+   "why": "the receipt's ··· at the top right holds Report a problem and Ask Beetle about this since Round 10, so the line under the slip goes"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
    "text": "Ask about this payment",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "piece": "Chip · Successful",
@@ -140,13 +264,13 @@
     "Session ID",
     "000015 260827 164004 118220 77",
     "Icon",
-    "Card",
-    "Button",
-    "Put ₦50,000 away before it goe",
-    "Chip · Set it up",
-    "Expecting more than this?"
+    "Card"
    ],
    "why": "two of the four receipt frames put 24 between the slip's blocks, the other two 20; the build keeps 20, so everything after the first block sits a little higher"
+  },
+  {
+   "text": "Expecting more than this?",
+   "why": "the receipt's ··· at the top right holds Report a problem and Ask Beetle about this since Round 10, so the line under the slip goes"
   }
  ],
  "share": [
@@ -181,7 +305,7 @@
     "Back",
     "Ask bar"
    ],
-   "why": "Activities and Settings are two of the three pages under the one bar now, which the owner asked to stay put across all three, so the foot is the bar rather than Back and the ask bar; a receipt opened over Activities brings Back and the ask bar"
+   "why": "Activities and Settings are two of the three pages under the one bar now, which the owner asked to stay put across all three, so the foot is the bar rather than Back and the ask bar; a line opened on Activities opens where it is, the bar stepping out of the way"
   }
  ],
  "actions": [
@@ -208,7 +332,7 @@
  "history": [
   {
    "text": "Ask about any of these",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "text": "History",
@@ -293,7 +417,7 @@
     "Back",
     "Ask bar"
    ],
-   "why": "Activities and Settings are two of the three pages under the one bar now, which the owner asked to stay put across all three, so the foot is the bar rather than Back and the ask bar; a receipt opened over Activities brings Back and the ask bar"
+   "why": "Activities and Settings are two of the three pages under the one bar now, which the owner asked to stay put across all three, so the foot is the bar rather than Back and the ask bar; a line opened on Activities opens where it is, the bar stepping out of the way"
   }
  ],
  "answer": [
@@ -305,7 +429,7 @@
  "lock": [
   {
    "text": "Ask me to lock something down",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "piece": "Card",
@@ -315,12 +439,20 @@
   {
    "anchor": true,
    "why": "the frame boxes the head at 59 and its second line runs under the first card; the build gives the line its room, so everything below sits 24 lower"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
   }
  ],
  "limits": [
   {
    "text": "Ask me to change a limit",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "piece": "₦64,000",
@@ -341,49 +473,106 @@
   {
    "piece": "Confirm this transaction",
    "why": "the words before it are 4 narrower in the web's font"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
   }
  ],
- "limitstop": [],
+ "limitstop": [
+  {
+   "piece": "Button · Send ₦120,000",
+   "why": "Back sits on the page's 20 (see Back), so the button beside it starts 4 further right; it keeps its width and ends on the page's 20"
+  }
+ ],
  "rules": [
   {
    "text": "Ask me to set one up",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "piece": "The day your salary lands.",
    "why": "the frame puts 3 under a two-line title where it puts 8 under the one-line ones; the build keeps 8"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "piece": "Action button",
+   "why": "the plus belongs to the bar on Home, Activities and Settings; since Round 10 a page's foot is Back, or Back beside the page's own button"
   }
  ],
  "rule": [],
  "devices": [
   {
    "text": "Ask about a device",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "piece": "Button · Sign out everywhere else",
    "why": "the label is 4 wider in the web's font, and the button is as wide as its label"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
   }
  ],
  "lostphone": [
   {
    "text": "Ask what freezing does",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "text": "Signing a device out never t",
    "why": "the layer is named for the Devices line; the frame's picture reads 'Freezing stops money leaving. It does not stop money arriving, and it never touches what you already have', which the build says"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
   }
  ],
  "newcode": [],
  "card": [
   {
    "text": "Ask about this card",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "text": "IBRAHIM WENG",
    "why": "the holder is the account's own: IBRAHIM MUSA on the demo account"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "piece": "Action button",
+   "why": "the plus belongs to the bar on Home, Activities and Settings; since Round 10 a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "text": "Fund",
+   "why": "the tile says Load, the same word as the foot's Load card: loading the card is a flow of its own since Round 10, on the picker"
   }
  ],
  "send": [
@@ -394,32 +583,77 @@
   {
    "text": "Flat deposit",
    "why": "the reference is typed in a field, and a field's words are not in the page's text"
-  }
- ],
- "amend": [
-  {
-   "piece": "Button · Use ₦20,000",
-   "why": "the button sits in the foot beside Back, where every page keeps its one button; the frame draws it under the bubble"
   },
   {
-   "piece": "What if it is more than I ha",
-   "why": "the link sits where the frame's button was, above the foot, since the button is in the foot"
+   "pieces": [
+    "Card",
+    "₦50,000",
+    "I took this from your messag",
+    "Row",
+    "Chip · SA",
+    "Column",
+    "Sarah Adeyemi",
+    "GTBank · 0234 5678 90",
+    "Glyph · check",
+    "The only Sarah you have paid",
+    "Row · Reference",
+    "Reference",
+    "Flat deposit",
+    "Row · From",
+    "From",
+    "Everyday · ₦595,320",
+    "Row · Arrives",
+    "Arrives",
+    "In a few seconds",
+    "Row · Fee",
+    "Fee",
+    "Row · Nothing moves until ",
+    "Glyph · lock",
+    "Nothing moves until you slid"
+   ],
+   "why": "the amount is the picker since Round 10: the figure set in the middle over a ruler that steps and stops hard at what the money comes from holds, with chips under it, where the frame sets the figure at the left; the card is taller, so everything under it sits lower"
+  },
+  {
+   "pieces": [
+    "Slide to confirm",
+    "Knob"
+   ],
+   "why": "Back sits on the page's 20 (see Back), so the button beside it starts 4 further right; it keeps its width and ends on the page's 20"
   }
  ],
  "short": [
   {
    "text": "Ask me about this",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "text": "₦48,000 is sitting there",
    "why": "the goal's own figure: Holiday holds ₦82,400 on its frame, and the row says what the goal says"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "pieces": [
+    "Mark · 32",
+    "Glyph · camera"
+   ],
+   "why": "part of the ask bar, which is home's alone since Round 10"
+  },
+  {
+   "text": "Send ₦12,480 now",
+   "why": "what can go now is what Everyday holds less the transfer's own fee since Round 10, where Send money stops too: ₦12,453 of the ₦12,480"
   }
  ],
  "misread": [
   {
    "text": "Ask me about this",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "text": "short of the ₦20,000 you ask",
@@ -440,17 +674,47 @@
    "piece": "Column",
    "nth": 3,
    "why": "the same column, taller for the line that wraps"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "pieces": [
+    "Mark · 32",
+    "Glyph · camera"
+   ],
+   "why": "part of the ask bar, which is home's alone since Round 10"
   }
  ],
  "pending": [],
  "failed": [
   {
    "text": "Ask why this failed",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "text": "₦20,000",
    "why": "the figures are the line's own: Chidi Okafor's ₦12,000 through Access Bank at 13:40, as the day draws it"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "pieces": [
+    "Mark · 32",
+    "Glyph · camera"
+   ],
+   "why": "part of the ask bar, which is home's alone since Round 10"
   }
  ],
  "reversed": [
@@ -474,7 +738,7 @@
  "wrong": [
   {
    "text": "Tell me what happened",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "text": "Today, 14:22",
@@ -485,12 +749,27 @@
     "I did not make this payment"
    ],
    "why": "its line under runs to two in the frame's font and one in the web's, so the words sit 5 lower in the frame"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "pieces": [
+    "Mark · 32",
+    "Glyph · camera"
+   ],
+   "why": "part of the ask bar, which is home's alone since Round 10"
   }
  ],
  "recall": [
   {
    "text": "Ask what happens next",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "text": "If she says no, no bank can fo",
@@ -499,16 +778,46 @@
   {
    "text": "If she has not answered by F",
    "why": "the same: 'If Sarah has not answered by Friday'"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "pieces": [
+    "Mark · 32",
+    "Glyph · camera"
+   ],
+   "why": "part of the ask bar, which is home's alone since Round 10"
   }
  ],
  "alreadygone": [
   {
    "text": "Ask about the cover",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "text": "Your balance is exactly what i",
    "why": "the layer keeps the It did not go frame's name; the frame's picture reads 'This one is mine. You are covered.', which the build says"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "pieces": [
+    "Mark · 32",
+    "Glyph · camera"
+   ],
+   "why": "part of the ask bar, which is home's alone since Round 10"
   }
  ],
  "facemissed": [
@@ -529,6 +838,18 @@
   {
    "text": "You cannot receive by talking.",
    "why": "the bubble component's own layer name; the frame's picture shows the words the page says"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "piece": "Action button",
+   "why": "the plus belongs to the bar on Home, Activities and Settings; since Round 10 a page's foot is Back, or Back beside the page's own button"
   }
  ],
  "mycode": [
@@ -539,12 +860,24 @@
   {
    "piece": "Glyph · faceid-scan",
    "why": "the frame stands a placeholder glyph where the code goes; the build draws a real QR of the account, 190 across, in its place"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "piece": "Action button",
+   "why": "the plus belongs to the bar on Home, Activities and Settings; since Round 10 a page's foot is Back, or Back beside the page's own button"
   }
  ],
  "request": [
   {
    "piece": "Back",
-   "why": "Back keeps the bottom left beside the reply bar, as every page does here; the frame draws it in the head"
+   "why": "Back keeps the bottom left beside the page's own button, as every page does here; the frame draws it in the head"
   },
   {
    "piece": "Glyph · mark",
@@ -553,6 +886,16 @@
   {
    "piece": "Send the request",
    "why": "the words are centred in the button; the frame's text box sits 18 down in the 52, the build's 24 line 14 down"
+  },
+  {
+   "pieces": [
+    "Tool panel",
+    "Button",
+    "Row · Face ID first. Nothi",
+    "Glyph · lock",
+    "Asking cannot move money. Noth"
+   ],
+   "why": "the panel's button is the page's own button in the foot beside Back since Round 10, so the panel ends after its rows and the line under it comes up"
   }
  ],
  "typedask": [
@@ -658,7 +1001,66 @@
    "nth": 3
   }
  ],
- "services": [],
+ "services": [
+  {
+   "pieces": [
+    "Column",
+    "You use these most",
+    "Row",
+    "Icon",
+    "Glyph · card",
+    "Airtime",
+    "Glyph · down",
+    "Data",
+    "Glyph · bank",
+    "Power",
+    "Glyph · up",
+    "Send",
+    "Glyph · reversed",
+    "Cable TV",
+    "Glyph · receipt",
+    "Betting",
+    "Glyph · school",
+    "Loan",
+    "Cards",
+    "Bills",
+    "Internet",
+    "Spectranet, Smile, Starlink",
+    "Glyph · check",
+    "Water",
+    "State water boards",
+    "Waste",
+    "LAWMA and others",
+    "School fees",
+    "WAEC, JAMB, tuition",
+    "Save and borrow",
+    "Savings pot",
+    "Put money aside",
+    "Fixed savings",
+    "Lock it for a set time",
+    "Money",
+    "Dollars",
+    "$412.60, holding steady",
+    "Request money",
+    "Ask someone to pay you",
+    "Send abroad",
+    "Pounds, dollars and euros"
+   ],
+   "why": "the frame searches from the foot's ask bar; the ask bar is home's alone since Round 10, so All services has its search field under the head and everything under it sits 62 lower"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "piece": "Action button",
+   "why": "the plus belongs to the bar on Home, Activities and Settings; since Round 10 a page's foot is Back, or Back beside the page's own button"
+  }
+ ],
  "typedbuy": [
   {
    "anchor": true,
@@ -721,6 +1123,57 @@
   {
    "text": "19 September",
    "why": "the first payment is a month from today; the frame's day is its own"
+  },
+  {
+   "pieces": [
+    "Card",
+    "Row · ₦150,000",
+    "Icon",
+    "Glyph · gift",
+    "₦150,000",
+    "Glyph · plus",
+    "Column",
+    "Box",
+    "Row · ₦10,000",
+    "₦10,000",
+    "Row",
+    "Button · 30 days",
+    "Button · 60 days",
+    "Button · 90 days",
+    "Row · You get today",
+    "You get today",
+    "Row · Interest, 4% a month",
+    "Interest, 4% a month",
+    "₦18,000",
+    "Row · One off fee",
+    "One off fee",
+    "₦1,500",
+    "Row · You pay back in all",
+    "You pay back in all",
+    "₦169,500",
+    "Row · Three payments of",
+    "Three payments of",
+    "₦56,500",
+    "Row · First payment",
+    "First payment",
+    "19 September",
+    "Row · Pay late and it cost",
+    "Glyph · lock",
+    "Pay late and it costs ₦2,000 a"
+   ],
+   "why": "the amount is the picker since Round 10: the frame's − and + and its slider from ₦10,000 become the ruler, which steps and stops hard at the limit, with chips under it; the card is taller, so everything under it sits lower"
+  },
+  {
+   "pieces": [
+    "Slide to confirm",
+    "Knob",
+    "Slide to take ₦150,000"
+   ],
+   "why": "Back sits on the page's 20 (see Back), so the button beside it starts 4 further right; it keeps its width and ends on the page's 20"
+  },
+  {
+   "text": "₦10,000",
+   "why": "the frame's slider ran from ₦10,000; the picker's ruler starts at nothing and stops hard at the limit, which it says under the figure"
   }
  ],
  "sharebuy": [
@@ -767,12 +1220,60 @@
   {
    "text": "₦58,200 less",
    "why": "the frame's own rounding; the build works the figure from the dollars held at the rate on the page (₦58,600)"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "piece": "Action button",
+   "why": "the plus belongs to the bar on Home, Activities and Settings; since Round 10 a page's foot is Back, or Back beside the page's own button"
   }
  ],
  "convert": [
   {
    "text": "Row · ₦640,300 there",
    "why": "the layer is named for an older figure; its words read ₦595,320 there, which the build says"
+  },
+  {
+   "pieces": [
+    "Card",
+    "You are converting",
+    "Row · ₦155,200",
+    "₦155,200",
+    "Box",
+    "You get about $100.00",
+    "Row · Rate",
+    "Rate",
+    "₦1,552 to $1",
+    "Row · Our fee",
+    "Our fee",
+    "Free under $500",
+    "Row · You get",
+    "You get",
+    "$100.00",
+    "Row",
+    "Mark · 32",
+    "Row · The rate is held for",
+    "Glyph · lock",
+    "The rate is held for sixty s"
+   ],
+   "why": "the amount is the picker since Round 10: the figure set in the middle over a ruler that steps and stops hard at what the money comes from holds, with chips under it, where the frame sets the figure at the left; the card is taller, so everything under it sits lower"
+  },
+  {
+   "pieces": [
+    "Slide to confirm",
+    "Knob"
+   ],
+   "why": "Back sits on the page's 20 (see Back), so the button beside it starts 4 further right; it keeps its width and ends on the page's 20"
+  },
+  {
+   "text": "₦155,200",
+   "why": "the picker draws its figure a character at a time, each rolling on its own as the amount moves, so it is not one run of words on the page; the figure's label reads it whole"
   }
  ],
  "payfrom": [
@@ -790,6 +1291,44 @@
   {
    "text": "About $32.07 from your dolla",
    "why": "the frame's own rate; the build says about $32.22, which is ₦50,000 at the ₦1,552 on the page"
+  },
+  {
+   "pieces": [
+    "Card",
+    "₦50,000",
+    "About $32.07 from your dolla",
+    "I took this from your messag",
+    "Row",
+    "Chip · SA",
+    "Column",
+    "Sarah Adeyemi",
+    "GTBank · 0234 5678 90",
+    "Glyph · check",
+    "The only Sarah you have paid",
+    "Row · Reference",
+    "Reference",
+    "Flat deposit",
+    "Row · From",
+    "From",
+    "Dollars · $412.60",
+    "Row · Arrives",
+    "Arrives",
+    "In a few seconds",
+    "Row · Fee",
+    "Fee",
+    "Free",
+    "Row · The rate is held for",
+    "Glyph · lock",
+    "The rate is held for sixty s"
+   ],
+   "why": "the amount is the picker since Round 10: the figure set in the middle over a ruler that steps and stops hard at what the money comes from holds, with chips under it, where the frame sets the figure at the left; the card is taller, so everything under it sits lower"
+  },
+  {
+   "pieces": [
+    "Slide to confirm",
+    "Knob"
+   ],
+   "why": "Back sits on the page's 20 (see Back), so the button beside it starts 4 further right; it keeps its width and ends on the page's 20"
   }
  ],
  "goal": [
@@ -811,6 +1350,18 @@
    "piece": "Column",
    "nth": 0,
    "why": "the ring's own column: the build centres the figure inside the ring rather than boxing it 180 square"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "piece": "Action button",
+   "why": "the plus belongs to the bar on Home, Activities and Settings; since Round 10 a page's foot is Back, or Back beside the page's own button"
   }
  ],
  "paused": [
@@ -827,6 +1378,18 @@
   {
    "text": "of ₦250,000, holding steady",
    "why": "the frame sets this line 49 under the figure where the Holiday frame sets it 52; the build keeps the Holiday frame's 12 gap"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "piece": "Action button",
+   "why": "the plus belongs to the bar on Home, Activities and Settings; since Round 10 a page's foot is Back, or Back beside the page's own button"
   }
  ],
  "emptygoal": [
@@ -846,6 +1409,18 @@
   {
    "text": "What happens if money gets t",
    "why": "the layer keeps the Holiday page's words; the picture reads What should I be saving for?, which the build says"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "piece": "Action button",
+   "why": "the plus belongs to the bar on Home, Activities and Settings; since Round 10 a page's foot is Back, or Back beside the page's own button"
   }
  ],
  "saverule": [
@@ -860,6 +1435,14 @@
    "piece": "Column",
    "nth": 0,
    "why": "the ring's own column: the build centres the figure inside the ring rather than boxing it 180 square"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
   }
  ],
  "draft": [
@@ -895,7 +1478,26 @@
   },
   {
    "text": "If she has not answered by F",
-   "why": "the layer keeps another frame's words; the picture reads 'Any figure, on the keypad', which the build says"
+   "why": "the layer keeps another frame's words; the picture reads 'Any figure, on the keypad', which the build words 'Any figure, on the ruler or typed': the amount is picked on Send money itself"
+  },
+  {
+   "text": "Let me type it",
+   "why": "the row is 'Let me pick it' now: there is no page of its own to type an amount on, it is picked on Send money's ruler or typed into its figure"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "pieces": [
+    "Mark · 32",
+    "Glyph · camera"
+   ],
+   "why": "part of the ask bar, which is home's alone since Round 10"
   }
  ],
  "disputeopen": [
@@ -922,6 +1524,21 @@
   {
    "text": "If she has not answered by F",
    "why": "the layer keeps another frame's words; the picture's line is cut; the build says 'A message or a screenshot from her'"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "pieces": [
+    "Mark · 32",
+    "Glyph · camera"
+   ],
+   "why": "part of the ask bar, which is home's alone since Round 10"
   }
  ],
  "iwillnot": [
@@ -932,6 +1549,21 @@
   {
    "text": "The rest when your salary la",
    "why": "the layer keeps the Not enough frame's words; the picture reads 'I will ask you again then', which the build says"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "pieces": [
+    "Mark · 32",
+    "Glyph · camera"
+   ],
+   "why": "part of the ask bar, which is home's alone since Round 10"
   }
  ],
  "disputeend": [
@@ -944,6 +1576,21 @@
   {
    "text": "Your balance is exactly what i",
    "why": "the layer keeps the It did not go frame's words; the picture reads 'Nothing you do here gets lost.', which the build says"
+  },
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "pieces": [
+    "Mark · 32",
+    "Glyph · camera"
+   ],
+   "why": "part of the ask bar, which is home's alone since Round 10"
   }
  ],
  "full": [
@@ -955,7 +1602,7 @@
  "emptyactivity": [
   {
    "text": "Ask what shows up here",
-   "why": "the ask bar's words are its placeholder, not text on the page"
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "piece": "Card",
@@ -981,7 +1628,7 @@
     "Back",
     "Ask bar"
    ],
-   "why": "Activities and Settings are two of the three pages under the one bar now, which the owner asked to stay put across all three, so the foot is the bar rather than Back and the ask bar; a receipt opened over Activities brings Back and the ask bar"
+   "why": "Activities and Settings are two of the three pages under the one bar now, which the owner asked to stay put across all three, so the foot is the bar rather than Back and the ask bar; a line opened on Activities opens where it is, the bar stepping out of the way"
   }
  ],
  "finish": [
@@ -1123,6 +1770,94 @@
   {
    "piece": "₦595,320",
    "why": "with the mark gone, the word Wallet sits at the header's left edge, and the figure takes its place there as the card opens"
+  }
+ ],
+ "reqsent": [
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  },
+  {
+   "pieces": [
+    "Mark · 32",
+    "Glyph · camera"
+   ],
+   "why": "part of the ask bar, which is home's alone since Round 10"
+  }
+ ],
+ "powerpay": [
+  {
+   "pieces": [
+    "Card",
+    "₦8,000",
+    "About what you used last mon",
+    "Row · From",
+    "From",
+    "Everyday · 0102 4457 88",
+    "Glyph · check",
+    "Row · Token arrives",
+    "Token arrives",
+    "In a few seconds",
+    "Column",
+    "Or pick an amount",
+    "Row",
+    "₦3,000",
+    "About 14 kWh",
+    "About 38 kWh",
+    "₦15,000",
+    "About 72 kWh",
+    "Row · The token appears he",
+    "Glyph · lock",
+    "The token appears here and i"
+   ],
+   "why": "the amount is the picker since Round 10: the figure set in the middle over a ruler that steps and stops hard at what Everyday holds, where the frame sets the figure at the left; the card is taller, so everything under it, the units chips too, sits lower"
+  },
+  {
+   "pieces": [
+    "Slide to confirm",
+    "Knob"
+   ],
+   "why": "Back sits on the page's 20 (see Back), so the button beside it starts 4 further right; it keeps its width and ends on the page's 20"
+  }
+ ],
+ "meter": [
+  {
+   "piece": "Button · Continue",
+   "why": "Back sits on the page's 20 (see Back), so the button beside it starts 4 further right; it keeps its width and ends on the page's 20"
+  }
+ ],
+ "airtime": [
+  {
+   "pieces": [
+    "Slide to confirm",
+    "Knob"
+   ],
+   "why": "Back sits on the page's 20 (see Back), so the button beside it starts 4 further right; it keeps its width and ends on the page's 20"
+  }
+ ],
+ "buy": [
+  {
+   "pieces": [
+    "Tool panel",
+    "Row · Face ID first. Nothi",
+    "Glyph · lock",
+    "Face ID first. Nothing leave"
+   ],
+   "why": "the panel's button is the page's own button in the foot beside Back since Round 10, so the panel ends after its rows and the line under it comes up"
+  }
+ ],
+ "converted": [
+  {
+   "piece": "Back",
+   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
+  },
+  {
+   "piece": "Ask bar",
+   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
   }
  ]
 }

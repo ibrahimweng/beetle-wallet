@@ -29,8 +29,8 @@ export function Rules() {
   const ok = useSessionGuard();
   const account = app.session?.account;
   const { prefs, ready, set } = usePrefs(account?.accountNumber);
-  /* the foot: Back, the ask bar with this page's question, and the plus the frame draws */
-  useFoot({ kind: 'ask', placeholder: 'Ask me to set one up', onAsk: q => askHome(router, q), onScan: () => router.push('/scan'), more: true });
+  /* the foot: Back */
+  useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   if (!ready)
     return (

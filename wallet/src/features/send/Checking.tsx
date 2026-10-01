@@ -32,7 +32,7 @@ export function Checking() {
   const account = app.session?.account;
   const [d] = useState<CheckDraft | null>(() => checkFor.take() ?? (LAB && asked.demo === '1' ? DEMO : null));
   const toSend = useBackToSend();
-  useFoot({ kind: 'ask', placeholder: 'Ask how I decide', onAsk: q => askHome(router, q, d ? `${d.who.name}, read off a photo` : undefined), onScan: () => router.push('/scan') });
+  useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   const who = d?.who ?? PEOPLE[0]!;
   const first = who.name.split(' ')[0] ?? who.name;
@@ -60,7 +60,15 @@ export function Checking() {
       }}
       ways={[
         ...(usual ? [{ glyph: 'chat' as const, title: `It is ${naira(usual.amount)}`, sub: usualLine(usual), onPress: useUsual }] : []),
-        { glyph: 'list', title: 'Let me type it', sub: 'Any figure, on the keypad', to: '/amend?amount=0' },
+        {
+          glyph: 'list',
+          title: 'Let me pick it',
+          sub: 'Any figure, on the ruler or typed',
+          onPress: () => {
+            draft.put({ amount: 0, amountNote: 'Move the ruler, or tap the figure to type it' });
+            toSend();
+          },
+        },
       ]}
     />
   );

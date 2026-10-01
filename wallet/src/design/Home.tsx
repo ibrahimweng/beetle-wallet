@@ -461,9 +461,9 @@ export function LedgerRow({
           gap: space.s5,
           borderRadius: 16,
         },
-        j.style,
       ]}
     >
+      {j.wash}
       <Icon name={glyph} size={20} />
       <View style={{ flex: 1, gap: 2 }}>
         <Row>{name}</Row>

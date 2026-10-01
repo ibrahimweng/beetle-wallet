@@ -10,7 +10,7 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { Avatar, Body, Caption, Display, Icon, Label, Meta, PageHead, Picks, Say, Screen, Tap, YouTyped, colour, measure, toast, useDeparture, type Rect } from '../../design';
+import { AmountPicker, Avatar, Body, Caption, Icon, Label, Meta, PageHead, Picks, Say, Screen, Tap, YouTyped, colour, measure, toast, type Rect } from '../../design';
 import {
   AIRTIME,
   DEMO_SAVED,
@@ -96,7 +96,7 @@ export function BuyData() {
   const [plan, setPlan] = useState<Plan | null>(() => (usual?.plan ? planById(usual.plan) : usual ? plansFor(usual.network)[2]! : null));
   const [planNote, setPlanNote] = useState(usual?.plan ? 'The bundle you bought last month' : 'The usual size');
   const [amount, setAmount] = useState(usual?.amount ?? 1_000);
-  const [amountNote, setAmountNote] = useState(usual?.amount ? 'What you sent last time' : 'Tap to change it');
+  const [amountNote, setAmountNote] = useState(usual?.amount ? 'What you sent last time' : 'Move the ruler, or tap the figure');
   const [said] = useState(demo ? SAID : '');
   const [typing, setTyping] = useState(false);
   const [number, setNumber] = useState('');
@@ -189,7 +189,6 @@ export function BuyData() {
   };
 
   useFoot({ kind: 'slide', label: 'Slide to buy', amount: naira(price), disabled: !line || !price || typing, onSlide: slide, veil: guard || choosing ? 'away' : pick ? 'recede' : undefined });
-  const amend = useDeparture({ id: 'buy:amount', to: `/amend?amount=${amount}&to=airtime`, words: naira(amount) });
 
   if (!ok || !account) return null;
   const whose = line ? (line.own ? 'your' : `${line.label}'s`) : '';
@@ -263,10 +262,17 @@ export function BuyData() {
             </Tap>
           )}
           {airtime ? (
-            <Tap ref={amend.ref} accessibilityRole="button" accessibilityLabel="The amount" onPress={amend.onPress} style={[s.sub, s.amount, amend.style]} testID="buy-amount">
-              <Display tone={amount ? 'ink' : 'tertiary'}>{naira(amount)}</Display>
-              <Caption tone="secondary">{amountNote}</Caption>
-            </Tap>
+            <View style={[s.sub, s.amount]} testID="buy-amount">
+              <AmountPicker
+                value={amount}
+                onChange={v => {
+                  setAmount(v);
+                  setAmountNote('You picked it');
+                }}
+                max={fromDollars ? Math.floor(dollars * rate) : Math.max(0, Math.floor(balance))}
+                note={amountNote}
+              />
+            </View>
           ) : (
             <View style={[s.sub, s.bundle]} testID="buy-bundle">
               <View style={s.bundleRow}>
@@ -404,7 +410,7 @@ const s = StyleSheet.create({
   /* the bundle's row is 35: the glyph 6 down on it, the price 5 */
   bundle: { paddingTop: 12, paddingBottom: 9, gap: 8 },
   bundleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, height: 35, overflow: 'visible' },
-  amount: { paddingTop: 12, paddingBottom: 10, gap: 12 },
+  amount: { paddingTop: 20, paddingBottom: 16, paddingHorizontal: 0 },
   rows: { paddingHorizontal: 16, paddingVertical: 0 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 56 },
   value: { fontSize: 16, lineHeight: 24 },

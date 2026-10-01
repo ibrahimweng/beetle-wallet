@@ -4,12 +4,13 @@
    under, the line about what lands, and Slide to pay at the foot beside
    Back. A row on Bills, a tile on All services and the lab open it; the
    account card opens the meters paid before with the camera under them,
-   the figure opens the keypad page, and the slide leads to the passcode
+   the amount is picked where it is (the ruler, stopping at what there is
+   to pay from, or the figure typed), and the slide leads to the passcode
    and the receipt after it, with the line in the day. */
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { Body, Caption, Display, Icon, Label, Meta, PageHead, Picks, Say, Screen, Tap, YouTyped, colour, measure, toast, useDeparture, type Rect } from '../../design';
+import { AmountPicker, Body, Caption, Icon, Label, Meta, PageHead, Picks, Say, Screen, Tap, YouTyped, colour, measure, toast, type Rect } from '../../design';
 import { DEMO_SAVED, PEOPLE, beneficiariesOf, billPanelFor, discoById, groupMeter, ownLine, type MeterPaid, type Move } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -115,7 +116,6 @@ export function PayBill() {
   };
 
   useFoot({ kind: 'slide', label: 'Slide to pay', amount: naira(amount), disabled: !amount || (power && !meter), onSlide: slide, veil: guard || choosing ? 'away' : pick ? 'recede' : undefined });
-  const amend = useDeparture({ id: 'pay:amount', to: `/amend?amount=${amount}&to=bill`, words: naira(amount) });
 
   if (!ok || !account) return null;
   /* a meter at another company: the page is that company's */
@@ -161,10 +161,18 @@ export function PayBill() {
             </View>
             <Caption tone="secondary">{meter || !power ? meterNote : 'Meters you have paid, or a photo of the bill'}</Caption>
           </Tap>
-          <Tap ref={amend.ref} accessibilityRole="button" accessibilityLabel="The amount" onPress={amend.onPress} style={[s.sub, s.amount, amend.style]} testID="pay-amount">
-            <Display tone={amount ? 'ink' : 'tertiary'}>{naira(amount)}</Display>
-            <Caption tone="secondary">{amountNote}</Caption>
-          </Tap>
+          {/* the amount, picked where it is: the ruler stops at what the money it comes from holds; the picks with what each buys are under the card */}
+          <View style={[s.sub, s.amount]} testID="pay-amount">
+            <AmountPicker
+              value={amount}
+              onChange={v => {
+                setAmount(v);
+                setAmountNote('You picked it');
+              }}
+              max={fromDollars ? Math.floor(dollars * rate) : Math.max(0, Math.floor(balance))}
+              note={amountNote}
+            />
+          </View>
           <View style={[s.sub, s.rows]} testID="pay-rows">
             <Tap accessibilityRole="button" accessibilityLabel="From" onPress={() => setChoosing(true)} style={s.row}>
               <Body tone="secondary" style={{ flex: 1 }}>
@@ -250,7 +258,7 @@ const s = StyleSheet.create({
   /* the frame boxes the biller's row at 38 — the glyph and the chevron sit on that — and lets the two lines beside them run to 44 */
   account: { paddingTop: 12, paddingBottom: 9, gap: 8 },
   accountRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, height: 38, overflow: 'visible' },
-  amount: { paddingTop: 12, paddingBottom: 10, gap: 12 },
+  amount: { paddingTop: 20, paddingBottom: 16, paddingHorizontal: 0 },
   rows: { paddingHorizontal: 16, paddingVertical: 0 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 56 },
   value: { fontSize: 16, lineHeight: 24 },

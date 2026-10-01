@@ -12,6 +12,7 @@ import { discoById, groupMeter, groupPhoneNumber, networkInfo, planById, planNam
 import { groupAccount, initialsOf, naira } from '../../lib/format';
 import type { SavedKind } from './AskPanel';
 import type { IconName } from '../../icons';
+import { BAR_H } from '../more/Foot';
 
 type BlurModule = typeof import('expo-blur');
 const blur: BlurModule | null = (() => {
@@ -51,7 +52,8 @@ export function SavedPeek({
   const going = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rows = list.slice(0, 5);
   const cardH = 16 + 32 + 12 + (rows.length + extras.length) * ROW_H + 8;
-  const top = Math.max(24, Math.min(at.y, H - cardH - 24));
+  /* never down over the foot: Back and the page's button stay clear of the list, and the list of them */
+  const top = Math.max(24, Math.min(at.y, H - cardH - (BAR_H + 8)));
   const left = 20;
   const width = W - 40;
   useEffect(() => {

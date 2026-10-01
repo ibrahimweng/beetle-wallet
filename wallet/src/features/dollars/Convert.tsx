@@ -1,15 +1,16 @@
 /* Convert, from its frame: from Everyday into Dollars with what each holds
-   and a swap between them, the figure typed with what it comes to in the
-   other money under it, the rate, the fee and what you get, Beetle's word
+   and a swap between them, the amount with what it comes to in the other
+   money under it, the rate, the fee and what you get, Beetle's word
    on the rate this week, the line that the rate is held once you slide,
-   and Slide to convert beside Back. The slide leads to the passcode, the
+   and Slide to convert beside Back. The amount is picked where it is:
+   the ruler in naira or in dollars, whichever it leaves from, stopping hard
+   at what that holds, or the figure typed. The slide leads to the passcode, the
    line goes into the day, the dollars change hands, and Converted takes
    the page's place. Convert on Dollars opens it. */
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
-import { Body, Caption, Display, Facts, Icon, Meta, PageHead, Row, Say, Screen, Tap, colour, toast, useStill } from '../../design';
+import { AmountPicker, Body, Caption, Facts, Icon, Meta, PageHead, Row, Say, Screen, Tap, colour, toast, useStill } from '../../design';
 import type { Move } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -38,7 +39,6 @@ export function Convert() {
   const [toDollars, setToDollars] = useState(true);
   const [digits, setDigits] = useState(demo ? '155200' : '');
   const [guard, setGuard] = useState(false);
-  const input = useRef<TextInput>(null);
   const amount = Number(digits || 0);
   const usd = toDollars ? usdOf(amount, rate) : amount;
   const nairaAmount = toDollars ? amount : nairaOf(amount, rate);
@@ -89,7 +89,6 @@ export function Convert() {
   const swap = () => {
     setToDollars(v => !v);
     setDigits('');
-    setTimeout(() => input.current?.focus(), 200);
   };
 
   useFoot({ kind: 'slide', label: 'Slide to convert', amount: '', disabled: !amount, onSlide: slide, veil: guard ? 'away' : undefined });
@@ -118,27 +117,23 @@ export function Convert() {
             <Icon name="swap" size={18} colour={colour.ink} />
           </Tap>
         </View>
-        {/* the figure, typed: the phone's keyboard comes up with the input the page keeps behind it */}
-        <Tap accessibilityRole="button" accessibilityLabel="The amount" onPress={() => input.current?.focus()} style={s.figure} testID="convert-amount">
-          <Meta tone="secondary">You are converting</Meta>
-          <View style={{ flexDirection: 'row', alignItems: 'flex-start', height: 45, marginTop: 8 }}>
-            <View style={{ marginTop: -3 }}>
-              <Display tone={amount ? 'ink' : 'tertiary'}>{toDollars ? naira(amount) : usdFull(amount)}</Display>
-            </View>
-            <Caret />
+        {/* the amount, picked where it is: in naira or in dollars, whichever it leaves from, stopping hard at what that holds */}
+        <View style={s.figure} testID="convert-amount">
+          <Meta tone="secondary" style={{ textAlign: 'center', marginBottom: 12 }}>
+            You are converting
+          </Meta>
+          <View style={s.picker}>
+            <AmountPicker
+              unit={toDollars ? 'naira' : 'dollars'}
+              value={amount}
+              onChange={v => setDigits(v ? String(v) : '')}
+              max={toDollars ? Math.max(0, Math.floor(balance)) : dollars}
+              note={`You get about ${gets}`}
+              chips={toDollars ? [50_000, 150_000] : [50, 100]}
+              all="All of it"
+            />
           </View>
-          <Body tone="secondary" style={{ marginTop: 8 }}>{`You get about ${gets}`}</Body>
-          <TextInput
-            ref={input}
-            accessibilityLabel="Amount to convert"
-            value={digits}
-            onChangeText={v => setDigits(v.replace(/\D/g, '').replace(/^0+/, '').slice(0, 9))}
-            keyboardType="number-pad"
-            caretHidden
-            autoFocus={!demo}
-            style={s.hidden}
-          />
-        </Tap>
+        </View>
         <View style={{ paddingHorizontal: 16, marginTop: -4 }}>
           <Facts
             inset={10}
@@ -171,25 +166,14 @@ export function Convert() {
   );
 }
 
-/* The frame's caret: 2 wide, 34 tall, in the accent, blinking. */
-function Caret() {
-  const still = useStill();
-  const on = useSharedValue(1);
-  useEffect(() => {
-    if (!still) on.value = withRepeat(withTiming(0, { duration: 530 }), -1, true);
-  }, [still, on]);
-  const blink = useAnimatedStyle(() => ({ opacity: on.value }));
-  return <Animated.View style={[s.caret, blink]} testID="caret" />;
-}
-
 const s = StyleSheet.create({
   card: { backgroundColor: colour.surface2, borderRadius: 24, paddingHorizontal: 16, paddingTop: 2, paddingBottom: 2 },
   /* the frame's two places: 62 a row, the words 11 down, the other holding's figure across from them */
   place: { height: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   swap: { position: 'absolute', right: 16, top: 46, width: 36, height: 36, borderRadius: 18, backgroundColor: colour.surface, alignItems: 'center', justifyContent: 'center' },
-  figure: { marginTop: -4, backgroundColor: colour.surface2, borderRadius: 24, paddingTop: 16, paddingHorizontal: 16, paddingBottom: 13 },
-  caret: { width: 2, height: 34, marginLeft: 26, marginTop: 3, backgroundColor: colour.accent, borderRadius: 1 },
-  hidden: { position: 'absolute', opacity: 0, width: 1, height: 1, left: 0, top: 0 },
+  figure: { marginTop: -4, backgroundColor: colour.surface2, borderRadius: 24, paddingTop: 14, paddingHorizontal: 12, paddingBottom: 12 },
+  /* the picker on its own white inside the grey, as the amounts on the paying pages sit */
+  picker: { backgroundColor: colour.surface, borderRadius: 20, paddingTop: 20, paddingBottom: 16 },
   /* the frame boxes the bubble's row 10 shorter than the bubble and sets the lock line 16 under the box */
   lock: { marginTop: -14, flexDirection: 'row', alignItems: 'center', gap: 8 },
 });

@@ -1,5 +1,6 @@
 /* Borrow, from its frame: Beetle's word that here is the whole cost, the
-   figure with less and more either side of it and the bar under, the
+   amount on the picker — the ruler stopping hard at what can be borrowed,
+   two likely figures and the limit as chips, or the figure typed — the
    three terms, and the cost laid out row by row — what you get today, the
    interest, the fee, what it comes to, the payments and the first of them
    — with the word about paying late at the foot, and Slide to take beside
@@ -10,7 +11,7 @@
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Body, Display, Facts, Icon, Label, Meta, PageHead, Say, Screen, Tap, colour, toast } from '../../design';
+import { AmountPicker, Body, Facts, Icon, Label, Meta, PageHead, Say, Screen, Tap, colour, toast } from '../../design';
 import type { Move } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -76,10 +77,8 @@ export function Loan() {
     router.replace(`/receipt/${row.id}`);
   };
 
-  useFoot({ kind: 'slide', label: 'Slide to take', amount: naira(amount), onSlide: slide, veil: guard ? 'away' : undefined });
+  useFoot({ kind: 'slide', label: 'Slide to take', amount: naira(amount), disabled: amount < LOAN.least, onSlide: slide, veil: guard ? 'away' : undefined });
   if (!ok || !account) return null;
-  /* the bar shows the figure against the limit, as the frame fills it */
-  const share = amount / LOAN.most;
   return (
     <>
       <Screen head={<PageHead lead title="Borrow" sub="The whole cost, before you decide" />}>
@@ -89,40 +88,16 @@ export function Loan() {
         {/* the frame runs the grey card 12 under the bubble */}
         <View style={s.card} testID="loan-card">
           <Body tone="secondary">How much you want</Body>
-          <View style={s.figureRow}>
-            <Tap
-              accessibilityRole="button"
-              accessibilityLabel="Less"
-              onPress={() => setAmount(a => held(a - LOAN.step))}
-              disabled={amount <= LOAN.least}
-              style={[s.disc, amount <= LOAN.least ? { opacity: 0.4 } : null]}
-              testID="less"
-            >
-              <Icon name="minus" size={20} colour={colour.ink} />
-            </Tap>
-            <Display style={{ flex: 1, textAlign: 'center' }} accessibilityLiveRegion="polite">
-              {naira(amount)}
-            </Display>
-            <Tap
-              accessibilityRole="button"
-              accessibilityLabel="More"
-              onPress={() => setAmount(a => held(a + LOAN.step))}
-              disabled={amount >= LOAN.most}
-              style={[s.disc, { marginRight: 4 }, amount >= LOAN.most ? { opacity: 0.4 } : null]}
-              testID="more"
-            >
-              <Icon name="plus" size={20} colour={colour.ink} />
-            </Tap>
-          </View>
-          <View style={{ marginTop: 12 }} testID="range">
-            <View style={s.bar}>
-              <View style={[s.fill, { width: `${Math.round(share * 1000) / 10}%` }]} />
-            </View>
-            {/* the frame boxes the two figures at 18, a line of 20 running over */}
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', height: 18, marginTop: 8, overflow: 'visible' }}>
-              <Meta tone="secondary">{naira(LOAN.least)}</Meta>
-              <Meta tone="secondary">{`${naira(LOAN.most)} is your limit`}</Meta>
-            </View>
+          {/* picked where it is: the ruler stops hard at what you can borrow, and the least is in the note */}
+          <View style={s.picker} testID="loan-amount">
+            <AmountPicker
+              value={amount}
+              onChange={setAmount}
+              max={LOAN.most}
+              note={amount && amount < LOAN.least ? `The least is ${naira(LOAN.least)}` : `${naira(LOAN.most)} is your limit`}
+              chips={[50_000, 100_000]}
+              all="Your limit"
+            />
           </View>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 12, height: 46, overflow: 'visible' }} testID="terms">
             {TERMS.map(t => (
@@ -179,10 +154,8 @@ export function Loan() {
 const s = StyleSheet.create({
   /* the frame boxes the bubble's row at 70 and runs the grey card 12 under that: 82 under the row's top, which the 80 bubble and no gap make here */
   card: { marginTop: -20, backgroundColor: colour.surface2, borderRadius: 24, paddingTop: 16, paddingHorizontal: 16, paddingBottom: 14 },
-  figureRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12, height: 45 },
-  disc: { width: 40, height: 40, borderRadius: 20, backgroundColor: colour.surface, alignItems: 'center', justifyContent: 'center' },
-  bar: { height: 6, borderRadius: 3, backgroundColor: colour.rule, overflow: 'hidden' },
-  fill: { height: 6, borderRadius: 3, backgroundColor: colour.accent },
+  /* the picker on its own white, as the amounts on the paying pages sit */
+  picker: { marginTop: 12, backgroundColor: colour.surface, borderRadius: 20, paddingTop: 20, paddingBottom: 16 },
   term: { flex: 1, height: 48, borderRadius: 24, backgroundColor: colour.surface, borderWidth: 1, borderColor: colour.rule, alignItems: 'center', justifyContent: 'center' },
   termOn: { backgroundColor: colour.ink, borderColor: colour.ink },
   lock: { marginTop: -8, flexDirection: 'row', alignItems: 'flex-start', gap: 8 },

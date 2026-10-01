@@ -22,3 +22,7 @@ export * from './Pieces';
 export * from './journey';
 export * from './Progress';
 export * from './Veil';
+export * from './Amount';
+export * from './haptics';
+export * from './Menu';
+export * from './AmountSheet';

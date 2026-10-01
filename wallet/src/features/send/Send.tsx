@@ -2,16 +2,17 @@
    and from where, when it lands and the fee, each on its own white card in
    one grey one, with Beetle saying where things stand above them and Slide
    to send at the foot beside Back. Send on the card and Send money in More
-   open it empty; a tap on the amount opens the keypad page, a tap on the
-   person opens the people paid before with a number to type and the
-   camera under them, and the reference is typed in place. Past the balance
-   the slide leads to Not enough; otherwise to the passcode, and the receipt
-   after it, with the line in the day. Four taps: Send, who, the amount,
-   and the passcode — the slide is a drag. */
+   open it empty. The amount is picked where it is (see design/Amount): the
+   ruler, stepped and stopping hard at what Everyday can send, chips of the
+   likely amounts, or the figure tapped and typed. A tap on the person
+   opens the people paid before with a number to type and the camera under
+   them, and the reference is typed in place. The slide leads to the
+   passcode, and the receipt after it, with the line in the day. Four
+   taps: Send, who, the amount, and the passcode — the slide is a drag. */
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { Avatar, Body, Caption, Display, Icon, Label, Meta, PageHead, Say, Screen, Tap, colour, measure, toast, useDeparture, type Rect } from '../../design';
+import { AmountPicker, Avatar, Body, Caption, Icon, Label, Meta, PageHead, Say, Screen, Tap, colour, measure, toast, type Rect } from '../../design';
 import { DEMO_SAVED, PEOPLE, beneficiariesOf, feeFor, feeLabel, ownLine, reader, whose, type Move, type Person, type Reading } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -202,9 +203,6 @@ export function Send() {
     onSlide: slide,
     veil: guard || choosing ? 'away' : pick ? 'recede' : undefined,
   });
-  /* the keypad page arrives from the figure */
-  const amend = useDeparture({ id: 'send:amount', to: `/amend?amount=${amount}`, words: naira(amount) });
-
   if (!ok || !account) return null;
   const first = who?.name.split(' ')[0] ?? '';
   const fee = fromDollars ? 0 : feeFor(amount);
@@ -220,11 +218,19 @@ export function Send() {
         : who && amount
           ? 'Here it is, ready to go. Check it, then slide.'
           : who
-            ? `How much for ${first}? Tap the amount to type it.`
+            ? `How much for ${first}? Move the ruler, pick one of the amounts, or tap the figure to type it.`
             : amount
               ? `Who is the ${naira(amount)} for? Tap the card to choose.`
               : 'Who is it for, and how much? Tap a card to fill it in, or point the camera at an account number.';
   const openPeople = () => void measure(whoCard).then(setPick);
+  /* the most it can be: all Everyday holds less the fee on it, or all the dollars at the rate */
+  const cap = fromDollars ? Math.floor(dollars * rate) : Math.max(0, Math.floor(balance - feeFor(balance)));
+  /* what was sent to them before, then the round figures */
+  const before = who ? [...new Set([...moves, ...(h?.ledger ?? [])].filter(r => r.kind === 'transfer' && r.name === who.name && r.amount < 0).map(r => Math.abs(r.amount)))].slice(0, 2) : [];
+  const chips = [...new Set([...before, 10_000, 20_000, 50_000])]
+    .filter(c => c <= cap)
+    .slice(0, 2)
+    .sort((a, b) => a - b);
 
   return (
     <>
@@ -240,10 +246,19 @@ export function Send() {
         </View>
         {/* the frame runs the grey card 7 under the bubble, and 12 around the white cards, 8 between them */}
         <View style={s.card} testID="send-card">
-          <Tap ref={amend.ref} accessibilityRole="button" accessibilityLabel="The amount" onPress={amend.onPress} style={[s.sub, s.amount, amend.style]} testID="send-amount">
-            <Display tone={amount ? 'ink' : 'tertiary'}>{naira(amount)}</Display>
-            <Caption tone="secondary">{fromDollars && amount ? `About ${usdFull(usd)} from your dollars` : amountNote || (amount ? 'Tap to change it' : 'Tap to type an amount')}</Caption>
-          </Tap>
+          <View style={[s.sub, s.amount]} testID="send-amount">
+            <AmountPicker
+              value={amount}
+              onChange={v => {
+                setAmount(v);
+                setAmountNote('');
+              }}
+              max={cap}
+              note={fromDollars && amount ? `About ${usdFull(usd)} from your dollars` : amountNote || (fromDollars ? `Your dollars come to ${naira(cap)}` : `Everyday can send ${naira(cap)}`)}
+              chips={chips}
+              all="All of it"
+            />
+          </View>
           {typing ? (
             <View style={[s.sub, s.who]} testID="send-who">
               <View style={s.typingRow}>
@@ -276,7 +291,9 @@ export function Send() {
                 )}
                 <View style={{ flex: 1, gap: 4 }}>
                   <Label>{busy ? 'Reading…' : who ? who.name : 'Who is it for?'}</Label>
-                  <Meta tone="secondary">{who ? `${who.bank} · ${groupAccount(who.number)}` : 'Someone you have paid, a number, or a photo'}</Meta>
+                  <Meta tone="secondary" numberOfLines={1}>
+                    {who ? `${who.bank} · ${groupAccount(who.number)}` : 'A name, a number or a photo'}
+                  </Meta>
                 </View>
                 <View style={{ marginTop: 11 }}>
                   <Icon name="chevron" size={16} colour={colour.textTertiary} />
@@ -402,7 +419,7 @@ export function Send() {
 const s = StyleSheet.create({
   card: { marginTop: -13, backgroundColor: colour.surface2, borderRadius: 24, padding: 12, gap: 8 },
   sub: { backgroundColor: colour.surface, borderRadius: 20, paddingHorizontal: 16 },
-  amount: { paddingTop: 12, paddingBottom: 10, gap: 12 },
+  amount: { paddingTop: 20, paddingBottom: 16, paddingHorizontal: 0 },
   /* the frame boxes the person's row at 38 — the chip and the chevron sit on that — and lets the two lines beside them run to 44 */
   who: { paddingTop: 12, paddingBottom: 9, gap: 8 },
   person: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, height: 38, overflow: 'visible' },

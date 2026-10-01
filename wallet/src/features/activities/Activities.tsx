@@ -4,14 +4,15 @@
    still on its way, did not go or came back first with its status glyph
    and a chevron, what settled after on the grey square; what Beetle
    noticed set among the lines; and its word at the foot. A settled line
-   opens its receipt over this page, grown out of the line in one step;
-   one still on its way, that did not go or that came back opens its own
-   page. The foot is the bar, as on home and Settings, and Back and the
-   ask bar while a receipt is up. */
-import React, { useEffect, useState } from 'react';
+   opens where it is: the line stays, the page goes soft under a frost of
+   white, and what the line does not say grows in under it (see InPlace).
+   One still on its way, that did not go or that came back opens its own
+   page. The foot is the bar, as on home and Settings, out of the way
+   while a line is open. */
+import React, { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Body, GlyphHead, HistoryRow, Insight, JourneyProvider, SayCard, ScoreRow, Screen, Segments, colour, setOrigin, type Rect } from '../../design';
+import { Body, GlyphHead, HistoryRow, Insight, JourneyProvider, SayCard, ScoreRow, Screen, Segments, colour, measure, type Rect } from '../../design';
 import { useApp } from '../onboarding/store';
 import { holdingsFor, type LedgerRow } from '../home/account';
 import { useMoves } from '../home/moves';
@@ -19,7 +20,7 @@ import { naira, signed } from '../../lib/format';
 import { askHome } from '../more/More';
 import { useFoot } from '../more/Foot';
 import { usePage, useHoldPages } from '../tabs';
-import { ReceiptOver } from '../receipts/ReceiptOver';
+import { InPlace, type Opened } from './InPlace';
 import { SEGMENTS, activityAmount, activityRows, type Segment } from './rows';
 
 const TONE: Record<LedgerRow['status'], string> = { pending: colour.accent, failed: colour.alert, reversed: colour.ink, done: colour.ink };
@@ -31,23 +32,37 @@ export function Activities() {
   const account = app.session?.account;
   const { moves, ready } = useMoves(account?.accountNumber);
   const [segment, setSegment] = useState<Segment>('All');
-  /** the line whose receipt is up over the page */
-  const [over, setOver] = useState<string | null>(null);
-  /* a receipt asked for by a link, over the page */
+  /** the line open in place */
+  const [over, setOver] = useState<Opened | null>(null);
+  /* the head's title row, which stays sharp beside the ··· while a line is open */
+  const headRow = useRef<View>(null);
+  /* a line asked for by a link opens in place too, under the head */
   const asked = useLocalSearchParams<{ receipt?: string }>();
-  useEffect(() => {
-    if (asked.receipt) setOver(asked.receipt);
-  }, [asked.receipt]);
   /** what Beetle noticed and was told not now */
   const [put, setPut] = useState<string[]>([]);
   const h = account ? holdingsFor(account) : null;
   const ledger = [...moves, ...(h?.ledger ?? [])];
   /* a new account's record, from the Nothing yet frame: nothing has moved */
   const nothing = ready && ledger.length === 0;
-  /* the foot: the bar, until a receipt is up, whose own foot takes over */
-  useFoot({ kind: 'bar' }, active && !over);
-  /* the pages stand still under a receipt; the back swipe is the receipt's */
+  /* the foot: the bar, which goes down out of the way while a line is open */
+  useFoot({ kind: 'bar', veil: over ? 'away' : undefined }, active);
+  /* the pages stand still while a line is open */
   useHoldPages('receipt', !!over);
+  const detailOf = (r: LedgerRow) => (r.detail.includes(':') ? r.detail : `${r.detail} · ${r.time}`);
+  const openedFor = (r: LedgerRow, at: Rect | null, head: Rect | null = null): Opened => ({
+    id: r.id,
+    glyph: r.icon,
+    name: r.name,
+    detail: detailOf(r),
+    amount: activityAmount(r, signed, naira),
+    at,
+    head,
+  });
+  useEffect(() => {
+    if (!asked.receipt || !ready || !h) return;
+    const r = [...moves, ...h.ledger].find(x => x.id === asked.receipt);
+    if (r) setOver(openedFor(r, null));
+  }, [asked.receipt, ready]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!app.ready || !account || !h) return null;
   if (!ready)
     return (
@@ -56,11 +71,8 @@ export function Activities() {
       </Screen>
     );
 
-  /* a settled line's receipt: its amount travels out of the line's own figure */
-  const open = (r: LedgerRow, figure: Rect) => {
-    setOrigin({ id: `row:${r.id}`, ...figure, words: activityAmount(r, signed, naira), at: Date.now() });
-    setOver(r.id);
-  };
+  /* a settled line opens where it is */
+  const open = (r: LedgerRow, at: Rect) => void measure(headRow).then(head => setOver(openedFor(r, at, head.h ? head : null)));
   const rows = (day: LedgerRow['day']) =>
     activityRows(ledger, day, segment).map(r => (
       <HistoryRow
@@ -69,10 +81,10 @@ export function Activities() {
         glyph={r.icon}
         tone={TONE[r.status]}
         name={r.name}
-        detail={r.detail.includes(':') ? r.detail : `${r.detail} · ${r.time}`}
+        detail={detailOf(r)}
         amount={activityAmount(r, signed, naira)}
         journey={`row:${r.id}`}
-        onOpen={r.status === 'done' ? (_, figure) => open(r, figure) : undefined}
+        onOpen={r.status === 'done' ? at => open(r, at) : undefined}
         to={r.status === 'done' ? undefined : `/transfer/${r.id}`}
       />
     ));
@@ -103,7 +115,7 @@ export function Activities() {
   return (
     <JourneyProvider>
       <View style={{ flex: 1 }}>
-        <Screen head={<GlyphHead glyph="clock" title="Activities" sub={nothing ? 'Nothing has moved yet' : 'Everything that moved, newest first'} />}>
+        <Screen head={<GlyphHead glyph="clock" title="Activities" sub={nothing ? 'Nothing has moved yet' : 'Everything that moved, newest first'} rowRef={headRow} />}>
           {health ? <ScoreRow score={h.health!} title="Money health" sub={h.healthMove} onPress={() => router.push('/health')} /> : null}
           {/* the frame puts 16 between the segments and the record, and 10 between a day's name and its lines, and between one day and the next */}
           <View style={{ gap: 16 }}>
@@ -134,7 +146,7 @@ export function Activities() {
             </View>
           </View>
         </Screen>
-        {over ? <ReceiptOver key={over} id={over} tone="paper" onClose={() => setOver(null)} /> : null}
+        {over ? <InPlace key={over.id} line={over} onClose={() => setOver(null)} /> : null}
       </View>
     </JourneyProvider>
   );

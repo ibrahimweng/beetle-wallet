@@ -77,7 +77,8 @@ function BillRow({ bill, onPress }: { bill: MonthBill; onPress: () => void }) {
   const paid = bill.covered === 'paid';
   const tone = paid ? colour.textTertiary : colour.ink;
   return (
-    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={bill.name} onPress={j.onPress} style={[s.row, j.style]} testID="bill">
+    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={bill.name} onPress={j.onPress} style={[s.row]} testID="bill">
+      {j.wash}
       <View style={s.box}>
         <Icon name={bill.glyph as IconName} size={20} colour={tone} />
       </View>

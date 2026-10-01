@@ -17,7 +17,7 @@ export function lineFor(who: Payer | null, amount: number): string {
     }
     return `${who.name}, on ${groupPhone(who.phone)}. I have not seen this line before, so check it before you send.`;
   }
-  if (who) return `How much should I ask ${firstOf(who.name)} for? Tap the amount, or just type it.`;
-  if (amount) return `Who should I ask for ${naira(amount)}? Tap Person to pick someone who has paid you before, or type a name.`;
-  return 'Who should I ask, and for how much? Tap a row to fill it in, or just type it here.';
+  if (who) return `How much should I ask ${firstOf(who.name)} for? Tap the amount.`;
+  if (amount) return `Who should I ask for ${naira(amount)}? Tap Person to pick someone who has paid you before, or somebody new.`;
+  return 'Who should I ask, and for how much? Tap a row to fill it in.';
 }

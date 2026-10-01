@@ -4,7 +4,11 @@
    read as four minutes old, the way the frame draws it. */
 
 /** The whole balance to somebody never paid before: Beetle stops. */
-export const refuses = (amount: number, balance: number, paidBefore: boolean) => amount > 0 && amount >= balance && !paidBefore;
+/** What a transfer costs on top of itself: free under ₦10,000, ₦26.88 up to ₦50,000, ₦53.75 above. */
+export const feeFor = (amount: number) => (amount < 10_000 ? 0 : amount <= 50_000 ? 26.88 : 53.75);
+
+/** The whole balance, or all of it that can be sent once the fee is counted, to an account never paid before. */
+export const refuses = (amount: number, balance: number, paidBefore: boolean) => amount > 0 && amount + feeFor(amount) >= balance && !paidBefore;
 
 /** How old the account is, for one Beetle has never paid; nothing for one it has. */
 export const accountAge = (paidBefore: boolean) => (paidBefore ? undefined : 'Four minutes');

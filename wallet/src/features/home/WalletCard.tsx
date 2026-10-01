@@ -25,12 +25,15 @@ const SIDE = 16;
 const HEADER_H = 36;
 /** the header band: top allowance, the row, and the gap under it */
 export const HEAD_BAND = TOP + HEADER_H + 20;
-/** the room the ask bar takes at the foot of the open card: gap, bar, padding */
-export const FOOT_BAND = 20 + 48 + 20;
+/** the chips over the ask bar: their height, and the gap down to the bar */
+export const CHIPS_H = 32;
+export const CHIPS_GAP = 10;
+/** the room the foot of the open card takes: the gap over the chips, the chips, the gap, the bar, and the padding under it */
+export const FOOT_BAND = 16 + CHIPS_H + CHIPS_GAP + 48 + 20;
 /** how far past its line a haze still thins, so its end is never seen */
 const HAZE_FEATHER = 12;
-/** the foot haze: the card's edge up to the middle of the bar, and the feather */
-export const FOOT_HAZE = 20 + 24 + HAZE_FEATHER;
+/** the foot haze: the card's edge up to the middle of the chips, and the feather */
+export const FOOT_HAZE = 20 + 48 + CHIPS_GAP + CHIPS_H / 2 + HAZE_FEATHER;
 /** where the figure goes: the word Wallet's place at the left of the header, which it takes as the card opens */
 const FIGURE_LEFT = SIDE;
 /** the drag has to travel this far before the card takes it */
@@ -160,6 +163,8 @@ export type CardProps = {
   /** what sits over the chat when something has to: the passcode before
       money moves, the account's own details. The chat recedes behind it. */
   over?: ReactNode;
+  /** how far the chats drawer is in: the chat steps back behind it */
+  recede?: SharedValue<number>;
 };
 
 const clamp = (v: number, lo: number, hi: number) => {
@@ -167,8 +172,8 @@ const clamp = (v: number, lo: number, hi: number) => {
   return Math.min(hi, Math.max(lo, v));
 };
 
-export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onReceive, onDollars, chipLabel, onNew, chat, foot, over, flash }: CardProps) {
-  /* Send is the way to the Send money page: its title arrives from the button. Settings is the gear on the bar, not the card */
+export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onReceive, onDollars, chipLabel, onNew, chat, foot, over, flash, recede }: CardProps) {
+  /* Send is the way to the Send money page. Settings is the gear on the bar, not the card */
   const send = useDeparture({ id: 'card:send', to: '/send', words: 'Send' });
   const { width: W } = useWindowDimensions();
   const still = useStill();
@@ -249,7 +254,15 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
   useEffect(() => {
     veil.value = still ? (over ? 1 : 0) : withTiming(over ? 1 : 0, { duration: motion.screen, easing: soft });
   }, [!!over]); // eslint-disable-line react-hooks/exhaustive-deps
-  const receding = useAnimatedStyle(() => ({ opacity: 1 - veil.value * 0.78, transform: [{ scale: 1 - veil.value * 0.02 }], ...blurred(veil.value * motion.blur) }));
+  /* behind the drawer the chat steps to the right, dims and softens a little; behind what sits over it, it recedes further */
+  const receding = useAnimatedStyle(() => {
+    const d = recede ? recede.value : 0;
+    return {
+      opacity: (1 - veil.value * 0.78) * (1 - 0.55 * d),
+      transform: [{ translateX: 28 * d }, { scale: 1 - veil.value * 0.02 }],
+      ...blurred(veil.value * motion.blur + d * 3),
+    };
+  });
   const fading = useAnimatedStyle(() => ({ opacity: 1 - veil.value }));
   /* the grabber and its words stay while the card only dips, and go once it is really opening */
   const goingLate = useAnimatedStyle(() => {
@@ -344,7 +357,8 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
             </Tap>
           </View>
           <View style={s.actions}>
-            <Tap ref={send.ref} accessibilityRole="button" accessibilityLabel="Send" onPress={send.onPress} style={[s.action, send.style]}>
+            <Tap ref={send.ref} accessibilityRole="button" accessibilityLabel="Send" onPress={send.onPress} style={[s.action]}>
+              {send.wash}
               <View style={s.disc} testID="send-disc">
                 <Icon name="send" size={16} colour={colour.ink} />
               </View>
@@ -413,7 +427,7 @@ const s = StyleSheet.create({
   opened: { position: 'absolute', top: 0, left: SIDE, right: SIDE, bottom: 0 },
   over: { position: 'absolute', left: SIDE, right: SIDE, bottom: 0, zIndex: 5 },
   foot: { position: 'absolute', left: 0, right: 0, bottom: 0, height: FOOT_BAND },
-  bar: { position: 'absolute', left: SIDE, right: SIDE, bottom: 20, height: 48 },
+  bar: { position: 'absolute', left: SIDE, right: SIDE, bottom: 20 },
   figure: { position: 'absolute', top: 0, left: 0, flexDirection: 'row', alignItems: 'flex-start', zIndex: 4 },
   figureText: { color: '#ffffff', fontWeight: '700', fontSize: 32, lineHeight: 40, letterSpacing: -1.06 },
   koboText: { color: dark.kobo, fontWeight: '600', fontSize: 20, lineHeight: 24, marginTop: 8, marginLeft: 1 },

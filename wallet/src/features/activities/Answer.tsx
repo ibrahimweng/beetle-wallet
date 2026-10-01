@@ -33,7 +33,7 @@ const WENT: [IconName, string, string, number][] = [
 export function Answer() {
   const router = useRouter();
   const ok = useSessionGuard();
-  useFoot({ kind: 'ask', placeholder: 'Ask about this', onAsk: q => askHome(router, q), onScan: () => router.push('/scan') });
+  useFoot({ kind: 'back' });
   if (!ok) return null;
   const later = (what: string) => () => toast(`${what} comes with round 6.`);
   return (

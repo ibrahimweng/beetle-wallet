@@ -149,3 +149,8 @@ const s = StyleSheet.create({
 export function askHome(router: Router, q: string, about?: string) {
   openTab(router, 'home', { say: `${q} #${Date.now()}`, ...(about ? { about } : {}) });
 }
+
+/** Ask Beetle about this: a fresh chat on home with the transaction as what it is about, and Beetle asking what you want to know. */
+export function askAbout(router: Router, about: string) {
+  openTab(router, 'home', { about, fresh: String(Date.now()) });
+}

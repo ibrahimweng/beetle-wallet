@@ -45,7 +45,7 @@ export function Button({
 }: {
   label: string;
   onPress?: () => void;
-  /** the page the button leads to: the screen recedes and the page arrives from the button */
+  /** the page the button leads to: the screen recedes and the page arrives */
   to?: string;
   tone?: ButtonTone;
   size?: ButtonSize;

@@ -34,7 +34,7 @@ export function Misread() {
   );
   const [reading] = useState<Reading | null>(() => softReading.take() ?? (LAB && asked.demo === '1' ? SOFT_READING : null));
   const toSend = useBackToSend();
-  useFoot({ kind: 'ask', placeholder: 'Ask me about this', onAsk: q => askHome(router, q), onScan: () => router.push('/scan') });
+  useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   if (!reading?.soft)
     return (

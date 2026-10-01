@@ -14,8 +14,7 @@ import { View } from 'react-native';
 import { Body, Head, Title } from './text';
 import { Arrive } from './journey';
 
-/* The title arrives from the thing that opened the page, growing into its
-   size; the line under it comes with the body. */
+/* The title arrives with the rest of the page, out of the same blur. */
 export function PageHead({ title, sub, lead = false }: { title: string; sub?: string; lead?: boolean }) {
   const T = lead ? Title : Head;
   return (

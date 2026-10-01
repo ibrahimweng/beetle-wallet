@@ -64,7 +64,7 @@ export function Grid({ width, accountNumber, demo, moves, borrowing }: { width: 
           lead={<Glyph glyph="card" tone={colour.ink} />}
           label="Virtual card"
           figure={`•••• ${lastFour()}`}
-          sub={prefs.cardFrozen ? 'Frozen' : `${naira(CARD.ceiling - CARD.spent)} to spend`}
+          sub={prefs.cardFrozen ? 'Frozen' : `${naira(CARD.ceiling - CARD.spent + (prefs.cardLoaded ?? 0))} to spend`}
           subTone={prefs.cardFrozen ? colour.cyan : undefined}
         />
         <Services w={w} />
@@ -109,7 +109,7 @@ function GridCard({
   const j = useDeparture({ id: `grid:${id}`, to, words: words ?? label });
   return (
     <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={`${label} ${figure}`} onPress={j.onPress} style={[s.card, { width: w }]} testID={`grid-${id}`}>
-      <Animated.View style={[StyleSheet.absoluteFill, s.lit, j.style]} pointerEvents="none" />
+      <Animated.View style={[StyleSheet.absoluteFill, s.lit, j.lit]} pointerEvents="none" />
       {lead}
       <View style={s.foot}>
         <Meta tone="secondary" numberOfLines={1}>

@@ -25,7 +25,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import { Meta, Pane, Tap, colour, dark, frame, keys, settle, standard, useStill } from '../../design';
 import type { IconName } from '../../icons';
-import { DEMO_SAVED, OFFLINE_LINE, beneficiariesOf, newAsk, ownLine, ownTag, panelFromAsk, type AskPanel, type Move, type Panel } from '../../services';
+import { DEMO_SAVED, OFFLINE_LINE, TRY_FIRST, beneficiariesOf, newAsk, ownLine, ownTag, panelFromAsk, refusalLine, refuses, type AskPanel, type Move, type Panel } from '../../services';
 import { useApp } from '../onboarding/store';
 import { Chat } from '../agent/Chat';
 import { ChatReceipt } from '../agent/ChatReceipt';
@@ -329,6 +329,19 @@ function HomeScreen() {
         talk.open(OFFLINE_LINE);
         return;
       }
+      /* the whole balance to an account never paid stops here too, as it does on Send money and in words */
+      const to = ask.tool === 'transfer' ? ask.found?.person : null;
+      if (
+        to &&
+        refuses(
+          ask.values.amount ?? 0,
+          balance,
+          saved.people.some(p => p.number === to.number),
+        )
+      ) {
+        talk.open(refusalLine(naira(balance), naira(TRY_FIRST)));
+        return;
+      }
       const shut = lockedFor();
       if (shut) {
         talk.open(`That was three wrong tries. Give it ${shut} seconds and press it again.`);
@@ -337,7 +350,7 @@ function HomeScreen() {
       Keyboard.dismiss();
       setGuard({ askId: ask.id, panel });
     },
-    [saved, online, talk],
+    [saved, online, talk, balance],
   );
   /* the loan card's Borrow: what comes in, what is paid back and when, to the passcode */
   const borrow = useCallback(

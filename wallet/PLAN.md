@@ -871,6 +871,9 @@ coming in, with no collateral.
   the amount alone; now what the passcode says leaves Everyday (₦20,026.88
   for ₦20,000 at GTBank) is what leaves, and Balance after on the receipt
   agrees. A conversion's fee still comes out of the dollars.
+- The whole balance to an account never paid is refused wherever it is
+  asked: on Send money, in words ("send everything to 0123456789", before
+  the bank is even asked for), and from a card, before the passcode.
 - Change on a picked person keeps what was typed, so another bank is a tap
   away; emptying the field brings the people paid before back under it.
 - Words that are a chip's ("borrow", "my account number") put up that

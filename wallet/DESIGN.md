@@ -88,6 +88,9 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 - **The bank is always said**: on the page, in the chat, on the passcode
   sheet, on the receipt and in Activities. A Beetle account says "Beetle ·
   $tag".
+- **The whole balance to an account never paid is refused**, wherever it is
+  asked — the page, the words, a card in the chat — with the ways out.
+  What the passcode says leaves Everyday, fee and all, is what leaves.
 - The **passcode sheet** shows the whole of it while the six digits go in:
   who, their bank and account number (or tag), what they receive, the fee,
   and what leaves which account. **Cancel** sits plainly under the pad: the

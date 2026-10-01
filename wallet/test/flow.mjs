@@ -1952,6 +1952,17 @@ try {
   await page.getByLabel('Ask Beetle').fill('send everything to 0123456789');
   await tap('Send this');
   await arrives('I will not do this one from here');
+  /* and from the Send chip's card: a $tag never paid, All of it, Confirm — the card stops there too, before the passcode */
+  const refusals = () => page.evaluate(() => (document.body.innerText.match(/Your whole balance, to an account/g) || []).length);
+  const refusedBefore = await refusals();
+  await tap('Send');
+  await page.getByTestId('ask-to-input').last().waitFor();
+  await page.getByTestId('ask-to-input').last().fill('$tobi');
+  await page.getByTestId('to-choice').filter({ hasText: 'Tobi Bakare' }).first().click();
+  await page.locator('[data-testid="ask"]').last().getByRole('button', { name: 'All of it', exact: true }).click();
+  await page.getByTestId('ask-action').last().click();
+  await page.waitForFunction(n => (document.body.innerText.match(/Your whole balance, to an account/g) || []).length > n, refusedBefore);
+  must((await page.getByText('Enter your passcode').count()) === 0, 'the card should stop before the passcode');
   /* offline: the browser goes dark, and Slide to send goes to You are offline; queue it, and Beetle's chat holds it */
   await page.goto(`${base}/send?demo=1`, { waitUntil: 'load' });
   await see('I took this from your message');

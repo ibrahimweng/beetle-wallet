@@ -70,9 +70,9 @@ function Pending({ id }: { id: string }) {
         />
       </Card>
       <View style={{ marginTop: -4 }}>
-        <Say testID="say">{`Slow, not lost. If ${bank} has not confirmed by ${back} it comes back on its own, and I will tell you either way.`}</Say>
+        <Say testID="line">{`Slow, not lost. If ${bank} has not confirmed by ${back} it comes back on its own, and I will tell you either way.`}</Say>
       </View>
-      <View style={{ marginTop: -15 }}>
+      <View style={{ marginTop: -8 }}>
         <SayCard
           testID="offer"
           action={told ? 'I will tell you' : 'Yes, tell me'}
@@ -110,9 +110,9 @@ function Failed({ id }: { id: string }) {
         <Banner tight tone={colour.good} text="Your balance is exactly what it was." testID="banner" />
       </View>
       <View style={{ marginTop: -8 }}>
-        <Say testID="say">{`Nothing was taken and nothing was charged. ${bank} has been failing since ${since}, so this is their afternoon, not your account.`}</Say>
+        <Say testID="line">{`Nothing was taken and nothing was charged. ${bank} has been failing since ${since}, so this is their afternoon, not your account.`}</Say>
       </View>
-      <View style={{ marginTop: -19 }}>
+      <View style={{ marginTop: -8 }}>
         <ChoiceList
           testID="ways"
           items={[
@@ -167,9 +167,9 @@ function Reversed({ id }: { id: string }) {
         />
       </View>
       <View style={{ marginTop: -4 }}>
-        <Say testID="say">{`${first} never got it, so ${bank} sent it back and I put it where it came from. Nothing was charged, and your balance is whole.`}</Say>
+        <Say testID="line">{`${first} never got it, so ${bank} sent it back and I put it where it came from. Nothing was charged, and your balance is whole.`}</Say>
       </View>
-      <View style={{ marginTop: -15 }}>
+      <View style={{ marginTop: -8 }}>
         <ChoiceList
           testID="ways"
           items={[

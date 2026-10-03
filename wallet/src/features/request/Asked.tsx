@@ -66,11 +66,11 @@ export function Asked({ id }: { id: string }) {
         />
       </View>
       <View style={{ marginTop: -4 }}>
-        <Say testID="say">I will tell you the moment it lands. You do not have to watch for it.</Say>
+        <Say testID="line">I will tell you the moment it lands. You do not have to watch for it.</Say>
       </View>
-      {/* the frame's card: 16 round the bubble's row, the button 12 under it, 46 tall */}
+      {/* the frame's card: 16 round the line, the button 12 under it, 46 tall */}
       <View style={[s.offer, { marginTop: -4 }]} testID="offer">
-        <Say>{`Want me to remind ${objectOf(r.who.pronoun)} if nothing comes by ${by}?`}</Say>
+        <Say tone="ink">{`Want me to remind ${objectOf(r.who.pronoun)} if nothing comes by ${by}?`}</Say>
         <Tap ref={remind.ref} accessibilityRole="button" accessibilityLabel="Set that up" onPress={remind.onPress} style={[s.setUp]}>
           {remind.wash}
           <Label>Set that up</Label>

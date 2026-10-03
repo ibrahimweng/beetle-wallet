@@ -48,7 +48,7 @@ export function Wrong({ id }: { id: string }) {
         ]}
       />
       <View style={{ marginTop: -4 }}>
-        <Say testID="say">Some of this I can do in minutes. Some of it only a bank can do, and that takes days. I will tell you which one you are in before you start, not after.</Say>
+        <Say testID="line">Some of this I can do in minutes. Some of it only a bank can do, and that takes days. I will tell you which one you are in before you start, not after.</Say>
       </View>
       {/* the frame's card: the title 18 down, 12 to the rows, 12 between them, 16 under */}
       <Card outline style={s.payment} testID="payment">
@@ -64,5 +64,5 @@ export function Wrong({ id }: { id: string }) {
 }
 
 const s = StyleSheet.create({
-  payment: { marginTop: -16, paddingTop: 18, paddingBottom: 16, paddingHorizontal: 16, gap: 12 },
+  payment: { marginTop: -4, paddingTop: 18, paddingBottom: 16, paddingHorizontal: 16, gap: 12 },
 });

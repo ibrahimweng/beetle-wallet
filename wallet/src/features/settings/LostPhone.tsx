@@ -41,8 +41,8 @@ export function LostPhone() {
           <DeviceRow glyph="airtime" title="Infinix Hot 40" where="Ikeja · signing in now" />
           <DeviceRow glyph="airtime" title="iPhone 13" where="Lagos · seen 09:14" tag="Yours" odd />
         </Card>
-        <Say testID="say">You are on a device this account has never seen. I will not open the money here until you prove it is you. Freezing costs nothing and lifts in a minute.</Say>
-        {/* the frame sets the button 28 under the bubble */}
+        <Say testID="line">You are on a device this account has never seen. I will not open the money here until you prove it is you. Freezing costs nothing and lifts in a minute.</Say>
+        {/* the button 28 under the line, as the frame sets it under the bubble */}
         <Button label={prefs.frozen ? 'Frozen. Now prove it is me' : 'Freeze it, then prove it is me'} full={false} style={{ alignSelf: 'center', marginTop: 12 }} onPress={freeze} />
         <Aside>Freezing stops money leaving. It does not stop money arriving, and it never touches what you already have.</Aside>
       </View>

@@ -89,11 +89,8 @@ export function Converted({ id }: { id: string }) {
       </View>
       {/* the frame's offer: Beetle's word on a card, with Set it up under it */}
       <View style={s.offer} testID="offer">
-        <Say>Dollars sitting still do nothing. Move ₦20,000 across on payday and you never have to think about it again.</Say>
-        {/* the frame boxes the bubble's row 11 shorter than the bubble and sets the button 12 under the box */}
-        <View style={{ marginTop: 1 }}>
-          <Button label="Set it up" tone="grey" size={48} trailing="chevron" to="/rule?offer=dollars" />
-        </View>
+        <Say tone="ink">Dollars sitting still do nothing. Move ₦20,000 across on payday and you never have to think about it again.</Say>
+        <Button label="Set it up" tone="grey" size={48} trailing="chevron" to="/rule?offer=dollars" />
       </View>
       <Link label="See your dollars" to="/dollars" testID="see-dollars" />
       <Link label="Something wrong with this?" onPress={() => toast('What went wrong comes with round 7.')} testID="wrong" />
@@ -115,7 +112,7 @@ function Link({ label, to, onPress, testID }: { label: string; to?: string; onPr
 
 const s = StyleSheet.create({
   disc: { width: 56, height: 56, borderRadius: 28, backgroundColor: colour.good, alignItems: 'center', justifyContent: 'center' },
-  offer: { marginTop: -4, backgroundColor: colour.surface, borderWidth: 1, borderColor: colour.rule, borderRadius: 24, padding: 16 },
+  offer: { marginTop: -4, backgroundColor: colour.surface, borderWidth: 1, borderColor: colour.rule, borderRadius: 24, padding: 16, gap: 12 },
   /* the frame's links: 44 tall, 16 apart, centred */
   link: { marginTop: -4, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
 });

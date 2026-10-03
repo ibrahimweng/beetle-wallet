@@ -105,10 +105,7 @@ export function Rule() {
       <Card style={{ paddingTop: 8, paddingBottom: 4, paddingHorizontal: 16, gap: 0 }} testID="facts">
         <Facts rows={offer.facts} />
       </Card>
-      {/* the frame sets the note 6 under the bubble, not a column gap */}
-      <Say style={{ marginBottom: -16 }} testID="say">
-        {offer.say}
-      </Say>
+      <Say testID="line">{offer.say}</Say>
       <FootNote title="You can stop it any time" sub="It sits in Standing instructions with a switch beside it. Or just tell me to stop and it stops." />
       <Button label="Set it up" full={false} style={{ alignSelf: 'center' }} onPress={setUp} />
       <Tap accessibilityRole="button" accessibilityLabel="Not now" onPress={() => router.back()} style={{ alignSelf: 'center', marginTop: 8 }}>

@@ -165,6 +165,11 @@ describe('the scripted Beetle', () => {
     const r = await agent.ask({ text: '15k' }, ctx({ need: 'amount-for', panel }));
     expect(r.blocks[0]).toEqual({ kind: 'amend', panelId: panel.id, amount: 15_000 });
   });
+  it('calls a transfer card Send money, as the page is, whatever the bank', async () => {
+    expect(transferPanel(PEOPLE[0]!, 20_000).title).toBe('Send money');
+    const r = await agent.ask({ text: 'send money to sarah' }, ctx());
+    expect(asks(r.blocks)[0]?.title).toBe('Send money');
+  });
   it('reads a photo and asks whether that is the person', async () => {
     const r = await agent.ask({ photo: { uri: 'file:///slip.jpg' } }, ctx());
     expect(r.reading?.numbers).toEqual(['0234567890']);

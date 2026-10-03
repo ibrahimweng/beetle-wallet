@@ -63,10 +63,10 @@ export function PayFromSheet({
         {row('everyday', 'bank', 'Everyday', `${naira(everyday)} in naira`)}
         {row('dollars', 'dollar', 'Dollars', `${usdFull(dollars)}, about ${naira(nairaOf(dollars, rate))} today`)}
       </View>
-      <View style={{ marginTop: 14 }}>
-        <Say testID="say">{`${who} is paid in naira either way. From dollars I convert at the rate on the next screen, and you see it before anything moves.`}</Say>
+      <View style={{ marginTop: 16 }}>
+        <Say testID="line">{`${who} is paid in naira either way. From dollars I convert at the rate on the next screen, and you see it before anything moves.`}</Say>
       </View>
-      <Button label="Done" tone="grey" size={48} full={false} style={{ alignSelf: 'center', paddingHorizontal: 40, marginTop: 7 }} onPress={onDismiss} />
+      <Button label="Done" tone="grey" size={48} full={false} style={{ alignSelf: 'center', paddingHorizontal: 40, marginTop: 20 }} onPress={onDismiss} />
     </Sheet>
   );
 }

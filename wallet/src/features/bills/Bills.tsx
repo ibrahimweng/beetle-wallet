@@ -41,7 +41,7 @@ export function Bills() {
   return (
     <Screen head={<PageHead lead title="Bills" sub="Everything that repeats each month" />}>
       <View style={s.card} testID="month">
-        <Say testID="month-say">
+        <Say tone="ink" testID="month-line">
           {bills.length
             ? `${naira(m.total)} of bills this month. ${WORDS[m.covered]?.replace(/^./, c => c.toUpperCase())} of the ${WORDS[m.count]} are covered.`
             : 'Nothing repeats yet. The first bill you pay, I keep here.'}

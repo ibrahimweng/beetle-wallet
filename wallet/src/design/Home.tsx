@@ -8,8 +8,7 @@ import React, { ReactNode } from 'react';
 import { Image, Pressable, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { Icon } from './Icon';
-import { Bubble } from './Bubble';
-import { Caption, Display, Head, Label, Meta, Row } from './text';
+import { Body, Caption, Display, Head, Label, Meta, Row } from './text';
 import { IconName } from '../icons';
 import { colour, frame, radius, space } from './tokens';
 import { Tap, Resolve } from './motion';
@@ -523,7 +522,7 @@ export function Insight({
         <Icon name="mark" size={32} colour={colour.accent} />
         <Label style={{ flex: 1 }}>{kicker}</Label>
       </View>
-      {body ? <Bubble>{body}</Bubble> : null}
+      {body ? <Body>{body}</Body> : null}
       {children}
       {action ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s2 }}>

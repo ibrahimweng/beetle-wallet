@@ -32,7 +32,7 @@ export function Ways() {
   };
   return (
     <Screen head={<PageHead lead title="Three ways to be paid" sub="All of them safe to hand out" />}>
-      <Say testID="say">There is nothing to photograph when money is coming to you. What I can do is hand you the two things money reaches you by, and write the message that asks.</Say>
+      <Say testID="line">There is nothing to photograph when money is coming to you. What I can do is hand you the two things money reaches you by, and write the message that asks.</Say>
       <View style={{ gap: 12 }} testID="ways">
         <WayCard glyph="bank" title="Your account number" sub={`Beetle · ${name}`} big={number} action="Copy it" onPress={() => void copy()} testID="way-number" />
         <WayCard glyph="qr" title="Your code" sub="Works with any bank app" big="Point a camera at it" action="Show it" to="/mycode" testID="way-code" />

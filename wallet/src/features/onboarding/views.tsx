@@ -8,31 +8,7 @@ import React, { ReactNode, useEffect } from 'react';
 import { Platform, StyleProp, View, ViewStyle } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
-import {
-  AgentSay,
-  Aside,
-  Avatar,
-  Body,
-  Caption,
-  Card,
-  Display,
-  Field,
-  Icon,
-  Label,
-  Meta,
-  More,
-  Pips,
-  Row as RowText,
-  Swap,
-  Tap,
-  Tick,
-  colour,
-  motion,
-  space,
-  toast,
-  useStill,
-  washes,
-} from '../../design';
+import { Aside, Avatar, Body, Caption, Card, Display, Field, Icon, Label, Meta, More, Pips, Row as RowText, Say, Swap, Tap, Tick, colour, motion, space, toast, useStill, washes } from '../../design';
 import type { IconName } from '../../icons';
 import { auth, identity, DEMO_PASSCODES, MOCK, MOCK_CODE } from '../../services';
 import { groupAccount, groupDigits, groupPhone, initialsOf, longDate } from '../../lib/format';
@@ -445,7 +421,7 @@ function nomatch(c: Ctx): StageView {
           </View>
           <Meta tone="secondary">No record matches {shown}. One wrong digit is the usual reason, so it is worth reading them again.</Meta>
         </Card>
-        <AgentSay>If the digits are right and it still says this, your BVN will work instead. It is the same eleven digits from a different register.</AgentSay>
+        <Say>If the digits are right and it still says this, your BVN will work instead. It is the same eleven digits from a different register.</Say>
         <More label="Talk to someone" onPress={() => toast('Support opens here once the chat is built.')} />
       </View>
     ),

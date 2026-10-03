@@ -80,9 +80,9 @@ export function Dispute({ id }: { id: string }) {
           <StepRows gap={4} rows={stepsOf(d)} />
         </Card>
         <View style={s.tight}>
-          <Say testID="say">{`Six days, and you did not chase it once. Most disputes that get this far end the same way.`}</Say>
+          <Say testID="line">{`Six days, and you did not chase it once. Most disputes that get this far end the same way.`}</Say>
         </View>
-        <View style={{ marginTop: -14 }}>
+        <View style={{ marginTop: -8 }}>
           <SayCard testID="offer" action={letter ? 'It is in your chats' : 'Yes, tell me'} disabled={letter} onAction={sendLetter}>
             Want the closing letter for your records?
           </SayCard>

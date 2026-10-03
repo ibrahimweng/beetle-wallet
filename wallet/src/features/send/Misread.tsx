@@ -72,7 +72,7 @@ export function Misread() {
         />
       </View>
       <View style={{ marginTop: -8 }}>
-        <Say testID="say">The last digit is soft in the photo. I will not choose between these two on my own.</Say>
+        <Say testID="line">The last digit is soft in the photo. I will not choose between these two on my own.</Say>
       </View>
       <View style={{ marginTop: -8 }}>
         <ChoiceList

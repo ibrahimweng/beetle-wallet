@@ -69,7 +69,12 @@ reworded for six digits — and nothing else passes. Two frames box their
 head at 59 and let its second line run under the first card; the build
 gives the line its room, so those screens are anchored on that card and
 everything below is held to the frame from there, with the anchor's own
-offset reported and allowed by name like anything else.
+offset reported and allowed by name like anything else. The frames give
+many pages Beetle's mark and a bubble; no page has one (DESIGN.md, Pages),
+so each of those bubbles is allowed as missing, by name and place. What came
+up into its room is not let off: an allowance can name a band of the frame
+that moved as one, by how much and why, and every piece in it is still held
+to the frame, moved by that much.
 `shots/figma/<key>.png` lays the frame and the screen side by side with
 the verdict beside them.
 
@@ -498,7 +503,9 @@ over, and the lab opens the page filled from one.
 
 A line still on its way, that did not go or that came back opens its own
 page from Activities, its title coming up from the line's words
-(`src/features/transfers/`). Still on its way: the ring turning, the
+(`src/features/transfers/`). These pages explain rather than ask, and
+what Beetle says on them is a plain line, never a bubble: bubbles are the
+chat's. Still on its way: the ring turning, the
 warning not to send it again, the three steps with the last one waiting,
 Beetle's word on when it comes back on its own, and a message offered
 for the moment it lands. It did not go: the red mark, the green word that

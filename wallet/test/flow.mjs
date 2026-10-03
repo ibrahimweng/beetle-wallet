@@ -89,6 +89,8 @@ async function shot(name, settle = 700) {
 }
 /* the words, where they can be seen: a screen underneath the one showing keeps its words in the page, hidden */
 const see = text => page.getByText(text).filter({ visible: true }).first().waitFor();
+/* the same, for words that are a thing's whole name: a card's title, where Beetle's own lines may carry the words too */
+const seeExactly = text => page.getByText(text, { exact: true }).filter({ visible: true }).first().waitFor();
 /* the moment a screen's words are in the page at all, before it has arrived —
    what a trace of the arrival has to start from */
 const arrives = text => page.waitForFunction(t => (document.body.innerText || '').includes(t), text, { polling: 16, timeout: 15000 });
@@ -611,7 +613,7 @@ try {
     'the words should only ever add up',
   );
   console.log(`  the sentence grew through ${new Set(lengths).size} lengths`);
-  await see('Beetle Transfers');
+  await seeExactly('Send money');
   await shot('chat-transfer-running', 250);
   await button('Confirm ₦20,000').waitFor();
   await page.waitForTimeout(1900);
@@ -834,7 +836,7 @@ try {
   await shot('chat-drawer', 400);
   /* a chat picked there picks up where it was, panels and all */
   await tap('Send 20k to Sarah');
-  await see('Beetle Transfers');
+  await seeExactly('Send money');
   await page.waitForTimeout(700);
   await shot('chat-reopened');
   /* and Home on the bar, tapped in the chat, closes it: the edge and the drawer go with it */
@@ -929,7 +931,7 @@ try {
   await tap('Back to the lab');
   await see('Beetle Lab');
   await tap('A transfer, mid-way');
-  await see('Beetle Transfers');
+  await seeExactly('Send money');
   at('/home');
   await shot('lab-transfer', 1600);
   await tap('Back to the lab');

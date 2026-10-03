@@ -497,7 +497,8 @@
   "frame": "home",
   "root": "1201:17925",
   "place": "A transfer, mid-way",
-  "wait": "Beetle Transfers",
+  "wait": "Send money",
+  "waitExact": true,
   "settle": 2600,
   "pieces": [
    {
@@ -555,7 +556,9 @@
      "testid": "panel"
     },
     "find": {
-     "text": "Beetle Transfers"
+     "text": "Send money",
+     "exact": true,
+     "inside": "panel"
     }
    },
    {
@@ -3375,11 +3378,10 @@
    }
   ],
   "anchor": {
-   "name": "Mark · 32",
-   "nth": 0,
+   "name": "Card",
+   "nth": 1,
    "find": {
-    "testid": "say",
-    "child": 0
+    "testid": "figure"
    }
   }
  },
@@ -7166,7 +7168,8 @@
     "name": "Back",
     "find": {
      "button": "Back"
-    }
+    },
+    "fixed": true
    },
    {
     "name": "Ask bar",
@@ -8003,7 +8006,8 @@
     "name": "Dock · Ask about this",
     "find": {
      "testid": "foot"
-    }
+    },
+    "fixed": true
    }
   ]
  },
@@ -16703,13 +16707,15 @@
     "name": "Dock",
     "find": {
      "testid": "foot"
-    }
+    },
+    "fixed": true
    },
    {
     "name": "Back",
     "find": {
      "button": "Back"
-    }
+    },
+    "fixed": true
    },
    {
     "name": "Ask bar",
@@ -18368,13 +18374,15 @@
     "name": "Dock",
     "find": {
      "testid": "foot"
-    }
+    },
+    "fixed": true
    },
    {
     "name": "Back",
     "find": {
      "button": "Back"
-    }
+    },
+    "fixed": true
    },
    {
     "name": "Ask bar",
@@ -18386,7 +18394,8 @@
     "name": "Action button",
     "find": {
      "button": "More"
-    }
+    },
+    "fixed": true
    }
   ],
   "skipWords": [
@@ -19701,13 +19710,15 @@
     "name": "Dock",
     "find": {
      "testid": "foot"
-    }
+    },
+    "fixed": true
    },
    {
     "name": "Back",
     "find": {
      "button": "Back"
-    }
+    },
+    "fixed": true
    },
    {
     "name": "Ask bar",
@@ -20884,7 +20895,8 @@
     "name": "Back",
     "find": {
      "button": "Back"
-    }
+    },
+    "fixed": true
    },
    {
     "name": "Ask bar",

@@ -41,12 +41,12 @@ export function Devices() {
             {only ? null : <DeviceRow glyph="airtime" title="Tecno Spark 10" where="Lagos · 3 days ago" />}
             {only ? null : <DeviceRow glyph="laptop" title="Chrome on Windows" where="Abuja · 12 August" tag="Odd one" odd />}
           </Card>
-          <Say testID="say">
+          <Say testID="line">
             {only
               ? 'Only this phone is signed in now. The other two have to ask for your passcode before they see anything.'
               : 'The Windows one signed in from Abuja on 12 August and has not been back. If that was not you, sign it out and change your passcode. I will not do either without you.'}
           </Say>
-          {only ? null : <Button label="Sign out everywhere else" full={false} style={{ alignSelf: 'center', marginTop: -12 }} onPress={() => setAsking(true)} />}
+          {only ? null : <Button label="Sign out everywhere else" full={false} style={{ alignSelf: 'center' }} onPress={() => setAsking(true)} />}
           <Aside>Signing a device out never touches your money. It only means that device has to ask for your passcode again.</Aside>
         </View>
       </Screen>

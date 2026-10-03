@@ -95,9 +95,9 @@ export function Short() {
         />
       </View>
       <View style={{ marginTop: -8 }}>
-        <Say testID="say">Three ways to close it. None of them costs you anything.</Say>
+        <Say testID="line">Three ways to close it. None of them costs you anything.</Say>
       </View>
-      <View style={{ marginTop: -17 }}>
+      <View style={{ marginTop: -8 }}>
         <ChoiceList
           testID="ways"
           items={[

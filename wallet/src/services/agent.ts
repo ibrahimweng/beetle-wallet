@@ -334,7 +334,7 @@ export function transferPanel(to: Person, amount: number): Panel {
   return {
     id: nextId('transfer'),
     tool: 'transfer',
-    title: 'Beetle Transfers',
+    title: 'Send money',
     icon: 'up',
     rows: [
       { label: 'Recipient', value: to.name },
@@ -495,7 +495,7 @@ const ASK_FIELDS: Record<AskTool, AskField[]> = {
   pay: ['disco', 'meterKind', 'meter', 'amount'],
 };
 const ASK_LOOK: Record<AskTool, { title: string; icon: IconName; saved: 'person' | 'line' | 'meter' }> = {
-  transfer: { title: 'Beetle Transfers', icon: 'up', saved: 'person' },
+  transfer: { title: 'Send money', icon: 'up', saved: 'person' },
   data: { title: 'Beetle Data', icon: 'data', saved: 'line' },
   airtime: { title: 'Beetle Airtime', icon: 'airtime', saved: 'line' },
   pay: { title: 'Beetle Bills', icon: 'power', saved: 'meter' },

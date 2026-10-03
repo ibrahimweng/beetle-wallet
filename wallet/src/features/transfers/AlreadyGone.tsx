@@ -56,7 +56,7 @@ export function AlreadyGone({ id }: { id: string }) {
         <Banner tight tone={colour.good} text="This one is mine. You are covered." testID="banner" />
       </View>
       <View style={{ marginTop: -8 }}>
-        <Say testID="say">I read the last digit wrong and sent it to a stranger. That is my error, so you get it back today, whether or not they return it.</Say>
+        <Say testID="line">I read the last digit wrong and sent it to a stranger. That is my error, so you get it back today, whether or not they return it.</Say>
       </View>
       <View style={{ marginTop: -8 }}>
         <ChoiceList

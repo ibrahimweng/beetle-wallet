@@ -85,9 +85,9 @@ export function Refused() {
           />
         </View>
         <View style={{ marginTop: -8 }}>
-          <Say testID="say">{`Your whole balance, to an account ${(accountAge(false) ?? 'minutes').toLowerCase()} old.`}</Say>
+          <Say testID="line">{`Your whole balance, to an account ${(accountAge(false) ?? 'minutes').toLowerCase()} old.`}</Say>
         </View>
-        <View style={{ marginTop: -22 }}>
+        <View style={{ marginTop: -8 }}>
           <ChoiceList
             testID="ways"
             items={[

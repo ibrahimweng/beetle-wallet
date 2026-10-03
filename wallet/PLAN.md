@@ -896,6 +896,21 @@ coming in, with no collateral.
       second way to the same place. The header keeps the word Wallet at its
       left, and the figure takes that place as the card opens. The home
       frames still draw the mark; the check allows its absence by name.
+- [x] No page has Beetle's bubble (the owner's answer after Round 11).
+      Round 11 kept the bubble on the pages that explain rather than ask
+      (Not enough, Check this number, It did not go, Dollars, Bills and the
+      rest of the states); the owner said to take those off too. What
+      Beetle says on a page is now a plain line in the secondary grey,
+      where the bubble was. Where it offers something, the line is in ink
+      in a white card, over the card's button. Activities' insight cards
+      keep the mark beside their title, with the words plain under it. The
+      check allows each missing bubble by name and place, and holds what
+      came up into its room to the frame moved by that much (a band of the
+      frame that moved as one), so those pieces are still measured.
+- [x] The chat's transfer card is titled Send money (the owner's answer
+      after Round 11). "Beetle Transfers" read as Beetle-to-Beetle only,
+      even for a GTBank transfer. The Data, Airtime and Bills cards keep
+      their titles.
 
 ## Kept out on purpose
 

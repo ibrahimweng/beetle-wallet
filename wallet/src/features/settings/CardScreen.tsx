@@ -99,7 +99,7 @@ export function CardScreen() {
             ]}
           />
           {prefs.cardFrozen ? <Banner glyph="freeze" tone={colour.cyan} text="This card is frozen. Nothing can be charged to it." /> : null}
-          <SayCard testID="say">This card has paid Netflix four times, ₦21,000 in all.</SayCard>
+          <SayCard testID="line">This card has paid Netflix four times, ₦21,000 in all.</SayCard>
           <Card style={{ paddingVertical: 14, paddingHorizontal: 16, gap: 12 }} testID="spent">
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <Meta tone="secondary">Spent this month</Meta>

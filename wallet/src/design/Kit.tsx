@@ -1,13 +1,11 @@
 /* The small pieces the way in and home share: a tick, a glyph on a disc, a
-   quiet text button, a list to pick from, an empty state, a toast, and the
-   agent saying something. Drawn to the same figures as everything beside
-   them. */
+   quiet text button, a list to pick from, an empty state and a toast. Drawn
+   to the same figures as everything beside them. */
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { Animated, StyleProp, View, ViewStyle } from 'react-native';
 import { Icon } from './Icon';
 import { Body, Caption, Head, Meta, Row } from './text';
 import { Card, Divider } from './Screen';
-import { Bubble } from './Bubble';
 import { IconName } from '../icons';
 import { colour, radius, space } from './tokens';
 import { Pop, Tap } from './motion';
@@ -159,18 +157,6 @@ export function Empty({ glyph, title, body, note }: { glyph: IconName; title?: s
           {note}
         </Caption>
       ) : null}
-    </View>
-  );
-}
-
-/* The agent saying something: the mark, and the line in its bubble. */
-export function AgentSay({ children }: { children: ReactNode }) {
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s2 }}>
-      <Icon name="mark" size={32} colour={colour.accent} />
-      <View style={{ flex: 1 }}>
-        <Bubble>{children}</Bubble>
-      </View>
     </View>
   );
 }

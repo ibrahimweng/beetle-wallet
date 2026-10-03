@@ -60,11 +60,20 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 - Money moves by **Slide to send** (or Slide to take, to pay) in the foot,
   never by a plain button on a page.
 
+## Pages
+
+- **No Beetle bubble on any page.** Bubbles belong to the chat. What Beetle
+  has to say on a page is a plain line in the secondary grey, where the
+  frames set the mark and the bubble. Where it offers something ("Want a
+  message the moment it lands?"), the line is in ink in a white card with a
+  hairline, over the card's button. What Beetle noticed, on Activities,
+  keeps its card: the mark beside its title, the words plain under it.
+
 ## Forms
 
-- **No Beetle bubble on a form page.** A form says what it needs with its
-  fields; a field says what matters about itself on the line under it
-  (what Everyday can send, the least you can borrow, whose the meter is).
+- A form says what it needs with its fields; a field says what matters
+  about itself on the line under it (what Everyday can send, the least you
+  can borrow, whose the meter is).
 - **The first field is the one that decides the rest**: on Send money it is
   To.
 - **Amounts are picked where they are**: the figure, chips of likely amounts
@@ -100,6 +109,8 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 
 - Chips over the input do things **in** the chat: Send, Bills, Data,
   Receive, Loan, in that order. None leads to a screen.
+- The transfer card is titled **Send money**, the same as the page, for a
+  Beetle account and for any other bank.
 - A card in the chat that has all it needs pays from where it is: its
   button goes to the passcode. A small **Recent** grows the card itself
   into a list of what was paid before.

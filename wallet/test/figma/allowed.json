@@ -346,6 +346,14 @@
  ],
  "history": [
   {
+   "pieces": [
+    ["Card", 1],
+    ["Glyph · mark", 0],
+    ["Card", 2]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
    "text": "Ask about any of these",
    "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
@@ -418,16 +426,6 @@
    "why": "all of the record lives here now, none of it on home: Money health heads the page and what Beetle noticed sits among the lines, so every line after them sits lower than the frame draws it"
   },
   {
-   "piece": "Card",
-   "nth": 1,
-   "why": "Beetle's word at the foot, lower for Money health and what Beetle noticed above it"
-  },
-  {
-   "piece": "Card",
-   "nth": 2,
-   "why": "Beetle's word at the foot, lower for Money health and what Beetle noticed above it"
-  },
-  {
    "pieces": [
     "Back",
     "Ask bar"
@@ -437,8 +435,23 @@
  ],
  "answer": [
   {
+   "pieces": [
+    ["Mark · 32", 0],
+    ["Card", 0],
+    ["Card", 2],
+    ["Mark · 32", 1],
+    ["Card", 3]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "band": [595, 780],
+   "dy": -3.2,
+   "why": "held from the figure's card now rather than from Beetle's mark, the list under the card comes 3 higher than the frame's: the few points the check allows each piece against the frame's odd figures (the 4-point grid, a text box's slop) add up from the card"
+  },
+  {
    "anchor": true,
-   "why": "the line under the title wraps in the web's font where the frame's SF Pro keeps it to one, so everything below sits a line lower here; on the phone it is one line"
+   "why": "the page is held to the frame from the figure's card: the line under the title wraps in the web's font where the frame's SF Pro keeps it to one (on the phone it is one line), and Beetle's words above the card are a plain line since Round 11 (no page has the bubble; DESIGN.md, Pages), so the card sits higher than the frame's and everything under it is held to the frame from there"
   }
  ],
  "lock": [
@@ -526,8 +539,35 @@
    "why": "the plus belongs to the bar on Home, Activities and Settings; since Round 10 a page's foot is Back, or Back beside the page's own button"
   }
  ],
- "rule": [],
+ "rule": [
+  {
+   "pieces": [
+    ["Row", 0],
+    ["Mark · 32", 0],
+    ["Card", 1]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "band": [564, 748],
+   "dy": -39.1,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  }
+ ],
  "devices": [
+  {
+   "pieces": [
+    ["Row", 3],
+    ["Mark · 32", 0],
+    ["Card", 1]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "band": [617, 618],
+   "dy": -46.2,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
   {
    "text": "Ask about a device",
    "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
@@ -547,6 +587,19 @@
  ],
  "lostphone": [
   {
+   "pieces": [
+    ["Row", 3],
+    ["Mark · 32", 0],
+    ["Card", 1]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "band": [545, 618],
+   "dy": -58.2,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
+  {
    "text": "Ask what freezing does",
    "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
@@ -565,6 +618,19 @@
  ],
  "newcode": [],
  "card": [
+  {
+   "pieces": [
+    ["Card", 2],
+    ["Mark · 32", 0],
+    ["Card", 3]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "band": [550, 678],
+   "dy": -54.1,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
   {
    "text": "Ask about this card",
    "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
@@ -644,6 +710,18 @@
  ],
  "short": [
   {
+   "pieces": [
+    ["Mark · 32", 0],
+    ["Card", 0]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "band": [556, 748],
+   "dy": -23.6,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
+  {
    "text": "Ask me about this",
    "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
@@ -672,6 +750,18 @@
   }
  ],
  "misread": [
+  {
+   "pieces": [
+    ["Mark · 32", 0],
+    ["Card", 0]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "band": [590, 781],
+   "dy": -56.9,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
   {
    "text": "Ask me about this",
    "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
@@ -712,8 +802,56 @@
    "why": "part of the ask bar, which is home's alone since Round 10"
   }
  ],
- "pending": [],
+ "pending": [
+  {
+   "pieces": [
+    ["Mark · 32", 0],
+    ["Card", 2],
+    ["Row", 1],
+    ["Mark · 32", 1],
+    ["Card", 4]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "pieces": [
+    ["Card", 3]
+   ],
+   "why": "the offer's card holds a plain line over its button since Round 11, with no mark and no bubble (DESIGN.md, Pages), so it is shorter than the frame's"
+  },
+  {
+   "band": [788, 789],
+   "dy": -70.6,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  }
+ ],
  "failed": [
+  {
+   "pieces": [
+    ["Mark · 32", 0],
+    ["Card", 1],
+    ["Row", 3],
+    ["Mark · 32", 1],
+    ["Card", 4]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "pieces": [
+    ["Card", 3]
+   ],
+   "why": "the offer's card holds a plain line over its button since Round 11, with no mark and no bubble (DESIGN.md, Pages), so it is shorter than the frame's"
+  },
+  {
+   "band": [491, 610],
+   "dy": -45.9,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
+  {
+   "band": [753, 754],
+   "dy": -90.4,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
   {
    "text": "Ask why this failed",
    "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
@@ -740,6 +878,18 @@
  ],
  "reversed": [
   {
+   "pieces": [
+    ["Mark · 32", 0],
+    ["Card", 0]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "band": [675, 794],
+   "dy": -49.9,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
+  {
    "text": "14:22",
    "why": "the times are the line's own: Musa Danjuma's, back at 11:15 after leaving at 09:15"
   },
@@ -757,6 +907,18 @@
   }
  ],
  "wrong": [
+  {
+   "pieces": [
+    ["Mark · 32", 0],
+    ["Card", 1]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "band": [543, 749],
+   "dy": -69.3,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
   {
    "text": "Tell me what happened",
    "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
@@ -818,6 +980,32 @@
  ],
  "alreadygone": [
   {
+   "pieces": [
+    ["Mark · 32", 0],
+    ["Card", 1],
+    ["Row", 3],
+    ["Mark · 32", 1],
+    ["Card", 4]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "pieces": [
+    ["Card", 3]
+   ],
+   "why": "the offer's card holds a plain line over its button since Round 11, with no mark and no bubble (DESIGN.md, Pages), so it is shorter than the frame's"
+  },
+  {
+   "band": [502, 621],
+   "dy": -57.2,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
+  {
+   "band": [764, 765],
+   "dy": -101.6,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
+  {
    "text": "Ask about the cover",
    "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
@@ -867,8 +1055,16 @@
  ],
  "ways": [
   {
+   "pieces": [
+    ["Row", 0],
+    ["Mark · 32", 0],
+    ["Card", 0]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
    "anchor": true,
-   "why": "Beetle's five lines fill their bubble; the frame's row is 116.8 tall and runs the bubble under the first card, hiding its last line, so the cards sit lower here by the lines that are read"
+   "why": "Beetle's words are a plain line since Round 11 (no page has the bubble; DESIGN.md, Pages), four lines where the frame's bubble row is 116.8 tall, so the cards sit 11 higher; from the first card down the page is held to the frame from there"
   },
   {
    "text": "You cannot receive by talking.",
@@ -1029,6 +1225,19 @@
   }
  ],
  "bills": [
+  {
+   "pieces": [
+    ["Row", 0],
+    ["Mark · 32", 0],
+    ["Card", 1]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "band": [251, 672],
+   "dy": -31.5,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
   {
    "pieces": [
     "Back",
@@ -1347,6 +1556,19 @@
  ],
  "dollars": [
   {
+   "pieces": [
+    ["Row", 1],
+    ["Mark · 32", 0],
+    ["Card", 1]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "band": [528, 923],
+   "dy": -42.2,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
+  {
    "anchor": true,
    "why": "the frame's sub runs to two lines and over the card; the build gives the second line its room, so the page sits 24 lower from the card down"
   },
@@ -1411,6 +1633,21 @@
  ],
  "payfrom": [
   {
+   "pieces": [
+    ["Row", 3],
+    ["Mark · 32", 0],
+    ["Card", 5]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "pieces": [
+    ["Sheet", 0],
+    ["Button · Done", 0]
+   ],
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages) the sheet holds a plain line where the frame has it, 41 shorter, so its top sits 41 lower and Done comes up inside it"
+  },
+  {
    "piece": "Box",
    "nth": 0,
    "why": "the grabber is 4 tall on every sheet of this build, as the passcode frame draws it; this frame draws 5"
@@ -1472,18 +1709,21 @@
  ],
  "goal": [
   {
+   "pieces": [
+    ["Row", 0],
+    ["Mark · 32", 0],
+    ["Card", 1]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
    "piece": "Row",
    "nth": 1,
    "why": "the frame boxes the two buttons at 52 and lets the 56 buttons stand 2 proud; the build's row is the buttons' own 56, with the same top and the same 20 under"
   },
   {
    "anchor": true,
-   "why": "Beetle's line wraps to three lines in the frame's font and two in the build's, so from the feeds down the page sits 24 higher, less the frame's row box"
-  },
-  {
-   "piece": "Card",
-   "nth": 1,
-   "why": "the bubble's words wrap to three lines in the frame's font and two in the build's: 80 tall against the frame's 104"
+   "why": "Beetle's words are a plain line since Round 11 (no page has the bubble; DESIGN.md, Pages), two lines where the frame's bubble is three lines in its box, so from the feeds down the page sits 46 higher, and is held to the frame from there"
   },
   {
    "piece": "Column",
@@ -1504,6 +1744,19 @@
   }
  ],
  "paused": [
+  {
+   "pieces": [
+    ["Row", 0],
+    ["Mark · 32", 0],
+    ["Card", 1]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "band": [634, 971],
+   "dy": -45.4,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
   {
    "piece": "Row",
    "nth": 1,
@@ -1532,6 +1785,19 @@
   }
  ],
  "emptygoal": [
+  {
+   "pieces": [
+    ["Row", 0],
+    ["Mark · 32", 0],
+    ["Card", 0]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "band": [262, 407],
+   "dy": -31.8,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
   {
    "piece": "Row",
    "nth": 1,
@@ -1570,6 +1836,33 @@
   }
  ],
  "health": [
+  {
+   "pieces": [
+    ["Row", 0],
+    ["Mark · 32", 0],
+    ["Card", 1],
+    ["Row", 1],
+    ["Mark · 32", 1],
+    ["Card", 4]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "pieces": [
+    ["Card", 3]
+   ],
+   "why": "the offer's card holds a plain line over its button since Round 11, with no mark and no bubble (DESIGN.md, Pages), so it is shorter than the frame's"
+  },
+  {
+   "band": [569, 934],
+   "dy": -57.4,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
+  {
+   "band": [1110, 1191],
+   "dy": -100.3,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
   {
    "piece": "Column",
    "nth": 0,
@@ -1682,6 +1975,18 @@
  ],
  "iwillnot": [
   {
+   "pieces": [
+    ["Mark · 32", 0],
+    ["Card", 0]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "band": [556, 793],
+   "dy": -18.6,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
+  {
    "text": "short of the ₦20,000 you ask",
    "why": "the layer keeps the Not enough frame's words; the picture reads 'to an account I have never seen', which the build says"
   },
@@ -1707,11 +2012,58 @@
  ],
  "disputeend": [
   {
+   "pieces": [
+    ["Mark · 32", 0],
+    ["Card", 2],
+    ["Row", 1],
+    ["Mark · 32", 1],
+    ["Card", 4]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "pieces": [
+    ["Card", 3]
+   ],
+   "why": "the offer's card holds a plain line over its button since Round 11, with no mark and no bubble (DESIGN.md, Pages), so it is shorter than the frame's"
+  },
+  {
+   "band": [788, 789],
+   "dy": -96.6,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
+  {
    "text": "Do not send it again. This one",
    "why": "the layer keeps the Still on its way frame's words; the picture reads 'It is already in your balance. Nothing to do.', which the build says"
   }
  ],
  "nonetwork": [
+  {
+   "pieces": [
+    ["Mark · 32", 0],
+    ["Card", 1],
+    ["Row", 3],
+    ["Mark · 32", 1],
+    ["Card", 4]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "pieces": [
+    ["Card", 3]
+   ],
+   "why": "the offer's card holds a plain line over its button since Round 11, with no mark and no bubble (DESIGN.md, Pages), so it is shorter than the frame's"
+  },
+  {
+   "band": [502, 621],
+   "dy": -52.2,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
+  {
+   "band": [774, 775],
+   "dy": -106.2,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
   {
    "text": "Your balance is exactly what i",
    "why": "the layer keeps the It did not go frame's words; the picture reads 'Nothing you do here gets lost.', which the build says"
@@ -1740,13 +2092,16 @@
  ],
  "emptyactivity": [
   {
-   "text": "Ask what shows up here",
-   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
+   "pieces": [
+    ["Card", 1],
+    ["Glyph · mark", 0],
+    ["Card", 2]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
   },
   {
-   "piece": "Card",
-   "nth": 2,
-   "why": "the bubble's words wrap into three lines in the frame's Inter and two in the check's font, so its height is not held"
+   "text": "Ask what shows up here",
+   "why": "the frame's ask bar and its placeholder; the ask bar is home's alone since Round 10, so the words are not on this page"
   },
   {
    "pieces": [
@@ -1903,6 +2258,10 @@
  ],
  "home-open": [
   {
+   "text": "Beetle Transfers",
+   "why": "the owner named the transfer card Send money after Round 11, as the page is: Beetle Transfers read as Beetle-to-Beetle only, even for a transfer to GTBank"
+  },
+  {
    "piece": "Frame 2",
    "why": "the owner took the mark out of the card's header: Settings is the gear on the bar, so the header keeps only the word Wallet"
   },
@@ -1912,6 +2271,30 @@
   }
  ],
  "reqsent": [
+  {
+   "pieces": [
+    ["Row", 0],
+    ["Mark · 32", 0],
+    ["Card", 0],
+    ["I will tell you the moment it ", 0],
+    ["Row", 1],
+    ["Mark · 32", 1],
+    ["Card", 2],
+    ["Want me to remind him if nothi", 0]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "pieces": [
+    ["Card", 1]
+   ],
+   "why": "the offer's card holds a plain line over its button since Round 11, with no mark and no bubble (DESIGN.md, Pages), so it is shorter than the frame's"
+  },
+  {
+   "band": [692, 710],
+   "dy": -62.2,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
   {
    "piece": "Back",
    "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
@@ -2048,6 +2431,24 @@
   }
  ],
  "converted": [
+  {
+   "pieces": [
+    ["Mark · 32", 0],
+    ["Card", 1]
+   ],
+   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
+  },
+  {
+   "pieces": [
+    ["Card", 0]
+   ],
+   "why": "the offer's card holds a plain line over its button since Round 11, with no mark and no bubble (DESIGN.md, Pages), so it is shorter than the frame's"
+  },
+  {
+   "band": [633, 790],
+   "dy": -46.5,
+   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+  },
   {
    "piece": "Back",
    "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"

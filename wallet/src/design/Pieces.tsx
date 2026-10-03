@@ -3,9 +3,9 @@
    the foot of a page, a banner, a big status, a numbered step, a choice, a
    device, a cap, what is out today against the line, a meter, the All / In /
    Out segments, a line of the record, a page head with a glyph, a grey pill
-   with a glyph in it, the card's face and its tools, and Beetle saying
-   something on a page, on its own or in a white card — with a button under
-   it where the card offers something. The transfer states add a ring that
+   with a glyph in it, the card's face and its tools, and what Beetle says
+   on a page: a plain line, or a white card with a button where it offers
+   something. The transfer states add a ring that
    turns while money is on its way, the steps it has taken, a tool at work
    on a light panel, and a few ways out on one card. */
 import React, { ReactNode, useEffect, useRef } from 'react';
@@ -13,7 +13,6 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from './Icon';
-import { Bubble } from './Bubble';
 import { Button } from './Button';
 import { Body, Caption, Display, Head, Label, Meta, Row, Title } from './text';
 import type { IconName } from '../icons';
@@ -53,53 +52,27 @@ export function GlyphTitle({ glyph, title }: { glyph: IconName; title: string })
 
 /* ---- Beetle saying something on a page ---- */
 
-/* The mark, and the line in its bubble, 12 apart, as the frames set it. */
-export function Say({ children, style, testID }: { children: ReactNode; style?: object; testID?: string }) {
+/* What Beetle has to say on a page, as a plain line: the frames set it in a
+   bubble beside the mark, but bubbles are the chat's, and no page has one
+   (DESIGN.md, Pages). Secondary on the page; ink inside a card that offers
+   something, where the line is the card's question. */
+export function Say({ children, tone = 'secondary', style, testID }: { children: ReactNode; tone?: 'ink' | 'secondary'; style?: object; testID?: string }) {
   return (
-    <View style={[{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }, style]} testID={testID}>
-      <Icon name="mark" size={32} colour={colour.accent} />
-      <View style={{ flex: 1 }}>
-        <Bubble>{children}</Bubble>
-      </View>
-    </View>
+    <Body tone={tone} style={style} testID={testID}>
+      {children}
+    </Body>
   );
 }
 
-/* The same, in a white card with a hairline: what Beetle noticed about the
-   page, at its foot. The frame's card is 104 tall around an 80 bubble, 16
-   above it and 8 under. Where the card offers something, a 48 button sits
-   under the bubble: the frames box the bubble's row at 70 whatever the
-   bubble's height and put the button 13 under the box, so a two-line bubble
-   runs 3 short of the button and a one-line one leaves 27. */
-export function SayCard({
-  children,
-  action,
-  onAction,
-  disabled = false,
-  row = 70,
-  tight = false,
-  testID,
-}: {
-  children: ReactNode;
-  action?: string;
-  onAction?: () => void;
-  disabled?: boolean;
-  /** the bubble's row, as the frame boxes it: 70 on most offers */
-  row?: number;
-  /** the offline frame's card: the button 12 under the row, and 6 under the button */
-  tight?: boolean;
-  testID?: string;
-}) {
+/* What Beetle noticed about the page, at its foot. Where it offers something
+   it is a white card with a hairline, the line over a 48 button 12 under it;
+   where it only says something, it is the plain line. */
+export function SayCard({ children, action, onAction, disabled = false, testID }: { children: ReactNode; action?: string; onAction?: () => void; disabled?: boolean; testID?: string }) {
+  if (!action) return <Say testID={testID}>{children}</Say>;
   return (
-    <View style={[s.sayCard, action ? s.sayCardOffer : null, tight ? { paddingBottom: 6 } : null]} testID={testID}>
-      {action ? (
-        <View style={{ height: row, overflow: 'visible' }}>
-          <Say>{children}</Say>
-        </View>
-      ) : (
-        <Say>{children}</Say>
-      )}
-      {action ? <Button label={action} size={48} onPress={onAction} disabled={disabled} style={{ marginTop: tight ? 12 : 13 }} /> : null}
+    <View style={s.sayCard} testID={testID}>
+      <Say tone="ink">{children}</Say>
+      <Button label={action} size={48} onPress={onAction} disabled={disabled} />
     </View>
   );
 }
@@ -675,8 +648,7 @@ const s = StyleSheet.create({
   box40: { width: 40, height: 40, borderRadius: 12, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },
   box32: { width: 32, height: 32, borderRadius: 10, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },
   disc28: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  sayCard: { backgroundColor: colour.surface, borderWidth: 1, borderColor: colour.rule, borderRadius: radius.card, paddingTop: 15, paddingBottom: 7, paddingHorizontal: 15 },
-  sayCardOffer: { paddingBottom: 15 },
+  sayCard: { backgroundColor: colour.surface, borderWidth: 1, borderColor: colour.rule, borderRadius: radius.card, padding: 16, gap: 12 },
   bannerTight: { minHeight: 56, paddingVertical: 4 },
   disc22: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
   stepRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 44 },

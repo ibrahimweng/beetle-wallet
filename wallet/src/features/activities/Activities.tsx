@@ -142,7 +142,11 @@ export function Activities() {
                 <Body tone="tertiary">Nothing {segment === 'In' ? 'came in' : segment === 'Out' ? 'went out' : 'moved'} yet.</Body>
               ) : null}
               {segment === 'Insights' && !noticedToday.length && !noticedYesterday.length ? <Body tone="tertiary">Nothing to notice yet.</Body> : null}
-              {nothing ? <SayCard testID="footer">Every line here will open a receipt you can keep, send on, or dispute.</SayCard> : h.footer ? <SayCard testID="footer">{h.footer}</SayCard> : null}
+              {nothing ? (
+                <SayCard testID="foot-line">Every line here will open a receipt you can keep, send on, or dispute.</SayCard>
+              ) : h.footer ? (
+                <SayCard testID="foot-line">{h.footer}</SayCard>
+              ) : null}
             </View>
           </View>
         </Screen>

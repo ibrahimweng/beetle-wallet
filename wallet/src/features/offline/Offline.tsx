@@ -74,9 +74,9 @@ export function Offline() {
         <Banner tight tone={colour.good} text="Nothing you do here gets lost." testID="banner" />
       </View>
       <View style={{ marginTop: -8 }}>
-        <Say testID="say">I will not send money against a balance I cannot check. Tell me what you want, I hold it, and it goes the second the network is back.</Say>
+        <Say testID="line">I will not send money against a balance I cannot check. Tell me what you want, I hold it, and it goes the second the network is back.</Say>
       </View>
-      <View style={{ marginTop: -12 }}>
+      <View style={{ marginTop: -8 }}>
         <ChoiceList
           testID="ways"
           items={[
@@ -86,7 +86,7 @@ export function Offline() {
         />
       </View>
       <View style={{ marginTop: -8 }}>
-        <SayCard testID="offer" row={80} tight action={lite || prefs.lite ? 'Lite mode is on' : 'Do that'} disabled={lite || prefs.lite} onAction={liteMode}>
+        <SayCard testID="offer" action={lite || prefs.lite ? 'Lite mode is on' : 'Do that'} disabled={lite || prefs.lite} onAction={liteMode}>
           Turn on lite mode while data is short?
         </SayCard>
       </View>

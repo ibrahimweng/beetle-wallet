@@ -5,7 +5,6 @@ export * from './text';
 export * from './Icon';
 export * from './Button';
 export * from './PageHead';
-export * from './Bubble';
 export * from './Keypad';
 export * from './Field';
 export * from './Screen';

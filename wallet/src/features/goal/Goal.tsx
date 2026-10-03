@@ -106,10 +106,10 @@ export function Goal() {
           </View>
         ) : null}
         <View style={has ? null : { marginTop: 6 }}>
-          <Say testID="say">{goalLine(state)}</Say>
+          <Say testID="line">{goalLine(state)}</Say>
         </View>
         {has ? (
-          <View style={{ marginTop: -11 }} testID="feeds-block">
+          <View testID="feeds-block">
             <Head>{paused ? 'Waiting for you' : 'What is feeding it'}</Head>
             <View style={{ marginTop: 12 }} testID="feeds">
               {rows.map(r => (

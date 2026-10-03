@@ -18,7 +18,12 @@
    A screen can be anchored on one piece: every other piece is then held to
    the frame from that piece's own corner, for a frame whose head box clips
    a line the build gives room to; the anchor's own offset is reported, and
-   needs its reason in allowed.json like anything else.
+   needs its reason in allowed.json like anything else. Where a block changes
+   height on purpose, a band of the frame can be allowed to move as one:
+   {band: [from, to], dy, why} holds every piece the frame has from y from up
+   to y to (pinned and container-measured pieces aside) to the frame moved by
+   dy, so what came up under the block is still measured, and each piece it
+   moves says so.
 
      node test/figma.mjs dist            # every screen
      node test/figma.mjs dist welcome    # one
@@ -46,6 +51,10 @@ await ctx.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {}
 const page = await ctx.newPage();
 page.setDefaultTimeout(15000);
 
+/* an allowance names its piece by name and nth, or lists pieces: a name
+   (any of that name) or [name, nth] (that one alone) */
+const allows = (a, piece) =>
+  (a.piece === piece.name && (a.nth ?? 0) === (piece.nth ?? 0)) || (a.pieces ?? []).some(p => (Array.isArray(p) ? p[0] === piece.name && p[1] === (piece.nth ?? 0) : p === piece.name));
 const snap4 = v => Math.round(v / 4) * 4;
 const near = (got, want) => Math.abs(got - want) <= 3 || Math.abs(got - snap4(want)) <= 3;
 const fmt = v => (Math.round(v * 10) / 10).toString();
@@ -136,7 +145,7 @@ for (const key of keys) {
     if (step.tap) await page.getByRole('button', { name: step.tap, exact: true }).first().click();
     if (step.wait) await page.waitForTimeout(step.wait);
   }
-  if (s.wait) await page.getByText(s.wait).filter({ visible: true }).first().waitFor();
+  if (s.wait) await page.getByText(s.wait, { exact: !!s.waitExact }).filter({ visible: true }).first().waitFor();
   await page.waitForTimeout(s.settle ?? 1200);
   await still();
   const appShot = join(OUT, `${key}-app.png`);
@@ -185,7 +194,7 @@ for (const key of keys) {
     }
     if (!got) {
       /* a figure that is live, or a line the build words otherwise, is allowed by name */
-      const pass = (allowed[key] ?? []).find(a => (a.piece === piece.name && (a.nth ?? 0) === (piece.nth ?? 0)) || a.pieces?.includes(piece.name));
+      const pass = (allowed[key] ?? []).find(a => allows(a, piece));
       if (pass) lines.push(`~ ${piece.name}: not on the screen — allowed: ${pass.why}`);
       else {
         lines.push(`✗ ${piece.name}: not on the screen`);
@@ -194,18 +203,23 @@ for (const key of keys) {
       continue;
     }
     got = { x: got.x - origin.x, y: got.y - origin.y, w: got.w, h: got.h };
+    /* in a band that moved as one, the frame's figure moved with it */
+    const band = piece.fixed || piece.within ? null : (allowed[key] ?? []).find(a => a.band && want.y >= a.band[0] && want.y < a.band[1]);
+    const held = band ? { ...want, y: want.y + band.dy } : want;
+    const moved = band ? `moved ${fmt(band.dy)} with the band from ${fmt(band.band[0])}: ${band.why}` : '';
     const dims = piece.only ?? (piece.find.text !== undefined ? ['x', 'y', 'h'] : ['x', 'y', 'w', 'h']);
-    const off = dims.filter(d => !near(got[d], want[d]));
-    const show = dims.map(d => `${d} ${fmt(got[d])}${near(got[d], want[d]) ? '' : `≠${fmt(want[d])}`}`).join(' ');
+    const off = dims.filter(d => !near(got[d], held[d]));
+    const show = dims.map(d => `${d} ${fmt(got[d])}${near(got[d], held[d]) ? '' : `≠${fmt(held[d])}`}`).join(' ');
     if (off.length) {
       /* allowed by name, or as one of a set that is off for one reason */
-      const pass = (allowed[key] ?? []).find(a => (a.piece === piece.name && (a.nth ?? 0) === (piece.nth ?? 0)) || a.pieces?.includes(piece.name));
-      if (pass) lines.push(`~ ${piece.name}: ${show} — allowed: ${pass.why}`);
+      const pass = (allowed[key] ?? []).find(a => allows(a, piece));
+      if (pass) lines.push(`~ ${piece.name}: ${show} — allowed: ${pass.why}${band ? `; ${moved}` : ''}`);
       else {
-        lines.push(`✗ ${piece.name}: ${show}`);
+        lines.push(`✗ ${piece.name}: ${show}${band ? ` (${moved})` : ''}`);
         bad++;
       }
-    } else lines.push(`✓ ${piece.name}: ${show}`);
+    } else if (band) lines.push(`~ ${piece.name}: ${show} — ${moved}`);
+    else lines.push(`✓ ${piece.name}: ${show}`);
   }
 
   /* the words */

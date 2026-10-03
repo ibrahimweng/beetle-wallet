@@ -44,7 +44,7 @@ export function Health() {
         </View>
       </View>
       <View style={s.tight}>
-        <Say testID="say">{healthLine(score)}</Say>
+        <Say testID="line">{healthLine(score)}</Say>
       </View>
       <View style={{ marginTop: 10 }} testID="moves-block">
         <Head>What moves it</Head>
@@ -67,10 +67,8 @@ export function Health() {
       </View>
       {score !== null ? (
         <View style={s.offer} testID="offer">
-          <Say>Holding ₦5,000 back on payday would take this to 76 by October. Want me to set it up?</Say>
-          <View style={{ marginTop: 2 }}>
-            <Button label="Set it up" tone="grey" size={48} trailing="chevron" to="/rule?offer=budget" />
-          </View>
+          <Say tone="ink">Holding ₦5,000 back on payday would take this to 76 by October. Want me to set it up?</Say>
+          <Button label="Set it up" tone="grey" size={48} trailing="chevron" to="/rule?offer=budget" />
         </View>
       ) : null}
       <View style={s.tight}>
@@ -92,5 +90,5 @@ const s = StyleSheet.create({
   grey: { marginTop: 12, backgroundColor: colour.surface2, borderRadius: 24, paddingHorizontal: 16, paddingTop: 4 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 72 },
   box: { width: 40, height: 40, borderRadius: 12, backgroundColor: colour.surface, alignItems: 'center', justifyContent: 'center' },
-  offer: { backgroundColor: colour.surface, borderWidth: 1, borderColor: colour.rule, borderRadius: 24, padding: 16 },
+  offer: { backgroundColor: colour.surface, borderWidth: 1, borderColor: colour.rule, borderRadius: 24, padding: 16, gap: 12 },
 });

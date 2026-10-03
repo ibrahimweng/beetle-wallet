@@ -39,10 +39,10 @@ export function Answer() {
   return (
     <Screen head={<PageHead title="Airtime and data" sub="You asked how much you spend on staying connected" />}>
       <View style={{ gap: 12 }}>
-        <Say testID="say">₦18,900 on airtime and data last month. That is your highest month this year.</Say>
+        <Say testID="line">₦18,900 on airtime and data last month. That is your highest month this year.</Say>
         {/* the figure, the six months, the terms and where the number came from, on one card */}
-        {/* the frame sets the card 2 under the bubble, and its foot 5 under the last line */}
-        <Card style={[s.figure, { marginTop: -8 }]} testID="figure">
+        {/* the card 12 under the line; the frame sets its foot 5 under the last line */}
+        <Card style={s.figure} testID="figure">
           {/* the frame gives the figure's row 44 */}
           <View style={{ flexDirection: 'row', alignItems: 'flex-start', height: 44 }}>
             <Display style={{ flex: 1 }}>{naira(18900)}</Display>
@@ -101,7 +101,7 @@ export function Answer() {
           </View>
         </View>
         <View style={{ marginTop: -8 }}>
-          <SayCard testID="footer">A 10GB monthly plan is ₦4,000 and would save about ₦1,800.</SayCard>
+          <SayCard testID="foot-line">A 10GB monthly plan is ₦4,000 and would save about ₦1,800.</SayCard>
         </View>
       </View>
     </Screen>

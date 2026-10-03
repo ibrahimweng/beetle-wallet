@@ -70,9 +70,9 @@ export function Dollars() {
         <Meta tone="secondary" style={{ flex: 1 }}>{`₦${rate.toLocaleString('en-NG')} to the dollar today`}</Meta>
         <Label tone="good">{`Up ₦${RATE_MOVE}`}</Label>
       </Tap>
-      <Say testID="say">{heldLine(dollars, rate)}</Say>
+      <Say testID="line">{heldLine(dollars, rate)}</Say>
       {sources.length ? (
-        <View style={{ marginTop: -15 }} testID="sources-block">
+        <View testID="sources-block">
           <Head>Where they came from</Head>
           <View style={{ marginTop: 12 }} testID="sources">
             {sources.map(src => (

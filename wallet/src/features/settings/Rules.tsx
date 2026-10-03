@@ -12,6 +12,7 @@ import { useSessionGuard } from '../onboarding/useGuard';
 import { askHome } from '../more/More';
 import { useFoot } from '../more/Foot';
 import { usePrefs, type Prefs } from './prefs';
+import { fedWords, useFedName } from '../goal/store';
 import { openTab } from '../tabs/tabs';
 
 export const INSTRUCTIONS: { id: keyof Prefs['rules']; title: string; when: string; log: string; /** only listed once it is on */ offered?: boolean }[] = [
@@ -29,6 +30,8 @@ export function Rules() {
   const ok = useSessionGuard();
   const account = app.session?.account;
   const { prefs, ready, set } = usePrefs(account?.accountNumber);
+  /* the payday slice goes to the first goal, by its name */
+  const fed = useFedName(account, prefs.goal);
   /* the foot: Back */
   useFoot({ kind: 'back' });
   if (!ok || !account) return null;
@@ -61,10 +64,10 @@ export function Rules() {
                 <Card key={i.id} style={s.rule} testID="rule">
                   <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
                     <View style={{ flex: 1, gap: 8 }}>
-                      <Row>{i.title}</Row>
-                      <Meta tone="secondary">{i.when}</Meta>
+                      <Row>{fedWords(i.title, fed)}</Row>
+                      <Meta tone="secondary">{fedWords(i.when, fed)}</Meta>
                     </View>
-                    <Toggle value={prefs.rules[i.id]} onChange={v => set({ rules: { ...prefs.rules, [i.id]: v } })} label={i.title} />
+                    <Toggle value={prefs.rules[i.id]} onChange={v => set({ rules: { ...prefs.rules, [i.id]: v } })} label={fedWords(i.title, fed)} />
                   </View>
                   <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
                     <Meta tone="secondary" style={{ flex: 1 }}>

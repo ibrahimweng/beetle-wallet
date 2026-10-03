@@ -70,5 +70,13 @@ export function sheetFor(panel: Panel): Sheet {
       glyph: 'loan',
       rows: panel.rows.filter(r => r.label !== 'Term').map(r => ({ label: r.label, value: r.value, strong: r.label === 'You pay back' })),
     };
+  if (panel.tool === 'save')
+    return {
+      amount: moneyExact(amount),
+      name: panel.title,
+      detail: 'Put away, from Everyday',
+      glyph: 'pot',
+      rows: [...panel.rows.map(r => ({ label: r.label, value: r.value })), leaves],
+    };
   return { amount: moneyExact(amount), name: move?.name ?? panel.title, detail: move?.detail, rows: [leaves] };
 }

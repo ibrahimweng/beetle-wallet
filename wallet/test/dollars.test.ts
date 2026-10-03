@@ -1,6 +1,6 @@
-/* Round 6: the sums the dollars pages do, the goal's arithmetic, the health
-   rows, the words typed at home that open the new pages, and the ledger's
-   naira balance when a line is paid from the dollars. */
+/* Round 6: the sums the dollars pages do, the health rows, the words typed
+   at home that open the new pages, and the ledger's naira balance when a
+   line is paid from the dollars. The goals have goal.test.ts. */
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('react-native', () => ({ Platform: { OS: 'web', select: (o: Record<string, unknown>) => o.default } }));
@@ -8,7 +8,6 @@ vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem
 vi.mock('expo-router', () => ({ useFocusEffect: () => undefined, useRouter: () => ({}) }));
 vi.mock('expo-crypto', () => ({ getRandomBytes: (n: number) => new Uint8Array(n), CryptoDigestAlgorithm: { SHA256: 'SHA-256' }, digestStringAsync: async () => 'h' }));
 import { DEMO_SOURCES, FREE_UNDER_USD, dollarsOf, feeForUsd, heldLine, nairaOf, rateLine, sourcesOf, usdFull, usdOf } from '../src/features/dollars/dollars';
-import { DEMO_SUMS, FEEDS, GOAL, NO_SUMS, feedRow, goalLine, pctOf, putAside } from '../src/features/goal/goal';
 import { healthLine, healthRows } from '../src/features/health/health';
 import { DEFAULT_PREFS } from '../src/features/settings/prefs';
 import { isConvert, isGoal, isHealth, pageFor } from '../src/features/request/intent';
@@ -46,31 +45,6 @@ describe('dollars', () => {
     expect(heldLine(412.6, 1_552)).toContain('March at ₦1,410');
     expect(heldLine(412.6, 1_552)).toContain('₦58,600 less');
     expect(heldLine(0, 1_552)).toContain('Nothing here yet');
-  });
-});
-
-describe('the goal', () => {
-  it('adds up the frame’s ₦82,400 and a third of the way', () => {
-    expect(putAside(DEMO_SUMS)).toBe(82_400);
-    expect(pctOf(82_400)).toBe(33);
-    expect(putAside(NO_SUMS)).toBe(0);
-    expect(putAside(NO_SUMS, 5_000)).toBe(5_000);
-    expect(pctOf(300_000)).toBe(100);
-    expect(GOAL.target).toBe(250_000);
-  });
-  it('shows each feed on, paused while things are tight, or off', () => {
-    const payday = FEEDS[0]!;
-    const cashback = FEEDS[2]!;
-    expect(feedRow(payday, true, false, 80_000)).toMatchObject({ sub: '₦20,000 every month', value: '₦80,000', tone: 'accent' });
-    expect(feedRow(payday, true, true, 80_000)).toMatchObject({ sub: 'Paused since 3 August', value: 'Paused', tone: 'quiet' });
-    expect(feedRow(cashback, true, true, 120)).toMatchObject({ sub: 'Still going in', value: '₦120', tone: 'accent' });
-    expect(feedRow(payday, false, false, 80_000)).toMatchObject({ sub: 'Turned off', value: 'Off' });
-  });
-  it('says the right thing in each state', () => {
-    expect(goalLine('running')).toContain('26 February');
-    expect(goalLine('paused')).toContain('12 March to 9 April');
-    expect(goalLine('none')).toContain('what you are saving for');
-    expect(goalLine('empty')).toContain('Nothing in it yet');
   });
 });
 

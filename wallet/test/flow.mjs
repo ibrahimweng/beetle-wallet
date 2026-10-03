@@ -654,48 +654,31 @@ try {
   await onPage('home');
 
   console.log('Being paid');
-  /* Receive on the card puts up the sheet with the four ways money can come;
-     Bank transfer sends it down and opens Three ways to be paid, with the
-     number to copy and the code behind Show it */
+  /* Receive on the card puts up the sheet with the account's own details: the number at Beetle and the
+     $tag, each with Copy, and Share details; under them Ask someone and In dollars. No paying in from a
+     card, no code to scan and no page of its own for a bank transfer: the owner made it this short */
   await tap('Receive');
-  await see('Pick how you want the money to reach you');
+  await see('Give these to whoever is paying you');
+  await page.getByTestId('receive-sheet-number').waitFor();
+  await page.getByTestId('receive-sheet-tag').waitFor();
+  must((await page.getByText('From a card', { exact: true }).count()) === 0, 'Receive should not offer paying in from a card');
+  must((await page.getByText('Bank transfer', { exact: true }).count()) === 0, 'the details should be on the sheet, not behind a Bank transfer row');
   await shot('receive-sheet', 900);
-  await tap('Bank transfer');
-  await see('All of them safe to hand out');
-  at('/ways');
-  must((await page.getByText('Pick how you want').filter({ visible: true }).count()) === 0, 'the sheet should have gone down before the page came');
-  await shot('ways', 900);
-  await tap('Copy it');
+  await tap('Copy account number');
   /* the browser may still refuse the clipboard on a machine with none; the
-     page says so either way, and that is what is checked */
+     sheet says so either way, and that is what is checked */
   const copied = page.getByText('copied. Paste it anywhere.').filter({ visible: true }).first();
   const refused = page.getByText('cannot reach the clipboard').filter({ visible: true }).first();
   await Promise.race([copied.waitFor(), refused.waitFor()]);
   console.log(`  the number was ${(await copied.count()) ? 'copied' : 'not copied: this browser has no clipboard to give'}`);
-  await tap('Show it');
-  await see('Point their camera at this');
-  at('/mycode');
-  /* the code is a real one: its modules drawn as one path, its three eyes as rounded squares */
-  const modules = await page.locator('[data-testid="code"] path').first().getAttribute('d');
-  must(modules && modules.startsWith('M') && modules.length > 400, 'the code should be drawn as a path of modules');
-  await shot('mycode', 900);
-  /* Save it on the web downloads the picture; Share it, with no share sheet here, puts the words on the clipboard */
-  await tap('Save it');
-  const saved = page
-    .getByText(/Downloaded|would not take|cannot draw|Nothing here to save/)
-    .filter({ visible: true })
-    .first();
-  await saved.waitFor();
-  console.log(`  Save it: ${(await saved.innerText()).trim()}`);
-  await tap('Share it');
+  /* Share details, with no share sheet in this browser, puts all of it on the clipboard instead */
+  await tap('Share details');
   await page
-    .getByText(/No share sheet here/)
+    .getByText(/Your details are copied|cannot reach the clipboard/)
     .filter({ visible: true })
     .first()
     .waitFor();
-  await tap('Back');
-  await see('All of them safe to hand out');
-  await tap('Back');
+  await tap('Done');
   await page.waitForTimeout(700);
   at('/home');
 
@@ -772,7 +755,7 @@ try {
   await page.waitForTimeout(700);
   /* nothing yet: Ask someone on the sheet; Beetle asks, and each row fills where it is: who, how much on the picker, what for */
   await tap('Receive');
-  await see('Pick how you want the money to reach you');
+  await see('Give these to whoever is paying you');
   await tap('Ask someone');
   /* no bubble on the page: the line under the panel says what to tap */
   await see('Tap Person and Amount to fill them in.');
@@ -1783,52 +1766,154 @@ try {
   await see('All done');
   await see('$32.22 at ₦1,552 to $1');
   await shot('send-dollars-receipt', 900);
-  /* the goal: Savings pot on the drawer opens Holiday; Feed it more is the sheet; Add money puts the picker up over the page, then the passcode and a receipt */
+  /* the goal: Savings pot on the drawer opens Holiday, as Savings on home does */
   await page.goto(`${base}/services`, { waitUntil: 'load' });
   await see('Everything you can pay for from here');
   await tap('Savings pot');
   await see('₦250,000 by 12 March');
   at('/goal');
+  console.log('Saving, in four taps');
+  /* saving from home: Savings (1), Add money (2), the amount and Put away (3), the passcode (4) */
+  await page.goto(`${base}/home`, { waitUntil: 'load' });
+  await see('Holiday · 33%');
+  let taps = 0;
+  const counted = async go => {
+    taps++;
+    await go();
+  };
+  await counted(() => page.getByTestId('grid-savings').click());
+  await see('₦250,000 by 12 March');
+  at('/goal');
   await see('33%');
+  /* Add money and Take out sit straight under the ring, in view without a scroll */
+  const adding = await button('Add money').boundingBox();
+  must(adding && adding.y + adding.height < 852 - 104, `Add money should be in view above the foot (at ${adding?.y})`);
   await shot('goal', 900);
-  await tap('Feed it more');
+  await counted(() => tap('Add money'));
+  await page.getByTestId('goal-amount').waitFor();
+  await see('Into Holiday');
+  await counted(() => tap('Put ₦10,000 away'));
+  await see('Enter your passcode');
+  await counted(() => type(PASSCODE));
+  await see('All done');
+  await see('Put away');
+  must(page.url().includes('/receipt/'), 'adding money should open its receipt');
+  must(taps === 4, `saving should take four taps from home, not ${taps}`);
+  await shot('goal-receipt', 900);
+  await page.goto(`${base}/goal`, { waitUntil: 'load' });
+  await see('₦92,400');
+  await see('37%');
+  /* what feeds it is one row now, and the Feed sheet is behind it */
+  await tap('What is feeding it');
   await see('Pick something that runs without you thinking about it');
   await shot('feed-goal', 700);
   await page.getByRole('switch', { name: 'Round ups' }).click();
   await page.waitForTimeout(300);
   await tap('Done');
-  await see('Turned off');
-  await tap('Feed it more');
+  await see('Payday, cash back');
+  await tap('What is feeding it');
   await see('Pick something that runs without you thinking about it');
   await page.getByRole('switch', { name: 'Round ups' }).click();
   await page.waitForTimeout(300);
   await tap('Done');
-  await see('₦2,280');
-  await tap('Add money');
-  await page.getByTestId('goal-amount').waitFor();
-  await see('Into Holiday');
+  await see('Payday, round ups, cash back');
+  /* money out: Take out, the amount, the passcode, and the Taken back receipt */
+  await tap('Take out');
+  await page.getByTestId('goal-take').waitFor();
+  await see('Holiday holds ₦92,400');
+  await shot('goal-take', 700);
   await tap('₦5,000');
-  await tap('Put ₦5,000 away');
+  await tap('Take ₦5,000 out');
   await see('Enter your passcode');
   await type(PASSCODE);
-  await see('All done');
-  await see('Put away');
-  must(page.url().includes('/receipt/'), 'adding money should open its receipt');
-  await shot('goal-receipt', 900);
-  await page.goto(`${base}/goal`, { waitUntil: 'load' });
-  await see('₦87,400');
-  await see('35%');
-  /* money is tight: the switch on the Rules page pauses the goal; Start again lifts it */
+  await see('Taken back');
+  must(page.url().includes('/receipt/'), 'taking money out should open its receipt');
+  await shot('goal-taken', 900);
+  /* a goal in three taps from home: Savings (1), New goal (2), Start saving (3), the sheet filled with Rent */
+  await page.goto(`${base}/home`, { waitUntil: 'load' });
+  await see('Holiday · 35%');
+  taps = 0;
+  await counted(() => page.getByTestId('grid-savings').click());
+  await counted(() => tap('New goal'));
+  await page.getByTestId('goal-sheet').waitFor();
+  await see('A new goal');
+  must((await page.getByLabel('Goal name').inputValue()) === 'Rent', 'a new goal should come filled with the next idea, Rent');
+  await shot('goal-new', 900);
+  await counted(() => tap('Start saving for Rent'));
+  await see('Fed by hand');
+  await see('₦600,000 by');
+  must(taps === 3, `a goal should take three taps from home, not ${taps}`);
+  must((await page.getByTestId('goal-pill').count()) === 2, 'the two goals should sit as pills');
+  await shot('goal-rent', 1200);
+  /* the pills switch in place */
+  await tap('Holiday');
+  await see('₦250,000 by 12 March');
+  await tap('Rent');
+  await see('₦600,000 by');
+  /* edited from the ···: the same sheet with the goal's own name */
+  await page.getByTestId('goal-more').click();
+  await tap('Edit goal');
+  await page.getByTestId('goal-sheet').waitFor();
+  await see('Edit Rent');
+  await page.getByLabel('Goal name').fill('Rent for March');
+  await tap('Save changes');
+  await see('What is in it has not moved');
+  await seeExactly('Rent for March');
+  /* paused from the ···, and started again from Beetle's line */
+  await page.getByTestId('goal-more').click();
+  await tap('Pause goal');
+  await see('Paused for now');
+  await see('until you start it again');
+  await shot('goal-paused-by-hand', 900);
+  await tap('Start again');
+  await see('is moving again');
+  /* ended from the ···: empty, so the sheet asks first, End goal in red */
+  await page.getByTestId('goal-more').click();
+  await tap('End goal');
+  await see('End Rent for March?');
+  await shot('goal-end', 700);
+  await page.getByTestId('goal-end').getByRole('button', { name: 'End goal', exact: true }).click();
+  await see('Rent for March has ended');
+  await see('₦250,000 by 12 March');
+  must((await page.getByTestId('goal-pill').count()) === 1, 'the ended goal should leave the pills');
+  /* home's card for two goals, then one again */
+  await page.goto(`${base}/goal?two=1`, { waitUntil: 'load' });
+  await see('Rent');
+  await page.goto(`${base}/home`, { waitUntil: 'load' });
+  await see('2 goals · 10%');
+  await shot('home-two-goals', 900);
+  /* money is tight: the switch on the Rules page pauses every goal; Start again on Beetle's line lifts it */
   await page.goto(`${base}/rules`, { waitUntil: 'load' });
   await see('What I can do without asking you first');
   await page.getByRole('switch', { name: 'Money is tight this month' }).click();
   await page.waitForTimeout(400);
   await page.goto(`${base}/goal`, { waitUntil: 'load' });
   await see('Paused while things are tight');
-  await see('Paused since 3 August');
+  await see('Waiting while it is paused');
   await shot('goal-paused', 900);
   await tap('Start again');
   await see('₦250,000 by 12 March');
+  console.log('Saving from the chat');
+  /* the Save chip: Save (1), Put away (2), the passcode (3), in the open chat */
+  await page.goto(`${base}/home`, { waitUntil: 'load' });
+  await see(DEMO_HOME);
+  await pull('card-for-save', false);
+  taps = 0;
+  await counted(() => tap('Save'));
+  await page.getByTestId('save-card').waitFor();
+  must((await page.getByTestId('save-goal').count()) === 2, 'the Save card should offer both goals as pills');
+  await shot('chat-save', 900);
+  await counted(() => tap('Put ₦10,000 into Holiday'));
+  await see('Enter your passcode');
+  await counted(() => type(PASSCODE));
+  await see('is in Holiday');
+  must(taps === 3, `saving from the chat should take three taps, not ${taps}`);
+  await shot('chat-saved', 900);
+  /* typed, it is the same card, filled with what the words said */
+  await page.getByLabel('Ask Beetle').fill('save 5k for rent');
+  await tap('Send this');
+  await see('Put ₦5,000 into Rent');
+  await shot('chat-save-typed', 900);
   /* money health from the row at the top of Activities, and its offer to Set this up */
   await page.goto(`${base}/activities`, { waitUntil: 'load' });
   await see('Everything that moved');
@@ -1844,7 +1929,7 @@ try {
   await tap('Set it up');
   await see('What I can do without asking you first');
   await see('Hold ₦5,000 back on payday');
-  /* the words typed at home that open the goal */
+  /* the words typed at home that open the goal, and a new one */
   await page.goto(`${base}/home`, { waitUntil: 'load' });
   await see(DEMO_HOME);
   await pull('card-for-goal', false);
@@ -1852,7 +1937,15 @@ try {
   await tap('Send this');
   await see('₦250,000 by 12 March');
   at('/goal');
-  /* an account with no goal yet: Start a goal makes one */
+  await page.goto(`${base}/home`, { waitUntil: 'load' });
+  await see(DEMO_HOME);
+  await pull('card-for-new-goal', false);
+  await page.getByLabel('Ask Beetle').fill('I want to save up for a car');
+  await tap('Send this');
+  await page.getByTestId('goal-sheet').waitFor();
+  must((await page.getByLabel('Goal name').inputValue()) === 'A car', 'the words should name the new goal');
+  at('/goal');
+  /* an account with no goal yet: Start a goal puts up the sheet, filled with Rent */
   await page.goto(`${base}/lab`, { waitUntil: 'load' });
   await see('Beetle Lab');
   await tap('No goal yet');
@@ -1860,7 +1953,8 @@ try {
   at('/goal');
   await shot('goal-none', 900);
   await tap('Start a goal');
-  await see('₦250,000 by 12 March');
+  await page.getByTestId('goal-sheet').waitFor();
+  await tap('Start saving for Rent');
   await see('Nothing in it yet');
   /* the draft: words typed and the keyboard up */
   await page.goto(`${base}/lab`, { waitUntil: 'load' });

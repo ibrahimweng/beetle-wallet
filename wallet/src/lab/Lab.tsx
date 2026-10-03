@@ -18,6 +18,7 @@ import { forgetChats } from '../features/agent/chats';
 import { forgetSetup, setupKey } from '../features/setup/store';
 import { forgetRequests, requestsKey } from '../features/request/requests';
 import { prefsKey } from '../features/settings/prefs';
+import { forgetGoals, goalsKey } from '../features/goal/store';
 import { FEATURES, type Place } from './catalogue';
 import { door } from './door';
 
@@ -57,7 +58,9 @@ export function Lab() {
         await storage.remove(movesKey(p.seed.session.account.accountNumber));
         await storage.remove(prefsKey(p.seed.session.account.accountNumber));
         await storage.remove(requestsKey(p.seed.session.account.accountNumber));
+        await storage.remove(goalsKey(p.seed.session.account.accountNumber));
         forgetMoves(p.seed.session.account.accountNumber);
+        forgetGoals(p.seed.session.account.accountNumber);
         forgetChats(p.seed.session.account.accountNumber);
         forgetRequests(p.seed.session.account.accountNumber);
         await storage.remove(setupKey(p.seed.session.account.accountNumber));

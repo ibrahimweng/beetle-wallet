@@ -6,7 +6,8 @@
 
    Savings says the most, with care: the goal's ring, what is put aside and
    the target, how it is going — ahead, or Paused while money is tight, or
-   nothing in it yet — and Start a goal where there is none. Loan is what
+   nothing in it yet — and Start a goal where there is none. With several
+   goals it says how many and how far along they are together. Loan is what
    could be borrowed. Card is the virtual card by its last four, or Frozen.
    Services is laid out like the other three — a glyph at the top left, a
    word and a figure at the foot — with Airtime, Bills and Data to swipe
@@ -23,7 +24,7 @@ import Animated, { cancelAnimation, interpolate, interpolateColor, runOnJS, useA
 import { Caption, Icon, Meta, Progress, Row, Tap, colour, swipes, useDeparture, useTap } from '../../design';
 import type { IconName } from '../../icons';
 import { naira } from '../../lib/format';
-import { GOAL, standing } from '../goal/goal';
+import { standingOf, together, useGoals, type Standing } from '../goal';
 import { LOAN } from '../loan/loan';
 import { CARD, lastFour } from '../settings/card';
 import { usePrefs } from '../settings/prefs';
@@ -41,11 +42,12 @@ const GLYPH = 32;
 export function Grid({ width, accountNumber, demo, moves, borrowing }: { width: number; accountNumber: string; demo: boolean; moves: LedgerRow[]; borrowing: boolean }) {
   const { prefs } = usePrefs(accountNumber);
   const w = Math.floor((width - 2 * GRID_SIDE - GRID_GAP) / 2);
-  const goal = standing({ demo, goal: prefs.goal, tight: prefs.tight, moves });
+  const { goals } = useGoals(accountNumber, { demo, started: prefs.goal });
+  const list = goals.map(g => standingOf(g, { goals, demo, tight: prefs.tight, moves }));
   return (
     <View style={s.grid} testID="grid">
       <View style={s.row}>
-        <Savings w={w} goal={goal} />
+        <Savings w={w} list={list} />
         <GridCard
           id="loan"
           to="/loan"
@@ -128,31 +130,44 @@ function GridCard({
   );
 }
 
-/* Savings, the one that says the most. The ring is the goal's own, in green
-   while it is moving and grey while it waits; the pot sits in it. Under,
-   the goal's name and how far along, what is put aside, and how it is
-   going: a fortnight ahead, paused while money is tight, nothing in it yet.
-   With no goal, the card asks for one. */
-function Savings({ w, goal }: { w: number; goal: ReturnType<typeof standing> }) {
-  const none = goal.state === 'none';
+/* Savings, the one that says the most. The ring is the goals' own, in green
+   while they move and grey while they wait; the pot sits in it. Under, the
+   goal's name and how far along (or how many goals, and how far along
+   together), what is put aside, and how the first is going: a fortnight
+   ahead, so much a month to get there, paused, there already. With no goal,
+   the card asks for one. */
+function Savings({ w, list }: { w: number; list: Standing[] }) {
+  const first = list[0];
+  const all = together(list);
+  const paused = !!first && list.every(s => s.paused);
   const ring = (
-    <Progress size={GLYPH} width={3.5} pct={none ? 0 : goal.pct} tone={goal.paused ? colour.textTertiary : colour.good} testID="savings-ring">
-      <Icon name="pot" size={15} colour={goal.paused ? colour.textTertiary : colour.goodText} />
+    <Progress size={GLYPH} width={3.5} pct={all.pct} tone={paused ? colour.textTertiary : colour.good} testID="savings-ring">
+      <Icon name="pot" size={15} colour={paused ? colour.textTertiary : colour.goodText} />
     </Progress>
   );
   /* each short enough for the card on any phone: the goal's page says the rest */
-  const sub = { none: 'A little at a time', empty: `Aiming for ${naira(GOAL.target)}`, running: 'A fortnight ahead', paused: 'Paused for now' }[goal.state];
+  const sub = !first
+    ? 'A little at a time'
+    : paused
+      ? 'Paused for now'
+      : first.state === 'reached'
+        ? 'There already'
+        : first.state === 'empty'
+          ? `Aiming for ${naira(first.goal.target)}`
+          : first.sums.payday
+            ? 'A fortnight ahead'
+            : `${naira(first.goal.target - first.aside)} to go`;
   return (
     <GridCard
       id="savings"
       to="/goal"
       w={w}
       lead={ring}
-      label={none ? 'Savings' : `${GOAL.name} · ${goal.pct}%`}
-      figure={none ? 'Start a goal' : naira(goal.aside)}
+      label={!first ? 'Savings' : list.length > 1 ? `${list.length} goals · ${all.pct}%` : `${first.goal.name} · ${first.pct}%`}
+      figure={!first ? 'Start a goal' : naira(all.aside)}
       sub={sub}
-      subTone={goal.state === 'running' ? colour.goodText : goal.paused ? colour.warn : undefined}
-      words={none ? 'Goals' : GOAL.name}
+      subTone={paused ? colour.warn : first && first.state !== 'empty' ? colour.goodText : undefined}
+      words={!first ? 'Goals' : first.goal.name}
     />
   );
 }

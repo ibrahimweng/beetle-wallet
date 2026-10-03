@@ -1,8 +1,9 @@
 /* The goal the frames draw — Holiday, ₦250,000 by 12 March — and what feeds
-   it: the payday slice (the standing instruction on the Rules page), round
-   ups from card payments and the cash back on top ups, each with what it
-   has put in so far. The figures are the demo's own until an account
-   service keeps them; a new account's goal starts from nothing. */
+   the first goal: the payday slice (the standing instruction on the Rules
+   page), round ups from card payments and the cash back on top ups, each
+   with what it has put into the demo's Holiday so far. The figures are the
+   demo's own until an account service keeps them; any other goal starts
+   from nothing. Several goals, and where each stands, are goals.ts. */
 import type { IconName } from '../../icons';
 
 export const GOAL = {
@@ -57,36 +58,5 @@ export const putAside = (sums: Record<FeedId, number>, added = 0) => FEEDS.reduc
 /** 33, from ₦82,400 of ₦250,000. */
 export const pctOf = (aside: number, target = GOAL.target) => Math.min(100, Math.round((aside / target) * 100));
 
-export type FeedRow = { id: FeedId; glyph: IconName; title: string; sub: string; value: string; tone: 'accent' | 'quiet' };
-
-/** A feed's row on the goal page: on, paused while things are tight, or turned off. */
-export function feedRow(f: Feed, on: boolean, paused: boolean, sum: number): FeedRow {
-  if (!on) return { id: f.id, glyph: f.glyph, title: f.title, sub: 'Turned off', value: 'Off', tone: 'quiet' };
-  if (paused && f.pausable) return { id: f.id, glyph: f.glyph, title: f.title, sub: `Paused since ${GOAL.pausedSince}`, value: 'Paused', tone: 'quiet' };
-  return { id: f.id, glyph: f.glyph, title: f.title, sub: paused ? 'Still going in' : f.how, value: `₦${sum.toLocaleString('en-NG')}`, tone: 'accent' };
-}
-
-/** Beetle's word on the goal, as the frames say it. */
-export function goalLine(state: 'none' | 'empty' | 'running' | 'paused'): string {
-  if (state === 'none') return 'A goal works best when a rule feeds it. Tell me what you are saving for.';
-  if (state === 'empty') return 'Nothing in it yet. Add money, or let a rule feed it, and I keep count here.';
-  if (state === 'paused') return `You told me money is tight, so I have stopped moving it. Your date moves from ${GOAL.by} to ${GOAL.pausedBy}. Nothing has been taken and nothing has been charged.`;
-  return `You are a fortnight ahead. Keep this up and you will get there on ${GOAL.early}.`;
-}
-
-export type GoalState = 'none' | 'empty' | 'running' | 'paused';
-
-/** Where the goal stands, as the goal page and home's Savings card both read
-    it: whether there is one, whether it waits while money is tight, what it
-    holds (the feeds' sums and what was put in by hand, less what was taken
-    back), how far along it is, and so which of the four words it gets. */
-export function standing({ demo, goal, tight, moves }: { demo: boolean; goal: boolean; tight: boolean; moves: { kind: string; name: string; amount: number }[] }) {
-  const has = demo || goal;
-  const paused = has && tight;
-  const sums = demo ? DEMO_SUMS : NO_SUMS;
-  const added = moves.filter(r => r.kind === 'saving' && r.name === GOAL.name).reduce((a, r) => a - r.amount, 0);
-  const aside = has ? putAside(sums, added) : 0;
-  const pct = pctOf(aside);
-  const state: GoalState = !has ? 'none' : paused ? 'paused' : aside ? 'running' : 'empty';
-  return { has, paused, sums, aside, pct, state };
-}
+/** Beetle's word on the page of an account with no goal yet, as its frame says it. */
+export const NO_GOAL_LINE = 'A goal works best when a rule feeds it. Tell me what you are saving for.';

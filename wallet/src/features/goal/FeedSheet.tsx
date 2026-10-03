@@ -1,15 +1,29 @@
-/* Feed the Holiday goal, from its frame: the sheet Feed it more puts up —
-   four ways money can reach the goal without anyone thinking about it, a
-   switch on each of the three that run on their own (the payday slice is
-   the standing instruction on the Rules page; round ups and cash back are
-   the goal's own), Set it on the fixed amount that opens the keypad, the
-   note that none of it is locked away, and Done. */
+/* Feed the goal, from its frame (Feed the Holiday goal): the sheet the row
+   of what feeds the first goal puts up — four ways money can reach the goal
+   without anyone thinking about it, a switch on each of the three that run
+   on their own (the payday slice is the standing instruction on the Rules
+   page; round ups and cash back are the goal's own), Set it on the fixed
+   amount that opens the amount picker, the note that none of it is locked
+   away, and Done. */
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Body, Button, Caption, Head, Icon, Meta, NoteCard, Row, Sheet, Tap, Toggle, colour } from '../../design';
 import { FEEDS, GOAL, type FeedId } from './goal';
 
-export function FeedSheet({ on, onChange, onFixed, onDismiss }: { on: Record<FeedId, boolean>; onChange: (id: FeedId, v: boolean) => void; onFixed: () => void; onDismiss: () => void }) {
+export function FeedSheet({
+  name = GOAL.name,
+  on,
+  onChange,
+  onFixed,
+  onDismiss,
+}: {
+  /** the goal the feeds go to: the first */
+  name?: string;
+  on: Record<FeedId, boolean>;
+  onChange: (id: FeedId, v: boolean) => void;
+  onFixed: () => void;
+  onDismiss: () => void;
+}) {
   return (
     <Sheet onDismiss={onDismiss} testID="feed-sheet" foot={22}>
       {/* the frame's head sits 28.6 in from the sheet's inset, over the rows' words */}
@@ -17,7 +31,7 @@ export function FeedSheet({ on, onChange, onFixed, onDismiss }: { on: Record<Fee
         <View style={s.big}>
           <Icon name="pot" size={32} colour={colour.ink} />
         </View>
-        <Head style={{ marginTop: 10 }}>{`Feed the ${GOAL.name} goal`}</Head>
+        <Head style={{ marginTop: 10 }}>{`Feed the ${name} goal`}</Head>
         <Body tone="secondary" style={{ marginTop: 10, width: 277 }}>
           Pick something that runs without you thinking about it
         </Body>

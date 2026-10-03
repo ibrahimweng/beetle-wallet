@@ -33,6 +33,7 @@ import {
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
+import { useFedName } from '../goal/store';
 import { holdingsFor } from '../home/account';
 import { balanceOf, rowFrom, useMoves } from '../home/moves';
 import { PayFromSheet, dollarsOf, usdFull, usdOf, type Source } from '../dollars';
@@ -76,6 +77,8 @@ export function BuyData() {
   const airtime = asked.kind === 'airtime';
   const demo = LAB && asked.demo === '1';
   const account = app.session?.account;
+  /* round ups go to the first goal, by its name */
+  const fed = useFedName(account);
   const { moves, add: addMove } = useMoves(account?.accountNumber);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
   const balance = (h?.everyday ?? 0) + balanceOf(moves);
@@ -289,7 +292,7 @@ export function BuyData() {
             </Tap>
             <View style={s.row}>
               <Body tone="secondary" style={{ flex: 1 }}>
-                Goes to your Holiday goal
+                {fed ? `Goes to your ${fed} goal` : 'Goes to your goal'}
               </Body>
               <Label tone="accent" style={s.value}>
                 {naira(roundUp(price))}

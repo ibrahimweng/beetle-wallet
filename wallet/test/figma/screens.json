@@ -9315,7 +9315,7 @@
  "receive": {
   "frame": "receive",
   "place": "Receive",
-  "wait": "Pick how you want the money to reach you",
+  "wait": "Give these to whoever is paying you",
   "settle": 1600,
   "pieces": [
    {
@@ -9363,7 +9363,7 @@
    {
     "name": "Pick how you want the money to",
     "find": {
-     "text": "Pick how you want"
+     "text": "Give these to whoever"
     },
     "only": [
      "y",
@@ -9377,8 +9377,7 @@
    {
     "name": "Row",
     "find": {
-     "testid": "receive-way",
-     "nth": 0
+     "button": "Bank transfer"
     },
     "nth": 0,
     "within": "Sheet",
@@ -9389,8 +9388,7 @@
    {
     "name": "Icon",
     "find": {
-     "testid": "receive-way",
-     "nth": 0,
+     "button": "Bank transfer",
      "child": 0
     },
     "nth": 1,
@@ -9423,8 +9421,7 @@
    {
     "name": "Glyph · check",
     "find": {
-     "testid": "receive-way",
-     "nth": 0,
+     "button": "Bank transfer",
      "child": 2
     },
     "nth": 0,
@@ -9436,8 +9433,7 @@
    {
     "name": "Row",
     "find": {
-     "testid": "receive-way",
-     "nth": 1
+     "button": "From a card"
     },
     "nth": 1,
     "within": "Sheet",
@@ -9448,8 +9444,7 @@
    {
     "name": "Icon",
     "find": {
-     "testid": "receive-way",
-     "nth": 1,
+     "button": "From a card",
      "child": 0
     },
     "nth": 2,
@@ -9482,8 +9477,7 @@
    {
     "name": "Glyph · check",
     "find": {
-     "testid": "receive-way",
-     "nth": 1,
+     "button": "From a card",
      "child": 2
     },
     "nth": 1,
@@ -9496,7 +9490,7 @@
     "name": "Row",
     "find": {
      "testid": "receive-way",
-     "nth": 2
+     "nth": 0
     },
     "nth": 2,
     "within": "Sheet",
@@ -9508,7 +9502,7 @@
     "name": "Icon",
     "find": {
      "testid": "receive-way",
-     "nth": 2,
+     "nth": 0,
      "child": 0
     },
     "nth": 3,
@@ -9542,7 +9536,7 @@
     "name": "Glyph · check",
     "find": {
      "testid": "receive-way",
-     "nth": 2,
+     "nth": 0,
      "child": 2
     },
     "nth": 2,
@@ -9555,7 +9549,7 @@
     "name": "Row",
     "find": {
      "testid": "receive-way",
-     "nth": 3
+     "nth": 1
     },
     "nth": 3,
     "within": "Sheet",
@@ -9567,7 +9561,7 @@
     "name": "Icon",
     "find": {
      "testid": "receive-way",
-     "nth": 3,
+     "nth": 1,
      "child": 0
     },
     "nth": 4,
@@ -9601,7 +9595,7 @@
     "name": "Glyph · check",
     "find": {
      "testid": "receive-way",
-     "nth": 3,
+     "nth": 1,
      "child": 2
     },
     "nth": 3,
@@ -9635,423 +9629,6 @@
      "testid": "receive"
     }
    }
-  ]
- },
- "ways": {
-  "frame": "ways",
-  "place": "Three ways to be paid",
-  "wait": "All of them safe to hand out",
-  "settle": 1400,
-  "anchor": {
-   "name": "Card",
-   "nth": 1,
-   "find": {
-    "testid": "way-number"
-   }
-  },
-  "pieces": [
-   {
-    "name": "Page head",
-    "find": {
-     "testid": "head",
-     "up": 1
-    },
-    "only": [
-     "x",
-     "w"
-    ],
-    "fixed": true
-   },
-   {
-    "name": "Row",
-    "find": {
-     "testid": "say"
-    },
-    "nth": 0,
-    "only": [
-     "x",
-     "y",
-     "w"
-    ],
-    "fixed": true
-   },
-   {
-    "name": "Mark · 32",
-    "find": {
-     "testid": "say",
-     "child": 0
-    },
-    "nth": 0,
-    "fixed": true
-   },
-   {
-    "name": "Card",
-    "find": {
-     "testid": "say",
-     "child": [
-      1,
-      0
-     ]
-    },
-    "nth": 0,
-    "fixed": true
-   },
-   {
-    "name": "Card",
-    "find": {
-     "testid": "way-number"
-    },
-    "nth": 1
-   },
-   {
-    "name": "Row",
-    "find": {
-     "testid": "way-number",
-     "child": 0
-    },
-    "nth": 1
-   },
-   {
-    "name": "Icon",
-    "find": {
-     "testid": "way-number",
-     "child": [
-      0,
-      0
-     ]
-    },
-    "nth": 0
-   },
-   {
-    "name": "Your account number",
-    "find": {
-     "text": "Your account number",
-     "exact": true
-    }
-   },
-   {
-    "name": "Beetle · Ibrahim Musa",
-    "find": {
-     "text": "Beetle · Ibrahim"
-    }
-   },
-   {
-    "name": "0102 4457 88",
-    "find": {
-     "text": "0102 4457 88",
-     "exact": true
-    }
-   },
-   {
-    "name": "Button · Copy it",
-    "find": {
-     "button": "Copy it"
-    }
-   },
-   {
-    "name": "Card",
-    "find": {
-     "testid": "way-code"
-    },
-    "nth": 2
-   },
-   {
-    "name": "Row",
-    "find": {
-     "testid": "way-code",
-     "child": 0
-    },
-    "nth": 2
-   },
-   {
-    "name": "Icon",
-    "find": {
-     "testid": "way-code",
-     "child": [
-      0,
-      0
-     ]
-    },
-    "nth": 1
-   },
-   {
-    "name": "Your code",
-    "find": {
-     "text": "Your code",
-     "exact": true
-    }
-   },
-   {
-    "name": "Works with any bank app",
-    "find": {
-     "text": "Works with any bank app"
-    }
-   },
-   {
-    "name": "Point a camera at it",
-    "find": {
-     "text": "Point a camera at it",
-     "exact": true
-    }
-   },
-   {
-    "name": "Button · Show it",
-    "find": {
-     "button": "Show it"
-    }
-   },
-   {
-    "name": "Card",
-    "find": {
-     "testid": "way-ask"
-    },
-    "nth": 3
-   },
-   {
-    "name": "Row",
-    "find": {
-     "testid": "way-ask",
-     "child": 0
-    },
-    "nth": 3
-   },
-   {
-    "name": "Icon",
-    "find": {
-     "testid": "way-ask",
-     "child": [
-      0,
-      0
-     ]
-    },
-    "nth": 2
-   },
-   {
-    "name": "Ask somebody",
-    "find": {
-     "text": "Ask somebody",
-     "exact": true
-    }
-   },
-   {
-    "name": "I write it, you check it",
-    "find": {
-     "text": "I write it, you check it"
-    }
-   },
-   {
-    "name": "On WhatsApp and SMS",
-    "find": {
-     "text": "On WhatsApp and SMS",
-     "exact": true
-    }
-   },
-   {
-    "name": "Button · Ask for money",
-    "find": {
-     "button": "Ask for money"
-    }
-   },
-   {
-    "name": "Card",
-    "find": {
-     "testid": "note"
-    },
-    "nth": 4
-   },
-   {
-    "name": "None of these can take anythin",
-    "find": {
-     "text": "None of these can take"
-    }
-   },
-   {
-    "name": "A number and a code can only b",
-    "find": {
-     "text": "A number and a code"
-    }
-   },
-   {
-    "name": "Back",
-    "find": {
-     "button": "Back"
-    },
-    "fixed": true
-   },
-   {
-    "name": "Ask bar",
-    "find": {
-     "testid": "dock-bar"
-    },
-    "fixed": true
-   },
-   {
-    "name": "Action button",
-    "find": {
-     "button": "More"
-    },
-    "fixed": true
-   }
-  ],
-  "skipWords": [
-   "Ask about getting paid"
-  ]
- },
- "mycode": {
-  "frame": "mycode",
-  "place": "Your code",
-  "wait": "Point their camera at this",
-  "settle": 1400,
-  "anchor": {
-   "name": "Card",
-   "nth": 0,
-   "find": {
-    "testid": "code-card"
-   }
-  },
-  "pieces": [
-   {
-    "name": "Page head",
-    "find": {
-     "testid": "head",
-     "up": 1
-    },
-    "only": [
-     "x",
-     "w"
-    ],
-    "fixed": true
-   },
-   {
-    "name": "Card",
-    "find": {
-     "testid": "code-card"
-    },
-    "nth": 0
-   },
-   {
-    "name": "Glyph · faceid-scan",
-    "find": {
-     "testid": "code"
-    }
-   },
-   {
-    "name": "Row",
-    "find": {
-     "testid": "code-card",
-     "child": 1
-    },
-    "nth": 0
-   },
-   {
-    "name": "Button · IM",
-    "find": {
-     "text": "IM",
-     "exact": true,
-     "up": 1
-    }
-   },
-   {
-    "name": "Column",
-    "find": {
-     "text": "Ibrahim Musa",
-     "exact": true,
-     "up": 1
-    },
-    "only": [
-     "x",
-     "y"
-    ]
-   },
-   {
-    "name": "Ibrahim Musa",
-    "find": {
-     "text": "Ibrahim Musa",
-     "exact": true
-    }
-   },
-   {
-    "name": "Beetle · 0102 4457 88",
-    "find": {
-     "text": "Beetle · 0102"
-    }
-   },
-   {
-    "name": "Row",
-    "find": {
-     "button": "Share it",
-     "up": 1
-    },
-    "nth": 1,
-    "only": [
-     "x",
-     "y",
-     "w"
-    ]
-   },
-   {
-    "name": "Button · Share it",
-    "find": {
-     "button": "Share it"
-    }
-   },
-   {
-    "name": "Button · Save it",
-    "find": {
-     "button": "Save it"
-    }
-   },
-   {
-    "name": "Row · Anyone can pay you w",
-    "find": {
-     "testid": "lock-line"
-    },
-    "only": [
-     "x",
-     "y",
-     "w"
-    ]
-   },
-   {
-    "name": "Glyph · lock",
-    "find": {
-     "testid": "lock-line",
-     "child": [
-      0,
-      0
-     ]
-    }
-   },
-   {
-    "name": "Anyone can pay you with this",
-    "find": {
-     "text": "Anyone can pay you"
-    }
-   },
-   {
-    "name": "Back",
-    "find": {
-     "button": "Back"
-    },
-    "fixed": true
-   },
-   {
-    "name": "Ask bar",
-    "find": {
-     "testid": "dock-bar"
-    },
-    "fixed": true
-   },
-   {
-    "name": "Action button",
-    "find": {
-     "button": "More"
-    },
-    "fixed": true
-   }
-  ],
-  "skipWords": [
-   "Ask about your code"
   ]
  },
  "request": {
@@ -17488,24 +17065,21 @@
     "find": {
      "testid": "goal-card"
     },
-    "nth": 0,
-    "fixed": true
+    "nth": 0
    },
    {
     "name": "Group",
     "find": {
      "testid": "goal-ring"
     },
-    "nth": 0,
-    "fixed": true
+    "nth": 0
    },
    {
     "name": "Column",
     "find": {
      "testid": "goal-ring"
     },
-    "nth": 0,
-    "fixed": true
+    "nth": 0
    },
    {
     "name": "33%",
@@ -17516,8 +17090,7 @@
     "only": [
      "y",
      "h"
-    ],
-    "fixed": true
+    ]
    },
    {
     "name": "of the way",
@@ -17527,8 +17100,7 @@
     "only": [
      "y",
      "h"
-    ],
-    "fixed": true
+    ]
    },
    {
     "name": "Column",
@@ -17538,8 +17110,7 @@
     "nth": 1,
     "only": [
      "y"
-    ],
-    "fixed": true
+    ]
    },
    {
     "name": "₦82,400",
@@ -17550,8 +17121,7 @@
     "only": [
      "y",
      "h"
-    ],
-    "fixed": true
+    ]
    },
    {
     "name": "of ₦250,000 put aside",
@@ -17561,8 +17131,7 @@
     "only": [
      "y",
      "h"
-    ],
-    "fixed": true
+    ]
    },
    {
     "name": "Row",
@@ -17850,7 +17419,7 @@
    {
     "name": "Button · Feed it more",
     "find": {
-     "button": "Feed it more"
+     "button": "Take out"
     },
     "only": [
      "y",
@@ -17947,17 +17516,17 @@
    "Ask about this goal"
   ],
   "anchor": {
-   "name": "Column",
-   "nth": 2,
+   "name": "Card",
+   "nth": 0,
    "find": {
-    "testid": "feeds-block"
+    "testid": "goal-card"
    }
   }
  },
  "paused": {
   "frame": "paused",
   "place": "Paused",
-  "wait": "Paused since 3 August",
+  "wait": "holding steady",
   "settle": 1400,
   "pieces": [
    {
@@ -18335,7 +17904,7 @@
    {
     "name": "Button · Start again",
     "find": {
-     "button": "Start again"
+     "button": "Take out"
     },
     "only": [
      "y",
@@ -18400,7 +17969,14 @@
   ],
   "skipWords": [
    "Ask about this goal"
-  ]
+  ],
+  "anchor": {
+   "name": "Card",
+   "nth": 0,
+   "find": {
+    "testid": "goal-card"
+   }
+  }
  },
  "emptygoal": {
   "frame": "emptygoal",

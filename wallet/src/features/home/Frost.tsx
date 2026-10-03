@@ -15,6 +15,7 @@
    rather than a crash. */
 import React, { useLayoutEffect, useRef, type ReactNode } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
+import Animated, { useAnimatedProps, useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
 type BlurModule = typeof import('expo-blur');
@@ -39,6 +40,9 @@ const Masked: MaskModule['default'] | null = (() => {
 })();
 
 export const hasBlur = blur !== null;
+
+/* A sheet's blur able to take its strength from a shared value on the phone. */
+const AnimatedBlur = blur ? Animated.createAnimatedComponent(blur.BlurView) : null;
 
 type Side = 'top' | 'bottom';
 
@@ -137,4 +141,46 @@ export function Frost({
       />
     </View>
   );
+}
+
+/* The white a page's foot fades what scrolls under it into, blurring it as it
+   whitens: the same stacked, masked sheets as the haze, light, under the
+   white. `k` brings it in and out with the foot. On the phone each sheet's
+   blur grows with it and only the white fades, since a blur under a fading
+   parent is drawn badly there; the web fades the whole, which it draws well. */
+export function BlurredFade({
+  height,
+  k,
+  colours,
+  locations,
+}: {
+  height: number;
+  k: SharedValue<number>;
+  colours: readonly [string, string, ...string[]];
+  locations: readonly [number, number, ...number[]];
+}) {
+  const Blur = blur?.BlurView;
+  const native = Platform.OS !== 'web' && !!AnimatedBlur;
+  const whole = useAnimatedStyle(() => ({ opacity: native ? 1 : k.value }));
+  const white = useAnimatedStyle(() => ({ opacity: native ? k.value : 1 }));
+  return (
+    <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, whole]} testID="foot-fade">
+      {Blur
+        ? SHEETS.map(([share, intensity], i) => (
+            <Sheet key={i} side="bottom" height={Math.round(height * share)}>
+              {native ? <GrowingBlur k={k} intensity={intensity} /> : <Blur intensity={intensity} tint="light" style={StyleSheet.absoluteFill} />}
+            </Sheet>
+          ))
+        : null}
+      <Animated.View style={[StyleSheet.absoluteFill, white]}>
+        <LinearGradient colors={colours} locations={locations} style={StyleSheet.absoluteFill} />
+      </Animated.View>
+    </Animated.View>
+  );
+}
+
+function GrowingBlur({ k, intensity }: { k: SharedValue<number>; intensity: number }) {
+  const strength = useAnimatedProps(() => ({ intensity: Math.max(0, Math.min(1, k.value)) * intensity }), [intensity]);
+  if (!AnimatedBlur) return null;
+  return <AnimatedBlur animatedProps={strength} tint="light" experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : 'none'} style={StyleSheet.absoluteFill} />;
 }

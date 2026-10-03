@@ -41,6 +41,7 @@ export function rowFrom(m: Move, balanceBefore: number, seq: number, at = new Da
     target: m.target,
     read: m.read,
     usd: m.usd,
+    goal: m.goal,
     session: sessionId(at, seq),
     after: Math.round((balanceBefore + fromEveryday(m)) * 100) / 100,
   };

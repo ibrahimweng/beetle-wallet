@@ -1,12 +1,11 @@
-/* Being paid and asking: the code that is drawn, read back; a message read
-   as a request; the words that open a page; what Beetle says. */
+/* Being paid and asking: the details handed out; a message read as a
+   request; the words that open a page; what Beetle says. */
 import { describe, expect, it, vi } from 'vitest';
-import jsQR from 'jsqr';
 
 vi.mock('react-native', () => ({ Platform: { OS: 'web', select: (o: Record<string, unknown>) => o.default } }));
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: async () => null, setItem: async () => undefined, removeItem: async () => undefined } }));
 vi.mock('expo-crypto', () => ({ getRandomBytes: (n: number) => new Uint8Array(n), CryptoDigestAlgorithm: { SHA256: 'SHA-256' }, digestStringAsync: async () => 'h' }));
-import { codeFor, eyeAt, modulesPath, payload, rasterise } from '@/features/receive/qr';
+import { detailsOf } from '@/features/receive/details';
 import { MESSAGE_READING, MESSAGE_TEXT, MockReader, SAMPLE_TEXT, requestIn } from '@/services/reader';
 import { PAYERS, noteIn, payerIn } from '@/features/request/people';
 import { isRequest, isWays, pageFor } from '@/features/request/intent';
@@ -15,27 +14,15 @@ import { requestFrom, requestReference } from '@/features/request/requests';
 import { lineFor, shortMoney } from '@/features/request/words';
 import { SAMPLE_ARRIVAL, arrivalChat } from '@/features/receive/arrival';
 
-describe('the code', () => {
-  const words = payload('0102445788', 'Ibrahim Musa');
-  it('says where to pay and whom', () => {
-    expect(words).toBe('beetle://pay?to=0102445788&name=Ibrahim%20Musa');
+describe('the details handed out', () => {
+  const account = { firstName: 'Ibrahim', lastName: 'Musa', accountNumber: '0102445788' };
+  it('are the number at Beetle and the tag, the same on the sheet and the card', () => {
+    const d = detailsOf(account);
+    expect(d).toMatchObject({ name: 'Ibrahim Musa', number: '0102 4457 88', tag: 'ibrahim' });
+    expect(d.all).toBe('Ibrahim Musa\nBeetle · 0102445788\nOr on Beetle: $ibrahim');
   });
-  it('is a real QR: a reader gets the words back off the modules', () => {
-    const code = codeFor(words);
-    expect(code.size).toBeGreaterThanOrEqual(21);
-    const { data, width, height } = rasterise(code, 4);
-    expect(jsQR(data, width, height)?.data).toBe(words);
-  });
-  it('draws every dark module outside the eyes as one path, and knows the eyes', () => {
-    const code = codeFor(words);
-    const d = modulesPath(code, 5);
-    expect(d.startsWith('M')).toBe(true);
-    expect(eyeAt(code, 0, 0)).toBe('tl');
-    expect(eyeAt(code, 0, code.size - 1)).toBe('tr');
-    expect(eyeAt(code, code.size - 1, 0)).toBe('bl');
-    expect(eyeAt(code, 10, 10)).toBeNull();
-    /* the eyes' dark modules are not in the path: the top-left eye's corner would begin the path at 0 0 */
-    expect(d.startsWith('M0 0h')).toBe(false);
+  it('take a tag the account was given', () => {
+    expect(detailsOf(account, 'ibro').all.endsWith('$ibro')).toBe(true);
   });
 });
 
@@ -89,7 +76,8 @@ describe('words that are a page of their own', () => {
     expect(d?.amount).toBe(20_000);
     expect(d?.note).toBe('Rent balance');
     expect(d?.said).toBe('ask musa for 20k for the rent balance');
-    expect(pageFor('how do I get paid')).toBe('/ways');
+    /* how to be paid is the Receive card in the chat, not a page */
+    expect(pageFor('how do I get paid')).toBeNull();
     expect(pageFor('send 20k to Sarah')).toBeNull();
   });
 });

@@ -4,8 +4,8 @@
    and it becomes the chat, the whole screen down to just over the bar,
    which stays: the same bar as everywhere, so the app is still there to go
    round. The ask bar lives at the card's foot, with Send, Bills, Data,
-   Receive and Loan as chips on top of it: each puts its card up in the
-   chat, and none leaves it. The first time on this phone, the card
+   Receive, Save and Loan as chips on top of it: each puts its card up in
+   the chat, and none leaves it. The first time on this phone, the card
    dips on its own so the pull is found. Nothing here leaves anyone stuck:
    the header pulls back up, Home on the bar closes the chat, and so does
    the phone's own back. Activities or Settings on the bar turn the pages
@@ -40,6 +40,8 @@ import { sheetFor } from '../passcode/breakdown';
 import { costOf, countWord, dayOf, type Term } from '../loan/loan';
 import { ReceiveSheet, SAMPLE_ARRIVAL, arrivalChat, arrivalLine, arrivalMove, type Arrival } from '../receive';
 import { isLoan, isRequest, isWays, pageFor } from '../request/intent';
+import { isSave, saveIn, standingOf, useGoals } from '../goal';
+import { usePrefs } from '../settings/prefs';
 import { LAB } from '../../lab/enabled';
 import { holdingsFor } from './account';
 import { balanceOf, rowFrom, useMoves } from './moves';
@@ -183,8 +185,20 @@ function HomeScreen() {
   const current = useRef<ChatRecord | null>(null);
   /** the last chat was filed; the next opening starts afresh */
   const stale = useRef(false);
-  /** a move waiting on the passcode: a panel's, a card's, or the loan card's */
-  const [guard, setGuard] = useState<{ panelId?: string; askId?: string; loanId?: string; taken?: { amount: number; days: number }; panel: Panel } | null>(null);
+  /** a move waiting on the passcode: a panel's, a card's, the loan card's or the save card's */
+  const [guard, setGuard] = useState<{
+    panelId?: string;
+    askId?: string;
+    loanId?: string;
+    taken?: { amount: number; days: number };
+    saveId?: string;
+    saved?: { amount: number; goalId: string; name: string };
+    panel: Panel;
+  } | null>(null);
+  /* the goals, for the Save card: each with what it holds */
+  const { prefs } = usePrefs(account?.accountNumber);
+  const { goals } = useGoals(account?.accountNumber, { demo: !!account?.demo, started: prefs.goal });
+  const standings = useMemo(() => goals.map(g => standingOf(g, { goals, demo: !!account?.demo, tight: prefs.tight, moves })), [goals, account, prefs.tight, moves]);
   /** the Receive sheet, over everything */
   const [receive, setReceive] = useState(false);
   /** money that just arrived, for the card to show */
@@ -381,18 +395,49 @@ function HomeScreen() {
     },
     [talk],
   );
+  /* the save card's Put away: into the goal, from Everyday, to the passcode */
+  const putAway = useCallback(
+    (turnId: string, goalId: string, amount: number) => {
+      const st = standings.find(x => x.goal.id === goalId);
+      if (!st) return;
+      const { goal } = st;
+      const after = Math.min(100, Math.round(((st.aside + amount) / goal.target) * 100));
+      const panel: Panel = {
+        id: `save-${turnId}`,
+        tool: 'save',
+        title: goal.name,
+        icon: 'pot',
+        rows: [
+          { label: 'Into', value: `${goal.name}, toward ${naira(goal.target)}` },
+          { label: 'Taken out', value: 'Whenever you want, free' },
+        ],
+        action: { label: `Put ${naira(amount)} into ${goal.name}`, amount },
+        move: { name: goal.name, detail: 'Put away', amount: -amount, icon: 'pot', kind: 'saving', goal: goal.id },
+        done: `Done. ${naira(amount)} is in ${goal.name}, ${after}% of the way to ${naira(goal.target)}.`,
+      };
+      const shut = lockedFor();
+      if (shut) {
+        talk.open(`That was three wrong tries. Give it ${shut} seconds and press it again.`);
+        return;
+      }
+      Keyboard.dismiss();
+      setGuard({ saveId: turnId, panel, saved: { amount, goalId: goal.id, name: goal.name } });
+    },
+    [standings, talk],
+  );
   const guardDone = useCallback(() => {
     if (!guard) return;
     const g = guard;
     setGuard(null);
     if (g.askId) talk.settleAsk(g.askId, g.panel);
     else if (g.loanId && g.taken) talk.takeLoan(g.loanId, g.panel, g.taken);
+    else if (g.saveId && g.saved) talk.putAway(g.saveId, g.panel, g.saved);
     else if (g.panelId) talk.confirm(g.panelId);
   }, [guard, talk]);
 
   /* the chips over the input: each puts its card up in the chat, with what was tapped (or typed) and Beetle's one line */
   const offer = useCallback(
-    (what: 'send' | 'bills' | 'data' | 'receive' | 'loan', said?: string) => {
+    (what: 'send' | 'bills' | 'data' | 'receive' | 'save' | 'loan', said?: string) => {
       if (!account) return;
       const c = { ...context(), pending: null };
       if (what === 'send')
@@ -403,8 +448,21 @@ function HomeScreen() {
         talk.offer(said ?? 'Buy data', 'Which line, and which plan? It is on your line unless you change it.', { kind: 'ask', ask: newAsk('data', { number: lineOf(account.phone)?.number }, c) });
       if (what === 'receive') talk.offer(said ?? 'Receive money', 'Here is how to pay you: your number from any bank, or your tag from Beetle, which is free.', { kind: 'receive' });
       if (what === 'loan') talk.offer(said ?? 'Borrow', 'Pick how much and for how long. Everything it costs is on the card before you take it.', { kind: 'loan' });
+      if (what === 'save') {
+        const { amount, goalId } = said ? saveIn(said, goals) : {};
+        const into = goals.find(g => g.id === goalId) ?? goals[0];
+        talk.offer(
+          said ?? 'Put money away',
+          !into
+            ? 'You have no goal yet. Start one and I keep count of it for you.'
+            : goals.length > 1
+              ? `Into ${into.name}, or pick another. Nothing here is locked.`
+              : `Into ${into.name}. Nothing here is locked: take it out whenever you need it.`,
+          { kind: 'save', amount, goalId: into?.id },
+        );
+      }
     },
-    [account, context, talk],
+    [account, context, talk, goals],
   );
 
   /* Receive: the sheet with the four ways money can come, over everything */
@@ -613,6 +671,11 @@ function HomeScreen() {
       show(true, { greet: false });
       setTimeout(() => void talk.ask({ text: asking }), 500);
     }
+    /* the Save chip's card, up in the chat */
+    if (asked.chat === 'save') {
+      show(true, { greet: false });
+      setTimeout(() => offer('save'), 500);
+    }
     if (asked.chat === 'confirm') {
       const panel = transferPanel(PEOPLE[0]!, 20_000);
       talk.preload([turn.you('Send 20k to Sarah'), turn.say('₦20,000 to Sarah Adeyemi at GTBank. Here is what I have; the amount is yours to change.'), turn.panel(panel, 'ready')]);
@@ -634,7 +697,22 @@ function HomeScreen() {
     said.current = stamp;
     const q = asked.say.replace(/ #\d+$/, '');
     const about = asked.about;
-    /* words that are a page of their own: asking somebody, or how to be paid */
+    /* how to be paid, money to put away or to borrow, asked from a page, is the card in the chat, as it is typed here */
+    if (
+      !isRequest(q) &&
+      (isWays(q) ||
+        isLoan(q) ||
+        isSave(
+          q,
+          goals.map(g => g.name),
+        ))
+    ) {
+      tabs.go('home');
+      show(true);
+      setTimeout(() => offer(isLoan(q) ? 'loan' : isWays(q) ? 'receive' : 'save', q), 300);
+      return;
+    }
+    /* words that are a page of their own: asking somebody, the month's bills */
     const page = pageFor(q);
     if (page) {
       router.push(page as never);
@@ -646,7 +724,7 @@ function HomeScreen() {
       if (about) talk.note('About this receipt', about);
       void talk.ask({ text: q });
     }, 300);
-  }, [ok, asked.say, asked.about, show, talk, router]);
+  }, [ok, asked.say, asked.about, show, talk, router, offer, goals]);
 
   /* Ask Beetle about this, from a transaction's ···: whatever chat there was
      is filed, and a fresh one opens about that one transaction — what it is
@@ -693,9 +771,17 @@ function HomeScreen() {
     const text = draft.trim();
     if (!text) return;
     setDraft('');
-    /* what the Loan and Receive chips do, typed, is the same card in the chat */
-    if (!isRequest(text) && (isLoan(text) || isWays(text))) {
-      offer(isLoan(text) ? 'loan' : 'receive', text);
+    /* what the Loan, Receive and Save chips do, typed, is the same card in the chat */
+    if (
+      !isRequest(text) &&
+      (isLoan(text) ||
+        isWays(text) ||
+        isSave(
+          text,
+          goals.map(g => g.name),
+        ))
+    ) {
+      offer(isLoan(text) ? 'loan' : isWays(text) ? 'receive' : 'save', text);
       return;
     }
     /* asking somebody for money, the month's bills, the services: a page of its own */
@@ -772,6 +858,9 @@ function HomeScreen() {
                   onConfirmAsk={confirmAsk}
                   onBorrow={borrow}
                   onSetUp={() => router.push('/way-in?setup=1')}
+                  goals={standings}
+                  onSave={putAway}
+                  onStartGoal={() => router.push('/goal?new=1')}
                   onReceipt={(card, at) => {
                     /* only while the chat is open: the card may have closed while the line was being measured */
                     if (!openedRef.current) return;
@@ -789,6 +878,7 @@ function HomeScreen() {
                     { glyph: 'power', label: 'Bills', onPress: () => offer('bills') },
                     { glyph: 'data', label: 'Data', onPress: () => offer('data') },
                     { glyph: 'down', label: 'Receive', onPress: () => offer('receive') },
+                    { glyph: 'pot', label: 'Save', onPress: () => offer('save') },
                     { glyph: 'loan', label: 'Loan', onPress: () => offer('loan') },
                   ]}
                 >
@@ -830,10 +920,11 @@ function HomeScreen() {
   );
 }
 
-/* The foot of the open chat: Send, Bills, Data, Receive and Loan as quiet
-   chips, left-aligned right on top of the ask bar, in the order they are
-   most wanted — each puts its card up in the chat, and none leads away. The
-   row scrolls sideways where the five do not fit. They step out of the way
+/* The foot of the open chat: Send, Bills, Data, Receive, Save and Loan as
+   quiet chips, left-aligned right on top of the ask bar, in the order they
+   are most wanted — each puts its card up in the chat, and none leads away.
+   They share the row's width; the row scrolls sideways on a phone too narrow
+   for the six. They step out of the way
    while something is typed. The camera stays in the bar. */
 function ChatFoot({ chips, typing, children }: { chips: { glyph: IconName; label: string; onPress: () => void }[]; typing: boolean; children: React.ReactNode }) {
   const still = useStill();
@@ -845,7 +936,8 @@ function ChatFoot({ chips, typing, children }: { chips: { glyph: IconName; label
   return (
     <View testID="chat-foot">
       <Animated.View style={[{ height: CHIPS_H, marginBottom: CHIPS_GAP }, row]} pointerEvents={typing ? 'none' : 'auto'} testID="chat-chips">
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 8, paddingRight: 8 }}>
+        {/* the six share the row's width, each as wide as its word and the rest shared out; on a phone too narrow for them the row scrolls */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 6, flexGrow: 1 }}>
           {chips.map(c => (
             <Tap
               key={c.label}
@@ -853,7 +945,7 @@ function ChatFoot({ chips, typing, children }: { chips: { glyph: IconName; label
               accessibilityLabel={c.label}
               onPress={c.onPress}
               scale={0.94}
-              style={{ alignItems: 'center', justifyContent: 'center', height: CHIPS_H, borderRadius: CHIPS_H / 2, paddingHorizontal: 14, backgroundColor: 'rgba(255,255,255,0.08)' }}
+              style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', height: CHIPS_H, borderRadius: CHIPS_H / 2, paddingHorizontal: 10, backgroundColor: 'rgba(255,255,255,0.08)' }}
             >
               <Meta style={{ color: dark.pillText, fontWeight: '500' }}>{c.label}</Meta>
             </Tap>

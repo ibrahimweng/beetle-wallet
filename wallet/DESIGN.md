@@ -17,6 +17,10 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   - **space**: room around a thing says it is a thing.
 - What scrolls under a page's foot fades into the foot's white over 40;
   the bar does the same. No hard edge, no shadow line.
+- **A white gradient always has a blur under it** (the owner's word,
+  Round 12): the foot's fade, the bar's, the More sheet's veil, a receipt's.
+  The blur is stacked sheets, each fading at its own end, so it thins with
+  the white; on the phone it grows in strength as the white comes in.
 
 ## Type, space and the grid
 
@@ -108,7 +112,8 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 ## The chat
 
 - Chips over the input do things **in** the chat: Send, Bills, Data,
-  Receive, Loan, in that order. None leads to a screen.
+  Receive, Save, Loan, in that order. None leads to a screen. They are
+  words only, close enough together that all six fit across the phone.
 - The transfer card is titled **Send money**, the same as the page, for a
   Beetle account and for any other bank.
 - A card in the chat that has all it needs pays from where it is: its
@@ -124,6 +129,30 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 - A new ask while a card is up ("send 5k to 0123456785" under Sarah's card)
   gets its own card below the words; words that only add to the card that
   is up (an amount, the bank) fill it where it is.
+
+## Being paid
+
+- **Receive is the sheet itself**: the account number and the $tag, each
+  with Copy, Share details under them, then Ask someone and In dollars.
+  No code to scan, no paying in from a card, and no page in between: being
+  paid is two taps from the card.
+
+## Saving
+
+- **Four taps to put money away** from home: Savings, Add money, the amount
+  and Put away, the passcode. Add money and Take out sit straight under the
+  ring, never below the fold.
+- **Several goals, as pills** under the page's head, + New goal at the end;
+  a tap switches in place. The first goal is the one the automatic feeds go
+  to; the pages that name where they go say its name.
+- **A new goal comes filled** — the next idea, its usual figure, a date to
+  match — so starting one is three taps; everything on it can be changed
+  before or after.
+- What is done to a goal sits in its **···**: Edit goal, Pause goal (or
+  Start again), End goal in red. Pausing does not ask: it lifts as easily as
+  it goes on, and the line on the page offers Start again.
+- **Money out of a goal goes through the passcode**, ending a goal with
+  money in it included. An empty goal ends after the sheet that asks first.
 
 ## Asking before what cannot be undone
 

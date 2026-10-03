@@ -24,13 +24,15 @@ import { Keyboard, Platform, Pressable, StyleSheet, View, useWindowDimensions } 
 import { useFocusEffect, useNavigation, usePathname, useRouter } from 'expo-router';
 import { openTab, tabs, useHoldPages, useTab, type Tab } from '../tabs';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { SharedValue, runOnJS, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { SharedValue, runOnJS, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import { ActionButton, Body, Button, Icon, Row, Tap, blurred, colour, frame, keys, motion, settle, useStill, type ButtonSize, type ButtonTone } from '../../design';
 import type { IconName } from '../../icons';
 import { More, moreTo, type MoreItem } from './More';
+import { BlurredFade } from '../home/Frost';
 
 export const BAR_H = 56 + 2 * frame.dockPad;
+/** the fade over the page above the foot */
+const FADE = 40;
 
 /** What a screen's own overlay does to the foot: under a peek's blur it
     recedes with the rest; under a sheet from the bottom it goes out of the way. */
@@ -303,12 +305,12 @@ export function Foot() {
       top: frame.dockPad + (56 - height) / 2,
     };
   });
-  /* what scrolls under the foot fades into its white instead of being cut by its edge — on a page and
-     on the bar alike, but not under home's open card, which comes down over the bar's top */
-  const fadeStyle = useAnimatedStyle(() => {
+  /* what scrolls under the foot fades into its white, and blurs as it does, instead of being cut by its
+     edge — on a page and on the bar alike, but not under home's open card, which comes down over the bar's top */
+  const fadeK = useDerivedValue(() => {
     const opening = open ? Math.min(1, open.value * 2.5) : 0;
     /* and none when the foot goes down out of the way: the fade sits above it, so going down alone leaves it showing */
-    return { opacity: (t.value + (1 - t.value) * (1 - opening)) * (1 - hide.value) };
+    return (t.value + (1 - t.value) * (1 - opening)) * (1 - hide.value);
   }, [open]);
   const glyphsStyle = useAnimatedStyle(() => ({ opacity: 1 - t.value }));
   const buttonStyle = useAnimatedStyle(() => ({ opacity: t.value }));
@@ -330,13 +332,14 @@ export function Foot() {
       {/* clipped at the window's edge: a foot gone down out of the way must not lengthen the page under it */}
       <View style={[StyleSheet.absoluteFill, { overflow: 'hidden' }]} pointerEvents="box-none">
         <Animated.View style={[s.surface, surface]} pointerEvents={live ? 'box-none' : 'none'} testID={kind === 'bar' ? 'bar' : 'foot'}>
-          <Animated.View style={[s.fade, fadeStyle]} pointerEvents="none">
-            <LinearGradient
-              colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.7)', 'rgba(255,255,255,0.94)', colour.surface, colour.surface]}
+          <View style={s.fade} pointerEvents="none">
+            <BlurredFade
+              height={FADE}
+              k={fadeK}
+              colours={['rgba(255,255,255,0)', 'rgba(255,255,255,0.7)', 'rgba(255,255,255,0.94)', colour.surface, colour.surface]}
               locations={[0, 0.45, 0.72, 0.9, 1]}
-              style={StyleSheet.absoluteFill}
             />
-          </Animated.View>
+          </View>
           {/* each part says for itself whether it takes a touch: on the web a part set to take one would still take it under a veiled foot */}
           <Animated.View style={[s.back, backStyle]} pointerEvents={page && live ? 'auto' : 'none'}>
             <Pressable
@@ -473,7 +476,7 @@ const s = StyleSheet.create({
     height: BAR_H,
   },
   /* 40 of fade over the page, above the foot's own white */
-  fade: { position: 'absolute', left: 0, right: 0, top: -40, height: 40 },
+  fade: { position: 'absolute', left: 0, right: 0, top: -FADE, height: FADE },
   back: { position: 'absolute', left: PAGE_PAD, top: frame.dockPad + 6, width: 44, height: 44 },
   backHit: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   box: { position: 'absolute' },

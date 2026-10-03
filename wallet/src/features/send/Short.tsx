@@ -1,8 +1,8 @@
 /* Not enough in Everyday, from its frame: what is short, the three figures,
    Beetle's word that none of the ways out costs anything, and the three —
-   from the goal, what there is now with the rest on payday, or asking
-   someone who owes you. Reached from Slide to send when the amount is past
-   the balance, and from the keypad's question. */
+   from a goal (the first that holds enough), what there is now with the
+   rest on payday, or asking someone who owes you. Reached from Slide to
+   send when the amount is past the balance, and from the keypad's question. */
 import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
@@ -15,7 +15,7 @@ import { askHome } from '../more/More';
 import { holdingsFor } from '../home/account';
 import { balanceOf, rowFrom, useMoves } from '../home/moves';
 import { usePrefs } from '../settings/prefs';
-import { DEMO_SUMS, GOAL, NO_SUMS, putAside } from '../goal/goal';
+import { standingOf, useGoals } from '../goal';
 import { requestDraft } from '../request/hand';
 import { payerIn } from '../request/people';
 import { clock } from '../../lib/clock';
@@ -44,13 +44,16 @@ export function Short() {
   const { moves, add: addMove } = useMoves(account?.accountNumber);
   const { prefs } = usePrefs(account?.accountNumber);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
-  /* what the goal holds: what its feeds put in, plus what was added by hand, less what was taken back */
-  const added = moves.filter(r => r.kind === 'saving' && r.name === GOAL.name).reduce((a, r) => a - r.amount, 0);
-  const holiday = account && (account.demo || prefs.goal) ? putAside(account.demo ? DEMO_SUMS : NO_SUMS, added) : 0;
+  /* the goal it comes from: the first that holds enough, or else the first; what it holds is what its feeds put in, plus what was added by hand, less what was taken back */
+  const { goals } = useGoals(account?.accountNumber, { demo: !!account?.demo, started: prefs.goal });
   /* the lab opens it with the balance the frame draws */
   const have = LAB && asked.have ? Number(asked.have) : (h?.everyday ?? 0) + balanceOf(moves);
   const want = Number(asked.asked ?? 0) || 0;
   const short = Math.max(0, want - have);
+  const list = goals.map(g => standingOf(g, { goals, demo: !!account?.demo, tight: prefs.tight, moves }));
+  const from = list.find(s => s.aside >= short) ?? list[0];
+  const holiday = from?.aside ?? 0;
+  const name = from?.goal.name ?? 'savings';
   /* what can go now: what Everyday holds, less the transfer's own fee, which is where Send money stops too */
   const can = Math.max(0, Math.floor(have - feeFor(have)));
   const toSend = useBackToSend();
@@ -62,15 +65,19 @@ export function Short() {
   };
   /* the goal gives the shortfall back: a line in the day, and Everyday has it */
   const fromHoliday = () => {
+    if (!from) {
+      toast('Nothing is put aside yet. Start a goal from Savings on home.');
+      return;
+    }
     if (holiday < short) {
-      toast(`${GOAL.name} holds ${naira(holiday)}, ${naira(short - holiday)} short of what you need.`);
+      toast(`${name} holds ${naira(holiday)}, ${naira(short - holiday)} short of what you need.`);
       return;
     }
     const at = clock();
-    const move: Move = { name: GOAL.name, detail: `Taken back · ${at}`, amount: short, icon: 'pot', kind: 'saving' };
+    const move: Move = { name, detail: `Taken back · ${at}`, amount: short, icon: 'pot', kind: 'saving', goal: from.goal.id };
     addMove(rowFrom(move, have, 17 + moves.length));
-    draft.put({ amount: want, amountNote: `${naira(short)} came back from ${GOAL.name}` });
-    toast(`${naira(short)} is back from ${GOAL.name}. Everyday has it now.`);
+    draft.put({ amount: want, amountNote: `${naira(short)} came back from ${name}` });
+    toast(`${naira(short)} is back from ${name}. Everyday has it now.`);
     toSend();
   };
   /* a request to whoever owes you, with the shortfall filled in */
@@ -101,7 +108,7 @@ export function Short() {
         <ChoiceList
           testID="ways"
           items={[
-            { glyph: 'pot', title: `Move it from ${GOAL.name}`, sub: holiday ? `${naira(holiday)} is sitting there` : 'Nothing put aside yet', onPress: fromHoliday },
+            { glyph: 'pot', title: `Move it from ${name}`, sub: holiday ? `${naira(holiday)} is sitting there` : 'Nothing put aside yet', onPress: fromHoliday },
             { glyph: 'up', title: `Send ${naira(can)} now`, sub: 'The rest when your salary lands', onPress: sendNow },
             {
               glyph: 'down',

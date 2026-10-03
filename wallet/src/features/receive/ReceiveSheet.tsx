@@ -1,36 +1,39 @@
-/* Receive, on its sheet over home, from its frame: the arrow down on its
-   disc, the word and the line under it, and the four ways money can reach
-   the account, each a row with a glyph, a name and a line, a chevron at its
-   end — a bank transfer (the number to hand out, on Three ways to be paid),
-   a card, asking someone (a request they can pay), and dollars. Done sends
-   it back. Receive on the card, the Receive shortcut, the new account's
-   Receive button and Receive in More all open it; a row that leads to a
-   page sends the sheet down first, and the page arrives from the row.
+/* Receive, on its sheet over home: the account's own details, one tap from
+   the card — the account number at Beetle, for any bank, and the $tag, for
+   another Beetle account — each with Copy beside it, and Share details to
+   hand them on at once, the same as the chat's Receive card. Under them the
+   two other ways money comes: asking someone (a request they can pay) and
+   dollars. Done sends it back. Receive on the card, the Receive shortcut,
+   the new account's Receive button and Receive in More all open it; a row
+   that leads to a page sends the sheet down first, and the page arrives from
+   the row. The owner made it this short after Round 11: no paying in from a
+   card, no code to scan, and no page of its own for a bank transfer.
 
-   Measured off the frame: the disc 64, 7 under the grabber's band; 16 to
-   the word, 12 to the line, 20 to the rows; the rows 72 with a 40 square,
-   12 to the words; 16 to Done, 120 by 50, and 17 under it, which puts the
-   sheet's foot 13 above the screen's edge as the frame has it. */
+   From the frame: the disc 64, 7 under the grabber's band; 16 to the word,
+   12 to the line; the rows 72 with a 40 square, 12 to the words; Done 120
+   by 50, and 17 under it. The details sit on a grey card between the line
+   and the rows. */
 import React, { useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Body, Head, Icon, Meta, Row, Sheet, Tap, colour, measure, setOrigin, toast } from '../../design';
+import { Body, Button, Caption, Head, Icon, Label, Meta, Row, Sheet, Tap, colour, measure, setOrigin } from '../../design';
 import type { IconName } from '../../icons';
 import type { Account } from '../../services';
-import { groupAccount } from '../../lib/format';
+import { detailsOf } from './details';
+import { copyDetail, shareDetails } from './share';
 
-type Way = { glyph: IconName; title: string; sub: string; to?: string; onPress?: () => void };
+type Way = { glyph: IconName; title: string; sub: string; to: string };
+
+const WAYS: Way[] = [
+  { glyph: 'request', title: 'Ask someone', sub: 'Send a request they can pay', to: '/request' },
+  { glyph: 'dollar', title: 'In dollars', sub: 'Hold it steady, or turn naira across', to: '/dollars' },
+];
 
 export function ReceiveSheet({ account, onDismiss }: { account: Account; onDismiss: () => void }) {
   const router = useRouter();
   /* the page a row leads to: the sheet goes down, then the page comes */
   const [going, setGoing] = useState<string | null>(null);
-  const ways: Way[] = [
-    { glyph: 'bank', title: 'Bank transfer', sub: `Your number, ${groupAccount(account.accountNumber)}`, to: '/ways' },
-    { glyph: 'card', title: 'From a card', sub: 'Any Nigerian debit card', onPress: () => toast('Paying in from a card is not in the frames yet.') },
-    { glyph: 'request', title: 'Ask someone', sub: 'Send a request they can pay', to: '/request' },
-    { glyph: 'dollar', title: 'In dollars', sub: 'Hold it steady, or turn naira across', to: '/dollars' },
-  ];
+  const d = detailsOf(account);
   const gone = () => {
     onDismiss();
     if (going) router.push(going as never);
@@ -44,10 +47,16 @@ export function ReceiveSheet({ account, onDismiss }: { account: Account; onDismi
       </View>
       <Head style={{ textAlign: 'center', marginTop: 16 }}>Receive</Head>
       <Body tone="tertiary" style={{ textAlign: 'center', marginTop: 12 }}>
-        Pick how you want the money to reach you
+        Give these to whoever is paying you
       </Body>
-      <View style={{ marginTop: 20 }} testID="receive-ways">
-        {ways.map(w => (
+      <View style={s.details} testID="receive-details">
+        <Detail label="Account number" value={d.number} sub={`Beetle · ${d.name}`} onCopy={() => void copyDetail(account.accountNumber, d.number, 'sheet')} testID="receive-sheet-number" />
+        <View style={s.rule} />
+        <Detail label="Beetle tag" value={`$${d.tag}`} sub="Free and instant on Beetle" onCopy={() => void copyDetail(`$${d.tag}`, `$${d.tag}`, 'sheet')} testID="receive-sheet-tag" />
+      </View>
+      <Button label="Share details" leading="share" size={48} onPress={() => void shareDetails(d.all, 'sheet')} style={{ marginTop: 12 }} />
+      <View style={{ marginTop: 8 }} testID="receive-ways">
+        {WAYS.map(w => (
           <WayRow key={w.title} {...w} onGo={to => setGoing(to)} />
         ))}
       </View>
@@ -60,13 +69,27 @@ export function ReceiveSheet({ account, onDismiss }: { account: Account; onDismi
   );
 }
 
-function WayRow({ glyph, title, sub, to, onPress, onGo }: Way & { onGo: (to: string) => void }) {
+/* A detail on the grey card: what it is, the thing itself, a line under it,
+   and Copy at its end. */
+function Detail({ label, value, sub, onCopy, testID }: { label: string; value: string; sub: string; onCopy: () => void; testID: string }) {
+  return (
+    <View style={s.detail} testID={testID}>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Meta tone="secondary">{label}</Meta>
+        <Head>{value}</Head>
+        <Caption tone="tertiary">{sub}</Caption>
+      </View>
+      <Tap accessibilityRole="button" accessibilityLabel={`Copy ${label.toLowerCase()}`} onPress={onCopy} hitSlop={8} style={s.copy}>
+        <Icon name="copy" size={14} colour={colour.ink} />
+        <Label>Copy</Label>
+      </Tap>
+    </View>
+  );
+}
+
+function WayRow({ glyph, title, sub, to, onGo }: Way & { onGo: (to: string) => void }) {
   const ref = useRef<View>(null);
   const press = async () => {
-    if (!to) {
-      onPress?.();
-      return;
-    }
     /* the page's title grows out of this row's words */
     const rect = await measure(ref);
     setOrigin({ id: `receive:${title}`, ...rect, words: title, at: Date.now() });
@@ -88,6 +111,10 @@ function WayRow({ glyph, title, sub, to, onPress, onGo }: Way & { onGo: (to: str
 
 const s = StyleSheet.create({
   disc: { width: 64, height: 64, borderRadius: 20, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },
+  details: { marginTop: 20, backgroundColor: colour.surface2, borderRadius: 20, paddingHorizontal: 16 },
+  detail: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14 },
+  rule: { height: 1, backgroundColor: colour.rule },
+  copy: { height: 36, borderRadius: 18, paddingHorizontal: 14, backgroundColor: colour.surface, flexDirection: 'row', alignItems: 'center', gap: 6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 72 },
   box: { width: 40, height: 40, borderRadius: 13, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },
   done: { width: 121, height: 50, borderRadius: 25, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },

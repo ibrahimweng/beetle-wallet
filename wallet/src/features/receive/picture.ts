@@ -1,9 +1,9 @@
-/* The code as a picture, to hand out or keep: the card it sits on is
-   captured as it is drawn, and the picture goes to the phone's share sheet
-   or into Photos. On the web the capture is a drawing of the page, so Save
-   it downloads the picture and Share it, with no share sheet to give, puts
-   the words on the clipboard instead. A build made before these modules
-   were added has none of them, and says so rather than crashing. */
+/* A card as a picture, to hand out or keep: a receipt is captured as it is
+   drawn, and the picture goes to the phone's share sheet or into Photos. On
+   the web the capture is a drawing of the page, so Save downloads the
+   picture and Share, with no share sheet to give, puts the words on the
+   clipboard instead. A build made before these modules were added has none
+   of them, and says so rather than crashing. */
 import { Platform } from 'react-native';
 import type { RefObject } from 'react';
 import type { View } from 'react-native';
@@ -51,7 +51,7 @@ export async function capture(ref: RefObject<View | null>): Promise<string | nul
 }
 
 /** Hands the picture to the share sheet; the words where there is none. What happened, to say. */
-export async function sharePicture(ref: RefObject<View | null>, words: string, title = 'Your Beetle code'): Promise<string> {
+export async function sharePicture(ref: RefObject<View | null>, words: string, title: string): Promise<string> {
   if (Platform.OS !== 'web' && sharing) {
     const uri = await capture(ref);
     if (uri && (await sharing.isAvailableAsync().catch(() => false))) {
@@ -68,7 +68,7 @@ export async function sharePicture(ref: RefObject<View | null>, words: string, t
 }
 
 /** Puts the picture in Photos, or downloads it on the web. What happened, to say. */
-export async function savePicture(ref: RefObject<View | null>, filename = 'beetle-code.png'): Promise<string> {
+export async function savePicture(ref: RefObject<View | null>, filename: string): Promise<string> {
   const uri = await capture(ref);
   if (!uri) return 'This build cannot draw the picture to save it.';
   if (Platform.OS === 'web') {
@@ -94,7 +94,3 @@ export async function savePicture(ref: RefObject<View | null>, filename = 'beetl
     return 'Photos would not take it. Try again in a moment.';
   }
 }
-
-/** Your code's own picture: shared, and saved. */
-export const shareCode = (ref: RefObject<View | null>, words: string) => sharePicture(ref, words, 'Your Beetle code');
-export const saveCode = (ref: RefObject<View | null>) => savePicture(ref, 'beetle-code.png');

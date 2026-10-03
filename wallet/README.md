@@ -49,7 +49,7 @@ every screen. It needs a Chromium (`npx playwright install chromium`, or set
 | `npm run typecheck` | it compiles, with `strict` and `noUncheckedIndexedAccess` on |
 | `npm test` | the rules of the way in: what counts as a Nigerian number, what a passcode may not be, where each step leads, how the mock services answer; the scripted Beetle and what it asks for; the model against a fake API, its ask panel and its tools; what Beetle knows of the country — the networks by prefix, the plans, the companies, the meters, what was paid before; the gate before money moves; the hour a chat carries on for; the receipts' figures; the order of the record; the three words past a limit |
 | `npm run bundle` | the same JavaScript the phone runs, exported for the web into `dist/` |
-| `npm run flow` | from the boot to the welcome and on to home, then out (Sign out asking first) and back in as the demo account, with the doors that should be shut tried on the way and the lab opened from the version line; the card pulled down and traced as it opens down to the bar that stays under it, with the five chips over the input putting their cards up in the chat, Activities and back to the chat as it was and Home again closing it, money sent by asking and let through by the passcode, the account's details opened and copied, a photo taken with the browser's stand-in camera and read, money arriving, the model screen, the four cards on home, the Services card swiped through and the pages swiped between, a chat carried on and New chat in the drawer, the receipt card opened where it is and the receipt pages with the share sheet, Settings with every row followed — the switches kept, a new passcode, the three words past a limit, an instruction offered and set up, the other devices signed out, the phone that is not yours frozen, the card revealed and frozen — the bar and More under its white veil, the pages sliding under a bar that stays put, the record narrowed to In and to Insights and a line opened in place over the frost — not who, not the total, the session id kept back, its ··· with Ask Beetle about this — and closed with a tap off it, the four asks — a transfer with no amount, data for a new number, airtime on the own line, a bill from a new meter and from one paid before — each filled on its card or from Recent, its button saying what is still missing, and taken from that button through the passcode to its receipt; money sent from the Send money page — To as a $tag, as a number with its bank picked and the name checked, and from the people paid before; the amount moved on the ruler and typed in place, a reference typed, the slide, the passcode with the whole of it and Cancel, the receipt, and the line on Activities — then filled from a message, from a photo, stopped hard at what Everyday can send, and from a digit the reader was not sure of; every state of a transfer and every way out of it; the face that did not take; and the lab's places opened on their own; every screen photographed into `shots/` |
+| `npm run flow` | from the boot to the welcome and on to home, then out (Sign out asking first) and back in as the demo account, with the doors that should be shut tried on the way and the lab opened from the version line; the card pulled down and traced as it opens down to the bar that stays under it, with the six chips over the input putting their cards up in the chat, Activities and back to the chat as it was and Home again closing it, money sent by asking and let through by the passcode, the account's details opened and copied, the saving counted — four taps to put money away, three to start a goal — with a goal edited, paused and ended, money taken out and the Save chip's card, a photo taken with the browser's stand-in camera and read, money arriving, the model screen, the four cards on home, the Services card swiped through and the pages swiped between, a chat carried on and New chat in the drawer, the receipt card opened where it is and the receipt pages with the share sheet, Settings with every row followed — the switches kept, a new passcode, the three words past a limit, an instruction offered and set up, the other devices signed out, the phone that is not yours frozen, the card revealed and frozen — the bar and More under its white veil, the pages sliding under a bar that stays put, the record narrowed to In and to Insights and a line opened in place over the frost — not who, not the total, the session id kept back, its ··· with Ask Beetle about this — and closed with a tap off it, the four asks — a transfer with no amount, data for a new number, airtime on the own line, a bill from a new meter and from one paid before — each filled on its card or from Recent, its button saying what is still missing, and taken from that button through the passcode to its receipt; money sent from the Send money page — To as a $tag, as a number with its bank picked and the name checked, and from the people paid before; the amount moved on the ruler and typed in place, a reference typed, the slide, the passcode with the whole of it and Cancel, the receipt, and the line on Activities — then filled from a message, from a photo, stopped hard at what Everyday can send, and from a digit the reader was not sure of; every state of a transfer and every way out of it; the face that did not take; and the lab's places opened on their own; every screen photographed into `shots/` |
 | `npm run figma` | every built screen — thirty-eight of them — against its Figma frame: each named piece where the frame puts it, within three of the frame's figure or of that figure snapped to the 4-point grid; the frame's words on the screen; what is off on purpose listed with its reason; the frame and the screen side by side in `shots/figma/` |
 
 ## On the frame
@@ -97,8 +97,9 @@ mocks in and says so on the code screen; a real `AuthService` and
 | Send money | Send on the card, or Send money in More: someone paid before, a ten-digit number typed, or one read off a photo; any amount up to what Everyday holds; a reference; Slide to send, then the passcode | more than the balance: Not enough, with three ways to close it; a digit the reader was not sure of: Check this number, with both readings |
 | The fee | nothing under ₦10,000; ₦26.88 up to ₦50,000 and ₦53.75 above, the banks' own with the tax on it, on the page, in the chat's panel and on the receipt alike | |
 | Before money moves | the passcode set on the way in, or `654321` and `123456` in this build; the face, on a phone with one enrolled | three wrong tries shut the gate for thirty seconds and Beetle says so; a face that does not take says so in red, and the face key tries again |
-| Being paid | Receive on the card, the Receive shortcut or Receive in More: the sheet with the four ways money can come; Bank transfer opens Three ways to be paid, with the number to copy and the code to show, share or save; "how do I get paid" typed at home opens the same page; the lab can have ₦50,000 arrive from Sarah | From a card and In dollars say which round brings them; nothing here can take money out |
-| Asking for money | "ask musa for 20k for the rent balance" typed at home, a photo of a message asking for the account (the sample message in this build), Ask someone on the sheet or Ask for money on Three ways; the people it can ask are Musa Danjuma, Sarah Adeyemi and Chidi Okafor, or a name with a phone number typed in the reply bar; the amount on the keypad; Send the request once it has a date | a reply with no name or figure in it says so; asking cannot move money, so there is no passcode |
+| Being paid | Receive on the card, the Receive shortcut or Receive in More: the sheet with the account number and the $tag, Copy on each and Share details, then Ask someone and In dollars; "how do I get paid" typed at home puts the chat's Receive card up; the lab can have ₦50,000 arrive from Sarah | a build that cannot reach the clipboard says to read it off the sheet; nothing here can take money out |
+| Asking for money | "ask musa for 20k for the rent balance" typed at home, a photo of a message asking for the account (the sample message in this build), or Ask someone on the Receive sheet; the people it can ask are Musa Danjuma, Sarah Adeyemi and Chidi Okafor, or a name with a phone number typed in the reply bar; the amount on the keypad; Send the request once it has a date | a reply with no name or figure in it says so; asking cannot move money, so there is no passcode |
+| Saving | Savings on home, Add money, Put away, the passcode: four taps; + New goal, filled with the next idea (Rent, Emergency fund, School fees…), and Start saving: three; Take out, Edit goal, Pause goal and End goal from the page and its ···; the Save chip in the open chat, or "save 10k for rent" typed there | more than Everyday holds, or than the goal holds when taking out, stops the picker hard; a goal with nothing in it ends after the sheet that asks first, one with money in it through the passcode |
 | Beetle's model | a key kept on the phone from the lab's model screen, or one in the build, puts Claude behind Beetle; without one the script answers | a key that is refused, or no network: the script answers, with a note saying why |
 | A photo | on the phone, the camera and the device's own reader; on the web and in Expo Go, the sample slip, which reads as Sarah Adeyemi at GTBank, `0234 5678 90`, and the sample message, which reads as Musa asking for 20k for the rent balance | a photo with no ten-digit number on it; on the Send money page, a reading the reader is not sure of stops at Check this number; a message asking to be paid stops at Read from your photo, over the camera |
 
@@ -106,7 +107,7 @@ mocks in and says so on the code screen; a real `AuthService` and
 
 | Folder | What it is |
 |---|---|
-| `app/` | The routes: the loading screen, the lab, the way in as one screen, home, Send money and the pages around it, a receipt, a transfer's state pages, Three ways to be paid and Your code, the request and Request sent, Bills, Pay a bill and What I found, All services, Buy data and the top-up, Borrow, Activities and the answer, Settings and the pages its rows lead to. `expo-router` reads this folder as the map. |
+| `app/` | The routes: the loading screen, the lab, the way in as one screen, home, Send money and the pages around it, a receipt, a transfer's state pages, the request and Request sent, the goals, Bills, Pay a bill and What I found, All services, Buy data and the top-up, Borrow, Activities and the answer, Settings and the pages its rows lead to. `expo-router` reads this folder as the map. |
 | `src/design/` | The design system read off the Figma file: tokens, type, icons, motion, and the pieces every screen is made of — among them the amount picker (`Amount.tsx`, and `AmountSheet.tsx` for a page with no room for it), the ··· and its pop-up (`Menu.tsx`), and the phone's clicks and knocks (`haptics.ts`) |
 | `src/icons.ts` | The 96 glyphs, generated from `../src/icons.js` by `npm run icons`, which puts the line widths the file draws them at (0.075 of the box for a glyph, 0.10 for a bare mark) and round ends back on every stroked path, and cuts a solid glyph's white details (the face in Face ID, the card's stripe, the shield's tick, the clock's hands, the house's door) out of it through a mask, so they show whatever the glyph sits on; never edited by hand |
 | `src/features/onboarding/` | The way in: the step machine (`machine.ts`), what is remembered and the session (`store.tsx`), the rules (`validation.ts`), the one screen and its choreography (`WayIn.tsx`), what each stage of it shows (`views.tsx`, `stages.ts`), and the guard that keeps home for a session |
@@ -115,14 +116,14 @@ mocks in and says so on the code screen; a real `AuthService` and
 | `src/features/agent/` | The chat: the conversation and what Beetle is waiting for (`conversation.tsx`), the list (`Chat.tsx`), the dark pieces it is drawn with — what was said, the panels, the dots (`Dark.tsx`) — the ask panel with its fields (`AskPanel.tsx`) and the list of what was paid before that grows out of it (`SavedPeek.tsx`), the receipt's card and the same card opened where it is (`ReceiptCard.tsx`, `ChatReceipt.tsx`), and the chats, Beetle's prompts among them (`chats.ts`), with the hour they carry on for (`hour.ts`) and the drawer they live in (`Drawer.tsx`) |
 | `src/features/scan/` | The camera from its frames (`Scan.tsx`): every way it can go wrong, the photo read on the spot and drawn back with what was found, the sample photos in its gallery (`sample.ts`), the sheet a message puts up over it (`ReadSheet.tsx`) and the rows it and What I found lay their pieces on (`ReadRows.tsx`), and the photo's way back to the screen that asked (`handoff.ts`) |
 | `src/features/passcode/` | The gate before money moves: the passcode on its sheet over the chat (`Passcode.tsx`) and the check itself, with the tries and the lock (`check.ts`) |
-| `src/features/receive/` | Being paid: the Receive sheet (`ReceiveSheet.tsx`), Three ways to be paid (`Ways.tsx`), Your code (`MyCode.tsx`) with the QR made and drawn (`qr.ts`, `Code.tsx`) and its picture shared or saved (`picture.ts`), money arriving (`arrival.ts`), and the clipboard |
+| `src/features/receive/` | Being paid: the Receive sheet (`ReceiveSheet.tsx`), the account's own details the sheet and the chat's card hand out (`details.ts`) and the way they are copied and shared (`share.ts`), a card's picture shared or saved (`picture.ts`), money arriving (`arrival.ts`), and the clipboard |
 | `src/features/request/` | Asking for money: who can be asked (`people.ts`), what the pages hand each other (`hand.ts`), the words typed at home that are a page (`intent.ts`), Read from your photo over the camera (`FoundSheet.tsx`), the Request page (`Request.tsx`) and what Beetle says on it (`words.ts`), the requests kept (`requests.ts`), and Request sent (`Asked.tsx`) |
 | `src/features/bills/` | Bills: the billers and the month (`billers.ts`), the page that pays one (`PayBill.tsx`), the month's page (`Bills.tsx`), What I found for a bill read off a photo (`Meter.tsx`), and what the pages hand each other (`hand.ts`) |
 | `src/features/services/` | All services: the drawer (`Services.tsx`) and what it lists, with the way the bar's words find one (`services.ts`) |
 | `src/features/data/` | Data and airtime: the page (`BuyData.tsx`), the sheet over the camera for a message asking for data (`TopupSheet.tsx`), the chat that prices a top-up read off a photo (`Topup.tsx`), and what the pages hand each other (`hand.ts`) |
 | `src/features/loan/` | Borrow: what a loan costs (`loan.ts`) and the page (`Loan.tsx`) |
 | `src/features/dollars/` | Dollars: the rate, the fee and the sums (`dollars.ts`), the page (`Dollars.tsx`), Convert (`Convert.tsx`) and Converted (`Converted.tsx`), and the Pay from sheet the paying pages put up (`PayFromSheet.tsx`) |
-| `src/features/goal/` | Putting money away: the goal and what feeds it (`goal.ts`), the page in its three states (`Goal.tsx`), the sheet that feeds it (`FeedSheet.tsx`), and what the keypad hands back (`hand.ts`) |
+| `src/features/goal/` | Putting money away: the goals and where each stands, the ideas a new one is filled with and the words that mean saving (`goals.ts`), the goals kept on the phone (`store.ts`), the frames' Holiday and what feeds the first goal (`goal.ts`), the page with its pills, its ··· and its sheets (`Goal.tsx`), the sheet a goal is started or changed on (`GoalSheet.tsx`), the sheet that feeds it (`FeedSheet.tsx`), and what the keypad hands back (`hand.ts`) |
 | `src/features/health/` | Money health: the score and the five habits (`health.ts`) and the page (`Health.tsx`) |
 | `src/features/send/` | Sending money: the page (`Send.tsx`), Not enough (`Short.tsx`), Check this number (`Misread.tsx`), and what the pages hand back to the one under them (`hand.ts`) |
 | `src/features/transfers/` | A transfer that is not done: Still on its way, It did not go and It came back (`Transfer.tsx`), What went wrong? (`Wrong.tsx`), Asking for it back (`Recall.tsx`), I sent it wrong (`AlreadyGone.tsx`), what each says about a line (`states.ts`) |
@@ -243,9 +244,10 @@ Under the card, four cards two by two, the way Fuse lays out its own:
 pale grey, rounded 20, a 32 glyph at the top left and at the foot a small
 grey word and a bold figure. Savings says the most — the goal's ring in
 green with the pot in it, Holiday and how far along, what is put aside,
-and how it is going: a fortnight ahead, paused for now while money is
-tight (the ring gone grey), what it is aiming for while nothing is in it,
-or, with no goal, Start a goal. Loan is what could be borrowed once
+and how it is going: a fortnight ahead, paused for now (the ring gone
+grey), what it is aiming for while nothing is in it, or, with no goal,
+Start a goal. With several goals it says how many and how far along they
+are together, with the total put aside. Loan is what could be borrowed once
 setting up is done. Card is the virtual card by its last four, with what
 is left to spend this month or Frozen. Services is laid out like the other
 three and holds Airtime, Bills and Data to swipe through inside it, the
@@ -400,12 +402,14 @@ Sarah's card) gets its own card under the words; and a question in the
 middle — the balance, dollars — is answered without losing the card.
 
 The chips over the input are things to do, not doors: **Send, Bills, Data,
-Receive, Loan**, in that order. Each puts its card up in the chat with
+Receive, Save, Loan**, in that order. Each puts its card up in the chat with
 Beetle's one line above it — Bills is the light: the company, Prepaid or
 Postpaid, the meter number; Receive is the account's number and its $tag,
-to copy or share; Loan is the amount, the days, what is paid back and when,
-and Borrow. "borrow" or "my account number" typed in the chat is the same
-card as its chip.
+to copy or share; Save is the goals as pills, the dark picker stopping at
+what Everyday holds, what the goal has so far, and Put ₦X into the goal,
+through the passcode to the receipt card; Loan is the amount, the days,
+what is paid back and when, and Borrow. "borrow", "my account number" or
+"save 10k for rent" typed in the chat is the same card as its chip.
 
 What Beetle knows (`src/services/nigeria.ts`) fills in what it can. A
 phone number shows its network as it is typed, read off its first four
@@ -595,42 +599,31 @@ thing is not in the frames yet.
 ## Being paid
 
 Receive — on the card, on the new account's empty day, and in More from
-any page — puts up a sheet over
-everything, from its frame: the arrow down on its disc, the word, and the
-four ways money can come, each a row with its glyph, its name and a line:
-Bank transfer (the number to hand out), From a card, Ask someone, and In
-dollars. Done sends it back; so does a tap outside it or a pull down on its
-head. Bank transfer and Ask someone send the sheet down first and then open
-their page, the page's title growing out of the row; From a card and In
-dollars say which round brings them.
-
-Three ways to be paid is the page Bank transfer opens, and the page Beetle
-gives for "how do I get paid" typed at home: Beetle's word that there is
-nothing to photograph when money is coming in, then three grey cards — the
-account number with Copy it, the code with Show it, and asking somebody with
-Ask for money — and a note that none of these can take anything out. Show it
-opens Your code: a real QR of the account, made on the phone from the
-account's own number (this build's own address for it, `beetle://pay`, until
-there is a bank behind the app to hand out the standard's), drawn with its
-three eyes rounded the way the frame rounds them, on a white card with the
-name and the number under it. A unit test reads the code back off its
-modules with a QR reader. Share it hands the card's picture to the phone's
-share sheet (on the web, with none, the words go to the clipboard); Save it
-puts the picture in Photos, asking for the way in the first time (on the
-web it downloads the picture). Both pages keep Back at the bottom left;
-no page but home carries an ask bar.
+any page — puts up a sheet over everything: the arrow down on its disc, the
+word, the line "Give these to whoever is paying you", and on a grey card the
+account's own details — the account number at Beetle, with the name on it,
+and the $tag, free and instant from another Beetle account — each with Copy
+at its end. Share details under the card hands all of it on at once, the
+same words the chat's Receive card shares. Under that, the two other ways
+money comes: Ask someone, and In dollars, each a row that sends the sheet
+down and opens its page. Done sends it back; so does a tap outside it or a
+pull down on its head. The owner took From a card off it after Round 11,
+with the QR code and the page Bank transfer used to open (Three ways to be
+paid and Your code), so being paid is two taps from the card: Receive, then
+Copy or Share details. "How do I get paid" typed at home, or asked from a
+page, puts the chat's Receive card up instead of a page.
 
 ## Asking for money
 
 A request is not money moving, so nothing about it needs the passcode, and
-the page says so at its foot. It can begin four ways: "ask musa for 20k for
+the page says so at its foot. It can begin three ways: "ask musa for 20k for
 the rent balance" typed in the chat at home, which is a page rather than an
 answer; a photo of a message asking for the account, which the camera reads
 first and answers with Read from your photo over itself — the amount and
 what it is for from the photo, the person matched to someone who has paid
 before, and where the request reaches them — with Ask Musa, Retake, and Not
-this person, which goes on without the person; Ask someone on the Receive
-sheet; and Ask for money on Three ways to be paid.
+this person, which goes on without the person; and Ask someone on the
+Receive sheet.
 
 The Request page, from its frame, is a chat of its own: Beetle's mark and
 name in the head, what was said (or read, with the camera's glyph) as a
@@ -794,29 +787,60 @@ Convert; "what about dollars" stays a question for the chat.
 
 ## Putting money away
 
-Savings pot on All services, or "my goal" typed at home, opens Holiday,
-from its frame: how far along the goal is on a ring with what is put aside
-under it, Beetle's word on the pace, what is feeding it row by row — the
-payday slice (the standing instruction on the Rules page), round ups from
-card payments and the cash back on top ups — Add money and Feed it more,
-the line that nothing is locked, and the question of what happens when
-money gets tight, which Beetle answers in the chat. Add money puts the
-amount picker up on a sheet over the goal, stopping at what Everyday holds,
-then the passcode; the line goes into the record as Put away,
-its receipt opens, and the ring moves. Feed it more is the sheet from its
-frame: the four ways with a switch on each of the three that run on their
-own and Set it on the fixed amount, with the note that none of it is
-locked away. The switches are kept on this phone with the other settings
-(`src/features/settings/prefs.ts`); the payday one is the same switch as
-Standing instructions.
+Savings on home opens the goal page on the first goal; so do Savings pot on
+All services and "my goal" typed at home. The page is the Holiday frame's,
+made shorter at the owner's word so nothing on the way to saving needs a
+scroll: under the head, the goals as pills with + New goal at the end, a tap
+switching in place; the ring with what is put aside; **Add money** and
+**Take out** straight under it; Beetle's line on the pace (what a month
+would get it there, or, for the demo's Holiday, the frame's "a fortnight
+ahead"); what feeds it as one row — the payday slice, round ups and cash
+back, and what they bring in a month — that opens the Feed sheet; and the
+line that nothing is locked. The ··· at the top right holds Edit goal,
+Pause goal (Start again while it is paused) and End goal, in red.
+
+Saving is four taps from home: Savings, Add money, the amount and Put away,
+the passcode. The amount picker comes up on a sheet stopping at what
+Everyday holds; the line goes into the record as Put away, its receipt
+opens, and the ring moves. Take out is the same the other way: the picker
+stops at what the goal holds, All of it among its chips, and the receipt
+reads Taken back.
+
+A goal is three taps from home: Savings, + New goal, Start saving. The
+sheet comes filled with the next thing people save for that is not a goal
+already — Rent at ₦600,000 in a year, then Emergency fund, School fees, A
+new phone, Holiday — its figure on the amount picker and the date as a
+quiet row ("In a year · 3 October 2027 ▾") that opens its four in place;
+the name is a field to type over. "Save up for a car" typed at home opens
+the same sheet named A car. Edit goal is the same sheet with the goal's own
+name, figure and date, and Save changes. Pause goal is one tap and lifts
+as easily: the feeds into it wait, Add money still works ("Add money
+anyway"), and Beetle's line carries Start again. End goal with money in it
+goes through the passcode, which says the goal ends and what comes back to
+Everyday; empty, the sheet that asks first, End goal in red and Cancel.
+
+Several goals are kept on this phone per account
+(`src/features/goal/store.ts`). The demo starts with Holiday, ₦250,000 by
+12 March, the frames' goal; a new account with none. The first goal is the
+one the payday slice, round ups and cash back go to — the Rules page, a
+rule's offer and Buy data's round-up line all say its name — and any other
+is fed by hand; end the first and the next takes the feeds. Not enough
+takes its shortfall from the first goal that holds enough.
+
+The Save chip in the open chat puts the same saving on a card: the goals
+as pills (the first picked, or the one the words named), the dark picker
+stopping at what Everyday holds, what the goal has so far, and Put ₦X into
+the goal, through the passcode to the receipt card and Beetle's word on how
+far along it is: Save, Put away, the passcode — three taps. With no goal
+yet, the card's button opens the new-goal sheet.
 
 While Money is tight this month is on (the switch at the top of Standing
-instructions), the goal is Paused, from its frame: the feeds wait, the
-cash back still comes in, the date moves from 12 March to 9 April, and
-Start again lifts it. An account the design does not seed a goal for sees
-Goals with nothing put aside yet, Start a goal and Set it up; Start a goal
-starts Holiday from nothing. The goal's figures are the demo's own
-(`src/features/goal/goal.ts`) until an account service keeps them.
+instructions), every goal is Paused, from its frame: the feeds wait, the
+date moves from 12 March to 9 April, and Start again on Beetle's line lifts
+it. An account with no goal sees Goals with nothing put aside yet, Start a
+goal and Set it up, from its frame. The demo Holiday's figures are the
+frames' own (`src/features/goal/goal.ts`) until an account service keeps
+them.
 
 ## Money health
 
@@ -865,8 +889,8 @@ files whatever chat there was and opens a fresh one on home about that one
 transaction — what it is set down as a note Beetle reads, and Beetle asking
 what you want to know — and Report a problem, which for a transfer opens
 What went wrong?. Share receipt opens the frame's
-sheet: WhatsApp and Save to photos take a picture of the receipt (the same
-way Your code is shared and saved) and hand it to the phone's share sheet or
+sheet: WhatsApp and Save to photos take a picture of the receipt
+(`src/features/receive/picture.ts`) and hand it to the phone's share sheet or
 put it in Photos, Somewhere else hands the words to the phone, with the
 balance and the full account numbers left off, and the PDF comes with a
 later round. A data receipt's line reads the way the share frame says it:

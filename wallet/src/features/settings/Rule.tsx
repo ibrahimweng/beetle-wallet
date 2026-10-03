@@ -12,6 +12,7 @@ import { useLine } from '../transfers/use';
 import { naira } from '../../lib/format';
 import { whenAgain } from './again';
 import { usePrefs, type Prefs } from './prefs';
+import { fedWords, useFedName } from '../goal/store';
 
 const OFFERS: Record<string, { rule: keyof Prefs['rules']; facts: { label: string; value: string; quiet?: boolean }[]; say: string }> = {
   ikeja: {
@@ -90,6 +91,8 @@ export function Rule() {
   const { row } = useLine(asked.row ?? '');
   const account = app.session?.account;
   const { prefs, set } = usePrefs(account?.accountNumber);
+  /* what goes into a goal goes to the first, by its name */
+  const fed = useFedName(account, prefs.goal);
   if (!ok || !account) return null;
   /* a transfer's receipt offers the same again: the facts come from its line */
   /* the line's reference says when: the rent on the first, the grocer on Fridays; a line with none is read from its words */
@@ -103,7 +106,7 @@ export function Rule() {
   return (
     <Screen head={<PageHead title="Set this up?" sub="Nothing is saved until you say yes" />}>
       <Card style={{ paddingTop: 8, paddingBottom: 4, paddingHorizontal: 16, gap: 0 }} testID="facts">
-        <Facts rows={offer.facts} />
+        <Facts rows={offer.facts.map(f => ({ ...f, value: fedWords(f.value, fed) }))} />
       </Card>
       <Say testID="line">{offer.say}</Say>
       <FootNote title="You can stop it any time" sub="It sits in Standing instructions with a switch beside it. Or just tell me to stop and it stops." />

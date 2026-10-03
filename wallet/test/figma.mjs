@@ -21,9 +21,11 @@
    needs its reason in allowed.json like anything else. Where a block changes
    height on purpose, a band of the frame can be allowed to move as one:
    {band: [from, to], dy, why} holds every piece the frame has from y from up
-   to y to (pinned and container-measured pieces aside) to the frame moved by
-   dy, so what came up under the block is still measured, and each piece it
-   moves says so.
+   to y to (pinned pieces aside) to the frame moved by dy, so what came up
+   under the block is still measured, and each piece it moves says so. A band
+   holds the page's own pieces, or with within: the container's name, the
+   pieces measured inside that container (a sheet that grew). Words a screen
+   no longer says are allowed by text: a line's start, or texts: several.
 
      node test/figma.mjs dist            # every screen
      node test/figma.mjs dist welcome    # one
@@ -204,7 +206,7 @@ for (const key of keys) {
     }
     got = { x: got.x - origin.x, y: got.y - origin.y, w: got.w, h: got.h };
     /* in a band that moved as one, the frame's figure moved with it */
-    const band = piece.fixed || piece.within ? null : (allowed[key] ?? []).find(a => a.band && want.y >= a.band[0] && want.y < a.band[1]);
+    const band = piece.fixed ? null : (allowed[key] ?? []).find(a => a.band && (a.within ?? null) === (piece.within ?? null) && want.y >= a.band[0] && want.y < a.band[1]);
     const held = band ? { ...want, y: want.y + band.dy } : want;
     const moved = band ? `moved ${fmt(band.dy)} with the band from ${fmt(band.band[0])}: ${band.why}` : '';
     const dims = piece.only ?? (piece.find.text !== undefined ? ['x', 'y', 'h'] : ['x', 'y', 'w', 'h']);
@@ -227,7 +229,7 @@ for (const key of keys) {
   for (const w of words(frame)) {
     if (s.skipWords?.some(p => w.startsWith(p))) continue;
     if (text.includes(w)) continue;
-    const pass = (allowed[key] ?? []).find(a => a.text && w.startsWith(a.text));
+    const pass = (allowed[key] ?? []).find(a => (a.text && w.startsWith(a.text)) || (a.texts ?? []).some(x => w.startsWith(x)));
     if (pass) lines.push(`~ "${w}" — allowed: ${pass.why}`);
     else {
       lines.push(`✗ "${w}" is not on the screen`);

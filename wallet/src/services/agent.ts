@@ -65,7 +65,7 @@ export type PanelRow = { label: string; value: string; editable?: boolean };
     thing to do about it. */
 export type Panel = {
   id: string;
-  tool: 'transfer' | 'found' | 'pay' | 'data' | 'airtime' | 'loan';
+  tool: 'transfer' | 'found' | 'pay' | 'data' | 'airtime' | 'loan' | 'save';
   title: string;
   icon: IconName;
   rows: PanelRow[];
@@ -95,6 +95,8 @@ export type Move = {
   read?: 'photo';
   /** the dollars it moved: into the holding on a conversion, out of it where it was paid from */
   usd?: number;
+  /** the goal a saving went into or came out of */
+  goal?: string;
 };
 
 /* ---- what Beetle asks for ---- */
@@ -153,7 +155,9 @@ export type Block =
   /** the account's own details to be paid into, to copy and share */
   | { kind: 'receive' }
   /** what can be borrowed, to pick and take */
-  | { kind: 'loan' };
+  | { kind: 'loan' }
+  /** money put into a goal: the goal and the amount, filled where the words said them */
+  | { kind: 'save'; amount?: number; goalId?: string };
 
 /** What the model is waiting for. Whoever holds the conversation keeps it
     and hands it back with the next ask. */

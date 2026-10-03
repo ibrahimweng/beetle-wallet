@@ -9,7 +9,8 @@ import type { ReceiptCard as Card } from './conversation';
 import type { Account, AskPanel, Beneficiaries } from '../../services';
 import { CardGesturesContext } from '../home/WalletCard';
 import { AskPanelView } from './AskPanel';
-import { LoanCard, ReceiveCard } from './Cards';
+import { LoanCard, ReceiveCard, SaveCard } from './Cards';
+import type { Standing } from '../goal/goals';
 import type { Term } from '../loan/loan';
 import { AsideLine, Said, Thinking, Thoughts, ToolPanel, Yours } from './Dark';
 import { ReceiptCard } from './ReceiptCard';
@@ -34,6 +35,9 @@ export function Chat({
   onConfirmAsk,
   onBorrow,
   onSetUp,
+  goals = [],
+  onSave,
+  onStartGoal,
   onReceipt,
 }: {
   talk: Conversation;
@@ -61,6 +65,12 @@ export function Chat({
   onBorrow?: (turnId: string, amount: number, days: Term) => void;
   /** the Loan card's way to finish setting up */
   onSetUp?: () => void;
+  /** each goal and what it holds, for the Save card */
+  goals?: Standing[];
+  /** the Save card's Put away */
+  onSave?: (turnId: string, goalId: string, amount: number) => void;
+  /** the Save card with no goal yet: start one */
+  onStartGoal?: () => void;
   /** a receipt card, opened where it is */
   onReceipt?: (card: Card, at: Rect) => void;
 }) {
@@ -150,6 +160,22 @@ export function Chat({
                 canBorrow={canBorrow}
                 onSetUp={() => onSetUp?.()}
                 onBorrow={(amount, days) => onBorrow?.(turnId, amount, days)}
+              />
+            </View>
+          );
+        } else if (t.block.kind === 'save' && 'state' in t) {
+          const turnId = t.id;
+          const { amount, goalId } = t.block;
+          body = (
+            <View style={{ marginRight: ASK_INSET }}>
+              <SaveCard
+                state={t.state as 'open' | 'done'}
+                saved={'saved' in t ? t.saved : undefined}
+                goals={goals}
+                balance={balance ?? 0}
+                start={{ amount, goalId }}
+                onSave={(goal, much) => onSave?.(turnId, goal, much)}
+                onStart={() => onStartGoal?.()}
               />
             </View>
           );

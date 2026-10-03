@@ -1053,58 +1053,6 @@
    "why": "Since Round 11 the passcode sheet shows the whole of it at its top while the six digits go in — who, their bank and number, what they receive, the fee and what leaves which account — so the sheet reaches up to 69 and everything under its head comes down to make room, the pad a step smaller to fit; and Cancel sits plainly under the pad where the frame's line about the sixth digit was (the owner's word: a clear Cancel, since the sixth digit sends it)"
   }
  ],
- "ways": [
-  {
-   "pieces": [
-    ["Row", 0],
-    ["Mark · 32", 0],
-    ["Card", 0]
-   ],
-   "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
-  },
-  {
-   "anchor": true,
-   "why": "Beetle's words are a plain line since Round 11 (no page has the bubble; DESIGN.md, Pages), four lines where the frame's bubble row is 116.8 tall, so the cards sit 11 higher; from the first card down the page is held to the frame from there"
-  },
-  {
-   "text": "You cannot receive by talking.",
-   "why": "the bubble component's own layer name; the frame's picture shows the words the page says"
-  },
-  {
-   "piece": "Back",
-   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
-  },
-  {
-   "piece": "Ask bar",
-   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
-  },
-  {
-   "piece": "Action button",
-   "why": "the plus belongs to the bar on Home, Activities and Settings; since Round 10 a page's foot is Back, or Back beside the page's own button"
-  }
- ],
- "mycode": [
-  {
-   "anchor": true,
-   "why": "the line under the title takes two lines here as in the frame's picture, where the second runs under the card; the card sits under both lines instead"
-  },
-  {
-   "piece": "Glyph · faceid-scan",
-   "why": "the frame stands a placeholder glyph where the code goes; the build draws a real QR of the account, 190 across, in its place"
-  },
-  {
-   "piece": "Back",
-   "why": "Back sits on the page's own 20 since Round 10, lined up with the page, now that it shares the foot with the page's button or stands alone; the frame keeps it at 16 beside the ask bar"
-  },
-  {
-   "piece": "Ask bar",
-   "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
-  },
-  {
-   "piece": "Action button",
-   "why": "the plus belongs to the bar on Home, Activities and Settings; since Round 10 a page's foot is Back, or Back beside the page's own button"
-  }
- ],
  "request": [
   {
    "piece": "Back",
@@ -1709,6 +1657,66 @@
  ],
  "goal": [
   {
+   "anchor": true,
+   "why": "the goals sit as pills under the head since Round 12 (several goals, the owner's word; PLAN.md, Round 12), so the ring's card is 56 lower than the frame's and the page is held to the frame from the card"
+  },
+  {
+   "piece": "Page head",
+   "why": "the ··· for Edit goal, Pause goal and End goal sits at the head's right since Round 12 (PLAN.md, Round 12), so the title's column ends 48 sooner"
+  },
+  {
+   "pieces": [
+    ["Column", 2],
+    ["What is feeding it", 0],
+    ["Column", 3],
+    ["Row · ₦80,000", 0],
+    ["Icon", 0],
+    ["Column", 4],
+    ["Payday transfer", 0],
+    ["₦20,000 every month", 0],
+    ["₦80,000", 0],
+    ["Row · ₦2,280", 0],
+    ["Icon", 1],
+    ["Column", 5],
+    ["Round ups", 0],
+    ["The change from card payment", 0],
+    ["₦2,280", 0],
+    ["Row · ₦120", 0],
+    ["Icon", 2],
+    ["Column", 6],
+    ["Money back on top ups", 0],
+    ["Instead of cash back", 0],
+    ["₦120", 0]
+   ],
+   "why": "what feeds the goal is one row since Round 12, the page made shorter at the owner's word so that saving needs no scroll (PLAN.md, Round 12): what runs into it and what that brings in a month, the row opening the Feed sheet with each of the three"
+  },
+  {
+   "texts": [
+    "Payday transfer",
+    "₦20,000 every month",
+    "₦80,000",
+    "Round ups",
+    "The change from card payment",
+    "₦2,280",
+    "Money back on top ups",
+    "Instead of cash back",
+    "₦120"
+   ],
+   "why": "what feeds the goal is one row since Round 12, the page made shorter at the owner's word so that saving needs no scroll (PLAN.md, Round 12): what runs into it and what that brings in a month, the row opening the Feed sheet with each of the three"
+  },
+  {
+   "pieces": [
+    ["Button · Add money", 0],
+    ["Button · Feed it more", 0]
+   ],
+   "why": "Add money and Take out sit straight under the ring since Round 12, so money goes in on the fourth tap from home with nothing to scroll (PLAN.md, Round 12); Take out stands where the frame's second button stood, the Feed sheet opens from the row of what feeds the goal, and Start again is on Beetle's line while the goal waits"
+  },
+  {
+   "band": [915, 1000],
+   "dy": -217.6,
+   "why": "with what feeds the goal one row and the buttons under the ring (PLAN.md, Round 12), what is under them comes up"
+  },
+  {
    "pieces": [
     ["Row", 0],
     ["Mark · 32", 0],
@@ -1720,10 +1728,6 @@
    "piece": "Row",
    "nth": 1,
    "why": "the frame boxes the two buttons at 52 and lets the 56 buttons stand 2 proud; the build's row is the buttons' own 56, with the same top and the same 20 under"
-  },
-  {
-   "anchor": true,
-   "why": "Beetle's words are a plain line since Round 11 (no page has the bubble; DESIGN.md, Pages), two lines where the frame's bubble is three lines in its box, so from the feeds down the page sits 46 higher, and is held to the frame from there"
   },
   {
    "piece": "Column",
@@ -1745,17 +1749,70 @@
  ],
  "paused": [
   {
+   "anchor": true,
+   "why": "the goals sit as pills under the head since Round 12 (several goals, the owner's word; PLAN.md, Round 12), so the ring's card is 56 lower than the frame's and the page is held to the frame from the card"
+  },
+  {
+   "piece": "Page head",
+   "why": "the ··· for Edit goal, Pause goal and End goal sits at the head's right since Round 12 (PLAN.md, Round 12), so the title's column ends 48 sooner"
+  },
+  {
+   "pieces": [
+    ["Column", 2],
+    ["Waiting for you", 0],
+    ["Column", 3],
+    ["Row · Paused", 0],
+    ["Icon", 0],
+    ["Column", 4],
+    ["Payday transfer", 0],
+    ["Paused since 3 August", 0],
+    ["Paused", 1],
+    ["Row · Paused", 1],
+    ["Icon", 1],
+    ["Column", 5],
+    ["Round ups", 0],
+    ["Paused since 3 August", 1],
+    ["Paused", 2],
+    ["Row · ₦120", 0],
+    ["Icon", 2],
+    ["Column", 6],
+    ["Money back on top ups", 0],
+    ["Still going in", 0],
+    ["₦120", 0]
+   ],
+   "why": "what feeds the goal is one row since Round 12, the page made shorter at the owner's word so that saving needs no scroll (PLAN.md, Round 12): what runs into it and what that brings in a month, the row opening the Feed sheet with each of the three; while it waits the row says so"
+  },
+  {
+   "texts": [
+    "Waiting for you",
+    "Payday transfer",
+    "Paused since 3 August",
+    "Round ups",
+    "Money back on top ups",
+    "Still going in",
+    "₦120"
+   ],
+   "why": "what feeds the goal is one row since Round 12, the page made shorter at the owner's word so that saving needs no scroll (PLAN.md, Round 12): what runs into it and what that brings in a month, the row opening the Feed sheet with each of the three; while it waits the row says so"
+  },
+  {
+   "pieces": [
+    ["Button · Add money anyway", 0],
+    ["Button · Start again", 0]
+   ],
+   "why": "Add money and Take out sit straight under the ring since Round 12, so money goes in on the fourth tap from home with nothing to scroll (PLAN.md, Round 12); Take out stands where the frame's second button stood, the Feed sheet opens from the row of what feeds the goal, and Start again is on Beetle's line while the goal waits"
+  },
+  {
+   "band": [960, 980],
+   "dy": -122,
+   "why": "with what feeds the goal one row and the buttons under the ring (PLAN.md, Round 12), what is under them comes up, under Beetle's line with Start again in it"
+  },
+  {
    "pieces": [
     ["Row", 0],
     ["Mark · 32", 0],
     ["Card", 1]
    ],
    "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
-  },
-  {
-   "band": [634, 971],
-   "dy": -45.4,
-   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
   },
   {
    "piece": "Row",
@@ -1829,6 +1886,16 @@
   }
  ],
  "saverule": [
+  {
+   "texts": [
+    "Payday transfer",
+    "₦20,000 every month",
+    "₦80,000",
+    "The change from card payment",
+    "Instead of cash back"
+   ],
+   "why": "the frame draws the goal page under the sheet with its three rows of what feeds it; what feeds the goal is one row since Round 12, the page made shorter at the owner's word so that saving needs no scroll (PLAN.md, Round 12): what runs into it and what that brings in a month, the row opening the Feed sheet with each of the three"
+  },
   {
    "piece": "Box",
    "nth": 0,
@@ -2456,6 +2523,43 @@
   {
    "piece": "Ask bar",
    "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
+  }
+ ],
+ "receive": [
+  {
+   "pieces": [
+    ["Row", 0],
+    ["Icon", 1],
+    ["Bank transfer", 0],
+    ["Your number, 0102 4457 88", 0],
+    ["Glyph · check", 0],
+    ["Row", 1],
+    ["Icon", 2],
+    ["From a card", 0],
+    ["Any Nigerian debit card", 0],
+    ["Glyph · check", 1]
+   ],
+   "why": "the owner took From a card off the sheet after Round 11, and the bank transfer's row became the account number itself, on the sheet with Copy and Share (DESIGN.md, Receive)"
+  },
+  {
+   "texts": [
+    "Pick how you want the money to",
+    "Bank transfer",
+    "Your number, 0102 4457 88",
+    "From a card",
+    "Any Nigerian debit card"
+   ],
+   "why": "the owner took From a card off the sheet after Round 11, and the bank transfer's row became the account number itself, on the sheet with Copy and Share (DESIGN.md, Receive); the line under the title says 'Give these to whoever is paying you', and the number reads 0102 4457 88 under Account number"
+  },
+  {
+   "piece": "Sheet",
+   "why": "the account number and the $tag sit on a grey card under the line, with Share details under it, in place of the frame's two rows, so the sheet is taller and starts higher"
+  },
+  {
+   "band": [615, 814],
+   "within": "Sheet",
+   "dy": 109,
+   "why": "Ask someone, In dollars and Done come down under the details card and Share details, which take the place of the two rows"
   }
  ]
 }

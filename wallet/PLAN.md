@@ -889,6 +889,92 @@ coming in, with no collateral.
 - The web build draws no browser focus ring on a field: the phone never does.
 
 
+## Round 12 · Saving in four taps, being paid made short, and blur under the white
+
+Asked by the owner after Round 11, in two messages, with four questions
+answered: a blur wherever a white gradient backs something; the Receive
+sheet without From a card, without the QR code and without a page for a
+bank transfer, so being paid is the sheet itself; the save flow built
+"considering the 4 clicks law of a fast and easy interface"; and, once it
+is done, the app's problems in short direct points.
+
+**Blur under the white**
+
+- [x] The page foot's white fade and the bar's have the blur under them that
+      the More sheet and the receipts already have: four stacked sheets of
+      blur, each fading at its own end, under the white, so what scrolls under
+      the foot softens as it goes. On the phone the blur grows in strength as
+      the fade comes in, rather than a blurred layer fading.
+
+**Being paid, from the sheet itself**
+
+- [x] Receive (the card, the shortcut, More, a new account's button) puts up
+      the sheet with the account's own details on it: the account number at
+      Beetle and the $tag, each with Copy, and Share details under them. Then
+      Ask someone and In dollars, and Done.
+- [x] From a card is gone, and so are the QR code and the pages Bank
+      transfer opened (Three ways to be paid 222:199, Your code 221:2), at the
+      owner's word. "How do I get paid" typed at home or asked from a page is
+      the chat's Receive card, as the chip is.
+
+Taps: Receive (1), Copy (2). Receive (1), Share details (2).
+
+**Saving, fast and easy** (the owner's answers: several goals; keep the goal
+page, made shorter; pause or end a goal, edit a goal, take money out, a
+Save chip in the chat, and a goal started in three taps)
+
+- [x] **Several goals**, kept per account on the phone. The demo account
+      starts with Holiday (₦250,000 by 12 March), the frames' goal; a new
+      account starts with none. The first goal is the one the payday slice,
+      round ups and cash back go to; any other is fed by hand. End the first
+      and the next one takes the feeds.
+- [x] **The goal page, shorter.** Savings on home opens it on the first goal,
+      as before. Under the head, the goals as pills with + New goal at the
+      end, a tap switching in place; the ring and what is put aside; **Add
+      money** and **Take out** straight under it; Beetle's line; what feeds it
+      as one row that opens the Feed sheet; the line that nothing is locked.
+      All of it above the foot, so nothing on the way to saving needs a
+      scroll.
+- [x] **··· at the top right**: Edit goal, Pause goal (Start again while it
+      is paused) and End goal in red.
+- [x] **A goal in three taps.** + New goal puts up a sheet already filled:
+      the next idea (Rent, Emergency fund, School fees, A new phone…), its
+      usual target on the amount picker, and a date to match (by when, a
+      quiet row with "In 6 months ▾"). Start saving makes it. The name is a
+      field to type over.
+- [x] **Edit** is the same sheet titled Edit and the goal's name, with
+      Save changes.
+- [x] **Pause** is one tap and lifts as easily (Start again): the feeds into
+      that goal wait and its date moves; Add money still works. Money is
+      tight, on the Rules page, still pauses every goal at once.
+- [x] **End**: with money in it, the passcode sheet says the goal ends and
+      what goes back to Everyday, and the line and its receipt follow; empty,
+      the sheet that asks first, End goal in red and Cancel.
+- [x] **Take out**: the amount picker, stopping hard at what the goal
+      holds, then the passcode, a line in the day and the Taken back
+      receipt.
+- [x] **The Save chip** in the chat: Send, Bills, Data, Receive, Save, Loan.
+      Its card has the goals as pills (the first picked), the dark picker
+      stopping at what Everyday holds, what the goal has so far, and Put ₦X
+      into the goal, through the passcode to the receipt card. "save 10k for
+      rent" typed is the same card, filled. With no goal yet, the card's
+      button starts one.
+- [x] **Home's Savings card** with several goals: how many and how far
+      along together, the total put aside, and how the first one is going.
+- [x] Not enough's "Move it from …" takes from the first goal, by its name.
+- [x] Lab places, the walk counting the taps, the Figma check's allowances
+      for the shorter page, unit tests for the goals.
+
+Taps, from home: Savings (1), Add money (2), the amount and Put away (3),
+the passcode (4). Savings (1), Take out (2), the amount and Take out (3), the
+passcode (4). Savings (1), + New goal (2), Start saving (3). Savings (1),
+··· (2), Pause goal (3). Savings (1), ··· (2), Edit goal (3), Save changes
+(4). Savings (1), ··· (2), End goal (3), the passcode (4). In the open chat:
+Save (1), Put away (2), the passcode (3).
+
+**The problems, in short points**: after the round, every flow walked
+again and what is wrong said plainly to the owner.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the
@@ -914,6 +1000,12 @@ coming in, with no collateral.
 
 ## Kept out on purpose
 
+- Three ways to be paid (222:199) and Your code (221:2), with the QR, and
+  paying in from a card: the owner took them off after Round 11, so being
+  paid is the Receive sheet's own details. Their fixtures left the check.
+- Fixed savings (money locked for a set time): Take out works on every goal
+  whenever it is wanted, and All services still says Fixed savings are not
+  in the frames.
 - The file's older home (225:3): the card and the day in the app are the
   home to keep.
 - The dock at the foot of home: the ask bar lives in the card. Other screens

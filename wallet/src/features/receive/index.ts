@@ -1,6 +1,4 @@
 export { ReceiveSheet } from './ReceiveSheet';
-export { Ways } from './Ways';
-export { MyCode } from './MyCode';
-export { Code } from './Code';
-export { codeFor, payload, modulesPath, rasterise, eyeAt } from './qr';
+export { detailsOf } from './details';
+export { copyDetail, shareDetails } from './share';
 export { SAMPLE_ARRIVAL, arrivalChat, arrivalLine, arrivalMove, type Arrival } from './arrival';

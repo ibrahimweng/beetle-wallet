@@ -26,6 +26,8 @@ export type LedgerRow = {
   read?: 'photo';
   /** the dollars it moved: into the holding on a conversion, out of it where it was paid from */
   usd?: number;
+  /** the goal a saving went into or came out of */
+  goal?: string;
   session?: string;
   /** the balance once it had moved */
   after?: number;

@@ -33,8 +33,10 @@ export type Conversation = {
   settleAsk(askId: string, panel: Panel): void;
   /** the loan card taken through the passcode */
   takeLoan(turnId: string, panel: Panel, taken: { amount: number; days: number }): void;
+  /** the Save card's money put away through the passcode */
+  putAway(turnId: string, panel: Panel, saved: { amount: number; goalId: string; name: string }): void;
   /** Beetle puts a card up without being asked: a chip's, with what you tapped and Beetle's one line */
-  offer(you: string, text: string, block: { kind: 'ask'; ask: AskPanel } | { kind: 'receive' } | { kind: 'loan' }): void;
+  offer(you: string, text: string, block: Offer): void;
   /** an ask panel's Continue: what is in it goes to Beetle */
   answer(askId: string): Promise<void>;
   /** a conversation already under way, for the lab */
@@ -50,6 +52,9 @@ export type Conversation = {
 };
 
 const wait = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
+
+/** The cards a chip puts up. */
+export type Offer = { kind: 'ask'; ask: AskPanel } | { kind: 'receive' } | { kind: 'loan' } | { kind: 'save'; amount?: number; goalId?: string };
 
 /** Between one block of an answer and the next. */
 const BEAT = 260;
@@ -177,6 +182,7 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
           } else if (block.kind === 'ask') add({ id: id(), who: 'beetle', block, state: 'open' });
           else if (block.kind === 'panel') add({ id: id(), who: 'beetle', block, state: 'running' });
           else if (block.kind === 'loan') add({ id: id(), who: 'beetle', block, state: 'open' });
+          else if (block.kind === 'save') add({ id: id(), who: 'beetle', block, state: 'open' });
           else if (block.kind === 'receive') add({ id: id(), who: 'beetle', block });
           else add({ id: id(), who: 'beetle', block });
         }
@@ -290,8 +296,16 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
     [land],
   );
 
+  const putAway = useCallback(
+    (turnId: string, panel: Panel, saved: { amount: number; goalId: string; name: string }) => {
+      setTurns(list => list.map(x => (x.id === turnId && x.who === 'beetle' && x.block.kind === 'save' ? { ...x, state: 'done' as const, saved } : x)));
+      land(panel);
+    },
+    [land],
+  );
+
   const offer = useCallback(
-    (you: string, text: string, block: { kind: 'ask'; ask: AskPanel } | { kind: 'receive' } | { kind: 'loan' }) => {
+    (you: string, text: string, block: Offer) => {
       add({ id: id(), who: 'you', text: you });
       setTimeout(
         () => {
@@ -300,6 +314,7 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
             add({ id: id(), who: 'beetle', block, state: 'open' });
             keep({ need: 'ask', ask: block.ask });
           } else if (block.kind === 'loan') add({ id: id(), who: 'beetle', block, state: 'open' });
+          else if (block.kind === 'save') add({ id: id(), who: 'beetle', block, state: 'open' });
           else add({ id: id(), who: 'beetle', block });
         },
         still ? 0 : BEAT,
@@ -339,8 +354,8 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
   }, [keep]);
 
   return useMemo(
-    () => ({ turns, thinking, pending, ask, ready, confirm, edit, fill, settleAsk, takeLoan, offer, answer, preload, open, note, load, reset }),
-    [turns, thinking, pending, ask, ready, confirm, edit, fill, settleAsk, takeLoan, offer, answer, preload, open, note, load, reset],
+    () => ({ turns, thinking, pending, ask, ready, confirm, edit, fill, settleAsk, takeLoan, putAway, offer, answer, preload, open, note, load, reset }),
+    [turns, thinking, pending, ask, ready, confirm, edit, fill, settleAsk, takeLoan, putAway, offer, answer, preload, open, note, load, reset],
   );
 }
 
@@ -374,6 +389,8 @@ export function transcriptOf(turns: Turn[]): { who: 'you' | 'beetle'; text: stri
       out.push({ who: 'beetle', text: `[Ask panel ${a.id} for ${a.tool}: ${filled || 'nothing filled'}; missing ${askMissing(a).join(', ') || 'nothing'} — ${state}]` });
     } else if (t.block.kind === 'receive') out.push({ who: 'beetle', text: "[The owner's account details card: name, Beetle, the account number and the $tag, to copy or share]" });
     else if (t.block.kind === 'loan') out.push({ who: 'beetle', text: `[Loan card: ${'state' in t && t.state === 'done' ? 'taken' : 'up, the owner picking how much and for how long'}]` });
+    else if (t.block.kind === 'save')
+      out.push({ who: 'beetle', text: `[Save card: ${'saved' in t && t.saved ? `${naira(t.saved.amount)} put into ${t.saved.name}` : 'up, the owner picking a goal and how much to put in it'}]` });
     else if (t.block.kind === 'panel') {
       const p = t.block.panel;
       const state = 'state' in t && t.state === 'done' ? 'confirmed by the owner' : 'up, waiting for the owner';

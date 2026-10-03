@@ -21,7 +21,9 @@ export type Turn =
   /** the account's own details, to copy and share */
   | { id: string; who: 'beetle'; block: { kind: 'receive' } }
   /** what can be borrowed: open to pick, done once it is taken */
-  | { id: string; who: 'beetle'; block: { kind: 'loan' }; state: 'open' | 'done'; taken?: { amount: number; days: number } };
+  | { id: string; who: 'beetle'; block: { kind: 'loan' }; state: 'open' | 'done'; taken?: { amount: number; days: number } }
+  /** money put into a goal: open to pick, done once it is in */
+  | { id: string; who: 'beetle'; block: { kind: 'save'; amount?: number; goalId?: string }; state: 'open' | 'done'; saved?: { amount: number; goalId: string; name: string } };
 
 export type ReceiptCard = {
   rowId: string;
@@ -50,4 +52,5 @@ export const turn = {
   receipt: (card: ReceiptCard): Turn => ({ id: id(), who: 'beetle', block: { kind: 'receipt', card } }),
   receive: (): Turn => ({ id: id(), who: 'beetle', block: { kind: 'receive' } }),
   loan: (): Turn => ({ id: id(), who: 'beetle', block: { kind: 'loan' }, state: 'open' }),
+  save: (amount?: number, goalId?: string): Turn => ({ id: id(), who: 'beetle', block: { kind: 'save', amount, goalId }, state: 'open' }),
 };

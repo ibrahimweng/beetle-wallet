@@ -1065,6 +1065,17 @@ Activities and Settings, and on the swipe back from the edge)
       code, and the phone's crash report (Settings, Privacy & Security,
       Analytics Data, Expo Go) says where.
 
+- [x] The cause, from the first update with the keeper in it (the owner's
+      phone: "[Worklets] Cannot copy value of type KeyboardImpl"): the chats
+      drawer's gestures, since Round 9, put the keyboard away by calling
+      React Native's Keyboard from the animation thread, which cannot take
+      it. Touching the drawer's edge stopped the app; in Round 13 the swipe
+      belongs to the whole of home, so home stopped as it opened. They now
+      call a function of the drawer's own through runOnJS, and the test of
+      the animation thread checks what it reaches for as well as what it
+      calls: nothing from a package but Reanimated's, nothing made with
+      new, no router.
+
 **Found on the way**
 
 - [x] An amount chip (All of it among them) set the figure, then the ruler

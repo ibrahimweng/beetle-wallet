@@ -61,6 +61,12 @@ const clamp = (v: number) => {
   return Math.min(1, Math.max(0, v));
 };
 
+/* The keyboard put away, from a gesture: through a function of this file,
+   since a gesture runs on the animation thread and cannot take React
+   Native's Keyboard there (it stopped the app on the phone: "Cannot copy
+   value of type KeyboardImpl"). */
+const putKeyboardAway = () => Keyboard.dismiss();
+
 /** How far in from the left a swipe can start and bring the drawer in: a
     thumb's width, as react-navigation's drawers allow, since on a phone a
     swipe "from the edge" lands well inside the glass, not on the light. */
@@ -81,7 +87,7 @@ export function useChatsSwipe(d: SharedValue<number>, width: number, onOpen: () 
       .activeOffsetX(10)
       .failOffsetY([-12, 12])
       .onStart(() => {
-        runOnJS(Keyboard.dismiss)();
+        runOnJS(putKeyboardAway)();
         runOnJS(swipes.start)();
       })
       .onUpdate(e => {
@@ -111,7 +117,7 @@ export function ChatsEdge({
     () =>
       Gesture.Tap().onEnd(() => {
         d.value = withSpring(1, SPRING);
-        runOnJS(Keyboard.dismiss)();
+        runOnJS(putKeyboardAway)();
         runOnJS(onOpen)();
       }),
     [d, onOpen],

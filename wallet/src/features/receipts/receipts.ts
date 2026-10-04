@@ -9,6 +9,16 @@ import type { LedgerRow } from '../home/account';
 import { fromEveryday } from '../home/everyday';
 import { usdFull } from '../dollars/dollars';
 
+/** Where a transfer went, as its receipt says it: the bank and the number
+    the line carries; otherwise what the line's own words begin with, for a
+    settled one (a line still on its way, that did not go or came back
+    begins with that instead, so it says nothing here and the view that
+    shows it fills the bank in from the people the day knows). */
+function toNote(row: LedgerRow): string | undefined {
+  if (row.person) return `${row.person.bank} · ${groupAccount(row.person.number)}`;
+  return row.status === 'done' ? (row.detail.split(' · ')[0] ?? row.detail) : undefined;
+}
+
 export type Field = [label: string, value: string, note?: string];
 
 export type Receipt = {
@@ -306,7 +316,7 @@ export function receiptFor(row: LedgerRow, ctx: { account: Account; balanceNow: 
       line: `Sent to ${row.name}`,
       status: row.status === 'done' ? 'Successful' : row.status === 'pending' ? 'On its way' : row.status === 'failed' ? 'Did not go' : 'Came back',
       fields: [
-        ['To', row.name, row.person ? `${row.person.bank} · ${groupAccount(row.person.number)}` : (row.detail.split(' · ')[0] ?? row.detail)],
+        ['To', row.name, toNote(row)],
         from,
         ...(row.reference ? [['Narration', row.reference] as Field] : []),
         ['Amount', nairaFull(amount)],

@@ -10,12 +10,12 @@
    goals it says how many and how far along they are together. Loan is what
    could be borrowed. Card is the virtual card by its last four, or Frozen.
    Services is laid out like the other three — a glyph at the top left, a
-   word and a figure at the foot — with Airtime, Bills and Data to swipe
-   through inside it: the glyph and the name slide together, three small
-   dots at the top right say which is showing, a tap anywhere on it opens
-   that one, and a tap on the word Services opens All services. A swipe that
-   starts on it is the card's, not the pages'. Each card leads to its page,
-   lit while the page comes. */
+   word and a figure at the foot — and shows All services until it is
+   swiped, then Bills, Airtime and Data: the glyph and the name slide
+   together, four small dots at the top right say which is showing, a tap
+   anywhere on it opens that one, and a tap on the word Services opens All
+   services. A swipe that starts on it is the card's, not the pages'. Each
+   card leads to its page, which slides in over home. */
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -172,12 +172,15 @@ function Savings({ w, list }: { w: number; list: Standing[] }) {
   );
 }
 
-/* ---- Services: three to swipe through inside the card ---- */
+/* ---- Services: All services first, then three to swipe through inside the card ---- */
 
 type Item = { glyph: IconName; tone: string; label: string; sub: string; to: string };
+/** All services is what the card shows until it is swiped (the owner's word,
+    Round 13); then Bills, Airtime and Data, in the owner's order. */
 const ITEMS: Item[] = [
-  { glyph: 'airtime', tone: colour.accent, label: 'Airtime', sub: 'For any network', to: '/buy?kind=airtime' },
+  { glyph: 'grid', tone: colour.ink, label: 'All services', sub: 'Bills, airtime, data and more', to: '/services' },
   { glyph: 'power', tone: colour.warn, label: 'Bills', sub: 'Light, TV and more', to: '/bills' },
+  { glyph: 'airtime', tone: colour.accent, label: 'Airtime', sub: 'For any network', to: '/buy?kind=airtime' },
   { glyph: 'data', tone: colour.violet, label: 'Data', sub: 'A plan for any line', to: '/buy' },
 ];
 /** How the three settle, and how much a pull past either end gives. */
@@ -227,7 +230,7 @@ function Services({ w }: { w: number }) {
         {/* the one showing, anywhere on the card */}
         <Tap
           accessibilityRole="button"
-          accessibilityLabel={`Services: ${item.label}`}
+          accessibilityLabel={item.to === '/services' ? 'All services' : `Services: ${item.label}`}
           accessibilityHint="Swipe for the others"
           onPress={() => router.push(item.to as never)}
           onPressIn={press.onPressIn}
@@ -272,7 +275,7 @@ function Services({ w }: { w: number }) {
   );
 }
 
-/* The three small dots at the top right, level with the glyph: the one
+/* The four small dots at the top right, level with the glyph: the one
    showing long and dark, the others round and pale, following the strip as
    it moves. */
 function Dots({ x, step }: { x: SharedValue<number>; step: number }) {

@@ -177,7 +177,7 @@ export function Send() {
     const row = rowFrom(move, balance, 17 + moves.length);
     addMove(row);
     setGuard(false);
-    router.replace(`/receipt/${row.id}`);
+    router.push(`/receipt/${row.id}?paid=1`);
   };
 
   useFoot({

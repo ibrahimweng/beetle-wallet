@@ -1,22 +1,17 @@
 /* Continuity between screens.
 
-   Fuse hardly ever pushes a page: the thing you tapped stays where it is,
-   the rest recedes, and the next thing comes. Where Beetle does need a
-   page, this keeps the thread without making a show of it. The thing you
-   tapped lights and stays lit; the screen it is on recedes — soft, dim, a
-   touch smaller — and the next screen arrives whole, its title with the
-   rest of it, out of the same blur: nothing flies across from the button,
-   nothing grows. On the way back the screen comes forward again and the
-   thing you left from pulses once, so the eye finds where it was.
-
-   A departure records where it started (`setOrigin`), and the screen left
-   behind pulses the thing by its id (`useDeparture`). An origin older than a
-   few seconds is stale: that screen was opened some other way. */
-import React, { ReactNode, RefObject, createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+   Pages come and go with the phone's own sliding page movement (the stack
+   in app/(app)/_layout.tsx), and that slide is the whole of it: nothing
+   here moves a page any more. The thing tapped is not lit and the screen
+   it is on does not recede (Round 13, at the owner's word: "just use the
+   regular page sliding animation for the pages"). What stays is the
+   bookkeeping a few screens read: where a departure started (`setOrigin`,
+   `takeOrigin`), and where a view is on the window (`measure`). The hooks
+   keep their shapes so the screens that call them need not change. */
+import React, { ReactNode, RefObject, createContext, useCallback, useContext, useMemo, useRef } from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
-import Animated, { SharedValue, interpolateColor, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
-import { away, blurred, motion, standard, useStill } from './motion';
+import { SharedValue, useSharedValue } from 'react-native-reanimated';
 
 export type Rect = { x: number; y: number; w: number; h: number };
 export type Origin = Rect & { id: string; words?: string; at: number };
@@ -60,23 +55,9 @@ export const recedeCurrent = () => current?.recede() ?? Promise.resolve();
 
 export function JourneyProvider({ children }: { children: ReactNode }) {
   const parent = useContext(Ctx);
-  const still = useStill();
   const t = useSharedValue(0);
-  const recede = useCallback(
-    () =>
-      new Promise<void>(done => {
-        if (still) return done();
-        t.value = withTiming(1, { duration: motion.leave, easing: away });
-        setTimeout(done, motion.leave - 60);
-      }),
-    [still, t],
-  );
-  /* back here: forward again, out of the soft */
-  useFocusEffect(
-    useCallback(() => {
-      if (t.value > 0) t.value = still ? 0 : withTiming(0, { duration: motion.enter, easing: standard });
-    }, [still, t]),
-  );
+  /* the slide is the movement: nothing recedes */
+  const recede = useCallback(() => Promise.resolve(), []);
   const value = useMemo(() => ({ recede, t }), [recede, t]);
   /* the screen with focus is the one the foot recedes */
   useFocusEffect(
@@ -93,52 +74,35 @@ export function JourneyProvider({ children }: { children: ReactNode }) {
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
-/** The style a screen's content wears as it recedes: dimmer, softer, a touch smaller. */
-export function useRecession() {
-  const t = useContext(Ctx)?.t;
-  return useAnimatedStyle(() => {
-    const v = t ? t.value : 0;
-    return { opacity: 1 - v * 0.55, transform: [{ scale: 1 - v * 0.03 }], ...blurred(v * 6) };
-  });
+/** What a screen's content wore as it receded. Nothing now: the page slides away whole. */
+export function useRecession(): StyleProp<ViewStyle> {
+  return null;
 }
 
 /* ---- leaving from a thing ---- */
 
-const WASH_OFF = 'rgba(0, 0, 0, 0)';
-const WASH_ON = 'rgba(0, 0, 0, 0.05)';
-
 /** A thing that leads to a screen. Put `ref` and `onPress` on the tappable,
-    and `wash` as its first child: pressed, it lights — a soft rounded wash
-    a little wider than the thing, never a hard-edged box — and stays lit
-    while the screen recedes, then the screen it leads to is pushed; when
-    that screen is left, it pulses once. With no `to` it only pulses.
-    `lit` is the wash's own style, for a thing that draws its wash itself. */
+    and `wash` as its first child. Pressed, the screen it leads to slides in
+    at once; the thing's own press is all the answer the tap gets (Round 13:
+    no wash that stays lit, no pulse on the way back). With no `to` it does
+    nothing. `lit` is the wash's style, for a thing that draws its wash
+    itself; it stays clear. */
 export function useDeparture({ id, to, words, replace = false, anchor }: { id: string; to?: string; words?: string; replace?: boolean; anchor?: RefObject<View | null> }) {
   const ref = useRef<View>(null);
   const router = useRouter();
-  const still = useStill();
-  const journey = useContext(Ctx);
-  const lit = useSharedValue(0);
-  useFocusEffect(
-    useCallback(() => {
-      if (!pulseFor(id) || still) return;
-      lit.value = 1;
-      lit.value = withDelay(160, withTiming(0, { duration: 700, easing: away }));
-    }, [id, still, lit]),
-  );
-  const litStyle = useAnimatedStyle(() => ({ backgroundColor: interpolateColor(lit.value, [0, 1], [WASH_OFF, WASH_ON]) }));
   /* testID "wash": the Figma check steps over it when it walks into a row's children */
-  const wash = <Animated.View pointerEvents="none" testID="wash" style={[WASH, litStyle]} />;
-  const onPress = useCallback(async () => {
+  const wash = <View pointerEvents="none" testID="wash" style={WASH} />;
+  const onPress = useCallback(() => {
     if (!to) return;
-    const rect = await measure(anchor ?? ref);
-    setOrigin({ id, ...rect, words, at: Date.now() });
-    if (!still) lit.value = withTiming(1, { duration: motion.press });
-    await (journey ? journey.recede() : recedeCurrent());
+    /* where it started, for a screen that says where it came from; measured after the push so the tap is never held up */
+    setOrigin({ id, x: 0, y: 0, w: 0, h: 0, words, at: Date.now() });
     if (replace) router.replace(to as never);
     else router.push(to as never);
-  }, [to, id, words, replace, still, lit, journey, router, anchor]);
-  return { ref, onPress, wash, lit: litStyle };
+    void measure(anchor ?? ref).then(rect => {
+      if (origin?.id === id) origin = { ...origin, ...rect };
+    });
+  }, [to, id, words, replace, router, anchor]);
+  return { ref, onPress, wash, lit: null as StyleProp<ViewStyle> };
 }
 
 /** The wash: 8 wider than the thing either side and 2 above and below, its corners round. */
@@ -146,33 +110,19 @@ const WASH = { position: 'absolute' as const, top: -2, bottom: -2, left: -8, rig
 
 /* ---- arriving ---- */
 
-/** The head of a screen. It arrives the way the rest of the screen does, and
-    at the same moment: out of a blur, a touch small, then sharp and whole in
-    its place. The title does not travel from the thing that opened the
-    page, or grow from its size — that drew the eye to the movement rather
-    than to the page. `ref` and `onLayout` stay for the views that carry them. */
+/** The head of a screen. It is simply there when the page slides in: no
+    blur, no growing. `ref` and `onLayout` stay for the views that carry them. */
 export function useArrival(_carry = true) {
-  const still = useStill();
-  const t = useSharedValue(still ? 1 : 0);
   const ref = useRef<View>(null);
-  useEffect(() => {
-    if (!still) t.value = withTiming(1, { duration: motion.enter, easing: standard });
-  }, [still, t]);
   const onLayout = useCallback(() => undefined, []);
-  const style = useAnimatedStyle(() => ({
-    opacity: t.value,
-    transform: [{ scale: 1 - (1 - t.value) * motion.shrink }],
-    ...blurred((1 - t.value) * motion.blur),
-  }));
-  return { ref, onLayout, style: style as StyleProp<ViewStyle>, from: null as Origin | null };
+  return { ref, onLayout, style: null as StyleProp<ViewStyle>, from: null as Origin | null };
 }
 
-/** A view that arrives as the head of its screen. */
-export function Arrive({ children, style, carry = true, testID }: { children: ReactNode; style?: StyleProp<ViewStyle>; carry?: boolean; testID?: string }) {
-  const a = useArrival(carry);
+/** A view that is the head of its screen. */
+export function Arrive({ children, style, testID }: { children: ReactNode; style?: StyleProp<ViewStyle>; carry?: boolean; testID?: string }) {
   return (
-    <Animated.View ref={a.ref} onLayout={a.onLayout} style={[style, a.style]} testID={testID}>
+    <View style={style} testID={testID}>
       {children}
-    </Animated.View>
+    </View>
   );
 }

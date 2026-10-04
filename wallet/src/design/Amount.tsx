@@ -285,7 +285,7 @@ function Roll({ char, dir, style, height }: { char: string; dir: { value: number
 
 /* ---- the ruler ---- */
 
-type RulerHandle = { to: (v: number, driven: boolean) => void };
+type RulerHandle = { to: (v: number, set: boolean) => void };
 
 function Ruler({
   pal,
@@ -315,7 +315,8 @@ function Ruler({
   /* where the ruler is: step i sits under the line when x is i gaps along */
   const x = useSharedValue(at * GAP);
   const from = useSharedValue(0);
-  /** 1 while a finger, a fling or a chip moves it: the steps it passes are picks. 0 while it follows a typed figure. */
+  /** 1 while a finger or a fling moves it: the steps it passes are picks. 2 while it glides to a figure already set (a chip, a tick tapped):
+      the figure is that one from the tap, and the steps on the way are not. 0 while it follows a typed figure. */
   const driven = useSharedValue(0);
   const [step, setStep] = useState(at);
   const maxX = last * GAP;
@@ -330,6 +331,14 @@ function Ruler({
     },
     [onPick, end, last, scale],
   );
+  /* a tick tapped: its figure at once, as a chip's is, and the ruler glides to it */
+  const tapped = useRef<(i: number) => void>(() => {});
+  tapped.current = (i: number) => {
+    onPick(Math.min(end, valueAt(i) * scale));
+    if (i === last || i === 0) feel.stop();
+    else feel.tick();
+  };
+  const onTapped = useCallback((i: number) => tapped.current(i), []);
   useAnimatedReaction(
     () => Math.max(0, Math.min(last, Math.round(x.value / GAP))),
     (i, was) => {
@@ -338,11 +347,13 @@ function Ruler({
     [last, onStep],
   );
 
-  /* moved from outside: a chip, a typed figure, or the page setting it */
+  /* moved from outside: a chip, a typed figure, or the page setting it. The figure is already
+     set, so the ruler only glides to it: a step passed on the way is not a pick, or a tap on
+     Confirm while it glides would take that step instead of the figure tapped */
   handle.current = {
-    to(v, byHand) {
+    to(v, set) {
       const target = stepAt(v) * GAP;
-      driven.value = byHand ? 1 : 0;
+      driven.value = set ? 2 : 0;
       if (still) x.value = target;
       else
         x.value = withTiming(target, { duration: 420, easing: settle }, done => {
@@ -353,7 +364,7 @@ function Ruler({
   /* the page changed the amount itself: follow it, without taking it for a pick */
   useEffect(() => {
     const here = Math.min(end, valueAt(Math.max(0, Math.min(last, Math.round(x.value / GAP)))) * scale);
-    if (here === value || driven.value === 1) return;
+    if (here === value || driven.value !== 0) return;
     handle.current?.to(value, false);
   }, [value, last, end, scale]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -384,20 +395,23 @@ function Ruler({
     /* a tap on a tick goes to it */
     const tap = Gesture.Tap().onEnd(e => {
       const i = Math.max(0, Math.min(last, Math.round((x.value + (e.x - width / 2)) / GAP)));
-      driven.value = 1;
+      driven.value = 2;
+      runOnJS(onTapped)(i);
       x.value = withTiming(i * GAP, { duration: 260, easing: settle }, done => {
         if (done) driven.value = 0;
       });
     });
     return Gesture.Exclusive(pan, tap);
-  }, [x, from, driven, maxX, last, width]);
+  }, [x, from, driven, maxX, last, width, onTapped]);
 
   const strip = useAnimatedStyle(() => ({ transform: [{ translateX: width / 2 - x.value }] }));
   const chunk = Math.floor(step / CHUNK);
   const chunks = [chunk - 1, chunk, chunk + 1].filter(c => c >= 0 && c * CHUNK <= last);
   const nudge = (d: number) => {
     const i = Math.max(0, Math.min(last, step + d));
-    handle.current?.to(valueAt(i) * scale, true);
+    const v = Math.min(end, valueAt(i) * scale);
+    onPick(v);
+    handle.current?.to(v, true);
   };
   return (
     <GestureDetector gesture={gesture}>

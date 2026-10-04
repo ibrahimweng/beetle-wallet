@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Constants from 'expo-constants';
-import { Arrive, Card, ConfirmSheet, Icon, Meta, Row, Screen, SectionLabel, SettingRow, Tap, Title, colour, toast } from '../../design';
+import { Card, ConfirmSheet, HeadTitle, Icon, Meta, Row, Screen, SectionLabel, SettingRow, Tap, colour, toast } from '../../design';
 import { useFoot } from '../more/Foot';
 import { useApp } from '../onboarding/store';
 import { askHome } from '../more/More';
@@ -50,13 +50,7 @@ export function Settings() {
 
   return (
     <>
-      <Screen
-        head={
-          <Arrive style={{ marginBottom: 4 }}>
-            <Title>Settings</Title>
-          </Arrive>
-        }
-      >
+      <Screen head={<HeadTitle style={{ marginBottom: 4 }}>Settings</HeadTitle>}>
         <Tap accessibilityRole="button" accessibilityLabel="Get Beetle Plus" onPress={ask('What does Beetle Plus give me?')} testID="plus">
           <Card outline style={s.plus}>
             <View style={s.plusMark}>

@@ -14,7 +14,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Body, Caption, Head, Icon, Label, Meta, Pane, Row, Sheet, Tap, colour, dark, toast } from '../../design';
+import { Body, Caption, Head, Icon, Label, Meta, Row, Sheet, Tap, colour, dark, toast } from '../../design';
 import { groupMeter, groupPhoneNumber, reader, type Photo, type RequestReading, type TopupReading } from '../../services';
 import { FoundSheet, requestDraft } from '../request';
 import { TopupSheet } from '../data/TopupSheet';
@@ -199,7 +199,7 @@ export function Scan() {
           }}
         />
       ) : null}
-      <Pane style={s.column}>
+      <View style={s.column}>
         {/* the frame's head: close at the left, the light at the right, 40 discs on a 44 row 56 down */}
         <View style={s.top} testID="scan-top">
           <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={back} style={s.disc40}>
@@ -290,7 +290,7 @@ export function Scan() {
         <Caption style={{ color: dark.textSoft, marginTop: 20, textAlign: forBill ? 'left' : 'center' }} testID="scan-caption">
           {caption}
         </Caption>
-      </Pane>
+      </View>
       {choosing ? (
         <Sheet onDismiss={() => setChoosing(false)} testID="samples">
           <Head>A sample photo</Head>

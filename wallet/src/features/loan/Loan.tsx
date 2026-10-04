@@ -81,7 +81,7 @@ export function Loan() {
       unread: true,
     });
     setGuard(false);
-    router.replace(`/receipt/${row.id}`);
+    router.push(`/receipt/${row.id}?paid=1`);
   };
 
   useFoot({ kind: 'slide', label: 'Slide to take', amount: naira(amount), disabled: amount < LOAN.least || !setup.done, onSlide: slide, veil: guard ? 'away' : undefined });
@@ -89,7 +89,7 @@ export function Loan() {
   const payments = `${countWord(cost.payments)} payment${cost.payments === 1 ? '' : 's'} of`;
   return (
     <>
-      <Screen head={<PageHead lead title="Borrow" sub={`Up to ${naira(LOAN.most)}, paid back monthly`} />}>
+      <Screen frost head={<PageHead lead title="Borrow" sub={`Up to ${naira(LOAN.most)}, paid back monthly`} />}>
         <View style={s.card} testID="loan-card">
           {/* how much: the first thing, picked where it is */}
           <View style={s.picker} testID="loan-amount">

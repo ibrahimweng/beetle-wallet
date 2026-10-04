@@ -1,37 +1,39 @@
-/* One foot for the whole app, over the stack, the way Fuse keeps its own.
-   On Home, Activities and Settings it is the bar: Home, Activities and
-   Settings as bare glyphs at the left, the black plus at the right, on a
-   white surface, what scrolls under it fading into its white (no shadow:
-   see DESIGN.md). It
-   stays under the open chat too — its white going bare as the card comes
-   down to just over the glyphs — so there is always a way round the app.
-   On any other page it becomes Back beside the page's one button, or Back
-   and Slide to send, or Back alone: Back is always at the bottom left, and
-   no page but home carries an ask bar. The change is one movement: the
-   plus scales away, the three glyphs fade as the button comes, and Back
-   slides in from the left edge; on the way back it runs in reverse. Each
-   screen says what its foot holds (`useFoot`), and the foot morphs to it
-   when that screen has focus; a screen that says nothing has none. More,
-   up out of the plus, lives here too, since the plus does. The dock's
-   numbers are the frames': 104 tall, the row 56 and 24 above and below,
-   20 in from either side, Back 44 and 12 clear of the button, the button
-   56; the slide is 60 tall, as the Send money frame draws it. Home,
-   Activities and Settings are three pages of one screen (see features/
-   tabs): the bar is drawn once over all three, its glyphs turn the pages,
-   and the page showing is the one whose foot is said. */
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Keyboard, Platform, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
-import { useFocusEffect, useNavigation, usePathname, useRouter } from 'expo-router';
-import { openTab, tabs, useHoldPages, useTab, type Tab } from '../tabs';
+/* The foot of a page, drawn inside the page so it slides in and out with it
+   (Round 13: every page comes and goes with the phone's own sliding
+   movement, and the foot is part of the page, following the finger on the
+   swipe back, where it used to stay put and change shape).
+
+   On Home, Activities and Settings it is the bar: the three glyphs in a
+   rounded pill of frosted white glass that hugs them, 12 of padding and no
+   outline, and the black plus beside it. On any other page it is Back, in
+   a frosted white circle, beside the page's one button, or beside Slide to
+   send, or Back alone: Back is always at the bottom left, and no page but
+   home carries an ask bar. There is no white under either: a soft blur
+   (design/Glass.tsx) sits behind the foot instead, so what scrolls under it
+   softens rather than being cut, and a white page stays white.
+
+   Each page says what its foot holds (`useFoot`) and the stack draws it
+   (`FootScope`, around every screen in app/(app)/_layout.tsx); a page that
+   says nothing has none. Home, Activities and Settings are three pages of
+   one screen (see features/tabs): the bar is drawn once over all three,
+   its glyphs turn the pages, and the page showing is the one whose foot is
+   said. More, up out of the plus, lives here too, since the plus does. The
+   numbers are the frames': the row 56 with 24 above and below, 20 in from
+   either side, 12 between Back and the button; the slide is 60 tall, as
+   the Send money frame draws it. */
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Keyboard, Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useIsFocused, useRouter } from 'expo-router';
+import { tabs, useHoldPages, useTab, type Tab } from '../tabs';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { SharedValue, runOnJS, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
-import { ActionButton, Body, Button, Icon, Row, Tap, blurred, colour, frame, keys, motion, settle, useStill, type ButtonSize, type ButtonTone } from '../../design';
+import { ActionButton, Body, Button, Icon, Row, Tap, colour, frame, keys, motion, settle, useStill, type ButtonSize, type ButtonTone } from '../../design';
+import { Glass, SoftBlur } from '../../design/Glass';
 import type { IconName } from '../../icons';
 import { More, moreTo, type MoreItem } from './More';
-import { BlurredFade } from '../home/Frost';
 
 export const BAR_H = 56 + 2 * frame.dockPad;
-/** the fade over the page above the foot */
+/** How far the soft blur reaches up over the page, past the foot's own row. */
 const FADE = 40;
 
 /** What a screen's own overlay does to the foot: under a peek's blur it
@@ -39,7 +41,7 @@ const FADE = 40;
 export type Veil = 'recede' | 'away';
 
 export type FootSpec =
-  /** the three pages: the bar. `open` is home's card: its white goes bare as the card opens, so the chat can come down to just over the glyphs */
+  /** the three pages: the bar. `open` is home's card: the blur under the bar goes as the card opens, so the chat can come down to just over the glyphs */
   | { kind: 'bar'; open?: SharedValue<number>; onPick?: (item: MoreItem) => void; veil?: Veil }
   /** a page with nothing of its own to do at its foot: Back alone */
   | { kind: 'back'; veil?: Veil; onBack?: () => void }
@@ -59,24 +61,53 @@ export type FootSpec =
   | { kind: 'slide'; label: string; amount: string; onSlide: () => void; disabled?: boolean; veil?: Veil; onBack?: () => void }
   | { kind: 'none' };
 
-/* ---- what the screen with focus declared ---- */
-
-type Held = { path: string; spec: FootSpec };
 const NONE: FootSpec = { kind: 'none' };
-let held: Held = { path: '', spec: NONE };
+
+/* ---- what each page says ---- */
+
+type Scope = { spec: FootSpec; set: (s: FootSpec) => void; listeners: Set<() => void> };
+const ScopeContext = createContext<Scope | null>(null);
+
 let moreWanted = false;
-const listeners = new Set<() => void>();
-const tell = () => listeners.forEach(l => l());
+const moreListeners = new Set<() => void>();
 
 export const foot = {
   /** More, from outside the foot: the lab opens home with it up */
   openMore() {
     moreWanted = true;
-    tell();
+    moreListeners.forEach(l => l());
   },
 };
 
-/** The shape of a spec, without what it does: a change of it is worth pushing. */
+/** One screen's foot: what it says, drawn over the screen, inside it. The
+    stack puts one round every screen. */
+export function FootScope({ children }: { children: ReactNode }) {
+  const scope = useMemo<Scope>(() => {
+    const sc: Scope = {
+      spec: NONE,
+      listeners: new Set(),
+      set(next) {
+        sc.spec = next;
+        sc.listeners.forEach(l => l());
+      },
+    };
+    return sc;
+  }, []);
+  /* on the web the stack would let a long page grow past the window for the
+     browser to scroll; a page here scrolls inside itself, under its head and
+     over its foot, so it is held to the window */
+  const { height } = useWindowDimensions();
+  return (
+    <ScopeContext.Provider value={scope}>
+      <View style={Platform.OS === 'web' ? { height, overflow: 'hidden' } : { flex: 1 }}>
+        {children}
+        <FootView scope={scope} />
+      </View>
+    </ScopeContext.Provider>
+  );
+}
+
+/** The shape of a spec, without what it does: a change of it is worth drawing again. */
 const shapeOf = (s: FootSpec) => {
   switch (s.kind) {
     case 'bar':
@@ -92,16 +123,16 @@ const shapeOf = (s: FootSpec) => {
   }
 };
 
-/** What a screen's foot holds while it has focus. Callbacks are read at
-    press time, so the spec may be written inline. A page of the three says
-    it only while it is the one showing (`enabled`). */
+/** What a screen's foot holds. Callbacks are read at press time, so the spec
+    may be written inline. A page of the three says it only while it is the
+    one showing (`enabled`). */
 export function useFoot(spec: FootSpec, enabled = true) {
-  const path = usePathname();
-  const navigation = useNavigation();
+  const scope = useContext(ScopeContext);
   const latest = useRef(spec);
   latest.current = spec;
   const shape = shapeOf(spec);
   const push = useCallback(() => {
+    if (!scope) return;
     const s = latest.current;
     let wrapped: FootSpec = s;
     /* Back that closes something on the screen rather than leaving it: read at press time too */
@@ -143,238 +174,160 @@ export function useFoot(spec: FootSpec, enabled = true) {
           : undefined,
       };
     }
-    held = { path, spec: wrapped };
-    tell();
+    scope.set(wrapped);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [path, shape]);
-  /* said as the screen mounts, if it is the one with focus — so the foot
-     morphs as the screen arrives, not after — and again whenever focus
-     returns, or the page it is on comes to be the one showing */
+  }, [scope, shape]);
   useEffect(() => {
-    if (enabled && navigation.isFocused()) push();
-  }, [push, navigation, enabled]);
-  useFocusEffect(
-    useCallback(() => {
-      if (enabled) push();
-    }, [push, enabled]),
-  );
+    if (enabled) push();
+  }, [push, enabled]);
 }
 
 /* ---- the foot itself ---- */
 
 /** How far the foot goes down to be out of the way. */
-const AWAY = BAR_H + 16;
-/** The glyph row: three 44 targets 12 apart, the first 18 in. */
-const PILL_LEFT = 18;
-const PILL_W = 44 * 3 + 12 * 2;
-/** A page's foot: 20 in from either side, Back 44, and 12 clear between Back and the button, so each is its own tap. */
-const PAGE_PAD = 20;
+const AWAY = BAR_H + FADE;
+/** The glyphs' pill: three 32 boxes 12 apart, 12 of padding all round, so 56 tall like the plus. */
+const PILL_PAD = 12;
+const GLYPH_BOX = 32;
+const PILL_W = GLYPH_BOX * 3 + 12 * 2 + PILL_PAD * 2;
+const ROW = 56;
+/** A page's foot: 20 in from either side, Back a 44 circle on the row's middle (the frames' Back), and 12 clear between Back and the button, so each is its own tap. */
+const PAGE_PAD = frame.sidePad;
+const BACK = 44;
 const BACK_GAP = 12;
 
-export function Foot() {
-  const pathname = usePathname();
+function FootView({ scope }: { scope: Scope }) {
+  const [spec, setSpec] = useState<FootSpec>(scope.spec);
+  useEffect(() => {
+    const l = () => setSpec(scope.spec);
+    scope.listeners.add(l);
+    l();
+    return () => {
+      scope.listeners.delete(l);
+    };
+  }, [scope]);
+  if (spec.kind === 'none') return null;
+  return <Drawn spec={spec} />;
+}
+
+function Drawn({ spec }: { spec: Exclude<FootSpec, { kind: 'none' }> }) {
   const router = useRouter();
   const still = useStill();
   const { width: W } = useWindowDimensions();
-  const [cur, setCur] = useState<Held>(held);
   const [more, setMore] = useState(false);
+  const bar = spec.kind === 'bar';
   /* the pages stand still while More is up */
-  useHoldPages('more', more);
+  useHoldPages('more', bar && more);
   useEffect(() => {
+    if (!bar) return undefined;
     const l = () => {
-      setCur({ ...held });
       if (moreWanted) {
         moreWanted = false;
         setMore(true);
       }
     };
-    listeners.add(l);
+    moreListeners.add(l);
+    l();
     return () => {
-      listeners.delete(l);
+      moreListeners.delete(l);
     };
-  }, []);
-  /* the spec of the screen showing; one declared for another screen is
-     stale, and a screen that declares nothing has no foot after a beat */
-  const [spec, setSpec] = useState<FootSpec>(NONE);
-  useEffect(() => {
-    if (cur.path === pathname) {
-      setSpec(cur.spec);
-      return;
-    }
-    const t = setTimeout(() => setSpec(NONE), 200);
-    return () => clearTimeout(t);
-  }, [cur, pathname]);
+  }, [bar]);
 
-  const kind = spec.kind;
-  const page = kind === 'back' || kind === 'button' || kind === 'slide';
-  const hasAction = kind === 'bar';
-  const open = kind === 'bar' ? spec.open : undefined;
-  const veil = kind === 'none' ? undefined : spec.veil;
-  const away = kind === 'none' || veil === 'away';
-
-  /* 0 the bar, 1 a page; 1 where the plus stays; 1 for the slide's extra height; 1 gone */
-  const t = useSharedValue(page ? 1 : 0);
-  const a = useSharedValue(hasAction ? 1 : 0);
-  const sl = useSharedValue(kind === 'slide' ? 1 : 0);
+  const open = spec.kind === 'bar' ? spec.open : undefined;
+  const veil = spec.veil;
+  const away = veil === 'away';
   const hide = useSharedValue(away ? 1 : 0);
   const dim = useSharedValue(veil === 'recede' ? 1 : 0);
-  /* the keyboard's height, and whether it is up: the bar goes down under it, a page's foot rides on it */
-  const kb = useSharedValue(0);
-  const kbOn = useSharedValue(0);
-  const prev = useRef(kind);
-  const hiddenAt = useRef(0);
   useEffect(() => {
-    const from = prev.current;
-    prev.current = kind;
-    if (kind === 'none') hiddenAt.current = Date.now();
-    /* a foot appearing from nothing takes its shape at once; only a change of
-       shape is a movement — and a foot that was gone for a moment between two
-       screens still moves from the one shape to the other */
-    const brief = from === 'none' && Date.now() - hiddenAt.current < 700;
-    const jump = still || (from === 'none' && !brief);
-    const go = (sv: SharedValue<number>, v: number) => {
-      sv.value = jump ? v : withTiming(v, { duration: motion.screen, easing: settle });
-    };
-    if (kind !== 'none') {
-      go(t, page ? 1 : 0);
-      go(a, hasAction ? 1 : 0);
-      go(sl, kind === 'slide' ? 1 : 0);
-    }
     hide.value = still ? (away ? 1 : 0) : withTiming(away ? 1 : 0, { duration: motion.screen, easing: settle });
-  }, [kind, page, hasAction, away, still, t, a, sl, hide]);
+  }, [away, still, hide]);
   /* under a peek's blur the foot recedes with the rest, and comes forward again after */
   useEffect(() => {
     const v = veil === 'recede' ? 1 : 0;
     dim.value = still ? v : withTiming(v, { duration: v ? motion.leave : motion.enter, easing: settle });
   }, [veil, still, dim]);
 
-  /* the glyphs stay through a morph away from them and go once it is done */
-  const [glyphsUp, setGlyphsUp] = useState(!page);
-  useEffect(() => {
-    if (page) {
-      const x = setTimeout(() => setGlyphsUp(false), still ? 0 : motion.screen + 40);
-      return () => clearTimeout(x);
-    }
-    if (kind === 'bar') setGlyphsUp(true);
-    return undefined;
-  }, [page, kind, still]);
-
   /* the keyboard: on iOS, where the window does not shrink for it, a page's
      foot rides up on it; the bar, whose keyboard is always the chat's, goes
      down under it on either phone rather than ride up over the chat */
+  const kb = useSharedValue(0);
+  const kbOn = useSharedValue(0);
   useEffect(() => {
     const ios = Platform.OS === 'ios';
-    const s = Keyboard.addListener(ios ? 'keyboardWillShow' : 'keyboardDidShow', e => {
+    const sh = Keyboard.addListener(ios ? 'keyboardWillShow' : 'keyboardDidShow', e => {
       if (ios) kb.value = withTiming(e.endCoordinates.height, { duration: 220, easing: settle });
       kbOn.value = withTiming(1, { duration: ios ? 220 : 120, easing: settle });
     });
-    const h = Keyboard.addListener(ios ? 'keyboardWillHide' : 'keyboardDidHide', () => {
+    const hd = Keyboard.addListener(ios ? 'keyboardWillHide' : 'keyboardDidHide', () => {
       if (ios) kb.value = withTiming(0, { duration: 220, easing: settle });
       kbOn.value = withTiming(0, { duration: 220, easing: settle });
     });
     return () => {
-      s.remove();
-      h.remove();
+      sh.remove();
+      hd.remove();
     };
   }, [kb, kbOn]);
 
-  const surface = useAnimatedStyle(() => {
-    /* under home's open card the bar's white and its fade go, the glyphs staying put */
-    const bare = open ? Math.min(1, Math.max(0, (open.value - 0.6) / 0.4)) * (1 - t.value) : 0;
-    return {
-      transform: [{ translateY: hide.value * AWAY + kbOn.value * (1 - t.value) * AWAY - kb.value * t.value }],
-      backgroundColor: `rgba(255,255,255,${1 - bare})`,
-      borderTopLeftRadius: 32 * (1 - t.value),
-      borderTopRightRadius: 32 * (1 - t.value),
-      opacity: 1 - dim.value * 0.55,
-      ...blurred(dim.value * 6),
-    };
-  }, [open]);
-  const backStyle = useAnimatedStyle(() => ({
-    opacity: t.value,
-    transform: [{ translateX: -64 * (1 - t.value) }],
+  const whole = useAnimatedStyle(() => ({
+    transform: [{ translateY: hide.value * AWAY + (bar ? kbOn.value * AWAY : -kb.value) }],
+    /* dimmed, not blurred: a filter here would stop the glass in it from seeing the page behind */
+    opacity: 1 - dim.value * 0.55,
   }));
-  const boxStyle = useAnimatedStyle(() => {
-    const left = PAGE_PAD + 44 + BACK_GAP;
-    const width = W - left - PAGE_PAD - a.value * (56 + 8);
-    const height = 44 + (12 + 4 * sl.value) * t.value;
-    return {
-      left: PILL_LEFT + (left - PILL_LEFT) * t.value,
-      width: PILL_W + (width - PILL_W) * t.value,
-      height,
-      top: frame.dockPad + (56 - height) / 2,
-    };
-  });
-  /* what scrolls under the foot fades into its white, and blurs as it does, instead of being cut by its
-     edge — on a page and on the bar alike, but not under home's open card, which comes down over the bar's top */
-  const fadeK = useDerivedValue(() => {
+  /* the blur under the foot: not under home's open card, which comes down over the bar's top, and not while the foot is down out of the way */
+  const softK = useDerivedValue(() => {
     const opening = open ? Math.min(1, open.value * 2.5) : 0;
-    /* and none when the foot goes down out of the way: the fade sits above it, so going down alone leaves it showing */
-    return (t.value + (1 - t.value) * (1 - opening)) * (1 - hide.value);
+    return (1 - opening) * (1 - hide.value);
   }, [open]);
-  const glyphsStyle = useAnimatedStyle(() => ({ opacity: 1 - t.value }));
-  const buttonStyle = useAnimatedStyle(() => ({ opacity: t.value }));
-  const plusStyle = useAnimatedStyle(() => {
-    const v = 1 - t.value * (1 - a.value);
-    return { opacity: v, transform: [{ scale: 0.001 + v }] };
-  });
 
+  const live = !veil;
   const pick = (item: MoreItem) => {
     setMore(false);
-    const s = spec;
-    if (s.kind === 'bar' && s.onPick) s.onPick(item);
+    if (spec.kind === 'bar' && spec.onPick) spec.onPick(item);
     else moreTo(router, item);
   };
-  const live = kind !== 'none' && !veil;
+  const slide = spec.kind === 'slide';
+  const onBack = spec.kind !== 'bar' ? spec.onBack : undefined;
+  const boxH = slide ? 60 : ROW;
+  const boxLeft = PAGE_PAD + BACK + BACK_GAP;
 
   return (
     <>
       {/* clipped at the window's edge: a foot gone down out of the way must not lengthen the page under it */}
       <View style={[StyleSheet.absoluteFill, { overflow: 'hidden' }]} pointerEvents="box-none">
-        <Animated.View style={[s.surface, surface]} pointerEvents={live ? 'box-none' : 'none'} testID={kind === 'bar' ? 'bar' : 'foot'}>
-          <View style={s.fade} pointerEvents="none">
-            <BlurredFade
-              height={FADE}
-              k={fadeK}
-              colours={['rgba(255,255,255,0)', 'rgba(255,255,255,0.7)', 'rgba(255,255,255,0.94)', colour.surface, colour.surface]}
-              locations={[0, 0.45, 0.72, 0.9, 1]}
-            />
-          </View>
-          {/* each part says for itself whether it takes a touch: on the web a part set to take one would still take it under a veiled foot */}
-          <Animated.View style={[s.back, backStyle]} pointerEvents={page && live ? 'auto' : 'none'}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Back"
-              onPress={() => (spec.kind !== 'bar' && spec.kind !== 'none' && spec.onBack ? spec.onBack() : router.back())}
-              style={s.backHit}
-            >
-              <Icon name="back" size={22} />
-            </Pressable>
-          </Animated.View>
-          <Animated.View style={[s.box, boxStyle]} pointerEvents={live ? 'box-none' : 'none'}>
-            {glyphsUp ? (
-              <Animated.View style={[StyleSheet.absoluteFill, glyphsStyle]} pointerEvents={kind === 'bar' && live ? 'auto' : 'none'}>
-                <Glyphs here={pathname === '/home'} />
-              </Animated.View>
-            ) : null}
-            {kind === 'button' ? (
-              <Animated.View style={[StyleSheet.absoluteFill, buttonStyle]}>
-                <Button label={spec.label} disabled={spec.disabled} onPress={spec.onPress} tone={spec.tone} leading={spec.leading} size={spec.size} />
-              </Animated.View>
-            ) : null}
-            {kind === 'slide' ? (
-              <Animated.View style={[StyleSheet.absoluteFill, buttonStyle]}>
-                <Slide label={spec.label} amount={spec.amount} disabled={!!spec.disabled} onSlide={spec.onSlide} />
-              </Animated.View>
-            ) : null}
-          </Animated.View>
-          <Animated.View style={[s.plus, plusStyle]} pointerEvents={hasAction && live ? 'auto' : 'none'}>
-            <ActionButton onPress={() => setMore(true)} label="More" />
-          </Animated.View>
+        <SoftBlur side="bottom" height={BAR_H + FADE} k={softK} testID="foot-fade" />
+        <Animated.View style={[s.surface, whole]} pointerEvents={live ? 'box-none' : 'none'} testID={bar ? 'bar' : 'foot'}>
+          {bar ? (
+            <>
+              <Glass style={s.pill} testID="bar-pill">
+                <Glyphs />
+              </Glass>
+              <View style={s.plus} pointerEvents={live ? 'auto' : 'none'}>
+                <ActionButton onPress={() => setMore(true)} label="More" />
+              </View>
+            </>
+          ) : (
+            <>
+              <Glass style={s.back}>
+                <Tap accessibilityRole="button" accessibilityLabel="Back" onPress={() => (onBack ? onBack() : router.back())} scale={0.92} style={s.backHit}>
+                  <Icon name="back" size={22} />
+                </Tap>
+              </Glass>
+              {spec.kind === 'button' ? (
+                <View style={[s.box, { left: boxLeft, width: W - boxLeft - PAGE_PAD, height: boxH, top: frame.dockPad + (ROW - boxH) / 2 }]}>
+                  <Button label={spec.label} disabled={spec.disabled} onPress={spec.onPress} tone={spec.tone} leading={spec.leading} size={spec.size} />
+                </View>
+              ) : null}
+              {slide ? (
+                <View style={[s.box, { left: boxLeft, width: W - boxLeft - PAGE_PAD, height: boxH, top: frame.dockPad + (ROW - boxH) / 2 }]}>
+                  <Slide label={spec.label} amount={spec.amount} disabled={!!spec.disabled} onSlide={spec.onSlide} />
+                </View>
+              ) : null}
+            </>
+          )}
         </Animated.View>
       </View>
       {/* More sits outside the clip: a browser will not blur through a clipped box to the page behind it */}
-      {more ? <More onPick={pick} onClose={() => setMore(false)} /> : null}
+      {bar && more ? <More onPick={pick} onClose={() => setMore(false)} /> : null}
     </>
   );
 }
@@ -383,19 +336,19 @@ export function Foot() {
    one solid. They are sized to what they draw rather than to their boxes:
    the house and the clock each fill 19 of their 24, the gear nearly all of
    it, so the gear is drawn smaller for the three to look one size. A tap
-   turns the pages to its own; from anywhere else it goes back to them
-   first. The glyph of the page already showing is heard too (see
-   `tabs.again`): Home tapped with the chat open closes it. */
-function Glyphs({ here }: { here: boolean }) {
-  const router = useRouter();
+   turns the pages to its own. The glyph of the page already showing is
+   heard too (see `tabs.again`): Home tapped with the chat open closes it.
+   Each box is 32 in the pill, and takes a touch 6 past it all round. */
+function Glyphs() {
   const tab = useTab();
+  const focused = useIsFocused();
   const go = (t: Tab) => {
-    if (!here) openTab(router, t);
-    else if (t === tabs.get()) tabs.again(t);
+    if (!focused) return;
+    if (t === tabs.get()) tabs.again(t);
     else tabs.go(t);
   };
   const item = (glyph: IconName, size: number, label: string, t: Tab) => (
-    <Tap accessibilityRole="button" accessibilityLabel={label} aria-selected={tab === t} onPress={() => go(t)} scale={0.9} style={s.item} testID={`glyph-${t}`}>
+    <Tap accessibilityRole="button" accessibilityLabel={label} aria-selected={tab === t} onPress={() => go(t)} scale={0.9} style={s.item} hitSlop={6} testID={`glyph-${t}`}>
       <Icon name={glyph} size={size} colour={tab === t ? colour.ink : colour.textTertiary} />
     </Tap>
   );
@@ -475,14 +428,15 @@ const s = StyleSheet.create({
     bottom: 0,
     height: BAR_H,
   },
-  /* 40 of fade over the page, above the foot's own white */
-  fade: { position: 'absolute', left: 0, right: 0, top: -FADE, height: FADE },
-  back: { position: 'absolute', left: PAGE_PAD, top: frame.dockPad + 6, width: 44, height: 44 },
-  backHit: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  /* the glyphs' pill: frosted white, round at the ends, 20 in, the row's 24 above the foot */
+  pill: { position: 'absolute', left: frame.sidePad, top: frame.dockPad, width: PILL_W, height: ROW, borderRadius: ROW / 2 },
+  items: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: PILL_PAD },
+  item: { width: GLYPH_BOX, height: GLYPH_BOX, alignItems: 'center', justifyContent: 'center' },
+  plus: { position: 'absolute', right: frame.sidePad, top: frame.dockPad, width: ROW, height: ROW },
+  /* Back: a frosted white circle, the frames' 44, on the middle of the row */
+  back: { position: 'absolute', left: PAGE_PAD, top: frame.dockPad + (ROW - BACK) / 2, width: BACK, height: BACK, borderRadius: BACK / 2 },
+  backHit: { width: BACK, height: BACK, alignItems: 'center', justifyContent: 'center' },
   box: { position: 'absolute' },
-  items: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  item: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  plus: { position: 'absolute', right: 16, top: frame.dockPad, width: 56, height: 56 },
   slide: { flex: 1, height: 60, borderRadius: 30, backgroundColor: colour.ink, justifyContent: 'center' },
   slideOff: { backgroundColor: colour.surface2 },
   /* the words start 12 past the knob's resting place */

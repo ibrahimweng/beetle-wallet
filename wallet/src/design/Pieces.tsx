@@ -16,9 +16,11 @@ import { Icon } from './Icon';
 import { Button } from './Button';
 import { Body, Caption, Display, Head, Label, Meta, Row, Title } from './text';
 import type { IconName } from '../icons';
-import { colour, radius } from './tokens';
+import { colour, frame, radius } from './tokens';
+import { ORIGIN, useFade, useShrink } from './PageHead';
+import { SMALL_TOP } from './collapse';
 import { Tap, keys, useStill } from './motion';
-import { measure, useArrival, useDeparture, type Rect } from './journey';
+import { measure, useDeparture, type Rect } from './journey';
 
 /* ---- a page's head with a glyph beside the title ---- */
 
@@ -26,15 +28,26 @@ import { measure, useArrival, useDeparture, type Rect } from './journey';
    and the line under both. The box and the title's box share the top of the
    column, so nothing is pulled up here the way the plain head is. */
 export function GlyphHead({ glyph, title, sub, rowRef }: { glyph: IconName; title: string; sub: string; rowRef?: React.RefObject<View | null> }) {
-  /* the head arrives with the rest of the page */
-  const a = useArrival();
+  /* on a page it stays at the top as the column scrolls: the glyph goes, the
+     title slides to the left edge and shrinks to the size of home's word
+     Wallet, the line under it fades (collapse.ts) */
+  const glyphGone = useFade();
+  const shrunk = useShrink(32, frame.topPad - SMALL_TOP, 52);
+  const fade = useFade();
   return (
-    <Animated.View style={[{ gap: 8, marginBottom: -5 }, a.style]}>
-      <View ref={rowRef} collapsable={false}>
-        <GlyphTitle glyph={glyph} title={title} />
+    <View pointerEvents="none" style={{ gap: 8, marginBottom: -5 }}>
+      <View ref={rowRef} collapsable={false} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <Animated.View style={[s.box40, glyphGone]} testID="head-glyph">
+          <Icon name={glyph} size={22} colour={colour.ink} />
+        </Animated.View>
+        <Animated.View style={[ORIGIN, shrunk]}>
+          <Title>{title}</Title>
+        </Animated.View>
       </View>
-      <Body tone="tertiary">{sub}</Body>
-    </Animated.View>
+      <Animated.View style={fade}>
+        <Body tone="tertiary">{sub}</Body>
+      </Animated.View>
+    </View>
   );
 }
 

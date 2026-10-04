@@ -84,7 +84,7 @@ export function Meter() {
     const row = rowFrom({ ...move, detail: `${move.detail} · ${at}`, read: 'photo' }, balance, 17 + moves.length);
     addMove(row);
     setGuard(false);
-    router.replace(`/receipt/${row.id}`);
+    router.push(`/receipt/${row.id}?paid=1`);
   };
   const no = () => {
     toast('Then it is not paid. Point the camera at the right bill, or pick a meter you have paid on Pay a bill.');

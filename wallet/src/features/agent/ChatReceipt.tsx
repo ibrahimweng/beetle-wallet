@@ -11,7 +11,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming, useDerivedValue } from 'react-native-reanimated';
 import { Caption, Head, Icon, Label, Meta, Tap, Veil, colour, dark, lift, motion, settle, useStill, type Rect } from '../../design';
-import { ReceiptShare, useReceipt } from '../receipts/ReceiptScreen';
+import { ReceiptShare, useReceipt } from '../receipts/use';
 import type { Receipt } from '../receipts/receipts';
 import type { ReceiptCard as Card } from './conversation';
 

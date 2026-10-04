@@ -1,8 +1,11 @@
 /* The chats, in a drawer inside the chat's own dark card, and nowhere else.
 
    While the chat is open a soft light runs down the card's left edge. A
-   swipe from there to the right brings the drawer in from the left,
-   following the finger — or a tap on the edge does. It lives inside the
+   swipe to the right that starts near it, anywhere in a thumb's width of
+   the edge, brings the drawer in from the left, following the finger — or
+   a tap on the light does. (A thumb's width, not the light's own 16: on a
+   phone a swipe from the edge lands well inside the glass, and the owner
+   found the drawer would not come, Round 13.) It lives inside the
    card, under the header, and stops short of the ask bar: its dark is solid
    at the top and thins as it goes down, into a blur of the chat, so the
    bar under it stays in sight and in reach. At its top a quiet New chat —
@@ -58,26 +61,25 @@ const clamp = (v: number) => {
   return Math.min(1, Math.max(0, v));
 };
 
-/* The left edge while the chat is open: the soft light, and the swipe (or
-   the tap) that brings the drawer in. */
-export function ChatsEdge({
-  d,
-  width,
-  style,
-  onOpen,
-}: {
-  d: SharedValue<number>;
-  width: number;
-  /** where it runs: down the chat, between its header and its ask bar */ style: StyleProp<AnimatedStyle<StyleProp<ViewStyle>>>;
-  onOpen: () => void;
-}) {
-  const gesture = useMemo(() => {
+/** How far in from the left a swipe can start and bring the drawer in: a
+    thumb's width, as react-navigation's drawers allow, since on a phone a
+    swipe "from the edge" lands well inside the glass, not on the light. */
+export const EDGE_SWIPE = 44;
+
+/* The swipe that brings the drawer in, following the finger. It belongs to
+   the whole of home, not to the light: it starts anywhere in the first
+   EDGE_SWIPE from the left, and a touch there that goes up or down is the
+   chat's scroll, a tap is whatever is under it. */
+export function useChatsSwipe(d: SharedValue<number>, width: number, onOpen: () => void, enabled: boolean) {
+  return useMemo(() => {
     const opened = (open: boolean) => {
       if (open) onOpen();
     };
-    const pan = Gesture.Pan()
-      .activeOffsetX(8)
-      .failOffsetY([-14, 14])
+    return Gesture.Pan()
+      .enabled(enabled)
+      .hitSlop({ left: 0, width: EDGE_SWIPE })
+      .activeOffsetX(10)
+      .failOffsetY([-12, 12])
       .onStart(() => {
         runOnJS(Keyboard.dismiss)();
         runOnJS(swipes.start)();
@@ -91,15 +93,31 @@ export function ChatsEdge({
         d.value = withSpring(open ? 1 : 0, { ...SPRING, velocity: e.velocityX / width });
         runOnJS(opened)(open);
       });
-    const tap = Gesture.Tap().onEnd(() => {
-      d.value = withSpring(1, SPRING);
-      runOnJS(Keyboard.dismiss)();
-      runOnJS(opened)(true);
-    });
-    return Gesture.Exclusive(pan, tap);
-  }, [d, width, onOpen]);
+  }, [d, width, onOpen, enabled]);
+}
+
+/* The left edge while the chat is open: the soft light, which a tap on
+   brings the drawer in too (the swipe is home's, above). */
+export function ChatsEdge({
+  d,
+  style,
+  onOpen,
+}: {
+  d: SharedValue<number>;
+  /** where it runs: down the chat, between its header and its ask bar */ style: StyleProp<AnimatedStyle<StyleProp<ViewStyle>>>;
+  onOpen: () => void;
+}) {
+  const tap = useMemo(
+    () =>
+      Gesture.Tap().onEnd(() => {
+        d.value = withSpring(1, SPRING);
+        runOnJS(Keyboard.dismiss)();
+        runOnJS(onOpen)();
+      }),
+    [d, onOpen],
+  );
   return (
-    <GestureDetector gesture={gesture}>
+    <GestureDetector gesture={tap}>
       <Animated.View
         style={[s.edge, style]}
         accessibilityRole="button"

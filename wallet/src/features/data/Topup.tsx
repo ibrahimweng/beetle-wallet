@@ -169,7 +169,7 @@ export function Topup() {
       lastAt: Date.now(),
     });
     setGuard(false);
-    router.replace(`/receipt/${row.id}`);
+    router.push(`/receipt/${row.id}?paid=1`);
   };
 
   const ready = complete && checked && !busy;

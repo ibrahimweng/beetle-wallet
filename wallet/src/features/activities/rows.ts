@@ -23,3 +23,6 @@ export function activityRows(ledger: LedgerRow[], day: LedgerRow['day'], segment
 
 /** The figure on a line: signed once it settled or is on its way, bare where it did not go or came back. */
 export const activityAmount = (r: LedgerRow, signed: (n: number) => string, naira: (n: number) => string) => (r.status === 'failed' || r.status === 'reversed' ? naira(r.amount) : signed(r.amount));
+
+/** What a line says under its name: its own words with the time, where they do not carry one already. */
+export const detailOf = (r: LedgerRow) => (r.detail.includes(':') ? r.detail : `${r.detail} · ${r.time}`);

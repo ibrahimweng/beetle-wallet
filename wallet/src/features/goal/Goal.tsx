@@ -148,7 +148,7 @@ export function Goal() {
   if (!ok || !account) return null;
   if (!ready || !store.ready)
     return (
-      <Screen still>
+      <Screen still frost>
         <View />
       </Screen>
     );
@@ -162,7 +162,7 @@ export function Goal() {
     : [];
   const sub = !st ? 'Nothing put aside yet' : tight ? 'Paused while things are tight' : st.paused ? 'Paused for now' : `${naira(st.goal.target)} by ${dayWords(st.goal.due)}`;
   const head = (
-    <View style={s.head}>
+    <View style={s.head} pointerEvents="box-none">
       <View style={{ flex: 1 }}>
         <PageHead lead title={st ? st.goal.name : 'Goals'} sub={sub} />
       </View>
@@ -176,7 +176,7 @@ export function Goal() {
 
   return (
     <>
-      <Screen head={head}>
+      <Screen head={head} frost>
         {st ? <Pills goals={goals} picked={st.goal.id} onPick={setPicked} onNew={() => setOpen('new')} /> : null}
         {st ? (
           <View style={s.card} testID="goal-card">

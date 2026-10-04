@@ -47,9 +47,9 @@ every screen. It needs a Chromium (`npx playwright install chromium`, or set
 | Command | What it proves |
 |---|---|
 | `npm run typecheck` | it compiles, with `strict` and `noUncheckedIndexedAccess` on |
-| `npm test` | the rules of the way in: what counts as a Nigerian number, what a passcode may not be, where each step leads, how the mock services answer; the scripted Beetle and what it asks for; the model against a fake API, its ask panel and its tools; what Beetle knows of the country — the networks by prefix, the plans, the companies, the meters, what was paid before; the gate before money moves; the hour a chat carries on for; the receipts' figures; the order of the record; the three words past a limit |
+| `npm test` | the rules of the way in: what counts as a Nigerian number, what a passcode may not be, where each step leads, how the mock services answer; the scripted Beetle and what it asks for; the model against a fake API, its ask panel and its tools; what Beetle knows of the country — the networks by prefix, the plans, the companies, the meters, what was paid before; the gate before money moves; the hour a chat carries on for; the receipts' figures; the order of the record; the three words past a limit; and that what runs on the phone's animation thread — a gesture's callbacks, an animated style, an animation's last callback — calls nothing that is not a worklet, the stop the web never shows (`test/worklets.test.mjs`) |
 | `npm run bundle` | the same JavaScript the phone runs, exported for the web into `dist/` |
-| `npm run flow` | from the boot to the welcome and on to home, then out (Sign out asking first) and back in as the demo account, with the doors that should be shut tried on the way and the lab opened from the version line; the card pulled down and traced as it opens down to the bar that stays under it, with the six chips over the input putting their cards up in the chat, Activities and back to the chat as it was and Home again closing it, money sent by asking and let through by the passcode, the account's details opened and copied, the saving counted — four taps to put money away, three to start a goal — with a goal edited, paused and ended, money taken out and the Save chip's card, a photo taken with the browser's stand-in camera and read, money arriving, the model screen, the four cards on home, the Services card swiped through and the pages swiped between, a chat carried on and New chat in the drawer, the receipt card opened where it is and the receipt pages with the share sheet, Settings with every row followed — the switches kept, a new passcode, the three words past a limit, an instruction offered and set up, the other devices signed out, the phone that is not yours frozen, the card revealed and frozen — the bar and More under its white veil, the pages sliding under a bar that stays put, the record narrowed to In and to Insights and a line opened in place over the frost — not who, not the total, the session id kept back, its ··· with Ask Beetle about this — and closed with a tap off it, the four asks — a transfer with no amount, data for a new number, airtime on the own line, a bill from a new meter and from one paid before — each filled on its card or from Recent, its button saying what is still missing, and taken from that button through the passcode to its receipt; money sent from the Send money page — To as a $tag, as a number with its bank picked and the name checked, and from the people paid before; the amount moved on the ruler and typed in place, a reference typed, the slide, the passcode with the whole of it and Cancel, the receipt, and the line on Activities — then filled from a message, from a photo, stopped hard at what Everyday can send, and from a digit the reader was not sure of; every state of a transfer and every way out of it; the face that did not take; and the lab's places opened on their own; every screen photographed into `shots/` |
+| `npm run flow` | from the boot to the welcome and on to home, then out (Sign out asking first) and back in as the demo account, with the doors that should be shut tried on the way and the lab opened from the version line; the card pulled down and traced as it opens down to the bar that stays under it, with the six chips over the input putting their cards up in the chat, Activities and back to the chat as it was and Home again closing it, money sent by asking and let through by the passcode, the account's details opened and copied, the saving counted — four taps to put money away, three to start a goal — with a goal edited, paused and ended, money taken out and the Save chip's card, a photo taken with the browser's stand-in camera and read, money arriving, the model screen, the four cards on home, the Services card swiped through and the pages swiped between, a chat carried on and New chat in the drawer, the receipt card opened where it is and every receipt opened in place with the share sheet, the promo card, the Services card starting on All services, the bar's glass pill, Savings over a frosted home, a title shrinking on Settings, Settings with every row followed — the switches kept, a new passcode, the three words past a limit, an instruction offered and set up, the other devices signed out, the phone that is not yours frozen, the card revealed and frozen — the bar and More under its white veil, the pages sliding under a bar that stays put, the record narrowed to In and to Insights and a line opened in place over the frost — not who, not the total, the session id kept back, its ··· with Ask Beetle about this — and closed with a tap off it, the four asks — a transfer with no amount, data for a new number, airtime on the own line, a bill from a new meter and from one paid before — each filled on its card or from Recent, its button saying what is still missing, and taken from that button through the passcode to its receipt; money sent from the Send money page — To as a $tag, as a number with its bank picked and the name checked, and from the people paid before; the amount moved on the ruler and typed in place, a reference typed, the slide, the passcode with the whole of it and Cancel, the receipt, and the line on Activities — then filled from a message, from a photo, stopped hard at what Everyday can send, and from a digit the reader was not sure of; every state of a transfer and every way out of it; the face that did not take; and the lab's places opened on their own; every screen photographed into `shots/` |
 | `npm run figma` | every built screen — thirty-eight of them — against its Figma frame: each named piece where the frame puts it, within three of the frame's figure or of that figure snapped to the 4-point grid; the frame's words on the screen; what is off on purpose listed with its reason; the frame and the screen side by side in `shots/figma/` |
 
 ## On the frame
@@ -108,11 +108,11 @@ mocks in and says so on the code screen; a real `AuthService` and
 | Folder | What it is |
 |---|---|
 | `app/` | The routes: the loading screen, the lab, the way in as one screen, home, Send money and the pages around it, a receipt, a transfer's state pages, the request and Request sent, the goals, Bills, Pay a bill and What I found, All services, Buy data and the top-up, Borrow, Activities and the answer, Settings and the pages its rows lead to. `expo-router` reads this folder as the map. |
-| `src/design/` | The design system read off the Figma file: tokens, type, icons, motion, and the pieces every screen is made of — among them the amount picker (`Amount.tsx`, and `AmountSheet.tsx` for a page with no room for it), the ··· and its pop-up (`Menu.tsx`), and the phone's clicks and knocks (`haptics.ts`) |
+| `src/design/` | The design system read off the Figma file: tokens, type, icons, motion, and the pieces every screen is made of — among them the amount picker (`Amount.tsx`, and `AmountSheet.tsx` for a page with no room for it), the ··· and its pop-up (`Menu.tsx`), the soft blurs and the frosted glass (`Glass.tsx`), a page's title shrinking as it scrolls (`collapse.ts`, `PageHead.tsx`), and the phone's clicks and knocks (`haptics.ts`) |
 | `src/icons.ts` | The 96 glyphs, generated from `../src/icons.js` by `npm run icons`, which puts the line widths the file draws them at (0.075 of the box for a glyph, 0.10 for a bare mark) and round ends back on every stroked path, and cuts a solid glyph's white details (the face in Face ID, the card's stripe, the shield's tick, the clock's hands, the house's door) out of it through a mask, so they show whatever the glyph sits on; never edited by hand |
 | `src/features/onboarding/` | The way in: the step machine (`machine.ts`), what is remembered and the session (`store.tsx`), the rules (`validation.ts`), the one screen and its choreography (`WayIn.tsx`), what each stage of it shows (`views.tsx`, `stages.ts`), and the guard that keeps home for a session |
 | `src/features/tabs/` | The three pages side by side (`Pager.tsx`): which one shows and what holds them still (`tabs.ts`), what a page knows of itself (`page.tsx`), and the old addresses that turn to one (`Redirect.tsx`) |
-| `src/features/home/` | Home: the card (`WalletCard.tsx`, closed and open and the drag between), the haze at its head and its foot (`Frost.tsx`), the four cards under it (`Grid.tsx`), the page around them with the chat, the drawer and the sheets (`Home.tsx`), the ask bar in its two states (`AskBar.tsx`), what the record shows for an account (`account.ts`), what moved on this phone since (`moves.ts`), and the once-only dip (`first.ts`) |
+| `src/features/home/` | Home: the card (`WalletCard.tsx`, closed and open and the drag between), the haze at its head and its foot (`Frost.tsx`), the promo card under it (`Promos.tsx`), the four cards under that (`Grid.tsx`), the page around them with the chat, the drawer and the sheets (`Home.tsx`), the ask bar in its two states (`AskBar.tsx`), what the record shows for an account (`account.ts`), what moved on this phone since (`moves.ts`), and the once-only dip (`first.ts`) |
 | `src/features/agent/` | The chat: the conversation and what Beetle is waiting for (`conversation.tsx`), the list (`Chat.tsx`), the dark pieces it is drawn with — what was said, the panels, the dots (`Dark.tsx`) — the ask panel with its fields (`AskPanel.tsx`) and the list of what was paid before that grows out of it (`SavedPeek.tsx`), the receipt's card and the same card opened where it is (`ReceiptCard.tsx`, `ChatReceipt.tsx`), and the chats, Beetle's prompts among them (`chats.ts`), with the hour they carry on for (`hour.ts`) and the drawer they live in (`Drawer.tsx`) |
 | `src/features/scan/` | The camera from its frames (`Scan.tsx`): every way it can go wrong, the photo read on the spot and drawn back with what was found, the sample photos in its gallery (`sample.ts`), the sheet a message puts up over it (`ReadSheet.tsx`) and the rows it and What I found lay their pieces on (`ReadRows.tsx`), and the photo's way back to the screen that asked (`handoff.ts`) |
 | `src/features/passcode/` | The gate before money moves: the passcode on its sheet over the chat (`Passcode.tsx`) and the check itself, with the tries and the lock (`check.ts`) |
@@ -127,12 +127,12 @@ mocks in and says so on the code screen; a real `AuthService` and
 | `src/features/health/` | Money health: the score and the five habits (`health.ts`) and the page (`Health.tsx`) |
 | `src/features/send/` | Sending money: the page (`Send.tsx`), Not enough (`Short.tsx`), Check this number (`Misread.tsx`), and what the pages hand back to the one under them (`hand.ts`) |
 | `src/features/transfers/` | A transfer that is not done: Still on its way, It did not go and It came back (`Transfer.tsx`), What went wrong? (`Wrong.tsx`), Asking for it back (`Recall.tsx`), I sent it wrong (`AlreadyGone.tsx`), what each says about a line (`states.ts`) |
-| `src/features/receipts/` | A receipt for every line of the record: the record and the frames' own figures (`receipts.ts`), the page and the pieces it shares (`ReceiptScreen.tsx`), the share sheet (`ShareSheet.tsx`); the card in the chat is `src/features/agent/ReceiptCard.tsx` |
+| `src/features/receipts/` | A receipt for every line of the record: the record and the frames' own figures (`receipts.ts`), a receipt by its address opened in place over the page it came from (`Over.tsx`, with the line itself in `src/features/activities/InPlace.tsx`), what a receipt's view shares — the receipt, its ··· and sharing it (`use.tsx`), the share sheet (`ShareSheet.tsx`); the card in the chat is `src/features/agent/ReceiptCard.tsx` |
 | `src/features/more/` | The one foot every screen shares (`Foot.tsx`): the bar on the three pages and under the open chat, and on a page Back beside its button, Back and Slide to send, or Back alone, morphing from the one to the other; and More, the actions up out of its plus (`More.tsx`), with the way a page hands a question, or a transaction, to the chat on home |
 | `src/features/activities/` | The record (`Activities.tsx`) in the frame's order (`rows.ts`), a line opened where it is (`InPlace.tsx`), and the answer to a question about spending (`Answer.tsx`) |
 | `src/features/settings/` | Settings from the gear on the bar (`Settings.tsx`), Your details on its sheet (`Details.tsx`), what the pages set, kept per account (`prefs.ts`), and the pages: Lock and privacy, Spending limits and Past your own limit (`words.ts` holds the three words), Standing instructions and Set this up?, Devices, Not your phone, A new passcode, Virtual card |
 | `src/lab/` | The lab: which builds have it (`enabled.ts`), every feature and the places in it with the state each needs (`catalogue.ts`), the screen, and the tab that comes back to it |
-| `src/services/` | `AuthService`, `IdentityService`, `AgentService` (Beetle: the model in `model.ts` where there is a key, the script in `agent.ts` where there is not), what Beetle knows of the country (`nigeria.ts`: the networks by prefix, the data plans, the electricity companies, what a meter number looks like, a `MeterService` that says whose a meter is, and the people, lines and meters paid before), `ReaderService` (the device's text reader, or a stand-in), storage and hashing behind interfaces, with the mocks this build runs on |
+| `src/services/` | `AuthService`, `IdentityService`, `AgentService` (Beetle: the model in `model.ts` where there is a key, the script in `agent.ts` where there is not), what Beetle knows of the country (`nigeria.ts`: the networks by prefix, the data plans, the electricity companies, what a meter number looks like, a `MeterService` that says whose a meter is, and the people, lines and meters paid before), `ReaderService` (the device's text reader, or a stand-in), storage and hashing behind interfaces, with the mocks this build runs on, and the last problem that stopped the app, kept for the next open (`problems.ts`) |
 | `src/lib/` | Formatting: digit groups, naira and kobo, dates; and the amount picker's steps (`steps.ts`) |
 | `test/` | The unit tests, and the browser walk of the way in |
 | `artifact/` | `npm run artifact` packages the exported bundle as a page that can be hosted anywhere, even inside another page: the phone in a frame with the keys to the mocks beside it |
@@ -163,6 +163,15 @@ The lab also says which build it is (the update it is running and when it was
 sent) and can fetch the latest one on the spot, instead of waiting for the
 next open. "Forget everything on this phone" clears the session and the way
 in.
+
+A phone keeps no log a tester can read, so the app keeps its own last
+problem (`src/services/problems.ts`): an error that would stop it is
+written to the keychain before it does, and the next time a build with the
+lab opens it says what it was, with Copy the details. An error inside the
+screens stops nothing: the screen says something went wrong, with Try
+again (and, with the lab, the error's own words). If Expo Go closes and
+nothing is said the next time, the stop was in the phone's own code, below
+the app.
 
 Which builds have it is decided in `src/lab/enabled.ts`: every build except
 one on the `production` update channel, so the preview APK, Expo Go, the web
@@ -229,8 +238,8 @@ one size: the house and the clock at 24, the gear, which fills nearly all
 of its box, at 21.
 
 The pages hold still while something is open over one of them: the chat on
-home, the Receive sheet, a receipt over Activities, Your details, More. A
-swipe that starts on the Services card is the card's. With a receipt up,
+home, the Receive sheet, a receipt over Activities, Your details, More. A swipe that starts on the Services card or the promo card is the
+card's. With a receipt up,
 a swipe to the left goes nowhere and the swipe an iPhone goes back with
 closes it. The old addresses, `/activities` and `/settings`, turn the pages
 to their page, and a link from anywhere (a question for Beetle, Receive
@@ -240,7 +249,7 @@ what the checks read is the page showing.
 
 ## Home and the chat
 
-Under the card, four cards two by two, the way Fuse lays out its own:
+Under the card and its promo, four cards two by two, the way Fuse lays out its own:
 pale grey, rounded 20, a 32 glyph at the top left and at the foot a small
 grey word and a bold figure. Savings says the most — the goal's ring in
 green with the pot in it, Holiday and how far along, what is put aside,
@@ -249,13 +258,21 @@ grey), what it is aiming for while nothing is in it, or, with no goal,
 Start a goal. With several goals it says how many and how far along they
 are together, with the total put aside. Loan is what could be borrowed once
 setting up is done. Card is the virtual card by its last four, with what
-is left to spend this month or Frozen. Services is laid out like the other
-three and holds Airtime, Bills and Data to swipe through inside it, the
-glyph and the name sliding together and three small dots at the top right
-following the swipe; a tap on the one showing opens
-it, and a tap on the word Services opens All services. Each card opens its
-page, lighting while the page comes out of it. There is no dollar wallet
-on home yet; the chip on the card is the way to the dollars.
+is left to spend this month or Frozen. Services is laid out like the other three and starts on All services; a
+swipe inside it brings Bills, Airtime and Data, the glyph and the name
+sliding together and four small dots at the top right following the
+swipe, and a tap opens the one showing. Each card's page slides in over
+home, and home stays under it, frosted and out of focus, so it shows
+through behind the page. There is no dollar wallet on home yet; the chip
+on the card is the way to the dollars.
+
+Between the black card and the four, one promo card the width of the page
+(`src/features/home/Promos.tsx`): what Beetle has for this account, most
+useful first — Finish setting up until it is done, Start a goal in three
+taps (Save in four taps once there is one), Borrow once borrowing is
+open, Pay light and TV in two taps — one at a time on a faint wash of its
+own colour, swiped across, with small dots under it. A tap opens what it
+offers. A sideways swipe that starts on it moves it, not the pages.
 
 The black card at the top holds the word Wallet at its left, the balance,
 Send and Receive, and a grabber that says pull down; Settings is the gear
@@ -359,8 +376,10 @@ the tool loop, the steps, the panels and the fallback.
 
 The chats live in the chat, in a drawer inside its dark card, and nowhere
 else. While the chat is open a soft light runs down the card's left edge;
-a swipe from there to the right brings the drawer in from the left,
-following the finger (a tap on the edge does too). It sits under the
+a swipe to the right that starts near it — anywhere within a thumb's
+width, 44, of the edge, since on a phone a swipe "from the edge" lands well
+inside the glass — brings the drawer in from the left, following the
+finger (a tap on the light does too). It sits under the
 card's header and stops short of the ask bar: its dark is solid at the top
 and thins on the way down into a blur of the chat, over the chips, so the
 ask bar under it stays in sight and in reach. At its top a quiet New chat —
@@ -857,7 +876,7 @@ service works it out. "money health" typed at home opens the page.
 
 ## Receipts
 
-Every settled line on Activities opens where it is, the way Fuse opens a
+Every line on Activities opens where it is, the way Fuse opens a
 coin in its list (`src/features/activities/InPlace.tsx`): nothing is
 pushed and nothing fills the screen. The line stays in its place, sharp,
 and the page under it goes soft behind a frost of white — still there, out
@@ -874,16 +893,22 @@ what grows under it to fit. A tap anywhere off it, or the phone's back,
 puts it all back the way it came — a tap, not a swipe: a finger that moves
 across the frost leaves it open — and the pages hold still while it is open.
 
-The card in the chat opens where it is (see Home and the chat), with the
-full receipt a tap further; the flows that end on a receipt — Send money, a
-bill, data, the loan — open it as its own page. The receipt page is the
-frame's: the title with the day and the time and a ··· at its right, the
-amount on its tick with the status chip, the slip — who and where in two
-columns, what was written, a dashed rule before the money, the fee and what
-it was for, the total and the balance after, the session id with a button
-to copy it — then what Beetle offers about it. A bill's meter token sits
-above the slip with its own copy button. The foot is Back with Share
-receipt beside it. The ··· opens a small pop-up, grown from the dots over a
+A line still on its way, one that did not go and one that came back open
+the same way. What happened comes first under the line, on a glyph of its
+colour — Still on its way, It did not go, It came back — with the bank and
+the account and what to know about it, and its next steps take the place
+of Share receipt and Set it up: Ask about it, Try again, or Check the
+number and Try Sarah again. The page each state used to open is behind
+See the details. A bill's meter token is a row of its own, tapped to
+copy.
+
+The receipt right after paying — Send money, a bill, data, airtime, a loan,
+a goal, loading the card — opens the same way, over a frosted view of the
+page paid from (`src/features/receipts/Over.tsx`); closing it goes back to
+where the payment started, and Set it up goes on from there. The card in
+the chat opens where it is (see Home and the chat). The full receipt page
+the frames draw is gone, at the owner's word: every transaction opens in
+place. The ··· opens a small pop-up, grown from the dots over a
 light white wash (`src/design/Menu.tsx`): Ask Beetle about this, which
 files whatever chat there was and opens a fresh one on home about that one
 transaction — what it is set down as a note Beetle reads, and Beetle asking
@@ -919,7 +944,10 @@ counted. The steps are finer where the money is small — ₦100 up to ₦10,000
 and a typed figure needs no step at all. The cap is the ruler's last step
 wherever it falls between steps, so All of it is the cap itself, not the
 round figure under it. Under the ruler, a row of chips: the likely
-amounts, and All of it where there is a cap. Dollars run the
+amounts, and All of it where there is a cap. A chip, or a tick tapped, sets
+the figure at once and the ruler glides to it; the steps it passes on the
+way are not picks, so a tap on Confirm while it glides takes the figure
+tapped. Dollars run the
 same steps a hundred times smaller.
 
 It is on Send money, Pay a bill and Airtime (capped at what there is to pay
@@ -934,29 +962,28 @@ gone.
 
 ## The foot, the bar and More
 
-Every screen shares one foot, over the stack, the way Fuse keeps its own
-(`src/features/more/Foot.tsx`). On the three pages it is the bar, drawn
-the way Fuse draws its own: a white surface with its top corners rounded
-and a soft shadow above it, three solid glyphs at the left — Home,
-Activities, Settings, the page showing in black — and the black plus to
+Every page carries its own foot (`src/features/more/Foot.tsx`), so the
+foot slides in and out with its page and follows the finger on the swipe
+back. There is no white under it: what scrolls under the foot goes soft
+under a blur that grows toward the edge, with no white in it, so a white
+page reads as white and a card passing under reads as a card, blurred. On
+the three pages it is the bar: Home, Activities and Settings in a rounded
+pill of frosted white glass that hugs them, 12 of padding round the
+glyphs and no outline, the page showing in black; and the black plus to
 the side. It is drawn once for all three and stays where it is as they
-turn. It stays under the open chat — its white and its shadow going bare as
-the card comes down to just over its glyphs — and goes down under the
-keyboard and out of the way under a sheet. On a page that needs a way back
-it is Back beside the page's one button (Share receipt, Send the request,
-Load card), or Back and Slide to send (Send money), or Back alone; no page
-but home carries an ask bar, and the plus stays on the bar of the three
-pages. Back is always at the bottom left, 20 in, with 12 clear between it
-and the button so each is its own tap. Home to a page is one movement, as
-Fuse does it: the plus scales away, the three glyphs fade as the button
-comes, and Back slides in from the left edge; back to home runs it in
-reverse.
+turn. It stays under the open chat, and goes down under the keyboard and
+out of the way under a sheet. On a page that needs a way back it is Back,
+in a circle of the same glass, beside the page's one button (Send the
+request, Load card), or Back and Slide to send (Send money), or Back
+alone; no page but home carries an ask bar, and the plus stays on the bar
+of the three pages. Back is always at the bottom left, 20 in, with 12
+clear between it and the button so each is its own tap.
 Each screen says what its foot holds while it has focus (`useFoot`), and
 the numbers are the frames' docks: 104 tall, the row 56 with 24 above and
 below, 20 in from either side, Back 44, the button 56; the slide is 60
-tall, as the Send money frame draws it. On a page the foot's white is not
-an edge: 40 of fade sit over it, so what scrolls under the foot dissolves
-into it instead of being cut. While something is open over a page — a
+tall, as the Send money frame draws it. The blur under the foot reaches
+40 above the row, so what scrolls under it dissolves instead of being
+cut. While something is open over a page — a
 sheet, the list of people paid before — the foot recedes or goes down, and
 takes no touches until it comes back; the list of people stops above it. A
 screen that says nothing — the way in, the lab, the camera, a new passcode —
@@ -980,8 +1007,8 @@ The second of the three pages holds all of the record, from its frame:
 Money health at the top, All / Insights / In / Out to narrow it, today and
 yesterday, what Beetle noticed set among the lines, and what Beetle makes
 of it at the foot. What is still on its way, did not go or came back
-stands first with its status glyph and a chevron, and opens its own page;
-what settled follows on the grey square, each line opening where it is:
+stands first with its status glyph and a chevron, and what settled follows
+on the grey square; each line opens where it is (see Receipts):
 the line stays sharp, the page goes soft under a white frost, and its facts
 come in under the line's own words as plain rows — the way Fuse's Solana
 widget does it, no card, no border, no shadow — the bank and the number
@@ -1047,16 +1074,15 @@ the button rise and drop like a keyboard. Going back runs the same movements
 the other way.
 
 Every duration and curve is in `src/design/motion.tsx`, the way every colour
-is in `tokens.ts`. Whatever arrives comes out of a blur, whatever leaves goes
-back into one: the thing going softens and fades in 280ms, the next sharpens
-and fills in 520ms, and nothing slides in from the side. A press dips to 96% in 90ms and springs back
+is in `tokens.ts`. Within a screen, whatever arrives comes out of a blur and
+whatever leaves goes back into one: the thing going softens and fades in
+280ms, the next sharpens and fills in 520ms. A press dips to 96% in 90ms and springs back
 past full. A marker lands beside a step 140ms after the step's label has
 changed. A button's label changes through a blur rather than being swapped.
 The wash at the top of a step recedes while you type. The ticks on the ready
 screen land one after another, and the balance on home comes into focus
 rather than counting up. Things arrive on the settle curve — moving at
-once and coming to rest slowly — and the stack's own cross-fade is short,
-so the page's column coming out of its blur is the movement. A frost or a
+once and coming to rest slowly. A frost or a
 veil comes in by its blur growing, never by fading a layer that is already
 blurred (the phone draws that badly, and it reads as a jerk); and where
 something lifts to make room, as a line on Activities does for its facts,
@@ -1064,32 +1090,33 @@ what comes in is measured first, so the lift and the arrival are one
 movement. All of it runs on one family of curves, and all of it stops for
 anyone who has asked their phone to reduce motion.
 
-Between screens the thread is kept, the way Fuse keeps it. Fuse hardly
-ever pushes a page: the thing you tapped stays where it is, the rest
-recedes under a blur, and the next thing grows out of it. So a line on
-Activities does not open a page: its receipt comes over the page in one
-step, the amount out of the line's figure, the page soft under white; and
-the receipt in the chat grows in place a little, the chat soft under dark.
-Where Beetle does need a page, the thing you tapped lights and stays lit,
-the screen it is on recedes — dimmer, softer, a touch smaller — and the
-next page arrives whole, its title with the rest of it, out of the same
-blur and at the same moment: nothing flies across from the button and
-nothing grows into a title, which drew the eye to the movement rather
-than the page. On the way back the screen comes forward again and the
-thing you left from pulses once. All of it is `src/design/journey.tsx`:
-a departure records where it started, and the screen left behind pulses
-it on the way back. The foot keeps its own thread across the change: the plus scales away,
-the glyphs slide right into the ask bar and Back slides in from the left,
-in the same 340ms the screens fade in. The three pages turn on a spring
-that settles without running past, carrying the finger's speed when it
-lets go.
+Between pages it is the phone's own movement, at the owner's word in
+Round 13: a page slides in from the right over the one it came from, which
+gives way a little to the left, and going back slides it out to the
+right; on the phone a swipe from the left edge takes it back under the
+finger. The stack is expo-router's JavaScript stack (`app/(app)/_layout.tsx`),
+so the phone and the web move alike, and each page carries its own foot,
+so Back and the page's button slide with the page. Card, Services, Loan
+and Savings slide in over home itself, which stays under them, frosted.
+Where nothing needs a page, nothing is pushed: a line on Activities opens
+in place, its facts coming in under it as the page goes soft under white,
+the receipt right after paying opens the same way over the page paid
+from, and the receipt in the chat grows in place a little, the chat soft
+under dark. The three pages turn on a spring that settles without running
+past, carrying the finger's speed when it lets go.
+
+A page's title stays at the top while the column scrolls under it, a soft
+blur growing behind it (`src/design/collapse.ts`): over the first 56 of
+scroll it shrinks about its top left corner to 14, the size of the word
+Wallet on home's black card, and the line under it is gone by half way.
+Scrolled back to the top, it grows back.
 
 `npm run flow` traces the moments that matter — the first screen change,
 the ticks, the balance, the card opening under a finger, the first-time
-dip, a title coming up from the row that opened it, the pages sliding
-under a bar that stays put, a receipt's amount coming up out of its line
-as Back slides in — and fails if
-they are not moving the way that file says.
+dip, a page sliding in from the right with its foot, a title shrinking
+as Settings scrolls and growing back, the pages sliding under a bar that
+stays put, a line's facts coming in under it — and fails if they are not
+moving the way that file says.
 
 ## What comes next
 

@@ -15,6 +15,14 @@
    problem — sits at the top right beside the page's title, which stays
    sharp over the frost while it is on the screen.
 
+   A line still on its way, one that did not go and one that came back open
+   the same way (Round 13: every transaction in place). What it is comes
+   first under the line, with what to know about it, and its two things to
+   do are its next steps instead: ask about it, or try again, or check the
+   number. The page each state used to open is behind See the details. The
+   receipt right after paying opens this way too, over the page paid from
+   (receipts/Over.tsx).
+
    It is one movement: what comes in under the line is measured first,
    unseen, and then the frost's blur grows, the line lifts (if it must, for
    the rows to fit above the foot) and the rows arrive one after another,
@@ -27,8 +35,14 @@ import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming, type S
 import { GlyphTitle, HistoryRow, Icon, Label, Meta, MoreButton, Tap, Veil, away, blurred, colour, frame, motion, settle, toast, useStill, type Rect } from '../../design';
 import type { IconName } from '../../icons';
 import { copyText } from '../receive/clipboard';
-import { ReceiptShare, useReceipt, useReceiptMenu } from '../receipts/ReceiptScreen';
+import { ReceiptShare, useReceipt, useReceiptMenu } from '../receipts/use';
 import type { Field, Receipt } from '../receipts/receipts';
+import type { LedgerRow } from '../home/account';
+import { useLine } from '../transfers/use';
+import { bankOf, firstOf, personOf, returnReference } from '../transfers/states';
+import { draft } from '../send/hand';
+import { askHome } from '../more/More';
+import { groupAccount, naira } from '../../lib/format';
 
 /** Where a line sits when it was opened by a link rather than a tap: under the page's head. */
 const LINKED_TOP = 180;
@@ -41,15 +55,29 @@ const TEXT_COLUMN = 52;
 /** How long it takes to open: a little quicker than a page. */
 const OPEN_MS = motion.enter - 40;
 
-/** `at` is where the line was, `head` where the page's title row was, each in the window, when it was opened. */
-export type Opened = { id: string; glyph: IconName; name: string; detail: string; amount: string; at: Rect | null; head?: Rect | null };
+/** A line that has not settled: still on its way, did not go, or came back. */
+export type LineState = 'pending' | 'failed' | 'reversed';
 
-export function InPlace({ line, onClose }: { line: Opened; onClose: () => void }) {
+/** `at` is where the line was, `head` where the page's title row was, each in the window, when it was opened. */
+export type Opened = { id: string; glyph: IconName; name: string; detail: string; amount: string; at: Rect | null; head?: Rect | null; state?: LineState };
+
+export function InPlace({
+  line,
+  onClose,
+  share = false,
+  stay = false,
+}: {
+  line: Opened;
+  onClose: () => void;
+  share?: boolean;
+  /** a receipt with an address of its own stays under the page it leads to, so Back comes back to it */ stay?: boolean;
+}) {
   const router = useRouter();
   const still = useStill();
   const { height: H } = useWindowDimensions();
   const { receipt } = useReceipt(line.id);
-  const [sharing, setSharing] = useState(false);
+  const { row } = useLine(line.id);
+  const [sharing, setSharing] = useState(share);
   const [session, setSession] = useState(false);
   /* the rows as drawn, for the picture the share sheet hands out */
   const slip = useRef<View>(null);
@@ -74,6 +102,12 @@ export function InPlace({ line, onClose }: { line: Opened; onClose: () => void }
   };
   const closeRef = useRef(close);
   closeRef.current = close;
+  /* leading somewhere: the line goes back into its place first, unless it stays under what it leads to */
+  const leaveTo = (go: () => void) => {
+    if (stay) return go();
+    closeRef.current();
+    setTimeout(go, motion.leave);
+  };
   useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       if (sharing) setSharing(false);
@@ -143,13 +177,13 @@ export function InPlace({ line, onClose }: { line: Opened; onClose: () => void }
               session={session}
               onSession={() => setSession(true)}
               onShare={() => setSharing(true)}
+              state={line.state && row ? stateOf(line.state, row, router, line.id, leaveTo) : null}
               onRepeat={() => {
-                closeRef.current();
                 const to =
                   receipt.kind === 'transfer'
                     ? `/rule?offer=again&row=${line.id}`
                     : `/rule?offer=${receipt.kind === 'in' ? 'salary' : receipt.kind === 'convert' ? 'dollars' : receipt.kind === 'saving' ? 'salary' : 'ikeja'}`;
-                setTimeout(() => router.push(to as never), motion.leave);
+                leaveTo(() => router.push(to as never));
               }}
             />
           ) : null}
@@ -163,7 +197,7 @@ export function InPlace({ line, onClose }: { line: Opened; onClose: () => void }
       {/* the ··· for the rest, at the top right beside the page's title */}
       {receipt ? (
         <Animated.View style={[s.dots, head ? { top: head.y + (head.h - 36) / 2 } : null, dots]}>
-          <Menu receipt={receipt} id={line.id} onLeave={() => closeRef.current()} />
+          <Menu receipt={receipt} id={line.id} onLeave={go => leaveTo(go)} />
         </Animated.View>
       ) : null}
       {sharing && receipt ? <ReceiptShare receipt={receipt} slip={slip} onDismiss={() => setSharing(false)} /> : null}
@@ -171,13 +205,10 @@ export function InPlace({ line, onClose }: { line: Opened; onClose: () => void }
   );
 }
 
-function Menu({ receipt, id, onLeave }: { receipt: Receipt; id: string; onLeave: () => void }) {
+function Menu({ receipt, id, onLeave }: { receipt: Receipt; id: string; onLeave: (go: () => void) => void }) {
   const items = useReceiptMenu(receipt, id).map(it => ({
     ...it,
-    onPress: () => {
-      onLeave();
-      it.onPress();
-    },
+    onPress: () => onLeave(it.onPress),
   }));
   return <MoreButton items={items} testID="in-place-more" />;
 }
@@ -194,6 +225,7 @@ function Details({
   onSession,
   onShare,
   onRepeat,
+  state,
 }: {
   t: SharedValue<number>;
   receipt: Receipt;
@@ -203,14 +235,35 @@ function Details({
   onSession: () => void;
   onShare: () => void;
   onRepeat: () => void;
+  /** a line that has not settled: what it is, and its next steps in place of Share and Set it up */
+  state: StateWords | null;
 }) {
   const groups = groupsOf(receipt.fields, name, receipt.kind);
+  /* a line that has not settled names its bank from the people the day knows, where the line itself does not carry it */
+  if (state?.bank && !groups.some(g => g.some(([l]) => l === 'Bank'))) groups.unshift([['Bank', state.bank]]);
   const copy = async () => {
     toast((await copyText(receipt.session)) ? 'The session id copied. Paste it anywhere.' : 'This build cannot reach the clipboard.');
+  };
+  const copyToken = async () => {
+    toast((await copyText(receipt.token ?? '')) ? 'The token copied. Paste it anywhere.' : 'This build cannot reach the clipboard.');
   };
   let i = 0;
   return (
     <View ref={slip} collapsable={false} style={s.rows} testID="in-place-card">
+      {state ? (
+        <Arrive t={t} i={i++}>
+          <View style={s.state} testID="in-place-state">
+            <View style={[s.stateDisc, { backgroundColor: state.tone }]}>
+              <Icon name={state.glyph} size={14} colour="#ffffff" />
+            </View>
+            <View style={{ flex: 1, gap: 2 }}>
+              <Label>{state.title}</Label>
+              <Meta tone="secondary">{state.sub}</Meta>
+            </View>
+          </View>
+          <Dashed />
+        </Arrive>
+      ) : null}
       {groups.map((group, g) => (
         <View key={g}>
           {g ? (
@@ -230,6 +283,22 @@ function Details({
           ))}
         </View>
       ))}
+      {receipt.token ? (
+        <Arrive t={t} i={i++}>
+          {/* a prepaid bill's token: what was paid for, so always shown, with a button to copy it */}
+          <View style={s.row} testID="in-place-token">
+            <Meta tone="secondary">Token</Meta>
+            <View style={s.sessionValue}>
+              <Label style={[s.value, { fontVariant: ['tabular-nums'] }]} numberOfLines={1}>
+                {receipt.token}
+              </Label>
+              <Tap accessibilityRole="button" accessibilityLabel="Copy the token" onPress={() => void copyToken()} scale={0.9} style={s.copy} hitSlop={8}>
+                <Icon name="copy" size={14} colour={colour.textSecondary} />
+              </Tap>
+            </View>
+          </View>
+        </Arrive>
+      ) : null}
       <Arrive t={t} i={i++}>
         {/* the session id: only when it is asked for, since it matters only when the transaction is queried */}
         {session ? (
@@ -252,19 +321,85 @@ function Details({
         )}
       </Arrive>
       <Arrive t={t} i={i++}>
-        <View style={s.actions}>
-          <Tap accessibilityRole="button" accessibilityLabel="Share receipt" onPress={onShare} scale={0.96} style={s.action} testID="in-place-share">
-            <Icon name="share" size={16} colour={colour.ink} />
-            <Label>Share receipt</Label>
-          </Tap>
-          <Tap accessibilityRole="button" accessibilityLabel={receipt.nudge.action} onPress={onRepeat} scale={0.96} style={s.action} testID="in-place-repeat">
-            <Icon name="history-filled" size={16} colour={colour.ink} />
-            <Label>{receipt.nudge.action}</Label>
-          </Tap>
-        </View>
+        {state ? (
+          <View style={s.actions}>
+            {state.actions.map(a => (
+              <Tap key={a.label} accessibilityRole="button" accessibilityLabel={a.label} onPress={a.onPress} scale={0.96} style={s.action} testID="in-place-next">
+                <Icon name={a.glyph} size={16} colour={colour.ink} />
+                <Label numberOfLines={1}>{a.label}</Label>
+              </Tap>
+            ))}
+          </View>
+        ) : (
+          <View style={s.actions}>
+            <Tap accessibilityRole="button" accessibilityLabel="Share receipt" onPress={onShare} scale={0.96} style={s.action} testID="in-place-share">
+              <Icon name="share" size={16} colour={colour.ink} />
+              <Label>Share receipt</Label>
+            </Tap>
+            <Tap accessibilityRole="button" accessibilityLabel={receipt.nudge.action} onPress={onRepeat} scale={0.96} style={s.action} testID="in-place-repeat">
+              <Icon name="history-filled" size={16} colour={colour.ink} />
+              <Label>{receipt.nudge.action}</Label>
+            </Tap>
+          </View>
+        )}
       </Arrive>
     </View>
   );
+}
+
+type StateWords = { glyph: IconName; tone: string; title: string; sub: string; bank?: string; actions: { label: string; glyph: IconName; onPress: () => void }[] };
+
+/** What a line that has not settled says in place, and its next steps: the
+    words the state pages used (transfers/Transfer.tsx), made short. `leave`
+    puts the line away first, then goes. */
+function stateOf(state: LineState, row: LedgerRow, router: ReturnType<typeof useRouter>, id: string, leave: (go: () => void) => void): StateWords {
+  const bank = bankOf(row);
+  const first = firstOf(row.name);
+  const who = personOf(row);
+  const where = who ? `${who.bank} · ${groupAccount(who.number)}` : undefined;
+  const page = () => leave(() => router.push(`/transfer/${id}` as never));
+  const again =
+    (typing = false) =>
+    () =>
+      leave(() => {
+        draft.put({ who: personOf(row), amount: Math.abs(row.amount), amountNote: 'The same as before', typing });
+        router.push('/send' as never);
+      });
+  if (state === 'pending')
+    return {
+      glyph: 'clock',
+      tone: colour.accent,
+      title: 'Still on its way',
+      bank: where,
+      sub: `Sent at ${row.time}, not confirmed by ${bank} yet. Do not send it again: this one is still live.`,
+      actions: [
+        { label: 'Ask about it', glyph: 'chat', onPress: () => leave(() => askHome(router, 'Ask about this transfer', `${naira(Math.abs(row.amount))} to ${row.name} at ${row.time}`)) },
+        { label: 'See the details', glyph: 'chevron', onPress: page },
+      ],
+    };
+  if (state === 'failed')
+    return {
+      glyph: 'alert',
+      tone: colour.alert,
+      title: 'It did not go',
+      bank: where,
+      sub: `${bank} turned it down at ${row.time}. Your balance is exactly what it was.`,
+      actions: [
+        { label: 'Try again', glyph: 'up', onPress: again() },
+        { label: 'See the details', glyph: 'chevron', onPress: page },
+      ],
+    };
+  return {
+    glyph: 'back',
+    tone: colour.ink,
+    title: 'It came back',
+    bank: where,
+    sub: `Returned at ${row.time}: ${first}'s account could not be credited. Reference ${returnReference(row.id)}.`,
+    actions: [
+      { label: 'Check the number', glyph: 'search', onPress: again(true) },
+      { label: `Try ${first} again`, glyph: 'up', onPress: again() },
+    ],
+  };
 }
 
 /* One row coming in: a beat after the one above it, out of a blur and up from 6 under its place. */
@@ -337,6 +472,9 @@ const s = StyleSheet.create({
   dash: { width: 4, height: 1, backgroundColor: colour.ruleStrong },
   copy: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   actions: { flexDirection: 'row', gap: 8, marginTop: 14 },
+  /* what a line that has not settled is: a small disc in its colour, the words beside it */
+  state: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 4 },
+  stateDisc: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
   /* a quiet button on the frost: white, with a hairline to stand on */
   action: {
     flex: 1,

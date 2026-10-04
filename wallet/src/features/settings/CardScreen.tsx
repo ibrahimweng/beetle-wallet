@@ -68,7 +68,7 @@ export function CardScreen() {
   if (!ok || !account) return null;
   if (!ready)
     return (
-      <Screen still>
+      <Screen still frost>
         <View />
       </Screen>
     );
@@ -87,7 +87,7 @@ export function CardScreen() {
   const left = CARD.ceiling - CARD.spent + (prefs.cardLoaded ?? 0);
   return (
     <View style={{ flex: 1 }}>
-      <Screen head={<PageHead lead title="Virtual card" sub="Made for one merchant, with its own limit" />}>
+      <Screen frost head={<PageHead lead title="Virtual card" sub="Made for one merchant, with its own limit" />}>
         <View style={{ gap: 12 }}>
           <CardFace only={CARD.only} number={shown ? CARD.full : CARD.hidden} name={`${account.firstName} ${account.lastName}`.toUpperCase()} expiry={CARD.expiry} frozen={prefs.cardFrozen} />
           <Tools

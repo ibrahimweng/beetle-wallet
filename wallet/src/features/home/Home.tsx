@@ -22,14 +22,15 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BackHandler, Keyboard, Platform, ScrollView, TextInput, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
-import { Meta, Pane, Tap, colour, dark, frame, keys, settle, standard, useStill } from '../../design';
+import { Meta, Tap, colour, dark, frame, keys, settle, standard, useStill } from '../../design';
 import type { IconName } from '../../icons';
 import { DEMO_SAVED, OFFLINE_LINE, TRY_FIRST, beneficiariesOf, newAsk, ownLine, ownTag, panelFromAsk, refusalLine, refuses, type AskPanel, type Move, type Panel } from '../../services';
 import { useApp } from '../onboarding/store';
 import { Chat } from '../agent/Chat';
 import { ChatReceipt } from '../agent/ChatReceipt';
-import { ChatsDrawer, ChatsEdge, EDGE, drawerWidth } from '../agent/Drawer';
+import { ChatsDrawer, ChatsEdge, EDGE, drawerWidth, useChatsSwipe } from '../agent/Drawer';
 import { isPanel, transcriptOf, turn, useConversation, type Turn } from '../agent/conversation';
 import { clock, detailOf, titleOf, toCarryOn, useChats, type Chat as ChatRecord } from '../agent/chats';
 import { lineOf, transferPanel, PEOPLE } from '../../services/agent';
@@ -56,6 +57,7 @@ import { chatPointedOut, markChatPointedOut } from './first';
 import { useSetup } from '../setup/store';
 import { tabs, useHoldPages, usePage, useTabAgain } from '../tabs';
 import { Grid } from './Grid';
+import { Promos, promosFor } from './Promos';
 import { kobo, naira } from '../../lib/format';
 
 /** What stays showing under the open card: the bar's row of glyphs, 16
@@ -66,6 +68,8 @@ const ROW_GAP = 16;
 const UNDER = BAR_H - frame.dockPad + ROW_GAP;
 /** The grid, this far under the closed card. */
 const GRID_TOP = 24;
+/** Between the promo card's dots and the four cards. */
+const PROMO_GAP = 16;
 /** The chats drawer stops this far above the card's foot: at the top of the ask bar, which stays clear; its blur runs down over the chips. */
 const DRAWER_CLEAR = 20 + 48 + 4;
 
@@ -199,6 +203,7 @@ function HomeScreen() {
   const { prefs } = usePrefs(account?.accountNumber);
   const { goals } = useGoals(account?.accountNumber, { demo: !!account?.demo, started: prefs.goal });
   const standings = useMemo(() => goals.map(g => standingOf(g, { goals, demo: !!account?.demo, tight: prefs.tight, moves })), [goals, account, prefs.tight, moves]);
+  const promos = useMemo(() => promosFor({ setUp: setup.done, goal: goals[0]?.name ?? null }), [setup.done, goals]);
   /** the Receive sheet, over everything */
   const [receive, setReceive] = useState(false);
   /** money that just arrived, for the card to show */
@@ -805,118 +810,124 @@ function HomeScreen() {
     height: Math.max(0, openH.value - haze - FOOT_BAND),
     opacity: Math.min(1, Math.max(0, (open.value - 0.6) / 0.4)) * (1 - drawerIn.value),
   }));
-  if (!ok || !app.session || !h || !account) return null;
   const DW = drawerWidth(W);
+  /* the chats drawer comes in from a swipe that starts near the left edge of the open chat, while nothing is over it */
+  const openDrawer = useCallback(() => setDrawer(true), []);
+  const chatsSwipe = useChatsSwipe(drawerIn, DW, openDrawer, opened && !drawer && !guard && !receive && !chatPeek);
+  if (!ok || !app.session || !h || !account) return null;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colour.surface }}>
-      {/* everything that recedes when something here leads away; the sheets over it stay sharp */}
-      <Animated.View style={[{ flex: 1 }, receding]}>
-        <Animated.ScrollView
-          ref={page}
-          onScroll={onScroll}
-          scrollEventThrottle={16}
-          scrollEnabled={!opened}
-          bounces={false}
-          overScrollMode="never"
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ paddingBottom: BAR_H + 16 }}
-        >
-          <Pane style={{ gap: 0 }}>
-            <WalletCard
-              open={open}
-              openH={openH}
-              scrollY={scrollY}
-              onSettle={to => {
-                if (to === openedRef.current) return;
-                if (to) {
-                  setOpened(true);
-                  begin();
-                } else show(false);
-              }}
-              whole={naira(balance)}
-              kobo={kobo(balance)}
-              dollars={setup.done ? `~ ${Math.round(balance / rate).toLocaleString('en-NG')} USD` : 'New account'}
-              hint={hint}
-              onReceive={openReceive}
-              flash={flash}
-              onDollars={() => router.push(setup.done ? '/dollars' : '/way-in?setup=1')}
-              chipLabel={setup.done ? undefined : 'New account'}
-              chat={
-                <Chat
-                  talk={talk}
-                  active={opened}
-                  top={haze + 8}
-                  bottom={FOOT_BAND - 8}
-                  confirm={confirmWithPasscode}
-                  saved={saved}
-                  balance={balance}
-                  account={account}
-                  tag={ownTag(account.firstName)}
-                  canBorrow={setup.done}
-                  onConfirmAsk={confirmAsk}
-                  onBorrow={borrow}
-                  onSetUp={() => router.push('/way-in?setup=1')}
-                  goals={standings}
-                  onSave={putAway}
-                  onStartGoal={() => router.push('/goal?new=1')}
-                  onReceipt={(card, at) => {
-                    /* only while the chat is open: the card may have closed while the line was being measured */
-                    if (!openedRef.current) return;
-                    Keyboard.dismiss();
-                    setChatPeek({ card, at });
-                  }}
-                />
-              }
-              recede={drawerIn}
-              foot={
-                <ChatFoot
-                  typing={draft.trim().length > 0}
-                  chips={[
-                    { glyph: 'send', label: 'Send', onPress: () => offer('send') },
-                    { glyph: 'power', label: 'Bills', onPress: () => offer('bills') },
-                    { glyph: 'data', label: 'Data', onPress: () => offer('data') },
-                    { glyph: 'down', label: 'Receive', onPress: () => offer('receive') },
-                    { glyph: 'pot', label: 'Save', onPress: () => offer('save') },
-                    { glyph: 'loan', label: 'Loan', onPress: () => offer('loan') },
-                  ]}
-                >
-                  {/* a tap on the ask bar puts the drawer away, and the bar is the chat's again */}
-                  <AskBar ref={input} value={draft} onChange={setDraft} onSubmit={send} onCamera={toCamera} onFocus={() => drawer && closeDrawer()} />
-                </ChatFoot>
-              }
-            />
-            {/* the four cards, going as the card opens */}
-            <Animated.View style={[{ paddingTop: GRID_TOP }, gridStyle]} pointerEvents={opened ? 'none' : 'auto'}>
-              <Grid width={W} accountNumber={account.accountNumber} demo={!!account.demo} moves={moves} borrowing={setup.done} />
-            </Animated.View>
-          </Pane>
-        </Animated.ScrollView>
-      </Animated.View>
-      {/* the chats: the soft edge down the open chat, and the drawer it brings in */}
-      {opened ? <ChatsEdge d={drawerIn} width={DW} style={edgeStyle} onOpen={() => setDrawer(true)} /> : null}
-      {opened ? (
-        <ChatsDrawer
-          d={drawerIn}
-          open={drawer}
-          width={DW}
-          top={drawerTop}
-          height={drawerH}
-          chats={chats}
-          currentId={current.current?.id}
-          onNew={startNew}
-          onPick={switchTo}
-          onClose={() => setDrawer(false)}
-        />
-      ) : null}
-      {/* the passcode, on its sheet over everything, before money moves */}
-      {guard ? (
-        <PasscodeSheet key={guard.panel.id} {...sheetFor(guard.panel)} verify={app.checkPasscode} onDone={guardDone} onCancel={() => setGuard(null)} faceMissed={LAB && asked.face === 'missed'} />
-      ) : null}
-      {receive && account ? <ReceiveSheet account={account} onDismiss={() => setReceive(false)} /> : null}
-      {chatPeek ? <ChatReceipt card={chatPeek.card} at={chatPeek.at} onClose={() => setChatPeek(null)} /> : null}
-    </View>
+    <GestureDetector gesture={chatsSwipe}>
+      <View style={{ flex: 1, backgroundColor: colour.surface }}>
+        {/* everything that recedes when something here leads away; the sheets over it stay sharp */}
+        <Animated.View style={[{ flex: 1 }, receding]}>
+          <Animated.ScrollView
+            ref={page}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
+            scrollEnabled={!opened}
+            bounces={false}
+            overScrollMode="never"
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ paddingBottom: BAR_H + 16 }}
+          >
+            <View style={{ gap: 0 }}>
+              <WalletCard
+                open={open}
+                openH={openH}
+                scrollY={scrollY}
+                onSettle={to => {
+                  if (to === openedRef.current) return;
+                  if (to) {
+                    setOpened(true);
+                    begin();
+                  } else show(false);
+                }}
+                whole={naira(balance)}
+                kobo={kobo(balance)}
+                dollars={setup.done ? `~ ${Math.round(balance / rate).toLocaleString('en-NG')} USD` : 'New account'}
+                hint={hint}
+                onReceive={openReceive}
+                flash={flash}
+                onDollars={() => router.push(setup.done ? '/dollars' : '/way-in?setup=1')}
+                chipLabel={setup.done ? undefined : 'New account'}
+                chat={
+                  <Chat
+                    talk={talk}
+                    active={opened}
+                    top={haze + 8}
+                    bottom={FOOT_BAND - 8}
+                    confirm={confirmWithPasscode}
+                    saved={saved}
+                    balance={balance}
+                    account={account}
+                    tag={ownTag(account.firstName)}
+                    canBorrow={setup.done}
+                    onConfirmAsk={confirmAsk}
+                    onBorrow={borrow}
+                    onSetUp={() => router.push('/way-in?setup=1')}
+                    goals={standings}
+                    onSave={putAway}
+                    onStartGoal={() => router.push('/goal?new=1')}
+                    onReceipt={(card, at) => {
+                      /* only while the chat is open: the card may have closed while the line was being measured */
+                      if (!openedRef.current) return;
+                      Keyboard.dismiss();
+                      setChatPeek({ card, at });
+                    }}
+                  />
+                }
+                recede={drawerIn}
+                foot={
+                  <ChatFoot
+                    typing={draft.trim().length > 0}
+                    chips={[
+                      { glyph: 'send', label: 'Send', onPress: () => offer('send') },
+                      { glyph: 'power', label: 'Bills', onPress: () => offer('bills') },
+                      { glyph: 'data', label: 'Data', onPress: () => offer('data') },
+                      { glyph: 'down', label: 'Receive', onPress: () => offer('receive') },
+                      { glyph: 'pot', label: 'Save', onPress: () => offer('save') },
+                      { glyph: 'loan', label: 'Loan', onPress: () => offer('loan') },
+                    ]}
+                  >
+                    {/* a tap on the ask bar puts the drawer away, and the bar is the chat's again */}
+                    <AskBar ref={input} value={draft} onChange={setDraft} onSubmit={send} onCamera={toCamera} onFocus={() => drawer && closeDrawer()} />
+                  </ChatFoot>
+                }
+              />
+              {/* the promo card and the four cards under it, going as the card opens */}
+              <Animated.View style={[{ paddingTop: GRID_TOP, gap: PROMO_GAP }, gridStyle]} pointerEvents={opened ? 'none' : 'auto'}>
+                <Promos width={W} promos={promos} />
+                <Grid width={W} accountNumber={account.accountNumber} demo={!!account.demo} moves={moves} borrowing={setup.done} />
+              </Animated.View>
+            </View>
+          </Animated.ScrollView>
+        </Animated.View>
+        {/* the chats: the soft edge down the open chat, and the drawer it brings in */}
+        {opened ? <ChatsEdge d={drawerIn} style={edgeStyle} onOpen={openDrawer} /> : null}
+        {opened ? (
+          <ChatsDrawer
+            d={drawerIn}
+            open={drawer}
+            width={DW}
+            top={drawerTop}
+            height={drawerH}
+            chats={chats}
+            currentId={current.current?.id}
+            onNew={startNew}
+            onPick={switchTo}
+            onClose={() => setDrawer(false)}
+          />
+        ) : null}
+        {/* the passcode, on its sheet over everything, before money moves */}
+        {guard ? (
+          <PasscodeSheet key={guard.panel.id} {...sheetFor(guard.panel)} verify={app.checkPasscode} onDone={guardDone} onCancel={() => setGuard(null)} faceMissed={LAB && asked.face === 'missed'} />
+        ) : null}
+        {receive && account ? <ReceiveSheet account={account} onDismiss={() => setReceive(false)} /> : null}
+        {chatPeek ? <ChatReceipt card={chatPeek.card} at={chatPeek.at} onClose={() => setChatPeek(null)} /> : null}
+      </View>
+    </GestureDetector>
   );
 }
 

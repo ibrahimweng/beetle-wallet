@@ -15,12 +15,21 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   - **a hairline**: 1 of `rule` (`edge` on the dark card) where two whites meet;
   - **frost**: a blur with a white (or near-black) wash over what is behind;
   - **space**: room around a thing says it is a thing.
-- What scrolls under a page's foot fades into the foot's white over 40;
-  the bar does the same. No hard edge, no shadow line.
-- **A white gradient always has a blur under it** (the owner's word,
-  Round 12): the foot's fade, the bar's, the More sheet's veil, a receipt's.
-  The blur is stacked sheets, each fading at its own end, so it thins with
-  the white; on the phone it grows in strength as the white comes in.
+- **Glass, not white** (the owner's word, Round 13). What scrolls under a
+  page's foot or the bar goes soft under a blur that grows toward the edge,
+  reaching 40 above the row, with no white in it: a white page reads as
+  white and a card passing under reads as a card, blurred. No hard edge, no
+  shadow line, no white band. The top of a page with a title is the same
+  soft blur, stronger, so a row passing under the shrunk title is a smear
+  and the title reads.
+- **Frosted white glass** for what sits over the page: the bar's Home,
+  Activities and Settings in a pill that hugs them (12 of padding, no
+  outline), and Back in a circle of it. A page that opens over home (Card,
+  Services, Loan, Savings) has home behind it, frosted, as its ground.
+- **A white gradient always has a blur under it** (Round 12): the More
+  sheet's veil, the frost a line opens over. The blur is stacked sheets,
+  each fading at its own end, so it thins with the white; on the phone it
+  grows in strength as the white comes in.
 
 ## Type, space and the grid
 
@@ -50,19 +59,47 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   measure before moving, so the lift and the arrival are the same motion.
 - Rows arrive one after another, 40–60 apart; never more than a third of
   a second for the lot.
-- **Titles arrive with their page**: no title flies from the button that
-  opened it or grows into its size.
+- **Pages slide the way the phone's own do** (Round 13): in from the right
+  over the page they came from, out to the right, the swipe from the left
+  edge taking them back under the finger. Nothing else moves between
+  pages: no cross-fade, no screen receding, nothing lighting up. A title
+  comes with its page; none flies from the button that opened it.
+- **A title shrinks as its page scrolls**, staying at the top: over the
+  first 56 of scroll, about its top left corner, to 14, the size of the
+  word Wallet on home's card; the line under it is gone by half way.
+  Scrolled back to the top, it grows back.
 - Reduced motion on the phone means no motion here: everything lands where
   it ends.
 
 ## The foot
 
-- One foot for the app, over the stack. On Home, Activities and Settings it
-  is the bar (the three glyphs and the plus). On every other page it is
-  Back at the bottom left beside the page's one button, or Back alone.
+- Each page carries its own foot, so the foot slides with its page. On
+  Home, Activities and Settings it is the bar (the three glyphs in their
+  glass pill, and the plus). On every other page it is Back at the bottom
+  left beside the page's one button, or Back alone.
 - Only home has an ask bar.
 - Money moves by **Slide to send** (or Slide to take, to pay) in the foot,
   never by a plain button on a page.
+
+## Home
+
+- Under the black card, **one promo card** the width of the page: Beetle's
+  own features for this account, most useful first, one at a time with
+  small dots under it. A tap opens what it offers; a sideways swipe that
+  starts on it is its own, not the pages'.
+- Then the four cards. **Services starts on All services**; Bills, Airtime
+  and Data come after a swipe.
+
+## Transactions
+
+- **Every transaction opens in place** (Round 13): the line stays, sharp,
+  the page goes soft under a white frost and the facts come in under the
+  line. On Activities, and for the receipt right after paying, over the
+  page paid from. There is no full receipt page.
+- A line not settled — still on its way, did not go, came back — says what
+  happened in place, with the bank and the account, and offers its next
+  steps where a settled one offers Share receipt and Set it up.
+- What Beetle noticed (the insights) keeps its own behaviour.
 
 ## Pages
 
@@ -87,6 +124,8 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   types any exact amount. Never a page of its own for an amount.
 - A choice of a few (days, a term) is a quiet row with "30 days ▾", not a
   boxed field and not another row of chips beside the amount's chips.
+- **What is tapped is what is set**: a chip or a tick sets the figure at
+  once; the ruler only glides to it, and the steps it passes are not picks.
 
 ## Sending money
 
@@ -116,6 +155,9 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   words only, close enough together that all six fit across the phone.
 - The transfer card is titled **Send money**, the same as the page, for a
   Beetle account and for any other bank.
+- The chats drawer comes in from a swipe that starts **within a thumb's
+  width (44) of the left edge**, not only on the light drawn there: an edge
+  a finger has to hit exactly is an edge a phone misses.
 - A card in the chat that has all it needs pays from where it is: its
   button goes to the passcode. A small **Recent** grows the card itself
   into a list of what was paid before.

@@ -94,7 +94,19 @@ const seeExactly = text => page.getByText(text, { exact: true }).filter({ visibl
 /* the moment a screen's words are in the page at all, before it has arrived —
    what a trace of the arrival has to start from */
 const arrives = text => page.waitForFunction(t => (document.body.innerText || '').includes(t), text, { polling: 16, timeout: 15000 });
-const button = name => page.getByRole('button', { name, exact: true }).first();
+/* a receipt, opened in place over the page it came from (Round 13): the line, and its facts come in under it */
+const receiptInPlace = () => page.getByTestId('in-place-card').filter({ visible: true }).first().waitFor();
+/* and put away: a tap on the frost above it */
+const closeInPlace = async () => {
+  await page
+    .getByTestId('in-place-away')
+    .filter({ visible: true })
+    .first()
+    .click({ position: { x: 200, y: 60 } });
+  await page.waitForTimeout(700);
+};
+/* a covered page keeps its buttons in the page, hidden: only the one that can be seen is pressed */
+const button = name => page.getByRole('button', { name, exact: true }).filter({ visible: true }).first();
 const tap = name => button(name).click();
 const type = async digits => {
   for (const d of digits) await tap(d);
@@ -116,6 +128,8 @@ const showing = () =>
       }) ?? null,
   );
 const onPage = async tab => {
+  /* pages slide now: the one going can still be in sight while the address moves on */
+  for (let i = 0; i < 40 && (page.url().slice(base.length).split('?')[0] || '/') !== '/home'; i++) await page.waitForTimeout(100);
   at('/home');
   for (let i = 0; i < 20; i++) {
     if ((await showing()) === tab) return;
@@ -178,7 +192,10 @@ async function trace(name, ms, matches, { since = Date.now(), picture } = {}) {
   const t0 = since;
   let taken = false;
   while (Date.now() - t0 < ms) {
-    if (picture && !taken && Date.now() - t0 >= picture.at) {
+    /* the picture mid-way, once there is a sample to stand before it: a
+       picture can take longer than the movement, and must not leave the
+       trace without its start */
+    if (picture && !taken && samples.length && Date.now() - t0 >= picture.at) {
       taken = true;
       await shot(picture.name, 0);
     }
@@ -195,8 +212,8 @@ async function trace(name, ms, matches, { since = Date.now(), picture } = {}) {
       for (const [key, match, deep] of ms) {
         let found = null;
         if (match.startsWith('[')) {
-          /* a selector: the element itself */
-          const el = document.querySelector(match);
+          /* a selector: the element itself; ending ':last', the last of them in the page (the screen on top) */
+          const el = match.endsWith(':last') ? [...document.querySelectorAll(match.slice(0, -5))].pop() : document.querySelector(match);
           found = el ? look(el) : null;
         } else {
           for (const el of document.querySelectorAll('[style*="filter"]')) {
@@ -279,9 +296,11 @@ try {
     { since: tapped, picture: { at: 120, name: 'welcome-leaving' } },
   );
   /* gone: faded to nothing, or already taken down after fading (the picture
-     mid-way can take longer than the fade itself) */
+     mid-way can take longer than the fade itself, so the first sample may
+     come after it has gone: it was there for the tap, and the picture has it
+     leaving) */
   const seen = change.findIndex(x => x.welcome);
-  const gone = seen < 0 ? undefined : change.find((x, i) => i > seen && (!x.welcome || x.welcome.opacity < 0.15));
+  const gone = change.find((x, i) => i > seen && (!x.welcome || x.welcome.opacity < 0.15));
   must(
     gone && gone.t <= 600,
     `the welcome should be gone within 600ms of the tap (samples: ${change
@@ -468,23 +487,49 @@ try {
   must(clear && clear.t <= 1100, 'the balance should be clear within 1.1s');
   console.log(`  balance ${blurry.balance.blur.toFixed(1)}px soft at ${blurry.t}ms, clear at ${clear.t}ms`);
   await shot('home');
+  /* the bar (Round 13): no white under it; Home, Activities and Settings in a rounded pill of frosted glass that hugs them, the plus beside it */
+  const bar = await page.evaluate(() => {
+    const el = document.querySelector('[data-testid="bar"]');
+    const pill = document.querySelector('[data-testid="bar-pill"]')?.getBoundingClientRect();
+    return { ground: el ? getComputedStyle(el).backgroundColor : null, pill: pill ? { w: Math.round(pill.width), h: Math.round(pill.height) } : null };
+  });
+  must(bar.ground === 'rgba(0, 0, 0, 0)', `the bar should have no white under it (${bar.ground})`);
+  must(bar.pill && bar.pill.h === 56 && bar.pill.w === 144, `the glyphs should sit in a 144 by 56 pill (${JSON.stringify(bar.pill)})`);
   /* under the black card, four cards two by two, Fuse's way: Savings with its ring and how it is going, Loan, Card, and Services */
   await see('Holiday · 33%');
   await see('A fortnight ahead');
   await see('•••• 4471');
-  await see('Airtime');
+  /* the Services card starts on All services (Round 13) */
+  await see('Bills, airtime, data and more');
   must((await page.getByText('See all').count()) === 0, 'the record should have left home for Activities');
   must((await page.getByTestId('grid-savings').boundingBox())?.height === 152, 'the cards are 152 tall');
-  /* the Services card swipes through its three inside itself: the swipe is the card's, and the pages stay */
+  /* the promo card, under the black card and over the four: one at a time, with its dots; a swipe across it brings the next, and the pages stay */
+  const promo = await page.getByTestId('promo-card').boundingBox();
+  const grid = await page.getByTestId('grid-savings').boundingBox();
+  must(promo && grid && promo.y + promo.height < grid.y, 'the promo card should sit over the four cards');
+  must((await page.getByTestId('promo-dots').count()) === 1, 'the promo card should have its dots under it');
+  await see('Save in four taps');
+  const promoLabel = () => page.getByTestId('promo-card').getAttribute('aria-label');
+  await drag(promo.x + promo.width - 12, promo.y + promo.height / 2, promo.x + 12, promo.y + promo.height / 2 + 2);
+  await onPage('home');
+  must((await promoLabel()) === 'Borrow up to ₦250,000', `a swipe across the promo card should bring the next (it says ${await promoLabel()})`);
+  await shot('home-promo-next', 300);
+  /* the Services card swipes through Bills, Airtime and Data inside itself: the swipe is the card's, and the pages stay */
   const strip = await page.getByTestId('services-strip').boundingBox();
+  const servicesLabel = () => page.getByTestId('services-strip').getAttribute('aria-label');
+  must((await servicesLabel()) === 'All services', 'the Services card should start on All services');
   await drag(strip.x + strip.width - 12, strip.y + 40, strip.x + 12, strip.y + 42);
   await onPage('home');
-  await see('Light, TV and more');
+  must((await servicesLabel()) === 'Services: Bills', `one swipe should bring Bills (it says ${await servicesLabel()})`);
   await shot('home-services-bills', 300);
   await drag(strip.x + strip.width - 12, strip.y + 40, strip.x + 12, strip.y + 42);
-  await see('A plan for any line');
-  /* anywhere else a swipe to the left turns the pages on: Activities, then Settings, and no further; a swipe to the right comes back */
-  await drag(340, 450, 60, 455);
+  must((await servicesLabel()) === 'Services: Airtime', `two swipes should bring Airtime (it says ${await servicesLabel()})`);
+  await drag(strip.x + strip.width - 12, strip.y + 40, strip.x + 12, strip.y + 42);
+  must((await servicesLabel()) === 'Services: Data', `three swipes should bring Data (it says ${await servicesLabel()})`);
+  /* anywhere else a swipe to the left turns the pages on: Activities, then Settings, and no further; a swipe to the right comes back.
+     On home the swipe is taken across Savings and Loan, clear of the cards that swipe themselves */
+  const across = Math.round(grid.y + grid.height / 2);
+  await drag(340, across, 60, across + 5);
   await onPage('activities');
   await shot('pages-activities', 300);
   await drag(340, 450, 60, 455);
@@ -964,8 +1009,8 @@ try {
   console.log(`  the receipt opened from ${Math.round(small.height)} to ${Math.round(big.height)} tall, where it was`);
   /* the full receipt is one tap further */
   await tap('The full receipt');
-  await see('All done');
-  must(page.url().includes('/receipt/'), 'The full receipt should open the page');
+  await receiptInPlace();
+  must(page.url().includes('/receipt/'), 'The full receipt should open the receipt, in place');
   await shot('receipt-live', 500);
   await tap('Back to the lab');
   await see('Beetle Lab');
@@ -974,7 +1019,8 @@ try {
   await see('Rent part payment');
   at('/receipt/l08');
   await shot('receipt-transfer', 500);
-  await tap('Copy it');
+  await tap('Show the session id');
+  await tap('Copy the session id');
   await page
     .getByText(/copied\. Paste it anywhere\.|cannot reach the clipboard/)
     .first()
@@ -993,13 +1039,14 @@ try {
   await tap('Back to the lab');
   await see('Beetle Lab');
   await tap('A bill paid');
-  await see('Copy the token');
+  /* a prepaid bill's token is always shown in place, with its copy button */
+  await button('Copy the token').waitFor();
   at('/receipt/l11');
   await shot('receipt-bill', 500);
   await tap('Back to the lab');
   await see('Beetle Lab');
   await tap('Money in');
-  await see('None on money in');
+  await receiptInPlace();
   at('/receipt/l10');
   await shot('receipt-in', 500);
   await tap('Back to the lab');
@@ -1013,7 +1060,11 @@ try {
   await page.waitForFunction(() => {
     const bar = document.querySelector('[data-testid="bar"]');
     const plus = bar?.querySelector('[aria-label="More"]');
-    return !!bar && !!plus && Math.abs(new DOMMatrix(getComputedStyle(bar).transform).m42) < 0.5 && plus.getBoundingClientRect().height > 55;
+    /* and the screen has finished sliding in: the pages sit at the left edge */
+    const pager = document.querySelector('[data-testid="pager"]');
+    return (
+      !!bar && !!plus && !!pager && Math.abs(new DOMMatrix(getComputedStyle(bar).transform).m42) < 0.5 && plus.getBoundingClientRect().height > 55 && Math.abs(pager.getBoundingClientRect().left) < 0.5
+    );
   });
   /* the tap and the trace together: the slide is quicker than a click takes to come back */
   const gearTapped = Date.now();
@@ -1045,19 +1096,39 @@ try {
   must((await button('Settings').getAttribute('aria-selected')) === 'true', 'the gear should say its page is showing');
   must((await page.getByTestId('foot').count()) === 0, 'Settings keeps the bar, not Back and the ask bar');
   await shot('settings', 500);
+  /* the title shrinks as the page scrolls, to the size of home's word Wallet (14 from 32), over a soft blur rather than
+     white; scrolled back to the top it grows back (Round 13) */
+  const titleScale = () =>
+    page.evaluate(() => {
+      const h = document.querySelector('[data-testid="page-settings"] [data-testid="head"]');
+      return h ? new DOMMatrix(getComputedStyle(h).transform).a : null;
+    });
+  must((await titleScale()) === 1, 'the title should start at its full size');
+  await page.mouse.move(200, 520);
+  await page.mouse.wheel(0, 320);
+  await page.waitForTimeout(600);
+  const shrunk = await titleScale();
+  must(shrunk !== null && Math.abs(shrunk - 14 / 32) < 0.02, `scrolled, the title should shrink to 14 (scale ${shrunk})`);
+  await shot('settings-scrolled', 300);
+  await page.mouse.wheel(0, -640);
+  await page.waitForTimeout(600);
+  must(Math.abs((await titleScale()) - 1) < 0.01, 'scrolled back to the top, the title should grow back');
   await tap('Your details');
   await see('Member since');
   await shot('settings-details', 900);
   await tap('Done');
-  /* every row leads somewhere: Lock and privacy, and its switches kept on the phone. The page's
-     title arrives with the rest of the page, in its own place: it does not travel from the row or grow */
+  /* every row leads somewhere: Lock and privacy, and its switches kept on the phone. The page slides
+     in from the right with the phone's own movement (Round 13), its title with it, level all the way */
   await tap('Lock and privacy');
-  const journey = await trace('journey-lock', 1100, [['head', '[data-testid="head"]']], { picture: { at: 140, name: 'journey-lock-mid' } });
-  const heads = journey.map(x => x.head).filter(h => h && h.opacity > 0.01);
+  const journey = await trace('journey-lock', 1100, [['head', '[data-testid="head"]:last']], { picture: { at: 140, name: 'journey-lock-mid' } });
+  const heads = journey.map(x => x.head).filter(h => h && h.height > 0);
   must(heads.length > 3, 'the title should be arriving');
   const headTops = heads.map(h => h.top);
-  must(Math.max(...headTops) - Math.min(...headTops) < 4, `the title should arrive in its own place, not travel (${headTops.map(t => Math.round(t)).join(' ')})`);
-  console.log(`  the title arrived in its place at ${Math.round(headTops[headTops.length - 1])}, with the page`);
+  const headLefts = heads.map(h => h.left);
+  must(Math.max(...headTops) - Math.min(...headTops) < 4, `the title should come in level, not rise or fall (${headTops.map(t => Math.round(t)).join(' ')})`);
+  must(headLefts[0] > 60 && Math.abs(headLefts[headLefts.length - 1] - 20) < 2, `the page should slide in from the right (${headLefts.map(l => Math.round(l)).join(' ')})`);
+  must(new Set(headLefts.map(Math.round)).size >= 3, 'through the slide, not a jump');
+  console.log(`  the page slid in from ${Math.round(headLefts[0])} to ${Math.round(headLefts[headLefts.length - 1])}, its title level at ${Math.round(headTops[headTops.length - 1])}`);
   await see('What other people can see');
   at('/lock');
   await shot('settings-lock', 500);
@@ -1230,7 +1301,7 @@ try {
   await tap('Ikeja Electric');
   const opened = await trace(
     'in-place',
-    900,
+    1400,
     [
       ['line', '[data-testid="in-place-line"]'],
       ['card', '[data-testid="in-place-card"]'],
@@ -1238,7 +1309,10 @@ try {
     { picture: { at: 140, name: 'in-place-mid' } },
   );
   const held = opened.map(x => x.line).filter(Boolean);
-  must(held.length > 3 && Math.abs(held[0].top - (ikejaRow?.y ?? 0)) < 6, `the line should stay where it was (${Math.round(held[0]?.top ?? 0)}, the line at ${Math.round(ikejaRow?.y ?? 0)})`);
+  must(
+    held.length >= 3 && Math.abs(held[0].top - (ikejaRow?.y ?? 0)) < 6,
+    `the line should stay where it was (${Math.round(held[0]?.top ?? 0)}, the line at ${Math.round(ikejaRow?.y ?? 0)}; seen in ${held.length} of ${opened.length} samples: ${opened.map(x => (x.line ? Math.round(x.line.top) : '-')).join(' ')})`,
+  );
   await page.getByTestId('in-place-card').waitFor();
   must((await page.getByTestId('in-place-veil').count()) === 1, 'the page should go soft under the frost');
   /* the bar goes down under the bottom of the screen while a line is open */
@@ -1287,10 +1361,19 @@ try {
     .then(() => true)
     .catch(() => false);
   must(barBack, 'the bar should be back once the line is closed');
-  /* a line still on its way opens its own page, its title coming up from the line's words */
+  /* a line still on its way opens in place too (Round 13): what it is, with its next steps instead of
+     Share and Set it up; the page it used to open is behind See the details */
   await tap('Sarah Adeyemi');
+  await page.getByTestId('in-place-state').filter({ visible: true }).first().waitFor();
   await see('Do not send it again');
-  at('/transfer/l01');
+  at('/home');
+  await see('GTBank · 0234 5678 90');
+  must((await button('Ask about it').count()) === 1 && (await button('See the details').count()) === 1, 'a line on its way should offer to ask about it, and the details');
+  await shot('in-place-pending', 900);
+  await tap('See the details');
+  /* the line goes back into its place first, then the page slides in */
+  await page.waitForURL(/\/transfer\/l01/);
+  await seeExactly('Do not send it again. This one is still live.');
   await tap('Back');
   await see('Everything that moved');
   await tap('More');
@@ -1323,11 +1406,10 @@ try {
   await page.getByTestId('chat-receipt-card').waitFor();
   await see('None on money in');
   await tap('The full receipt');
-  await see('Money in');
+  await receiptInPlace();
   must(page.url().includes('/receipt/'), 'the card in the chat should lead to the receipt');
   await shot('lab-arrival-receipt', 900);
-  await tap('Back');
-  await page.waitForTimeout(700);
+  await closeInPlace();
   await tap('Back to the lab');
   await see('Beetle Lab');
   /* Beetle's model: no key here, so the try comes back from the script */
@@ -1508,11 +1590,12 @@ try {
   await button('Cancel').waitFor();
   await shot('send-passcode', 600);
   await type(PASSCODE);
-  await see('Sent to John Doe');
+  /* the receipt opens in place over the Send money page (Round 13); put away, it goes back past that page to home */
+  await receiptInPlace();
   must(page.url().includes('/receipt/'), 'the passcode should lead to the receipt');
   await see('Lunch');
   await shot('send-receipt', 900);
-  await tap('Back');
+  await closeInPlace();
   await see('Pull down');
   at('/home');
   await tap('Activities');
@@ -1528,7 +1611,7 @@ try {
   await slideToSend();
   await see('Enter your passcode');
   await type(PASSCODE);
-  await see('Sent to Sarah Adeyemi');
+  await receiptInPlace();
   await see('Flat deposit');
   await shot('send-message-receipt', 900);
   await tap('Back to the lab');
@@ -1614,7 +1697,7 @@ try {
   await slideToSend();
   await see('Enter your passcode');
   await type(PASSCODE);
-  await see('Bill paid');
+  await receiptInPlace();
   await see('Eko Electricity');
   must(page.url().includes('/receipt/'), 'paying a bill should open its receipt');
   await shot('bill-receipt', 900);
@@ -1637,7 +1720,7 @@ try {
   await slideToSend();
   await see('Enter your passcode');
   await type(PASSCODE);
-  await see('All done');
+  await receiptInPlace();
   must(page.url().includes('/receipt/'), 'buying data should open its receipt');
   await shot('data-receipt', 900);
   /* a message asking for data, read off a photo: the sheet over the camera, then the chat that prices it */
@@ -1657,8 +1740,8 @@ try {
   await tap('Confirm ₦2,500');
   await see('Enter your passcode');
   await type(PASSCODE);
-  await see('All done');
-  await see('5GB for 30 days · Mum');
+  await receiptInPlace();
+  await see('5GB for 30 days');
   await shot('topup-receipt', 900);
   /* the chat Beetle filed carries the receipt's card */
   await page.goto(`${base}/home`, { waitUntil: 'load' });
@@ -1681,8 +1764,8 @@ try {
   await slideToSend();
   await see('Enter your passcode');
   await type(PASSCODE);
-  await see('Money in');
-  await see('From Beetle Loans');
+  await receiptInPlace();
+  await see('Beetle Loans');
   await shot('loan-receipt', 900);
   await page.goto(`${base}/home`, { waitUntil: 'load' });
   await see(DEMO_HOME);
@@ -1713,8 +1796,9 @@ try {
   await tap('Continue');
   await see('Enter your passcode');
   await type(PASSCODE);
-  await see('Bill paid');
-  await see('Meter token');
+  await receiptInPlace();
+  /* the prepaid token, always shown in place with its copy button */
+  await button('Copy the token').waitFor();
   await shot('meter-receipt', 900);
   await page.goto(`${base}/lab`, { waitUntil: 'load' });
   await see('Beetle Lab');
@@ -1763,8 +1847,7 @@ try {
   await slideToSend();
   await see('Enter your passcode');
   await type(PASSCODE);
-  await see('All done');
-  await see('$32.22 at ₦1,552 to $1');
+  await receiptInPlace();
   await shot('send-dollars-receipt', 900);
   /* the goal: Savings pot on the drawer opens Holiday, as Savings on home does */
   await page.goto(`${base}/services`, { waitUntil: 'load' });
@@ -1785,6 +1868,13 @@ try {
   await see('₦250,000 by 12 March');
   at('/goal');
   await see('33%');
+  /* the page slides in over home, its ground frosted glass, with home still under it (Round 13) */
+  const over = await page.evaluate(() => {
+    const ground = [...document.querySelectorAll('[data-testid="frosted-ground"]')].pop()?.getBoundingClientRect();
+    const pager = document.querySelector('[data-testid="pager"]')?.getBoundingClientRect();
+    return { ground: ground ? Math.round(ground.width) : 0, home: pager ? Math.round(pager.width) : 0 };
+  });
+  must(over.ground === 393 && over.home === 393, `the goal page should be frosted glass over home (${JSON.stringify(over)})`);
   /* Add money and Take out sit straight under the ring, in view without a scroll */
   const adding = await button('Add money').boundingBox();
   must(adding && adding.y + adding.height < 852 - 104, `Add money should be in view above the foot (at ${adding?.y})`);
@@ -1795,8 +1885,7 @@ try {
   await counted(() => tap('Put ₦10,000 away'));
   await see('Enter your passcode');
   await counted(() => type(PASSCODE));
-  await see('All done');
-  await see('Put away');
+  await receiptInPlace();
   must(page.url().includes('/receipt/'), 'adding money should open its receipt');
   must(taps === 4, `saving should take four taps from home, not ${taps}`);
   await shot('goal-receipt', 900);
@@ -1826,7 +1915,7 @@ try {
   await tap('Take ₦5,000 out');
   await see('Enter your passcode');
   await type(PASSCODE);
-  await see('Taken back');
+  await receiptInPlace();
   must(page.url().includes('/receipt/'), 'taking money out should open its receipt');
   await shot('goal-taken', 900);
   /* a goal in three taps from home: Savings (1), New goal (2), Start saving (3), the sheet filled with Rent */
@@ -1968,8 +2057,8 @@ try {
   console.log('When it goes wrong');
   /* a dispute from a receipt: Report a problem under its ··· then They say it never arrived opens the day-three dispute the day already holds for Sarah's rent */
   await page.goto(`${base}/receipt/l08`, { waitUntil: 'load' });
-  await see('Sent to Sarah Adeyemi');
-  await page.getByTestId('more-menu').click();
+  await receiptInPlace();
+  await page.getByTestId('in-place-more').filter({ visible: true }).first().click();
   await tap('Report a problem');
   await see('Tell me which and I start it now');
   at('/wrong/l08');
@@ -1983,8 +2072,8 @@ try {
   await shot('dispute-filed', 600);
   /* a payment that was not yours: the card is frozen first, and a dispute opens on day one, with Beetle's chat carrying its card */
   await page.goto(`${base}/receipt/l06`, { waitUntil: 'load' });
-  await see('Sent to Sarah Adeyemi');
-  await page.getByTestId('more-menu').click();
+  await receiptInPlace();
+  await page.getByTestId('in-place-more').filter({ visible: true }).first().click();
   await tap('Report a problem');
   await see('Tell me which and I start it now');
   await tap('I did not make this payment');
@@ -2104,7 +2193,7 @@ try {
   at('/request');
   /* a transfer's receipt offers the same again, as an instruction of its own */
   await page.goto(`${base}/receipt/l05`, { waitUntil: 'load' });
-  await see('Sent to John Doe');
+  await receiptInPlace();
   await tap('Set it up');
   await see('Send ₦8,000 to John Doe');
   await see('Every Friday');
@@ -2158,7 +2247,7 @@ try {
   at('/alreadygone/l08');
   await shot('transfer-alreadygone', 900);
   await tap('Take ₦20,000 back');
-  await see('Money in');
+  await receiptInPlace();
   await see('Cover for a number read wrong');
   must(page.url().includes('/receipt/'), 'the cover should have its receipt');
   await shot('transfer-cover', 900);
@@ -2167,7 +2256,7 @@ try {
   /* a receipt's way to say something is wrong, under its ···, leads to What went wrong? */
   await tap('A transfer');
   await see('Rent part payment');
-  await page.getByTestId('more-menu').click();
+  await page.getByTestId('in-place-more').filter({ visible: true }).first().click();
   await tap('Report a problem');
   await see('Tell me which and I start it now');
   at('/wrong/l08');

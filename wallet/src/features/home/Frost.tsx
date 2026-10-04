@@ -7,55 +7,15 @@
    room in between, and the figure in the header keeps its contrast because
    the haze is still near solid behind it.
 
-   The blur is stacked: four sheets of expo-blur, each reaching less far in
-   than the last, and each masked by a gradient so its own end fades rather
-   than stops. On the phone the mask is a MaskedView; on the web it is CSS.
-   expo-blur and the mask are in the web, Expo Go, and any APK made after
-   they were added; a build without them gets the darkening alone, no blur,
-   rather than a crash. */
-import React, { useLayoutEffect, useRef, type ReactNode } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
-import Animated, { useAnimatedProps, useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
+   The blur is the design's stacked, masked sheets (design/Glass.tsx), dark
+   here, under the darkening. A build without expo-blur gets the darkening
+   alone, no blur, rather than a crash. */
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { SHEETS, Sheet, along, blurMethod, blurModule, type Side } from '../../design/Glass';
 
-type BlurModule = typeof import('expo-blur');
-const blur: BlurModule | null = (() => {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    return require('expo-blur') as BlurModule;
-  } catch {
-    return null;
-  }
-})();
-
-type MaskModule = typeof import('@react-native-masked-view/masked-view');
-const Masked: MaskModule['default'] | null = (() => {
-  if (Platform.OS === 'web') return null;
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    return (require('@react-native-masked-view/masked-view') as MaskModule).default;
-  } catch {
-    return null;
-  }
-})();
-
-export const hasBlur = blur !== null;
-
-/* A sheet's blur able to take its strength from a shared value on the phone. */
-const AnimatedBlur = blur ? Animated.createAnimatedComponent(blur.BlurView) : null;
-
-type Side = 'top' | 'bottom';
-
-/** How far each sheet reaches in from the edge, and how much it softens. */
-const SHEETS: [number, number][] = [
-  [1, 10],
-  [0.78, 14],
-  [0.58, 18],
-  [0.4, 24],
-];
-
-/** Where a sheet's own fade begins, as a share of its reach. */
-const SHEET_SOLID = 0.5;
+export const hasBlur = blurModule !== null;
 
 /** The darkening, from the edge in: near solid, then an eased fall to
     nothing. `solid` is how far in it stays near solid. */
@@ -69,48 +29,6 @@ export function tint(height: number, solid: number, glass: boolean): { colours: 
   };
 }
 
-const along = (side: Side) => ({
-  start: { x: 0.5, y: side === 'top' ? 0 : 1 },
-  end: { x: 0.5, y: side === 'top' ? 1 : 0 },
-});
-
-/* One sheet of blur, fading out at its own end. */
-function Sheet({ side, height, children }: { side: Side; height: number; children?: ReactNode }) {
-  const edge = side === 'top' ? { top: 0 } : { bottom: 0 };
-  const box = [{ position: 'absolute' as const, left: 0, right: 0, height }, edge];
-  if (Platform.OS === 'web')
-    return (
-      <WebMasked style={box} side={side} solid={SHEET_SOLID}>
-        {children}
-      </WebMasked>
-    );
-  if (Masked)
-    return (
-      <Masked style={box} maskElement={<LinearGradient colors={['#000', '#000', 'transparent']} locations={[0, SHEET_SOLID, 1]} {...along(side)} style={StyleSheet.absoluteFill} />}>
-        {children}
-      </Masked>
-    );
-  return <View style={box}>{children}</View>;
-}
-
-/* On the web the mask is a CSS gradient on the box itself, set on the node:
-   a style the web renderer would not otherwise pass through. */
-function WebMasked({ style, side, solid, children }: { style: object; side: Side; solid: number; children?: ReactNode }) {
-  const ref = useRef<View>(null);
-  useLayoutEffect(() => {
-    const el = ref.current as unknown as { style?: Record<string, string> } | null;
-    if (!el?.style) return;
-    const mask = `linear-gradient(to ${side === 'top' ? 'bottom' : 'top'}, #000 ${Math.round(solid * 100)}%, transparent 100%)`;
-    el.style.maskImage = mask;
-    el.style.webkitMaskImage = mask;
-  }, [side, solid]);
-  return (
-    <View ref={ref} style={style}>
-      {children}
-    </View>
-  );
-}
-
 export function Frost({
   height,
   side = 'top',
@@ -121,7 +39,7 @@ export function Frost({
   /** how far in from the edge the haze stays near solid */
   solid?: number;
 }) {
-  const Blur = blur?.BlurView;
+  const Blur = blurModule?.BlurView;
   const edge = side === 'top' ? { top: 0 } : { bottom: 0 };
   const t = tint(height, solid, !!Blur);
   return (
@@ -129,7 +47,7 @@ export function Frost({
       {Blur
         ? SHEETS.map(([share, intensity], i) => (
             <Sheet key={i} side={side} height={Math.round(height * share)}>
-              <Blur intensity={intensity} tint="dark" experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : 'none'} style={StyleSheet.absoluteFill} />
+              <Blur intensity={intensity} tint="dark" experimentalBlurMethod={blurMethod} style={StyleSheet.absoluteFill} />
             </Sheet>
           ))
         : null}
@@ -141,46 +59,4 @@ export function Frost({
       />
     </View>
   );
-}
-
-/* The white a page's foot fades what scrolls under it into, blurring it as it
-   whitens: the same stacked, masked sheets as the haze, light, under the
-   white. `k` brings it in and out with the foot. On the phone each sheet's
-   blur grows with it and only the white fades, since a blur under a fading
-   parent is drawn badly there; the web fades the whole, which it draws well. */
-export function BlurredFade({
-  height,
-  k,
-  colours,
-  locations,
-}: {
-  height: number;
-  k: SharedValue<number>;
-  colours: readonly [string, string, ...string[]];
-  locations: readonly [number, number, ...number[]];
-}) {
-  const Blur = blur?.BlurView;
-  const native = Platform.OS !== 'web' && !!AnimatedBlur;
-  const whole = useAnimatedStyle(() => ({ opacity: native ? 1 : k.value }));
-  const white = useAnimatedStyle(() => ({ opacity: native ? k.value : 1 }));
-  return (
-    <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, whole]} testID="foot-fade">
-      {Blur
-        ? SHEETS.map(([share, intensity], i) => (
-            <Sheet key={i} side="bottom" height={Math.round(height * share)}>
-              {native ? <GrowingBlur k={k} intensity={intensity} /> : <Blur intensity={intensity} tint="light" style={StyleSheet.absoluteFill} />}
-            </Sheet>
-          ))
-        : null}
-      <Animated.View style={[StyleSheet.absoluteFill, white]}>
-        <LinearGradient colors={colours} locations={locations} style={StyleSheet.absoluteFill} />
-      </Animated.View>
-    </Animated.View>
-  );
-}
-
-function GrowingBlur({ k, intensity }: { k: SharedValue<number>; intensity: number }) {
-  const strength = useAnimatedProps(() => ({ intensity: Math.max(0, Math.min(1, k.value)) * intensity }), [intensity]);
-  if (!AnimatedBlur) return null;
-  return <AnimatedBlur animatedProps={strength} tint="light" experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : 'none'} style={StyleSheet.absoluteFill} />;
 }

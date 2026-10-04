@@ -3,11 +3,11 @@
    top; All / Insights / In / Out to narrow it; today and yesterday, what is
    still on its way, did not go or came back first with its status glyph
    and a chevron, what settled after on the grey square; what Beetle
-   noticed set among the lines; and its word at the foot. A settled line
-   opens where it is: the line stays, the page goes soft under a frost of
-   white, and what the line does not say grows in under it (see InPlace).
-   One still on its way, that did not go or that came back opens its own
-   page. The foot is the bar, as on home and Settings, out of the way
+   noticed set among the lines; and its word at the foot. Every line opens
+   where it is: the line stays, the page goes soft under a frost of white,
+   and what the line does not say grows in under it (see InPlace). One still
+   on its way, that did not go or that came back says so there, with its
+   next step. The foot is the bar, as on home and Settings, out of the way
    while a line is open. */
 import React, { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
@@ -21,7 +21,7 @@ import { askHome } from '../more/More';
 import { useFoot } from '../more/Foot';
 import { usePage, useHoldPages } from '../tabs';
 import { InPlace, type Opened } from './InPlace';
-import { SEGMENTS, activityAmount, activityRows, type Segment } from './rows';
+import { SEGMENTS, activityAmount, activityRows, detailOf, type Segment } from './rows';
 
 const TONE: Record<LedgerRow['status'], string> = { pending: colour.accent, failed: colour.alert, reversed: colour.ink, done: colour.ink };
 
@@ -48,7 +48,6 @@ export function Activities() {
   useFoot({ kind: 'bar', veil: over ? 'away' : undefined }, active);
   /* the pages stand still while a line is open */
   useHoldPages('receipt', !!over);
-  const detailOf = (r: LedgerRow) => (r.detail.includes(':') ? r.detail : `${r.detail} · ${r.time}`);
   const openedFor = (r: LedgerRow, at: Rect | null, head: Rect | null = null): Opened => ({
     id: r.id,
     glyph: r.icon,
@@ -57,6 +56,7 @@ export function Activities() {
     amount: activityAmount(r, signed, naira),
     at,
     head,
+    state: r.status === 'done' ? undefined : r.status,
   });
   useEffect(() => {
     if (!asked.receipt || !ready || !h) return;
@@ -71,7 +71,7 @@ export function Activities() {
       </Screen>
     );
 
-  /* a settled line opens where it is */
+  /* every line opens where it is: a settled one with its receipt, one still on its way, that did not go or came back with that and its next step */
   const open = (r: LedgerRow, at: Rect) => void measure(headRow).then(head => setOver(openedFor(r, at, head.h ? head : null)));
   const rows = (day: LedgerRow['day']) =>
     activityRows(ledger, day, segment).map(r => (
@@ -84,8 +84,7 @@ export function Activities() {
         detail={detailOf(r)}
         amount={activityAmount(r, signed, naira)}
         journey={`row:${r.id}`}
-        onOpen={r.status === 'done' ? at => open(r, at) : undefined}
-        to={r.status === 'done' ? undefined : `/transfer/${r.id}`}
+        onOpen={at => open(r, at)}
       />
     ));
   /* what Beetle noticed, among the lines: where the money went has its own page; the others hand their thing to the chat on home */

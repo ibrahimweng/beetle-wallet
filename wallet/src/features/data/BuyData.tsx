@@ -189,7 +189,7 @@ export function BuyData() {
     const row = rowFrom({ ...base, detail: `${base.detail}${fromDollars ? ' · from dollars' : ''} · ${at}`, ...(fromDollars ? { usd: -usdOf(price, rate) } : {}) }, balance, 17 + moves.length);
     addMove(row);
     setGuard(false);
-    router.replace(`/receipt/${row.id}`);
+    router.push(`/receipt/${row.id}?paid=1`);
   };
 
   useFoot({ kind: 'slide', label: 'Slide to buy', amount: naira(price), disabled: !line || !price || typing, onSlide: slide, veil: guard || choosing ? 'away' : pick ? 'recede' : undefined });

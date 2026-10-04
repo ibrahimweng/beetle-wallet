@@ -191,7 +191,8 @@ export function ToastHost() {
         toValue: 0,
         duration: 200,
         useNativeDriver: true,
-      }).start(() => setText(null));
+        /* only a fade that ran to its end clears: a new toast arriving mid-fade stops it, and must not be swallowed */
+      }).start(({ finished }) => finished && setText(null));
     }, 2400);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps

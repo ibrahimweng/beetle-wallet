@@ -14,7 +14,9 @@ export const feeTo = (amount: number, bank?: string) => (bank === 'Beetle' ? 0 :
 export const arrivesAt = (amount: number, bank?: string) => (bank === 'Beetle' ? 'Instantly' : amount > 50_000 ? 'Under a minute' : 'In a few seconds');
 
 /** The whole balance, or all of it that can be sent once the fee is counted, to an account never paid before. */
-export const refuses = (amount: number, balance: number, paidBefore: boolean) => amount > 0 && amount + feeFor(amount) >= balance && !paidBefore;
+export const refuses = (amount: number, balance: number, paidBefore: boolean) =>
+  /* in kobo: "All of it" is the balance less the fee, and the two added back in naira can fall a hair short of it */
+  amount > 0 && Math.round((amount + feeFor(amount)) * 100) >= Math.round(balance * 100) && !paidBefore;
 
 /** How old the account is, for one Beetle has never paid; nothing for one it has. */
 export const accountAge = (paidBefore: boolean) => (paidBefore ? undefined : 'Four minutes');

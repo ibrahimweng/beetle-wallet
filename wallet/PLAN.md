@@ -975,6 +975,112 @@ Save (1), Put away (2), the passcode (3).
 **The problems, in short points**: after the round, every flow walked
 again and what is wrong said plainly to the owner.
 
+## Round 13 · Pages that slide, glass instead of white, and every transaction in place
+
+Asked by the owner after Round 12, testing on the phone, with four questions
+answered: the frosted white pill for the bar; the pages' foot loses its
+white too; the lines still on their way, failed or sent back and the
+receipt right after paying both open in place; the promos as one
+full-width card with dots.
+
+**Pages that slide**
+
+- [x] Every page comes and goes with the phone's own sliding page movement,
+      and the swipe back from the left edge works on the phone. The
+      cross-fade, the page's column arriving out of a blur, the tapped
+      thing lighting up and the screen receding behind it all go: the slide
+      is the movement. The stack is expo-router's JavaScript stack, so the
+      phone and the web move the same way.
+- [x] Each page carries its own foot, so the foot slides in and out with its
+      page (and follows the finger on the swipe back) instead of changing
+      shape in place.
+- [x] Card, Services, Loan and Savings, opened from home's four cards, slide
+      in over home with a frosted, blurred background, so home shows
+      through behind them. Pages opened from them slide in over them as
+      usual. Home stays mounted underneath (a see-through page, not a
+      pushed one), which is what lets it show.
+
+**Glass instead of white**
+
+- [x] The bar has no white under it. Home, Activities and Settings sit in a
+      rounded pill of frosted white glass that hugs them (12 of padding, no
+      outline). The black plus stays beside it. A soft blur, with no white
+      in it, sits under both.
+- [x] Other pages' foot loses its white the same way: Back in a frosted white
+      circle, the page's button as it is, a soft blur behind.
+- [x] The top of every page with a title has a soft blur instead of white,
+      and the title shrinks as the page scrolls, to the size of the word
+      Wallet on home's black card (14), staying at the top. Scrolled back to
+      the top, it grows back. The line under the title fades as it shrinks.
+      It shrinks where it is, at the top left (not moved to the middle as
+      iOS does), so it never crosses the ··· at the right. The blur behind
+      it is stronger than the foot's, so rows passing under the small title
+      are a smear and the title reads.
+
+**Home**
+
+- [x] The Services card starts on All services. A swipe shows Bills,
+      Airtime and Data (the owner's order), and the dots count four.
+- [x] One promo card, the width of the page, directly under the black card
+      and above the four cards: Beetle's own features, swiped one at a time,
+      with small dots under it. Each opens what it offers: Finish setting up
+      (until it is done), Start a goal in three taps (or Save in four taps
+      once there is a goal), Borrow up to the most Beetle lends (once set
+      up), Pay light and TV in two taps. A sideways swipe that starts on the
+      card moves the card, not the pages.
+
+**Every transaction in place** (the MTN data line the owner sent: the line
+stays, the facts come in under it on the frost, Share receipt and Set it up)
+
+- [x] Every line in Activities opens in place, not only the settled ones. A
+      line still on its way, one that did not go and one that came back say
+      so in place (Still on its way, It did not go, It came back), with the
+      bank and the account under To, and their next steps: Ask about it,
+      Try again or Try Sarah again, Check the number, and See the details
+      for the state's own page. Insights keep their own behaviour.
+- [x] The receipt right after paying (Send money, a bill, data, airtime, a
+      loan, a goal, loading the card) opens the same way, over a frosted
+      view of the page paid from. Closing it goes back to where the payment
+      started. A bill's token is a row of its own, tapped to copy.
+
+**From the phone** (the owner, testing the Round 12 update in Expo Go: the
+chats drawer would not open, and Expo Go closed on a slide — between Home,
+Activities and Settings, and on the swipe back from the edge)
+
+- [x] The drawer comes in from a swipe that starts anywhere within a
+      thumb's width (44) of the chat's left edge, the way react-navigation's
+      drawers take it, not only on the 16 of soft light: on a phone a swipe
+      "from the edge" lands well inside the glass. A swipe from the middle
+      of the chat is still the chat's; a tap on the light still opens it.
+- [x] The swipe back from the edge is now the JavaScript stack's own (the
+      native stack's, with the cross-fade, is gone with Round 13's slide).
+- [x] What stops the app is kept: an error that would close it is written to
+      the keychain first, and the next time a build with the lab opens it says
+      what it was, with Copy the details. An error inside the screens no
+      longer closes anything: Something went wrong, with Try again. Every call
+      made on the phone's animation thread is checked to be a worklet or to go
+      through runOnJS (a test now holds the whole app to it,
+      test/worklets.test.mjs); none was found wrong. If Expo Go still closes
+      on a slide and nothing is said after, the stop is in the phone's own
+      code, and the phone's crash report (Settings, Privacy & Security,
+      Analytics Data, Expo Go) says where.
+
+**Found on the way**
+
+- [x] An amount chip (All of it among them) set the figure, then the ruler
+      gliding to it set every step it passed, so a tap on Confirm in that
+      moment took a step on the way: ₦594,000 instead of all of it, past
+      the whole-balance rule. A chip, a tick tapped or a step by the screen
+      reader now sets the figure at once and the ruler only glides.
+- [x] A toast that came up while another was fading went with it; each now
+      goes only when its own fade ends.
+- [x] Sending the whole balance to an account never paid was now and then
+      let through: the amount and the fee, added as decimals, came to a
+      hair under the balance. The rule compares them in kobo.
+
+**Expo Go**: every round that reaches the phone ends with a QR code for the
+update, to scan with the iPhone camera.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the
@@ -1000,6 +1106,10 @@ again and what is wrong said plainly to the owner.
 
 ## Kept out on purpose
 
+- The full receipt page (A transfer 239:7829, Data bought 239:8418, A bill
+  paid 490:13497, Money in 490:12465): since Round 13 every transaction
+  opens in place, as the owner asked, so those four frames left the check.
+  The share sheet over a receipt (472:10886, 472:11590) is still checked.
 - Three ways to be paid (222:199) and Your code (221:2), with the QR, and
   paying in from a card: the owner took them off after Round 11, so being
   paid is the Receive sheet's own details. Their fixtures left the check.

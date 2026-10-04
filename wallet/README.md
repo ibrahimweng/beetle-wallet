@@ -49,7 +49,7 @@ every screen. It needs a Chromium (`npx playwright install chromium`, or set
 | `npm run typecheck` | it compiles, with `strict` and `noUncheckedIndexedAccess` on |
 | `npm test` | the rules of the way in: what counts as a Nigerian number, what a passcode may not be, where each step leads, how the mock services answer; the scripted Beetle and what it asks for; the model against a fake API, its ask panel and its tools; what Beetle knows of the country — the networks by prefix, the plans, the companies, the meters, what was paid before; the gate before money moves; the hour a chat carries on for; the receipts' figures; the order of the record; the three words past a limit; and that what runs on the phone's animation thread — a gesture's callbacks, an animated style, an animation's last callback — calls nothing that is not a worklet and reaches for nothing that cannot be copied there (React Native's Keyboard, a router, anything made with new), the stops the web never shows (`test/worklets.test.mjs`) |
 | `npm run bundle` | the same JavaScript the phone runs, exported for the web into `dist/` |
-| `npm run flow` | from the boot to the welcome and on to home, then out (Sign out asking first) and back in as the demo account, with the doors that should be shut tried on the way and the lab opened from the version line; the card pulled down and traced as it opens down to the bar that stays under it, with the six chips over the input putting their cards up in the chat, Activities and back to the chat as it was and Home again closing it, money sent by asking and let through by the passcode, the account's details opened and copied, the saving counted — four taps to put money away, three to start a goal — with a goal edited, paused and ended, money taken out and the Save chip's card, a photo taken with the browser's stand-in camera and read, money arriving, the model screen, the four cards on home, the Services card swiped through and the pages swiped between, a chat carried on and New chat in the drawer, the receipt card opened where it is and every receipt opened in place with the share sheet, the promo card, the Services card starting on All services, the bar's glass pill, Savings over a frosted home, a title shrinking on Settings, Settings with every row followed — the switches kept, a new passcode, the three words past a limit, an instruction offered and set up, the other devices signed out, the phone that is not yours frozen, the card revealed and frozen — the bar and More under its white veil, the pages sliding under a bar that stays put, the record narrowed to In and to Insights and a line opened in place over the frost — not who, not the total, the session id kept back, its ··· with Ask Beetle about this — and closed with a tap off it, the four asks — a transfer with no amount, data for a new number, airtime on the own line, a bill from a new meter and from one paid before — each filled on its card or from Recent, its button saying what is still missing, and taken from that button through the passcode to its receipt; money sent from the Send money page — To as a $tag, as a number with its bank picked and the name checked, and from the people paid before; the amount moved on the ruler and typed in place, a reference typed, the slide, the passcode with the whole of it and Cancel, the receipt, and the line on Activities — then filled from a message, from a photo, stopped hard at what Everyday can send, and from a digit the reader was not sure of; every state of a transfer and every way out of it; the face that did not take; and the lab's places opened on their own; every screen photographed into `shots/` |
+| `npm run flow` | from the boot to the welcome and on to home, then out (Sign out asking first) and back in as the demo account, with the doors that should be shut tried on the way and the lab opened from the version line; the card pulled down and traced as it opens down to the bar that stays under it, with the six chips over the input putting their cards up in the chat, Activities and back to the chat as it was and Home again closing it, money sent by asking and let through by the passcode, the account's details opened and copied, the saving counted — four taps to put money away, three to start a goal — with a goal edited, paused and ended, money taken out and the Save chip's card, a photo taken with the browser's stand-in camera and read, money arriving, the model screen, the four cards on home, the Services card swiped through and the pages swiped between, a chat carried on and New chat in the drawer, the receipt card opened where it is and every receipt opened in place with the share sheet, the promo card and its × folding the promos away, the Services card starting on All services, the bar's glass pill, Savings as a sheet over home and Airtime as a sheet over the Services sheet, a title shrinking on Settings, Settings with every row followed — the switches kept, a new passcode, the three words past a limit, an instruction offered and set up, the other devices signed out, the phone that is not yours frozen, the card revealed and frozen — the bar and More under its white veil, the pages sliding under a bar that stays put, the record narrowed to In and to Insights and a line opened in place over the frost — not who, not the total, the session id kept back, its ··· with Ask Beetle about this — and closed with a tap off it, the four asks — a transfer with no amount, data for a new number, airtime on the own line, a bill from a new meter and from one paid before — each filled on its card or from Recent, its button saying what is still missing, and taken from that button through the passcode to its receipt; money sent from the Send money page — To as a $tag, as a number with its bank picked and the name checked, and from the people paid before; the amount moved on the ruler and typed in place, a reference typed, the slide, the passcode with the whole of it and Cancel, the receipt, and the line on Activities — then filled from a message, from a photo, stopped hard at what Everyday can send, and from a digit the reader was not sure of; every state of a transfer and every way out of it; the face that did not take; and the lab's places opened on their own; every screen photographed into `shots/` |
 | `npm run figma` | every built screen — thirty-eight of them — against its Figma frame: each named piece where the frame puts it, within three of the frame's figure or of that figure snapped to the 4-point grid; the frame's words on the screen; what is off on purpose listed with its reason; the frame and the screen side by side in `shots/figma/` |
 
 ## On the frame
@@ -251,7 +251,8 @@ what the checks read is the page showing.
 
 Under the card and its promo, four cards two by two, the way Fuse lays out its own:
 pale grey, rounded 20, a 32 glyph at the top left and at the foot a small
-grey word and a bold figure. Savings says the most — the goal's ring in
+grey word, a bold figure and a line of 10 under it, 24 in from the
+screen's sides (the owner's home frame, Round 14). Savings says the most — the goal's ring in
 green with the pot in it, Holiday and how far along, what is put aside,
 and how it is going: a fortnight ahead, paused for now (the ring gone
 grey), what it is aiming for while nothing is in it, or, with no goal,
@@ -261,9 +262,12 @@ setting up is done. Card is the virtual card by its last four, with what
 is left to spend this month or Frozen. Services is laid out like the other three and starts on All services; a
 swipe inside it brings Bills, Airtime and Data, the glyph and the name
 sliding together and four small dots at the top right following the
-swipe, and a tap opens the one showing. Each card's page slides in over
-home, and home stays under it, frosted and out of focus, so it shows
-through behind the page. There is no dollar wallet on home yet; the chip
+swipe, and a tap opens the one showing. Each card's page comes up from the
+bottom as a white sheet, nearly the height of the screen, and home steps
+back behind it, a little narrower, its top showing over the sheet's; a
+page opened from a sheet comes up as a sheet over it, and Back (or, on the
+phone, a swipe down from the sheet's top) puts away the one on top
+(`src/design/sheetStack.tsx`). There is no dollar wallet on home yet; the chip
 on the card is the way to the dollars.
 
 Between the black card and the four, one promo card the width of the page
@@ -271,16 +275,18 @@ Between the black card and the four, one promo card the width of the page
 useful first — Finish setting up until it is done, Start a goal in three
 taps (Save in four taps once there is one), Borrow once borrowing is
 open, Pay light and TV in two taps — one at a time on a faint wash of its
-own colour, swiped across, with small dots under it. A tap opens what it
-offers. A sideways swipe that starts on it moves it, not the pages.
+own colour, swiped across, with small dots inside it at its bottom right.
+A tap opens what it offers. A sideways swipe that starts on it moves it,
+not the pages. A small × at its top right folds the promos away, the four
+cards rising into their place, until Beetle next opens.
 
-The black card at the top holds the word Wallet at its left, the balance,
-Send and Receive, and a grabber that says pull down; Settings is the gear
-on the bar at the foot, so the header carries no mark of its own. Pull it and it becomes the chat: it grows down to
+The black card at the top holds the balance, Send and Receive as two white
+pills, and a grabber, with no words over them or under it (the owner's
+home frame, Round 14); Settings is the gear on the bar at the foot. Pull it and it becomes the chat: it grows down to
 just over the bar — which stays, the same bar as everywhere, its white
 going bare as the card comes over it — while the figure
-glides up into the header, shrinking as it goes, and takes the word Wallet's
-place at its left; the buttons soften away; the
+glides up into the header, shrinking as it goes, to its left; the buttons
+soften away; the
 conversation arrives from below with the ask bar at the card's foot. The
 header and the foot are a haze: the conversation runs up under the one and
 down under the other and shows through, softened and darkened, near solid at
@@ -294,8 +300,8 @@ round and the way back: Activities or Settings on it turns the pages and
 leaves the chat as it is; Home, once, comes back to it just as it was left;
 Home again — or Home tapped while in the chat — closes it, the card going
 back up. A push up on the header or on the chat once it has scrolled to its
-end, or the phone's own back, closes it too. The first time on a phone, the card dips on its own
-with the words "Pull down to ask Beetle", once. The keyboard shrinks the open
+end, or the phone's own back, closes it too. The first time on a phone, the card dips on its own,
+once, so the pull is seen. The keyboard shrinks the open
 card rather than covering the bar. (The blur itself comes from `expo-blur` and its mask from
 `@react-native-masked-view/masked-view`, both in Expo Go and the web now and
 in any APK built after they were added; an older APK gets the darkening
@@ -1097,7 +1103,9 @@ right; on the phone a swipe from the left edge takes it back under the
 finger. The stack is expo-router's JavaScript stack (`app/(app)/_layout.tsx`),
 so the phone and the web move alike, and each page carries its own foot,
 so Back and the page's button slide with the page. Card, Services, Loan
-and Savings slide in over home itself, which stays under them, frosted.
+and Savings come up from the bottom instead, as white sheets over home,
+which steps back behind them (Round 14); a page opened from one comes up
+as a sheet over it.
 Where nothing needs a page, nothing is pushed: a line on Activities opens
 in place, its facts coming in under it as the page goes soft under white,
 the receipt right after paying opens the same way over the page paid

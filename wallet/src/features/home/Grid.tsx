@@ -1,8 +1,9 @@
 /* Home's four cards, two by two under the black card, laid out the way
    Fuse lays out its own: pale grey, rounded 20, a 32 glyph at the top left,
    and at the foot a small grey word and a bold figure. Measured off Fuse's
-   home (167 × 150 on a 393 screen, 24 in and 10 apart); here 20 in and 12
-   apart, 152 tall.
+   home (167 × 150 on a 393 screen, 24 in and 10 apart); here 24 in (the
+   owner's home frame, Round 14) and 12 apart, 152 tall. The line at the
+   foot is 10, the frame's.
 
    Savings says the most, with care: the goal's ring, what is put aside and
    the target, how it is going — ahead, or Paused while money is tight, or
@@ -21,7 +22,7 @@ import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { cancelAnimation, interpolate, interpolateColor, runOnJS, useAnimatedStyle, useSharedValue, withSpring, type SharedValue } from 'react-native-reanimated';
-import { Caption, Icon, Meta, Progress, Row, Tap, colour, swipes, useDeparture, useTap } from '../../design';
+import { Fine, Icon, Meta, Progress, Row, Tap, colour, swipes, useDeparture, useTap } from '../../design';
 import type { IconName } from '../../icons';
 import { naira } from '../../lib/format';
 import { standingOf, together, useGoals, type Standing } from '../goal';
@@ -31,7 +32,7 @@ import { usePrefs } from '../settings/prefs';
 import { settleOn, usePagerSwipe } from '../tabs';
 import type { LedgerRow } from './account';
 
-export const GRID_SIDE = 20;
+export const GRID_SIDE = 24;
 export const GRID_GAP = 12;
 export const TILE_H = 152;
 /** How far in from a card's edge its pieces sit. */
@@ -121,9 +122,9 @@ function GridCard({
           {figure}
         </Row>
         {sub ? (
-          <Caption tone="tertiary" numberOfLines={1} style={subTone ? { color: subTone } : undefined}>
+          <Fine tone="tertiary" numberOfLines={1} style={subTone ? { color: subTone } : undefined}>
             {sub}
-          </Caption>
+          </Fine>
         ) : null}
       </View>
     </Tap>
@@ -262,9 +263,9 @@ function Services({ w }: { w: number }) {
                   <Row style={s.figure} numberOfLines={1}>
                     {it.label}
                   </Row>
-                  <Caption tone="tertiary" numberOfLines={1}>
+                  <Fine tone="tertiary" numberOfLines={1}>
                     {it.sub}
-                  </Caption>
+                  </Fine>
                 </View>
               ))}
             </Animated.View>

@@ -1,7 +1,8 @@
 /* The black card at the top of home, and what it becomes.
 
-   Closed, it holds the wallet's name, the balance with its
-   reading in dollars, Send and Receive, and a grabber that says pull down.
+   Closed, it holds the balance with its reading in dollars, Send and
+   Receive as two white pills, and a grabber (Round 14, the owner's frame:
+   no word Wallet over it and no words under the grabber).
    Pulled down, it grows to two thirds of the screen and turns into the chat:
    the balance glides up into the header, shrinking as it goes, the buttons
    and the grabber soften away, and the conversation arrives from below,
@@ -17,12 +18,14 @@ import { Caption, Icon, Label, Swap, Tap, blurred, colour, dark, keys, motion, s
 import { useDeparture } from '../../design/journey';
 import { Frost } from './Frost';
 
-/** The card's height when closed, as the frame draws it. */
-export const CLOSED_H = 352;
+/** The card's height when closed, as the frame draws it (Round 14: the owner's frame, 300). */
+export const CLOSED_H = 300;
 /** The status bar's allowance at the top of the card, as the frame draws it. */
 const TOP = 52;
 const SIDE = 16;
 const HEADER_H = 36;
+/** Where Total balance starts when closed: 28 under the status bar's allowance, the frame's 80. */
+const BALANCE_TOP = TOP + 28;
 /** the header band: top allowance, the row, and the gap under it */
 export const HEAD_BAND = TOP + HEADER_H + 20;
 /** the chips over the ask bar: their height, and the gap down to the bar */
@@ -34,7 +37,7 @@ export const FOOT_BAND = 16 + CHIPS_H + CHIPS_GAP + 48 + 20;
 const HAZE_FEATHER = 12;
 /** the foot haze: the card's edge up to the middle of the chips, and the feather */
 export const FOOT_HAZE = 20 + 48 + CHIPS_GAP + CHIPS_H / 2 + HAZE_FEATHER;
-/** where the figure goes: the word Wallet's place at the left of the header, which it takes as the card opens */
+/** where the figure goes as the card opens: the left of the header */
 const FIGURE_LEFT = SIDE;
 /** the drag has to travel this far before the card takes it */
 const SLACK = 10;
@@ -149,7 +152,6 @@ export type CardProps = {
   dollars: string;
   /** New, at the top right of the open card: this chat filed, a fresh one. Home keeps New in the chats drawer instead. */
   onNew?: () => void;
-  hint: string;
   onReceive: () => void;
   onDollars: () => void;
   /** what the chip is called when it is not the dollars: New account, until setting up is done */
@@ -172,14 +174,14 @@ const clamp = (v: number, lo: number, hi: number) => {
   return Math.min(hi, Math.max(lo, v));
 };
 
-export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, hint, onReceive, onDollars, chipLabel, onNew, chat, foot, over, flash, recede }: CardProps) {
+export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, onReceive, onDollars, chipLabel, onNew, chat, foot, over, flash, recede }: CardProps) {
   /* Send is the way to the Send money page. Settings is the gear on the bar, not the card */
   const send = useDeparture({ id: 'card:send', to: '/send', words: 'Send' });
   const { width: W } = useWindowDimensions();
   const still = useStill();
   const { top, extra, headBand, closedH, haze, hazeSolid } = useCardTop();
   /* how far down the figure and the chip sit when closed, and where they go in the header */
-  const figureTop = top + HEADER_H + 24 + 16 + 4;
+  const figureTop = BALANCE_TOP + extra + 16 + 4;
   const figureTopOpen = top + (HEADER_H - 20) / 2;
   const chipTopOpen = top + (HEADER_H - 24) / 2;
   const [opened, setOpened] = useState(false);
@@ -246,7 +248,6 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
     const t = clamp((open.value - 0.5) / 0.5, 0, 1);
     return { opacity: t, transform: [{ translateY: 20 * (1 - t) }], ...blurred((1 - t) * motion.blur) };
   });
-  const wallet = useAnimatedStyle(() => ({ opacity: 1 - clamp((open.value - 0.2) / 0.3, 0, 1) }));
   /* the glass under the header only means anything once there is a conversation under it */
   const frost = useAnimatedStyle(() => ({ opacity: clamp((open.value - 0.4) / 0.4, 0, 1) }));
   /* the chat and the bar recede while something sits over them */
@@ -264,7 +265,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
     };
   });
   const fading = useAnimatedStyle(() => ({ opacity: 1 - veil.value }));
-  /* the grabber and its words stay while the card only dips, and go once it is really opening */
+  /* the grabber stays while the card only dips, and goes once it is really opening */
   const goingLate = useAnimatedStyle(() => {
     const t = clamp((open.value - 0.3) / 0.3, 0, 1);
     return { opacity: 1 - t, ...blurred(t * motion.blur) };
@@ -321,17 +322,13 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
         {over}
       </View>
 
-      {/* the header band: frosted glass over the conversation, and the wallet's
-          name at the left until the figure takes its place */}
+      {/* the header band: frosted glass over the conversation, which the figure comes up into */}
       <GestureDetector gesture={headPan}>
         <View style={[s.head, { height: headBand, paddingTop: top }]}>
           <Animated.View style={[StyleSheet.absoluteFill, frost]} pointerEvents="none">
             <Frost height={haze} solid={hazeSolid} />
           </Animated.View>
           <View style={s.headRow}>
-            <Animated.View style={wallet} testID="wallet">
-              <Label style={{ color: '#ffffff' }}>Wallet</Label>
-            </Animated.View>
             <View style={{ flex: 1 }} />
             {/* New, at the top right once the card is the chat, where a screen gives one: home keeps it in the chats drawer */}
             {onNew ? (
@@ -357,26 +354,26 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
               <Caption style={[s.chipText, { color: dark.chipText }]}>{dollars}</Caption>
             </Tap>
           </View>
+          {/* Send and Receive: white pills, the glyph in a 36 square and the word after it (Round 14, the owner's frame) */}
           <View style={s.actions}>
-            <Tap ref={send.ref} accessibilityRole="button" accessibilityLabel="Send" onPress={send.onPress} style={[s.action]}>
+            <Tap ref={send.ref} accessibilityRole="button" accessibilityLabel="Send" onPress={send.onPress} style={s.pill} testID="send-pill">
               {send.wash}
-              <View style={s.disc} testID="send-disc">
+              <View style={s.pillGlyph} testID="send-disc">
                 <Icon name="send" size={16} colour={colour.ink} />
               </View>
-              <Label style={{ color: '#ffffff' }}>Send</Label>
+              <Label>Send</Label>
             </Tap>
-            <Tap accessibilityRole="button" accessibilityLabel="Receive" onPress={onReceive} style={s.action}>
-              <View style={s.disc} testID="receive-disc">
+            <Tap accessibilityRole="button" accessibilityLabel="Receive" onPress={onReceive} style={s.pill} testID="receive-pill">
+              <View style={s.pillGlyph} testID="receive-disc">
                 <Icon name="down" size={16} colour={colour.ink} />
               </View>
-              <Label style={{ color: '#ffffff' }}>Receive</Label>
+              <Label>Receive</Label>
             </Tap>
           </View>
         </Animated.View>
       </GestureDetector>
       <Animated.View style={[s.grab, { top: s.grab.top + extra }, goingLate]} pointerEvents="none">
         <View style={s.grabber} testID="grabber" />
-        <Swap value={hint}>{h => <Caption style={{ color: '#ffffff' }}>{h}</Caption>}</Swap>
       </Animated.View>
 
       {/* the figure, in whichever place `open` says */}
@@ -419,11 +416,14 @@ const s = StyleSheet.create({
   head: { position: 'absolute', top: 0, left: 0, right: 0, paddingHorizontal: SIDE, zIndex: 3, overflow: 'visible' },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: HEADER_H },
   newChat: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 36, paddingHorizontal: 4 },
-  closed: { position: 'absolute', top: HEAD_BAND - 20 + 24, left: 0, right: 0, height: CLOSED_H - (HEAD_BAND - 20 + 24), paddingHorizontal: SIDE, alignItems: 'center', gap: 12 },
+  /* the balance from the frame's 80, then 24 down to the pills; it runs to the card's edge, so a pull on the grabber, or under it, is the card's */
+  closed: { position: 'absolute', top: BALANCE_TOP, left: 0, right: 0, height: CLOSED_H - BALANCE_TOP, paddingHorizontal: SIDE, alignItems: 'center', gap: 24 },
   actions: { flexDirection: 'row', justifyContent: 'center', gap: 24, alignSelf: 'stretch' },
-  action: { alignItems: 'center', gap: 8 },
-  disc: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center' },
-  grab: { position: 'absolute', top: CLOSED_H - 20 - 32, left: 0, right: 0, alignItems: 'center', gap: 12, zIndex: 2 },
+  /* 100 wide whatever the word, so the two are one size; 12 clear after the word */
+  pill: { width: 100, height: 36, borderRadius: 18, backgroundColor: '#ffffff', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingRight: 12 },
+  pillGlyph: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+  /* the grabber alone, 20 above the card's edge */
+  grab: { position: 'absolute', top: CLOSED_H - 20 - 4, left: 0, right: 0, alignItems: 'center', zIndex: 2 },
   grabber: { width: 27, height: 4, borderRadius: 2, backgroundColor: dark.grabber },
   opened: { position: 'absolute', top: 0, left: SIDE, right: SIDE, bottom: 0 },
   over: { position: 'absolute', left: SIDE, right: SIDE, bottom: 0, zIndex: 5 },

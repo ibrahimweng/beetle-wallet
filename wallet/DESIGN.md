@@ -34,8 +34,11 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 ## Type, space and the grid
 
 - Sizes are the file's: Display 32/40, Head 20/24, Row 16/24 semibold,
-  Body 16/24, Label 14/20 semibold, Meta 14/20, Caption 12/16.
-- Space steps by 4: 4, 8, 12, 16, 20, 24, 32. A page's sides are 20.
+  Body 16/24, Label 14/20 semibold, Meta 14/20, Caption 12/16. Where the
+  owner's home frame sets smaller words, Small 11/16 (the promo's line)
+  and Fine 10/16 (the foot line of home's four cards); nowhere else.
+- Space steps by 4: 4, 8, 12, 16, 20, 24, 32. A page's sides are 20; home's
+  are 24 (Round 14, the owner's frame).
 - **Label left, figure right.** A list of facts is rows: the label in the
   secondary grey at the left, the figure in ink at the right, one line
   each, tight: 28–32 a row in a breakdown on a card or a sheet, 40–44 on a
@@ -63,7 +66,9 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   over the page they came from, out to the right, the swipe from the left
   edge taking them back under the finger. Nothing else moves between
   pages: no cross-fade, no screen receding, nothing lighting up. A title
-  comes with its page; none flies from the button that opened it.
+  comes with its page; none flies from the button that opened it. What
+  home's four cards open comes up from the bottom instead, as a sheet, and
+  so does anything opened from a sheet (Round 14; see Pages).
 - **A title shrinks as its page scrolls**, staying at the top: over the
   first 56 of scroll, about its top left corner, to 14, the size of the
   word Wallet on home's card; the line under it is gone by half way.
@@ -77,16 +82,23 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   Home, Activities and Settings it is the bar (the three glyphs in their
   glass pill, and the plus). On every other page it is Back at the bottom
   left beside the page's one button, or Back alone.
+- The bar sits 12 from the bottom of the screen and 24 in from either side
+  (the owner's home frame). On a phone with the home line it sits just over
+  the line instead, never on it.
 - Only home has an ask bar.
 - Money moves by **Slide to send** (or Slide to take, to pay) in the foot,
   never by a plain button on a page.
 
 ## Home
 
+- The black card holds the balance, its reading in dollars, **Send and
+  Receive as white pills** and a grabber, with no words over or under them.
 - Under the black card, **one promo card** the width of the page: Beetle's
   own features for this account, most useful first, one at a time with
-  small dots under it. A tap opens what it offers; a sideways swipe that
-  starts on it is its own, not the pages'.
+  small dots inside it at its bottom right. A tap opens what it offers; a
+  sideways swipe that starts on it is its own, not the pages'. **Its × puts
+  the promos away until Beetle next opens**, the four cards rising into
+  their place.
 - Then the four cards. **Services starts on All services**; Bills, Airtime
   and Data come after a swipe.
 
@@ -102,6 +114,13 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 - What Beetle noticed (the insights) keeps its own behaviour.
 
 ## Pages
+
+- **What home's four cards open comes up as a sheet** (Round 14): white,
+  edge to edge, round at the top, stopping just under the status bar, home
+  stepped back and greyed a little behind it. Nothing is ever read over a
+  blurred page. A page opened from a sheet comes up as a sheet over it, the
+  one under stepping back; Back, or a swipe down from the sheet's top, puts
+  away the one on top.
 
 - **No Beetle bubble on any page.** Bubbles belong to the chat. What Beetle
   has to say on a page is a plain line in the secondary grey, where the

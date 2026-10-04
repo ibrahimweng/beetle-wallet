@@ -30,4 +30,6 @@ export const Body = make('Body', t.body);
 export const Label = make('Label', t.label);
 export const Meta = make('Meta', t.meta);
 export const Caption = make('Caption', t.caption);
+export const Small = make('Small', t.small);
+export const Fine = make('Fine', t.fine);
 export const Key = make('Key', t.key);

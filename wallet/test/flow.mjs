@@ -411,9 +411,22 @@ try {
   await onPage('home');
 
   console.log('The lab, behind the version line');
-  /* the card's header carries only the word Wallet: Settings is the gear on the bar */
+  /* the card carries no mark (Settings is the gear on the bar) and, since the owner's Round 14 frame, no word Wallet */
   must((await page.getByTestId('mark').count()) === 0, 'the card should carry no mark: Settings is on the bar');
-  must((await page.getByTestId('wallet').count()) === 1, 'the word Wallet should stay in the header');
+  must((await page.getByTestId('wallet').count()) === 0, 'the card should carry no word Wallet (Round 14)');
+  /* Send and Receive are white pills, 100 by 36, 24 apart (Round 14) */
+  /* both measured in the same moment: the page may still be sliding in */
+  const pills = await page.evaluate(() =>
+    ['send-pill', 'receive-pill'].map(id => {
+      const r = document.querySelector(`[data-testid="${id}"]`)?.getBoundingClientRect();
+      return r ? { x: r.x, y: r.y, width: r.width, height: r.height } : null;
+    }),
+  );
+  must(
+    pills.every(p => p && Math.round(p.width) === 100 && Math.round(p.height) === 36),
+    `Send and Receive should be 100 by 36 pills (${JSON.stringify(pills)})`,
+  );
+  must(pills[0] && pills[1] && Math.round(pills[1].x - pills[0].x - pills[0].width) === 24, 'with 24 between them');
   /* the gear on the bar turns to Settings; a long press on the version line
      at its foot opens the lab, and the tab back to it comes with it; Leave
      the lab puts the tab away and goes back into the app */
@@ -507,13 +520,46 @@ try {
   const promo = await page.getByTestId('promo-card').boundingBox();
   const grid = await page.getByTestId('grid-savings').boundingBox();
   must(promo && grid && promo.y + promo.height < grid.y, 'the promo card should sit over the four cards');
-  must((await page.getByTestId('promo-dots').count()) === 1, 'the promo card should have its dots under it');
+  /* its dots inside it at its bottom right, and its × at its top right (Round 14) */
+  const promoDots = await page.getByTestId('promo-dots').boundingBox();
+  must(
+    promoDots && promoDots.y + promoDots.height <= promo.y + promo.height && promoDots.x + promoDots.width <= promo.x + promo.width && promoDots.x > promo.x + promo.width / 2,
+    'the promo card should carry its dots inside, at its bottom right',
+  );
+  const promoX = await page.getByTestId('promo-close').boundingBox();
+  must(promoX && promoX.y < promo.y + promo.height / 2 && promoX.x > promo.x + promo.width / 2, 'and its × at its top right');
   await see('Save in four taps');
   const promoLabel = () => page.getByTestId('promo-card').getAttribute('aria-label');
   await drag(promo.x + promo.width - 12, promo.y + promo.height / 2, promo.x + 12, promo.y + promo.height / 2 + 2);
   await onPage('home');
   must((await promoLabel()) === 'Borrow up to ₦250,000', `a swipe across the promo card should bring the next (it says ${await promoLabel()})`);
   await shot('home-promo-next', 300);
+  /* the × puts the promos away: the card folds up and the four cards rise into its place, until Beetle next opens (Round 14) */
+  const gridBefore = (await page.getByTestId('grid-savings').boundingBox())?.y ?? 0;
+  await page.getByTestId('promo-close').click();
+  await page.waitForTimeout(900);
+  must((await page.getByTestId('promos').count()) === 0, 'the × should put the promos away');
+  const gridAfter = (await page.getByTestId('grid-savings').boundingBox())?.y ?? 0;
+  must(Math.round(gridBefore - gridAfter) === 100, `and the four cards should rise into their place (${gridBefore} to ${gridAfter})`);
+  await shot('home-promos-away', 0);
+  /* the four cards open sheets, and a page opened from a sheet comes up as a sheet over it, the one under
+     stepping back; Back puts away the one on top (Round 14, the owner's word) */
+  await page.getByTestId('services-all').click();
+  await see('Everything you can pay for from here');
+  await page.waitForTimeout(700);
+  await page.locator('[data-testid="most"] [aria-label="Airtime"]').filter({ visible: true }).last().click();
+  await see('Buy airtime');
+  await page.waitForTimeout(900);
+  const stacked = await page.evaluate(() => [...document.querySelectorAll('[data-testid="sheet-grabber"]')].map(g => Math.round(g.getBoundingClientRect().y)));
+  must(stacked.length === 2 && stacked[0] < stacked[1], `Airtime should come up as a sheet over the Services sheet, which steps back (grabbers at ${stacked})`);
+  await shot('sheet-over-sheet', 0);
+  await tap('Back');
+  await page.waitForTimeout(900);
+  must((await page.locator('[data-testid="sheet-grabber"]').count()) === 1, 'Back should put away only the sheet on top');
+  await see('Everything you can pay for from here');
+  await tap('Back');
+  await page.waitForTimeout(900);
+  await onPage('home');
   /* the Services card swipes through Bills, Airtime and Data inside itself: the swipe is the card's, and the pages stay */
   const strip = await page.getByTestId('services-strip').boundingBox();
   const servicesLabel = () => page.getByTestId('services-strip').getAttribute('aria-label');
@@ -528,7 +574,8 @@ try {
   must((await servicesLabel()) === 'Services: Data', `three swipes should bring Data (it says ${await servicesLabel()})`);
   /* anywhere else a swipe to the left turns the pages on: Activities, then Settings, and no further; a swipe to the right comes back.
      On home the swipe is taken across Savings and Loan, clear of the cards that swipe themselves */
-  const across = Math.round(grid.y + grid.height / 2);
+  const row = (await page.getByTestId('grid-savings').boundingBox()) ?? grid;
+  const across = Math.round(row.y + row.height / 2);
   await drag(340, across, 60, across + 5);
   await onPage('activities');
   await shot('pages-activities', 300);
@@ -552,7 +599,7 @@ try {
   const pull = async (name, traced) => {
     await toTop();
     await page.waitForTimeout(400);
-    const grab = await page.getByText('Pull down', { exact: true }).first().boundingBox();
+    const grab = await page.getByTestId('grabber').boundingBox();
     must(grab, 'the grabber should be on the card');
     const gx = grab.x + grab.width / 2;
     const gy = grab.y;
@@ -1054,7 +1101,7 @@ try {
   /* Settings, from the gear on the bar: the pages slide across under the bar, which stays where it is,
      its glyphs and its plus untouched; the gear is solid and black once its page is showing */
   await tap('The demo account');
-  await see('Pull down');
+  await see('Total balance');
   /* home has come, and the foot has finished turning into the bar (from the receipt's Back and ask bar, a moment
      ago): risen into its place, the plus grown to its size */
   await page.waitForFunction(() => {
@@ -1224,7 +1271,7 @@ try {
     );
   await page.waitForURL(/\/home/);
   at('/home');
-  await see('Pull down');
+  await see('Total balance');
   /* the card, from its row and from the day's tile */
   await tap('Settings');
   await tap('Cards');
@@ -1249,7 +1296,7 @@ try {
   await tap('Back to the lab');
   await see('Beetle Lab');
   await tap('The demo account');
-  await see('Pull down');
+  await see('Total balance');
   await tap('Settings');
   await see('What keeps the money yours');
   await tap('Sign out');
@@ -1260,7 +1307,7 @@ try {
   await see('Beetle Lab');
   /* the bar at the foot of home, More up out of its plus, and the record */
   await tap('The bar');
-  await see('Pull down');
+  await see('Total balance');
   await button('More').waitFor();
   await shot('home-bar', 900);
   await tap('More');
@@ -1276,7 +1323,7 @@ try {
   await see('What keeps the money yours');
   await onPage('settings');
   await tap('Home');
-  await see('Pull down');
+  await see('Total balance');
   await onPage('home');
   await tap('Activities');
   await see('Everything that moved');
@@ -1541,7 +1588,7 @@ try {
   const inSaved = name => page.locator('[data-testid="saved"]').getByRole('button', { name, exact: true }).click();
   /* from the card's own Send, so the receipt's Back lands on home and the day has the line */
   await tap('The demo account');
-  await see('Pull down');
+  await see('Total balance');
   await tap('Send');
   await see('Nothing moves until you slide');
   at('/send');
@@ -1596,7 +1643,7 @@ try {
   await see('Lunch');
   await shot('send-receipt', 900);
   await closeInPlace();
-  await see('Pull down');
+  await see('Total balance');
   at('/home');
   await tap('Activities');
   await onPage('activities');
@@ -1868,13 +1915,14 @@ try {
   await see('₦250,000 by 12 March');
   at('/goal');
   await see('33%');
-  /* the page slides in over home, its ground frosted glass, with home still under it (Round 13) */
+  /* the page comes up as a white sheet over home, which steps back behind it, its top showing over the sheet's (Round 14) */
   const over = await page.evaluate(() => {
-    const ground = [...document.querySelectorAll('[data-testid="frosted-ground"]')].pop()?.getBoundingClientRect();
+    const grab = [...document.querySelectorAll('[data-testid="sheet-grabber"]')].pop()?.getBoundingClientRect();
     const pager = document.querySelector('[data-testid="pager"]')?.getBoundingClientRect();
-    return { ground: ground ? Math.round(ground.width) : 0, home: pager ? Math.round(pager.width) : 0 };
+    return { grab: grab ? Math.round(grab.y) : -1, home: pager ? Math.round(pager.width) : 0, homeTop: pager ? Math.round(pager.y) : -1 };
   });
-  must(over.ground === 393 && over.home === 393, `the goal page should be frosted glass over home (${JSON.stringify(over)})`);
+  must(over.grab > 52 && over.grab < 80, `the goal page should be a sheet, its grabber near its top (${JSON.stringify(over)})`);
+  must(over.home > 360 && over.home < 393 && over.homeTop > 30 && over.homeTop < 52, `with home stepped back behind it (${JSON.stringify(over)})`);
   /* Add money and Take out sit straight under the ring, in view without a scroll */
   const adding = await button('Add money').boundingBox();
   must(adding && adding.y + adding.height < 852 - 104, `Add money should be in view above the foot (at ${adding?.y})`);
@@ -2278,7 +2326,7 @@ try {
   const closed = dip[0]?.card?.height ?? 0;
   must(deepest >= closed + 18, `the card should dip on the first visit (deepest ${deepest}px from ${closed}px)`);
   must(settled < closed + 16, `and settle back (${settled}px, from ${closed}px)`);
-  must((await page.getByText('Pull down to ask Beetle').count()) > 0, 'the grabber should say what the pull is for');
+  must((await page.getByText('Pull down to ask Beetle').count()) === 0, 'the grabber carries no words since Round 14: the dip alone shows the pull');
   console.log(`  the card dipped to ${Math.round(deepest)}px and settled at ${Math.round(settled)}px`);
 
   /* ---- Finishing setting up, and the first day ---- */

@@ -1092,6 +1092,66 @@ Activities and Settings, and on the swipe back from the edge)
 **Expo Go**: every round that reaches the phone ends with a QR code for the
 update, to scan with the iPhone camera.
 
+## Round 14 · Home as the owner drew it, and the four cards' pages as sheets
+
+Asked by the owner after Round 13. Home was edited in the Figma file
+(Flows › Home, as the app is now, 1403:13497) with four questions
+answered: the promo's × hides the promos until Beetle next opens; on a
+phone with the home line the bar sits just over the line; only the four
+cards' foot line gets smaller; the promo lines up with the four cards.
+Then: the pages the four cards open were hard to read over the frosted
+home, so they become white sheets from the bottom, nearly the height of
+the screen, closed by a swipe down or Back, and a page opened from a sheet
+comes up as a sheet over it (drawn after the Fuse wallet's own sheets, a
+picture the owner sent).
+
+**Home, from the owner's frame**
+
+- [x] The black card loses the word Wallet and is 300 tall (was 352). Total
+      balance starts at 80, the pills sit 24 under the chip, and the
+      grabber 20 above the card's edge, with no words under it. The figure
+      still glides into the header when the card opens. The first-time dip
+      stays, without the words "Pull down to ask Beetle".
+- [x] Send and Receive are white pills, 100 by 36: the glyph in a 36 square
+      and the word after it in ink, 24 apart.
+- [x] The page's sides are 24 (were 20), so the promo and the four cards
+      line up at 24. The frame keeps the promo 353 wide; the build lines it
+      up with the cards, 345.
+- [x] The promo's words are smaller (the title 14 on a line of 16, the line
+      under it 11), its dots sit inside it at the bottom right, and a small
+      × at its top right folds the promos away, the four cards rising into
+      their place. They come back the next time Beetle opens.
+- [x] The four cards' foot line is 10 (was 12). The word and the figure
+      stay as they were.
+- [x] The bar sits 12 from the bottom of the screen and 24 in from either
+      side. On an iPhone with Face ID it sits just over the home line
+      instead, 21 from the edge, so the line never touches the pill. Its
+      soft blur reaches 7 over it (75 tall). Activities and Settings share
+      the bar, so it moves there too. Back on other pages keeps its frames'
+      place.
+- [x] The frame is the check's home now (test/figma/home-now.xml, the
+      frame's own layers, and its picture): every piece is measured against
+      it.
+
+**The four cards' pages as sheets**
+
+- [x] Savings, Loan, Virtual card and Services come up from the bottom as
+      white sheets, edge to edge, their top corners round (38), stopping
+      just under the status bar. Home steps back behind: a little narrower,
+      its top showing 10 over the sheet, and greyed a little. Every line on
+      them reads: there is no frosted home behind the words any more.
+- [x] A page opened from a sheet comes up as a sheet over it, and the one
+      under it steps back the same way: Airtime from All services, the
+      pages a goal leads to, the card's rules, and the rest. Back puts away
+      the one on top. On the phone a swipe down from a sheet's grabber or
+      title does too; the web stack has no gestures, so there Back is the
+      way.
+- [x] A sheet the stack starts with (the lab opens a page so) is the whole
+      screen, laid out as a page, as its frame draws it.
+
+**Expo Go**: a QR code for the update, as every round that reaches the
+phone ends.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

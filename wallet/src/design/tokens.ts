@@ -88,6 +88,9 @@ export const type = {
   label: face(14, 20, '600'),
   meta: face(14, 20, '400'),
   caption: face(12, 16, '400'),
+  /* smaller than a caption, where the owner's home frame sets them (Round 14): the promo's line, and the foot line of home's four cards */
+  small: face(11, 16, '400'),
+  fine: face(10, 16, '400'),
   key: face(22, 28, '400'),
 } as const;
 

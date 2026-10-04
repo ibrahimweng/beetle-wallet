@@ -193,6 +193,10 @@
     "Ask bar"
    ],
    "why": "Activities and Settings are two of the three pages under the one bar now, which the owner asked to stay put across all three, so the foot is the bar rather than Back and the ask bar; a line opened on Activities opens where it is, the bar stepping out of the way"
+  },
+  {
+   "piece": "Action button",
+   "why": "the bar keeps the owner's Round 14 home frame: 12 from the bottom of the screen and 24 in from either side, so the plus sits 12 lower and 4 further in than this older frame has it"
   }
  ],
  "answer": [
@@ -1952,6 +1956,10 @@
     "Ask bar"
    ],
    "why": "Activities and Settings are two of the three pages under the one bar now, which the owner asked to stay put across all three, so the foot is the bar rather than Back and the ask bar; a line opened on Activities opens where it is, the bar stepping out of the way"
+  },
+  {
+   "piece": "Action button",
+   "why": "the bar keeps the owner's Round 14 home frame: 12 from the bottom of the screen and 24 in from either side, so the plus sits 12 lower and 4 further in than this older frame has it"
   }
  ],
  "finish": [
@@ -2067,6 +2075,14 @@
   {
    "text": "Out",
    "why": "the owner moved the day off home: its head, See all, the chips and the empty tile are Activities' now (the Nothing yet frame), and home holds the grid of Savings, Loan, Card and Services under the card"
+  },
+  {
+   "piece": "Action button",
+   "why": "the bar keeps the owner's Round 14 home frame: 12 from the bottom of the screen and 24 in from either side, so the plus sits 12 lower and 4 further in than this older frame has it"
+  },
+  {
+   "text": "Wallet",
+   "why": "the owner took the word Wallet off the black card in the Round 14 home frame"
   }
  ],
  "firstask": [
@@ -2077,12 +2093,12 @@
  ],
  "home-card": [
   {
-   "piece": "Frame 2",
-   "why": "the owner took the mark out of the card's header: Settings is the gear on the bar, so the header keeps only the word Wallet"
-  },
-  {
-   "piece": "Wallet",
-   "why": "with the mark gone, the word Wallet sits at the header's left edge, and the figure takes its place there as the card opens"
+   "pieces": [
+    "Promo card",
+    "Frame 1",
+    "Dots"
+   ],
+   "why": "the owner's frame keeps the promo card 353 wide from when the page's sides were 20; with the sides at 24 the build lines it up with the four cards, 345 wide, so its × and its dots sit 8 further in (Round 14)"
   }
  ],
  "home-open": [

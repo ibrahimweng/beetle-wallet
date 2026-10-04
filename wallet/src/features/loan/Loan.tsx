@@ -89,7 +89,7 @@ export function Loan() {
   const payments = `${countWord(cost.payments)} payment${cost.payments === 1 ? '' : 's'} of`;
   return (
     <>
-      <Screen frost head={<PageHead lead title="Borrow" sub={`Up to ${naira(LOAN.most)}, paid back monthly`} />}>
+      <Screen head={<PageHead lead title="Borrow" sub={`Up to ${naira(LOAN.most)}, paid back monthly`} />}>
         <View style={s.card} testID="loan-card">
           {/* how much: the first thing, picked where it is */}
           <View style={s.picker} testID="loan-amount">

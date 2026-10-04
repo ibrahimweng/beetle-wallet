@@ -24,7 +24,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
-import { Meta, Tap, colour, dark, frame, keys, settle, standard, useStill } from '../../design';
+import { Meta, Tap, colour, dark, keys, settle, standard, useStill } from '../../design';
 import type { IconName } from '../../icons';
 import { DEMO_SAVED, OFFLINE_LINE, TRY_FIRST, beneficiariesOf, newAsk, ownLine, ownTag, panelFromAsk, refusalLine, refuses, type AskPanel, type Move, type Panel } from '../../services';
 import { useApp } from '../onboarding/store';
@@ -48,7 +48,7 @@ import { holdingsFor } from './account';
 import { balanceOf, rowFrom, useMoves } from './moves';
 import { AskBar } from './AskBar';
 import { CHIPS_GAP, CHIPS_H, CLOSED_H, FOOT_BAND, WalletCard, useCardTop } from './WalletCard';
-import { BAR_H, foot, useFoot } from '../more/Foot';
+import { BAR_ROW, barLift, foot, useFoot } from '../more/Foot';
 import { moreTo, type MoreItem } from '../more/More';
 import { useOnline } from '../offline';
 import { JourneyProvider, useRecession, type Rect } from '../../design/journey';
@@ -61,15 +61,12 @@ import { Promos, promosFor } from './Promos';
 import { kobo, naira } from '../../lib/format';
 
 /** What stays showing under the open card: the bar's row of glyphs, 16
-    under the card's edge, and the 24 under the row the bar keeps for the
-    phone's own foot. The bar's white goes bare as the card opens, so the
-    card can come down over the top of it. */
+    under the card's edge, and what the bar keeps under the row (barLift).
+    The bar's white goes bare as the card opens, so the card can come down
+    over the top of it. */
 const ROW_GAP = 16;
-const UNDER = BAR_H - frame.dockPad + ROW_GAP;
 /** The grid, this far under the closed card. */
 const GRID_TOP = 24;
-/** Between the promo card's dots and the four cards. */
-const PROMO_GAP = 16;
 /** The chats drawer stops this far above the card's foot: at the top of the ask bar, which stays clear; its blur runs down over the chips. */
 const DRAWER_CLEAR = 20 + 48 + 4;
 
@@ -95,7 +92,6 @@ function HomeScreen() {
   const receding = useRecession();
 
   const [draft, setDraft] = useState('');
-  const [hint, setHint] = useState('Pull down');
   const [opened, setOpened] = useState(false);
   const openedRef = useRef(false);
   openedRef.current = opened;
@@ -127,7 +123,8 @@ function HomeScreen() {
   /* what is visible above the keyboard: the window if it shrank for it, else the window less the keyboard;
      with the keyboard down, the card stops just over the bar's glyphs */
   const visible = useDerivedValue(() => Math.min(H, full - kb.value));
-  const openH = useDerivedValue(() => Math.min(full - UNDER, visible.value - 8));
+  const under = barLift(insets.bottom) + BAR_ROW + ROW_GAP;
+  const openH = useDerivedValue(() => Math.min(full - under, visible.value - 8));
   /* the chats drawer, inside the card: from under its header to just over the ask bar */
   const drawerTop = haze - 8;
   const drawerH = useDerivedValue(() => Math.max(0, openH.value - drawerTop - DRAWER_CLEAR));
@@ -531,7 +528,7 @@ function HomeScreen() {
   }, [opened, active, show, guard, receive, drawer, closeDrawer]);
 
   /* the first time: once the balance has resolved, the card dips and springs
-     back with the words that say what it is for */
+     back, so the pull is seen (the grabber carries no words since Round 14) */
   const pointed = useRef(false);
   useEffect(() => {
     if (!ok || pointed.current) return;
@@ -541,9 +538,7 @@ function HomeScreen() {
       pointed.current = true;
       const t = setTimeout(() => {
         if (openedRef.current) return;
-        setHint('Pull down to ask Beetle');
         if (!still) open.value = withSequence(withTiming(0.14, { duration: 600, easing: settle }), withDelay(1100, withSpring(0, keys)));
-        setTimeout(() => setHint('Pull down'), 3200);
         void markChatPointedOut();
       }, 1500);
       return () => clearTimeout(t);
@@ -830,7 +825,7 @@ function HomeScreen() {
             overScrollMode="never"
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{ paddingBottom: BAR_H + 16 }}
+            contentContainerStyle={{ paddingBottom: barLift(insets.bottom) + BAR_ROW + 16 }}
           >
             <View style={{ gap: 0 }}>
               <WalletCard
@@ -847,7 +842,6 @@ function HomeScreen() {
                 whole={naira(balance)}
                 kobo={kobo(balance)}
                 dollars={setup.done ? `~ ${Math.round(balance / rate).toLocaleString('en-NG')} USD` : 'New account'}
-                hint={hint}
                 onReceive={openReceive}
                 flash={flash}
                 onDollars={() => router.push(setup.done ? '/dollars' : '/way-in?setup=1')}
@@ -896,8 +890,8 @@ function HomeScreen() {
                   </ChatFoot>
                 }
               />
-              {/* the promo card and the four cards under it, going as the card opens */}
-              <Animated.View style={[{ paddingTop: GRID_TOP, gap: PROMO_GAP }, gridStyle]} pointerEvents={opened ? 'none' : 'auto'}>
+              {/* the promo card and the four cards under it, going as the card opens; the promo keeps the gap under it, so it can fold away with it */}
+              <Animated.View style={[{ paddingTop: GRID_TOP }, gridStyle]} pointerEvents={opened ? 'none' : 'auto'}>
                 <Promos width={W} promos={promos} />
                 <Grid width={W} accountNumber={account.accountNumber} demo={!!account.demo} moves={moves} borrowing={setup.done} />
               </Animated.View>

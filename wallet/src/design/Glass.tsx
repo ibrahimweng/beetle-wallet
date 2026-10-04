@@ -156,18 +156,6 @@ export function Glass({ style, children, testID }: { style?: StyleProp<ViewStyle
   );
 }
 
-/** The ground of a page that opens over home: what is under it, frosted, so
-    home shows through behind the page, out of focus. */
-export function FrostedGround() {
-  const Blur = blurModule?.BlurView;
-  return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="none" testID="frosted-ground">
-      {Blur ? <Blur intensity={50} tint="light" experimentalBlurMethod={blurMethod} style={StyleSheet.absoluteFill} /> : null}
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: Blur ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.96)' }]} />
-    </View>
-  );
-}
-
 const s = StyleSheet.create({
   glass: { overflow: 'hidden' },
 });

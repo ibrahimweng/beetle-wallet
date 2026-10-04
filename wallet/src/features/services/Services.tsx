@@ -46,7 +46,7 @@ export function Services() {
   useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   return (
-    <Screen frost head={<PageHead lead title="All services" sub="Everything you can pay for from here" />}>
+    <Screen head={<PageHead lead title="All services" sub="Everything you can pay for from here" />}>
       <View style={s.search} testID="services-search">
         <Icon name="search" size={18} colour={colour.textSecondary} />
         <TextInput

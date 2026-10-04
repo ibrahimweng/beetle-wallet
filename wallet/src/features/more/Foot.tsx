@@ -18,21 +18,39 @@
    one screen (see features/tabs): the bar is drawn once over all three,
    its glyphs turn the pages, and the page showing is the one whose foot is
    said. More, up out of the plus, lives here too, since the plus does. The
-   numbers are the frames': the row 56 with 24 above and below, 20 in from
-   either side, 12 between Back and the button; the slide is 60 tall, as
-   the Send money frame draws it. */
+   numbers are the frames': on a page the row 56 with 24 above and below,
+   20 in from either side, 12 between Back and the button; the slide is 60
+   tall, as the Send money frame draws it. The bar keeps the owner's home
+   frame (Round 14): 12 from the bottom and 24 in from either side, and on a
+   phone with the home line just over the line instead (see barLift). */
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Keyboard, Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useIsFocused, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tabs, useHoldPages, useTab, type Tab } from '../tabs';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { SharedValue, runOnJS, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import { ActionButton, Body, Button, Icon, Row, Tap, colour, frame, keys, motion, settle, useStill, type ButtonSize, type ButtonTone } from '../../design';
 import { Glass, SoftBlur } from '../../design/Glass';
+import { useSheet } from '../../design/sheetStack';
 import type { IconName } from '../../icons';
 import { More, moreTo, type MoreItem } from './More';
 
 export const BAR_H = 56 + 2 * frame.dockPad;
+/** The bar's row: the pill and the plus, 56 tall. */
+export const BAR_ROW = 56;
+/** The bar's row sits 12 from the bottom of the screen, as the owner's home
+    frame has it. A phone with the home line keeps the bottom of the screen
+    for it, and 12 would put the pill on the line, so there the row sits just
+    over the line: 13 less than the phone's own allowance at the bottom,
+    which is 21 on an iPhone with Face ID and leaves a little clear above the
+    line (the owner's choice, Round 14). */
+export const barLift = (bottomInset: number) => (bottomInset > 0 ? Math.max(BAR_FLOOR, Math.round(bottomInset) - 13) : BAR_FLOOR);
+const BAR_FLOOR = 12;
+/** The bar's sides, the owner's home frame; a page's foot keeps the page's 20. */
+const BAR_SIDE = 24;
+/** How far the bar's soft blur reaches over the page: its row, what is under the row, and 7 over it (the frame's 75). */
+const BAR_FADE_OVER = 7;
 /** How far the soft blur reaches up over the page, past the foot's own row. */
 const FADE = 40;
 
@@ -97,9 +115,11 @@ export function FootScope({ children }: { children: ReactNode }) {
      browser to scroll; a page here scrolls inside itself, under its head and
      over its foot, so it is held to the window */
   const { height } = useWindowDimensions();
+  /* a sheet stops under the status bar: the page is held to what is left */
+  const sheet = useSheet();
   return (
     <ScopeContext.Provider value={scope}>
-      <View style={Platform.OS === 'web' ? { height, overflow: 'hidden' } : { flex: 1 }}>
+      <View style={Platform.OS === 'web' ? { height: height - (sheet ? sheet.top : 0), overflow: 'hidden' } : { flex: 1 }}>
         {children}
         <FootView scope={scope} />
       </View>
@@ -214,8 +234,11 @@ function Drawn({ spec }: { spec: Exclude<FootSpec, { kind: 'none' }> }) {
   const router = useRouter();
   const still = useStill();
   const { width: W } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const [more, setMore] = useState(false);
   const bar = spec.kind === 'bar';
+  /* the bar's row, the lift from the bottom of the screen taken off the foot's height */
+  const barTop = BAR_H - barLift(insets.bottom) - BAR_ROW;
   /* the pages stand still while More is up */
   useHoldPages('more', bar && more);
   useEffect(() => {
@@ -294,14 +317,14 @@ function Drawn({ spec }: { spec: Exclude<FootSpec, { kind: 'none' }> }) {
     <>
       {/* clipped at the window's edge: a foot gone down out of the way must not lengthen the page under it */}
       <View style={[StyleSheet.absoluteFill, { overflow: 'hidden' }]} pointerEvents="box-none">
-        <SoftBlur side="bottom" height={BAR_H + FADE} k={softK} testID="foot-fade" />
+        <SoftBlur side="bottom" height={bar ? BAR_H - barTop + BAR_FADE_OVER : BAR_H + FADE} k={softK} testID="foot-fade" />
         <Animated.View style={[s.surface, whole]} pointerEvents={live ? 'box-none' : 'none'} testID={bar ? 'bar' : 'foot'}>
           {bar ? (
             <>
-              <Glass style={s.pill} testID="bar-pill">
+              <Glass style={[s.pill, { top: barTop }]} testID="bar-pill">
                 <Glyphs />
               </Glass>
-              <View style={s.plus} pointerEvents={live ? 'auto' : 'none'}>
+              <View style={[s.plus, { top: barTop }]} pointerEvents={live ? 'auto' : 'none'}>
                 <ActionButton onPress={() => setMore(true)} label="More" />
               </View>
             </>
@@ -428,11 +451,11 @@ const s = StyleSheet.create({
     bottom: 0,
     height: BAR_H,
   },
-  /* the glyphs' pill: frosted white, round at the ends, 20 in, the row's 24 above the foot */
-  pill: { position: 'absolute', left: frame.sidePad, top: frame.dockPad, width: PILL_W, height: ROW, borderRadius: ROW / 2 },
+  /* the glyphs' pill: frosted white, round at the ends, 24 in; how high is barLift's */
+  pill: { position: 'absolute', left: BAR_SIDE, width: PILL_W, height: ROW, borderRadius: ROW / 2 },
   items: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: PILL_PAD },
   item: { width: GLYPH_BOX, height: GLYPH_BOX, alignItems: 'center', justifyContent: 'center' },
-  plus: { position: 'absolute', right: frame.sidePad, top: frame.dockPad, width: ROW, height: ROW },
+  plus: { position: 'absolute', right: BAR_SIDE, width: ROW, height: ROW },
   /* Back: a frosted white circle, the frames' 44, on the middle of the row */
   back: { position: 'absolute', left: PAGE_PAD, top: frame.dockPad + (ROW - BACK) / 2, width: BACK, height: BACK, borderRadius: BACK / 2 },
   backHit: { width: BACK, height: BACK, alignItems: 'center', justifyContent: 'center' },

@@ -10,15 +10,18 @@ import { colour, frame, radius, space } from './tokens';
 import { Tap } from './motion';
 import { Wash } from './Wash';
 import { JourneyProvider } from './journey';
-import { FrostedGround, SoftBlur } from './Glass';
+import { SoftBlur } from './Glass';
 import { HeadScroll, SMALL, SMALL_TOP } from './collapse';
+import { useSheet } from './sheetStack';
 import Animated, { useAnimatedScrollHandler, useDerivedValue, useSharedValue } from 'react-native-reanimated';
 
 /* The page slides in and out whole, with the phone's own movement (the
    stack in app/(app)/_layout.tsx): nothing in it arrives on its own. The
    `head` stays at the top while the column scrolls under it, the title
    shrinking to the size of home's word Wallet as it does (see collapse.ts),
-   over a soft blur that comes in as the first of the column passes under. */
+   over a soft blur that comes in as the first of the column passes under.
+   In a sheet (sheetStack.tsx) the head starts near the sheet's top, under a
+   grabber, and the ground is plain white. */
 export function Screen(props: ScreenProps) {
   return (
     <JourneyProvider>
@@ -41,14 +44,17 @@ type ScreenProps = {
   sink?: boolean;
   /* no white of its own: the column over whatever it opens over (a receipt over its page) */
   bare?: boolean;
-  /* a page that opens over home: what is under it, frosted, instead of white */
-  frost?: boolean;
 };
 
 /** How tall the soft blur at the top is: well past the shrunk title, so it is at its strongest behind it, with room under it to fade. */
 const BAND = SMALL_TOP + Math.round(SMALL * 1.43) + 52;
+/** In a sheet the head starts this far under the sheet's top, the grabber over it. */
+const SHEET_HEAD = 32;
 
-function Body({ children, head, dock, wash, sink = false, bare = false, frost = false }: ScreenProps) {
+function Body({ children, head, dock, wash, sink = false, bare = false }: ScreenProps) {
+  const sheet = useSheet();
+  /* where the head starts: the frames' 72 on a page, near the top of a sheet */
+  const headTop = sheet ? SHEET_HEAD : frame.topPad;
   const y = useSharedValue(0);
   const onWorklet = useAnimatedScrollHandler(e => {
     y.value = e.contentOffset.y;
@@ -56,25 +62,26 @@ function Body({ children, head, dock, wash, sink = false, bare = false, frost = 
   /* the web is handed the scroll as an ordinary event */
   const onScroll = Platform.OS === 'web' ? (e: NativeSyntheticEvent<NativeScrollEvent>) => (y.value = e.nativeEvent.contentOffset.y) : onWorklet;
   /* the blur comes in as the column starts to pass under the head */
-  const band = useDerivedValue(() => Math.max(0, Math.min(1, y.value / 24)));
+  const blur = useDerivedValue(() => Math.max(0, Math.min(1, y.value / 24)));
   /* the head's height as it lies, so the column starts where it did when the head was part of it */
   const [headH, setHeadH] = useState<number | null>(null);
-  const top = head ? frame.topPad + (headH ?? 0) + frame.columnGap : frame.topPad;
+  const top = head ? headTop + (headH ?? 0) + frame.columnGap : headTop;
+  const band = BAND - (frame.topPad - headTop);
   return (
     <HeadScroll.Provider value={y}>
-      <View style={[s.screen, (bare || frost) && s.bare]}>
-        {frost ? <FrostedGround /> : null}
+      <View style={[s.screen, bare && s.bare]}>
         {wash ? <Wash tone={wash.tone} height={wash.height} /> : null}
         {/* the head comes before the column, so a screen reader says the title
             first, and is drawn over it, the blur between them */}
         {head ? (
-          <View style={s.head} pointerEvents="box-none" onLayout={e => setHeadH(e.nativeEvent.layout.height)} testID="page-head">
+          /* in a sheet the head is where a swipe down starts: it keeps the touch from the column under it, so the sheet takes it */
+          <View style={[s.head, { top: headTop }]} pointerEvents={sheet ? 'auto' : 'box-none'} onLayout={e => setHeadH(e.nativeEvent.layout.height)} testID="page-head">
             {head}
           </View>
         ) : null}
         {head ? (
-          <View style={[s.band, { height: BAND }]} pointerEvents="none">
-            <SoftBlur side="top" height={BAND} k={band} strong testID="head-blur" />
+          <View style={[s.band, { height: band }]} pointerEvents="none">
+            <SoftBlur side="top" height={band} k={blur} strong testID="head-blur" />
           </View>
         ) : null}
         <Animated.ScrollView
@@ -88,6 +95,12 @@ function Body({ children, head, dock, wash, sink = false, bare = false, frost = 
           {children}
         </Animated.ScrollView>
         {dock}
+        {/* a sheet's grabber, on a strip across its top that takes the touch, so a swipe down from there puts the sheet away */}
+        {sheet ? (
+          <View style={[s.grab, { height: headTop }]} testID="sheet-grab">
+            <View style={s.grabber} testID="sheet-grabber" />
+          </View>
+        ) : null}
       </View>
     </HeadScroll.Provider>
   );
@@ -159,6 +172,8 @@ const s = StyleSheet.create({
   head: { position: 'absolute', top: frame.topPad, left: frame.sidePad, right: frame.sidePad, zIndex: 2 },
   /* the soft blur at the top, over the column and under the head */
   band: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1 },
+  grab: { position: 'absolute', top: 0, left: 0, right: 0, paddingTop: 8, alignItems: 'center', zIndex: 3 },
+  grabber: { width: 36, height: 5, borderRadius: 2.5, backgroundColor: colour.ruleStrong },
   card: {
     backgroundColor: colour.surface2,
     borderRadius: radius.card,

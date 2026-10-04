@@ -393,24 +393,16 @@
   ]
  },
  "home-card": {
-  "frame": "home",
-  "root": "1205:18237",
+  "frame": "home-now",
   "place": "The demo account",
-  "wait": "Pull down",
+  "wait": "Total balance",
   "settle": 1600,
+  "skipWords": [
+   "Title",
+   "Sub"
+  ],
+  "picture": "home-now",
   "pieces": [
-   {
-    "name": "Frame 2",
-    "find": {
-     "testid": "mark"
-    }
-   },
-   {
-    "name": "Wallet",
-    "find": {
-     "text": "Wallet"
-    }
-   },
    {
     "name": "Total balance",
     "find": {
@@ -428,7 +420,18 @@
     ]
    },
    {
-    "name": "Chip · +9% this month",
+    "name": ".75",
+    "find": {
+     "text": ".75",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Chip · ~ 384 USD",
     "find": {
      "testid": "chip"
     },
@@ -438,7 +441,14 @@
     ]
    },
    {
-    "name": "Icon",
+    "name": "Send",
+    "nth": 0,
+    "find": {
+     "testid": "send-pill"
+    }
+   },
+   {
+    "name": "Disc",
     "nth": 0,
     "find": {
      "testid": "send-disc"
@@ -446,16 +456,22 @@
    },
    {
     "name": "Send",
+    "nth": 1,
     "find": {
-     "text": "Send"
-    },
-    "only": [
-     "y",
-     "h"
-    ]
+     "text": "Send",
+     "exact": true,
+     "inside": "send-pill"
+    }
    },
    {
-    "name": "Icon",
+    "name": "Receive",
+    "nth": 0,
+    "find": {
+     "testid": "receive-pill"
+    }
+   },
+   {
+    "name": "Disc",
     "nth": 1,
     "find": {
      "testid": "receive-disc"
@@ -463,35 +479,109 @@
    },
    {
     "name": "Receive",
+    "nth": 1,
     "find": {
-     "text": "Receive"
-    },
-    "only": [
-     "y",
-     "h"
-    ]
+     "text": "Receive",
+     "exact": true,
+     "inside": "receive-pill"
+    }
    },
    {
-    "name": "Frame 26",
+    "name": "Grabber",
     "find": {
      "testid": "grabber"
     }
    },
    {
-    "name": "Pull down",
+    "name": "Promo card",
     "find": {
-     "text": "Pull down"
+     "testid": "promo-card"
+    }
+   },
+   {
+    "name": "Tile",
+    "find": {
+     "testid": "promo-save",
+     "child": 0
+    }
+   },
+   {
+    "name": "Title",
+    "find": {
+     "text": "Save in four taps",
+     "exact": true
     },
     "only": [
+     "x",
      "y",
      "h"
     ]
+   },
+   {
+    "name": "Sub",
+    "find": {
+     "text": "Add money to Holiday"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Frame 1",
+    "find": {
+     "testid": "promo-close"
+    }
+   },
+   {
+    "name": "Dots",
+    "find": {
+     "testid": "promo-dots"
+    }
+   },
+   {
+    "name": "Savings",
+    "find": {
+     "testid": "grid-savings"
+    }
+   },
+   {
+    "name": "Loan",
+    "find": {
+     "testid": "grid-loan"
+    }
+   },
+   {
+    "name": "Virtual card",
+    "find": {
+     "testid": "grid-card"
+    }
+   },
+   {
+    "name": "Services",
+    "find": {
+     "testid": "grid-services"
+    }
+   },
+   {
+    "name": "Foot fade",
+    "find": {
+     "testid": "foot-fade"
+    }
+   },
+   {
+    "name": "Pill",
+    "find": {
+     "testid": "bar-pill"
+    }
+   },
+   {
+    "name": "Plus",
+    "find": {
+     "button": "More"
+    }
    }
-  ],
-  "skipWords": [
-   "~ 340 USD"
-  ],
-  "picture": "home-card"
+  ]
  },
  "home-open": {
   "frame": "home",

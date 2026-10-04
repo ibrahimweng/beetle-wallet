@@ -148,7 +148,7 @@ export function Goal() {
   if (!ok || !account) return null;
   if (!ready || !store.ready)
     return (
-      <Screen still frost>
+      <Screen still>
         <View />
       </Screen>
     );
@@ -176,7 +176,7 @@ export function Goal() {
 
   return (
     <>
-      <Screen head={head} frost>
+      <Screen head={head}>
         {st ? <Pills goals={goals} picked={st.goal.id} onPick={setPicked} onNew={() => setOpen('new')} /> : null}
         {st ? (
           <View style={s.card} testID="goal-card">

@@ -35,8 +35,9 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 
 - Sizes are the file's: Display 32/40, Head 20/24, Row 16/24 semibold,
   Body 16/24, Label 14/20 semibold, Meta 14/20, Caption 12/16. Where the
-  owner's home frame sets smaller words, Small 11/16 (the promo's line)
-  and Fine 10/16 (the foot line of home's four cards); nowhere else.
+  owner's home frame sets smaller words, Small 11/16 (the quiet card's
+  line) and Fine 10/16 (the foot line of home's four cards); nowhere else.
+  An offer on the black card is Caption, its title and its line alike.
 - Space steps by 4: 4, 8, 12, 16, 20, 24, 32. A page's sides are 20; home's
   are 24 (Round 14, the owner's frame).
 - **Label left, figure right.** A list of facts is rows: the label in the
@@ -92,15 +93,22 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 ## Home
 
 - The black card holds the balance, its reading in dollars, **Send and
-  Receive as white pills** and a grabber, with no words over or under them.
-- Under the black card, **one promo card** the width of the page: Beetle's
+  Receive as white pills**, **the offers**, and a grabber, with no words
+  over or under them (Round 15: the offers moved into the card).
+- **The offers**, 36 under the pills and 24 in from either side: Beetle's
   own features for this account, most useful first, one at a time with
-  small dots inside it at its bottom right. A tap opens what it offers; a
-  sideways swipe that starts on it is its own, not the pages'. **Its × puts
-  the promos away until Beetle next opens**, the four cards rising into
-  their place.
-- Then the four cards. **Services starts on All services**; Bills, Airtime
-  and Data come after a swipe.
+  small dots inside at the bottom right. Each is a faint wash of its own
+  colour with its tile in that colour, the title white and the line under
+  it a soft shade of the colour; the dot showing is white, the others a
+  deep shade. A tap opens what it offers; a sideways swipe that starts on
+  it is its own, not the pages', and a pull down is the card's. **Its ×
+  folds the offers away until Beetle next opens**: the black card gets
+  shorter by their room and the four cards rise.
+- **With nothing to offer, a quiet card** stands in their place and the
+  black card keeps its height: a ring, a grey tile, No promo over a next
+  step that is true for the account. No × and no dots.
+- Then the four cards, 24 apart both ways. **Services starts on All
+  services**; Bills, Airtime and Data come after a swipe.
 
 ## Transactions
 

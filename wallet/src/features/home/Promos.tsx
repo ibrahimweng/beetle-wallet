@@ -1,26 +1,31 @@
-/* What Beetle has to offer, on one card the width of the page, directly
-   under the black card and over the four cards (Round 13, the owner's
-   word: "promo cards ... above the four cards in the home screen, directly
-   under the hero part", one card at a time with dots, the owner's choice).
+/* What Beetle has to offer, one card at a time with dots (Round 13, the
+   owner's word and choice), inside the black card under Send and Receive
+   (Round 15, the owner's frame: the promo moved into the card).
 
    Each card is one of Beetle's own things, picked for the account: finish
    setting up while it is not done, start a goal (or save into the one
    there is), borrow once borrowing is open, pay light and TV. A swipe
    across it brings the next, and a tap opens what it offers. A swipe that
-   starts on it is the card's, not the pages'.
+   starts on it is the card's, not the pages', and a pull down on it is the
+   black card's.
 
-   Round 14, the owner's home frame: the words are smaller (14 over 11), the
-   small dots that say which is showing sit inside the card at its bottom
-   right, and a small × at its top right puts the promos away, the card
-   folding up and the four cards rising into its place, until Beetle next
-   opens (the owner's choice: they come back the next time it opens). */
+   On the black card an offer is a faint wash of its own colour, its title
+   white and its second line in a soft shade of that colour, both 12 on 16;
+   the dot showing is white and the others a deep shade (the frame draws
+   the green one; the owner's choice: each offer keeps its own colour). The
+   small × at its top right folds the offers away, the black card getting
+   shorter by their room and the four cards rising, until Beetle next opens
+   (the owner's choice, Round 14 and again in Round 15). With nothing to
+   offer at all, a quiet card stands in their place: a ring, a grey tile,
+   No promo, and a next step that is true for the account (the owner's
+   words, fitted). */
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SvgXml } from 'react-native-svg';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { cancelAnimation, interpolate, interpolateColor, runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming, type SharedValue } from 'react-native-reanimated';
-import { Icon, Label, Small, Tap, colour, motion, settle, swipes, useStill, useTap } from '../../design';
+import { Caption, Icon, Label, Small, Tap, colour, dark, motion, offerShade, settle, swipes, useStill, useTap } from '../../design';
 import type { IconName } from '../../icons';
 import { naira } from '../../lib/format';
 import { LOAN } from '../loan/loan';
@@ -51,10 +56,21 @@ export function promosFor({ setUp, goal }: { setUp: boolean; goal: string | null
   return list;
 }
 
+/** What the quiet card says when there is nothing to offer: the owner's
+    words, the line under them true for the account, and where a tap goes. */
+export type Quiet = { title: string; sub: string; to: string };
+export function quietFor(goal: { name: string; aside: number } | null): Quiet {
+  const title = 'No promo';
+  if (!goal) return { title, sub: 'Start a savings goal with your first deposit', to: '/goal?new=1' };
+  if (goal.aside > 0) return { title, sub: `Add to ${goal.name} whenever you like`, to: '/goal' };
+  return { title, sub: `Start your ${goal.name} savings with your first deposit`, to: '/goal' };
+}
+
 /** How tall the card is. */
 export const PROMO_H = 84;
-/** Between the promo card and the four cards; it folds away with the card. */
-export const PROMO_GAP = 16;
+/** The room the offers take in the black card: the card and the 24 under it,
+    down to the grabber. The × folds it away, and the black card with it. */
+export const OFFERS_ROOM = PROMO_H + 24;
 /** The page's sides, the four cards' own. */
 const SIDE = GRID_SIDE;
 /** The × and the dots: 16 in from the card's right, 17 from its top and its bottom, level with the words. */
@@ -63,13 +79,16 @@ const EDGE = 17;
 /** How the strip settles, and how much a pull past either end gives. */
 const SETTLE = { damping: 30, stiffness: 300, mass: 0.8, overshootClamping: true } as const;
 const GIVE = 1 / 3;
-/** The frame's ×: two thin strokes in the pale grey, 12 across. */
-const CLOSE = `<svg viewBox="0 0 12 12" fill="none"><path d="M1.6 1.6L10.4 10.4M10.4 1.6L1.6 10.4" stroke="${colour.ruleStrong}" stroke-width="1.2" stroke-linecap="round"/></svg>`;
+/** The frame's ×: two thin strokes in the pale grey, 8 across in a box of 12. */
+const CLOSE = `<svg viewBox="0 0 12 12" fill="none"><path d="M2.4 2.4L9.6 9.6M9.6 2.4L2.4 9.6" stroke="${colour.ruleStrong}" stroke-width="1.13" stroke-linecap="round"/></svg>`;
 
 /** Put away by the ×, for the rest of this run of Beetle: the next time it opens they are back. */
 let away = false;
+export const offersAway = () => away;
 
-export function Promos({ width, promos }: { width: number; promos: Promo[] }) {
+/** `slot` is the offers' room in the black card, 1 while they are there and
+    0 once the × has folded them away; the black card's height follows it. */
+export function Promos({ width, promos, quiet, slot }: { width: number; promos: Promo[]; quiet: Quiet; slot: SharedValue<number> }) {
   const router = useRouter();
   const still = useStill();
   const swipe = usePagerSwipe();
@@ -78,7 +97,6 @@ export function Promos({ width, promos }: { width: number; promos: Promo[] }) {
   const from = useSharedValue(0);
   const [shown, setShown] = useState(0);
   const [gone, setGone] = useState(away);
-  const fold = useSharedValue(away ? 0 : 1);
   const count = promos.length;
   const pan = useMemo(() => {
     const g = Gesture.Pan()
@@ -105,25 +123,29 @@ export function Promos({ width, promos }: { width: number; promos: Promo[] }) {
     return swipe ? g.blocksExternalGesture(swipe) : g;
   }, [swipe, w, count]); // eslint-disable-line react-hooks/exhaustive-deps
   const strip = useAnimatedStyle(() => ({ transform: [{ translateX: -x.value }] }));
-  /* the card and the gap under it fold away together, so the four cards rise into the place */
-  const folding = useAnimatedStyle(() => ({ height: fold.value * (PROMO_H + PROMO_GAP), opacity: fold.value }));
+  /* folding away: the black card's edge rises over it as it fades */
+  const folding = useAnimatedStyle(() => ({ opacity: slot.value }));
   const press = useTap();
-  if (!count || gone) return null;
+  /* the dots not showing, in the deep shade of whichever offer is, blending as the strip moves */
+  const deeps = promos.map(p => shadeOf(p.tone).deep);
+  if (!count) return <QuietCard width={w} quiet={quiet} />;
+  if (gone) return null;
   const promo = promos[Math.min(shown, count - 1)]!;
   /* the dots' room at the right of every card, so the words never run under them or the × */
   const dotsW = count > 1 ? 12 + (count - 1) * 9 : 12;
   const close = () => {
     away = true;
     if (still) {
+      slot.value = 0;
       setGone(true);
       return;
     }
-    fold.value = withTiming(0, { duration: motion.leave, easing: settle }, done => {
+    slot.value = withTiming(0, { duration: motion.leave, easing: settle }, done => {
       if (done) runOnJS(setGone)(true);
     });
   };
   return (
-    <Animated.View style={[s.fold, folding]} testID="promos">
+    <Animated.View style={folding} testID="promos">
       <View style={s.wrap}>
         <GestureDetector gesture={pan}>
           <Animated.View style={[s.window, { width: w }, press.style]}>
@@ -134,12 +156,12 @@ export function Promos({ width, promos }: { width: number; promos: Promo[] }) {
                     <Icon name={p.glyph} size={20} colour="#ffffff" />
                   </View>
                   <View style={s.words}>
-                    <Label numberOfLines={1} style={s.title}>
+                    <Caption numberOfLines={1} style={{ color: '#ffffff' }}>
                       {p.title}
-                    </Label>
-                    <Small tone="secondary" numberOfLines={2}>
+                    </Caption>
+                    <Caption numberOfLines={2} style={{ color: shadeOf(p.tone).soft }}>
                       {p.sub}
-                    </Small>
+                    </Caption>
                   </View>
                   <View style={{ width: dotsW }} />
                 </View>
@@ -161,7 +183,7 @@ export function Promos({ width, promos }: { width: number; promos: Promo[] }) {
             {count > 1 ? (
               <View style={s.dots} pointerEvents="none" testID="promo-dots">
                 {promos.map((p, i) => (
-                  <Dot key={p.id} i={i} x={x} step={w} />
+                  <Dot key={p.id} i={i} x={x} step={w} deeps={deeps} />
                 ))}
               </View>
             ) : null}
@@ -175,27 +197,58 @@ export function Promos({ width, promos }: { width: number; promos: Promo[] }) {
   );
 }
 
-/** A promo's ground: its own colour, very faint, so the card reads as an offer and not as one of the four. */
+/** A promo's ground: its own colour, very faint, so the card reads as an offer on the black. */
 const wash = (tone: string) => `${tone}14`;
+/** An offer's soft and deep shades; one with a colour of its own not in the table takes the green's. */
+const shadeOf = (tone: string) => offerShade[tone] ?? offerShade[colour.good]!;
 
-function Dot({ i, x, step }: { i: number; x: SharedValue<number>; step: number }) {
+function Dot({ i, x, step, deeps }: { i: number; x: SharedValue<number>; step: number; deeps: string[] }) {
+  const places = deeps.map((_, k) => k);
   const style = useAnimatedStyle(() => {
-    const near = Math.max(0, 1 - Math.abs(x.value / step - i));
-    return { width: interpolate(near, [0, 1], [5, 12]), backgroundColor: interpolateColor(near, [0, 1], [colour.ruleStrong, colour.ink]) };
+    const at = x.value / step;
+    const near = Math.max(0, 1 - Math.abs(at - i));
+    const deep = deeps.length > 1 ? interpolateColor(at, places, deeps) : (deeps[0] ?? '#ffffff');
+    return { width: interpolate(near, [0, 1], [5, 12]), backgroundColor: interpolateColor(near, [0, 1], [deep, '#ffffff']) };
   });
   return <Animated.View style={[s.dot, style]} />;
 }
 
+/** With nothing to offer: a ring on the black, a grey tile, the owner's No
+    promo over a next step that is true for the account, which a tap takes.
+    No × and no dots: there is nothing to put away or to swipe to. */
+function QuietCard({ width, quiet }: { width: number; quiet: Quiet }) {
+  const router = useRouter();
+  return (
+    <View style={s.wrap}>
+      <Tap accessibilityRole="button" accessibilityLabel={quiet.sub} onPress={() => router.push(quiet.to as never)} style={[s.quiet, { width }]} testID="promo-quiet">
+        <View style={s.quietTile} testID="promo-quiet-tile">
+          <Icon name="freeze" size={20} colour={dark.quietGlyph} />
+        </View>
+        <View style={s.words}>
+          <Label numberOfLines={1} style={s.quietTitle}>
+            {quiet.title}
+          </Label>
+          <Small numberOfLines={2} style={{ color: dark.label }}>
+            {quiet.sub}
+          </Small>
+        </View>
+      </Tap>
+    </View>
+  );
+}
+
 const s = StyleSheet.create({
-  fold: { overflow: 'hidden' },
-  wrap: { paddingHorizontal: SIDE, paddingBottom: PROMO_GAP },
+  wrap: { paddingHorizontal: SIDE },
   window: { height: PROMO_H, borderRadius: 20, overflow: 'hidden' },
   strip: { flexDirection: 'row', height: PROMO_H },
   card: { height: PROMO_H, borderRadius: 20, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
   glyph: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   words: { flex: 1, gap: 2 },
-  /* the frame sets the title 14 on a line of 16 */
-  title: { lineHeight: 16 },
+  /* the quiet card: a ring inside its edge, so the tile sits 17 in, as the frame has it */
+  quiet: { height: PROMO_H, borderRadius: 20, borderWidth: 1, borderColor: dark.quietRing, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  quietTile: { width: 44, height: 44, borderRadius: 14, backgroundColor: dark.quietTile, alignItems: 'center', justifyContent: 'center' },
+  /* the frame sets the quiet title 14 on a line of 16 */
+  quietTitle: { lineHeight: 16, color: dark.quietTitle },
   dots: { position: 'absolute', right: CORNER, bottom: EDGE, flexDirection: 'row', alignItems: 'center', gap: 4, height: 5 },
   dot: { height: 5, borderRadius: 2.5 },
   close: { position: 'absolute', right: CORNER, top: EDGE, width: 12, height: 12 },

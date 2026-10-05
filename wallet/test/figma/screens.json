@@ -583,6 +583,124 @@
    }
   ]
  },
+ "home-quiet": {
+  "frame": "home-quiet",
+  "place": "Nothing to offer",
+  "wait": "Total balance",
+  "settle": 1600,
+  "skipWords": [
+   "Title",
+   "Sub"
+  ],
+  "picture": "home-quiet",
+  "pieces": [
+   {
+    "name": "Total balance",
+    "find": {
+     "text": "Total balance"
+    }
+   },
+   {
+    "name": "₦595,320",
+    "find": {
+     "testid": "balance"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": ".75",
+    "find": {
+     "text": ".75",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Chip · ~ 384 USD",
+    "find": {
+     "testid": "chip"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Send",
+    "nth": 0,
+    "find": {
+     "testid": "send-pill"
+    }
+   },
+   {
+    "name": "Disc",
+    "nth": 0,
+    "find": {
+     "testid": "send-disc"
+    }
+   },
+   {
+    "name": "Receive",
+    "nth": 0,
+    "find": {
+     "testid": "receive-pill"
+    }
+   },
+   {
+    "name": "Disc",
+    "nth": 1,
+    "find": {
+     "testid": "receive-disc"
+    }
+   },
+   {
+    "name": "Promo card · No savings yet",
+    "find": {
+     "testid": "promo-quiet"
+    }
+   },
+   {
+    "name": "Tile",
+    "find": {
+     "testid": "promo-quiet-tile"
+    }
+   },
+   {
+    "name": "Title",
+    "find": {
+     "text": "No promo",
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Sub",
+    "find": {
+     "text": "Add to Holiday"
+    },
+    "only": [
+     "x",
+     "y"
+    ]
+   },
+   {
+    "name": "Grabber",
+    "find": {
+     "testid": "grabber"
+    }
+   }
+  ]
+ },
  "home-open": {
   "frame": "home",
   "root": "1201:17925",

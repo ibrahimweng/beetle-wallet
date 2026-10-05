@@ -57,7 +57,7 @@ import { chatPointedOut, markChatPointedOut } from './first';
 import { useSetup } from '../setup/store';
 import { tabs, useHoldPages, usePage, useTabAgain } from '../tabs';
 import { Grid } from './Grid';
-import { Promos, promosFor } from './Promos';
+import { Promos, offersAway, promosFor, quietFor } from './Promos';
 import { kobo, naira } from '../../lib/format';
 
 /** What stays showing under the open card: the bar's row of glyphs, 16
@@ -87,8 +87,8 @@ function HomeScreen() {
   const still = useStill();
   const insets = useSafeAreaInsets();
   const { width: W, height: H } = useWindowDimensions();
-  const { closedH, haze } = useCardTop();
-  const asked = useLocalSearchParams<{ chat?: string; receive?: string; say?: string; about?: string; fresh?: string; more?: string; face?: string; typing?: string; kb?: string }>();
+  const { haze } = useCardTop();
+  const asked = useLocalSearchParams<{ chat?: string; receive?: string; say?: string; about?: string; fresh?: string; more?: string; face?: string; typing?: string; kb?: string; offers?: string }>();
   const receding = useRecession();
 
   const [draft, setDraft] = useState('');
@@ -200,7 +200,16 @@ function HomeScreen() {
   const { prefs } = usePrefs(account?.accountNumber);
   const { goals } = useGoals(account?.accountNumber, { demo: !!account?.demo, started: prefs.goal });
   const standings = useMemo(() => goals.map(g => standingOf(g, { goals, demo: !!account?.demo, tight: prefs.tight, moves })), [goals, account, prefs.tight, moves]);
-  const promos = useMemo(() => promosFor({ setUp: setup.done, goal: goals[0]?.name ?? null }), [setup.done, goals]);
+  /* what Beetle has to offer, in the black card; the lab can ask for none, to see the quiet card that stands in */
+  const noOffers = LAB && asked.offers === 'none';
+  const promos = useMemo(() => (noOffers ? [] : promosFor({ setUp: setup.done, goal: goals[0]?.name ?? null })), [noOffers, setup.done, goals]);
+  const first = standings[0];
+  const quiet = useMemo(() => quietFor(first ? { name: first.goal.name, aside: first.aside } : null), [first]);
+  /* the offers' room in the card: gone once the × has folded them away this run, but the quiet card always has it */
+  const slot = useSharedValue(promos.length && offersAway() ? 0 : 1);
+  useEffect(() => {
+    if (!promos.length) slot.value = 1;
+  }, [promos.length, slot]);
   /** the Receive sheet, over everything */
   const [receive, setReceive] = useState(false);
   /** money that just arrived, for the card to show */
@@ -839,6 +848,8 @@ function HomeScreen() {
                     begin();
                   } else show(false);
                 }}
+                offers={<Promos width={W} promos={promos} quiet={quiet} slot={slot} />}
+                slot={slot}
                 whole={naira(balance)}
                 kobo={kobo(balance)}
                 dollars={setup.done ? `~ ${Math.round(balance / rate).toLocaleString('en-NG')} USD` : 'New account'}
@@ -890,9 +901,8 @@ function HomeScreen() {
                   </ChatFoot>
                 }
               />
-              {/* the promo card and the four cards under it, going as the card opens; the promo keeps the gap under it, so it can fold away with it */}
+              {/* the four cards, going as the card opens (the offers are in the card since Round 15) */}
               <Animated.View style={[{ paddingTop: GRID_TOP }, gridStyle]} pointerEvents={opened ? 'none' : 'auto'}>
-                <Promos width={W} promos={promos} />
                 <Grid width={W} accountNumber={account.accountNumber} demo={!!account.demo} moves={moves} borrowing={setup.done} />
               </Animated.View>
             </View>

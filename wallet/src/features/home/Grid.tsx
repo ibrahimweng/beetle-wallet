@@ -2,8 +2,8 @@
    Fuse lays out its own: pale grey, rounded 20, a 32 glyph at the top left,
    and at the foot a small grey word and a bold figure. Measured off Fuse's
    home (167 × 150 on a 393 screen, 24 in and 10 apart); here 24 in (the
-   owner's home frame, Round 14) and 12 apart, 152 tall. The line at the
-   foot is 10, the frame's.
+   owner's home frame, Round 14) and 24 apart both ways (Round 15, the
+   owner's frame), 152 tall. The line at the foot is 10, the frame's.
 
    Savings says the most, with care: the goal's ring, what is put aside and
    the target, how it is going — ahead, or Paused while money is tight, or
@@ -16,7 +16,7 @@
    together, four small dots at the top right say which is showing, a tap
    anywhere on it opens that one, and a tap on the word Services opens All
    services. A swipe that starts on it is the card's, not the pages'. Each
-   card leads to its page, which slides in over home. */
+   card leads to its page, which comes up over home as a sheet. */
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -33,7 +33,7 @@ import { settleOn, usePagerSwipe } from '../tabs';
 import type { LedgerRow } from './account';
 
 export const GRID_SIDE = 24;
-export const GRID_GAP = 12;
+export const GRID_GAP = 24;
 export const TILE_H = 152;
 /** How far in from a card's edge its pieces sit. */
 const PAD = 16;

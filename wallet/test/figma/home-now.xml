@@ -1,67 +1,69 @@
-<frame id="1403:13497" name="Home" x="80" y="80" width="393" height="852">
-  <frame id="1405:13515" name="Card" x="0" y="0" width="393" height="300">
-    <frame id="1405:13518" name="Body" x="24" y="48" width="345" height="204">
-      <frame id="1405:13519" name="Balance" x="81" y="32" width="183" height="88">
-        <text id="1405:13520" name="Total balance" x="53.5" y="0" width="76" height="16" />
-        <frame id="1405:13521" name="Row · ₦595,320.75" x="0" y="20" width="183" height="40">
-          <text id="1405:13522" name="₦595,320" x="0" y="0" width="152" height="40" />
-          <frame id="1405:13523" name="Kobo" x="153" y="0" width="30" height="32">
-            <text id="1405:13524" name=".75" x="0" y="8" width="30" height="24" />
+<frame id="1403:13497" name="Home" x="543" y="0" width="393" height="852">
+  <frame id="1420:13724" name="Card" x="0" y="0" width="393" height="392">
+    <frame id="1420:13725" name="Body" x="24" y="48" width="345" height="180">
+      <frame id="1420:13726" name="Balance" x="81" y="32" width="183" height="88">
+        <text id="1420:13727" name="Total balance" x="53.5" y="0" width="76" height="16" />
+        <frame id="1420:13728" name="Row · ₦595,320.75" x="0" y="20" width="183" height="40">
+          <text id="1420:13729" name="₦595,320" x="0" y="0" width="152" height="40" />
+          <frame id="1420:13730" name="Kobo" x="153" y="0" width="30" height="32">
+            <text id="1420:13731" name=".75" x="0" y="8" width="30" height="24" />
           </frame>
         </frame>
-        <frame id="1405:13525" name="Chip · ~ 384 USD" x="47" y="64" width="89" height="24">
-          <text id="1405:13526" name="~ 384 USD" x="8" y="2" width="73" height="20" />
+        <frame id="1420:13732" name="Chip · ~ 384 USD" x="47" y="64" width="89" height="24">
+          <text id="1420:13733" name="~ 384 USD" x="8" y="2" width="73" height="20" />
         </frame>
       </frame>
-      <frame id="1405:13527" name="Actions" x="60.5" y="144" width="224" height="36">
-        <frame id="1405:13528" name="Send" x="0" y="0" width="100" height="36">
-          <frame id="1405:13529" name="Disc" x="8.5" y="0" width="36" height="36">
-            <instance id="1405:13530" name="Glyph · send" x="10" y="10" width="16" height="16" />
+      <frame id="1420:13734" name="Actions" x="60.5" y="144" width="224" height="36">
+        <frame id="1420:13735" name="Send" x="0" y="0" width="100" height="36">
+          <frame id="1420:13736" name="Disc" x="8.5" y="0" width="36" height="36">
+            <instance id="1420:13737" name="Glyph · send" x="10" y="10" width="16" height="16" />
           </frame>
-          <text id="1405:13533" name="Send" x="44.5" y="8" width="35" height="20" />
+          <text id="1420:13738" name="Send" x="44.5" y="8" width="35" height="20" />
         </frame>
-        <frame id="1405:13534" name="Receive" x="124" y="0" width="100" height="36">
-          <frame id="1405:13535" name="Disc" x="-0.5" y="0" width="36" height="36">
-            <instance id="1405:13536" name="Glyph · down" x="10" y="10" width="16" height="16" />
+        <frame id="1420:13739" name="Receive" x="124" y="0" width="100" height="36">
+          <frame id="1420:13740" name="Disc" x="-0.5" y="0" width="36" height="36">
+            <instance id="1420:13741" name="Glyph · down" x="10" y="10" width="16" height="16" />
           </frame>
-          <text id="1405:13539" name="Receive" x="35.5" y="8" width="53" height="20" />
+          <text id="1420:13742" name="Receive" x="35.5" y="8" width="53" height="20" />
         </frame>
       </frame>
     </frame>
-    <frame id="1405:13540" name="Pull down" x="24" y="276" width="345" height="4">
-      <rounded-rectangle id="1405:13541" name="Grabber" x="159" y="0" width="27" height="4" />
+    <frame id="1420:13743" name="Frame 23" x="24" y="264" width="345" height="112">
+      <instance id="1420:13744" name="Promo card" x="0" y="0" width="345" height="84">
+        <frame id="I1420:13744;1404:13540" name="Tile" x="16" y="20" width="44" height="44">
+          <instance id="I1420:13744;1404:13541" name="Glyph" x="12" y="12" width="20" height="20" />
+        </frame>
+        <frame id="I1420:13744;1408:15531" name="Frame 21" x="72" y="17" width="257" height="50">
+          <frame id="I1420:13744;1404:13545" name="Words" x="0" y="0" width="215" height="50">
+            <text id="I1420:13744;1404:13546" name="Title" x="0" y="0" width="95" height="16" />
+            <text id="I1420:13744;1404:13547" name="Sub" x="0" y="18" width="215" height="32" />
+          </frame>
+          <frame id="I1420:13744;1409:15584" name="Frame 22" x="227" y="0" width="30" height="50">
+            <frame id="I1420:13744;1409:15581" name="Frame 1" x="18.33273696899414" y="0" width="11.667262077331543" height="11.667262077331543">
+              <vector id="I1420:13744;1409:15580" name="Vector" x="0" y="6.010296821594238" width="11.667261689901352" height="11.667261689901352" />
+            </frame>
+            <frame id="I1420:13744;1408:15522" name="Dots" x="0" y="45" width="30" height="5">
+              <rounded-rectangle id="I1420:13744;1408:15523" name="Dot · on" x="0" y="0" width="12" height="5" />
+              <rounded-rectangle id="I1420:13744;1408:15524" name="Dot" x="16" y="0" width="5" height="5" />
+              <rounded-rectangle id="I1420:13744;1408:15525" name="Dot" x="25" y="0" width="5" height="5" />
+            </frame>
+          </frame>
+        </frame>
+      </instance>
+      <frame id="1420:13745" name="Pull down" x="0" y="108" width="345" height="4">
+        <rounded-rectangle id="1420:13746" name="Grabber" x="159" y="0" width="27" height="4" />
+      </frame>
     </frame>
   </frame>
-  <frame id="1405:13543" name="Page" x="0" y="300" width="393" height="552">
-    <instance id="1405:13545" name="Promo card" x="24" y="24" width="353" height="84">
-      <frame id="I1405:13545;1404:13540" name="Tile" x="16" y="20" width="44" height="44">
-        <instance id="I1405:13545;1404:13541" name="Glyph" x="12" y="12" width="20" height="20" />
-      </frame>
-      <frame id="I1405:13545;1408:15531" name="Frame 21" x="72" y="17" width="265" height="50">
-        <frame id="I1405:13545;1404:13545" name="Words" x="0" y="0" width="223" height="50">
-          <text id="I1405:13545;1404:13546" name="Title" x="0" y="0" width="115" height="16" />
-          <text id="I1405:13545;1404:13547" name="Sub" x="0" y="18" width="223" height="32" />
-        </frame>
-        <frame id="I1405:13545;1409:15584" name="Frame 22" x="235" y="0" width="30" height="50">
-          <frame id="I1405:13545;1409:15581" name="Frame 1" x="18.33273696899414" y="0" width="11.667262077331543" height="11.667262077331543">
-            <vector id="I1405:13545;1409:15580" name="Vector" x="0" y="6.010296821594238" width="11.667261689901352" height="11.667261689901352" />
-          </frame>
-          <frame id="I1405:13545;1408:15522" name="Dots" x="0" y="45" width="30" height="5">
-            <rounded-rectangle id="I1405:13545;1408:15523" name="Dot · on" x="0" y="0" width="12" height="5" />
-            <rounded-rectangle id="I1405:13545;1408:15524" name="Dot" x="16" y="0" width="5" height="5" />
-            <rounded-rectangle id="I1405:13545;1408:15525" name="Dot" x="25" y="0" width="5" height="5" />
-          </frame>
-        </frame>
-      </frame>
-    </instance>
-    <frame id="1405:13561" name="Grid" x="24" y="124" width="345" height="316">
+  <frame id="1405:13543" name="Page" x="0" y="392" width="393" height="460">
+    <frame id="1405:13561" name="Grid" x="24" y="24" width="345" height="328">
       <frame id="1405:13562" name="Row" x="0" y="0" width="345" height="152">
-        <instance id="1405:13563" name="Savings" x="0" y="0" width="166.5" height="152" />
-        <instance id="1405:13588" name="Loan" x="178.5" y="0" width="166.5" height="152" />
+        <instance id="1405:13563" name="Savings" x="0" y="0" width="160.5" height="152" />
+        <instance id="1405:13588" name="Loan" x="184.5" y="0" width="160.5" height="152" />
       </frame>
-      <frame id="1405:13614" name="Row" x="0" y="164" width="345" height="152">
-        <instance id="1405:13615" name="Virtual card" x="0" y="0" width="166.5" height="152" />
-        <instance id="1405:13635" name="Services" x="178.5" y="0" width="166.5" height="152" />
+      <frame id="1405:13614" name="Row" x="0" y="176" width="345" height="152">
+        <instance id="1405:13615" name="Virtual card" x="0" y="0" width="160.5" height="152" />
+        <instance id="1405:13635" name="Services" x="184.5" y="0" width="160.5" height="152" />
       </frame>
     </frame>
   </frame>

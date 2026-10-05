@@ -1152,6 +1152,47 @@ picture the owner sent).
 **Expo Go**: a QR code for the update, as every round that reaches the
 phone ends.
 
+## Round 15 · The offers in the black card
+
+Asked by the owner after Round 14: "i did some changes for the black card
+and moved the promo card into it". The frame is Flows › Home again
+(1403:13497, inside 1420:14730), with a second card beside it, Empty promo
+(1420:14685), for when there is no offer. Three questions answered: the
+quiet card shows only when there are no offers, and the × still folds the
+offers away; its line is the owner's words fitted to the account; each
+offer keeps its own colour on the black.
+
+- [x] The black card is 392 tall and holds the offers: 36 under Send and
+      Receive, 345 wide at 24 a side, the grabber 24 under them and 16 over
+      the card's edge. The four cards start 24 under the card, as before.
+      A pull down on an offer is the card's, a swipe across it is the
+      offers', and the offers go with the rest of the closed card as it
+      opens.
+- [x] On the black an offer is a faint wash of its own colour, its tile in
+      that colour, its title white and the line under it in a soft shade of
+      the colour, both 12 on a line of 16. The dot showing is white and the
+      others a deep shade. The frame draws the green; blue, violet and
+      orange take the same strength and come out as bright, so each reads
+      as well. The × is the frame's, 8 across.
+- [x] The × folds the offers away: the black card gets 108 shorter (their
+      room, the card and the 24 under it), down to 284 with the grabber 36
+      under the pills, and the four cards rise. They come back the next time
+      Beetle opens.
+- [x] With nothing to offer, a quiet card stands in their place and the
+      black card keeps its height: a ring rather than a ground, a grey tile
+      with the freeze glyph, No promo over a line that is true for the
+      account (Start your Holiday savings with your first deposit while the
+      goal is empty, Start a savings goal with your first deposit with no
+      goal, Add to Holiday whenever you like once it has money). It has no ×
+      and no dots, and a tap takes the step. Today there is always an
+      offer, so the lab has a place for it: Home › Nothing to offer.
+- [x] The four cards are 24 apart both ways (were 12), 160 wide.
+- [x] Both frames are the check's: test/figma/home-now.xml for home, and
+      test/figma/home-quiet.xml for the quiet card.
+
+**Expo Go**: a QR code for the update, as every round that reaches the
+phone ends.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

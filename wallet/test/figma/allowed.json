@@ -2091,16 +2091,6 @@
    "why": "the layer keeps another frame's words; the picture reads 'I only tell you things I have seen in your own money.', which the build says"
   }
  ],
- "home-card": [
-  {
-   "pieces": [
-    "Promo card",
-    "Frame 1",
-    "Dots"
-   ],
-   "why": "the owner's frame keeps the promo card 353 wide from when the page's sides were 20; with the sides at 24 the build lines it up with the four cards, 345 wide, so its × and its dots sit 8 further in (Round 14)"
-  }
- ],
  "home-open": [
   {
    "text": "Beetle Transfers",

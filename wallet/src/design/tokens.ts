@@ -57,7 +57,24 @@ export const dark = {
   pillText: '#e5e5ea',
   grabber: '#cdcdcd',
   divider: '#2c2c2e',
+  /* the quiet card that stands in the card when there is nothing to offer
+     (Round 15, the owner's frame): a ring rather than a ground, a grey tile */
+  quietRing: 'rgba(255, 255, 255, 0.2)',
+  quietTile: '#8e8e93',
+  quietGlyph: '#cacaca',
+  quietTitle: '#dedee3',
 } as const;
+
+/* An offer on the black card (Round 15): its second line and the dots that
+   are not showing, in a soft and a deep shade of the offer's own colour.
+   The frame draws the green one; the others keep the green's strength and
+   come out as bright as it, so each reads as well on its own ground. */
+export const offerShade: Record<string, { soft: string; deep: string }> = {
+  [colour.good]: { soft: '#5a9960', deep: '#008825' },
+  [colour.accent]: { soft: '#8189b5', deep: '#4964ff' },
+  [colour.violet]: { soft: '#9283b6', deep: '#854fff' },
+  [colour.warn]: { soft: '#a1875f', deep: '#a66700' },
+};
 
 /* The file is drawn in SF Pro Text. iOS has it, so it asks for nothing and
    gets it; Android has Roboto. On the web "whatever the browser has" is not

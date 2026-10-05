@@ -516,10 +516,44 @@ try {
   await see('Bills, airtime, data and more');
   must((await page.getByText('See all').count()) === 0, 'the record should have left home for Activities');
   must((await page.getByTestId('grid-savings').boundingBox())?.height === 152, 'the cards are 152 tall');
-  /* the promo card, under the black card and over the four: one at a time, with its dots; a swipe across it brings the next, and the pages stay */
+  /* the offers, inside the black card since Round 15: 36 under Send and Receive, the grabber 24 under them and 16 over the
+     card's edge, the card 392 tall; one at a time, with its dots; a swipe across it brings the next, and the pages stay */
   const promo = await page.getByTestId('promo-card').boundingBox();
   const grid = await page.getByTestId('grid-savings').boundingBox();
-  must(promo && grid && promo.y + promo.height < grid.y, 'the promo card should sit over the four cards');
+  const offersAt = await page.evaluate(() => {
+    const r = sel => document.querySelector(sel)?.getBoundingClientRect();
+    const card = r('[data-testid="card"]'),
+      pill = r('[data-testid="send-pill"]'),
+      offer = r('[data-testid="promo-card"]'),
+      grab = r('[data-testid="grabber"]');
+    return card && pill && offer && grab
+      ? { card: Math.round(card.height), under: Math.round(offer.y - pill.bottom), grab: Math.round(grab.y - offer.bottom), foot: Math.round(card.bottom - grab.bottom) }
+      : null;
+  });
+  must(
+    offersAt && offersAt.card === 392 && offersAt.under === 36 && offersAt.grab === 24 && offersAt.foot === 16,
+    `the offers should sit in the black card as the frame has them (${JSON.stringify(offersAt)})`,
+  );
+  must(promo && grid && Math.round(grid.y - (promo.y + promo.height)) === 24 + 4 + 16 + 24, 'and the four cards 24 under the card');
+  /* the four cards 24 apart both ways (Round 15) */
+  const apart = await page.evaluate(() => {
+    const r = id => document.querySelector(`[data-testid="grid-${id}"]`)?.getBoundingClientRect();
+    const a = r('savings'),
+      b = r('loan'),
+      c = r('card');
+    return a && b && c ? { across: Math.round(b.x - a.right), down: Math.round(c.y - a.bottom) } : null;
+  });
+  must(apart && apart.across === 24 && apart.down === 24, `the four cards should be 24 apart both ways (${JSON.stringify(apart)})`);
+  /* on the black: the title white and the line under it in a soft shade of the offer's own colour, both 12 on 16 */
+  const offerWords = await page.evaluate(() =>
+    [...document.querySelectorAll('[data-testid="promo-save"] *')]
+      .filter(e => e.childElementCount === 0 && e.textContent.trim())
+      .map(e => {
+        const c = getComputedStyle(e);
+        return `${c.fontSize}/${c.lineHeight} ${c.color}`;
+      }),
+  );
+  must(offerWords[0] === '12px/16px rgb(255, 255, 255)' && offerWords[1] === '12px/16px rgb(90, 153, 96)', `the offer's words should be white over its soft green (${offerWords})`);
   /* its dots inside it at its bottom right, and its × at its top right (Round 14) */
   const promoDots = await page.getByTestId('promo-dots').boundingBox();
   must(
@@ -534,13 +568,20 @@ try {
   await onPage('home');
   must((await promoLabel()) === 'Borrow up to ₦250,000', `a swipe across the promo card should bring the next (it says ${await promoLabel()})`);
   await shot('home-promo-next', 300);
-  /* the × puts the promos away: the card folds up and the four cards rise into its place, until Beetle next opens (Round 14) */
+  /* the × folds the offers away: the black card gets shorter by their room and the four cards rise, until Beetle next opens (Round 15, the owner's choice) */
   const gridBefore = (await page.getByTestId('grid-savings').boundingBox())?.y ?? 0;
   await page.getByTestId('promo-close').click();
   await page.waitForTimeout(900);
-  must((await page.getByTestId('promos').count()) === 0, 'the × should put the promos away');
+  must((await page.getByTestId('promos').count()) === 0, 'the × should put the offers away');
   const gridAfter = (await page.getByTestId('grid-savings').boundingBox())?.y ?? 0;
-  must(Math.round(gridBefore - gridAfter) === 100, `and the four cards should rise into their place (${gridBefore} to ${gridAfter})`);
+  must(Math.round(gridBefore - gridAfter) === 108, `and the four cards should rise by the offers' room (${gridBefore} to ${gridAfter})`);
+  const bare = await page.evaluate(() => {
+    const card = document.querySelector('[data-testid="card"]')?.getBoundingClientRect(),
+      pill = document.querySelector('[data-testid="send-pill"]')?.getBoundingClientRect(),
+      grab = document.querySelector('[data-testid="grabber"]')?.getBoundingClientRect();
+    return card && pill && grab ? { card: Math.round(card.height), grab: Math.round(grab.y - pill.bottom) } : null;
+  });
+  must(bare && bare.card === 284 && bare.grab === 36, `the black card should close up to 284, its grabber 36 under the pills (${JSON.stringify(bare)})`);
   await shot('home-promos-away', 0);
   /* the four cards open sheets, and a page opened from a sheet comes up as a sheet over it, the one under
      stepping back; Back puts away the one on top (Round 14, the owner's word) */
@@ -604,12 +645,18 @@ try {
     const gx = grab.x + grab.width / 2;
     const gy = grab.y;
     const pulled = Date.now();
-    /* the finger and the trace run together, so the drag itself is in the samples */
+    /* the finger and the trace run together, so the drag itself is in the samples. It sets off in small steps, as a
+       finger does: the grabber sits 20 over the card's edge (Round 15), and on the web the pull is only taken up while
+       the pointer is still on the card */
     const finger = (async () => {
       await page.mouse.move(gx, gy);
       await page.mouse.down();
+      for (const dy of [6, 12, 18]) {
+        await page.mouse.move(gx, gy + dy);
+        await page.waitForTimeout(40);
+      }
       for (let i = 1; i <= 16; i++) {
-        await page.mouse.move(gx, gy + i * 22);
+        await page.mouse.move(gx, gy + 18 + i * 22);
         await page.waitForTimeout(40);
       }
       await page.mouse.up();
@@ -2315,6 +2362,22 @@ try {
   await see('Face ID did not catch you');
   await button('Cancel').waitFor();
   await shot('passcode-face-missed', 900);
+  await tap('Back to the lab');
+  await see('Beetle Lab');
+  /* with nothing to offer, a quiet card stands in the black card: the owner's No promo over a next step that is true for
+     the account, no × and no dots, and the card keeps its height; a tap takes the step (Round 15) */
+  await tap('Nothing to offer');
+  await arrives(DEMO_HOME);
+  await see('No promo');
+  await see('Add to Holiday whenever you like');
+  must((await page.getByTestId('promo-close').count()) === 0 && (await page.getByTestId('promo-dots').count()) === 0, 'the quiet card should have no × and no dots');
+  const quietH = (await page.getByTestId('card').boundingBox())?.height ?? 0;
+  must(Math.round(quietH) === 392, `and the black card should keep its height (${quietH})`);
+  await shot('home-quiet', 600);
+  await page.getByTestId('promo-quiet').click();
+  await button('Add money').waitFor();
+  await tap('Back');
+  await page.waitForTimeout(900);
   await tap('Back to the lab');
   await see('Beetle Lab');
   /* the first time: the card dips on its own, with the words that say why, then settles */

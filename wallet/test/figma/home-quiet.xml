@@ -1,0 +1,47 @@
+<frame id="1420:14685" name="Empty promo" x="0" y="230" width="393" height="392">
+  <frame id="1420:14686" name="Body" x="24" y="48" width="345" height="180">
+    <frame id="1420:14687" name="Balance" x="81" y="32" width="183" height="88">
+      <text id="1420:14688" name="Total balance" x="53.5" y="0" width="76" height="16" />
+      <frame id="1420:14689" name="Row · ₦595,320.75" x="0" y="20" width="183" height="40">
+        <text id="1420:14690" name="₦595,320" x="0" y="0" width="152" height="40" />
+        <frame id="1420:14691" name="Kobo" x="153" y="0" width="30" height="32">
+          <text id="1420:14692" name=".75" x="0" y="8" width="30" height="24" />
+        </frame>
+      </frame>
+      <frame id="1420:14693" name="Chip · ~ 384 USD" x="47" y="64" width="89" height="24">
+        <text id="1420:14694" name="~ 384 USD" x="8" y="2" width="73" height="20" />
+      </frame>
+    </frame>
+    <frame id="1420:14695" name="Actions" x="60.5" y="144" width="224" height="36">
+      <frame id="1420:14696" name="Send" x="0" y="0" width="100" height="36">
+        <frame id="1420:14697" name="Disc" x="8.5" y="0" width="36" height="36">
+          <instance id="1420:14698" name="Glyph · send" x="10" y="10" width="16" height="16" />
+        </frame>
+        <text id="1420:14699" name="Send" x="44.5" y="8" width="35" height="20" />
+      </frame>
+      <frame id="1420:14700" name="Receive" x="124" y="0" width="100" height="36">
+        <frame id="1420:14701" name="Disc" x="-0.5" y="0" width="36" height="36">
+          <instance id="1420:14702" name="Glyph · down" x="10" y="10" width="16" height="16" />
+        </frame>
+        <text id="1420:14703" name="Receive" x="35.5" y="8" width="53" height="20" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="1420:14704" name="Frame 23" x="24" y="264" width="345" height="112">
+    <instance id="1421:13681" name="Promo card · No savings yet" x="0" y="0" width="345" height="84">
+      <frame id="I1421:13681;1404:13540" name="Tile" x="17" y="20" width="44" height="44">
+        <instance id="I1421:13681;1404:13541" name="Glyph" x="12" y="12" width="20" height="20" />
+      </frame>
+      <frame id="I1421:13681;1408:15531" name="Frame 21" x="73" y="25" width="255" height="34">
+        <frame id="I1421:13681;1404:13545" name="Words" x="0" y="0" width="255" height="34">
+          <text id="I1421:13681;1404:13546" name="Title" x="0" y="0" width="68" height="16" />
+          <text id="I1421:13681;1404:13547" name="Sub" x="0" y="18" width="255" height="16" />
+        </frame>
+        <frame id="I1421:13681;1409:15584" name="Frame 22" x="235" y="0" width="30" height="50" hidden="true" />
+      </frame>
+    </instance>
+    <frame id="1420:14706" name="Pull down" x="0" y="108" width="345" height="4">
+      <rounded-rectangle id="1420:14707" name="Grabber" x="159" y="0" width="27" height="4" />
+    </frame>
+  </frame>
+</frame>

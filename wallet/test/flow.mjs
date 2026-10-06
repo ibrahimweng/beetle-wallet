@@ -809,6 +809,52 @@ try {
     await page.waitForTimeout(800);
   }
   must((await page.locator('[data-testid="card"]').boundingBox())?.height < 420, 'a push up on the chat should close the card');
+
+  /* the light at the card's edge (Round 21): pulled just past where letting go opens it and held there, the card goes
+     on by itself while the finger is still down, the light showing as it gathers and pulses and gone once the pulse has
+     run; Home then closes it with the quiet glow, gone again once it has shut */
+  {
+    await toTop();
+    await page.waitForTimeout(400);
+    const grab = await page.getByTestId('grabber').boundingBox();
+    must(grab, 'the grabber should be on the card');
+    const gx = grab.x + grab.width / 2;
+    await page.mouse.move(gx, grab.y);
+    await page.mouse.down();
+    for (let dy = 6; dy <= 170; dy += 6) {
+      await page.mouse.move(gx, grab.y + dy);
+      await page.waitForTimeout(30);
+    }
+    const held = await trace('card-light-held', 900, [
+      ['card', '[data-testid="card"]', false],
+      ['light', '[data-testid="card-light"]', false],
+    ]);
+    const end = held[held.length - 1];
+    must(end.card && end.card.height >= 720, `pulled past where it opens and held, the card should go on by itself (${end.card?.height}px)`);
+    await page.mouse.up();
+    must(
+      held.some(x => x.light && x.light.opacity > 0.99),
+      'the light should show at the edge as the card is pulled and pulses',
+    );
+    await page.waitForTimeout(1400);
+    const rest = () => page.evaluate(() => +getComputedStyle(document.querySelector('[data-testid="card-light"]')).opacity);
+    must((await rest()) === 0, 'the light should be gone once the pulse has run');
+    const closing = trace('card-light-closing', 900, [
+      ['card', '[data-testid="card"]', false],
+      ['light', '[data-testid="card-light"]', false],
+    ]);
+    await page.getByTestId('glyph-home').click();
+    const shut = await closing;
+    must(
+      shut.some(x => x.light && x.light.opacity > 0.99),
+      'closing, the quiet glow should show at the edge',
+    );
+    await page.waitForTimeout(500);
+    must((await page.locator('[data-testid="card"]').boundingBox())?.height < 420, 'Home should close the chat');
+    must((await rest()) === 0, 'the glow should be gone once the card has shut');
+    console.log(`  held past the open point, the card went on to ${Math.round(end.card.height)}px; the light came and went`);
+  }
+
   /* the transfer is a line on Activities, the next page along */
   await tap('Activities');
   await onPage('activities');

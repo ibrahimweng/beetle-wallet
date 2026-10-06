@@ -1383,6 +1383,51 @@ title goes; the chats drawer a little brighter than the chat.
 **Expo Go**: a QR code for the update, as every round that reaches the
 phone ends.
 
+## Round 21 · Light at the card's edge, after NameDrop
+
+Asked by the owner after Round 20: a more dramatic opening for the chat,
+the pull down kept, after Apple's tap to share between two phones: as they
+meet, an anticipation that starts as a soft arc of blur with streaks and
+aberration in it, a pulse as the contact goes, and a soft light that dies
+down the page. Looked into (Apple's own, and its copies in Metal, SpriteKit
+and AGSL; what Expo Go carries), sketched over the app, and four answers:
+the light gathers at the card's pulled edge; it pulses once the card is
+pulled far enough, the card going on by itself; white with warm and cool
+edges; and a quiet reverse on closing.
+
+- [x] One shader for the light (home/glow.ts), in the words Skia's SkSL and
+      WebGL's GLSL share: on the phone Skia draws it over the card, fed
+      from the card's own numbers where they move, so it keeps up with the
+      finger whatever the chat is doing (home/Light.tsx); on the web WebGL
+      draws it a frame at a time, only while there is light
+      (home/Light.web.tsx). Nothing is drawn or shown at rest.
+- [x] The pull gathers a soft bow of white at the middle of the card's
+      edge, streaked, its rim split warm outside and cool inside, whole
+      where letting go has always opened the card (0.35 of the way); what
+      the card holds is drawn out a little toward it.
+- [x] There the card goes on by itself, finger down or not, and the light
+      pulses: a flash where it gathered, a fringed ring and a fainter echo
+      85 ms behind it running out through the opening chat, and the bow
+      riding the edge down to the foot as it dies, in 1.4 s at most. A
+      fling open before it got there pulses all the same; let go short of
+      it and the light ebbs with the card.
+- [x] Closing, from a push up, Home or the phone's back, a quieter glow
+      rises along the edge and is gone before it shuts. No ring.
+- [x] The phone answers the light: a tick a quarter of the way, a soft
+      knock at half, a light one at three quarters, a firm knock at the
+      pulse and a soft one with its echo.
+- [x] Skia 2.6.2, the one Expo Go carries for SDK 57. An installed APK built
+      before it has no Skia: there the card opens as before, without the
+      light, until the next APK. No light for somebody who has asked their
+      phone to keep still.
+- [x] Tested: how much a pull gathers, the knocks, the closing glow, what
+      the shader is handed, and the shader itself compiled and drawn by
+      Skia's own CanvasKit (nothing at rest, the light at the pulled edge,
+      a ring out from where it fired).
+
+**Expo Go**: a QR code for the update, as every round that reaches the
+phone ends.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

@@ -124,6 +124,14 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   no dots. Nothing under the black card moves.
 - Then the four cards, 24 apart both ways. **Services starts on All
   services**; Bills, Airtime and Data come after a swipe.
+- **Pulling the card gathers light at its edge** (Round 21, the owner's
+  word, after Apple's NameDrop): white, streaked, its rim split warm
+  outside and cool inside, whole where letting go opens the card. There
+  the card **goes on by itself, finger down or not**, and the light pulses
+  through the opening chat and dies at its foot. Closing, a quieter glow
+  along the edge, no ring. The phone knocks with it: a tick and two soft
+  knocks as it gathers, a firm one at the pulse. No light for somebody who
+  has asked their phone to keep still.
 
 ## Transactions
 

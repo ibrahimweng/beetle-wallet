@@ -12,15 +12,33 @@
    and the grabber soften away, and the conversation arrives from below,
    running under a haze at the head and the foot. Pulled back up on its header, it runs the same movements the
    other way. Everything is drawn against one number, `open`, from 0 to 1,
-   so a finger can scrub it and the spring can finish it. */
+   so a finger can scrub it and the spring can finish it.
+   As it is pulled, light gathers along its edge, and once it is pulled far
+   enough the card goes on by itself and the light pulses through it
+   (Round 21, the owner's word, after Apple's NameDrop: see glow and Light);
+   closing, a quieter glow rises along the edge. */
 import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { LayoutChangeEvent, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, type PanGesture } from 'react-native-gesture-handler';
-import Animated, { SharedValue, interpolate, runOnJS, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
-import { Caption, Icon, Label, Swap, Tap, blurred, colour, dark, keys, motion, settle as settleCurve, soft, swipes, useStill } from '../../design';
+import Animated, {
+  Easing,
+  SharedValue,
+  interpolate,
+  runOnJS,
+  useAnimatedReaction,
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
+  withDelay,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
+import { Caption, Icon, Label, Swap, Tap, blurred, colour, dark, feel, keys, motion, settle as settleCurve, soft, swipes, useStill } from '../../design';
 import { useDeparture } from '../../design/journey';
 import { Frost } from './Frost';
+import { GATHER, PULSE, closingGlow, gathered, knocks, uniformsOf } from './glow';
+import { Light } from './Light';
 
 /** The card's height when closed, as the frame draws it, the offers in it (Round 15: the owner's frame, 392). */
 export const CLOSED_H = 392;
@@ -48,10 +66,17 @@ const FIGURE_LEFT = SIDE;
 /** the drag has to travel this far before the card takes it */
 const SLACK = 10;
 
+/** The light at the card's edge, as a drag that opens the card sees it: told
+    while a pull is gathering it, and told to pulse where the card goes on by
+    itself (see glow). */
+export type CardLight = { pulling: SharedValue<boolean>; fire: (edge: number, held: number) => void };
+
 /** The drag that opens and closes the card, for whoever holds it: the card's
     own header and body, the chat once it has scrolled to its end, and the
     day below the open card. A downward pull from the top of the page opens;
-    an upward push closes; a sideways move is somebody else's. */
+    an upward push closes; a sideways move is somebody else's. A pull that
+    gets as far as the card opening on its own lets go of the finger there:
+    the card goes on by itself and the light pulses. */
 export function useCardDrag({
   open,
   openH,
@@ -60,6 +85,7 @@ export function useCardDrag({
   settle,
   gate,
   only,
+  light,
 }: {
   open: SharedValue<number>;
   openH: SharedValue<number>;
@@ -71,10 +97,16 @@ export function useCardDrag({
   gate?: SharedValue<boolean>;
   /** only ever closes: the day below the open card */
   only?: 'close';
+  /** the light at the edge, for a drag that opens the card */
+  light?: CardLight;
 }): PanGesture {
   const startY = useSharedValue(0);
   const startX = useSharedValue(0);
   const startOpen = useSharedValue(0);
+  /* the pull has gone far enough and the card has gone on by itself: the finger is let go of */
+  const fired = useSharedValue(false);
+  /* the knocks the pull has had, so each comes once */
+  const knocked = useSharedValue(0);
   return useMemo(
     () =>
       Gesture.Pan()
@@ -85,6 +117,8 @@ export function useCardDrag({
           startY.value = t.y;
           startX.value = t.x;
           startOpen.value = only === 'close' ? 1 : open.value;
+          fired.value = false;
+          knocked.value = 0;
         })
         .onTouchesMove((e, state) => {
           const t = e.allTouches[0];
@@ -109,18 +143,45 @@ export function useCardDrag({
           runOnJS(swipes.start)();
         })
         .onUpdate(e => {
+          if (fired.value) return;
           const travel = Math.max(1, openH.value - closedH);
-          open.value = clamp(startOpen.value + e.translationY / travel, 0, 1);
+          const p = clamp(startOpen.value + e.translationY / travel, 0, 1);
+          open.value = p;
+          if (!light || startOpen.value >= 0.5) return;
+          /* the light gathers as the card is pulled, and the phone answers it a step at a time */
+          light.pulling.value = true;
+          const k = knocks(p);
+          if (k > knocked.value) runOnJS(feel.gather)(k);
+          knocked.value = k;
+          if (p >= GATHER) {
+            /* far enough: the light pulses and the card goes on by itself, finger down or not */
+            fired.value = true;
+            light.fire(closedH + travel * p, gathered(p));
+            open.value = withSpring(1, keys);
+            runOnJS(feel.pulse)();
+            runOnJS(settle)(true);
+          }
         })
         .onEnd(e => {
+          if (fired.value) return;
           const v = e.velocityY;
           const opening = startOpen.value < 0.5;
-          const to = v > 400 ? 1 : v < -400 ? 0 : open.value > (opening ? 0.35 : 0.65) ? 1 : 0;
+          const to = v > 400 ? 1 : v < -400 ? 0 : open.value > (opening ? GATHER : 0.65) ? 1 : 0;
+          if (light && opening && to === 1) {
+            /* flung open before it got that far: the light pulses all the same */
+            fired.value = true;
+            light.fire(closedH + (openH.value - closedH) * open.value, gathered(open.value));
+            runOnJS(feel.pulse)();
+          }
           open.value = withSpring(to, keys);
           runOnJS(settle)(to === 1);
           runOnJS(swipes.end)();
         })
         .onFinalize((_, success) => {
+          if (fired.value) {
+            runOnJS(swipes.end)();
+            return;
+          }
           if (!success && startOpen.value !== open.value) {
             open.value = withSpring(startOpen.value < 0.5 ? 0 : 1, keys);
           }
@@ -185,7 +246,7 @@ const clamp = (v: number, lo: number, hi: number) => {
 export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, onReceive, onDollars, chipLabel, onNew, chat, foot, over, offers, flash, recede }: CardProps) {
   /* Send is the way to the Send money page. Settings is the gear on the bar, not the card */
   const send = useDeparture({ id: 'card:send', to: '/send', words: 'Send' });
-  const { width: W } = useWindowDimensions();
+  const { width: W, height: H } = useWindowDimensions();
   const still = useStill();
   const { top, extra, headBand, closedH, haze, hazeSolid } = useCardTop();
   /* how far down the figure and the chip sit when closed, and where they go in the header */
@@ -223,12 +284,60 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
     into.value = e.nativeEvent.layout.width;
   };
 
+  /* ---- the light at the edge (see glow) ---- */
+  /* the pulse's clock, in seconds since it fired, -1 when there is none; the edge where it fired; the light gathered then */
+  const pulseT = useSharedValue(-1);
+  const pulseAt = useSharedValue(0);
+  const pulseHeld = useSharedValue(0);
+  /* a finger is pulling the closed card down; the card has been open, so what closes it now draws the quiet glow */
+  const pulling = useSharedValue(false);
+  const wasOpen = useSharedValue(false);
+  const light = useMemo<CardLight>(
+    () => ({
+      pulling,
+      fire: (edge: number, held: number) => {
+        'worklet';
+        pulseAt.value = edge;
+        pulseHeld.value = held;
+        pulling.value = false;
+        pulseT.value = 0;
+        pulseT.value = withTiming(PULSE, { duration: PULSE * 1000, easing: Easing.linear }, done => {
+          if (done) pulseT.value = -1;
+        });
+      },
+    }),
+    [pulling, pulseAt, pulseHeld, pulseT],
+  );
+  useAnimatedReaction(
+    () => [open.value, pulseT.value] as const,
+    ([p, t]) => {
+      if (p > 0.98 && t < 0) wasOpen.value = true;
+      else if (p < 0.002) {
+        wasOpen.value = false;
+        if (t < 0) pulling.value = false;
+      }
+    },
+  );
+  const uniforms = useDerivedValue(() => {
+    const p = open.value;
+    const t = pulseT.value;
+    return uniformsOf({
+      width: W,
+      height: openH.value,
+      edge: closedH + (openH.value - closedH) * p,
+      a: t >= 0 ? pulseHeld.value : pulling.value ? gathered(p) : 0,
+      at: pulseAt.value,
+      t,
+      g: wasOpen.value && t < 0 ? closingGlow(p) : 0,
+    });
+  });
+
   /* ---- the drag ---- */
   const settleRef = React.useRef(settle);
   settleRef.current = settle;
   const settled = React.useCallback((to: boolean) => settleRef.current(to), []);
-  const headPan = useCardDrag({ open, openH, closedH, scrollY, settle: settled });
-  const bodyPan = useCardDrag({ open, openH, closedH, scrollY, settle: settled });
+  const headPan = useCardDrag({ open, openH, closedH, scrollY, settle: settled, light });
+  const bodyPan = useCardDrag({ open, openH, closedH, scrollY, settle: settled, light });
   /* the chat closes the card too, once it has scrolled to its end */
   const atEnd = useSharedValue(true);
   const chatPan = useCardDrag({ open, openH, closedH, settle: settled, gate: atEnd });
@@ -246,10 +355,15 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
   /* ---- what moves ---- */
   const card = useAnimatedStyle(() => ({ height: closedH + (openH.value - closedH) * open.value }));
 
-  /* the closed pieces soften and lift away in the first half */
+  /* the closed pieces soften and lift away in the first half, drawn out a little toward the light gathering at the edge */
   const going = useAnimatedStyle(() => {
     const t = clamp(open.value / 0.45, 0, 1);
-    return { opacity: 1 - t, transform: [{ translateY: -20 * t }], ...blurred(t * motion.blur) };
+    const lean = clamp(open.value / GATHER, 0, 1);
+    return {
+      opacity: 1 - t,
+      transform: [{ translateY: -20 * t }, { scaleY: 1 + 0.05 * lean }, { scaleX: 1 - 0.015 * lean }],
+      ...blurred(t * motion.blur),
+    };
   });
   /* the open pieces arrive from below in the second half */
   const coming = useAnimatedStyle(() => {
@@ -401,6 +515,9 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
         </Tap>
       </Animated.View>
 
+      {/* the light at the edge, over all of it; none for somebody who has asked their phone to keep still */}
+      {still ? null : <Light width={W} height={H} uniforms={uniforms} />}
+
       {/* the twins the glide is measured off, never seen */}
       <View style={s.twins} pointerEvents="none">
         <View style={s.twin} onLayout={measure(w32)}>
@@ -427,7 +544,7 @@ const s = StyleSheet.create({
   headRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: HEADER_H },
   newChat: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 36, paddingHorizontal: 4 },
   /* the balance from the frame's 80, then 24 down to the pills and 36 to the offers; it runs to the card's edge, so a pull on the grabber, or under it, is the card's */
-  closed: { position: 'absolute', top: BALANCE_TOP, left: 0, right: 0, height: CLOSED_H - BALANCE_TOP, alignItems: 'center', gap: 24 },
+  closed: { position: 'absolute', top: BALANCE_TOP, left: 0, right: 0, height: CLOSED_H - BALANCE_TOP, alignItems: 'center', gap: 24, transformOrigin: 'top' },
   offers: { alignSelf: 'stretch', marginTop: 36 - 24 },
   actions: { flexDirection: 'row', justifyContent: 'center', gap: 24, alignSelf: 'stretch' },
   /* 100 wide whatever the word, so the two are one size; 12 clear after the word */

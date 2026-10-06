@@ -8,7 +8,9 @@
     "start": "npx --yes http-server . -p 8080 -c-1 -o",
     "build": "node build.js",
     "test": "node build.js && node test/icons.mjs && node test/copy.mjs && node test/routes.mjs && node test/design.mjs && node test/render.mjs && node test/interact.mjs && node test/glyphs.mjs",
-    "design:write": "node test/design.mjs --write"
+    "design:write": "node test/design.mjs --write",
+    "figma-plugin": "node glyphs/tools/build-figma-plugin.mjs",
+    "figma-plugin:check": "node glyphs/tools/build-figma-plugin.mjs --check && node glyphs/figma-plugin/test/ui.mjs"
   },
   "devDependencies": {
     "playwright": "^1.56.1"

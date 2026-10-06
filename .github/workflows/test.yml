@@ -24,6 +24,10 @@ jobs:
         run: git diff --exit-code dist/ || (echo 'dist/beetle.html is stale — run `npm run build` and commit it'; exit 1)
       - name: The icon library matches its sources and every icon renders
         run: node glyphs/tools/build-library.mjs --check
+      - name: The Figma plugin matches the site it is built from, and every icon reaches Figma whole
+        run: node glyphs/tools/build-figma-plugin.mjs --check
+      - name: The Figma plugin's panel works in a browser
+        run: node glyphs/figma-plugin/test/ui.mjs
 
   # The product app in wallet/: it compiles, the rules of the way in hold, the
   # web bundle builds, and the whole way in runs in a browser from the loading

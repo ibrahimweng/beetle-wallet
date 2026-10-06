@@ -1,0 +1,43 @@
+/* ---------- the Figma plugin: the site's styles, fitted to a narrow panel ---------- */
+html, body.plugin { height: 100%; }
+body.plugin { display: flex; flex-direction: column; overflow: hidden; font-size: 13px; }
+.pg-head { flex: none; display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-bottom: 1px solid hsl(var(--border)); }
+.pg-grow { flex: 1; }
+.pg-main { flex: 1; min-height: 0; overflow: auto; }
+.plugin .main { padding: 12px 12px 24px; max-width: none; }
+.plugin .page-head { gap: 8px; margin-bottom: 10px; }
+.plugin .page-title { font-size: 15px; line-height: 20px; font-weight: 600; letter-spacing: 0; }
+.plugin .page-desc, .plugin .page-head > .row { display: none; }
+.plugin .page-head .input { max-width: none !important; height: 32px; }
+/* the toolbar stays out in the open, wrapped, rather than behind a Browse button */
+.plugin .tb { position: static; margin: 0 0 10px; padding: 6px 0; background: hsl(var(--background)); flex-wrap: wrap; align-items: center; }
+.plugin .tb > .tb-controls { display: flex; gap: 6px; }
+.plugin .tb-browse { display: none; }
+.plugin .tb-count { height: 24px; line-height: 24px; }
+.plugin .grid, .plugin .grid.cols { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)) !important; gap: 6px; }
+.plugin .grid.cols { grid-template-columns: var(--cols, repeat(auto-fill, minmax(72px, 1fr))) !important; }
+.plugin .tile { padding: 12px 4px 8px; }
+.plugin .tile.ticked { box-shadow: 0 0 0 2px hsl(var(--ring)); border-color: transparent; position: relative; }
+.plugin .tile.ticked::after { content: ""; position: absolute; top: 4px; right: 4px; width: 14px; height: 14px; border-radius: 999px; background: hsl(var(--foreground)) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'><path d='M20 6 9 17l-5-5'/></svg>") center / 10px no-repeat; }
+.dark.plugin .tile.ticked::after, .dark .plugin .tile.ticked::after { background-color: hsl(var(--foreground)); filter: invert(1); }
+.plugin .grid-foot { margin-top: 12px; }
+/* goo: Figma cannot import the filter, so the slider is not offered */
+.plugin .field:has(#p-goo) { display: none; }
+.pg-note { margin: 0; }
+.pg-bar { flex: none; display: flex; flex-direction: column; gap: 6px; padding: 8px 12px 10px; border-top: 1px solid hsl(var(--border)); background: hsl(var(--background)); }
+.pg-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.pg-label { font-size: 12px; color: hsl(var(--muted-foreground)); white-space: nowrap; }
+.pg-row .segmented { flex: 1; }
+.pg-row .segmented .seg-item { flex: 1; }
+.pg-sel { flex: 1; min-width: 0; font-size: 12px; line-height: 16px; color: hsl(var(--muted-foreground)); }
+.pg-swap { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; white-space: nowrap; cursor: pointer; }
+.pg-swap[hidden] { display: none; }
+.pg-actions { flex-wrap: wrap; }
+.pg-actions .btn { flex: none; padding: 0 10px; }
+.pg-actions .btn[hidden] { display: none; }
+.pg-status { font-size: 12px; min-height: 16px; line-height: 16px; color: hsl(var(--muted-foreground)); }
+.pg-status:empty { display: none; }
+.plugin .sheet { width: min(400px, 100vw); }
+.pg-about p { margin: 0; }
+.pg-about a { text-decoration: underline; }
+.pg-licence { margin: 0; padding: 10px; border: 1px solid hsl(var(--border)); border-radius: calc(var(--radius) - 2px); font-family: var(--font-mono); font-size: 10.5px; line-height: 15px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 240px; overflow: auto; }

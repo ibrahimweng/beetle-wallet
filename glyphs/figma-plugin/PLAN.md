@@ -54,8 +54,8 @@ Later, live strokes can be tied to a number variable with `setBoundVariable` ([b
 
 - The site's masks are luminance masks: a white sheet with black cuts. Figma reads an SVG mask by its alpha, so the cuts would not show. No Figma app was at hand to prove it, so the safe choice is to send nothing that depends on it.
 - It reads the SVG, not the engine's choices. When the engine changed how filled styles are drawn (the stored fills in `data/fills.json`), the plugin drew the new way with no change of its own. The first version rebuilt the layers itself and would have kept the old way. `--check` fails if any mask is ever left over, in any of the 27,456 drawings.
-- In headless Chromium, the version without masks covers the same pixels as the site's within 3% of its ink, over 1,446 masked drawings. Curves inside a worked-out shape become short straight segments, as in the icon font.
-- The largest difference left is in Chromium, not in the plugin. A cut drawn as a circle of radius 0.5 with a stroke of 2.5, like the wells of `palette` in Fill, should cover the centre too. Chromium leaves a dot there. The plugin, like the engine's font outline, cuts a full disc.
+- In headless Chromium, the version without masks covers the same pixels as the site's within 2% of its ink, over 1,446 masked drawings; the worst is 1.3%. Curves inside a worked-out shape become short straight segments, as in the icon font.
+- The comparison found three faults on the site, all now fixed in `engine.js`: masks clipped by the default mask region, dot cuts with sharp corners that cut nothing, and parts narrower than their stroke drawn as rings, like the wells of `palette`.
 
 The four-style set is drawn as its designers drew it and never uses a mask, so it arrives exactly as on the site.
 

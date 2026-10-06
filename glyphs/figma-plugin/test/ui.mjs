@@ -262,7 +262,7 @@ console.log('figma plugin: outlined bodies cover what the masks cover');
     }
     return { n, worst, worstName };
   });
-  ok(r.n > 800 && r.worst < 0.03, `${r.n} masked drawings match their version without masks within 3% of their ink (worst ${(r.worst * 100).toFixed(1)}%, ${r.worstName})`);
+  ok(r.n > 800 && r.worst < 0.02, `${r.n} masked drawings match their version without masks within 2% of their ink (worst ${(r.worst * 100).toFixed(1)}%, ${r.worstName})`);
   await page.close();
 }
 

@@ -8758,6 +8758,27 @@ const isNative = prims => prims.length > 0 && prims.every(pr => pr.n);
 /* a subpath too short to have a direction is a dot: round in the rounded
    corners, square in the sharp ones, never a butt end that draws nothing */
 const isDot = (pr, P) => { if (pr.t === 'arc' || pr.t === 'quad' || (pr.t === 'poly' && pr.closed)) return false; let l = 0; for (const part of flatten(pr, P)) { if (part.closed) return false; for (let i = 1; i < part.pts.length; i++) l += Math.hypot(part.pts[i][0] - part.pts[i - 1][0], part.pts[i][1] - part.pts[i - 1][1]); } return l < 0.1; };
+/* a closed part narrower than the stroke that draws it (palette's wells, a die's
+   pips at a heavy stroke): where the stroke's inner edge turns inside out, the
+   browser leaves a hole in the middle, so the part is drawn instead as the area
+   the stroke covers, filled. A circle is exact; any other part takes Clipper's
+   offset when Clipper is there. Null when the stroke draws it whole */
+function swallowed(pr, P, width) {
+  if (pr.t === 'arc') {
+    if (Math.abs(Math.abs(pr.a1 - pr.a0) - 360) > 1e-6 || Math.abs(pr.rx - pr.ry) > 1e-6 || width <= 2 * pr.rx) return null;
+    const R = pr.rx + width / 2, [cx, cy] = pr.c;
+    return `M${f2(cx - R)} ${f2(cy)}A${f2(R)} ${f2(R)} 0 1 0 ${f2(cx + R)} ${f2(cy)}A${f2(R)} ${f2(R)} 0 1 0 ${f2(cx - R)} ${f2(cy)}Z`;
+  }
+  if (!CLIPPER) return null;
+  const parts = flatten(pr, P);
+  if (!parts.length || !parts.every(p => p.closed && p.pts.length >= 3)) return null;
+  const narrow = parts.some(p => { const xs = p.pts.map(q => q[0]), ys = p.pts.map(q => q[1]); return Math.min(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) < width; });
+  if (!narrow) return null;
+  const CL = CLIPPER, co = new CL.ClipperOffset(2, 0.02 * SC), out = new CL.Paths();
+  for (const p of parts) co.AddPath(p.pts.map(q => ({ X: Math.round(q[0] * SC), Y: Math.round(q[1] * SC) })), pr.join === 'miter' ? CL.JoinType.jtMiter : CL.JoinType.jtRound, CL.EndType.etClosedLine);
+  co.Execute(out, (width / 2) * SC);
+  return out.map(path => path.map((q, k) => `${k ? 'L' : 'M'}${f2(q.X / SC)} ${f2(q.Y / SC)}`).join('') + 'Z').join('');
+}
 /* ---------- the filled styles of a line icon, from its geometry ----------
    Wherever a line icon's ink closes round some space, that space is its body:
    two-tone lays a plate in it under the line, fill fills it, duotone shades it.
@@ -8960,15 +8981,22 @@ function analysed(prims, P, opts, weight, A) {
   const ink = B.size ? some(i => !B.has(i), '-i') : line.body + line.lines;
   const badges = B.size ? some(i => B.has(i), '-b') : '';
   /* a badge in the gap of an outline keeps the gap's width clear around it */
-  const halo = B.size ? `<path d="${[...B].map(i => pathOf(prims[i], P)).join('')}" fill="none" stroke="#000" stroke-width="${f2(w + 2 * (P.G != null ? P.G : 0.75) * P.S)}" stroke-linecap="${cap}" stroke-linejoin="round"/>` : '';
+  const haloW = w + 2 * (P.G != null ? P.G : 0.75) * P.S, haloOf = [...B].map(i => [i, swallowed(prims[i], P, haloW)]);
+  const halo = B.size ? (haloOf.some(([, sw]) => !sw) ? `<path d="${haloOf.filter(([, sw]) => !sw).map(([i]) => pathOf(prims[i], P)).join('')}" fill="none" stroke="#000" stroke-width="${f2(haloW)}" stroke-linecap="${cap}" stroke-linejoin="round"/>` : '')
+    + (haloOf.some(([, sw]) => sw) ? `<path d="${haloOf.filter(([, sw]) => sw).map(([, sw]) => sw).join('')}" fill="#000"/>` : '') : '';
   const plates = `<path d="${A.pl.map(p => flatD(p, true)).join('')}" fill="currentColor"/>`;
   const masked = (cut, inner, attrs = '') => cut ? `<mask id="k-${id}" ${MASK}><rect x="-4" y="-4" width="32" height="32" fill="#fff"/>${cut}</mask><g mask="url(#k-${id})"${attrs}>${inner}</g>` : attrs ? `<g${attrs}>${inner}</g>` : inner;
   const faint = ` opacity="${TONE}"`;
   if (weight === 'two-tone') return masked(halo, plates, faint) + ink + badges + line.faint;
-  const detLine = [], detFill = [], detDot = [];
-  for (const i of A.d) { const d = pathOf(prims[i], P); if (d) (R[i] === 'fill' ? detFill : P.corners === 'sharp' && isDot(prims[i], P) ? detDot : detLine).push(d); }
+  const detLine = [], detFill = [], detDot = [], detCut = [], detFull = [];
+  for (const i of A.d) {
+    const d = pathOf(prims[i], P); if (!d) continue;
+    const sc = swallowed(prims[i], P, wCut), sf = swallowed(prims[i], P, w);
+    if (sc || sf) { detCut.push(sc || d); detFull.push(sf || d); continue; }
+    (R[i] === 'fill' ? detFill : P.corners === 'sharp' && isDot(prims[i], P) ? detDot : detLine).push(d);
+  }
   for (const [, ...polys] of A.c) for (const p of polys) detLine.push(flatD(p, false));
-  if (weight === 'duotone' && !detLine.length && !detFill.length && !detDot.length && !B.size) {
+  if (weight === 'duotone' && !detLine.length && !detFill.length && !detDot.length && !detCut.length && !B.size) {
     /* nothing inside to set apart: what runs along a plate goes faint with it and
        the rest (a handle, a tail, a mark of its own) stays in full; when every
        part runs along one, the line stays in full over the faint plate */
@@ -8978,13 +9006,15 @@ function analysed(prims, P, opts, weight, A) {
   }
   const cut = (detLine.length ? `<path d="${detLine.join('')}" fill="none" stroke="#000" stroke-width="${f2(wCut)}" stroke-linecap="${cap}" stroke-linejoin="round"/>` : '')
     + (detFill.length ? `<path d="${detFill.join('')}" fill="#000" stroke="#000" stroke-width="${f2(wCut)}" stroke-linejoin="round"/>` : '')
-    + (detDot.length ? `<path d="${detDot.join('')}" fill="none" stroke="#000" stroke-width="${f2(wCut)}" stroke-linecap="square"/>` : '') + halo;
+    + (detDot.length ? `<path d="${detDot.join('')}" fill="none" stroke="#000" stroke-width="${f2(wCut)}" stroke-linecap="square"/>` : '')
+    + (detCut.length ? `<path d="${detCut.join('')}" fill="#000"/>` : '') + halo;
   const body = masked(cut, plates + ink, weight === 'duotone' ? faint : '');
   if (weight !== 'duotone') return body + badges + line.faint;
   return body
     + (detLine.length ? `<path d="${detLine.join('')}" fill="none" stroke="currentColor" stroke-width="${f2(w)}" stroke-linecap="${cap}" stroke-linejoin="round"/>` : '')
     + (detFill.length ? `<path d="${detFill.join('')}" fill="currentColor" stroke="currentColor" stroke-width="${f2(w)}" stroke-linejoin="round"/>` : '')
     + (detDot.length ? `<path d="${detDot.join('')}" fill="none" stroke="currentColor" stroke-width="${f2(w)}" stroke-linecap="square"/>` : '')
+    + (detFull.length ? `<path d="${detFull.join('')}" fill="currentColor"/>` : '')
     + badges + line.faint;
 }
 function svgInner(prims, P, opts = {}) {
@@ -9011,11 +9041,12 @@ function layers(prims, P, opts, mode) {
   const FILL = `fill="currentColor" stroke="currentColor" stroke-width="${f2(w)}" stroke-linejoin="round" stroke-linecap="${cap}"`;
   const CUT = `fill="none" stroke="#000" stroke-width="${f2(wCut)}" stroke-linecap="${cap}" stroke-linejoin="round"`;
   const strokes = [], dots = [], mitred = [], fills = [], flats = [], cuts = [], cutDots = [], knocks = [], punches = [], shapes = [], faint = [], haloed = [];
-  const cut = (pr, d) => (sharp && isDot(pr, P) ? cutDots : cuts).push(d); // a butt end on a dot cuts nothing
+  const cutDiscs = [], lineDiscs = [], bodyDiscs = [];
+  const cut = (pr, d) => { const sw = swallowed(pr, P, wCut); if (sw) cutDiscs.push(sw); else (sharp && isDot(pr, P) ? cutDots : cuts).push(d); }; // a butt end on a dot cuts nothing
   const H = solid && mode !== 'drawn' ? halos(prims, roles, P) : new Map();
   const ds = prims.map(pr => pathOf(pr, P));
   const strokeOf = pr => pr.join === 'miter' ? STROKE.replace('stroke-linejoin="round"', 'stroke-linejoin="miter"') : STROKE;
-  const line = (pr, d) => { if (pr.join === 'miter') mitred.push(d); else if (sharp && isDot(pr, P)) dots.push(d); else strokes.push(d); };
+  const line = (pr, d) => { const sw = swallowed(pr, P, w); if (sw) lineDiscs.push(sw); else if (pr.join === 'miter') mitred.push(d); else if (sharp && isDot(pr, P)) dots.push(d); else strokes.push(d); };
   prims.forEach((pr, i) => {
     const d = ds[i]; if (!d) return;
     const role = roles[i];
@@ -9024,12 +9055,12 @@ function layers(prims, P, opts, mode) {
       const attrs = role === 'fill' || (solid && role === 'flat') ? `fill="currentColor" fill-rule="${pr.evenodd ? 'evenodd' : 'nonzero'}"` : strokeOf(pr);
       faint.push(`<path d="${d}" ${attrs} opacity="${f2(a)}"/>`); return;
     }
-    if (role === 'fill') fills.push(d);
-    else if (!solid && (role === 'flat' || role === 'knock' || role === 'cut' || role === 'punch')) strokes.push(d); // the outline weight of a filled glyph: its contours, stroked
+    if (role === 'fill') { const sw = swallowed(pr, P, w); if (sw) bodyDiscs.push(sw); else fills.push(d); }
+    else if (!solid && (role === 'flat' || role === 'knock' || role === 'cut' || role === 'punch')) line(pr, d); // the outline weight of a filled glyph: its contours, stroked
     else if (role === 'flat') flats.push(`<path d="${d}" fill="currentColor" fill-rule="${pr.evenodd ? 'evenodd' : 'nonzero'}"/>`);
     else if (role === 'cut') cut(pr, d);
     else if (role === 'knock') knocks.push(d);
-    else if (role === 'punch') punches.push(d);
+    else if (role === 'punch') { const sw = swallowed(pr, P, wCut); if (sw) cutDiscs.push(sw); else punches.push(d); }
     else if (!solid) line(pr, d);
     else if (role === 'shape') { if (H.has(i)) haloed.push([i, d]); else shapes.push(d); }
     else if (role === 'detail') { if (pr.cut) cut(pr.cut, pathOf(pr.cut, P)); else cut(pr, d); if (mode === 'duotone') line(pr, d); }
@@ -9039,16 +9070,18 @@ function layers(prims, P, opts, mode) {
   if (solid && shapes.length) body += `<path d="${shapes.join('')}" ${FILL}/>`;
   for (const [i, d] of haloed) { const gap = f2(w + 2 * (P.G != null ? P.G : 0.75) * P.S); defs += `<mask id="halo-${id}-${i}" ${MASK}><rect x="-4" y="-4" width="32" height="32" fill="#fff"/><path d="${H.get(i).map(k => ds[k]).join('')}" fill="none" stroke="#000" stroke-width="${gap}" stroke-linejoin="round" stroke-linecap="${cap}"/></mask>`; body += `<g mask="url(#halo-${id}-${i})"><path d="${d}" ${FILL}/></g>`; }
   if (fills.length) body += `<path d="${fills.join('')}" ${FILL}/>`;
+  if (bodyDiscs.length) body += `<path d="${bodyDiscs.join('')}" fill="currentColor"/>`;
   body += flats.join('');
   let out = defs;
-  if (body && (cuts.length || cutDots.length || knocks.length || punches.length)) {
-    out += `<mask id="cut-${id}" ${MASK}><rect x="-4" y="-4" width="32" height="32" fill="#fff"/>${cuts.length ? `<path d="${cuts.join('')}" ${CUT}/>` : ''}${cutDots.length ? `<path d="${cutDots.join('')}" ${CUT.replace('stroke-linecap="butt"', 'stroke-linecap="square"')}/>` : ''}${knocks.length ? `<path d="${knocks.join('')}" fill="#000"/>` : ''}${punches.length ? `<path d="${punches.join('')}" fill="#000" stroke="#000" stroke-width="${f2(wCut)}" stroke-linejoin="round"/>` : ''}</mask><g mask="url(#cut-${id})">${body}</g>`;
+  if (body && (cuts.length || cutDots.length || cutDiscs.length || knocks.length || punches.length)) {
+    out += `<mask id="cut-${id}" ${MASK}><rect x="-4" y="-4" width="32" height="32" fill="#fff"/>${cuts.length ? `<path d="${cuts.join('')}" ${CUT}/>` : ''}${cutDots.length ? `<path d="${cutDots.join('')}" ${CUT.replace('stroke-linecap="butt"', 'stroke-linecap="square"')}/>` : ''}${cutDiscs.length ? `<path d="${cutDiscs.join('')}" fill="#000"/>` : ''}${knocks.length ? `<path d="${knocks.join('')}" fill="#000"/>` : ''}${punches.length ? `<path d="${punches.join('')}" fill="#000" stroke="#000" stroke-width="${f2(wCut)}" stroke-linejoin="round"/>` : ''}</mask><g mask="url(#cut-${id})">${body}</g>`;
   } else out += body;
   if (mode === 'duotone' && out) out = `<g opacity="${TONE}">${out}</g>`;
   let lines = '';
   if (strokes.length) lines += `<path d="${strokes.join('')}" ${STROKE}/>`;
   if (mitred.length) lines += `<path d="${mitred.join('')}" ${strokeOf({ join: 'miter' })}/>`;
   if (dots.length) lines += `<path d="${dots.join('')}" ${STROKE.replace('stroke-linecap="butt"', 'stroke-linecap="square"')}/>`;
+  if (lineDiscs.length) lines += `<path d="${lineDiscs.join('')}" fill="currentColor"/>`;
   return { body: out, lines, faint: faint.length ? `<g class="faint">${faint.join('')}</g>` : '' };
 }
 function gooFilter(P, id) {

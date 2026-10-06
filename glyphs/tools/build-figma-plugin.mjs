@@ -197,8 +197,10 @@ console.log('figma plugin: every icon reaches Figma whole');
   const L = await import(pathToFileURL(resolve(root, 'src/lib/library.js')).href);
   const E = await import(pathToFileURL(resolve(root, 'src/lib/engine.js')).href);
   const { figmaSvg, problems } = await import(pathToFileURL(resolve(plugin, 'ui/figma-svg.js')).href);
+  E.useClipper(CL); // as in the panel, where Clipper is loaded before the engine
   await L.loadLibrary(DATA_BASE + 'data/icons.json');
   const sets = {}; for (const e of L.lib.entries) sets[e.set] = (sets[e.set] || 0) + 1;
+  await L.loadDrawings('fills');
   ok(sets.core === 1854 && sets.four === 1366 && sets.beetle === 85 && sets.scenarios === 127, `every icon ships: ${L.lib.entries.length} (core ${sets.core}, four-style ${sets.four}, app ${sets.beetle}, scenarios ${sets.scenarios})`);
   let n = 0; const bad = [];
   for (const corners of ['rounded', 'sharp']) for (const weight of E.WEIGHTS) {

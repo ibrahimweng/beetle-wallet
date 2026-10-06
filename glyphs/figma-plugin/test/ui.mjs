@@ -13,11 +13,12 @@ import { createServer } from 'http';
 import { readFileSync, existsSync, mkdirSync } from 'fs';
 import { resolve, dirname, extname } from 'path';
 import { fileURLToPath } from 'url';
+import { inflateRawSync } from 'zlib';
 import { chromium } from 'playwright';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const glyphs = resolve(here, '../..');
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json' };
+const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.txt': 'text/plain' };
 const HOST = `<!doctype html><meta charset="utf-8"><link rel="icon" href="data:,"><body style="margin:0">
 <script type="module">
 import { makeFigma } from '/figma-plugin/test/fake-figma.js';
@@ -25,7 +26,7 @@ const [html, code] = await Promise.all(['/figma-plugin/dist/ui.html', '/figma-pl
 const figma = makeFigma({ command: new URLSearchParams(location.search).get('command') || '' });
 window.figma = figma; window.drops = [];
 const frame = document.createElement('iframe');
-frame.setAttribute('sandbox', 'allow-scripts');
+frame.setAttribute('sandbox', 'allow-scripts allow-downloads');
 frame.style.cssText = 'width:420px;height:720px;border:0;display:block';
 figma.showUI = (h, opts) => { figma.calls.push({ name: 'showUI', opts }); frame.srcdoc = h; document.body.append(frame); };
 figma.ui.toPanel = msg => frame.contentWindow.postMessage({ pluginMessage: msg }, '*');
@@ -38,8 +39,9 @@ new Function('figma', '__html__', code)(figma, html);
 </script>`;
 const COMPARE = `<!doctype html><meta charset="utf-8"><link rel="icon" href="data:,"><script src="/vendor/clipper.js"></script><script type="module">
 import * as E from '/src/lib/engine.js';
+import * as L from '/src/lib/library.js';
 import { figmaSvg } from '/figma-plugin/ui/figma-svg.js';
-window.E = E; window.figmaSvg = figmaSvg; window.ready = true;
+window.E = E; window.L = L; window.figmaSvg = figmaSvg; window.ready = true;
 </script>`;
 
 const server = createServer((req, res) => {
@@ -179,6 +181,23 @@ console.log('figma plugin panel');
   const drop = await fig(() => window.drops[0]);
   ok(drop && drop.clientX === -40 && drop.dropMetadata.source === 'beetle-glyphs' && /<svg/.test(drop.dropMetadata.item.svg), 'dragging an icon out of the panel hands Figma a drop with the icon');
 
+  /* a category's download, the site's own: a ZIP of SVGs with the licence notices, from inside the page */
+  await ui.locator('.pg-head button:has-text("Library")').click();
+  const row = ui.locator('.sheet .nav-row').filter({ hasText: /arrows/ }).first();
+  await row.hover();
+  const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 20000 }).catch(() => null), row.locator('.nav-dl').click()]);
+  let names = [];
+  if (dl) {
+    const buf = readFileSync(await dl.path());
+    /* the ZIP's own directory: each entry's name, and its bytes from the file's header */
+    for (let at = buf.lastIndexOf(Buffer.from([0x50, 0x4b, 0x01, 0x02])); at > 0; at = buf.lastIndexOf(Buffer.from([0x50, 0x4b, 0x01, 0x02]), at - 1)) names.push(buf.toString('utf8', at + 46, at + 46 + buf.readUInt16LE(at + 28)));
+    const lic = names.find(n => n.endsWith('/LICENSE-core.txt'));
+    if (lic) { const h = buf.indexOf(Buffer.from(lic)) - 30; const size = buf.readUInt32LE(h + 18), method = buf.readUInt16LE(h + 8), body = buf.subarray(h + 30 + buf.readUInt16LE(h + 26) + buf.readUInt16LE(h + 28), h + 30 + buf.readUInt16LE(h + 26) + buf.readUInt16LE(h + 28) + size); const text = (method === 8 ? inflateRawSync(body) : body).toString(); ok(/ISC License/.test(text), 'the core licence in the ZIP is the full notice, answered from inside the page'); }
+  }
+  ok(dl && names.filter(n => n.endsWith('.svg')).length > 20 && names.some(n => n.endsWith('/LICENSE-core.txt')) && names.some(n => n.endsWith('/README.txt')), `a category downloads as a ZIP of SVGs with its licence notice (${names.filter(n => n.endsWith('.svg')).length} SVGs)`);
+  await ui.locator('.sheet [aria-label="Close"]').click();
+  await page.waitForTimeout(400);
+
   /* goo, and the About sheet */
   await ui.locator('.pg-head button:has-text("Settings")').click();
   ok(await ui.locator('.sheet input#p-S').isVisible() && !(await ui.locator('.sheet input#p-goo').isVisible()), 'Settings has the site\'s sliders, without goo');
@@ -212,41 +231,38 @@ console.log('figma plugin: the relaunch button that updates');
   await page.close();
 }
 
-/* The site's SVG is the reference, with two of its own faults set aside, since
-   the plugin does not have them: its masks use the default mask region, the
-   fill's box plus 10%, which clips the stroke that grows a body; and with
-   sharp corners a cut that is a dot has a butt end, so it cuts nothing.
-   outline() gives a dot a square end, as the engine means it to. */
+/* The site's own SVG, masks and all, is the reference: the plugin's version,
+   with every mask worked out into plain shapes, must cover the same pixels.
+   The icons come from the site's library, with its stored fills. */
 console.log('figma plugin: outlined bodies cover what the masks cover');
 {
   const page = await browser.newPage();
   await page.goto(base + '/compare.html');
   await page.waitForFunction(() => window.ready);
-  const icons = JSON.parse(readFileSync(resolve(glyphs, 'data/icons.json'), 'utf8'));
-  const sample = [...Object.entries(icons.sets.core).filter((_, i) => i % 3 === 0), ...Object.entries(icons.sets.beetle)].map(([name, ic]) => ({ name, p: ic.p, ps: ic.ps }));
-  const r = await page.evaluate(async sample => {
-    const E = window.E, CL = window.ClipperLib, N = 96;
+  const r = await page.evaluate(async () => {
+    const E = window.E, L = window.L, CL = window.ClipperLib, N = 96;
+    await L.loadLibrary('data/icons.json');
     const c = document.createElement('canvas'); c.width = c.height = N; const g = c.getContext('2d', { willReadFrequently: true });
     const ink = async svg => { const img = new Image(); img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg.replace('width="24" height="24"', `width="${N}" height="${N}"`)); await img.decode(); g.clearRect(0, 0, N, N); g.drawImage(img, 0, 0); return g.getImageData(0, 0, N, N).data; };
-    const isDot = (pr, P) => { let l = 0; for (const part of E.flatten(pr, P)) { if (part.closed) return false; for (let k = 1; k < part.pts.length; k++) l += Math.hypot(part.pts[k][0] - part.pts[k - 1][0], part.pts[k][1] - part.pts[k - 1][1]); } return l < 0.1; };
-    let n = 0, dots = 0, worst = 0, worstName = '';
-    for (const ic of sample) for (const weight of ['solid', 'duotone', 'two-tone']) for (const corners of ['rounded', 'sharp']) {
-      const P = { ...E.DEF, weight, corners };
-      const prims = weight === 'solid' && ic.ps ? ic.ps : ic.p;
-      const site = E.svg(prims, P, { uid: 'x' });
-      if (!site.includes('<mask')) continue;
-      const roles = E.autoRoles(prims, P);
-      if (corners === 'sharp' && prims.some((pr, i) => (roles[i] === 'detail' || roles[i] === 'cut') && isDot(pr, P))) { dots++; continue; }
-      const ref = site.replace(/currentColor/g, '#000').replace(/<mask id=/g, '<mask maskUnits="userSpaceOnUse" x="-4" y="-4" width="32" height="32" id=');
-      const a = await ink(ref), b = await ink(window.figmaSvg(prims, P, { CL, color: '#000000' }));
-      let diff = 0, total = 0;
-      for (let i = 3; i < a.length; i += 4) { diff += Math.abs(a[i] - b[i]); total += Math.max(a[i], b[i]); }
-      const f = total ? diff / total : 0; n++;
-      if (f > worst) { worst = f; worstName = `${ic.name} ${weight} ${corners}`; }
+    const keys = L.lib.entries.filter((e, i) => e.set !== 'scenarios' && (e.set !== 'core' || i % 3 === 0)).map(e => e.key);
+    let n = 0, worst = 0, worstName = '';
+    for (const corners of ['rounded', 'sharp']) for (const weight of ['solid', 'duotone', 'two-tone']) {
+      const state = { P: { ...E.DEF, weight, corners }, edits: {} };
+      await L.drawingsFor(state.P);
+      for (const key of keys) {
+        const prims = L.primsOf(key, state);
+        const site = E.svg(prims, state.P, { uid: 'x' });
+        if (!site.includes('<mask')) continue;
+        const a = await ink(site.replace(/currentColor/g, '#000')), b = await ink(window.figmaSvg(prims, state.P, { CL, color: '#000000' }));
+        let diff = 0, total = 0;
+        for (let i = 3; i < a.length; i += 4) { diff += Math.abs(a[i] - b[i]); total += Math.max(a[i], b[i]); }
+        const f = total ? diff / total : 0; n++;
+        if (f > worst) { worst = f; worstName = `${key} ${weight} ${corners}`; }
+      }
     }
-    return { n, dots, worst, worstName };
-  }, sample);
-  ok(r.n > 800 && r.worst < 0.03, `${r.n} masked drawings match their outlined version within 3% of their ink (worst ${(r.worst * 100).toFixed(1)}%, ${r.worstName}; ${r.dots} with a dot cut in sharp corners set aside)`);
+    return { n, worst, worstName };
+  });
+  ok(r.n > 800 && r.worst < 0.03, `${r.n} masked drawings match their version without masks within 3% of their ink (worst ${(r.worst * 100).toFixed(1)}%, ${r.worstName})`);
   await page.close();
 }
 

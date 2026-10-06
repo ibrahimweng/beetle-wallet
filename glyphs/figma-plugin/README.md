@@ -18,7 +18,7 @@ Everything is inside the plugin. It never uses the network, and it costs nothing
 - **Swap.** Select a Beetle Glyphs icon on the canvas and click another icon in the panel. The layer keeps its place and size. On an instance, the plugin swaps the component, so your overrides stay.
 - **Update.** Every icon remembers its name and settings. Change the settings, then press **Update selection** or **Update page**. Each icon is redrawn in place. A variant keeps its own style and corners. When you select an icon, the right panel also shows **Edit in Beetle Glyphs** and **Update to current settings**.
 
-Size is the size an icon arrives at. Color is its colour, and black when none is picked. Lines stay live strokes, so you can still change their weight in Figma. Goo is not in the plugin, because Figma cannot import SVG filters.
+Size is the size an icon arrives at. Color is its colour, and black when none is picked. Lines stay live strokes, so you can still change their weight in Figma. A part the site cuts with a mask arrives as one plain shape with holes. Goo is not in the plugin, because Figma cannot import SVG filters.
 
 ## Try it in the Figma desktop app
 
@@ -38,6 +38,7 @@ Try these in the draft, and tell the library session what you see:
 - Select an inserted icon and click another one in the panel. It should swap in place.
 - Move the Stroke slider, then press **Update page**. Positions and sizes should stay the same.
 - Drag an icon from the panel onto a frame.
+- Open **Library** and use the download button beside a category. A ZIP of SVGs should save.
 
 When the repository changes, pull or download it again. Figma reads the new files the next time you run the plugin.
 
@@ -73,7 +74,7 @@ The plugin keeps no copies of the site. The build reads the engine, the library,
 | `manifest.json` | what Figma reads first |
 | `code.js` | the main thread: it makes, swaps and redraws layers |
 | `ui/main.js` | the panel: it mounts the site's grid and toolbar, and adds the insert bar and About |
-| `ui/figma-svg.js` | the engine's SVG, made safe for Figma |
+| `ui/figma-svg.js` | the engine's own SVG, with its masks worked out into plain shapes for Figma |
 | `ui/data.js` | answers the site's `fetch` calls from data inside the page |
 | `ui/plugin.css` | the site's styles, fitted to a narrow panel |
 | `test/` | the checks, and the stand-in for Figma |

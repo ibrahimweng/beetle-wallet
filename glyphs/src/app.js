@@ -25,7 +25,7 @@ function applyTheme() {
 media.addEventListener('change', applyTheme);
 new MutationObserver(applyTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 const applySurface = () => { const sf = store.get().surface; if (sf && sf !== 'auto') document.documentElement.dataset.surface = sf; else delete document.documentElement.dataset.surface; };
-store.subscribe((s, keys) => { if (keys.includes('theme')) applyTheme(); if (keys.includes('surface')) applySurface(); if (keys.includes('P') && s.ready) loadDrawings(drawingFile(s.P.weight, s.P.corners)).catch(() => {}); });
+store.subscribe((s, keys) => { if (keys.includes('theme')) applyTheme(); if (keys.includes('surface')) applySurface(); if (keys.includes('P') && s.ready) { loadDrawings(drawingFile(s.P.weight, s.P.corners)).catch(() => {}); if (s.P.weight !== 'outline') loadDrawings('fills').catch(() => {}); } });
 applyTheme(); applySurface();
 
 /* ---------- shell ---------- */
@@ -66,7 +66,7 @@ document.addEventListener('keydown', ev => {
 
 /* ---------- go ---------- */
 /* the drawings the grid opens in come before the first paint; the rest come when picked */
-loadLibrary('data/icons.json').then(() => loadDrawings(drawingFile(store.get().P.weight, store.get().P.corners)).catch(() => {})).then(() => {
+loadLibrary('data/icons.json').then(() => { const P = store.get().P; return Promise.all([loadDrawings(drawingFile(P.weight, P.corners)), P.weight !== 'outline' ? loadDrawings('fills') : null]).catch(() => {}); }).then(() => {
   const cur = lib.byKey.get(store.get().sel);
   inspector.refresh();
   if (!cur) store.set({ sel: 'param:card' });

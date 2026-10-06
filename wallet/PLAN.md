@@ -1287,8 +1287,10 @@ The owner's answer on the foot: it stays where it is and changes shape.
       circle, the glyphs fading as the arrow comes in; the plus goes and
       then the page's button slides in beside Back. Going back, the circle
       grows into the pill. Between two pages Back stays and the button
-      hands over: the one going fades, then the next slides in. The change
-      starts on the frame the page starts to slide.
+      hands over: the one going fades, then the next slides in; the same
+      page's button saying something else (a new amount on the slide)
+      changes where it is. The change starts on the frame the page starts
+      to slide.
 - [x] The first frame of a change could fall a moment before the change
       began on the web, and on a curve that leaves as quickly as `settle`
       the pill stepped 13 wider before drawing in; the foot holds its

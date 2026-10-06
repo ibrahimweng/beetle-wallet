@@ -1710,6 +1710,17 @@ try {
      picked where it is; a reference typed in place; the slide; the passcode with the whole
      of it on it; and the receipt, with the line in the day after */
   const slideToSend = async () => {
+    /* the slide is the foot's, drawn over the page (Round 18): it takes what the page says a moment after the page says
+       it, so wait, as a person would, for it to be there and ready */
+    await page.waitForFunction(
+      () => {
+        const pill = document.querySelector('[data-testid="slide"]'),
+          knob = document.querySelector('[data-testid="slide-knob"]');
+        return !!pill && !!knob && pill.getAttribute('aria-disabled') !== 'true' && knob.getBoundingClientRect().width > 0;
+      },
+      null,
+      { timeout: 5000 },
+    );
     const knob = await page.getByTestId('slide-knob').boundingBox();
     const pill = await page.getByTestId('slide').boundingBox();
     await page.mouse.move(knob.x + 25, knob.y + 25);

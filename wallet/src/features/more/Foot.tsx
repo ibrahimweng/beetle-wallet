@@ -326,9 +326,15 @@ function Drawn({ spec, who }: { spec: FootSpec; who: number }) {
   const [held, setHeld] = useState<Shown | null>(spec.kind === 'none' ? null : spec);
   /* the last page's foot, kept while the shape grows back into the bar, so its button goes rather than vanishes */
   const [page, setPage] = useState<PageSpec | null>(spec.kind === 'back' || spec.kind === 'button' || spec.kind === 'slide' ? spec : null);
+  /* and whose it is: the screen in front changes a moment before its foot does, so it is taken with the foot */
+  const [pageOf, setPageOf] = useState(who);
   useEffect(() => {
     if (spec.kind !== 'none') setHeld(spec);
-    if (spec.kind === 'back' || spec.kind === 'button' || spec.kind === 'slide') setPage(spec);
+    if (spec.kind === 'back' || spec.kind === 'button' || spec.kind === 'slide') {
+      setPage(spec);
+      setPageOf(who);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spec]);
   const shown = spec.kind === 'none' ? held : spec;
   const bar = spec.kind === 'bar';
@@ -460,18 +466,18 @@ function Drawn({ spec, who }: { spec: FootSpec; who: number }) {
   const boxNow = boxedOf(page);
   const [leaving, setLeaving] = useState<Boxed | null>(null);
   const turn = useSharedValue(1);
-  const was = useRef({ who, box: boxNow });
+  const was = useRef({ who: pageOf, box: boxNow });
   /* when the page's foot changes, not when the screen in front does: that comes a moment before its foot */
   useEffect(() => {
     const before = was.current;
-    was.current = { who, box: boxNow };
+    was.current = { who: pageOf, box: boxNow };
     /* from the bar or back to it, the change of shape brings the button or takes it */
     if (still || m.value < 0.99) {
       setLeaving(null);
       return;
     }
     /* the same page's button saying something else is not a new button */
-    if ((before.who === who && before.box && boxNow) || (!before.box && !boxNow)) return;
+    if ((before.who === pageOf && before.box && boxNow) || (!before.box && !boxNow)) return;
     setLeaving(before.box);
     turn.value = 0;
     turn.value = withTiming(1, { duration: MORPH_MS, easing: settle }, done => {
@@ -498,11 +504,12 @@ function Drawn({ spec, who }: { spec: FootSpec; who: number }) {
     const h = p.kind === 'slide' ? 60 : ROW;
     return { left: boxLeft, width: W - boxLeft - PAGE_PAD, height: h, top: frame.dockPad + (ROW - h) / 2 };
   };
-  const drawn = (p: Boxed) =>
+  /* `ghost`: the copy of the last page's, drawn while it fades, answers to nothing and is not named */
+  const drawn = (p: Boxed, ghost = false) =>
     p.kind === 'button' ? (
       <Button label={p.label} disabled={p.disabled} onPress={p.onPress} tone={p.tone} leading={p.leading} size={p.size} />
     ) : (
-      <Slide label={p.label} amount={p.amount} disabled={!!p.disabled} onSlide={p.onSlide} />
+      <Slide label={p.label} amount={p.amount} disabled={!!p.disabled} onSlide={p.onSlide} ghost={ghost} />
     );
   const Blur = AnimatedBlur;
   if (!shown) return null;
@@ -535,11 +542,12 @@ function Drawn({ spec, who }: { spec: FootSpec; who: number }) {
           {/* the last page's button, going, under the next one's */}
           {leaving ? (
             <Animated.View key={`leaving|${shapeOf(leaving)}`} style={[s.box, place(leaving), going]} pointerEvents="none" aria-hidden>
-              {drawn(leaving)}
+              {drawn(leaving, true)}
             </Animated.View>
           ) : null}
           {boxNow ? (
-            <Animated.View key={shapeOf(boxNow)} style={[s.box, place(boxNow), box]} pointerEvents={isPage && live ? 'box-none' : 'none'}>
+            /* one per page and kind: the same page's button saying something else is the same button, changed where it is */
+            <Animated.View key={`${pageOf}|${boxNow.kind}`} style={[s.box, place(boxNow), box]} pointerEvents={isPage && live ? 'box-none' : 'none'}>
               {drawn(boxNow)}
             </Animated.View>
           ) : null}
@@ -586,7 +594,7 @@ function Glyphs() {
    the pill is the pale grey and the knob stays put. */
 const KNOB = 50;
 
-function Slide({ label, amount, disabled, onSlide }: { label: string; amount: string; disabled: boolean; onSlide: () => void }) {
+function Slide({ label, amount, disabled, onSlide, ghost = false }: { label: string; amount: string; disabled: boolean; onSlide: () => void; ghost?: boolean }) {
   const still = useStill();
   const [width, setWidth] = useState(0);
   const x = useSharedValue(0);
@@ -619,7 +627,7 @@ function Slide({ label, amount, disabled, onSlide }: { label: string; amount: st
     <View
       style={[s.slide, disabled ? s.slideOff : null]}
       onLayout={e => setWidth(e.nativeEvent.layout.width)}
-      testID="slide"
+      testID={ghost ? undefined : 'slide'}
       accessibilityRole="adjustable"
       accessibilityLabel={`${label} ${amount}`}
       accessibilityState={{ disabled }}
@@ -629,7 +637,7 @@ function Slide({ label, amount, disabled, onSlide }: { label: string; amount: st
         {amount ? <Body tone={disabled ? 'tertiary' : 'inverse'}>{amount}</Body> : null}
       </Animated.View>
       <GestureDetector gesture={pan}>
-        <Animated.View style={[s.knob, knob]} testID="slide-knob">
+        <Animated.View style={[s.knob, knob]} testID={ghost ? undefined : 'slide-knob'}>
           <Icon name="slide-arrow" size={20} colour={disabled ? colour.textTertiary : colour.ink} />
         </Animated.View>
       </GestureDetector>

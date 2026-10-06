@@ -89,7 +89,9 @@ console.log('dist/beetle.html', (page.length / 1024).toFixed(1) + ' kB');
 const out = resolve(here, 'public');
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
+/* the icon library goes without what only builds it: its source data, its tools and the Figma plugin's plan */
+const buildOnly = /[\\/]glyphs[\\/](sources|tools|figma-plugin)([\\/]|$)/;
 for (const item of ['index.html', 'src', 'dist', 'glyphs']) {
-  cpSync(resolve(here, item), resolve(out, item), { recursive: true });
+  cpSync(resolve(here, item), resolve(out, item), { recursive: true, filter: src => !buildOnly.test(src) });
 }
 console.log('public/ ready to serve');

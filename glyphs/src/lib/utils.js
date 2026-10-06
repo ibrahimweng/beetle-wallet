@@ -30,6 +30,10 @@ export const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t);
 export const clone = v => JSON.parse(JSON.stringify(v));
 export const fmtInt = n => n.toLocaleString('en-US');
 export const isMac = /Mac|iPhone|iPad/.test(navigator.platform || '');
+/* the library's weights by the names the toolbar gives them */
+export const STYLE_LABEL = { outline: 'Stroke', 'two-tone': 'Two-tone', duotone: 'Duotone', solid: 'Fill' };
+export const STYLE_SLUG = { outline: 'stroke', 'two-tone': 'two-tone', duotone: 'duotone', solid: 'fill' };
+export const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* the interface's own small icons, drawn in the same language */
 const ico = (paths) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
@@ -50,6 +54,12 @@ export const ICO = {
   panel: ico('<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/>'),
   circle: ico('<circle cx="12" cy="12" r="10"/>'),
   chevron: ico('<path d="m9 18 6-6-6-6"/>'),
+  chevronDown: ico('<path d="m6 9 6 6 6-6"/>'),
+  gear: ico('<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>'),
+  shapeAll: ico('<rect x="3" y="3" width="7" height="7" rx="1.5"/><circle cx="17.5" cy="6.5" r="3.5"/><path d="M6.5 14v7M3 17.5h7"/><rect x="14" y="14" width="7" height="7" rx="3.5"/>'),
+  shapeRegular: ico('<path d="M12 5v14M5 12h14"/>'),
+  shapeSquare: ico('<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/>'),
+  shapeCircle: ico('<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>'),
   disc: ico('<circle cx="12" cy="12" r="10" fill="currentColor"/>'),
   sparkle: ico('<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>'),
 };

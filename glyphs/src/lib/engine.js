@@ -9,21 +9,30 @@
     seq   { segs:[['M',x,y] | ['L',x,y] | ['A',cx,cy,rx,ry,a0,a1]] }
     quad  { pts:[p, ctrl, p, ctrl ...] }         closed quadratic loop
     path  { d } or { segs }                      SVG path data, straight joins get fillets
-  Roles: stroke | shape | detail | fill | flat. */
+  Roles: stroke | shape | detail | fill | flat.
+  Styles (P.weight): outline (stroke) | two-tone | duotone | solid (fill). An
+  icon drawn in a style of its own (n on every part) is drawn as it was drawn;
+  every other icon derives the style from its centrelines.
+  Corners (P.corners): rounded | sharp. Sharp squares every corner kind and
+  draws butt ends. A part marked x keeps its corners exactly as drawn. */
 
-const DEF = { S: 2.5, R: 2, G: 0.75, choke: 0, goo: 0, fillet: 0.5, weight: 'outline' };
+const DEF = { S: 2.5, R: 2, G: 0.75, choke: 0, goo: 0, fillet: 0.5, weight: 'outline', corners: 'rounded' };
+const WEIGHTS = ['outline', 'two-tone', 'duotone', 'solid'];
+const TONE = 0.4; // the plate under a two-tone line, the body of a duotone
 const PRESETS = {
   beetle: { S: 2.5, R: 2, G: 0.75, choke: 0, goo: 0, fillet: 0.5 },
   core: { S: 2, R: 1.5, G: 0.75, choke: 0, goo: 0, fillet: 0 },
 };
 const D2R = Math.PI / 180;
 const f2 = v => Math.round(v * 100) / 100;
+const f4 = v => Math.round(v * 10000) / 10000; // an imported drawing keeps its designers' precision
 const num = v => (Object.is(v, -0) ? 0 : v);
 
 /* ---------- corners ---------- */
 function radiusOf(k, P) {
   if (k == null || k === 'none') return 0;
   if (typeof k === 'number') return k;
+  if (P.corners === 'sharp') return 0;
   if (k === 'soft') return 0.5 * P.S;
   if (k === 'fillet' || k === 'letter') return Math.max(0, (P.fillet != null ? P.fillet : 0) * P.S);
   if (k === 'box') return Math.max(0, P.R * P.S - 0.5 * P.S);
@@ -92,14 +101,14 @@ function parsePath(d) {
   }
   return segs;
 }
-const pt = p => `${f2(num(p[0]))} ${f2(num(p[1]))}`;
-function segsToString(segs) {
+const pt = (p, q = f2) => `${q(num(p[0]))} ${q(num(p[1]))}`;
+function segsToString(segs, q = f2) {
   let d = '';
   for (const s of segs) {
-    if (s.t === 'M' || s.t === 'L') d += `${s.t}${pt(s.p)}`;
-    else if (s.t === 'C') d += `C${pt(s.c1)} ${pt(s.c2)} ${pt(s.p)}`;
-    else if (s.t === 'Q') d += `Q${pt(s.c1)} ${pt(s.p)}`;
-    else if (s.t === 'A') d += `A${f2(s.rx)} ${f2(s.ry)} ${f2(s.rot || 0)} ${s.large ? 1 : 0} ${s.sweep ? 1 : 0} ${pt(s.p)}`;
+    if (s.t === 'M' || s.t === 'L') d += `${s.t}${pt(s.p, q)}`;
+    else if (s.t === 'C') d += `C${pt(s.c1, q)} ${pt(s.c2, q)} ${pt(s.p, q)}`;
+    else if (s.t === 'Q') d += `Q${pt(s.c1, q)} ${pt(s.p, q)}`;
+    else if (s.t === 'A') d += `A${q(s.rx)} ${q(s.ry)} ${q(s.rot || 0)} ${s.large ? 1 : 0} ${s.sweep ? 1 : 0} ${pt(s.p, q)}`;
     else if (s.t === 'Z') d += 'Z';
   }
   return d;
@@ -236,6 +245,8 @@ function pathQuad(pts) {
 const segsOf = pr => pr.segs || (pr.segs = parsePath(pr.d || ''));
 /* a path: straight runs get fillets at their interior joins */
 function pathPath(pr, P) {
+  if (pr.x) return segsToString(segsOf(pr), f4); // exact: the drawing as drawn
+  const join = 'fillet';
   let d = '';
   for (const sp of subpaths(segsOf(pr))) {
     const segs = sp.segs;
@@ -243,7 +254,7 @@ function pathPath(pr, P) {
     let run = [segs[0].p]; let out = ''; let started = false;
     const flush = (closing) => {
       if (run.length >= 2) {
-        const pts = run.map((p, i) => [p[0], p[1], i > 0 && i < run.length - 1 ? 'fillet' : 'none']);
+        const pts = run.map((p, i) => [p[0], p[1], i > 0 && i < run.length - 1 ? join : 'none']);
         const cs = corners(pts, false, P);
         if (!started) { out += `M${pt(pts[0])}`; started = true; }
         for (let i = 1; i < pts.length - 1; i++) out += `L${pt(cs[i].p1)}` + arcTo(cs[i]);
@@ -252,7 +263,7 @@ function pathPath(pr, P) {
       run = [run[run.length - 1]];
     };
     if (sp.closed && segs.every(s => s.t === 'M' || s.t === 'L')) {
-      const pts = segs.map(s => [s.p[0], s.p[1], 'fillet']);
+      const pts = segs.map(s => [s.p[0], s.p[1], join]);
       if (Math.hypot(pts[0][0] - pts[pts.length - 1][0], pts[0][1] - pts[pts.length - 1][1]) < 1e-6) pts.pop();
       d += pathPoly(pts, true, P); continue;
     }
@@ -321,17 +332,18 @@ function flatQuad(pts) {
   return out;
 }
 function flatPath(pr, P) {
+  const join = pr.x ? 'none' : 'fillet';
   const parts = [];
   for (const sp of subpaths(segsOf(pr))) {
     const segs = sp.segs;
     if (sp.closed && segs.every(s => s.t === 'M' || s.t === 'L')) {
-      const pts = segs.map(s => [s.p[0], s.p[1], 'fillet']);
+      const pts = segs.map(s => [s.p[0], s.p[1], join]);
       if (Math.hypot(pts[0][0] - pts[pts.length - 1][0], pts[0][1] - pts[pts.length - 1][1]) < 1e-6) pts.pop();
       parts.push({ closed: true, pts: flatFilletRun(pts, true, P) }); continue;
     }
     const out = []; let run = [segs[0].p];
     const flush = () => {
-      if (run.length >= 2) { const pts = run.map((p, i) => [p[0], p[1], i > 0 && i < run.length - 1 ? 'fillet' : 'none']); const f = flatFilletRun(pts, false, P); if (out.length) f.shift(); out.push(...f); }
+      if (run.length >= 2) { const pts = run.map((p, i) => [p[0], p[1], i > 0 && i < run.length - 1 ? join : 'none']); const f = flatFilletRun(pts, false, P); if (out.length) f.shift(); out.push(...f); }
       else if (!out.length) out.push(run[0].slice());
       run = [run[run.length - 1]];
     };
@@ -439,23 +451,45 @@ function halos(prims, roles, P) {
 /* ---------- SVG ---------- */
 const safeId = s => String(s == null ? 'g' : s).replace(/[^A-Za-z0-9_-]/g, '_');
 const widths = P => ({ w: Math.max(0.2, P.S + 2 * (P.choke || 0)), wCut: Math.max(0.2, P.S - 2 * (P.choke || 0)) });
+/* an icon drawn in a style of its own: every part carries n, and it is drawn
+   the way it was drawn, fills filled and lines stroked, whatever the style */
+const isNative = prims => prims.length > 0 && prims.every(pr => pr.n);
+/* a subpath too short to have a direction is a dot: round in the rounded
+   corners, square in the sharp ones, never a butt end that draws nothing */
+const isDot = (pr, P) => { if (pr.t === 'arc' || pr.t === 'quad' || (pr.t === 'poly' && pr.closed)) return false; let l = 0; for (const part of flatten(pr, P)) { if (part.closed) return false; for (let i = 1; i < part.pts.length; i++) l += Math.hypot(part.pts[i][0] - part.pts[i - 1][0], part.pts[i][1] - part.pts[i - 1][1]); } return l < 0.1; };
 function svgInner(prims, P, opts = {}) {
+  const weight = opts.weight || P.weight;
+  if (weight === 'two-tone' && !isNative(prims)) {
+    /* the line over a plate: what the solid would fill, at TONE */
+    const plate = layers(prims, P, { ...opts, uid: (opts.uid || 'g') + '-p' }, 'solid');
+    return (plate.body ? `<g opacity="${TONE}">${plate.body}</g>` : '') + svgInner(prims, P, { ...opts, weight: 'outline' });
+  }
+  const L = layers(prims, P, opts, isNative(prims) ? 'drawn' : weight === 'solid' || weight === 'duotone' ? weight : 'outline');
+  return L.body + L.lines + L.faint;
+}
+/* mode: outline | solid | duotone (the solid's body at TONE, its details and
+   lines in full) | drawn (an icon's own drawing of the style) */
+function layers(prims, P, opts, mode) {
   const { w, wCut } = widths(P);
   const id = safeId(opts.uid || 'g');
-  const solid = (opts.weight || P.weight) === 'solid';
+  const solid = mode !== 'outline';
+  const sharp = P.corners === 'sharp';
+  const cap = sharp ? 'butt' : 'round';
   const roles = opts.roles || autoRoles(prims, P);
-  const STROKE = `fill="none" stroke="currentColor" stroke-width="${f2(w)}" stroke-linecap="round" stroke-linejoin="round"`;
-  const FILL = `fill="currentColor" stroke="currentColor" stroke-width="${f2(w)}" stroke-linejoin="round" stroke-linecap="round"`;
-  const CUT = `fill="none" stroke="#000" stroke-width="${f2(wCut)}" stroke-linecap="round" stroke-linejoin="round"`;
-  const strokes = [], fills = [], flats = [], cuts = [], knocks = [], punches = [], shapes = [], faint = [], haloed = [];
-  const H = solid ? halos(prims, roles, P) : new Map();
+  const STROKE = `fill="none" stroke="currentColor" stroke-width="${f2(w)}" stroke-linecap="${cap}" stroke-linejoin="round"`;
+  const FILL = `fill="currentColor" stroke="currentColor" stroke-width="${f2(w)}" stroke-linejoin="round" stroke-linecap="${cap}"`;
+  const CUT = `fill="none" stroke="#000" stroke-width="${f2(wCut)}" stroke-linecap="${cap}" stroke-linejoin="round"`;
+  const strokes = [], dots = [], mitred = [], fills = [], flats = [], cuts = [], knocks = [], punches = [], shapes = [], faint = [], haloed = [];
+  const H = solid && mode !== 'drawn' ? halos(prims, roles, P) : new Map();
   const ds = prims.map(pr => pathOf(pr, P));
+  const strokeOf = pr => pr.join === 'miter' ? STROKE.replace('stroke-linejoin="round"', 'stroke-linejoin="miter"') : STROKE;
+  const line = (pr, d) => { if (pr.join === 'miter') mitred.push(d); else if (sharp && isDot(pr, P)) dots.push(d); else strokes.push(d); };
   prims.forEach((pr, i) => {
     const d = ds[i]; if (!d) return;
     const role = roles[i];
     const a = pr.alpha != null ? pr.alpha : 1;
     if (a < 1) { // a translucent part draws on its own, above the mask
-      const attrs = role === 'fill' || (solid && role === 'flat') ? `fill="currentColor" fill-rule="${pr.evenodd ? 'evenodd' : 'nonzero'}"` : STROKE;
+      const attrs = role === 'fill' || (solid && role === 'flat') ? `fill="currentColor" fill-rule="${pr.evenodd ? 'evenodd' : 'nonzero'}"` : strokeOf(pr);
       faint.push(`<path d="${d}" ${attrs} opacity="${f2(a)}"/>`); return;
     }
     if (role === 'fill') fills.push(d);
@@ -464,23 +498,26 @@ function svgInner(prims, P, opts = {}) {
     else if (role === 'cut') cuts.push(d);
     else if (role === 'knock') knocks.push(d);
     else if (role === 'punch') punches.push(d);
-    else if (!solid) strokes.push(d);
+    else if (!solid) line(pr, d);
     else if (role === 'shape') { if (H.has(i)) haloed.push([i, d]); else shapes.push(d); }
-    else if (role === 'detail') cuts.push(pr.cut ? pathOf(pr.cut, P) : d);
-    else strokes.push(d);
+    else if (role === 'detail') { cuts.push(pr.cut ? pathOf(pr.cut, P) : d); if (mode === 'duotone') line(pr, d); }
+    else line(pr, d);
   });
   let body = '', defs = '';
   if (solid && shapes.length) body += `<path d="${shapes.join('')}" ${FILL}/>`;
-  for (const [i, d] of haloed) { const gap = f2(w + 2 * (P.G != null ? P.G : 0.75) * P.S); defs += `<mask id="halo-${id}-${i}"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/><path d="${H.get(i).map(k => ds[k]).join('')}" fill="none" stroke="#000" stroke-width="${gap}" stroke-linejoin="round" stroke-linecap="round"/></mask>`; body += `<g mask="url(#halo-${id}-${i})"><path d="${d}" ${FILL}/></g>`; }
+  for (const [i, d] of haloed) { const gap = f2(w + 2 * (P.G != null ? P.G : 0.75) * P.S); defs += `<mask id="halo-${id}-${i}"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/><path d="${H.get(i).map(k => ds[k]).join('')}" fill="none" stroke="#000" stroke-width="${gap}" stroke-linejoin="round" stroke-linecap="${cap}"/></mask>`; body += `<g mask="url(#halo-${id}-${i})"><path d="${d}" ${FILL}/></g>`; }
   if (fills.length) body += `<path d="${fills.join('')}" ${FILL}/>`;
   body += flats.join('');
   let out = defs;
   if (body && (cuts.length || knocks.length || punches.length)) {
     out += `<mask id="cut-${id}"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/>${cuts.length ? `<path d="${cuts.join('')}" ${CUT}/>` : ''}${knocks.length ? `<path d="${knocks.join('')}" fill="#000"/>` : ''}${punches.length ? `<path d="${punches.join('')}" fill="#000" stroke="#000" stroke-width="${f2(wCut)}" stroke-linejoin="round"/>` : ''}</mask><g mask="url(#cut-${id})">${body}</g>`;
   } else out += body;
-  if (strokes.length) out += `<path d="${strokes.join('')}" ${STROKE}/>`;
-  if (faint.length) out += `<g class="faint">${faint.join('')}</g>`;
-  return out;
+  if (mode === 'duotone' && out) out = `<g opacity="${TONE}">${out}</g>`;
+  let lines = '';
+  if (strokes.length) lines += `<path d="${strokes.join('')}" ${STROKE}/>`;
+  if (mitred.length) lines += `<path d="${mitred.join('')}" ${strokeOf({ join: 'miter' })}/>`;
+  if (dots.length) lines += `<path d="${dots.join('')}" ${STROKE.replace('stroke-linecap="butt"', 'stroke-linecap="square"')}/>`;
+  return { body: out, lines, faint: faint.length ? `<g class="faint">${faint.join('')}</g>` : '' };
 }
 function gooFilter(P, id) {
   if (!(P.goo > 0)) return '';
@@ -511,11 +548,13 @@ function fromNodes(nodes, hints = {}) {
     const filled = a.fill && a.fill !== 'none' && !hints.ignoreFill;
     const role = filled ? 'flat' : undefined;
     const alpha = ['opacity', filled ? 'fill-opacity' : 'stroke-opacity'].reduce((v, k) => v * (a[k] != null && Number.isFinite(parseFloat(a[k])) ? parseFloat(a[k]) : 1), 1);
-    const add = pr => { if (role) pr.role = role; if (alpha < 1) pr.alpha = f2(alpha); prims.push(pr); };
+    const add = pr => { if (role) pr.role = role; if (alpha < 1) pr.alpha = f2(alpha); if (!filled && a['stroke-linejoin'] === 'miter') pr.join = 'miter'; prims.push(pr); };
     if (tag === 'path') {
       const segs = parsePath(a.d || '');
       if (filled) { const pr = { t: 'path', d: segsToString(segs) }; if (a['fill-rule'] === 'evenodd') pr.evenodd = true; add(pr); }
       else for (const sp of subpaths(segs)) {
+        /* exact: the drawing's own corners, curves and joins, untouched by the corner sliders */
+        if (hints.exact) { const s = sp.segs.slice(); if (sp.closed) s.push({ t: 'Z' }); add({ t: 'path', d: segsToString(s), x: 1 }); continue; }
         const poly = polyfy(sp);
         if (poly) add(poly);
         else { const s = sp.segs.slice(); if (sp.closed) s.push({ t: 'Z' }); add({ t: 'path', d: segsToString(s) }); }
@@ -544,7 +583,11 @@ function fromNodes(nodes, hints = {}) {
 const SC = 1000;
 function outline(prims, P, weight, CL, roles) {
   const { w, wCut } = widths(P);
-  const solid = weight === 'solid';
+  /* a font has one colour: two-tone keeps its line, duotone its body, and an
+     icon's own drawing is cut the way it was drawn; translucent plates drop out */
+  const drawn = isNative(prims);
+  const solid = drawn || weight === 'solid' || weight === 'duotone';
+  const sharp = P.corners === 'sharp';
   const R = roles || autoRoles(prims, P);
   const toIP = pts => pts.map(p => ({ X: Math.round(p[0] * SC), Y: Math.round(p[1] * SC) }));
   const body = new CL.ClipperOffset(2, 0.03 * SC), cutter = new CL.ClipperOffset(2, 0.03 * SC);
@@ -555,7 +598,9 @@ function outline(prims, P, weight, CL, roles) {
     const role = R[i];
     if (pr.alpha != null && pr.alpha < 0.5) return;
     const parts = flatten(pr, P);
-    const addStroke = (part, co) => { if (part.pts.length) co.AddPath(toIP(part.pts), CL.JoinType.jtRound, part.closed ? CL.EndType.etClosedLine : CL.EndType.etOpenRound); };
+    const end = !sharp ? CL.EndType.etOpenRound : isDot(pr, P) ? CL.EndType.etOpenSquare : CL.EndType.etOpenButt;
+    const join = pr.join === 'miter' ? CL.JoinType.jtMiter : CL.JoinType.jtRound;
+    const addStroke = (part, co) => { if (part.pts.length) co.AddPath(toIP(part.pts), join, part.closed ? CL.EndType.etClosedLine : end); };
     const addPolygon = part => { if (part.pts.length < 3) return; let ip = toIP(part.pts); if (!CL.Clipper.Orientation(ip)) ip.reverse(); body.AddPath(ip, CL.JoinType.jtRound, CL.EndType.etClosedPolygon); };
     if (role === 'fill') { for (const part of parts) { if (part.pts.length >= 3) addPolygon(part); else addStroke(part, body); } hasBody = true; }
     else if (!solid && (role === 'flat' || role === 'knock' || role === 'cut' || role === 'punch')) { for (const part of parts) addStroke(part, body); hasBody = true; }
@@ -563,7 +608,7 @@ function outline(prims, P, weight, CL, roles) {
     else if (role === 'knock') { for (const part of parts) { if (part.pts.length >= 3) { knock.push(toIP(part.pts)); hasKnock = true; } } }
     else if (role === 'punch') { const co = new CL.ClipperOffset(2, 0.03 * SC); let any = false; for (const part of parts) { if (part.pts.length < 3) continue; let ip = toIP(part.pts); if (!CL.Clipper.Orientation(ip)) ip.reverse(); co.AddPath(ip, CL.JoinType.jtRound, CL.EndType.etClosedPolygon); any = true; } if (any) { const grown = new CL.Paths(); co.Execute(grown, (wCut / 2) * SC); for (const q of grown) knock.push(q); hasKnock = true; } }
     else if (role === 'cut') { for (const part of parts) addStroke(part, cutter); hasCut = true; }
-    else if (solid && role === 'shape') {
+    else if (solid && !drawn && role === 'shape') {
       if (H.has(i)) { // grown on its own, then the later shapes' gaps taken out of it
         const co = new CL.ClipperOffset(2, 0.03 * SC); let any = false;
         for (const part of parts) { if (part.pts.length < 3) continue; let ip = toIP(part.pts); if (!CL.Clipper.Orientation(ip)) ip.reverse(); co.AddPath(ip, CL.JoinType.jtRound, CL.EndType.etClosedPolygon); any = true; }
@@ -711,6 +756,11 @@ function deriveOutline(prims, P, CL) {
 /* an icon's parts for a weight: a native solid when the library has one */
 const primsFor = (ic, weight) => (weight === 'solid' && ic.ps ? ic.ps : ic.p);
 
+/* an imported drawing as the library stores it, [{ d, f filled, a alpha, e even-odd,
+   m mitred }], as parts drawn the way they were drawn: lines keep their own corners
+   and follow the stroke and corner settings, fills stay as they are */
+const drawn = parts => parts.map(q => { const pr = { t: 'path', d: q.d, x: 1, role: q.f ? 'flat' : 'stroke', roleLocked: true, n: 1 }; if (q.a != null) pr.alpha = q.a; if (q.e) pr.evenodd = true; if (q.m) pr.join = 'miter'; return pr; });
+
 /* ---------- the app's own parametric icons ---------- */
 const ICONS = {
   card: { name: 'Card', make: P => { const s = P.S, h = s / 2, y = 4 + 2.5 * s; return [
@@ -751,4 +801,4 @@ const ICONS = {
 };
 const ICON_ORDER = ['card', 'home', 'bag', 'search', 'globe', 'send', 'person', 'target', 'star', 'plus', 'arrow', 'naira'];
 
-export { DEF, PRESETS, ICONS, ICON_ORDER, BASE, corners, radiusOf, parsePath, segsToString, subpaths, polyfy, arcCentre, pathOf, flatten, isClosed, bbox, autoRoles, svg, svgInner, symbol, gooFilter, widths, fromNodes, outline, buildFont, deriveOutline, primsFor, halos, safeId, f2  };
+export { DEF, WEIGHTS, TONE, PRESETS, ICONS, ICON_ORDER, BASE, corners, radiusOf, parsePath, segsToString, subpaths, polyfy, arcCentre, pathOf, flatten, isClosed, bbox, autoRoles, svg, svgInner, symbol, gooFilter, widths, fromNodes, outline, buildFont, deriveOutline, primsFor, halos, safeId, f2, f4, isNative, layers, drawn  };

@@ -4,11 +4,11 @@
    An icon that has parts of its own for the solid keeps two sets of edits, one
    per weight, so the canvas always edits exactly what the grid shows. */
 import * as E from '../../lib/engine.js';
-import { h, ICO, clone } from '../../lib/utils.js';
+import { h, ICO, clone, STYLE_LABEL } from '../../lib/utils.js';
 import { Button } from '../ui/button.js';
 import { Select } from '../ui/input.js';
 import { store } from '../../lib/store.js';
-import { primsOf, editKey, hasOwnSolid, lib } from '../../lib/library.js';
+import { primsOf, editKey, editKeys, hasOwnSolid, lib } from '../../lib/library.js';
 
 const KINDS = ['none', 'soft', 'box', 'fillet'];
 const ROLES = ['auto', 'stroke', 'shape', 'detail', 'cut', 'knock', 'punch', 'flat', 'fill'];
@@ -20,7 +20,7 @@ export function Editor() {
   const canvas = h('svg:svg', { class: 'canvas', viewBox: '0 0 24 24', 'aria-label': 'Editor canvas' });
   const tag = h('div', { class: 'canvas-tag' });
   const wrap = h('div', { class: 'canvas-wrap' }, canvas, tag);
-  let selPt = null, selPrim = null, drag = null, showGrid = true, snapOn = true, shownWeight = store.get().P.weight;
+  let selPt = null, selPrim = null, drag = null, showGrid = true, snapOn = true, shownWeight = store.get().P.weight + store.get().P.corners;
 
   const tKind = Button({ variant: 'outline', size: 'xs', label: 'Corner: none', disabled: true, title: 'Cycle the corner kind of the selected point', onClick: () => cycleKind() });
   const tDel = Button({ variant: 'outline', size: 'xs', label: 'Delete point', disabled: true, onClick: () => delPoint() });
@@ -33,7 +33,7 @@ export function Editor() {
   const partsEl = h('div', { class: 'parts', role: 'listbox', 'aria-label': 'Parts of the icon' });
 
   const work = () => primsOf(store.get().sel, store.get());
-  const commit = prims => { const s = store.get(); const stored = clone(prims); for (const pr of stored) if (pr.t === 'path' && pr.segs) delete pr.d; store.set({ edits: { ...s.edits, [editKey(s.sel, s.P.weight)]: stored } }); };
+  const commit = prims => { const s = store.get(); const stored = clone(prims); for (const pr of stored) if (pr.t === 'path' && pr.segs) delete pr.d; store.set({ edits: { ...s.edits, [editKey(s.sel, s.P.weight, s.P.corners)]: stored } }); };
   const snap = v => snapOn ? Math.round(v * 4) / 4 : f2(v);
   const toGrid = ev => { const p = canvas.createSVGPoint(); p.x = ev.clientX; p.y = ev.clientY; const q = p.matrixTransform(canvas.getScreenCTM().inverse()); return [q.x, q.y]; };
 
@@ -48,7 +48,7 @@ export function Editor() {
       grid += '<circle class="key" cx="12" cy="12" r="11"/><rect class="key" x="2" y="2" width="20" height="20" rx="1"/>';
     }
     canvas.innerHTML = `<g class="grid-lines">${grid}</g><g class="art">${art(prims, P)}</g><g class="handles">${highlight(prims, P)}${handles(prims)}</g>`;
-    tag.textContent = P.weight;
+    tag.textContent = (STYLE_LABEL[P.weight] || P.weight) + (P.corners === 'sharp' ? ' · sharp' : '');
     renderParts(prims, P);
     updateTools(prims);
   }
@@ -165,9 +165,9 @@ export function Editor() {
     selPt = null; commit(prims);
   }
   function toggleClose() { const prims = work(); const p = prims[selPt ? selPt.pi : selPrim]; if (!p || p.t !== 'poly') return; p.closed = !p.closed; commit(prims); }
-  function reset() { const s = store.get(); const edits = { ...s.edits }; delete edits[editKey(s.sel, 'outline')]; delete edits[editKey(s.sel, 'solid')]; selPt = null; selPrim = null; store.set({ edits }); }
-  const isEdited = () => { const s = store.get(); return !!(s.edits[editKey(s.sel, 'outline')] || s.edits[editKey(s.sel, 'solid')]); };
-  const isEditedWeight = () => { const s = store.get(); return !!s.edits[editKey(s.sel, s.P.weight)]; };
+  function reset() { const s = store.get(); const edits = { ...s.edits }; for (const k of editKeys(s.sel)) delete edits[k]; selPt = null; selPrim = null; store.set({ edits }); }
+  const isEdited = () => { const s = store.get(); return editKeys(s.sel).some(k => s.edits[k]); };
+  const isEditedWeight = () => { const s = store.get(); return !!s.edits[editKey(s.sel, s.P.weight, s.P.corners)]; };
 
   function updateTools(prims) {
     const p = selPt && prims[selPt.pi];
@@ -188,6 +188,6 @@ export function Editor() {
     else if (ev.key === 'Escape' && (selPt || selPrim !== null)) { selPt = null; selPrim = null; render(); }
     else if (selPt && /^Arrow(Up|Down|Left|Right)$/.test(ev.key)) { ev.preventDefault(); const d = ev.shiftKey ? 1 : 0.25; nudge(ev.key === 'ArrowLeft' ? -d : ev.key === 'ArrowRight' ? d : 0, ev.key === 'ArrowUp' ? -d : ev.key === 'ArrowDown' ? d : 0); }
   });
-  store.subscribe((s, keys) => { if (keys.some(k => ['sel', 'P', 'edits', 'ready'].includes(k))) { if (keys.includes('sel') || (keys.includes('P') && s.P.weight !== shownWeight)) { selPt = null; selPrim = null; } shownWeight = s.P.weight; render(); } });
+  store.subscribe((s, keys) => { if (keys.some(k => ['sel', 'P', 'edits', 'ready'].includes(k))) { if (keys.includes('sel') || (keys.includes('P') && s.P.weight + s.P.corners !== shownWeight)) { selPt = null; selPrim = null; } shownWeight = s.P.weight + s.P.corners; render(); } });
   return { el, partsEl, render, reset, isEdited, isEditedWeight };
 }

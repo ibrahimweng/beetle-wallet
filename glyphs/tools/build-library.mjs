@@ -133,6 +133,42 @@ const SCENARIOS = [
 const missing = SCENARIOS.filter(([, key]) => { const [set, name] = key.split(':'); return set === 'core' ? !core[name] : set === 'beetle' ? !beetle[name] : !E.ICONS[name]; });
 if (missing.length) { console.error('scenario icons missing:', missing.map(m => m[1]).join(', ')); process.exit(1); }
 
+/* ---------- the four-style set: every icon in stroke, two-tone, duotone and fill,
+   each with rounded and sharp corners, drawn by its designers ---------- */
+const FOUR_DIR = resolve(root, 'sources', 'keyline');
+for (const name of ['icons.json', 'meta.json']) if (!existsSync(resolve(FOUR_DIR, name))) { console.error(`missing glyphs/sources/keyline/${name}: run glyphs/tools/import-keyline.mjs`); process.exit(1); }
+const KL = JSON.parse(readFileSync(resolve(FOUR_DIR, 'icons.json'), 'utf8'));
+const KM = JSON.parse(readFileSync(resolve(FOUR_DIR, 'meta.json'), 'utf8'));
+const STYLES = { outline: 'stroke', 'two-tone': 'two-tone', duotone: 'duotone', solid: 'fill' }; // the library's weight -> the set's style
+const CORNERS = { rounded: 'r', sharp: 's' };
+const slug = v => v.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+/* one drawing as stored parts: each path filled, stroked, or both (a plate under a line) */
+function partsOf(rootAttrs, body) {
+  const parts = [];
+  for (const [tag, a] of parseElements(body)) {
+    if (tag !== 'path') { stats.fail.push('four: a ' + tag + ' where only paths are expected'); continue; }
+    const fill = a.fill != null ? a.fill : rootAttrs.fill, stroke = a.stroke != null ? a.stroke : rootAttrs.stroke;
+    const d = E.segsToString(E.parsePath(a.d || ''), E.f4);
+    if (fill && fill !== 'none') { const q = { d, f: 1 }; if (a['fill-opacity'] != null) q.a = +a['fill-opacity']; if (a['fill-rule'] === 'evenodd') q.e = 1; parts.push(q); }
+    if (stroke && stroke !== 'none') { const q = { d }; if (a['stroke-opacity'] != null) q.a = +a['stroke-opacity']; if ((a['stroke-linejoin'] || rootAttrs['stroke-linejoin']) === 'miter') q.m = 1; parts.push(q); }
+  }
+  return parts;
+}
+const four = {}, fourData = {};
+for (const corners of Object.keys(CORNERS)) for (const weight of Object.keys(STYLES)) fourData[`${corners}-${weight}`] = {};
+const containerOf = name => { const m = name.match(/^(circle|square)-(.+)$/); return m && KL.icons[m[2]] && !KM.notContainers.includes(name) ? [m[1], m[2]] : null; };
+for (const [name, ic] of Object.entries(KL.icons)) {
+  const box = containerOf(name);
+  const words = [...(KM.keywords[name] || [])];
+  four[name] = { c: [slug(KM.category[name] || 'other')], t: [...new Set(['four-style', ...name.split('-'), ...words])] };
+  if (box) { four[name].k = box[0]; four[name].b = box[1]; }
+  for (const [corners, ck] of Object.entries(CORNERS)) for (const [weight, style] of Object.entries(STYLES)) {
+    const [code, body] = ic[ck][style];
+    fourData[`${corners}-${weight}`][name] = partsOf(KL.roots[code], body);
+  }
+}
+console.log(`four-style: ${Object.keys(four).length} icons, ${Object.keys(four).filter(n => four[n].k).length} in a circle or square, ${Object.keys(fourData).length} drawings each`);
+
 /* ---------- validate ---------- */
 /* a command after Z picks up where the closed subpath began; it once started at
    the origin and drew a line in from the corner of calendar-fold, mop and scale */
@@ -146,9 +182,22 @@ const validate = (label, prims) => {
 };
 for (const [n, ic] of Object.entries(core)) validate('core:' + n, ic.p);
 for (const [n, ic] of Object.entries(beetle)) { validate('beetle:' + n, ic.p); if (ic.ps) validate('beetle:' + n + ' solid', ic.ps); }
+/* the derived styles and the sharp corners of the parametric sets, on a sample */
+for (const [n, ic] of Object.entries(core).filter((_, i) => i % 9 === 0).concat(Object.entries(beetle))) for (const weight of E.WEIGHTS) for (const corners of ['rounded', 'sharp']) { const s = E.svg(ic.p, { ...P, corners }, { uid: 'v', weight }); if (/NaN|undefined|null/.test(s)) stats.fail.push(`${n} ${weight} ${corners}`); }
+/* every drawing of the four-style set, in the style and corners it was drawn for */
+for (const [file, icons] of Object.entries(fourData)) {
+  const [corners, weight] = [file.slice(0, file.indexOf('-')), file.slice(file.indexOf('-') + 1)];
+  for (const [n, parts] of Object.entries(icons)) {
+    if (!parts.length) { stats.fail.push(`four:${n} ${file} is empty`); continue; }
+    const prims = E.drawn(parts), Pc = { ...P, corners };
+    const s = E.svg(prims, Pc, { uid: 'v', weight }); if (/NaN|undefined|null/.test(s)) stats.fail.push(`four:${n} ${file}`);
+    for (const pr of prims) for (const part of E.flatten(pr, Pc)) for (const q of part.pts) if (!Number.isFinite(q[0]) || q[0] < -0.5 || q[0] > 24.5 || q[1] < -0.5 || q[1] > 24.5) { stats.fail.push(`four:${n} ${file} leaves the 24 grid`); break; }
+  }
+}
 const t0 = Date.now();
 const sample = Object.keys(core).filter((_, i) => i % 12 === 0).slice(0, 160).map(n => ({ name: n, prims: core[n].p }));
 for (const [n, ic] of Object.entries(beetle)) { sample.push({ name: 'beetle-' + n, prims: ic.p }); if (ic.ps) sample.push({ name: 'beetle-' + n + '-solid', prims: ic.ps }); }
+for (const n of Object.keys(four).filter((_, i) => i % 20 === 0)) sample.push({ name: 'four-' + n, prims: E.drawn(fourData['rounded-solid'][n]) }, { name: 'four-' + n + '-sharp', prims: E.drawn(fourData['sharp-outline'][n]) });
 const { font } = E.buildFont(P, sample, { weight: 'outline', family: 'Beetle Glyphs' }, CL, ot);
 const parsed = ot.parse(font.toArrayBuffer());
 if (parsed.glyphs.length !== sample.length + 1) stats.fail.push('font sample glyph count');
@@ -157,20 +206,22 @@ console.log(`font sample: ${sample.length} icons -> ${parsed.glyphs.length} glyp
 /* ---------- write ---------- */
 const lib = {
   version: { engine: 2, library: 3 },
-  license: { core: 'ISC. The notice is in LICENSE-core.txt beside this site and stays with the icons.', beetle: 'The app glyphs belong to the Beetle wallet design.' },
-  sets: { core, beetle },
+  license: { core: 'ISC. The notice is in LICENSE-core.txt beside this site and stays with the icons.', beetle: 'The app glyphs belong to the Beetle wallet design.', four: `MIT. Keyline Icons ${KL.source.version}; the notice is in LICENSE-keyline.txt beside this site and stays with the icons.` },
+  sets: { core, beetle, four },
+  /* the four-style set's drawings live in one file per corners and style, loaded when picked */
+  drawings: Object.fromEntries(Object.keys(fourData).map(f => [f, `data/four/${f}.json`])),
   scenarios: SCENARIOS.map(([scenario, key, note]) => ({ scenario, key, note })),
 };
 const json = JSON.stringify(lib);
 const out = resolve(root, 'data', 'icons.json');
-console.log(`core ${Object.keys(core).length} icons (polys ${stats.polys}, paths ${stats.paths}, arcs ${stats.arcs}); beetle ${Object.keys(beetle).length} glyphs (${Object.values(beetle).filter(ic => ic.ps).length} with a solid of their own); scenarios ${SCENARIOS.length}; failures ${stats.fail.length} ${stats.fail.slice(0, 6).join(', ')}`);
+const files = [[out, json], ...Object.entries(fourData).map(([f, icons]) => [resolve(root, 'data', 'four', f + '.json'), JSON.stringify(icons)])];
+console.log(`four-style ${Object.keys(four).length} icons in ${Object.keys(fourData).length} drawings; core ${Object.keys(core).length} icons (polys ${stats.polys}, paths ${stats.paths}, arcs ${stats.arcs}); beetle ${Object.keys(beetle).length} glyphs (${Object.values(beetle).filter(ic => ic.ps).length} with a solid of their own); scenarios ${SCENARIOS.length}; failures ${stats.fail.length} ${stats.fail.slice(0, 6).join(', ')}`);
 if (stats.fail.length) process.exit(1);
 if (check) {
-  const current = existsSync(out) ? readFileSync(out, 'utf8') : '';
-  if (current !== json) { console.error('data/icons.json is stale: run `node glyphs/tools/build-library.mjs` and commit it'); process.exit(1); }
-  console.log('data/icons.json matches its sources');
+  const stale = files.filter(([file, text]) => (existsSync(file) ? readFileSync(file, 'utf8') : '') !== text).map(([file]) => file.slice(root.length + 1));
+  if (stale.length) { console.error(`${stale.join(', ')} ${stale.length > 1 ? 'are' : 'is'} stale: run \`node glyphs/tools/build-library.mjs\` and commit ${stale.length > 1 ? 'them' : 'it'}`); process.exit(1); }
+  console.log(`data/icons.json and the ${files.length - 1} four-style drawings match their sources`);
 } else {
-  mkdirSync(dirname(out), { recursive: true });
-  writeFileSync(out, json);
-  console.log(`wrote data/icons.json (${(json.length / 1024).toFixed(0)} KB)`);
+  for (const [file, text] of files) { mkdirSync(dirname(file), { recursive: true }); writeFileSync(file, text); }
+  console.log(`wrote data/icons.json (${(json.length / 1024).toFixed(0)} KB) and ${files.length - 1} four-style drawings (${(files.slice(1).reduce((n, [, t]) => n + t.length, 0) / 1024).toFixed(0)} KB)`);
 }

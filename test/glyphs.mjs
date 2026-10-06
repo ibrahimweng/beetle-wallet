@@ -52,7 +52,7 @@ console.log('glyphs exports');
   const r = await p.evaluate(`Promise.all([import(${mod('library')}), import(${mod('export')}), import(${mod('store')})]).then(([L, X, S]) => {
     const P = S.store.get().P, prims = k => L.primsOf(k, S.store.get());
     const views = {};
-    for (const set of ['all', 'scenarios', 'beetle', 'core']) {
+    for (const set of ['all', 'scenarios', 'beetle', 'core', 'four']) {
       const entries = L.search({ q: '', set, cat: 'all' });
       const names = entries.map(e => L.exportName(e.key));
       views[set] = { n: entries.length, unique: new Set(names).size };
@@ -62,11 +62,12 @@ console.log('glyphs exports');
     const ids = [...sprite.matchAll(/<symbol id="([^"]+)"/g)].map(m => m[1]);
     const json = JSON.parse(X.jsonOf(L.search({ q: '', set: 'all', cat: 'all' }), P, prims));
     return { views, symbols: ids.length, uniqueSymbols: new Set(ids).size, appGlyphs: app.length, jsonIcons: Object.keys(json.icons).length, all: views.all.n,
-      card: [L.exportName('param:card'), L.exportName('beetle:card')], alias: L.exportName('beetle:card-filled'), snippet: X.usageSnippet('core:house', 'outline') };
+      card: [L.exportName('param:card'), L.exportName('beetle:card')], alias: L.exportName('beetle:card-filled'), snippet: X.usageSnippet('core:house', P) };
   })`);
   for (const [set, v] of Object.entries(r.views)) check(v.n === v.unique, `every icon in the ${set} view has a name of its own (${v.unique} of ${v.n})`);
   check(r.symbols === r.appGlyphs && r.uniqueSymbols === r.symbols, `the app glyphs sprite has one symbol per icon (${r.uniqueSymbols} of ${r.appGlyphs})`);
   check(r.jsonIcons === r.all, `the JSON keeps every icon (${r.jsonIcons} of ${r.all})`);
+  check(r.views.four.n === 1366, `the four-style set is all there (${r.views.four.n} of 1366)`);
   check(r.card[0] === 'param-card' && r.card[1] === 'beetle-card' && r.alias === 'beetle-card', 'a shared name gets its set in front, and an alias goes by its icon', r.card.concat(r.alias).join(', '));
   check(r.snippet.includes('content: "\\E000"') && !r.snippet.includes('\\uE000'), 'the font snippet escapes the codepoint the way CSS reads it');
   await ctx.close();
@@ -131,15 +132,68 @@ console.log('glyphs on a tablet');
   const sheet = () => p.locator('.sheet').count();
   /* every way the sheet can close: its close button, Escape, the overlay, and picking a set */
   for (let round = 0; round < 2; round++) {
-    await menu(); await p.locator('.sheet button[aria-label="Close"]').click();
-    await menu(); await p.keyboard.press('Escape');
-    await menu(); await p.mouse.click(860, 450);
-    await menu(); await p.locator('.sheet .nav-item', { hasText: 'App glyphs' }).click();
+    const gone = () => p.waitForFunction(() => !document.querySelector('.sheet'), null, { timeout: 3000 });
+    await menu(); await p.locator('.sheet button[aria-label="Close"]').click(); await gone();
+    await menu(); await p.waitForSelector('.sheet'); await p.keyboard.press('Escape'); await gone();
+    await menu(); await p.waitForSelector('.sheet'); await p.mouse.click(860, 450); await gone();
+    await menu(); await p.locator('.sheet .nav-item', { hasText: 'App glyphs' }).click(); await gone();
   }
+  await p.waitForFunction(() => !document.querySelector('.sheet'), null, { timeout: 3000 }).catch(() => {});
   check(await sheet() === 0, 'the library sheet closes every way it can');
   const after = await live();
   check(after === before, `opening and closing it eight times leaves the store with the listeners it had (${after}, was ${before})`);
   await store(`s => s.set({ filter: { q: '', set: 'all', cat: 'all' } })`);
+  await ctx.close();
+}
+
+/* ---------- the four-style set and the toolbar ---------- */
+console.log('glyphs four styles and the toolbar');
+{
+  const { ctx, p, store, errors } = await open('/public/glyphs/');
+  await store(`s => s.set({ filter: { q: '', set: 'four', cat: 'all', box: 'all' } })`);
+  const inked = () => p.evaluate(() => [...document.querySelectorAll('.grid .tile')].slice(0, 60).filter(t => t.querySelector('svg').innerHTML.length > 40).length);
+  const loaded = () => p.evaluate(() => performance.getEntriesByType('resource').map(r => new URL(r.name).pathname).filter(n => n.includes('/data/four/')).map(n => n.split('/').pop()));
+  for (const [style, weight] of [['Stroke', 'outline'], ['Two-tone', 'two-tone'], ['Duotone', 'duotone'], ['Fill', 'solid']]) for (const corners of ['Rounded', 'Sharp']) {
+    await p.click(`.tb .seg-item:has-text("${corners}")`); await p.click(`.tb .seg-item:has-text("${style}")`);
+    const file = `${corners.toLowerCase()}-${weight}.json`;
+    await p.waitForFunction(f => performance.getEntriesByType('resource').some(r => r.name.endsWith('/data/four/' + f)), file, { timeout: 5000 }).catch(() => {});
+    await p.waitForTimeout(150);
+    const n = await inked();
+    check(n === 60 && await store(`s => s.get().P.weight + ' ' + s.get().P.corners`) === `${weight} ${corners.toLowerCase()}`, `${style.toLowerCase()}, ${corners.toLowerCase()}: the toolbar picks it and every icon draws (${n} of 60)`);
+  }
+  check((await loaded()).length === 8, `each of the eight drawings was fetched only when it was picked (${(await loaded()).length})`);
+  await p.click('.tb .pill.raised:has-text("Shape")'); await p.click('.menu-row[data-value="circle"]');
+  await p.waitForTimeout(150);
+  check(await p.evaluate(() => document.querySelector('.tb-count').textContent) === '66 icons shown', 'Shape: Circle leaves the 66 icons drawn in a circle', await p.evaluate(() => document.querySelector('.tb-count').textContent));
+  const size = p.locator('.tb .tick-slider').first().locator('input');
+  await size.focus(); for (let i = 0; i < 4; i++) await p.keyboard.press('ArrowRight');
+  check(await p.evaluate(() => getComputedStyle(document.querySelector('.grid')).getPropertyValue('--icon-size').trim()) === '32px', 'the size slider moves with the keyboard and the icons follow it');
+  const reset = p.locator('.tb .reset-btn');
+  check(!(await reset.isDisabled()), 'Reset is on once anything has moved from its default');
+  await reset.click(); await p.waitForTimeout(100);
+  const st = await store(`s => [s.get().P.weight, s.get().P.corners, s.get().view.size, s.get().filter.box].join(' ')`);
+  check(st === 'outline rounded 28 all' && await reset.isDisabled(), 'Reset puts style, corners, size and shape back, then waits', st);
+  await p.click('.tb .pill.square[aria-label="Grid settings"]'); await p.click('.menu-settings .switch');
+  await p.keyboard.press('Escape');
+  const tile = p.locator('.grid .tile').nth(3); await tile.hover(); await p.waitForTimeout(200);
+  const tip = await p.evaluate(() => { const t = document.querySelector('.grid-tip'); return t && !t.hidden && t.classList.contains('on') ? t.textContent : ''; });
+  check(tip === await tile.getAttribute('aria-label'), `with the names off, the label follows the pointer (${tip})`);
+  await store(`s => s.set({ view: { ...s.get().view, names: true } })`);
+  check(!errors.length, 'no console errors on the way', errors.slice(0, 3).join(' | '));
+  await ctx.close();
+}
+
+/* ---------- the drawer on a phone ---------- */
+console.log('glyphs toolbar on a phone');
+{
+  const { ctx, p, store } = await open('/public/glyphs/', { width: 390, height: 844 });
+  check(await p.locator('.tb > .tb-controls').isHidden() && await p.locator('.tb-browse').isVisible(), 'the controls fold behind Browse');
+  await p.click('.tb-browse'); await p.waitForSelector('.sheet-bottom .tb-controls');
+  await p.click('.sheet-bottom .seg-item:has-text("Fill")');
+  check(await store(`s => s.get().P.weight`) === 'solid', 'the drawer holds the same controls');
+  await p.keyboard.press('Escape'); await p.waitForFunction(() => !document.querySelector('.sheet'), null, { timeout: 3000 }).catch(() => {});
+  check(await p.locator('.tb > .tb-controls').count() === 1, 'and closing it puts them back under the toolbar');
+  check(await p.locator('.tb-dot').isVisible(), 'a dot on Browse says something is off its default');
   await ctx.close();
 }
 

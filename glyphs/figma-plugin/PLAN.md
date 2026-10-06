@@ -43,12 +43,21 @@ This is a plan for a free Figma plugin that uses the same engine and sliders as 
 
 **The engine runs in the panel.** `engine.js` uses no page features, so it runs there unchanged. The panel needs it for the grid anyway. Figma also stays responsive when Clipper, the vendored polygon library, runs there. One insert has four steps.
 
-1. The panel builds one SVG string at 24 by 24 at the chosen settings. Open lines stay as live strokes from `svg()`, so designers can still change the stroke weight. Filled parts with cuts come from `outline()` as plain shapes with holes, as in the icon font. The site's SVG makes cuts with `<mask>`, and we have not tested how Figma imports masks. `currentColor` becomes the chosen colour, because Figma cannot read it.
+1. The panel builds one SVG string at 24 by 24 at the chosen settings. Open lines stay as live strokes from `svg()`, so designers can still change the stroke weight. Each part the site cuts with a `<mask>` arrives as a plain shape with holes, worked out with Clipper (see the decision below). `currentColor` becomes the chosen colour, because Figma cannot read it.
 2. The panel sends the SVG, the icon key, the settings and the size to `code.js`.
 3. `code.js` calls `figma.createNodeFromSvg`, which returns a frame ([figma API](https://developers.figma.com/docs/plugins/api/figma/)). It clears the frame's white fill and names it. It scales it with `rescale`, not `resize`, so the stroke scales too. It never places a new icon inside the icon that is still selected. We took these three points from Keyline's plugin. Components use `createComponentFromNode`. A component set is one component per variant, named like `Style=Stroke, Corners=Rounded`, joined with `combineAsVariants` ([combineAsVariants](https://developers.figma.com/docs/plugins/api/properties/figma-combineasvariants/)).
 4. It stores the settings with `setPluginData`, up to 100 kB per entry ([setPluginData](https://developers.figma.com/docs/plugins/api/properties/nodes-setplugindata/)). "Update this page" finds those layers with `findAllWithCriteria`.
 
 Later, live strokes can be tied to a number variable with `setBoundVariable` ([bindable fields](https://developers.figma.com/docs/plugins/api/VariableBindableNodeField/)).
+
+**Decision: no masks, worked out into shapes.** The plugin never sends a mask to Figma. `ui/figma-svg.js` takes the engine's own `svgInner()`, exactly as the site draws it, and turns each masked group into one plain shape with holes. It uses Clipper to work out what the group's paths cover, with strokes grown by half their width with their own caps and joins, less what the mask's black parts cover. Lines outside a mask stay live strokes. The reasons are these:
+
+- The site's masks are luminance masks: a white sheet with black cuts. Figma reads an SVG mask by its alpha, so the cuts would not show. No Figma app was at hand to prove it, so the safe choice is to send nothing that depends on it.
+- It reads the SVG, not the engine's choices. When the engine changed how filled styles are drawn (the stored fills in `data/fills.json`), the plugin drew the new way with no change of its own. The first version rebuilt the layers itself and would have kept the old way. `--check` fails if any mask is ever left over, in any of the 27,456 drawings.
+- In headless Chromium, the version without masks covers the same pixels as the site's within 2% of its ink, over 1,446 masked drawings; the worst is 1.3%. Curves inside a worked-out shape become short straight segments, as in the icon font.
+- The comparison found three faults on the site, all now fixed in `engine.js`: masks clipped by the default mask region, dot cuts with sharp corners that cut nothing, and parts narrower than their stroke drawn as rings, like the wells of `palette`.
+
+The four-style set is drawn as its designers drew it and never uses a mask, so it arrives exactly as on the site.
 
 **Manifest.** Figma reads `manifest.json` first ([manifest](https://developers.figma.com/docs/plugins/manifest/)).
 
@@ -86,13 +95,15 @@ Each icon change then needs "Publish new version", which takes minutes. Fetching
 
 **How the data is laid out today.** `data/icons.json` holds the core set, the Beetle glyphs, the scenarios and the four-style set's names, tags and categories. The four-style set's drawings live in eight files, `data/four/<corners>-<style>.json`, one for each of rounded and sharp with stroke, two-tone, duotone and fill. Each icon there is a short list of parts, and `engine.js` turns them into drawable parts with `drawn()`. The plugin can read the same files.
 
-**Size.** The developer docs state no limit. A Figma support reply on the forum says plugin code must be under 15 MB ([forum](https://forum.figma.com/report-a-problem-6/unable-to-publish-figma-plugin-44361)). Today `icons.json` is 1.5 MB, or 257 KB compressed with gzip. The eight files in `data/four/` total 5.0 MB, or 1.25 MB compressed. The build stores each data file compressed and written as base64, which turns binary data into text. The panel unpacks only the file in view, with the browser's own `DecompressionStream`. With Clipper and the engine, I estimate `ui.html` at about 2.5 MB. The build fails above 10 MB. `opentype.min.js` stays out, since there is no font export.
+**Size.** The developer docs state no limit. A Figma support reply on the forum says plugin code must be under 15 MB ([forum](https://forum.figma.com/report-a-problem-6/unable-to-publish-figma-plugin-44361)). Today `icons.json` is 1.5 MB, or 257 KB compressed with gzip. The eight files in `data/four/` total 5.0 MB, or 1.25 MB compressed. The build stores each data file compressed and written as base64, which turns binary data into text. The panel unpacks only the file in view, with the browser's own `DecompressionStream`. With Clipper, the engine and `data/fills.json`, `ui.html` is 2.65 MB. The build fails above 10 MB. `opentype.min.js` stays out, since there is no font export.
 
 **Build step.** The panel cannot load other files by relative path, so everything goes inline in one HTML file ([external resources](https://developers.figma.com/docs/plugins/resource-links/)). A new script, `glyphs/tools/build-figma-plugin.mjs`, works like `build-library.mjs`.
 
-- It reads the plugin source in `glyphs/figma-plugin/`, `engine.js` without its `export` line, `vendor/clipper.js`, the data files and the licence notices.
-- It writes `manifest.json`, `code.js` and `ui.html` to `glyphs/figma-plugin/dist/`.
-- With `--check`, it renders every icon in every style and fails on `NaN`, leftover `currentColor`, a missing licence or the size budget.
+- It starts from `ui/main.js` and follows every import into `glyphs/src`: the engine, the library, the store, the exports and the ZIP writer, the toolbar, the grid, the sidebar, the whole-library panel and the small ui components. Each module becomes a function that returns its exports, the way the root `build.js` rolls up the wallet. So it needs no dependency, and nothing is forked.
+- The data files go in as they are, compressed and written as base64, under a made-up address: `data/icons.json` and every file it lists under `drawings`, so a new data file comes in with no change here. `ui/data.js` answers the site's own `fetch` calls for that address, and for the two licence notices the ZIP download asks for, so `loadLibrary()` and `loadDrawings()` run unchanged. The address is absolute, because Figma's panel has no page address to read a relative path against.
+- It writes `manifest.json`, `code.js` and `ui.html` to `glyphs/figma-plugin/dist/`. `dist/` is committed, so the owner can import the plugin without a build.
+- With `--check`, it builds again in memory and fails if `dist/` differs. It compares each data file by what it unpacks to, so another version of zlib can never fail it. It also renders every icon in every style and both corners and fails on `NaN`, a mask, a filter, leftover `currentColor`, a missing licence or the size budget. Then it runs `code.js` against a stand-in for `figma`. CI runs it beside the library check, so a change on the site that has not reached the plugin turns CI red.
+- `test/ui.mjs` opens the built panel in headless Chromium, in a sandboxed frame like Figma's, with `code.js` running on the stand-in. CI runs it too.
 
 The root `build.js` copies all of `glyphs/` to the site, so it should skip `figma-plugin/`.
 
@@ -140,11 +151,11 @@ All testing happens in drafts, which are unlimited on Starter. In the desktop ap
 
 **Questions for the owner:**
 
-1. Should the Beetle app glyphs ship in a public plugin?
-2. The site calls the new set the four-style set, so it is not named after Keyline Icons. Is that the name to use in the plugin too?
+1. Settled: everything ships, the app glyphs included.
+2. Settled: the plugin calls it the four-style set too.
 3. Which Mac or Windows computer will run the desktop app?
-4. Should `dist/` be committed, or rebuilt before each publish?
-5. Should FigJam be in the first release?
-6. Should the plugin read point edits exported from the site?
-7. Should strokes stay live by default, or be outlined to match the exports?
-8. Which website goes on the listing, since the repository's Vercel URL is not live?
+4. Settled for now: `dist/` is committed, so the plugin imports without a build, and CI checks it.
+5. Should FigJam be in the first release? It is left out for now.
+6. Should the plugin read point edits exported from the site? Not yet.
+7. Should strokes stay live by default, or be outlined to match the exports? They stay live for now.
+8. Which website goes on the listing, since the repository's Vercel URL is not live? The GitHub repository for now.

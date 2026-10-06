@@ -1107,35 +1107,45 @@ try {
   must((await inCard.count()) === 0, 'New should start a fresh chat');
   await tap('Back to the lab');
   await see('Beetle Lab');
-  /* a receipt lands in the chat after the passcode, in a few words; a tap brings the whole of it up over the chat as
-     the receipt sheet, with Done and See in Activities under it, so nothing in the chat leads off to a full receipt
-     (Round 19, the owner's word) */
+  /* a receipt lands in the chat after the passcode, in a few words; a tap opens it where it is, the way a line opens
+     on Activities but in the chat's dark: the card loses its outline, reaches out to the chat's edge and grows every
+     detail under what it says, the session id kept back, Share receipt and See in Activities at its foot, and the rest
+     of the screen goes soft under a dark frost (Round 20, the owner's word: no sheet from the bottom in the chat) */
   await tap('A receipt in the chat');
   await page.getByTestId('receipt-card').first().waitFor();
   must((await page.getByText('The full receipt').count()) === 0, 'a receipt in the chat should not lead off to a full receipt');
   await shot('lab-receipt-card', 900);
-  const chatAt = page.url();
+  const small = await page.getByTestId('receipt-card').boundingBox();
   await tap('Receipt');
-  await receiptSheet();
-  await page.waitForTimeout(800);
-  await see('Session ID');
+  await page.getByTestId('chat-receipt-veil').waitFor();
+  await page.waitForTimeout(1000);
+  const big = await page.getByTestId('receipt-card').boundingBox();
+  must(small && big && big.height > small.height + 150, `the receipt should open with every detail under it (${Math.round(small?.height ?? 0)} → ${Math.round(big?.height ?? 0)})`);
+  must(big.width > small.width + 40, `and reach out to the chat's edge (${Math.round(small.width)} → ${Math.round(big.width)})`);
+  must(big.y >= 100 && big.y + big.height <= 660, `and stand clear of the header and of the chips and the ask bar (${Math.round(big.y)} to ${Math.round(big.y + big.height)})`);
+  const outline = await page.getByTestId('receipt-card-outline').evaluate(el => Number(getComputedStyle(el).opacity));
+  must(outline < 0.05, `an open receipt should have no outline (${outline})`);
+  must((await page.getByTestId('chat-receipt').count()) === 1, 'the rest of the screen should go soft under the frost');
+  must((await page.getByTestId('receipt-sheet').count()) === 0, 'and no sheet should come up from the bottom');
   await see('Balance after');
-  const inSheet = name => page.getByTestId('receipt-sheet').getByRole('button', { name, exact: true });
-  must((await inSheet('Done').count()) === 1 && (await inSheet('See in Activities').count()) === 1, 'the sheet should end on Done with See in Activities under it');
-  must((await inSheet('Share receipt').count()) === 1, 'and carry Share receipt, small, at its top');
-  const sheetBox = await page.getByTestId('receipt-sheet').boundingBox();
-  must(sheetBox && sheetBox.y + sheetBox.height > 852 - 20, `the receipt should come up from the bottom (${JSON.stringify(sheetBox)})`);
-  must(page.url() === chatAt, 'and over the chat, not as a page of its own');
+  await see('When');
+  await page
+    .getByRole('button', { name: /^Show the / })
+    .first()
+    .click();
+  await page.getByTestId('in-place-session').waitFor();
   await shot('chat-receipt-open', 300);
-  /* Done puts it away, the chat as it was under it */
-  await receiptDone();
-  await page.getByTestId('receipt-card').first().waitFor();
-  /* See in Activities, from the same sheet, turns the pages to the record */
+  console.log(`  the receipt opened from ${Math.round(small.height)} to ${Math.round(big.height)} tall, where it was`);
+  /* a tap on the frost puts it back */
+  await page.mouse.click(200, 40);
+  await page.getByTestId('chat-receipt').waitFor({ state: 'detached' });
+  must(Math.abs(((await page.getByTestId('receipt-card').boundingBox())?.height ?? 0) - small.height) < 2, 'and the card should be as it was');
+  /* See in Activities, from the open card, turns the pages to the record */
   await tap('Receipt');
-  await receiptSheet();
-  await page.waitForTimeout(600);
-  await inSheet('See in Activities').click();
-  await page.getByTestId('receipt-sheet').waitFor({ state: 'detached' });
+  await page.getByTestId('chat-receipt-veil').waitFor();
+  await page.waitForTimeout(900);
+  await tap('See in Activities');
+  await page.getByTestId('chat-receipt').waitFor({ state: 'detached' });
   await onPage('activities');
   await shot('receipt-to-activities', 500);
   await tap('Back to the lab');
@@ -1602,10 +1612,11 @@ try {
   await tap('₦50,000 came in');
   await button('Receipt').waitFor();
   await tap('Receipt');
-  await receiptSheet();
+  await page.getByTestId('chat-receipt-veil').waitFor();
   await see('None on money in');
   await shot('lab-arrival-receipt', 900);
-  await receiptDone();
+  await page.mouse.click(200, 40);
+  await page.getByTestId('chat-receipt').waitFor({ state: 'detached' });
   await tap('Back to the lab');
   await see('Beetle Lab');
   /* Beetle's model: no key here, so the try comes back from the script */

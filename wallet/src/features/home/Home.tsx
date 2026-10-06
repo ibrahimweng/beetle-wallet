@@ -16,21 +16,24 @@
    open, and a swipe from there brings in the drawer with New chat and the
    chats (see Drawer). Closing the card files the chat; a pull down within
    the hour carries it on, after the hour a new one starts. A receipt in
-   the chat comes up whole as the receipt sheet over it, with See in
-   Activities under Done (receipts/ReceiptSheet; Round 19, the owner's
-   word). Send on the card opens the Send money page. */
+   the chat opens where it is, the way a line opens on Activities, in the
+   chat's dark, with every detail in it and the rest of the screen frosted
+   (agent/ChatOpen.tsx; Round 20, the owner's word). Send on the card
+   opens the Send money page. */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler, Keyboard, Platform, ScrollView, TextInput, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
-import { Meta, Tap, colour, dark, keys, settle, standard, useStill } from '../../design';
+import { Meta, Tap, away, colour, dark, keys, settle, standard, useStill } from '../../design';
 import type { IconName } from '../../icons';
 import { DEMO_SAVED, OFFLINE_LINE, TRY_FIRST, beneficiariesOf, newAsk, ownLine, ownTag, panelFromAsk, refusalLine, refuses, type AskPanel, type Move, type Panel } from '../../services';
 import { useApp } from '../onboarding/store';
 import { Chat } from '../agent/Chat';
-import { ReceiptSheet } from '../receipts/ReceiptSheet';
+import { ChatFrost, ChatShare } from '../agent/ChatOpen';
+import { useOpenCtl } from '../activities/OpenLine';
+import { FROST_OUT, OPEN_MS, ROWS_OUT } from '../activities/InPlace';
 import { ChatsDrawer, ChatsEdge, EDGE, drawerWidth, useChatsSwipe } from '../agent/Drawer';
 import { isPanel, transcriptOf, turn, useConversation, type Turn } from '../agent/conversation';
 import { clock, detailOf, titleOf, toCarryOn, useChats, type Chat as ChatRecord } from '../agent/chats';
@@ -52,7 +55,7 @@ import { CHIPS_GAP, CHIPS_H, CLOSED_H, FOOT_BAND, WalletCard, useCardTop } from 
 import { BAR_ROW, barLift, foot, useFoot } from '../more/Foot';
 import { moreTo, type MoreItem } from '../more/More';
 import { useOnline } from '../offline';
-import { JourneyProvider, useRecession, type Rect } from '../../design/journey';
+import { JourneyProvider, useRecession } from '../../design/journey';
 import type { ReceiptCard as Card } from '../agent/conversation';
 import { chatPointedOut, markChatPointedOut } from './first';
 import { useSetup } from '../setup/store';
@@ -146,7 +149,41 @@ function HomeScreen() {
     [moves, h, account],
   );
   /** a receipt in the chat, opened where it is */
-  const [chatPeek, setChatPeek] = useState<{ card: Card; at: Rect } | null>(null);
+  /* a receipt in the chat, open where it is (agent/ChatOpen.tsx): which, its numbers, how far the chat moves for it,
+     the picture of its rows, the session id asked for, its share sheet */
+  const [chatPeek, setChatPeek] = useState<Card | null>(null);
+  const peek = useOpenCtl();
+  const peekShift = useSharedValue(0);
+  const peekSlip = useRef<View>(null);
+  const [peekSession, setPeekSession] = useState(false);
+  const [peekSharing, setPeekSharing] = useState(false);
+  const peekGoing = useRef(false);
+  const peekBegin = useCallback(() => {
+    peek.p.value = still ? 1 : withTiming(1, { duration: OPEN_MS, easing: settle });
+  }, [peek, still]);
+  /* closing, as a line on Activities closes: the rows go first while the frost stays whole, then they fold away as it
+     clears; `then` once it has */
+  const peekClose = useCallback(
+    (then?: () => void) => {
+      if (peekGoing.current) return;
+      peekGoing.current = true;
+      const done = () => {
+        peekGoing.current = false;
+        setPeekSharing(false);
+        setChatPeek(null);
+        then?.();
+      };
+      if (still) return done();
+      peek.shown.value = withTiming(0, { duration: ROWS_OUT, easing: away });
+      peek.p.value = withDelay(
+        ROWS_OUT - 40,
+        withTiming(0, { duration: FROST_OUT + 40, easing: away }, f => {
+          if (f) runOnJS(done)();
+        }),
+      );
+    },
+    [peek, still],
+  );
   /** the chats drawer, in or out, and how far in */
   const [drawer, setDrawer] = useState(false);
   const drawerIn = useSharedValue(0);
@@ -525,13 +562,15 @@ function HomeScreen() {
     if (!opened || !active) return;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       if (guard) setGuard(null);
+      else if (peekSharing) setPeekSharing(false);
+      else if (chatPeek) peekClose();
       else if (receive) setReceive(false);
       else if (drawer) closeDrawer();
       else show(false);
       return true;
     });
     return () => sub.remove();
-  }, [opened, active, show, guard, receive, drawer, closeDrawer]);
+  }, [opened, active, show, guard, receive, drawer, closeDrawer, chatPeek, peekSharing, peekClose]);
 
   /* the first time: once the balance has resolved, the card dips and springs
      back, so the pull is seen (the grabber carries no words since Round 14) */
@@ -871,12 +910,37 @@ function HomeScreen() {
                     goals={standings}
                     onSave={putAway}
                     onStartGoal={() => router.push('/goal?new=1')}
-                    onReceipt={(card, at) => {
+                    onReceipt={card => {
                       /* only while the chat is open: the card may have closed while the line was being measured */
                       if (!openedRef.current) return;
+                      /* a tap on the open one puts it back */
+                      if (chatPeek) return peekClose();
                       Keyboard.dismiss();
-                      setChatPeek({ card, at });
+                      peek.p.value = 0;
+                      peek.shown.value = 1;
+                      peek.top.value = 0;
+                      peek.rowH.value = 0;
+                      peek.grown.value = 0;
+                      peekShift.value = 0;
+                      peekGoing.current = false;
+                      setPeekSession(false);
+                      setChatPeek(card);
                     }}
+                    opened={
+                      chatPeek
+                        ? {
+                            id: chatPeek.rowId,
+                            ctl: peek,
+                            shift: peekShift,
+                            slip: peekSlip,
+                            session: peekSession,
+                            onSession: () => setPeekSession(true),
+                            onShare: () => setPeekSharing(true),
+                            onRecord: () => peekClose(() => tabs.go('activities')),
+                            onReady: peekBegin,
+                          }
+                        : null
+                    }
                   />
                 }
                 recede={drawerIn}
@@ -925,17 +989,9 @@ function HomeScreen() {
           <PasscodeSheet key={guard.panel.id} {...sheetFor(guard.panel)} verify={app.checkPasscode} onDone={guardDone} onCancel={() => setGuard(null)} faceMissed={LAB && asked.face === 'missed'} />
         ) : null}
         {receive && account ? <ReceiveSheet account={account} onDismiss={() => setReceive(false)} /> : null}
-        {chatPeek ? (
-          <ReceiptSheet
-            key={chatPeek.card.rowId}
-            id={chatPeek.card.rowId}
-            onDone={() => setChatPeek(null)}
-            onRecord={() => {
-              setChatPeek(null);
-              tabs.go('activities');
-            }}
-          />
-        ) : null}
+        {/* a receipt open in the chat: the frost round it, over everything, and its share sheet */}
+        {chatPeek ? <ChatFrost ctl={peek} shift={peekShift} onClose={() => peekClose()} /> : null}
+        {chatPeek && peekSharing ? <ChatShare card={chatPeek} slip={peekSlip} onDismiss={() => setPeekSharing(false)} /> : null}
       </View>
     </GestureDetector>
   );

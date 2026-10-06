@@ -52,6 +52,11 @@ export const dark = {
   textSoft: '#a3a3a3',
   label: '#8e8e93',
   panel: '#1c1c1e',
+  /* the accent, lifted to read as a link on the dark (a receipt opened in the chat, Round 20) */
+  link: '#8e9bff',
+  /* the chats drawer's ground: a step lighter than the chat's own dark, so
+     it reads as a layer over it (Round 20, the owner's word) */
+  drawer: '#222224',
   edge: '#2c2c2e',
   edgeStrong: '#3a3a3c',
   pillText: '#e5e5ea',

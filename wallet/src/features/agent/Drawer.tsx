@@ -270,13 +270,16 @@ export function ChatsDrawer({
   );
 }
 
-/* The panel's ground: the card's dark, near solid down most of it, then
-   thinning to nothing over the blur, so its foot has no edge. */
+/* The panel's ground: a dark a step lighter than the chat's own (Round 20,
+   the owner's word: the drawer reads as a layer over the chat), near solid
+   down most of it, then thinning to nothing over the blur, so its foot has
+   no edge. */
+const GROUND = [1, 3, 5].map(i => parseInt(dark.drawer.slice(i, i + 2), 16)).join(', ');
 function PanelGround() {
   const [h, setH] = React.useState(0);
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none" onLayout={e => setH(e.nativeEvent.layout.height)}>
-      {h ? <Frost height={h} side="top" solid={Math.round(h * 0.62)} /> : null}
+      {h ? <Frost height={h} side="top" solid={Math.round(h * 0.62)} rgb={GROUND} /> : null}
       <Fog />
     </View>
   );
@@ -312,7 +315,7 @@ function WebFog({ style }: { style: object }) {
     el.style.webkitMaskImage = mask;
     el.style.backdropFilter = 'blur(6px)';
     el.style.webkitBackdropFilter = 'blur(6px)';
-    el.style.backgroundColor = 'rgba(20,20,20,0.18)';
+    el.style.backgroundColor = `rgba(${GROUND}, 0.18)`;
   }, []);
   return <View ref={ref} style={style} />;
 }

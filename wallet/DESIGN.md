@@ -214,7 +214,15 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   Beetle account and for any other bank.
 - The chats drawer comes in from a swipe that starts **within a thumb's
   width (44) of the left edge**, not only on the light drawn there: an edge
-  a finger has to hit exactly is an edge a phone misses.
+  a finger has to hit exactly is an edge a phone misses. Its ground is **a
+  step lighter than the chat** (#222224 over the chat's #141414, Round 20),
+  so it reads as a layer over it.
+- **A receipt in the chat opens where it is** (Round 20, the owner's word),
+  as a line opens on Activities but in the chat's dark: the card loses its
+  outline, reaches out to the chat's edge and grows every detail, the less
+  important (the session id) kept back until asked for, Share receipt and
+  See in Activities at its foot; everything else under a frost of the
+  chat's dark, the header and the ask bar too. Never a sheet in the chat.
 - A card in the chat that has all it needs pays from where it is: its
   button goes to the passcode. A small **Recent** grows the card itself
   into a list of what was paid before.

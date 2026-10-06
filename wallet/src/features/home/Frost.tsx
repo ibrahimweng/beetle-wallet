@@ -18,13 +18,14 @@ import { SHEETS, Sheet, along, blurMethod, blurModule, type Side } from '../../d
 export const hasBlur = blurModule !== null;
 
 /** The darkening, from the edge in: near solid, then an eased fall to
-    nothing. `solid` is how far in it stays near solid. */
-export function tint(height: number, solid: number, glass: boolean): { colours: string[]; locations: number[] } {
+    nothing. `solid` is how far in it stays near solid; `rgb` is the dark
+    itself, the card's unless said (the chats drawer's is a step lighter). */
+export function tint(height: number, solid: number, glass: boolean, rgb = '20, 20, 20'): { colours: string[]; locations: number[] } {
   const s = Math.min(0.92, Math.max(0, solid / height));
   const ramp = (k: number) => s + (1 - s) * k;
   const top = glass ? 0.94 : 0.97;
   return {
-    colours: [top, top - 0.04, 0.55, 0.22, 0.06, 0].map(a => `rgba(20, 20, 20, ${a})`),
+    colours: [top, top - 0.04, 0.55, 0.22, 0.06, 0].map(a => `rgba(${rgb}, ${a})`),
     locations: [0, s, ramp(0.42), ramp(0.7), ramp(0.9), 1],
   };
 }
@@ -33,15 +34,18 @@ export function Frost({
   height,
   side = 'top',
   solid = height * 0.5,
+  rgb,
 }: {
   height: number;
   side?: Side;
   /** how far in from the edge the haze stays near solid */
   solid?: number;
+  /** the dark, as `r, g, b`: the card's unless said */
+  rgb?: string;
 }) {
   const Blur = blurModule?.BlurView;
   const edge = side === 'top' ? { top: 0 } : { bottom: 0 };
-  const t = tint(height, solid, !!Blur);
+  const t = tint(height, solid, !!Blur, rgb);
   return (
     <View pointerEvents="none" style={[{ position: 'absolute', left: 0, right: 0, height }, edge]} testID={`haze-${side}`}>
       {Blur

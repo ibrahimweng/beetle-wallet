@@ -190,7 +190,7 @@ export function Activities() {
   return (
     <JourneyProvider>
       <View style={{ flex: 1 }}>
-        <Screen head={<GlyphHead glyph="clock" title="Activities" sub={nothing ? 'Nothing has moved yet' : 'Everything that moved, newest first'} rowRef={headRow} />} scrollEnabled={!over}>
+        <Screen head={<GlyphHead title="Activities" sub={nothing ? 'Nothing has moved yet' : 'Everything that moved, newest first'} rowRef={headRow} />} scrollEnabled={!over}>
           {health ? <ScoreRow score={h.health!} title="Money health" sub={h.healthMove} onPress={() => router.push('/health')} /> : null}
           {/* the frame puts 16 between the segments and the record, and 10 between a day's name and its lines, and between one day and the next */}
           <View style={{ gap: 16 }}>

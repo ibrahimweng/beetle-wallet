@@ -1,10 +1,16 @@
 /* The chat inside the card: every turn so far, the newest at the foot, each
    arriving out of a blur; the dots while Beetle thinks. It keeps the foot in
-   view as the conversation grows. */
-import React, { useContext, useEffect, useMemo, useRef } from 'react';
-import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native';
+   view as the conversation grows. A receipt in it opens where it is, the
+   way a line opens on Activities (ChatOpen.tsx): the chat holds still while
+   it is open, scrolled up in step if the receipt would run under the chips
+   and the ask bar. */
+import React, { useContext, useEffect, useMemo, useRef, type RefObject } from 'react';
+import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { Pane, type Rect } from '../../design';
+import Animated, { scrollTo, useAnimatedReaction, useAnimatedRef, useAnimatedStyle, useSharedValue, type SharedValue } from 'react-native-reanimated';
+import { Pane, measure, type Rect } from '../../design';
+import type { OpenCtl } from '../activities/OpenLine';
+import { ChatDetails } from './ChatOpen';
 import type { ReceiptCard as Card } from './conversation';
 import type { Account, AskPanel, Beneficiaries } from '../../services';
 import { CardGesturesContext } from '../home/WalletCard';
@@ -20,6 +26,20 @@ import { isAsk, isPanel, type Conversation } from './conversation';
 const PANEL_INSET = 60;
 /** A card with fields to fill keeps nearly all of the width: the picker's ruler needs it. */
 const ASK_INSET = 12;
+
+/** The receipt open in the chat, and what it needs: whose it is, its numbers, how far the chat scrolls for it, the
+    picture's box, the session id asked for, and its ways on. */
+export type ChatOpened = {
+  id: string;
+  ctl: OpenCtl;
+  shift: SharedValue<number>;
+  slip: RefObject<View | null>;
+  session: boolean;
+  onSession: () => void;
+  onShare: () => void;
+  onRecord: () => void;
+  onReady: () => void;
+};
 
 export function Chat({
   talk,
@@ -39,6 +59,7 @@ export function Chat({
   onSave,
   onStartGoal,
   onReceipt,
+  opened = null,
 }: {
   talk: Conversation;
   active: boolean;
@@ -73,8 +94,10 @@ export function Chat({
   onStartGoal?: () => void;
   /** a receipt card, opened where it is */
   onReceipt?: (card: Card, at: Rect) => void;
+  /** the receipt open in the chat, if one is */
+  opened?: ChatOpened | null;
 }) {
-  const list = useRef<ScrollView>(null);
+  const list = useAnimatedRef<Animated.ScrollView>();
   const count = talk.turns.length + (talk.thinking ? 1 : 0);
   useEffect(() => {
     if (!active) return;
@@ -86,32 +109,73 @@ export function Chat({
      the card's own drag, running alongside the list's scroll */
   const card = useContext(CardGesturesContext);
   const viewH = useRef(0);
+  /* how far it has scrolled, how tall it is and where it is on the screen: what an open receipt is laid out against */
+  const scrolled = useSharedValue(0);
+  const tall = useSharedValue(0);
+  const at = useSharedValue(0);
+  const from = useSharedValue(0);
+  const frame = useRef<View>(null);
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    scrolled.value = e.nativeEvent.contentOffset.y;
     if (!card) return;
     const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
     card.atEnd.value = contentOffset.y + layoutMeasurement.height >= contentSize.height - 2;
   };
+
+  /* a receipt opening: where the chat stood, and where it is on the screen */
+  const openId = opened?.id ?? null;
+  useEffect(() => {
+    if (!openId) return;
+    from.value = scrolled.value;
+    void measure(frame).then(r => (at.value = r.y));
+  }, [openId]); // eslint-disable-line react-hooks/exhaustive-deps
+  /* how far the chat has to move for the open receipt to stand clear of the header above and the chips and the ask bar
+     below, once it is measured; then the chat moves that far in step with it */
+  const ctl = opened?.ctl;
+  const shift = opened?.shift;
+  useAnimatedReaction(
+    () => (ctl && ctl.rowH.value > 0 ? ctl.grown.value : 0),
+    grown => {
+      if (!ctl || !shift || !grown) return;
+      const y = ctl.top.value - at.value;
+      const over = y + ctl.rowH.value + grown - (tall.value - bottom);
+      shift.value = y < top ? y - top : over > 0 ? Math.min(over, y - top) : 0;
+    },
+    [ctl, shift, top, bottom],
+  );
+  useAnimatedReaction(
+    () => (ctl ? ctl.p.value : 0),
+    p => {
+      if (shift && shift.value) scrollTo(list, 0, Math.max(0, from.value + shift.value * p), false);
+    },
+    [shift],
+  );
+  /* the open receipt reaches out to the chat's right edge as it opens */
+  const reach = useAnimatedStyle(() => ({ marginRight: PANEL_INSET * (1 - (ctl ? Math.max(0, Math.min(1, ctl.p.value)) : 0)) }), [ctl]);
+  const openRow = useRef<View>(null);
   const sized = (_w: number, h: number) => {
     if (card) card.atEnd.value = h <= viewH.current + 1 || card.atEnd.value;
-    if (active) list.current?.scrollToEnd({ animated: true });
+    /* not while a receipt is open: it grows, and the chat moves for it only as far as it needs */
+    if (active && !opened) list.current?.scrollToEnd({ animated: true });
   };
   const native = useMemo(() => Gesture.Native(), []);
   const together = useMemo(() => (card ? Gesture.Simultaneous(native, card.pan) : native), [card, native]);
 
   const body = (
-    <ScrollView
+    <Animated.ScrollView
       ref={list}
       style={{ flex: 1 }}
       contentContainerStyle={{ gap: 24, paddingBottom: bottom, paddingTop: top }}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
-      scrollEnabled={active}
+      scrollEnabled={active && !opened}
       bounces={false}
       overScrollMode="never"
       onScroll={onScroll}
       scrollEventThrottle={32}
       onLayout={e => {
         viewH.current = e.nativeEvent.layout.height;
+        tall.value = e.nativeEvent.layout.height;
       }}
       onContentSizeChange={sized}
     >
@@ -124,11 +188,31 @@ export function Chat({
         else if (t.block.kind === 'thought') body = <Thoughts lines={t.block.lines} live={false} />;
         else if (t.block.kind === 'receipt') {
           const card = t.block.card;
-          body = (
-            <View style={{ marginRight: PANEL_INSET }}>
-              <ReceiptCard card={card} to={card.to ?? `/receipt/${card.rowId}`} onOpen={onReceipt && card.kind !== 'request' ? at => onReceipt(card, at) : undefined} />
-            </View>
-          );
+          const isOpen = !!opened && opened.id === card.rowId && card.kind !== 'request';
+          const tap = onReceipt && card.kind !== 'request' ? (r: Rect) => onReceipt(card, r) : undefined;
+          body =
+            isOpen && opened ? (
+              <Animated.View ref={openRow} collapsable={false} style={reach} testID="chat-receipt-open">
+                <ReceiptCard card={card} to={card.to ?? `/receipt/${card.rowId}`} onOpen={tap} p={opened.ctl.p}>
+                  <ChatDetails
+                    key={card.rowId}
+                    card={card}
+                    ctl={opened.ctl}
+                    row={openRow}
+                    slip={opened.slip}
+                    session={opened.session}
+                    onSession={opened.onSession}
+                    onShare={opened.onShare}
+                    onRecord={opened.onRecord}
+                    onReady={opened.onReady}
+                  />
+                </ReceiptCard>
+              </Animated.View>
+            ) : (
+              <View style={{ marginRight: PANEL_INSET }}>
+                <ReceiptCard card={card} to={card.to ?? `/receipt/${card.rowId}`} onOpen={tap} />
+              </View>
+            );
         } else if (isAsk(t)) {
           const ask = t.block.ask;
           body = (
@@ -198,11 +282,13 @@ export function Chat({
       })}
       {talk.thinking ? <Pane key="thinking">{talk.thinking.lines.length ? <Thoughts lines={talk.thinking.lines} live /> : <Thinking />}</Pane> : null}
       {!talk.turns.length && !talk.thinking ? <View style={{ height: 8 }} /> : null}
-    </ScrollView>
+    </Animated.ScrollView>
   );
   return (
-    <GestureDetector gesture={together} touchAction="pan-y">
-      {body}
-    </GestureDetector>
+    <View ref={frame} collapsable={false} style={{ flex: 1 }}>
+      <GestureDetector gesture={together} touchAction="pan-y">
+        {body}
+      </GestureDetector>
+    </View>
   );
 }

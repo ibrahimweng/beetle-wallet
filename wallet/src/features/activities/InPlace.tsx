@@ -25,7 +25,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
-import { Icon, Label, Meta, MoreButton, Tap, blurred, colour, motion, toast, type Rect } from '../../design';
+import { Icon, Label, Meta, MoreButton, Tap, blurred, colour, dark as night, motion, toast, type Rect } from '../../design';
 import type { IconName } from '../../icons';
 import { copyText } from '../receive/clipboard';
 import { useReceiptMenu } from '../receipts/use';
@@ -77,6 +77,10 @@ export function Details({
   onShare,
   onRepeat,
   state,
+  dark = false,
+  indent = TEXT_COLUMN,
+  second,
+  dated = false,
 }: {
   t: SharedValue<number>;
   shown: SharedValue<number>;
@@ -89,7 +93,16 @@ export function Details({
   onRepeat: () => void;
   /** a line that has not settled: what it is, and its next steps in place of Share and Set it up */
   state: StateWords | null;
+  /** on the chat's dark: the same rows in its inks (a receipt opened in the chat, Round 20) */
+  dark?: boolean;
+  /** how far in the rows start: under the line's words on Activities, the card's own edge in the chat */
+  indent?: number;
+  /** the second thing to do in place of Set it up: See in Activities, in the chat */
+  second?: { label: string; glyph: IconName; onPress: () => void };
+  /** say the day and the time as a row of its own: the chat's card has only the time, Activities has the day over the line */
+  dated?: boolean;
 }) {
+  const d = dark ? DARK : null;
   const groups = groupsOf(receipt.fields, name, receipt.kind);
   /* a line that has not settled names its bank from the people the day knows, where the line itself does not carry it */
   if (state?.bank && !groups.some(g => g.some(([l]) => l === 'Bank'))) groups.unshift([['Bank', state.bank]]);
@@ -101,7 +114,7 @@ export function Details({
   };
   let i = 0;
   return (
-    <View ref={slip} collapsable={false} style={s.rows} testID="in-place-card">
+    <View ref={slip} collapsable={false} style={[s.rows, { paddingLeft: indent }]} testID="in-place-card">
       {state ? (
         <Arrive t={t} shown={shown} i={i++}>
           <View style={s.state} testID="in-place-state">
@@ -109,25 +122,29 @@ export function Details({
               <Icon name={state.glyph} size={14} colour="#ffffff" />
             </View>
             <View style={{ flex: 1, gap: 2 }}>
-              <Label>{state.title}</Label>
-              <Meta tone="secondary">{state.sub}</Meta>
+              <Label style={d?.value}>{state.title}</Label>
+              <Meta tone="secondary" style={d?.label}>
+                {state.sub}
+              </Meta>
             </View>
           </View>
-          <Dashed />
+          <Dashed dark={dark} />
         </Arrive>
       ) : null}
       {groups.map((group, g) => (
         <View key={g}>
           {g ? (
             <Arrive t={t} shown={shown} i={i++}>
-              <Dashed />
+              <Dashed dark={dark} />
             </Arrive>
           ) : null}
           {group.map(([label, value]) => (
             <Arrive key={label} t={t} shown={shown} i={i++}>
               <View style={s.row} testID="in-place-row">
-                <Meta tone="secondary">{label}</Meta>
-                <Label style={s.value} numberOfLines={1}>
+                <Meta tone="secondary" style={[s.label, d?.label]}>
+                  {label}
+                </Meta>
+                <Label style={[s.value, d?.value]} numberOfLines={1}>
                   {value}
                 </Label>
               </View>
@@ -135,17 +152,31 @@ export function Details({
           ))}
         </View>
       ))}
+      {dated ? (
+        <Arrive t={t} shown={shown} i={i++}>
+          <View style={s.row} testID="in-place-when">
+            <Meta tone="secondary" style={[s.label, d?.label]}>
+              When
+            </Meta>
+            <Label style={[s.value, d?.value]} numberOfLines={1}>
+              {receipt.when}
+            </Label>
+          </View>
+        </Arrive>
+      ) : null}
       {receipt.token ? (
         <Arrive t={t} shown={shown} i={i++}>
           {/* a prepaid bill's token: what was paid for, so always shown, with a button to copy it */}
           <View style={s.row} testID="in-place-token">
-            <Meta tone="secondary">Token</Meta>
+            <Meta tone="secondary" style={[s.label, d?.label]}>
+              Token
+            </Meta>
             <View style={s.sessionValue}>
-              <Label style={[s.value, { fontVariant: ['tabular-nums'] }]} numberOfLines={1}>
+              <Label style={[s.value, { fontVariant: ['tabular-nums'] }, d?.value]} numberOfLines={1}>
                 {receipt.token}
               </Label>
               <Tap accessibilityRole="button" accessibilityLabel="Copy the token" onPress={() => void copyToken()} scale={0.9} style={s.copy} hitSlop={8}>
-                <Icon name="copy" size={14} colour={colour.textSecondary} />
+                <Icon name="copy" size={14} colour={d ? d.soft : colour.textSecondary} />
               </Tap>
             </View>
           </View>
@@ -155,20 +186,26 @@ export function Details({
         {/* the session id: only when it is asked for, since it matters only when the transaction is queried */}
         {session ? (
           <View style={s.row} testID="in-place-session">
-            <Meta tone="secondary">{receipt.sessionLabel}</Meta>
+            <Meta tone="secondary" style={[s.label, d?.label]}>
+              {receipt.sessionLabel}
+            </Meta>
             <View style={s.sessionValue}>
-              <Label style={[s.value, { fontVariant: ['tabular-nums'] }]} numberOfLines={1}>
+              <Label style={[s.value, { fontVariant: ['tabular-nums'] }, d?.value]} numberOfLines={1}>
                 {receipt.session}
               </Label>
               <Tap accessibilityRole="button" accessibilityLabel="Copy the session id" onPress={() => void copy()} scale={0.9} style={s.copy} hitSlop={8}>
-                <Icon name="copy" size={14} colour={colour.textSecondary} />
+                <Icon name="copy" size={14} colour={d ? d.soft : colour.textSecondary} />
               </Tap>
             </View>
           </View>
         ) : (
           <Tap accessibilityRole="button" accessibilityLabel={`Show the ${receipt.sessionLabel.toLowerCase()}`} onPress={onSession} style={s.row} hitSlop={4}>
-            <Meta tone="secondary">{receipt.sessionLabel}</Meta>
-            <Label tone="accent">Show it</Label>
+            <Meta tone="secondary" style={[s.label, d?.label]}>
+              {receipt.sessionLabel}
+            </Meta>
+            <Label tone="accent" style={d?.link}>
+              Show it
+            </Label>
           </Tap>
         )}
       </Arrive>
@@ -176,22 +213,33 @@ export function Details({
         {state ? (
           <View style={s.actions}>
             {state.actions.map(a => (
-              <Tap key={a.label} accessibilityRole="button" accessibilityLabel={a.label} onPress={a.onPress} scale={0.96} style={s.action} testID="in-place-next">
-                <Icon name={a.glyph} size={16} colour={colour.ink} />
-                <Label numberOfLines={1}>{a.label}</Label>
+              <Tap key={a.label} accessibilityRole="button" accessibilityLabel={a.label} onPress={a.onPress} scale={0.96} style={[s.action, d?.action]} testID="in-place-next">
+                <Icon name={a.glyph} size={16} colour={d ? d.ink : colour.ink} />
+                <Label numberOfLines={1} style={d?.value}>
+                  {a.label}
+                </Label>
               </Tap>
             ))}
           </View>
         ) : (
           <View style={s.actions}>
-            <Tap accessibilityRole="button" accessibilityLabel="Share receipt" onPress={onShare} scale={0.96} style={s.action} testID="in-place-share">
-              <Icon name="share" size={16} colour={colour.ink} />
-              <Label>Share receipt</Label>
+            <Tap accessibilityRole="button" accessibilityLabel="Share receipt" onPress={onShare} scale={0.96} style={[s.action, d?.action]} testID="in-place-share">
+              <Icon name="share" size={16} colour={d ? d.ink : colour.ink} />
+              <Label style={d?.value}>Share receipt</Label>
             </Tap>
-            <Tap accessibilityRole="button" accessibilityLabel={receipt.nudge.action} onPress={onRepeat} scale={0.96} style={s.action} testID="in-place-repeat">
-              <Icon name="history-filled" size={16} colour={colour.ink} />
-              <Label>{receipt.nudge.action}</Label>
-            </Tap>
+            {second ? (
+              <Tap accessibilityRole="button" accessibilityLabel={second.label} onPress={second.onPress} scale={0.96} style={[s.action, d?.action]} testID="in-place-second">
+                <Icon name={second.glyph} size={16} colour={d ? d.ink : colour.ink} />
+                <Label numberOfLines={1} style={d?.value}>
+                  {second.label}
+                </Label>
+              </Tap>
+            ) : (
+              <Tap accessibilityRole="button" accessibilityLabel={receipt.nudge.action} onPress={onRepeat} scale={0.96} style={[s.action, d?.action]} testID="in-place-repeat">
+                <Icon name="history-filled" size={16} colour={d ? d.ink : colour.ink} />
+                <Label style={d?.value}>{receipt.nudge.action}</Label>
+              </Tap>
+            )}
           </View>
         )}
       </Arrive>
@@ -266,15 +314,27 @@ function Arrive({ t, shown, i, children }: { t: SharedValue<number>; shown: Shar
 }
 
 /* The rule between groups: dashes, as Fuse draws its own. */
-function Dashed() {
+function Dashed({ dark = false }: { dark?: boolean }) {
   return (
     <View style={s.dashed} testID="in-place-rule">
       {Array.from({ length: 36 }).map((_, k) => (
-        <View key={k} style={s.dash} />
+        <View key={k} style={[s.dash, dark ? DARK.dash : null]} />
       ))}
     </View>
   );
 }
+
+/** The rows' inks on the chat's dark (Round 20): the labels in its grey, the figures and the buttons' words in white,
+    Show it in the accent lifted for the dark, the dashes and the buttons in its raised grey with no hairline. */
+const DARK = {
+  label: { color: night.label },
+  value: { color: '#ffffff' },
+  link: { color: night.link },
+  dash: { backgroundColor: night.edgeStrong },
+  action: { backgroundColor: night.edgeStrong, borderWidth: 0 },
+  ink: '#ffffff',
+  soft: night.label,
+};
 
 /** What a line's own note says, by the kind of line: a transfer's is the
     bank and the number, a card's the place it paid, a top-up's the number it
@@ -318,6 +378,8 @@ const s = StyleSheet.create({
   /* plain on the frost: no card, no border, no shadow — lined up under the line's words */
   rows: { paddingLeft: TEXT_COLUMN, paddingBottom: 8 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, height: 30 },
+  /* a label keeps its words on one line; a long figure beside it is cut short instead */
+  label: { flexShrink: 0 },
   value: { flexShrink: 1, textAlign: 'right' },
   sessionValue: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 },
   dashed: { flexDirection: 'row', justifyContent: 'space-between', overflow: 'hidden', height: 1, marginVertical: 9 },

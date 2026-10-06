@@ -1352,6 +1352,37 @@ sheet; the chat's sheet keeps See in Activities too.
 **Expo Go**: a QR code for the update, as every round that reaches the
 phone ends.
 
+## Round 20 · The chat's receipt opens where it is, in the dark
+
+Asked by the owner after Round 19: in the chat, not a sheet from the
+bottom; the dark card that expands, as before, but with every detail of
+the transaction in it. Two answers: Share and See in Activities at its
+foot; as tall as it needs, the less important things kept back, the
+background blurred as before, no outline round it once open, looking and
+behaving like a dark Activities line. And: the icon beside the Activities
+title goes; the chats drawer a little brighter than the chat.
+
+- [x] A receipt card in the chat opens in place (agent/ChatOpen.tsx): the
+      card stays where it is in the chat, its outline goes and it reaches
+      out to the chat's right edge, and under what it says grow the rows a
+      line on Activities grows, in the dark's inks: the bank and the
+      account, where it came from, the money, the balance after, anything
+      written with it, when, and the session id behind Show it; then Share
+      receipt and See in Activities. The chat moves up in step just enough
+      for the card to stand clear of the header and the ask bar, and
+      everything else goes soft under a frost of the chat's dark. A tap on
+      the frost or the card, or the phone's back, closes it in two steps,
+      the rows first. Round 19's sheet keeps to the receipts after paying.
+- [x] The rows (activities/InPlace's Details) take the dark: labels in its
+      grey, figures in white, Show it in the accent lifted for the dark,
+      the dashes and buttons in its raised grey; a label keeps its words on
+      one line and a long figure beside it is cut short instead.
+- [x] The Activities title stands alone at the left, no glyph beside it.
+- [x] The chats drawer's ground is a step lighter (#222224) than the chat.
+
+**Expo Go**: a QR code for the update, as every round that reaches the
+phone ends.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

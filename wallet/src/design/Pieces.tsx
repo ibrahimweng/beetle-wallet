@@ -26,20 +26,24 @@ import { measure, useDeparture, type Rect } from './journey';
 
 /* The record's frame sets a 40 box with the glyph in it before the title,
    and the line under both. The box and the title's box share the top of the
-   column, so nothing is pulled up here the way the plain head is. */
-export function GlyphHead({ glyph, title, sub, rowRef }: { glyph: IconName; title: string; sub: string; rowRef?: React.RefObject<View | null> }) {
+   column, so nothing is pulled up here the way the plain head is. Without a
+   glyph (Activities since Round 20, the owner's word) the title stands at
+   the left edge on the same line. */
+export function GlyphHead({ glyph, title, sub, rowRef }: { glyph?: IconName; title: string; sub: string; rowRef?: React.RefObject<View | null> }) {
   /* on a page it stays at the top as the column scrolls: the glyph goes, the
      title slides to the left edge and shrinks to the size of home's word
      Wallet, the line under it fades (collapse.ts) */
   const glyphGone = useFade();
-  const shrunk = useShrink(32, frame.topPad - SMALL_TOP, 52);
+  const shrunk = useShrink(32, frame.topPad - SMALL_TOP, glyph ? 52 : 0);
   const fade = useFade();
   return (
     <View pointerEvents="none" style={{ gap: 8, marginBottom: -5 }}>
-      <View ref={rowRef} collapsable={false} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <Animated.View style={[s.box40, glyphGone]} testID="head-glyph">
-          <Icon name={glyph} size={22} colour={colour.ink} />
-        </Animated.View>
+      <View ref={rowRef} collapsable={false} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 40 }}>
+        {glyph ? (
+          <Animated.View style={[s.box40, glyphGone]} testID="head-glyph">
+            <Icon name={glyph} size={22} colour={colour.ink} />
+          </Animated.View>
+        ) : null}
         <Animated.View style={[ORIGIN, shrunk]}>
           <Title>{title}</Title>
         </Animated.View>
@@ -47,18 +51,6 @@ export function GlyphHead({ glyph, title, sub, rowRef }: { glyph: IconName; titl
       <Animated.View style={fade}>
         <Body tone="tertiary">{sub}</Body>
       </Animated.View>
-    </View>
-  );
-}
-
-/** The head's first row on its own: the 40 box with the glyph, and the title. Activities draws it again, sharp, over the frost of an open line. */
-export function GlyphTitle({ glyph, title }: { glyph: IconName; title: string }) {
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-      <View style={s.box40} testID="head-glyph">
-        <Icon name={glyph} size={22} colour={colour.ink} />
-      </View>
-      <Title>{title}</Title>
     </View>
   );
 }

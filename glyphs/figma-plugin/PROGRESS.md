@@ -2,7 +2,7 @@
 
 **Blockers for the owner:** none that stop the work. Testing in Figma itself needs the desktop app on a Mac or a Windows computer (PLAN.md, question 3). Every step that can run without Figma is built and tested.
 
-**A question for the owner:** (passed on by the library session) the site's toolbar now stays in view while the grid scrolls. In the plugin it scrolls away with the grid instead, because in a panel 420 pixels wide it is about 200 pixels tall and would leave room for only two rows of icons. Everything else in it is the site's. Should it stay in view anyway?
+**Settled by the owner:** the toolbar scrolls away with the grid in the plugin, even though it stays in view on the site. In a panel 420 pixels wide it is about 200 pixels tall, and kept in view it would leave room for only two rows of icons.
 
 **For the library session:** nothing open. The three site faults the plugin found are all fixed in `engine.js`.
 

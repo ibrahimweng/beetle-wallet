@@ -531,7 +531,8 @@ body.plugin { display: flex; flex-direction: column; overflow: hidden; font-size
 .plugin .page-title { font-size: 15px; line-height: 20px; font-weight: 600; letter-spacing: 0; }
 .plugin .page-desc, .plugin .page-head > .row { display: none; }
 .plugin .page-head .input { max-width: none !important; height: 32px; }
-/* the toolbar stays out in the open, wrapped, rather than behind a Browse button */
+/* the toolbar stays out in the open, wrapped, rather than behind a Browse button. It scrolls
+   away with the grid, as the owner chose: kept in view, it would leave two rows of icons */
 .plugin .tb { position: static; margin: 0 0 10px; padding: 6px 0; background: hsl(var(--background)); flex-wrap: wrap; align-items: center; }
 .plugin .tb > .tb-controls { display: flex; gap: 6px; }
 .plugin .tb-browse { display: none; }

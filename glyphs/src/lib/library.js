@@ -5,7 +5,7 @@
 import * as E from './engine.js';
 import { clone } from './utils.js';
 
-export const lib = { entries: [], byKey: new Map(), cats: [], sets: {}, meta: null, ready: false };
+export const lib = { entries: [], byKey: new Map(), names: new Map(), cats: [], sets: {}, meta: null, ready: false };
 
 /* an entry by key, aliases included; the entry's own key is the canonical one */
 export const entryOf = key => lib.byKey.get(key);
@@ -32,6 +32,7 @@ export async function loadLibrary(url = 'data/icons.json') {
   for (const e of lib.entries) if (e.set !== 'scenarios') for (const c of e.cats) cats.set(c, (cats.get(c) || 0) + 1);
   lib.cats = [...cats].sort((a, b) => a[0].localeCompare(b[0])).map(([name, count]) => ({ name, count }));
   lib.sets = { all: lib.entries.filter(e => e.set !== 'scenarios').length, scenarios: lib.entries.filter(e => e.set === 'scenarios').length, beetle: lib.entries.filter(e => e.set === 'beetle').length, core: lib.entries.filter(e => e.set === 'core').length };
+  nameEntries();
   lib.ready = true;
   return lib;
 }
@@ -76,3 +77,23 @@ export function primsOf(key, state, weight) {
 }
 export const labelOf = key => { const e = lib.byKey.get(key); return e ? e.label : key; };
 export const fileName = key => key.replace(/^[a-z]+:/, '').replace(/[^a-z0-9-]+/gi, '-').toLowerCase();
+
+/* the id an icon goes by in a sprite, a font or JSON. Its own name, unless
+   another icon shares it (card is an app glyph and a parametric icon; search is
+   in all three sets): then the set goes in front, param-card, beetle-card. The
+   scenarios are named among themselves, since no view mixes them with the rest. */
+function nameEntries() {
+  lib.names.clear();
+  for (const group of [lib.entries.filter(e => e.set !== 'scenarios'), lib.entries.filter(e => e.set === 'scenarios')]) {
+    const count = new Map();
+    for (const e of group) { const n = fileName(e.key); count.set(n, (count.get(n) || 0) + 1); }
+    const taken = new Set();
+    for (const e of group) {
+      const n = fileName(e.key);
+      let id = count.get(n) > 1 ? `${e.key.split(':')[0]}-${n}` : n;
+      for (let i = 2; taken.has(id) || (id !== n && count.has(id)); i++) id = `${e.key.split(':')[0]}-${n}-${i}`;
+      taken.add(id); lib.names.set(e.key, id);
+    }
+  }
+}
+export const exportName = key => { const e = lib.byKey.get(key); return (e && lib.names.get(e.key)) || fileName(key); };

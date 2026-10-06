@@ -20,7 +20,7 @@ export function Editor() {
   const canvas = h('svg:svg', { class: 'canvas', viewBox: '0 0 24 24', 'aria-label': 'Editor canvas' });
   const tag = h('div', { class: 'canvas-tag' });
   const wrap = h('div', { class: 'canvas-wrap' }, canvas, tag);
-  let selPt = null, selPrim = null, drag = null, showGrid = true, snapOn = true;
+  let selPt = null, selPrim = null, drag = null, showGrid = true, snapOn = true, shownWeight = store.get().P.weight;
 
   const tKind = Button({ variant: 'outline', size: 'xs', label: 'Corner: none', disabled: true, title: 'Cycle the corner kind of the selected point', onClick: () => cycleKind() });
   const tDel = Button({ variant: 'outline', size: 'xs', label: 'Delete point', disabled: true, onClick: () => delPoint() });
@@ -110,7 +110,7 @@ export function Editor() {
     const prims = work(); const pi = +hEl.dataset.pi; const pr = prims[pi];
     selPrim = pi;
     if (hEl.dataset.ins !== undefined) { insertPoint(prims, pi, +hEl.dataset.ins); return; }
-    drag = { pi, prims, start: toGrid(ev), moved: false, vi: hEl.dataset.vi !== undefined ? +hEl.dataset.vi : null, si: hEl.dataset.si !== undefined ? +hEl.dataset.si : null, h: hEl.dataset.h || null, arc: hEl.dataset.arc || null };
+    drag = { pi, prims, start: toGrid(ev), sx: ev.clientX, sy: ev.clientY, moved: false, vi: hEl.dataset.vi !== undefined ? +hEl.dataset.vi : null, si: hEl.dataset.si !== undefined ? +hEl.dataset.si : null, h: hEl.dataset.h || null, arc: hEl.dataset.arc || null };
     if (drag.arc === 'c') drag.c0 = pr.t === 'arc' ? pr.c.slice() : [pr.segs[drag.si][1], pr.segs[drag.si][2]];
     if (pr.t === 'path' && drag.h === 'p') { const segs = segsOf(pr); const sg = segs[drag.si]; drag.p0 = sg.p.slice(); drag.c2 = sg.t === 'C' ? sg.c2.slice() : null; const nx = segs[drag.si + 1]; drag.next = nx && (nx.t === 'C' || nx.t === 'Q') ? { i: drag.si + 1, c1: nx.c1.slice() } : null; }
     selPt = drag.vi !== null ? { pi, vi: drag.vi } : drag.si !== null && drag.h ? { pi, si: drag.si, h: drag.h } : null;
@@ -118,6 +118,8 @@ export function Editor() {
   });
   canvas.addEventListener('pointermove', ev => {
     if (!drag) return;
+    /* a press that wanders a few pixels is still a click: it selects the point and leaves it where it is */
+    if (!drag.moved && Math.hypot(ev.clientX - drag.sx, ev.clientY - drag.sy) < (ev.pointerType === 'mouse' ? 3 : 8)) return;
     const g = toGrid(ev); const pr = drag.prims[drag.pi]; drag.moved = true;
     const dx = g[0] - drag.start[0], dy = g[1] - drag.start[1];
     if (drag.arc === 'c') { if (pr.t === 'arc') pr.c = [snap(drag.c0[0] + dx), snap(drag.c0[1] + dy)]; else { pr.segs[drag.si][1] = snap(drag.c0[0] + dx); pr.segs[drag.si][2] = snap(drag.c0[1] + dy); } }
@@ -147,10 +149,19 @@ export function Editor() {
     commit(prims);
   }
   function cycleKind() { const prims = work(); const v = prims[selPt.pi].pts[selPt.vi]; const cur = typeof v[2] === 'number' ? -1 : KINDS.indexOf(v[2] || 'none'); v[2] = KINDS[(cur + 1) % KINDS.length]; commit(prims); }
+  /* a corner of a polyline that keeps enough points, or an anchor of a path past
+     its first; never a bezier handle, a loop's point or an arc's */
+  function deletable(prims) {
+    const p = selPt && prims[selPt.pi]; if (!p) return false;
+    if (p.t === 'poly') return selPt.vi != null && p.pts.length > (p.closed ? 3 : 2);
+    if (p.t === 'path') return selPt.h === 'p' && selPt.si > 0 && segsOf(p).filter(s => s.t !== 'Z').length > 2;
+    return false;
+  }
   function delPoint() {
-    const prims = work(); const p = prims[selPt.pi];
-    if (p.t === 'poly') { if (p.pts.length <= (p.closed ? 3 : 2)) return; p.pts.splice(selPt.vi, 1); }
-    else if (p.t === 'path') { const segs = segsOf(p); if (selPt.si === 0 || segs.filter(s => s.t !== 'Z').length <= 2) return; segs.splice(selPt.si, 1); delete p.d; }
+    const prims = work(); if (!deletable(prims)) return;
+    const p = prims[selPt.pi];
+    if (p.t === 'poly') p.pts.splice(selPt.vi, 1);
+    else { segsOf(p).splice(selPt.si, 1); delete p.d; }
     selPt = null; commit(prims);
   }
   function toggleClose() { const prims = work(); const p = prims[selPt ? selPt.pi : selPrim]; if (!p || p.t !== 'poly') return; p.closed = !p.closed; commit(prims); }
@@ -161,9 +172,8 @@ export function Editor() {
   function updateTools(prims) {
     const p = selPt && prims[selPt.pi];
     const isVertex = !!(p && p.t === 'poly' && selPt.vi !== undefined);
-    const isAnchor = !!(p && p.t === 'path' && selPt.h === 'p');
     const part = selPrim !== null && prims[selPrim];
-    tKind.disabled = !isVertex; tDel.disabled = !(isVertex || isAnchor); tClose.disabled = !((p && p.t === 'poly') || (part && part.t === 'poly'));
+    tKind.disabled = !isVertex; tDel.disabled = !deletable(prims); tClose.disabled = !((p && p.t === 'poly') || (part && part.t === 'poly'));
     tKind.textContent = isVertex ? 'Corner: ' + (typeof p.pts[selPt.vi][2] === 'number' ? p.pts[selPt.vi][2] + ' u' : (p.pts[selPt.vi][2] || 'none')) : 'Corner: none';
     const cp = (p && p.t === 'poly') ? p : (part && part.t === 'poly') ? part : null;
     if (cp) tClose.textContent = cp.closed ? 'Open path' : 'Close path';
@@ -173,10 +183,11 @@ export function Editor() {
   }
   document.addEventListener('keydown', ev => {
     if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
+    if (!el.getClientRects().length) return; // the editor is not on screen (the whole library, or a closed sheet): the keys are the page's
     if ((ev.key === 'Delete' || ev.key === 'Backspace') && selPt) { ev.preventDefault(); delPoint(); }
     else if (ev.key === 'Escape' && (selPt || selPrim !== null)) { selPt = null; selPrim = null; render(); }
     else if (selPt && /^Arrow(Up|Down|Left|Right)$/.test(ev.key)) { ev.preventDefault(); const d = ev.shiftKey ? 1 : 0.25; nudge(ev.key === 'ArrowLeft' ? -d : ev.key === 'ArrowRight' ? d : 0, ev.key === 'ArrowUp' ? -d : ev.key === 'ArrowDown' ? d : 0); }
   });
-  store.subscribe((s, keys) => { if (keys.some(k => ['sel', 'P', 'edits', 'ready'].includes(k))) { if (keys.includes('sel')) { selPt = null; selPrim = null; } render(); } });
+  store.subscribe((s, keys) => { if (keys.some(k => ['sel', 'P', 'edits', 'ready'].includes(k))) { if (keys.includes('sel') || (keys.includes('P') && s.P.weight !== shownWeight)) { selPt = null; selPrim = null; } shownWeight = s.P.weight; render(); } });
   return { el, partsEl, render, reset, isEdited, isEditedWeight };
 }

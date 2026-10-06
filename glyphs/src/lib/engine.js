@@ -128,13 +128,14 @@ function arcCentre(p0, s) {
 function arcPointRot(ac, a) { const t = a * D2R, phi = ac.rot * D2R; const x = ac.rx * Math.cos(t), y = ac.ry * Math.sin(t); return [ac.c[0] + x * Math.cos(phi) - y * Math.sin(phi), ac.c[1] + x * Math.sin(phi) + y * Math.cos(phi)]; }
 
 /* ---------- subpaths ---------- */
+/* a command straight after Z starts a new subpath where the closed one began,
+   as SVG draws it ("…1-1za2.4 2.4 0 01…"), not at the origin */
 function subpaths(segs) {
-  const out = []; let cur = null;
+  const out = []; let cur = null, start = [0, 0];
   for (const s of segs) {
-    if (s.t === 'M') { cur = { segs: [s], closed: false }; out.push(cur); }
-    else if (!cur) { cur = { segs: [{ t: 'M', p: [0, 0] }], closed: false }; out.push(cur); cur.segs.push(s); }
-    else if (s.t === 'Z') { cur.closed = true; cur = null; }
-    else cur.segs.push(s);
+    if (s.t === 'M') { cur = { segs: [s], closed: false }; start = s.p; out.push(cur); }
+    else if (s.t === 'Z') { if (cur) cur.closed = true; cur = null; }
+    else { if (!cur) { cur = { segs: [{ t: 'M', p: start.slice() }], closed: false }; out.push(cur); } cur.segs.push(s); }
   }
   return out.filter(sp => sp.segs.length > 1 || sp.closed);
 }

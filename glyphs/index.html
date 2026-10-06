@@ -2,6 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>
+  /* at /glyphs without the slash every relative path below would resolve against the site root and load the wallet instead */
+  if (/\/glyphs$/.test(location.pathname)) location.replace(location.pathname + '/' + location.search + location.hash);
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Beetle Glyphs</title>
 <meta name="description" content="A parametric icon library for the Beetle wallet: a core set of 1,854 icons and the app's own glyphs, re-derived from stroke, radius, gap, choke and goo, editable point by point, exported as SVG, sprite or icon font.">

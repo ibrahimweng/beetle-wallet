@@ -11,7 +11,7 @@ Static site. No build step, no server code, no framework.
 3. Framework Preset **Other**. Leave Build Command and Output Directory empty.
 4. Deploy. `vercel.json` in this folder sets clean URLs and cache headers.
 
-The folder also ships inside the main app's deploy: `node build.js` at the repository root copies it into `public/glyphs/`, so the existing project serves it at `/glyphs/`.
+The folder also ships inside the main app's deploy: `node build.js` at the repository root copies it into `public/glyphs/`, so the existing project serves it at `/glyphs/`. `/glyphs` without the slash is sent there, by the root `vercel.json` and by the page itself on any other host.
 
 Run locally with any static server, for example `npm start` (Python's `http.server` on port 4173) or `npx serve .`.
 
@@ -57,11 +57,11 @@ The palette is black and white: every token is a grey with no hue, and the previ
 - **Solid weight.** Closed shapes fill and inflate by S with round joins. A part sitting inside a closed shape becomes a cut of S; a filled dot on a line shape punches a hole of its outline size; a shape stacked on another gets a gap of G around it; a pill narrower than 2 S (a digit) stays a stroke. Parts marked `cut`, `knock`, `punch` or `flat` keep that role in both weights. Any part can be set by hand in the editor.
 - **Two weights for the Beetle glyphs.** The 22 pairs the designer drew (bell and bell-filled, grid and grid-tone, alert and warn-filled, and so on) are one icon each, with the outline and the solid both native; the old name is an alias. The 10 filled glyphs without a drawn outline (mark, step-done, home-filled, undo-filled, receive-filled, history-filled, settings-filled, phone-filled, more, bet) get one derived from the solid through Clipper: a stroke of S just inside every edge, so the outline covers the solid's footprint exactly; parts thinner than about 1.2 S become a line along their middle, small discs a dot; a hole gets a ring on its edge, moved inside when it would crowd the outer stroke. Cuts and plain strokes pass through.
 - **Choke** offsets every edge geometrically and is baked into exports. **Goo** is a blur-then-threshold filter for preview and SVG.
-- **Exports.** SVG keeps curves. Sprite and font flatten every primitive, offset it by S/2 with round joins and caps through Clipper, union and cut it. The font maps results to U+E000 upward in result order.
+- **Exports.** SVG and the sprite keep curves, strokes and masks. The font flattens every primitive, offsets it by S/2 with round joins and caps through Clipper, unions and cuts it, and maps results to U+E000 upward in result order. Every icon goes by a name of its own in a sprite, a font or JSON: where two sets share a name, the set goes in front (`param-card`, `beetle-card`).
 
 ## Regenerating the library
 
-`tools/build-library.mjs` reads the core set's `icon-nodes.json`, `tags.json` and category map from `sources/core/`, converts every element into engine primitives, imports the app's glyphs from `src/icons.js` at the repository root, merges each drawn pair into one icon, derives the missing outlines, validates every icon in both weights, and writes `data/icons.json`. Light strokes on a glyph with nothing to cut into (the rails of the progress rings) become translucent tracks.
+`tools/build-library.mjs` reads the core set's `icon-nodes.json`, `tags.json` and category map from `sources/core/`, converts every element into engine primitives, imports the app's glyphs from `src/icons.js` at the repository root, merges each drawn pair into one icon, derives the missing outlines, validates every icon in both weights (it has to render, and stay on the 24 grid), and writes `data/icons.json`. Light strokes on a glyph with nothing to cut into (the rails of the progress rings) become translucent tracks.
 
 ## Licenses
 

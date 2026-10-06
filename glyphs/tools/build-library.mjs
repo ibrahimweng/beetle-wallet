@@ -134,9 +134,15 @@ const missing = SCENARIOS.filter(([, key]) => { const [set, name] = key.split(':
 if (missing.length) { console.error('scenario icons missing:', missing.map(m => m[1]).join(', ')); process.exit(1); }
 
 /* ---------- validate ---------- */
+/* a command after Z picks up where the closed subpath began; it once started at
+   the origin and drew a line in from the corner of calendar-fold, mop and scale */
+{ const sp = E.subpaths(E.parsePath('M4 4h6v6za2 2 0 012 2')); if (sp.length !== 2 || sp[1].segs[0].p.join() !== '4,4') stats.fail.push('engine: a subpath after Z does not start where the closed one began'); }
 const validate = (label, prims) => {
   for (const weight of ['outline', 'solid']) { const s = E.svg(prims, P, { uid: 'v', weight }); if (/NaN|undefined|null/.test(s)) stats.fail.push(`${label} ${weight}`); }
-  for (const pr of prims) for (const part of E.flatten(pr, P)) for (const q of part.pts) if (!Number.isFinite(q[0]) || !Number.isFinite(q[1])) { stats.fail.push(label + ' flatten'); return; }
+  for (const pr of prims) for (const part of E.flatten(pr, P)) for (const q of part.pts) {
+    if (!Number.isFinite(q[0]) || !Number.isFinite(q[1])) { stats.fail.push(label + ' flatten'); return; }
+    if (q[0] < -0.5 || q[0] > 24.5 || q[1] < -0.5 || q[1] > 24.5) { stats.fail.push(`${label} leaves the 24 grid at ${q.map(v => v.toFixed(1)).join(', ')}`); return; }
+  }
 };
 for (const [n, ic] of Object.entries(core)) validate('core:' + n, ic.p);
 for (const [n, ic] of Object.entries(beetle)) { validate('beetle:' + n, ic.p); if (ic.ps) validate('beetle:' + n + ' solid', ic.ps); }

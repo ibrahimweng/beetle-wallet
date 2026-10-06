@@ -5,6 +5,9 @@
   "buildCommand": "node build.js",
   "outputDirectory": "public",
   "cleanUrls": true,
+  "redirects": [
+    { "source": "/glyphs", "destination": "/glyphs/", "permanent": true }
+  ],
   "headers": [
     {
       "source": "/src/(.*)",

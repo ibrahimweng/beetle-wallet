@@ -4,7 +4,7 @@ import { h, ICO, fmtInt } from '../../lib/utils.js';
 import { Button } from '../ui/button.js';
 import { CodeBlock } from '../ui/code-block.js';
 import { store } from '../../lib/store.js';
-import { primsOf, search, fileName } from '../../lib/library.js';
+import { primsOf, search, exportName } from '../../lib/library.js';
 import { saveFile, copyText, iconSVG, spriteOf, fontOf, jsonOf, usageSnippet } from '../../lib/export.js';
 
 const wait = () => new Promise(r => setTimeout(r, 30));
@@ -15,7 +15,7 @@ export function IconExport() {
   const code = CodeBlock({ label: 'SVG' });
   const cur = () => { const s = store.get(); return iconSVG(s.sel, primsOf(s.sel, s), s.P); };
   const copy = Button({ size: 'sm', icon: ICO.copy, label: 'Copy SVG', onClick: async () => say((await copyText(cur())) ? 'SVG copied.' : 'Select the code below and copy it.') });
-  const download = Button({ variant: 'outline', size: 'sm', icon: ICO.download, label: 'Download', onClick: async () => { const s = store.get(); say(await saveFile(`${fileName(s.sel)}-${s.P.weight}.svg`, cur(), 'image/svg+xml')); } });
+  const download = Button({ variant: 'outline', size: 'sm', icon: ICO.download, label: 'Download', onClick: async () => { const s = store.get(); say(await saveFile(`${exportName(s.sel)}-${s.P.weight}.svg`, cur(), 'image/svg+xml')); } });
   const actions = h('div', { class: 'stack', style: { gap: '6px' } }, h('div', { class: 'row wrap' }, copy, download), status);
   const fold = h('details', { class: 'fold' }, h('summary', {}, h('span', { html: ICO.chevron }), 'SVG code of this icon'), h('div', { class: 'fold-body' }, code.el));
   const refresh = () => { if (fold.open) code.set(cur().replace(/></g, '>\n<')); };

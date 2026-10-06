@@ -46,7 +46,7 @@ const aside = h('aside', { class: 'inspector', 'aria-label': 'Inspector' }, insp
 const about = h('section', { class: 'about', id: 'about' },
   Card({ title: 'Engine', description: 'Polylines with per-vertex radius kinds, arcs, quadratic loops and SVG paths. Straight joins get true circular fillets. Quarter-circle corners in imported paths follow the box corner slider.' }),
   Card({ title: 'Two weights', description: 'Line icons: closed shapes fill and inflate by S, anything inside them becomes a cut of S, a stacked shape gets a gap. Beetle glyphs the designer drew in both weights keep both; the other filled glyphs get an outline derived from the solid: a stroke just inside every edge, thin parts as lines, holes as rings. Set any part by hand from the parts list.' }),
-  Card({ title: 'Exports', description: 'SVG keeps curves and the goo filter. Sprite and font flatten every primitive, offset it by S/2 with round joins and caps through Clipper, union and cut it.' }),
+  Card({ title: 'Exports', description: 'SVG keeps curves and the goo filter, and the sprite keeps curves. The font flattens every primitive, offsets it by S/2 with round joins and caps through Clipper, unions and cuts it.' }),
   Card({ title: 'Licenses', description: 'The core set is used under the ISC license; the notice is in LICENSE-core.txt in the repository. The app glyphs belong to the Beetle wallet design. The engine and this site live in the beetle-wallet repository.' }));
 grid.el.append(about);
 const shell = h('div', { class: 'shell' }, sidebar.el, grid.el, aside);

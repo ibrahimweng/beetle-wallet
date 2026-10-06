@@ -52,6 +52,8 @@ export const store = {
     for (const fn of listeners) fn(state, Object.keys(next));
   },
   subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
+  /* how many listeners are live: a panel that comes and goes must leave this where it found it */
+  get listeners() { return listeners.size; },
   /* the parameters only: edits and the selection stay */
   resetParams() { this.set({ P: { ...DEF, weight: state.P.weight } }); },
 };

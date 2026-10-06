@@ -38,7 +38,9 @@ const grid = IconGrid();
 const inspector = Inspector();
 const topbar = Topbar({
   onSearch: () => palette.open(),
-  onMenu: () => { const nav = Sidebar(); nav.el.classList.add('in-sheet'); nav.render(); const close = openSheet({ side: 'left', title: 'Library', content: nav.el }); const un = store.subscribe((s, keys) => { if (keys.includes('filter')) { close(); un(); } }); },
+  /* the sheet's sidebar lives as long as the sheet: picking a set or a category closes it, and
+     however it closes, both of its listeners go with it */
+  onMenu: () => { const nav = Sidebar(); nav.el.classList.add('in-sheet'); nav.render(); let un = () => {}; const close = openSheet({ side: 'left', title: 'Library', content: nav.el, onClose: () => { nav.destroy(); un(); } }); un = store.subscribe((s, keys) => { if (keys.includes('filter')) close(); }); },
   onInspector: () => { const box = h('div', { class: 'inspector in-sheet' }); box.append(inspector.el); openSheet({ side: 'right', title: 'Inspector', content: box }); },
   repo: REPO,
 });

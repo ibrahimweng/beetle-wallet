@@ -10,8 +10,8 @@ const b = await chromium.launch();
 let failures = 0;
 const check = (ok, what, detail = '') => { console.log(`  ${ok ? '✓' : '✗'} ${what}${ok || !detail ? '' : ' — ' + detail}`); if (!ok) failures++; };
 
-async function open(path) {
-  const ctx = await b.newContext({ viewport: { width: 1440, height: 1000 } });
+async function open(path, viewport = { width: 1440, height: 1000 }) {
+  const ctx = await b.newContext({ viewport });
   const p = await ctx.newPage();
   const errors = [];
   /* the web font is decoration: a runner without the network still has to pass */
@@ -117,6 +117,29 @@ console.log('glyphs editor');
   check((await edits()).length === 1, 'Delete still removes an anchor the button would remove');
 
   await store(`s => s.set({ edits: {} })`);
+  await ctx.close();
+}
+
+/* ---------- the library sheet on a small screen ---------- */
+console.log('glyphs on a tablet');
+{
+  /* wide enough for the overlay to show beside the sheet, narrow enough for the menu button */
+  const { ctx, p, store } = await open('/public/glyphs/', { width: 900, height: 900 });
+  const live = () => store('s => s.listeners');
+  const before = await live();
+  const menu = () => p.getByRole('button', { name: 'Open library navigation' }).click();
+  const sheet = () => p.locator('.sheet').count();
+  /* every way the sheet can close: its close button, Escape, the overlay, and picking a set */
+  for (let round = 0; round < 2; round++) {
+    await menu(); await p.locator('.sheet button[aria-label="Close"]').click();
+    await menu(); await p.keyboard.press('Escape');
+    await menu(); await p.mouse.click(860, 450);
+    await menu(); await p.locator('.sheet .nav-item', { hasText: 'App glyphs' }).click();
+  }
+  check(await sheet() === 0, 'the library sheet closes every way it can');
+  const after = await live();
+  check(after === before, `opening and closing it eight times leaves the store with the listeners it had (${after}, was ${before})`);
+  await store(`s => s.set({ filter: { q: '', set: 'all', cat: 'all' } })`);
   await ctx.close();
 }
 

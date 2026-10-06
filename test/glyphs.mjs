@@ -229,6 +229,20 @@ console.log('glyphs filled styles of line icons');
   check(r.heartPlus.length === 2, `heart-plus closes across the gap its plus sits in, and keeps the plus apart (${r.heartPlus.length} badge parts)`);
   check(r.sharp, 'sharp corners take an analysis of their own where the plates move (toggle-left)');
   check(r.own.every(x => !x), 'bet, power and send take their filled styles from their line');
+  /* a closed part narrower than its stroke: the browser's stroke leaves a hole in
+     its middle, so palette's wells used to show as rings with sharp corners */
+  const wells = await p.evaluate(`Promise.all([import(${mod('library')}), import(${mod('engine')}), import(${mod('store')})]).then(async ([L, E, S]) => {
+    const st = S.store.get(), out = [];
+    for (const weight of ['outline', 'solid', 'duotone']) {
+      const P = { ...st.P, weight, corners: 'sharp' };
+      const svg = E.svg(L.primsOf('core:palette', { ...st, P }, weight), P, { uid: 'w', size: 240, weight }).replace('<svg ', '<svg color="#000" ');
+      const img = new Image(); img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); await img.decode();
+      const c = document.createElement('canvas'); c.width = c.height = 240; const x = c.getContext('2d'); x.drawImage(img, 0, 0);
+      out.push(x.getImageData(135, 65, 1, 1).data[3]); // the middle of the well at (13.5, 6.5)
+    }
+    return out;
+  })`);
+  check(wells[0] > 200 && wells[1] < 50 && wells[2] > 200, `palette's wells are whole with sharp corners: ink in stroke and duotone, a clean hole in fill (${wells.join(', ')})`);
   check(r.alias[0] === 'beetle:power' && r.alias[1] === 'beetle:send', 'and their old names still find them', r.alias.join(', '));
   check(!errors.length, 'no console errors on the way', errors.slice(0, 3).join(' | '));
   await ctx.close();

@@ -14,8 +14,14 @@ import { Arrive } from './journey';
 import { Card } from './Screen';
 import { colour, space } from './tokens';
 import { Tap } from './motion';
+import type { IconName } from '../icons';
 
 export type ReceiptField = [label: string, value: string, note?: string];
+
+/** A receipt for a line that has not settled (on its way, did not go, came back): its own glyph on the disc, and its
+    colour on the disc and the chip, where a settled one has the tick on green (Round 19: a receipt sheet can open on
+    any line). Six-digit colours only: the chip's ground is the colour, faint. */
+export type ReceiptMark = { glyph: IconName; tone: string };
 
 /** A label across the whole slip rather than half of it. */
 const WIDE = ['Narration', 'What', 'For', 'They wrote'];
@@ -30,12 +36,12 @@ export function Rule() {
   return <View style={s.rule} />;
 }
 
-/** The status chip: a dot and a word on the green tint. */
-export function Pill({ children, testID }: { children: string; testID?: string }) {
+/** The status chip: a dot and a word on the green tint, or on the faint of a line's own colour. */
+export function Pill({ children, tone, testID }: { children: string; tone?: string; testID?: string }) {
   return (
-    <View style={s.pill} testID={testID}>
-      <View style={s.dot} />
-      <Caption style={{ color: colour.goodText }}>{children}</Caption>
+    <View style={[s.pill, tone ? { backgroundColor: `${tone}1f` } : null]} testID={testID}>
+      <View style={[s.dot, tone ? { backgroundColor: tone } : null]} />
+      <Caption style={{ color: tone ?? colour.goodText }}>{children}</Caption>
     </View>
   );
 }
@@ -63,6 +69,7 @@ export function Receipt({
   onCopy,
   head,
   tail = 0,
+  mark,
 }: {
   amount: string;
   line: string;
@@ -78,6 +85,8 @@ export function Receipt({
   /** room the frame leaves under the reference, or takes away: the data
       slip leaves a line of it, the money-in slip runs the id to its edge */
   tail?: number;
+  /** a line that has not settled: its glyph and colour in place of the tick on green */
+  mark?: ReceiptMark;
 }) {
   /* The frames box each block a little shorter than its words and set 20
      between the boxes, so the blocks here take the frames' heights and let
@@ -136,8 +145,8 @@ export function Receipt({
     <>
       {/* the frame's row: the words at its top, the tick 8 down, the chip centred */}
       <View style={s.top} testID="receipt-top">
-        <View style={s.disc} testID="receipt-icon">
-          <Icon name="check" size={24} colour={colour.textInverse} />
+        <View style={[s.disc, mark ? { backgroundColor: mark.tone } : null]} testID="receipt-icon">
+          <Icon name={mark?.glyph ?? 'check'} size={24} colour={colour.textInverse} />
         </View>
         <View style={{ flex: 1 }}>
           <Arrive testID="amount">
@@ -145,12 +154,15 @@ export function Receipt({
           </Arrive>
           <Meta tone="secondary">{line}</Meta>
         </View>
-        <Pill testID="receipt-status">{status}</Pill>
+        <Pill tone={mark?.tone} testID="receipt-status">
+          {status}
+        </Pill>
       </View>
       {head}
       <Card outline style={[s.slip, { paddingBottom: 20 + tail }]} testID="receipt">
         {blocks.map((b, i) => (
-          <View key={b.key} style={{ marginTop: i ? blocks[i - 1]!.after : 0, height: b.height, overflow: 'visible' }}>
+          /* the frame's height at the least: a value that wraps (a narrower slip, in the sheet) takes the room it needs */
+          <View key={b.key} style={{ marginTop: i ? blocks[i - 1]!.after : 0, minHeight: b.height }}>
             {b.el}
           </View>
         ))}
@@ -160,7 +172,7 @@ export function Receipt({
             <Caption tone="secondary">{sessionLabel}</Caption>
             <Label style={{ maxWidth: 241 }}>{session}</Label>
           </View>
-          <Tap accessibilityRole="button" accessibilityLabel="Copy it" onPress={onCopy} style={[s.copy, { marginTop: 2 }]} testID="receipt-copy">
+          <Tap accessibilityRole="button" accessibilityLabel={`Copy the ${sessionLabel.toLowerCase()}`} onPress={onCopy} style={[s.copy, { marginTop: 2 }]} testID="receipt-copy">
             <Icon name="copy" size={16} colour={colour.textSecondary} />
           </Tap>
         </View>

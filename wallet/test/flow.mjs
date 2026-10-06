@@ -112,10 +112,16 @@ const seeExactly = text => page.getByText(text, { exact: true }).filter({ visibl
 /* the moment a screen's words are in the page at all, before it has arrived —
    what a trace of the arrival has to start from */
 const arrives = text => page.waitForFunction(t => (document.body.innerText || '').includes(t), text, { polling: 16, timeout: 15000 });
-/* a receipt, opened in place over the page it came from (Round 13): the line, and its facts come in under it */
-const receiptInPlace = () => page.getByTestId('in-place-card').filter({ visible: true }).first().waitFor();
-/* and put away: a tap on the frost above it, near the top of the screen (on Activities the frost lies in the page's
-   column, round the line, so where its box starts depends on how far the column has scrolled) */
+/* a receipt: the receipt sheet, up from the bottom over where it was paid from, the whole of it (Round 19) */
+const receiptSheet = () => page.getByTestId('receipt-sheet').filter({ visible: true }).first().waitFor();
+/* and put away with Done: the sheet goes down, then back to where the paying started */
+const receiptDone = async () => {
+  await page.getByTestId('receipt-sheet').getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByTestId('receipt-sheet').waitFor({ state: 'detached' });
+  await page.waitForTimeout(400);
+};
+/* a line on Activities, opened in place (Round 17), put away: a tap on the frost above it, near the top of the screen
+   (the frost lies in the page's column, round the line, so where its box starts depends on how far it has scrolled) */
 const closeInPlace = async () => {
   await page.getByTestId('in-place-away').filter({ visible: true }).first().waitFor();
   await page.mouse.click(200, 60);
@@ -788,8 +794,9 @@ try {
   await see('is with Sarah Adeyemi');
   /* what the passcode said leaves Everyday is what leaves: the ₦20,000 and the ₦26.88 fee */
   await see('₦575,293');
-  /* and the receipt lands in the chat, in a few words */
-  await see('The full receipt');
+  /* and the receipt lands in the chat, in a few words, with nothing leading off to a full receipt (Round 19) */
+  await page.getByTestId('receipt-card').last().waitFor();
+  must((await page.getByText('The full receipt').count()) === 0, 'a receipt in the chat should not lead off to a full receipt');
   await shot('chat-transfer-sent', 500);
   /* a push up on the chat, now at its end, brings the card back up; the day
      has the transfer in it, and the chat that made it, filed at the top */
@@ -1100,38 +1107,45 @@ try {
   must((await inCard.count()) === 0, 'New should start a fresh chat');
   await tap('Back to the lab');
   await see('Beetle Lab');
-  /* a receipt lands in the chat after the passcode, in a few words; a tap opens it where it is, a
-     little larger with a few lines more, over the chat gone soft under the dark veil — never half the screen */
+  /* a receipt lands in the chat after the passcode, in a few words; a tap brings the whole of it up over the chat as
+     the receipt sheet, with Done and See in Activities under it, so nothing in the chat leads off to a full receipt
+     (Round 19, the owner's word) */
   await tap('A receipt in the chat');
-  await see('The full receipt');
+  await page.getByTestId('receipt-card').first().waitFor();
+  must((await page.getByText('The full receipt').count()) === 0, 'a receipt in the chat should not lead off to a full receipt');
   await shot('lab-receipt-card', 900);
-  const small = await page.getByTestId('receipt-card').boundingBox();
+  const chatAt = page.url();
   await tap('Receipt');
-  await page.getByTestId('chat-receipt-card').waitFor();
+  await receiptSheet();
   await page.waitForTimeout(800);
-  const big = await page.getByTestId('chat-receipt-card').boundingBox();
-  must(
-    small && big && big.height > small.height + 60 && big.height < 852 / 2,
-    `the receipt should open a little larger, never half the screen (${Math.round(small?.height ?? 0)} → ${Math.round(big?.height ?? 0)})`,
-  );
-  must(big.y <= small.y + 1, `and open where it is (${Math.round(small.y)} → ${Math.round(big.y)})`);
-  must((await page.getByTestId('chat-receipt-veil').count()) === 1, 'the chat should go soft under the dark veil');
+  await see('Session ID');
   await see('Balance after');
+  const inSheet = name => page.getByTestId('receipt-sheet').getByRole('button', { name, exact: true });
+  must((await inSheet('Done').count()) === 1 && (await inSheet('See in Activities').count()) === 1, 'the sheet should end on Done with See in Activities under it');
+  must((await inSheet('Share receipt').count()) === 1, 'and carry Share receipt, small, at its top');
+  const sheetBox = await page.getByTestId('receipt-sheet').boundingBox();
+  must(sheetBox && sheetBox.y + sheetBox.height > 852 - 20, `the receipt should come up from the bottom (${JSON.stringify(sheetBox)})`);
+  must(page.url() === chatAt, 'and over the chat, not as a page of its own');
   await shot('chat-receipt-open', 300);
-  console.log(`  the receipt opened from ${Math.round(small.height)} to ${Math.round(big.height)} tall, where it was`);
-  /* the full receipt is one tap further */
-  await tap('The full receipt');
-  await receiptInPlace();
-  must(page.url().includes('/receipt/'), 'The full receipt should open the receipt, in place');
-  await shot('receipt-live', 500);
+  /* Done puts it away, the chat as it was under it */
+  await receiptDone();
+  await page.getByTestId('receipt-card').first().waitFor();
+  /* See in Activities, from the same sheet, turns the pages to the record */
+  await tap('Receipt');
+  await receiptSheet();
+  await page.waitForTimeout(600);
+  await inSheet('See in Activities').click();
+  await page.getByTestId('receipt-sheet').waitFor({ state: 'detached' });
+  await onPage('activities');
+  await shot('receipt-to-activities', 500);
   await tap('Back to the lab');
   await see('Beetle Lab');
-  /* the receipt pages from the frames: a transfer, its session id copied, its share sheet, what Beetle offers */
+  /* the receipt sheet on the frames' transfer: the whole of it, the session id shown and copied, its share sheet */
   await tap('A transfer');
+  await receiptSheet();
   await see('Rent part payment');
   at('/receipt/l08');
   await shot('receipt-transfer', 500);
-  await tap('Show the session id');
   await tap('Copy the session id');
   await page
     .getByText(/copied\. Paste it anywhere\.|cannot reach the clipboard/)
@@ -1140,15 +1154,20 @@ try {
   await tap('Share receipt');
   await see('Share this receipt');
   await shot('receipt-share', 900);
-  await tap('Done');
+  /* the share sheet's own Done: the receipt sheet under it has one too */
+  await page.getByTestId('share').getByRole('button', { name: 'Done', exact: true }).click();
   await page.getByText('Share this receipt').first().waitFor({ state: 'hidden' });
-  /* what Beetle offers on the receipt leads to the instruction, offered */
+  /* what Beetle offers with a transfer, on its line opened on Activities, leads to the instruction, offered */
+  await page.goto(`${base}/activities?receipt=l08`, { waitUntil: 'load' });
+  await page.getByTestId('in-place-card').filter({ visible: true }).first().waitFor();
+  await page.waitForTimeout(700);
   await tap('Set it up');
   await see('Nothing is saved until you say yes');
   at('/rule');
   await tap('Not now');
   await see('Rent part payment');
-  await tap('Back to the lab');
+  /* the line was opened by its address, not from the lab, so the lab is gone to the same way */
+  await page.goto(`${base}/lab`, { waitUntil: 'load' });
   await see('Beetle Lab');
   await tap('A bill paid');
   /* a prepaid bill's token is always shown in place, with its copy button */
@@ -1158,7 +1177,7 @@ try {
   await tap('Back to the lab');
   await see('Beetle Lab');
   await tap('Money in');
-  await receiptInPlace();
+  await receiptSheet();
   at('/receipt/l10');
   await shot('receipt-in', 500);
   await tap('Back to the lab');
@@ -1583,13 +1602,10 @@ try {
   await tap('₦50,000 came in');
   await button('Receipt').waitFor();
   await tap('Receipt');
-  await page.getByTestId('chat-receipt-card').waitFor();
+  await receiptSheet();
   await see('None on money in');
-  await tap('The full receipt');
-  await receiptInPlace();
-  must(page.url().includes('/receipt/'), 'the card in the chat should lead to the receipt');
   await shot('lab-arrival-receipt', 900);
-  await closeInPlace();
+  await receiptDone();
   await tap('Back to the lab');
   await see('Beetle Lab');
   /* Beetle's model: no key here, so the try comes back from the script */
@@ -1640,7 +1656,7 @@ try {
   await see('Enter your passcode');
   await type(PASSCODE);
   await see('is with John Doe');
-  await see('The full receipt');
+  await page.getByTestId('receipt-card').last().waitFor();
   await shot('ask-send-done', 600);
   await tap('Back to the lab');
   await see('Beetle Lab');
@@ -1701,7 +1717,7 @@ try {
   await see('Enter your passcode');
   await type(PASSCODE);
   await see('The token is');
-  await see('The full receipt');
+  await page.getByTestId('receipt-card').last().waitFor();
   await shot('ask-bill-paid', 600);
   await tap('Back to the lab');
   await see('Beetle Lab');
@@ -1781,12 +1797,12 @@ try {
   await button('Cancel').waitFor();
   await shot('send-passcode', 600);
   await type(PASSCODE);
-  /* the receipt opens in place over the Send money page (Round 13); put away, it goes back past that page to home */
-  await receiptInPlace();
+  /* the receipt comes up as the sheet over the Send money page (Round 19); Done goes back past that page to home */
+  await receiptSheet();
   must(page.url().includes('/receipt/'), 'the passcode should lead to the receipt');
   await see('Lunch');
   await shot('send-receipt', 900);
-  await closeInPlace();
+  await receiptDone();
   await see('Total balance');
   at('/home');
   await tap('Activities');
@@ -1802,7 +1818,7 @@ try {
   await slideToSend();
   await see('Enter your passcode');
   await type(PASSCODE);
-  await receiptInPlace();
+  await receiptSheet();
   await see('Flat deposit');
   await shot('send-message-receipt', 900);
   await tap('Back to the lab');
@@ -1888,7 +1904,7 @@ try {
   await slideToSend();
   await see('Enter your passcode');
   await type(PASSCODE);
-  await receiptInPlace();
+  await receiptSheet();
   await see('Eko Electricity');
   must(page.url().includes('/receipt/'), 'paying a bill should open its receipt');
   await shot('bill-receipt', 900);
@@ -1911,7 +1927,7 @@ try {
   await slideToSend();
   await see('Enter your passcode');
   await type(PASSCODE);
-  await receiptInPlace();
+  await receiptSheet();
   must(page.url().includes('/receipt/'), 'buying data should open its receipt');
   await shot('data-receipt', 900);
   /* a message asking for data, read off a photo: the sheet over the camera, then the chat that prices it */
@@ -1931,7 +1947,7 @@ try {
   await tap('Confirm ₦2,500');
   await see('Enter your passcode');
   await type(PASSCODE);
-  await receiptInPlace();
+  await receiptSheet();
   await see('5GB for 30 days');
   await shot('topup-receipt', 900);
   /* the chat Beetle filed carries the receipt's card */
@@ -1955,7 +1971,7 @@ try {
   await slideToSend();
   await see('Enter your passcode');
   await type(PASSCODE);
-  await receiptInPlace();
+  await receiptSheet();
   await see('Beetle Loans');
   await shot('loan-receipt', 900);
   await page.goto(`${base}/home`, { waitUntil: 'load' });
@@ -1987,7 +2003,7 @@ try {
   await tap('Continue');
   await see('Enter your passcode');
   await type(PASSCODE);
-  await receiptInPlace();
+  await receiptSheet();
   /* the prepaid token, always shown in place with its copy button */
   await button('Copy the token').waitFor();
   await shot('meter-receipt', 900);
@@ -2011,11 +2027,12 @@ try {
   await slideToSend();
   await see('Enter your passcode');
   await type(PASSCODE);
-  await see('It is in your dollars already');
-  must(page.url().includes('/converted/'), 'converting should land on Converted');
-  await see('$512.60');
+  /* its receipt comes up as the sheet every payment ends on (Round 19); Done goes back past Convert to Dollars */
+  await receiptSheet();
+  must(page.url().includes('/receipt/'), 'converting should end on its receipt');
+  await see('into Dollars');
   await shot('converted', 900);
-  await tap('See your dollars');
+  await receiptDone();
   await see('Steady when the naira is not');
   await see('$512.60');
   /* Send from the dollars: the From row's sheet, the figure in dollars under the amount, no fee, and the receipt saying From Dollars */
@@ -2038,7 +2055,7 @@ try {
   await slideToSend();
   await see('Enter your passcode');
   await type(PASSCODE);
-  await receiptInPlace();
+  await receiptSheet();
   await shot('send-dollars-receipt', 900);
   /* the goal: Savings pot on the drawer opens Holiday, as Savings on home does */
   await page.goto(`${base}/services`, { waitUntil: 'load' });
@@ -2078,7 +2095,7 @@ try {
   await counted(() => tap('Put ₦10,000 away'));
   await see('Enter your passcode');
   await counted(() => type(PASSCODE));
-  await receiptInPlace();
+  await receiptSheet();
   must(page.url().includes('/receipt/'), 'adding money should open its receipt');
   must(taps === 4, `saving should take four taps from home, not ${taps}`);
   await shot('goal-receipt', 900);
@@ -2108,7 +2125,7 @@ try {
   await tap('Take ₦5,000 out');
   await see('Enter your passcode');
   await type(PASSCODE);
-  await receiptInPlace();
+  await receiptSheet();
   must(page.url().includes('/receipt/'), 'taking money out should open its receipt');
   await shot('goal-taken', 900);
   /* a goal in three taps from home: Savings (1), New goal (2), Start saving (3), the sheet filled with Rent */
@@ -2250,8 +2267,8 @@ try {
   console.log('When it goes wrong');
   /* a dispute from a receipt: Report a problem under its ··· then They say it never arrived opens the day-three dispute the day already holds for Sarah's rent */
   await page.goto(`${base}/receipt/l08`, { waitUntil: 'load' });
-  await receiptInPlace();
-  await page.getByTestId('in-place-more').filter({ visible: true }).first().click();
+  await receiptSheet();
+  await page.getByTestId('receipt-more').filter({ visible: true }).first().click();
   await tap('Report a problem');
   await see('Tell me which and I start it now');
   at('/wrong/l08');
@@ -2265,8 +2282,8 @@ try {
   await shot('dispute-filed', 600);
   /* a payment that was not yours: the card is frozen first, and a dispute opens on day one, with Beetle's chat carrying its card */
   await page.goto(`${base}/receipt/l06`, { waitUntil: 'load' });
-  await receiptInPlace();
-  await page.getByTestId('in-place-more').filter({ visible: true }).first().click();
+  await receiptSheet();
+  await page.getByTestId('receipt-more').filter({ visible: true }).first().click();
   await tap('Report a problem');
   await see('Tell me which and I start it now');
   await tap('I did not make this payment');
@@ -2384,9 +2401,11 @@ try {
   await tap('Ask Musa for ₦7,520');
   await see('Musa');
   at('/request');
-  /* a transfer's receipt offers the same again, as an instruction of its own */
-  await page.goto(`${base}/receipt/l05`, { waitUntil: 'load' });
-  await receiptInPlace();
+  /* a transfer's line, opened on Activities, offers the same again, as an instruction of its own (the receipt sheet
+     keeps to the receipt and its two ways on: Round 19) */
+  await page.goto(`${base}/activities?receipt=l05`, { waitUntil: 'load' });
+  await page.getByTestId('in-place-card').filter({ visible: true }).first().waitFor();
+  await page.waitForTimeout(700);
   await tap('Set it up');
   await see('Send ₦8,000 to John Doe');
   await see('Every Friday');
@@ -2440,7 +2459,7 @@ try {
   at('/alreadygone/l08');
   await shot('transfer-alreadygone', 900);
   await tap('Take ₦20,000 back');
-  await receiptInPlace();
+  await receiptSheet();
   await see('Cover for a number read wrong');
   must(page.url().includes('/receipt/'), 'the cover should have its receipt');
   await shot('transfer-cover', 900);
@@ -2448,8 +2467,9 @@ try {
   await see('Beetle Lab');
   /* a receipt's way to say something is wrong, under its ···, leads to What went wrong? */
   await tap('A transfer');
+  await receiptSheet();
   await see('Rent part payment');
-  await page.getByTestId('in-place-more').filter({ visible: true }).first().click();
+  await page.getByTestId('receipt-more').filter({ visible: true }).first().click();
   await tap('Report a problem');
   await see('Tell me which and I start it now');
   at('/wrong/l08');

@@ -312,7 +312,8 @@ export function receiptFor(row: LedgerRow, ctx: { account: Account; balanceNow: 
   if (row.kind === 'transfer') {
     return {
       ...base,
-      head: 'All done',
+      /* a receipt can open on any line (Round 19): one that has not settled is titled for what it is */
+      head: row.status === 'done' ? 'All done' : row.status === 'pending' ? 'On its way' : row.status === 'failed' ? 'It did not go' : 'It came back',
       line: `Sent to ${row.name}`,
       status: row.status === 'done' ? 'Successful' : row.status === 'pending' ? 'On its way' : row.status === 'failed' ? 'Did not go' : 'Came back',
       fields: [

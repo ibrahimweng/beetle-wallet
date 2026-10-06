@@ -18,7 +18,7 @@
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { AmountPicker, Avatar, Caption, Chevron, Icon, Label, Meta, Row, Swap, Tap, dark, settle, useStill } from '../../design';
+import { AmountPicker, Avatar, Caption, Chevron, Icon, LOOSE, Label, Meta, Row, Swap, Tap, dark, settle, useStill } from '../../design';
 import {
   AIRTIME,
   BILL_AMOUNTS,
@@ -340,12 +340,16 @@ function Grow({ children }: { children: ReactNode }) {
   const still = useStill();
   const h = useSharedValue(-1);
   const style = useAnimatedStyle(() => (h.value < 0 ? {} : { height: h.value }));
+  /* once the card has its height, what is in it lies loose in it, so on the phone it can grow past it (see LOOSE) */
+  const [loose, setLoose] = useState(false);
   return (
     <Animated.View style={[{ overflow: 'hidden' }, style]}>
       <View
+        style={loose ? LOOSE : null}
         onLayout={e => {
           const next = e.nativeEvent.layout.height;
           h.value = h.value < 0 || still ? next : withTiming(next, { duration: 280, easing: settle });
+          if (!loose) setLoose(true);
         }}
       >
         {children}

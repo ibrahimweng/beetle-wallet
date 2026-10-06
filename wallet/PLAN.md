@@ -1304,6 +1304,54 @@ The owner's answer on the foot: it stays where it is and changes shape.
 **Expo Go**: a QR code for the update, as every round that reaches the
 phone ends.
 
+## Round 19 · Receipts as a sheet, and the rows on the phone
+
+Asked by the owner after Round 18, from two pictures taken in Expo Go:
+a line opened on Activities showed its frost but none of its rows. And:
+the receipt after adding money to savings, borrowing, a card payment and
+services was the Activities view of a line, when it should be a sheet up
+from the bottom with the full detail and a secondary button to the
+Activities page; and in the chat, no View full receipt: the full detail in
+that sheet over the chat. The owner's answers: every payment's receipt is
+the sheet; Done with See in Activities under it, Share small in the
+sheet; the chat's sheet keeps See in Activities too.
+
+- [x] The rows of a line opened on Activities come in on the phone. The
+      box they grow in starts with no height, and the phone measures what
+      is in the flow of a column against the column's own height (Yoga,
+      for any parent that is not a scroll), so they measured as their 4 of
+      padding and never grew; a browser does not do this, so the web and
+      the walk never showed it. What a growing box holds now lies loose in
+      it (`LOOSE`, design/motion.tsx), measured by the same layout engine
+      at its full height. The same fix where the same trap was set: an ask
+      card in the chat that grows into its list, and the way in's slots.
+- [x] A receipt sheet (receipts/ReceiptSheet.tsx): the frames' All done in
+      the floating sheet the passcode uses. The title and when, Share
+      receipt small and the ··· (Ask Beetle about this, Report a problem)
+      at its top; the tick, the amount and who, the status; the slip with
+      every field and the session id to copy, a bill's meter token over it
+      in its grey card, as the Bill paid frame has it; Done in black, See
+      in Activities plain under it. It scrolls between its top and its
+      buttons when the whole is taller than it may be, and never goes up
+      under the status bar. A line not settled has its own glyph, colour
+      and title (On its way, It did not go, It came back).
+- [x] Every receipt right after paying is that sheet, over the page paid
+      from: money sent, a bill, data, airtime, a loan, money into a goal,
+      loading the card, and dollars bought (which ended on the Converted
+      page; that page stays in the lab for its frame). Done goes back to
+      where the payment started, See in Activities to the record. A
+      receipt by its address is the same sheet.
+- [x] In the chat a receipt card has no line to a full receipt; a tap on
+      it brings the same sheet up over the chat, Done back to the chat as
+      it was, See in Activities to the record.
+- [x] A transfer's Set it up (the same again) stays on its line opened on
+      Activities; the sheet keeps to the receipt and its two ways on.
+- [x] The walk follows the sheet: after every payment, from the chat with
+      Done and See in Activities, the ··· from it into a dispute.
+
+**Expo Go**: a QR code for the update, as every round that reaches the
+phone ends.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the
@@ -1330,8 +1378,10 @@ phone ends.
 ## Kept out on purpose
 
 - The full receipt page (A transfer 239:7829, Data bought 239:8418, A bill
-  paid 490:13497, Money in 490:12465): since Round 13 every transaction
-  opens in place, as the owner asked, so those four frames left the check.
+  paid 490:13497, Money in 490:12465): since Round 13 no transaction has a
+  page of its own, so those four frames left the check; since Round 19 a
+  receipt comes up as a sheet with what they draw, which is not the page
+  they draw, so they stay out.
   The share sheet over a receipt (472:10886, 472:11590) is still checked.
 - Three ways to be paid (222:199) and Your code (221:2), with the QR, and
   paying in from a card: the owner took them off after Round 11, so being

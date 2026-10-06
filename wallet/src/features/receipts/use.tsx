@@ -1,10 +1,11 @@
 /* What every receipt needs, wherever it opens: the receipt of a line by its
    id, what a question about it carries to the chat, the ··· for it (Ask
    Beetle about this, and Report a problem, which for a transfer opens What
-   went wrong?), and the share sheet with the picture of it. A receipt opens
-   in place (activities/InPlace.tsx, receipts/Over.tsx) or, in the chat, as
-   its card grown a little (agent/ChatReceipt.tsx); there is no receipt page
-   of its own any more (Round 13). */
+   went wrong?), and the share sheet with the picture of it. A line on
+   Activities opens in place (activities/OpenLine.tsx); a receipt right
+   after paying, by its address or from the chat comes up as the receipt
+   sheet (ReceiptSheet.tsx, Round 19); there is no receipt page of its own
+   (Round 13). */
 import { RefObject, useMemo } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';

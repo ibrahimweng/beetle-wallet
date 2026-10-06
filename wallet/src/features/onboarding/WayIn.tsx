@@ -23,6 +23,7 @@ import {
   Head,
   Icon,
   Keypad,
+  LOOSE,
   Label,
   Meta,
   Pane,
@@ -718,14 +719,18 @@ function Slot({
   }, [leaving]);
   const h = useSharedValue(-1);
   const sizing = useAnimatedStyle(() => (h.value < 0 ? {} : { height: h.value }));
+  /* once the slot has its height, what arrives in it lies loose in it, so on the phone it can be taller than what was
+     there (see LOOSE) */
+  const [loose, setLoose] = useState(false);
   const measured = (e: LayoutChangeEvent) => {
     const next = e.nativeEvent.layout.height;
     if (h.value < 0 || still) h.value = next;
     else if (Math.abs(h.value - next) > 0.5) h.value = withTiming(next, { duration: motion.enter, easing: settle });
+    if (!loose) setLoose(true);
   };
   return (
     <Animated.View style={[style, sizing]}>
-      <Arriving key={shownId} from={from} delay={delay} spring={spring} onLayout={measured}>
+      <Arriving key={shownId} from={from} delay={delay} spring={spring} loose={loose} onLayout={measured}>
         {children}
       </Arriving>
       {leaving ? (
@@ -737,7 +742,7 @@ function Slot({
   );
 }
 
-function Arriving({ children, from, delay, spring, onLayout }: { children: ReactNode; from: number; delay: number; spring: boolean; onLayout: (e: LayoutChangeEvent) => void }) {
+function Arriving({ children, from, delay, spring, loose, onLayout }: { children: ReactNode; from: number; delay: number; spring: boolean; loose: boolean; onLayout: (e: LayoutChangeEvent) => void }) {
   const still = useStill();
   const t = useSharedValue(still ? 1 : 0);
   useEffect(() => {
@@ -750,7 +755,7 @@ function Arriving({ children, from, delay, spring, onLayout }: { children: React
     ...blurred(Math.max(0, 1 - t.value) * motion.blur),
   }));
   return (
-    <Animated.View onLayout={onLayout} style={moving}>
+    <Animated.View onLayout={onLayout} style={[loose ? LOOSE : null, moving]}>
       {children}
     </Animated.View>
   );

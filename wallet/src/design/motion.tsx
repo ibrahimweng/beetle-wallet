@@ -98,6 +98,16 @@ export const blurred = (px: number) => {
   return CAN_BLUR ? { filter: [{ blur: px }] } : {};
 };
 
+/* What a box that grows to what it holds holds, once the box has a height of
+   its own: loose in it, out of its flow, along its top. The phone lays a
+   column's content out within the column's height, so content measured in
+   the flow of a box with a height could only ever measure as tall as the box
+   already was, and a box growing from nothing stayed nothing (Round 19: the
+   rows of an opened line never came in on the phone; a browser does not do
+   this, so the web never showed it). Loose, it measures as tall as it is, and
+   the box, its height following that, shows it. */
+export const LOOSE = { position: 'absolute', top: 0, left: 0, right: 0 } as const;
+
 /* ---- arriving and leaving ---- */
 
 /* A pane of content. It arrives from a blur — transparent, six pixels soft

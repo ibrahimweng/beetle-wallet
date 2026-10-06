@@ -9,7 +9,8 @@
    Measured off the passcode frame: the panel 373 wide from 10, its grabber
    44 by 4 at 16, its content 20 in, 32 below the top and 24 above the foot. */
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { colour } from './tokens';
@@ -43,6 +44,11 @@ export function Sheet({
   foot?: number;
 }) {
   const still = useStill();
+  const { height: H } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  /* as tall as it may be: 92 in a hundred of the screen, and never up under the status bar (Round 19: a receipt sheet
+     reaches its most) */
+  const most = Math.min(H * 0.92, H - insets.top - 12 - SIDE);
   const t = useSharedValue(still ? 1 : 0);
   const pull = useSharedValue(0);
   const [out, setOut] = useState(false);
@@ -99,13 +105,16 @@ export function Sheet({
         {/* the screen behind goes out of focus by its blur growing, not by a blur fading in */}
         <GrowingBlur t={t} intensity={52} wash="rgba(0,0,0,0.25)" />
       </Pressable>
-      <Animated.View style={[s.panel, { paddingBottom: foot }, rising]} testID={testID}>
+      <Animated.View style={[s.panel, { paddingBottom: foot, maxHeight: most }, rising]} testID={testID}>
         <GestureDetector gesture={pan}>
           <View style={s.head} hitSlop={{ bottom: 20 }}>
             <View style={s.grabber} testID={`${testID}-grabber`} />
           </View>
         </GestureDetector>
-        <View testID={`${testID}-content`}>{children}</View>
+        {/* it gives way when the sheet is as tall as it may be, so a part of it that scrolls (a receipt) keeps the rest in view */}
+        <View style={s.content} testID={`${testID}-content`}>
+          {children}
+        </View>
       </Animated.View>
     </View>
   );
@@ -117,11 +126,11 @@ const s = StyleSheet.create({
     left: SIDE,
     right: SIDE,
     bottom: SIDE,
-    maxHeight: '92%',
     borderRadius: RADIUS,
     backgroundColor: colour.surface,
     paddingHorizontal: 20,
   },
   head: { height: 32, paddingTop: 16, alignItems: 'center' },
   grabber: { width: 44, height: 4, borderRadius: 2, backgroundColor: colour.ruleStrong },
+  content: { flexShrink: 1 },
 });

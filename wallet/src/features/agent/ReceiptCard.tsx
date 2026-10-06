@@ -1,7 +1,9 @@
 /* The receipt in the chat, on the dark card, in a few words: the amount,
-   who it went to, when, and that it went through. A tap opens it where it
-   is, a little larger with a few lines more (see ChatReceipt); where there
-   is nothing to open it in, the full one. */
+   who it went to, when, and that it went through. A tap brings the whole of
+   it up over the chat as the receipt sheet (receipts/ReceiptSheet), so
+   there is no line here leading off to a full receipt (Round 19, the
+   owner's word); where there is nothing to open it in, the receipt by its
+   address, which is the same sheet. A request's card still leads to it. */
 import React, { useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Caption, Head, Icon, Label, Meta, Tap, colour, dark, measure, useDeparture, type Rect } from '../../design';
@@ -30,10 +32,12 @@ export function ReceiptCard({ card, to, onOpen }: { card: Card; to: string; onOp
         </View>
         <Meta style={{ color: dark.label }}>{card.time}</Meta>
       </View>
-      <View style={s.foot}>
-        <Caption style={{ color: dark.textSoft }}>{card.kind === 'request' ? 'The request' : 'The full receipt'}</Caption>
-        <Icon name="chevron" size={12} colour={dark.textSoft} />
-      </View>
+      {card.kind === 'request' ? (
+        <View style={s.foot}>
+          <Caption style={{ color: dark.textSoft }}>The request</Caption>
+          <Icon name="chevron" size={12} colour={dark.textSoft} />
+        </View>
+      ) : null}
     </Tap>
   );
 }

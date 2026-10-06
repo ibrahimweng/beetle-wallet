@@ -22,7 +22,7 @@ import React, { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions, type GestureResponderEvent } from 'react-native';
 import { useRouter } from 'expo-router';
 import Animated, { scrollTo, useAnimatedReaction, useAnimatedStyle, useSharedValue, type SharedValue } from 'react-native-reanimated';
-import { Veil, frame, measure } from '../../design';
+import { LOOSE, Veil, frame, measure } from '../../design';
 import { useHeadScroll, usePageScroll } from '../../design/collapse';
 import { ReceiptShare, useReceipt } from '../receipts/use';
 import { useLine } from '../transfers/use';
@@ -104,12 +104,13 @@ export function LineDetails({
     }, LATE);
     return () => clearTimeout(late);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  /* it grows to what it holds, as the line opens; the lines below go down with it */
+  /* it grows to what it holds, as the line opens; the lines below go down with it. What it holds lies loose in it, so
+     on the phone it measures as tall as it is (see LOOSE) */
   const grow = useAnimatedStyle(() => ({ height: ctl.grown.value * ctl.p.value }));
   return (
     <Animated.View style={[s.grow, grow]}>
       <View
-        style={s.inner}
+        style={[LOOSE, s.inner]}
         onLayout={e => {
           ctl.grown.value = e.nativeEvent.layout.height;
           if (receipt) {

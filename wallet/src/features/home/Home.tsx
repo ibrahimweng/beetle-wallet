@@ -16,8 +16,9 @@
    open, and a swipe from there brings in the drawer with New chat and the
    chats (see Drawer). Closing the card files the chat; a pull down within
    the hour carries it on, after the hour a new one starts. A receipt in
-   the chat opens where it is, a little larger (see ChatReceipt). Send on
-   the card opens the Send money page. */
+   the chat comes up whole as the receipt sheet over it, with See in
+   Activities under Done (receipts/ReceiptSheet; Round 19, the owner's
+   word). Send on the card opens the Send money page. */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler, Keyboard, Platform, ScrollView, TextInput, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -29,7 +30,7 @@ import type { IconName } from '../../icons';
 import { DEMO_SAVED, OFFLINE_LINE, TRY_FIRST, beneficiariesOf, newAsk, ownLine, ownTag, panelFromAsk, refusalLine, refuses, type AskPanel, type Move, type Panel } from '../../services';
 import { useApp } from '../onboarding/store';
 import { Chat } from '../agent/Chat';
-import { ChatReceipt } from '../agent/ChatReceipt';
+import { ReceiptSheet } from '../receipts/ReceiptSheet';
 import { ChatsDrawer, ChatsEdge, EDGE, drawerWidth, useChatsSwipe } from '../agent/Drawer';
 import { isPanel, transcriptOf, turn, useConversation, type Turn } from '../agent/conversation';
 import { clock, detailOf, titleOf, toCarryOn, useChats, type Chat as ChatRecord } from '../agent/chats';
@@ -924,7 +925,17 @@ function HomeScreen() {
           <PasscodeSheet key={guard.panel.id} {...sheetFor(guard.panel)} verify={app.checkPasscode} onDone={guardDone} onCancel={() => setGuard(null)} faceMissed={LAB && asked.face === 'missed'} />
         ) : null}
         {receive && account ? <ReceiveSheet account={account} onDismiss={() => setReceive(false)} /> : null}
-        {chatPeek ? <ChatReceipt card={chatPeek.card} at={chatPeek.at} onClose={() => setChatPeek(null)} /> : null}
+        {chatPeek ? (
+          <ReceiptSheet
+            key={chatPeek.card.rowId}
+            id={chatPeek.card.rowId}
+            onDone={() => setChatPeek(null)}
+            onRecord={() => {
+              setChatPeek(null);
+              tabs.go('activities');
+            }}
+          />
+        ) : null}
       </View>
     </GestureDetector>
   );

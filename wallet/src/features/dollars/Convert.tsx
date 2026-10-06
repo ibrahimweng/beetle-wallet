@@ -5,8 +5,9 @@
    and Slide to convert beside Back. The amount is picked where it is:
    the ruler in naira or in dollars, whichever it leaves from, stopping hard
    at what that holds, or the figure typed. The slide leads to the passcode, the
-   line goes into the day, the dollars change hands, and Converted takes
-   the page's place. Convert on Dollars opens it. */
+   line goes into the day, the dollars change hands, and its receipt comes
+   up over the page as the sheet every payment ends on (Round 19; the
+   Converted page is the lab's, for its frame). Convert on Dollars opens it. */
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -66,7 +67,7 @@ export function Convert() {
     }
     setGuard(true);
   };
-  /* the passcode landed: the line goes into the day, the dollars change hands, and Converted opens */
+  /* the passcode landed: the line goes into the day, the dollars change hands, and the receipt comes up */
   const done = () => {
     if (!account) return;
     const at = clock();
@@ -84,7 +85,8 @@ export function Convert() {
     const row = rowFrom(move, balance, 17 + moves.length);
     addMove(row);
     setGuard(false);
-    router.replace(`/converted/${row.id}`);
+    /* its receipt comes up over this page as the sheet every payment ends on (Round 19); Done goes back past it */
+    router.push(`/receipt/${row.id}?paid=1`);
   };
   const swap = () => {
     setToDollars(v => !v);

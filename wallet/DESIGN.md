@@ -62,6 +62,11 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   blur (the phone draws that badly, and it reads as a jerk).
 - **One movement, measured first.** Where something lifts to make room,
   measure before moving, so the lift and the arrival are the same motion.
+- **What a growing box holds lies loose in it** once the box has a height
+  (`LOOSE`, Round 19). The phone lays a column's content out within the
+  column's height, so content in the flow of a box with a height measures
+  no taller than the box already is, and a box growing from nothing stays
+  nothing; a browser does not do this, so only the phone shows it.
 - Rows arrive one after another, 40–60 apart; never more than a third of
   a second for the lot.
 - **Pages slide the way the phone's own do** (Round 13): in from the right
@@ -136,6 +141,14 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 
 ## Pages
 
+- **A receipt comes up as a sheet from the bottom** (Round 19, the
+  owner's word): right after any payment, from the chat, and by its
+  address. The whole of it, as the frames' All done draws it, in the
+  floating sheet the passcode and the share sheet use: the title and when,
+  Share receipt (small) and the ··· at its top, the tick, the amount and
+  who with the status, the slip with every field and the session id, and
+  Done in black with See in Activities plain under it. A line opened on
+  Activities keeps its own view, in place.
 - **What home's four cards open comes up as a sheet** (Round 14): white,
   edge to edge, round at the top, stopping just under the status bar, home
   stepped back and greyed a little behind it. Nothing is ever read over a

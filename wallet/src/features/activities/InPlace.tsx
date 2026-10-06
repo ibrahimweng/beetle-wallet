@@ -1,63 +1,41 @@
-/* A receipt opened where it is, over the page it came from: the receipt
-   right after paying (receipts/Over.tsx). Activities opens its own lines in
-   the list itself, the line growing its rows under it (OpenLine.tsx, Round
-   17), with this file's Details; what follows is how this one looks.
+/* What a line of Activities shows when it opens in the list (OpenLine.tsx,
+   Round 17): the rows that grow in under it, what a line that has not
+   settled says instead, the ··· for it, and how long each part takes. A
+   receipt right after paying, by its address or from the chat is no longer
+   drawn this way: it comes up whole as the receipt sheet (receipts/
+   ReceiptSheet.tsx, Round 19, the owner's word).
 
-   A settled line of Activities, opened where it is.
-
-   Nothing new is pushed and nothing fills the screen. The line stays in its
-   place, sharp, and the page under it goes soft behind a frost of white —
-   still there, just out of focus — the way Fuse opens a coin in its list.
-   Under the line the rest of it comes in as plain rows on the frost, the
-   way Fuse's Solana widget lays its own out: no card, no border, no shadow;
-   each fact a label at the left and its figure at the right, lined up under
-   the line's own words, and a dashed rule between the groups. First who and
-   where — the bank and the account always said — then the money (the
+   Under the line the rest of it comes in as plain rows, the way Fuse's
+   Solana widget lays its own out: no card, no border, no shadow; each fact
+   a label at the left and its figure at the right, lined up under the
+   line's own words, and a dashed rule between the groups. First who and
+   where (the bank and the account always said), then the money (the
    amount, the fee, the balance after), then anything written with it and
    the session id, kept back until it is asked for, since it only matters
    when the transaction is being queried. Then Share receipt and Set it up,
-   side by side. The ··· for the rest — Ask Beetle about this, Report a
-   problem — sits at the top right beside the page's title, which stays
-   sharp over the frost while it is on the screen.
+   side by side. The ··· for the rest (Ask Beetle about this, Report a
+   problem) sits at the top right beside the page's title.
 
    A line still on its way, one that did not go and one that came back open
-   the same way (Round 13: every transaction in place). What it is comes
-   first under the line, with what to know about it, and its two things to
-   do are its next steps instead: ask about it, or try again, or check the
-   number. The page each state used to open is behind See the details. The
-   receipt right after paying opens this way too, over the page paid from
-   (receipts/Over.tsx).
-
-   It is one movement: what comes in under the line is measured first,
-   unseen, and then the frost's blur grows, the line lifts (if it must, for
-   the rows to fit above the foot) and the rows arrive one after another,
-   all together. A tap anywhere off it, or the phone's back, and it goes in
-   two steps (the owner's word, Round 16: the receipt and the page must
-   never show through each other): what came in under the line leaves
-   first, with the ··· and the title drawn over the frost, while the frost
-   stays whole and the line settles back into its place; then the frost
-   clears, its blur thinning as its white does, and the line, drawn just as
-   the page draws it, is the page's own again. */
-import React, { useEffect, useRef, useState } from 'react';
-import { BackHandler, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+   the same way. What it is comes first under the line, with what to know
+   about it, and its two things to do are its next steps instead: ask about
+   it, or try again, or check the number. Each row arrives a beat after the
+   one above it, out of the same blur. */
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withDelay, withTiming, type SharedValue } from 'react-native-reanimated';
-import { GlyphTitle, HistoryRow, Icon, Label, Meta, MoreButton, Tap, Veil, away, blurred, colour, frame, motion, settle, toast, useStill, type Rect } from '../../design';
+import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
+import { Icon, Label, Meta, MoreButton, Tap, blurred, colour, motion, toast, type Rect } from '../../design';
 import type { IconName } from '../../icons';
 import { copyText } from '../receive/clipboard';
-import { ReceiptShare, useReceipt, useReceiptMenu } from '../receipts/use';
+import { useReceiptMenu } from '../receipts/use';
 import type { Field, Receipt } from '../receipts/receipts';
 import type { LedgerRow } from '../home/account';
-import { useLine } from '../transfers/use';
 import { bankOf, firstOf, personOf, returnReference } from '../transfers/states';
 import { draft } from '../send/hand';
 import { askHome } from '../more/More';
 import { groupAccount, naira } from '../../lib/format';
 
-/** Where a line sits when it was opened by a link rather than a tap: under the page's head. */
-const LINKED_TOP = 180;
-/** Room kept clear under what grows in: the bar goes down while a line is open, so only the phone's own foot. */
-const FOOT_ROOM = 28;
 /** How far a finger can move and still have tapped. */
 export const TAP_SLOP = 12;
 /** The rows line up under the line's own words: past its 40 glyph and the 12 beside it. */
@@ -76,159 +54,6 @@ export const STATUS_TONE: Record<LineState | 'done', string> = { pending: colour
 
 /** `at` is where the line was, `head` where the page's title row was, each in the window, when it was opened. */
 export type Opened = { id: string; glyph: IconName; name: string; detail: string; amount: string; at: Rect | null; head?: Rect | null; state?: LineState };
-
-export function InPlace({
-  line,
-  onClose,
-  share = false,
-  stay = false,
-}: {
-  line: Opened;
-  onClose: () => void;
-  share?: boolean;
-  /** a receipt with an address of its own stays under the page it leads to, so Back comes back to it */ stay?: boolean;
-}) {
-  const router = useRouter();
-  const still = useStill();
-  const { height: H } = useWindowDimensions();
-  const { receipt } = useReceipt(line.id);
-  const { row } = useLine(line.id);
-  const [sharing, setSharing] = useState(share);
-  const [session, setSession] = useState(false);
-  /* the rows as drawn, for the picture the share sheet hands out */
-  const slip = useRef<View>(null);
-  const at = line.at ?? { x: frame.sidePad, y: LINKED_TOP, w: 393 - frame.sidePad * 2, h: 72 };
-  /* the page's title, kept sharp over the frost while it is on the screen, with the ··· on its row */
-  const head = line.head && line.head.y + line.head.h > 0 ? line.head : null;
-
-  /* 0 to 1 as it opens: the frost, and what comes in with it; how far the line lifts to make room under it;
-     and whether what came in under the line is still there, which goes first on the way out */
-  const t = useSharedValue(still ? 1 : 0);
-  const lift = useSharedValue(0);
-  const shown = useSharedValue(1);
-  const going = useRef(false);
-  const begun = useRef(still);
-  const downAt = useRef<{ x: number; y: number } | null>(null);
-  const close = () => {
-    if (going.current) return;
-    going.current = true;
-    if (still) return onClose();
-    shown.value = withTiming(0, { duration: ROWS_OUT, easing: away });
-    lift.value = withTiming(0, { duration: ROWS_OUT + 60, easing: away });
-    t.value = withDelay(
-      ROWS_OUT,
-      withTiming(0, { duration: FROST_OUT, easing: away }, done => {
-        if (done) runOnJS(onClose)();
-      }),
-    );
-  };
-  const closeRef = useRef(close);
-  closeRef.current = close;
-  /* leading somewhere: the line goes back into its place first, unless it stays under what it leads to */
-  const leaveTo = (go: () => void) => {
-    if (stay) return go();
-    closeRef.current();
-    setTimeout(go, ROWS_OUT + FROST_OUT);
-  };
-  useEffect(() => {
-    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (sharing) setSharing(false);
-      else closeRef.current();
-      return true;
-    });
-    return () => sub.remove();
-  }, [sharing]);
-
-  /* the opening, once: the lift and the rows together, from where they were measured */
-  const begin = (up: number) => {
-    if (begun.current) {
-      lift.value = still ? -up : withTiming(-up, { duration: OPEN_MS, easing: settle });
-      return;
-    }
-    begun.current = true;
-    lift.value = withTiming(-up, { duration: OPEN_MS, easing: settle });
-    t.value = withTiming(1, { duration: OPEN_MS, easing: settle });
-  };
-  /* should the measuring never come (no receipt for the line), it opens anyway */
-  useEffect(() => {
-    if (still) return;
-    const late = setTimeout(() => {
-      if (!begun.current) begin(0);
-    }, 260);
-    return () => clearTimeout(late);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  /* what comes in has its height: lift the line if the two would run past the foot */
-  const measured = (rowsH: number) => {
-    if (!receipt) return;
-    const bottom = at.y + at.h + 8 + rowsH;
-    const over = Math.max(0, bottom - (H - FOOT_ROOM));
-    begin(Math.min(over, Math.max(0, at.y - 120)));
-  };
-
-  const held = useAnimatedStyle(() => ({ transform: [{ translateY: lift.value }] }));
-  /* the ··· and the title drawn over the frost go with the rows, before the frost clears */
-  const dots = useAnimatedStyle(() => ({ opacity: t.value * shown.value }));
-
-  return (
-    <View style={StyleSheet.absoluteFill} testID="in-place">
-      <Veil tone="frost" intensity={70} t={t} testID="in-place-veil" />
-      <Pressable
-        style={StyleSheet.absoluteFill}
-        accessibilityRole="button"
-        accessibilityLabel="Back to Activities"
-        onPressIn={e => (downAt.current = { x: e.nativeEvent.pageX, y: e.nativeEvent.pageY })}
-        onPress={e => {
-          /* a tap puts it away; a swipe across the frost is not a tap, and the pages hold still under it */
-          const d = downAt.current;
-          if (d && Math.hypot(e.nativeEvent.pageX - d.x, e.nativeEvent.pageY - d.y) > TAP_SLOP) return;
-          close();
-        }}
-        testID="in-place-away"
-      />
-      <Animated.View style={[{ position: 'absolute', left: at.x, width: at.w, top: at.y }, held]} pointerEvents="box-none">
-        {/* the line itself, where it was, sharp over the frost: drawn just as the page draws it, so once the frost has
-            cleared it is the page's own line under it, nothing doubled */}
-        <View pointerEvents="none" testID="in-place-line">
-          <HistoryRow glyph={line.glyph} name={line.name} detail={line.detail} amount={line.amount} status={!!line.state} tone={STATUS_TONE[line.state ?? 'done']} />
-        </View>
-        <View style={{ marginTop: 4 }} onLayout={e => measured(e.nativeEvent.layout.height)}>
-          {receipt ? (
-            <Details
-              t={t}
-              shown={shown}
-              receipt={receipt}
-              name={line.name}
-              slip={slip}
-              session={session}
-              onSession={() => setSession(true)}
-              onShare={() => setSharing(true)}
-              state={line.state && row ? stateOf(line.state, row, router, line.id, leaveTo) : null}
-              onRepeat={() => {
-                const to =
-                  receipt.kind === 'transfer'
-                    ? `/rule?offer=again&row=${line.id}`
-                    : `/rule?offer=${receipt.kind === 'in' ? 'salary' : receipt.kind === 'convert' ? 'dollars' : receipt.kind === 'saving' ? 'salary' : 'ikeja'}`;
-                leaveTo(() => router.push(to as never));
-              }}
-            />
-          ) : null}
-        </View>
-      </Animated.View>
-      {head ? (
-        <Animated.View pointerEvents="none" style={[{ position: 'absolute', left: head.x, top: head.y, width: head.w }, dots]} testID="in-place-head">
-          <GlyphTitle glyph="clock" title="Activities" />
-        </Animated.View>
-      ) : null}
-      {/* the ··· for the rest, at the top right beside the page's title */}
-      {receipt ? (
-        <Animated.View style={[s.dots, head ? { top: head.y + (head.h - 36) / 2 } : null, dots]}>
-          <Menu receipt={receipt} id={line.id} onLeave={go => leaveTo(go)} />
-        </Animated.View>
-      ) : null}
-      {sharing && receipt ? <ReceiptShare receipt={receipt} slip={slip} onDismiss={() => setSharing(false)} /> : null}
-    </View>
-  );
-}
 
 export function Menu({ receipt, id, onLeave }: { receipt: Receipt; id: string; onLeave: (go: () => void) => void }) {
   const items = useReceiptMenu(receipt, id).map(it => ({
@@ -490,7 +315,6 @@ export function groupsOf(fields: Field[], name: string, kind?: Receipt['kind']):
 }
 
 const s = StyleSheet.create({
-  dots: { position: 'absolute', top: frame.topPad + 2, right: frame.sidePad },
   /* plain on the frost: no card, no border, no shadow — lined up under the line's words */
   rows: { paddingLeft: TEXT_COLUMN, paddingBottom: 8 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, height: 30 },

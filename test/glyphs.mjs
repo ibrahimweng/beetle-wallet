@@ -197,6 +197,90 @@ console.log('glyphs toolbar on a phone');
   await ctx.close();
 }
 
+/* ---------- the filled styles of the line icons ---------- */
+console.log('glyphs filled styles of line icons');
+{
+  const { ctx, p, store, mod, errors } = await open('/public/glyphs/');
+  const fetched = () => p.evaluate(() => performance.getEntriesByType('resource').filter(r => new URL(r.name).pathname.endsWith('/data/fills.json')).length);
+  check(await fetched() === 0, 'the stored analysis waits until a filled style is shown');
+  await store(`s => s.set({ filter: { q: '', set: 'core', cat: 'all', box: 'all' }, P: { ...s.get().P, weight: 'solid' } })`);
+  await p.waitForFunction(() => performance.getEntriesByType('resource').some(r => r.name.endsWith('/data/fills.json')), null, { timeout: 8000 }).catch(() => {});
+  await p.waitForTimeout(300);
+  check(await fetched() === 1, 'and is fetched once when one is');
+  const r = await p.evaluate(`Promise.all([import(${mod('library')}), import(${mod('engine')}), import(${mod('store')})]).then(([L, E, S]) => {
+    const st = S.store.get(), at = (key, weight, corners = 'rounded') => L.primsOf(key, { ...st, P: { ...st.P, weight, corners } }, weight);
+    const svgOf = (key, weight, corners) => E.svg(at(key, weight, corners), { ...st.P, weight, corners }, { uid: 'x', weight });
+    /* in a duotone something stays in full: a path outside every faint group and every mask */
+    const full = s => [...new DOMParser().parseFromString(s, 'image/svg+xml').querySelectorAll('path')].some(el => !el.closest('mask') && !el.closest('[opacity]'));
+    const core = L.search({ q: '', set: 'core', cat: 'all' });
+    const faint = core.filter(e => !full(svgOf(e.key, 'duotone'))).map(e => e.key);
+    const pl = (key, c) => JSON.stringify((at(key, 'solid', c).a || {}).pl);
+    return {
+      faint, n: core.length,
+      globe: svgOf('core:globe', 'solid'), globeLine: svgOf('core:globe', 'outline'),
+      heartPlus: (at('core:heart-plus', 'solid').a || {}).b || [],
+      sharp: pl('core:toggle-left', 'sharp') !== pl('core:toggle-left', 'rounded'),
+      own: ['bet', 'power', 'send'].map(n => !!L.entryOf('beetle:' + n).makeSolid),
+      alias: [L.entryOf('beetle:power-tone'), L.entryOf('beetle:send-filled')].map(e => e && e.key),
+    };
+  })`);
+  check(r.faint.length === 0, `in duotone every core icon keeps something in full (${r.n - r.faint.length} of ${r.n})`, r.faint.slice(0, 5).join(', '));
+  check(r.globe.includes('<mask') && r.globe !== r.globeLine, 'globe fills: a plate under its line, its meridians cut out');
+  check(r.heartPlus.length === 2, `heart-plus closes across the gap its plus sits in, and keeps the plus apart (${r.heartPlus.length} badge parts)`);
+  check(r.sharp, 'sharp corners take an analysis of their own where the plates move (toggle-left)');
+  check(r.own.every(x => !x), 'bet, power and send take their filled styles from their line');
+  check(r.alias[0] === 'beetle:power' && r.alias[1] === 'beetle:send', 'and their old names still find them', r.alias.join(', '));
+  check(!errors.length, 'no console errors on the way', errors.slice(0, 3).join(' | '));
+  await ctx.close();
+}
+
+/* ---------- the toolbar stays in view ---------- */
+console.log('glyphs toolbar while scrolling');
+{
+  const { ctx, p } = await open('/public/glyphs/', { width: 1440, height: 900 });
+  const bar = () => p.evaluate(() => { const t = document.querySelector('.tb'); const r = t.getBoundingClientRect(); return { top: Math.round(r.top), h: Math.round(r.height), stuck: t.classList.contains('stuck') }; });
+  check(!(await bar()).stuck, 'at the top of the page the toolbar sits in its place');
+  await p.mouse.wheel(0, 1800); await p.waitForTimeout(400);
+  const down = await bar();
+  check(down.top === 56 && down.stuck, `scrolled down, it stays under the top bar (${down.top}px)`);
+  check(down.h <= 110, `in two rows, not three (${down.h}px)`);
+  await p.mouse.wheel(0, -5000); await p.waitForTimeout(400);
+  check(!(await bar()).stuck, 'and lets go at the top again');
+  await ctx.close();
+}
+
+/* ---------- a category as a ZIP of SVGs ---------- */
+console.log('glyphs category download');
+{
+  const { readFileSync } = await import('fs');
+  const { inflateRawSync } = await import('zlib');
+  const ctx = await b.newContext({ viewport: { width: 1440, height: 1000 }, acceptDownloads: true });
+  const p = await ctx.newPage();
+  await p.goto(base + '/public/glyphs/'); await p.waitForFunction(() => document.querySelectorAll('.grid .tile').length > 100);
+  await p.evaluate(() => import(new URL('src/lib/store.js', location.href).href).then(({ store }) => store.set({ P: { ...store.get().P, weight: 'solid' }, view: { ...store.get().view, color: '#ff7a1a' } })));
+  const row = p.locator('.nav-row').filter({ hasText: 'animals' });
+  const count = +(await row.locator('.count').textContent()).replace(/\D/g, '');
+  await row.hover();
+  const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 15000 }), row.locator('.nav-dl').click()]);
+  const buf = readFileSync(await dl.path());
+  /* the central directory, read from the end */
+  const end = buf.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
+  const files = [];
+  for (let at = buf.readUInt32LE(end + 16), i = 0; i < buf.readUInt16LE(end + 10); i++) {
+    const method = buf.readUInt16LE(at + 10), csize = buf.readUInt32LE(at + 20), nlen = buf.readUInt16LE(at + 28), off = buf.readUInt32LE(at + 42);
+    const name = buf.toString('utf8', at + 46, at + 46 + nlen);
+    const start = off + 30 + buf.readUInt16LE(off + 26) + buf.readUInt16LE(off + 28), raw = buf.subarray(start, start + csize);
+    files.push({ name, text: (method === 8 ? inflateRawSync(raw) : raw).toString('utf8') });
+    at += 46 + nlen + buf.readUInt16LE(at + 30) + buf.readUInt16LE(at + 32);
+  }
+  const svgs = files.filter(f => f.name.endsWith('.svg'));
+  check(dl.suggestedFilename() === 'beetle-glyphs-animals-fill.zip', 'the file is named for the category and the style', dl.suggestedFilename());
+  check(svgs.length === count, `it holds every icon the category counts (${svgs.length} of ${count})`);
+  check(svgs.every(f => f.text.startsWith('<svg') && f.text.includes('#ff7a1a') && !f.text.includes('currentColor')), 'each one an SVG in the grid\'s colour');
+  check(files.some(f => f.name.endsWith('/LICENSE-core.txt') && f.text.includes('ISC')) && files.some(f => f.name.endsWith('/README.txt')), 'with the licence of the set it draws on and a note of the settings');
+  await ctx.close();
+}
+
 await b.close();
 close();
 console.log(failures ? `glyphs: ${failures} failed` : 'glyphs: all passed');

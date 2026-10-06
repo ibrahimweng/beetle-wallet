@@ -4,11 +4,10 @@ import { h, ICO, fmtInt, STYLE_LABEL } from '../../lib/utils.js';
 import { Button } from '../ui/button.js';
 import { CodeBlock } from '../ui/code-block.js';
 import { store } from '../../lib/store.js';
-import { primsOf, search, exportName, entryOf, loadDrawings, drawingFile } from '../../lib/library.js';
+import { primsOf, search, exportName, entryOf, drawingsFor } from '../../lib/library.js';
 import { saveFile, copyText, iconSVG, spriteOf, fontOf, jsonOf, usageSnippet, fileStem } from '../../lib/export.js';
 
 /* the four-style drawings an export needs, here before it starts */
-const drawingsFor = (P, weights = [P.weight]) => Promise.all(weights.map(w => loadDrawings(drawingFile(w, P.corners))));
 const isDrawn = key => { const e = entryOf(key); const b = e && e.base ? entryOf(e.base) : e; return !!(b && b.drawn); };
 
 const wait = () => new Promise(r => setTimeout(r, 30));

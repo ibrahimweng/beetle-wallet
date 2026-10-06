@@ -94,7 +94,7 @@ export function Inspector() {
   }
   store.subscribe((s, keys) => { if (keys.some(k => ['sel', 'P', 'edits', 'ready'].includes(k))) refresh(); if (keys.some(k => ['scope', 'sel', 'ready'].includes(k))) refreshScope(); });
   /* a four-style icon's other styles arrive after it was first drawn: draw it again with them */
-  onDrawings(() => { const e = lib.byKey.get(store.get().sel); if (e && e.drawn) { refresh(); editor.render(); } });
+  onDrawings(file => { const e = lib.byKey.get(store.get().sel); if (e && (e.drawn || file === 'fills')) { refresh(); editor.render(); } });
   refreshScope();
   return { el, refresh, editor };
 }

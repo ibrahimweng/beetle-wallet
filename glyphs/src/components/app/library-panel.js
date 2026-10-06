@@ -27,7 +27,7 @@ export function LibraryPanel() {
     return h('div', { class: 'field' }, h('label', { class: 'label', for: 'p-' + k }, label), s.el, h('div', { class: 'hint' }, hint));
   });
   const P = () => store.get().P;
-  const weight = Segmented({ label: 'Style the grid shows', value: P().weight, options: Object.entries(STYLE_LABEL).map(([value, label]) => ({ value, label })), onChange: v => store.set({ P: { ...P(), weight: v } }), onPrefetch: v => loadDrawings(drawingFile(v, P().corners)).catch(() => {}) });
+  const weight = Segmented({ label: 'Style the grid shows', value: P().weight, options: Object.entries(STYLE_LABEL).map(([value, label]) => ({ value, label })), onChange: v => store.set({ P: { ...P(), weight: v } }), onPrefetch: v => { loadDrawings(drawingFile(v, P().corners)).catch(() => {}); if (v !== 'outline') loadDrawings('fills').catch(() => {}); } });
   const corners = Segmented({ label: 'Corners', value: P().corners, options: [{ value: 'rounded', label: 'Rounded' }, { value: 'sharp', label: 'Sharp' }], onChange: v => store.set({ P: { ...P(), corners: v } }), onPrefetch: v => loadDrawings(drawingFile(P().weight, v)).catch(() => {}) });
   const surface = Segmented({ label: 'Preview surface', value: store.get().surface, options: [{ value: 'auto', label: 'Theme' }, { value: 'paper', label: 'Paper' }, { value: 'ink', label: 'Ink' }], onChange: v => store.set({ surface: v }) });
   const presets = h('div', { class: 'row wrap' },

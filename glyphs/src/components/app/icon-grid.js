@@ -86,7 +86,7 @@ export function IconGrid() {
   gridWrap.addEventListener('pointerleave', () => hideTip());
 
   /* a style or corners whose drawings were still on their way: draw again once they are here */
-  onDrawings(file => { const s = store.get(); if (file === drawingFile(s.P.weight, s.P.corners)) refresh(); });
+  onDrawings(file => { const s = store.get(); if (file === drawingFile(s.P.weight, s.P.corners) || (file === 'fills' && s.P.weight !== 'outline')) refresh(); });
   store.subscribe((s, keys) => {
     if (keys.includes('ready')) { badges.innerHTML = ''; badges.append(Badge(`${fmtInt(lib.sets.all)} icons`, 'secondary'), Badge(`${fmtInt(lib.sets.four)} four-style`, 'outline'), Badge(`${fmtInt(lib.sets.core)} core`, 'outline'), Badge(`${lib.sets.beetle} app glyphs`, 'outline'), Badge(`${lib.sets.scenarios} scenarios`, 'outline')); run(); }
     if (keys.includes('filter')) { if (q.value !== s.filter.q) q.value = s.filter.q; run(); }

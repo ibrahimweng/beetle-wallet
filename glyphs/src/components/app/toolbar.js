@@ -21,7 +21,7 @@ export function Toolbar() {
   const setV = patch => store.set({ view: { ...V(), ...patch } });
   const setF = patch => store.set({ filter: { ...F(), ...patch } });
 
-  const style = Segmented({ label: 'Style', value: P().weight, options: Object.entries(STYLE_LABEL).map(([value, label]) => ({ value, label })), onChange: v => setP({ weight: v }), onPrefetch: v => loadDrawings(drawingFile(v, P().corners)).catch(() => {}) });
+  const style = Segmented({ label: 'Style', value: P().weight, options: Object.entries(STYLE_LABEL).map(([value, label]) => ({ value, label })), onChange: v => setP({ weight: v }), onPrefetch: v => { loadDrawings(drawingFile(v, P().corners)).catch(() => {}); if (v !== 'outline') loadDrawings('fills').catch(() => {}); } });
   const corners = Segmented({ label: 'Corners', value: P().corners, options: [{ value: 'rounded', label: 'Rounded' }, { value: 'sharp', label: 'Sharp' }], onChange: v => setP({ corners: v }), onPrefetch: v => loadDrawings(drawingFile(P().weight, v)).catch(() => {}) });
   const size = TickSlider({ label: 'Icon size', min: 16, max: 48, step: 1, value: V().size, major: v => v % 8 === 0, unit: 'px', onInput: v => setV({ size: v }) });
   const stroke = TickSlider({ label: 'Stroke', min: 1, max: 4, step: 0.25, value: P().S, major: v => Number.isInteger(v), unit: 'px', format: v => String(+v.toFixed(2)), onInput: v => setP({ S: v }) });
@@ -69,6 +69,12 @@ export function Toolbar() {
     openSheet({ side: 'bottom', title: 'Browse', content: controls, onClose: () => home.insertBefore(controls, next) });
   } }, 'Browse', dot);
   const el = h('div', { class: 'tb' }, controls, browse, count);
+  /* the bar stays under the top bar while the grid scrolls: a hairline once it has
+     left the page's flow, and the page scrolls focus clear of it */
+  const stick = () => { el.classList.toggle('stuck', scrollY > 0 && el.getBoundingClientRect().top <= (parseFloat(getComputedStyle(el).top) || 0) + 0.5); };
+  let frame = 0;
+  addEventListener('scroll', () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; stick(); }); }, { passive: true });
+  if (typeof ResizeObserver === 'function') new ResizeObserver(() => document.documentElement.style.setProperty('--tb-h', el.offsetHeight + 'px')).observe(el);
 
   const atDefaults = () => { const s = store.get(); return s.P.weight === DEF.weight && s.P.corners === DEF.corners && s.P.S === DEF.S && s.view.size === VIEW.size && !s.view.color && !s.filter.q && s.filter.cat === 'all' && s.filter.box === 'all'; };
   function sync() {

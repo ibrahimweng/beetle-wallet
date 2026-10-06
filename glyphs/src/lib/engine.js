@@ -9,21 +9,30 @@
     seq   { segs:[['M',x,y] | ['L',x,y] | ['A',cx,cy,rx,ry,a0,a1]] }
     quad  { pts:[p, ctrl, p, ctrl ...] }         closed quadratic loop
     path  { d } or { segs }                      SVG path data, straight joins get fillets
-  Roles: stroke | shape | detail | fill | flat. */
+  Roles: stroke | shape | detail | fill | flat.
+  Styles (P.weight): outline (stroke) | two-tone | duotone | solid (fill). An
+  icon drawn in a style of its own (n on every part) is drawn as it was drawn;
+  every other icon derives the style from its centrelines.
+  Corners (P.corners): rounded | sharp. Sharp squares every corner kind and
+  draws butt ends. A part marked x keeps its corners exactly as drawn. */
 
-const DEF = { S: 2.5, R: 2, G: 0.75, choke: 0, goo: 0, fillet: 0.5, weight: 'outline' };
+const DEF = { S: 2.5, R: 2, G: 0.75, choke: 0, goo: 0, fillet: 0.5, weight: 'outline', corners: 'rounded' };
+const WEIGHTS = ['outline', 'two-tone', 'duotone', 'solid'];
+const TONE = 0.4; // the plate under a two-tone line, the body of a duotone
 const PRESETS = {
   beetle: { S: 2.5, R: 2, G: 0.75, choke: 0, goo: 0, fillet: 0.5 },
   core: { S: 2, R: 1.5, G: 0.75, choke: 0, goo: 0, fillet: 0 },
 };
 const D2R = Math.PI / 180;
 const f2 = v => Math.round(v * 100) / 100;
+const f4 = v => Math.round(v * 10000) / 10000; // an imported drawing keeps its designers' precision
 const num = v => (Object.is(v, -0) ? 0 : v);
 
 /* ---------- corners ---------- */
 function radiusOf(k, P) {
   if (k == null || k === 'none') return 0;
   if (typeof k === 'number') return k;
+  if (P.corners === 'sharp') return 0;
   if (k === 'soft') return 0.5 * P.S;
   if (k === 'fillet' || k === 'letter') return Math.max(0, (P.fillet != null ? P.fillet : 0) * P.S);
   if (k === 'box') return Math.max(0, P.R * P.S - 0.5 * P.S);
@@ -48,7 +57,11 @@ function corners(pts, closed, P) {
     const cos = Math.max(-1, Math.min(1, u1[0] * u2[0] + u1[1] * u2[1]));
     const th = Math.acos(cos);
     if (th > Math.PI - 1e-3 || th < 1e-3) return { p1: V, p2: V, r: 0 };
-    let t = r0 / Math.tan(th / 2);
+    /* a fillet rounds a join, it does not cut a sharp tip off: the tip of an
+       acute corner moves in by at most half a stroke (a bolt keeps its length) */
+    let rr = r0;
+    if (V[2] === 'fillet' || V[2] === 'letter') { const k = 1 / Math.sin(th / 2) - 1; if (k > 1e-6) rr = Math.min(r0, 0.5 * P.S / k); }
+    let t = rr / Math.tan(th / 2);
     const tMax = Math.min(lA, lB) / 2;
     if (t > tMax) t = tMax;
     const r = t * Math.tan(th / 2);
@@ -92,14 +105,14 @@ function parsePath(d) {
   }
   return segs;
 }
-const pt = p => `${f2(num(p[0]))} ${f2(num(p[1]))}`;
-function segsToString(segs) {
+const pt = (p, q = f2) => `${q(num(p[0]))} ${q(num(p[1]))}`;
+function segsToString(segs, q = f2) {
   let d = '';
   for (const s of segs) {
-    if (s.t === 'M' || s.t === 'L') d += `${s.t}${pt(s.p)}`;
-    else if (s.t === 'C') d += `C${pt(s.c1)} ${pt(s.c2)} ${pt(s.p)}`;
-    else if (s.t === 'Q') d += `Q${pt(s.c1)} ${pt(s.p)}`;
-    else if (s.t === 'A') d += `A${f2(s.rx)} ${f2(s.ry)} ${f2(s.rot || 0)} ${s.large ? 1 : 0} ${s.sweep ? 1 : 0} ${pt(s.p)}`;
+    if (s.t === 'M' || s.t === 'L') d += `${s.t}${pt(s.p, q)}`;
+    else if (s.t === 'C') d += `C${pt(s.c1, q)} ${pt(s.c2, q)} ${pt(s.p, q)}`;
+    else if (s.t === 'Q') d += `Q${pt(s.c1, q)} ${pt(s.p, q)}`;
+    else if (s.t === 'A') d += `A${q(s.rx)} ${q(s.ry)} ${q(s.rot || 0)} ${s.large ? 1 : 0} ${s.sweep ? 1 : 0} ${pt(s.p, q)}`;
     else if (s.t === 'Z') d += 'Z';
   }
   return d;
@@ -128,13 +141,14 @@ function arcCentre(p0, s) {
 function arcPointRot(ac, a) { const t = a * D2R, phi = ac.rot * D2R; const x = ac.rx * Math.cos(t), y = ac.ry * Math.sin(t); return [ac.c[0] + x * Math.cos(phi) - y * Math.sin(phi), ac.c[1] + x * Math.sin(phi) + y * Math.cos(phi)]; }
 
 /* ---------- subpaths ---------- */
+/* a command straight after Z starts a new subpath where the closed one began,
+   as SVG draws it ("…1-1za2.4 2.4 0 01…"), not at the origin */
 function subpaths(segs) {
-  const out = []; let cur = null;
+  const out = []; let cur = null, start = [0, 0];
   for (const s of segs) {
-    if (s.t === 'M') { cur = { segs: [s], closed: false }; out.push(cur); }
-    else if (!cur) { cur = { segs: [{ t: 'M', p: [0, 0] }], closed: false }; out.push(cur); cur.segs.push(s); }
-    else if (s.t === 'Z') { cur.closed = true; cur = null; }
-    else cur.segs.push(s);
+    if (s.t === 'M') { cur = { segs: [s], closed: false }; start = s.p; out.push(cur); }
+    else if (s.t === 'Z') { if (cur) cur.closed = true; cur = null; }
+    else { if (!cur) { cur = { segs: [{ t: 'M', p: start.slice() }], closed: false }; out.push(cur); } cur.segs.push(s); }
   }
   return out.filter(sp => sp.segs.length > 1 || sp.closed);
 }
@@ -235,6 +249,8 @@ function pathQuad(pts) {
 const segsOf = pr => pr.segs || (pr.segs = parsePath(pr.d || ''));
 /* a path: straight runs get fillets at their interior joins */
 function pathPath(pr, P) {
+  if (pr.x) return segsToString(segsOf(pr), f4); // exact: the drawing as drawn
+  const join = 'fillet';
   let d = '';
   for (const sp of subpaths(segsOf(pr))) {
     const segs = sp.segs;
@@ -242,7 +258,7 @@ function pathPath(pr, P) {
     let run = [segs[0].p]; let out = ''; let started = false;
     const flush = (closing) => {
       if (run.length >= 2) {
-        const pts = run.map((p, i) => [p[0], p[1], i > 0 && i < run.length - 1 ? 'fillet' : 'none']);
+        const pts = run.map((p, i) => [p[0], p[1], i > 0 && i < run.length - 1 ? join : 'none']);
         const cs = corners(pts, false, P);
         if (!started) { out += `M${pt(pts[0])}`; started = true; }
         for (let i = 1; i < pts.length - 1; i++) out += `L${pt(cs[i].p1)}` + arcTo(cs[i]);
@@ -251,7 +267,7 @@ function pathPath(pr, P) {
       run = [run[run.length - 1]];
     };
     if (sp.closed && segs.every(s => s.t === 'M' || s.t === 'L')) {
-      const pts = segs.map(s => [s.p[0], s.p[1], 'fillet']);
+      const pts = segs.map(s => [s.p[0], s.p[1], join]);
       if (Math.hypot(pts[0][0] - pts[pts.length - 1][0], pts[0][1] - pts[pts.length - 1][1]) < 1e-6) pts.pop();
       d += pathPoly(pts, true, P); continue;
     }
@@ -320,17 +336,18 @@ function flatQuad(pts) {
   return out;
 }
 function flatPath(pr, P) {
+  const join = pr.x ? 'none' : 'fillet';
   const parts = [];
   for (const sp of subpaths(segsOf(pr))) {
     const segs = sp.segs;
     if (sp.closed && segs.every(s => s.t === 'M' || s.t === 'L')) {
-      const pts = segs.map(s => [s.p[0], s.p[1], 'fillet']);
+      const pts = segs.map(s => [s.p[0], s.p[1], join]);
       if (Math.hypot(pts[0][0] - pts[pts.length - 1][0], pts[0][1] - pts[pts.length - 1][1]) < 1e-6) pts.pop();
       parts.push({ closed: true, pts: flatFilletRun(pts, true, P) }); continue;
     }
     const out = []; let run = [segs[0].p];
     const flush = () => {
-      if (run.length >= 2) { const pts = run.map((p, i) => [p[0], p[1], i > 0 && i < run.length - 1 ? 'fillet' : 'none']); const f = flatFilletRun(pts, false, P); if (out.length) f.shift(); out.push(...f); }
+      if (run.length >= 2) { const pts = run.map((p, i) => [p[0], p[1], i > 0 && i < run.length - 1 ? join : 'none']); const f = flatFilletRun(pts, false, P); if (out.length) f.shift(); out.push(...f); }
       else if (!out.length) out.push(run[0].slice());
       run = [run[run.length - 1]];
     };
@@ -437,49 +454,341 @@ function halos(prims, roles, P) {
 
 /* ---------- SVG ---------- */
 const safeId = s => String(s == null ? 'g' : s).replace(/[^A-Za-z0-9_-]/g, '_');
+/* a mask's region is the whole canvas: the default (a tenth round the masked
+   bounding box, which leaves the stroke out) clipped the thick edge of a fill */
+const MASK = 'maskUnits="userSpaceOnUse" x="-4" y="-4" width="32" height="32"';
 const widths = P => ({ w: Math.max(0.2, P.S + 2 * (P.choke || 0)), wCut: Math.max(0.2, P.S - 2 * (P.choke || 0)) });
-function svgInner(prims, P, opts = {}) {
+/* an icon drawn in a style of its own: every part carries n, and it is drawn
+   the way it was drawn, fills filled and lines stroked, whatever the style */
+const isNative = prims => prims.length > 0 && prims.every(pr => pr.n);
+/* a subpath too short to have a direction is a dot: round in the rounded
+   corners, square in the sharp ones, never a butt end that draws nothing */
+const isDot = (pr, P) => { if (pr.t === 'arc' || pr.t === 'quad' || (pr.t === 'poly' && pr.closed)) return false; let l = 0; for (const part of flatten(pr, P)) { if (part.closed) return false; for (let i = 1; i < part.pts.length; i++) l += Math.hypot(part.pts[i][0] - part.pts[i - 1][0], part.pts[i][1] - part.pts[i - 1][1]); } return l < 0.1; };
+/* a closed part narrower than the stroke that draws it (palette's wells, a die's
+   pips at a heavy stroke): where the stroke's inner edge turns inside out, the
+   browser leaves a hole in the middle, so the part is drawn instead as the area
+   the stroke covers, filled. A circle is exact; any other part takes Clipper's
+   offset when Clipper is there. Null when the stroke draws it whole */
+function swallowed(pr, P, width) {
+  if (pr.t === 'arc') {
+    if (Math.abs(Math.abs(pr.a1 - pr.a0) - 360) > 1e-6 || Math.abs(pr.rx - pr.ry) > 1e-6 || width <= 2 * pr.rx) return null;
+    const R = pr.rx + width / 2, [cx, cy] = pr.c;
+    return `M${f2(cx - R)} ${f2(cy)}A${f2(R)} ${f2(R)} 0 1 0 ${f2(cx + R)} ${f2(cy)}A${f2(R)} ${f2(R)} 0 1 0 ${f2(cx - R)} ${f2(cy)}Z`;
+  }
+  if (!CLIPPER) return null;
+  const parts = flatten(pr, P);
+  if (!parts.length || !parts.every(p => p.closed && p.pts.length >= 3)) return null;
+  const narrow = parts.some(p => { const xs = p.pts.map(q => q[0]), ys = p.pts.map(q => q[1]); return Math.min(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) < width; });
+  if (!narrow) return null;
+  const CL = CLIPPER, co = new CL.ClipperOffset(2, 0.02 * SC), out = new CL.Paths();
+  for (const p of parts) co.AddPath(p.pts.map(q => ({ X: Math.round(q[0] * SC), Y: Math.round(q[1] * SC) })), pr.join === 'miter' ? CL.JoinType.jtMiter : CL.JoinType.jtRound, CL.EndType.etClosedLine);
+  co.Execute(out, (width / 2) * SC);
+  return out.map(path => path.map((q, k) => `${k ? 'L' : 'M'}${f2(q.X / SC)} ${f2(q.Y / SC)}`).join('') + 'Z').join('');
+}
+/* ---------- the filled styles of a line icon, from its geometry ----------
+   Wherever a line icon's ink closes round some space, that space is its body:
+   two-tone lays a plate in it under the line, fill fills it, duotone shades it.
+   A line that never reaches the body's edge (a pupil, a heart on a page) is a
+   detail, and so is the deep part of a line that runs through the body (a
+   globe's meridians): fill cuts the details out, duotone draws them in full.
+   An icon that closes round nothing keeps its line in every style.
+   The library analyses every line icon once, at build time and at the default
+   parameters, and stores the result on the parts as prims.a; an icon that
+   changed since (an edit, a parametric icon) is analysed when drawn. prims.a = 0
+   means the parts are a designed solid and keep their own roles.
+     a = { pl: [[x, y, x, y ...] ...] plates,  d: [i ...] details,  c: [[i, [x, y ...] ...] ...] cuts } */
+const A_S0 = 2, A_MIN = 1.5, A_GROW = 0.75, A_TOL = 0.08;
+/* Douglas-Peucker on [[x, y]...]: a plate sits under its line, so a simpler outline within A_TOL is invisible */
+function simplify(pts, tol, closed) {
+  if (pts.length < 4) return pts;
+  if (closed) { let far = 0, fd = -1; for (let i = 1; i < pts.length; i++) { const dd = Math.hypot(pts[i][0] - pts[0][0], pts[i][1] - pts[0][1]); if (dd > fd) { fd = dd; far = i; } } return [...simplify(pts.slice(0, far + 1), tol, false).slice(0, -1), ...simplify([...pts.slice(far), pts[0]], tol, false).slice(0, -1)]; }
+  const [a, b] = [pts[0], pts[pts.length - 1]]; const dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1e-9;
+  let idx = 0, dmax = 0; for (let i = 1; i < pts.length - 1; i++) { const dd = Math.abs((pts[i][0] - a[0]) * dy - (pts[i][1] - a[1]) * dx) / l; if (dd > dmax) { dmax = dd; idx = i; } }
+  return dmax > tol ? [...simplify(pts.slice(0, idx + 1), tol, false).slice(0, -1), ...simplify(pts.slice(idx), tol, false)] : [a, b];
+}
+let CLIPPER = typeof globalThis !== 'undefined' && globalThis.ClipperLib ? globalThis.ClipperLib : null;
+const useClipper = cl => { CLIPPER = cl; };
+const flatD = (pts, close) => { let d = ''; for (let i = 0; i + 1 < pts.length; i += 2) d += `${i ? 'L' : 'M'}${f2(pts[i])} ${f2(pts[i + 1])}`; return d + (close ? 'Z' : ''); };
+function analyse(prims, P, CL = CLIPPER, opts = {}) {
+  if (!CL || !prims.length) return null;
+  const toIP = pts => pts.map(p => ({ X: Math.round(p[0] * SC), Y: Math.round(p[1] * SC) }));
+  const flat = path => { const o = []; for (const q of simplify(path.map(q => [q.X / SC, q.Y / SC]), A_TOL, true)) o.push(f2(q[0]), f2(q[1])); return o; };
+  const area = paths => Math.abs(CL.JS.AreaOfPolygons(paths)) / (SC * SC);
+  const bool = (type, a, b, tree) => { const c = new CL.Clipper(); if (a.length) c.AddPaths(a, CL.PolyType.ptSubject, true); if (b && b.length) c.AddPaths(b, CL.PolyType.ptClip, true); const out = tree ? new CL.PolyTree() : new CL.Paths(); c.Execute(type, out, CL.PolyFillType.pftNonZero, CL.PolyFillType.pftNonZero); return out; };
+  const grow = (paths, d) => { const out = new CL.Paths(); if (!paths.length) return out; const co = new CL.ClipperOffset(2, 0.05 * SC); co.AddPaths(paths, CL.JoinType.jtRound, CL.EndType.etClosedPolygon); co.Execute(out, d * SC); return out; };
+  const R = autoRoles(prims, P);
+  const live = prims.map(pr => !(pr.alpha != null && pr.alpha < 1));
+  /* the ink of each part as the stroke style draws it, at a stroke of A_S0 */
+  const inks = prims.map((pr, i) => {
+    const out = new CL.Paths(); if (!live[i]) return out;
+    const co = new CL.ClipperOffset(2, 0.02 * SC); let any = false;
+    for (const part of flatten(pr, P)) {
+      if (!part.pts.length) continue;
+      if (R[i] === 'fill' && part.pts.length >= 3) { let ip = toIP(part.pts); if (!CL.Clipper.Orientation(ip)) ip.reverse(); co.AddPath(ip, CL.JoinType.jtRound, CL.EndType.etClosedPolygon); }
+      else co.AddPath(toIP(part.pts), CL.JoinType.jtRound, part.closed ? CL.EndType.etClosedLine : CL.EndType.etOpenRound);
+      any = true;
+    }
+    if (any) co.Execute(out, (A_S0 / 2) * SC);
+    return out;
+  });
+  const all = []; for (const k of inks) all.push(...k);
+  const none = { pl: [], d: [], c: [] };
+  if (!all.length) return none;
+  /* an outline left open for a badge (heart-plus, bell-plus, clock-alert) closes
+     across its gap, and the badge stays apart from the fill */
+  const badges = new Set();
+  let held0 = null; // the spaces closed before any gap is: a point in one is held
+  const held = (x, y) => {
+    if (!held0) { held0 = []; const t0 = bool(CL.ClipType.ctUnion, all, null, true); const w = n => { for (const ch of n.Childs()) { if (ch.IsHole() && area([ch.Contour()]) >= A_MIN) held0.push(ch.Contour().map(q => [q.X / SC, q.Y / SC])); w(ch); } }; w(t0); }
+    let c = false; for (const poly of held0) for (let k = 0, j = poly.length - 1; k < poly.length; j = k++) { const a = poly[k], b = poly[j]; if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) c = !c; }
+    return c;
+  };
+  for (const [a, b, j] of opts.gaps === false ? [] : gapsClosed(prims, P, R, live, p => held(p[0], p[1]))) {
+    for (const k of j) badges.add(k);
+    const co = new CL.ClipperOffset(2, 0.02 * SC), out = new CL.Paths();
+    co.AddPath(toIP([a, b]), CL.JoinType.jtRound, CL.EndType.etOpenRound); co.Execute(out, (A_S0 / 2) * SC); all.push(...out);
+  }
+  const tree = bool(CL.ClipType.ctUnion, all, null, true);
+  const holes = [], outers = [];
+  const walk = n => { for (const ch of n.Childs()) { (ch.IsHole() ? holes : outers).push(ch.Contour()); walk(ch); } };
+  walk(tree);
+  const big = holes.filter(h => area([h]) >= A_MIN);
+  if (!big.length) return none;
+  const plates = grow(big.map(h => h.slice().reverse()), A_GROW); // out to just short of the centrelines around them
+  const sil = bool(CL.ClipType.ctUnion, outers);
+  const deep = grow(sil, -A_S0);
+  const band = bool(CL.ClipType.ctDifference, sil, deep);
+  /* the deep part of a line, found by walking it in small steps (Clipper's own
+     clipping of open lines can loop forever on some inputs, heart-pulse among them) */
+  const deepPolys = deep.map(path => path.map(q => [q.X / SC, q.Y / SC]));
+  const isDeep = (x, y) => { let inside = false; for (const poly of deepPolys) for (let k = 0, j = poly.length - 1; k < poly.length; j = k++) { const a = poly[k], b = poly[j]; if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) inside = !inside; } return inside; };
+  const runLen = run => { let l = 0; for (let k = 1; k < run.length; k++) l += Math.hypot(run[k][0] - run[k - 1][0], run[k][1] - run[k - 1][1]); return l; };
+  const deepRuns = pts => {
+    const runs = []; let cur = null;
+    /* every inside sample extends the run; a vertex stays as a point, and the last
+       sample before the line leaves is the run's end */
+    const visit = (x, y, vertex) => {
+      if (isDeep(x, y)) {
+        if (!cur) { cur = { pts: [[x, y]], last: null }; runs.push(cur); }
+        else if (vertex) { cur.pts.push([x, y]); cur.last = null; }
+        else cur.last = [x, y];
+      } else if (cur) { if (cur.last) cur.pts.push(cur.last); cur = null; }
+    };
+    for (let k = 0; k + 1 < pts.length; k++) {
+      const [x0, y0] = pts[k], [x1, y1] = pts[k + 1]; const n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 0.1));
+      for (let s = 0; s < n; s++) visit(x0 + (x1 - x0) * s / n, y0 + (y1 - y0) * s / n, s === 0);
+    }
+    if (pts.length) visit(pts[pts.length - 1][0], pts[pts.length - 1][1], true);
+    return runs.map(r => r.pts).filter(r => r.length > 1 && runLen(r) > 0.6);
+  };
+  const d = [], c = [];
+  prims.forEach((pr, i) => {
+    if (!inks[i].length || badges.has(i)) return;
+    const a = area(inks[i]); if (a < 1e-6) return;
+    if (area(bool(CL.ClipType.ctIntersection, inks[i], band)) < 0.04 * a) { d.push(i); return; } // an island: it never reaches the edge
+    if (R[i] === 'fill') return;
+    const runs = [];
+    for (const part of flatten(pr, P)) if (part.pts.length > 1) runs.push(...deepRuns(part.closed ? [...part.pts, part.pts[0]] : part.pts));
+    if (runs.reduce((l, r) => l + runLen(r), 0) > 1.2) c.push([i, ...runs.map(r => simplify(r, 0.03, false).flatMap(p => [f2(p[0]), f2(p[1])]))]);
+  });
+  const res = { pl: plates.map(flat), d, c };
+  if (badges.size) res.b = [...badges].sort((x, y) => x - y);
+  return res;
+}
+/* the gaps an open outline leaves for a badge: the outline runs most of the way
+   round (its ends closer than 0.45 of its length), and every part that sits in
+   the gap (within reach of the middle of the line across it, or crossing it, and
+   not merely joined at an end), with all that touches it, reaches no more than
+   3.5 into what the closed outline holds and is short beside the outline; and
+   nothing meets the outline's ends. An outline whose gap is empty
+   (rotate-ccw, lightbulb) or holds something that runs on inside (power,
+   circle-check-big) stays open */
+function gapsClosed(prims, P, R, live, held) {
+  const parts = prims.map((pr, i) => (live[i] ? flatten(pr, P).filter(p => p.pts.length) : []));
+  const sample = i => { const o = []; for (const part of parts[i]) { const pts = part.closed ? [...part.pts, part.pts[0]] : part.pts; if (pts.length === 1) o.push(pts[0]); for (let k = 0; k + 1 < pts.length; k++) { const [x0, y0] = pts[k], [x1, y1] = pts[k + 1], n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 0.25)); for (let q = 0; q <= n; q++) o.push([x0 + (x1 - x0) * q / n, y0 + (y1 - y0) * q / n]); } } return o; };
+  const segDist = (p, a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy || 1e-9))); return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy); };
+  const inside = (p, poly) => { let c = false; for (let k = 0, j = poly.length - 1; k < poly.length; j = k++) { const a = poly[k], b = poly[j]; if ((a[1] > p[1]) !== (b[1] > p[1]) && p[0] < (b[0] - a[0]) * (p[1] - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; };
+  const len = pts => { let l = 0; for (let k = 1; k < pts.length; k++) l += Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]); return l; };
+  const area = pts => { let s = 0; for (let k = 0, j = pts.length - 1; k < pts.length; j = k++) s += (pts[j][0] - pts[k][0]) * (pts[j][1] + pts[k][1]); return Math.abs(s / 2); };
+  const crosses = pts => {
+    const X = (p, q, r, t) => { const d = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]); return d(p, q, r) * d(p, q, t) < 0 && d(r, t, p) * d(r, t, q) < 0; };
+    for (let k = 0; k + 1 < pts.length; k++) for (let j = k + 2; j + 1 < pts.length; j++) if (X(pts[k], pts[k + 1], pts[j], pts[j + 1])) return true;
+    return false;
+  };
+  const out = [];
+  prims.forEach((pr, i) => {
+    if (R[i] === 'fill') return;
+    for (const part of parts[i]) {
+      const pts = part.pts; if (part.closed || pts.length < 3) continue;
+      const a = pts[0], b = pts[pts.length - 1], chord = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (chord < 1.5 || chord > 0.45 * len(pts) || area(pts) < 12) continue;
+      /* a line that crosses itself is a letter or a rune (ruble, lira, bluetooth),
+         and one inside a space already closed is a mark within it (circle-power) */
+      if (crosses(pts) || pts.filter(p => held(p)).length > 0.5 * pts.length) continue;
+      const m0 = [a[0] + (b[0] - a[0]) * 0.2, a[1] + (b[1] - a[1]) * 0.2], m1 = [a[0] + (b[0] - a[0]) * 0.8, a[1] + (b[1] - a[1]) * 0.8];
+      const S = prims.map((q, j) => (j === i || !parts[j].length ? null : sample(j)));
+      /* a gap, not a join: nothing else meets either end (a lock's shackle, a door) */
+      if (S.some(pj => pj && pj.some(p => Math.hypot(p[0] - a[0], p[1] - a[1]) < 1.5 || Math.hypot(p[0] - b[0], p[1] - b[1]) < 1.5))) continue;
+      const group = new Set();
+      S.forEach((pj, j) => { if (pj && pj.some(p => Math.hypot(p[0] - a[0], p[1] - a[1]) > 1.5 && Math.hypot(p[0] - b[0], p[1] - b[1]) > 1.5 && segDist(p, m0, m1) < 2)) group.add(j); });
+      if (!group.size) continue;
+      /* the badge is everything that touches what sits in the gap (both arms of a plus) */
+      for (let grew = true; grew;) { grew = false; S.forEach((pj, j) => { if (pj && !group.has(j) && [...group].some(k => S[k].some(p => pj.some(q => Math.hypot(p[0] - q[0], p[1] - q[1]) < 0.5)))) { group.add(j); grew = true; } }); }
+      /* and it may reach only a little way into what the outline holds */
+      const all = [...group].flatMap(j => S[j]), inn = all.filter(p => inside(p, pts));
+      if (inn.length > 0.6 * all.length || inn.some(p => segDist(p, a, b) > 3.5)) continue;
+      /* and a badge is small beside the outline it sits in */
+      if ([...group].reduce((l, j) => l + parts[j].reduce((m, part) => m + len(part.closed ? [...part.pts, part.pts[0]] : part.pts), 0), 0) > 0.6 * len(pts)) continue;
+      out.push([a, b, [...group]]);
+    }
+  });
+  return out;
+}
+/* an icon's analysis: stored, worked out now for parts that changed, or none */
+const analysisCache = new Map();
+function analysisOf(prims, P) {
+  if (prims.a !== undefined) return prims.a || null;
+  if (!CLIPPER || prims.some(pr => pr.roleLocked)) return null; // roles set by hand keep the solid they describe
+  const key = JSON.stringify(prims) + '|' + [P.S, P.R, P.fillet, P.corners].join();
+  if (!analysisCache.has(key)) { if (analysisCache.size > 400) analysisCache.clear(); analysisCache.set(key, analyse(prims, P)); }
+  return analysisCache.get(key);
+}
+/* for each part, whether at least half of it runs within reach of a plate's edge */
+function bordering(prims, P, pl) {
+  const segs = [];
+  for (const p of pl) for (let k = 0, n = p.length / 2; k < n; k++) { const j = (k + 1) % n; segs.push([p[2 * k], p[2 * k + 1], p[2 * j], p[2 * j + 1]]); }
+  const near = (x, y) => {
+    for (const [ax, ay, bx, by] of segs) { const dx = bx - ax, dy = by - ay, t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1e-9))); if (Math.hypot(x - ax - t * dx, y - ay - t * dy) < 0.6) return true; }
+    return false;
+  };
+  return prims.map(pr => {
+    if (pr.alpha != null && pr.alpha < 1) return true;
+    let n = 0, m = 0;
+    for (const part of flatten(pr, P)) {
+      const pts = part.closed ? [...part.pts, part.pts[0]] : part.pts;
+      for (let k = 0; k + 1 < pts.length; k++) {
+        const [x0, y0] = pts[k], [x1, y1] = pts[k + 1], s = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 0.25));
+        for (let q = 0; q < s; q++) { m++; if (near(x0 + (x1 - x0) * q / s, y0 + (y1 - y0) * q / s)) n++; }
+      }
+    }
+    return m === 0 || n >= 0.5 * m;
+  });
+}
+function analysed(prims, P, opts, weight, A) {
   const { w, wCut } = widths(P);
   const id = safeId(opts.uid || 'g');
-  const solid = (opts.weight || P.weight) === 'solid';
+  const cap = P.corners === 'sharp' ? 'butt' : 'round';
+  const R = autoRoles(prims, P);
+  const line = layers(prims, P, { ...opts, roles: R, uid: id + '-l' }, 'outline'); // the line, as the stroke style draws it
+  if (!A.pl.length) return line.body + line.lines + line.faint;
+  /* the line of some of the parts only */
+  const some = (keep, tag) => { const ps = [], rs = []; prims.forEach((pr, i) => { if (keep(i)) { ps.push(pr); rs.push(R[i]); } }); const L = layers(ps, P, { ...opts, roles: rs, uid: id + tag }, 'outline'); return L.body + L.lines; };
+  const B = new Set(A.b || []);
+  const ink = B.size ? some(i => !B.has(i), '-i') : line.body + line.lines;
+  const badges = B.size ? some(i => B.has(i), '-b') : '';
+  /* a badge in the gap of an outline keeps the gap's width clear around it */
+  const haloW = w + 2 * (P.G != null ? P.G : 0.75) * P.S, haloOf = [...B].map(i => [i, swallowed(prims[i], P, haloW)]);
+  const halo = B.size ? (haloOf.some(([, sw]) => !sw) ? `<path d="${haloOf.filter(([, sw]) => !sw).map(([i]) => pathOf(prims[i], P)).join('')}" fill="none" stroke="#000" stroke-width="${f2(haloW)}" stroke-linecap="${cap}" stroke-linejoin="round"/>` : '')
+    + (haloOf.some(([, sw]) => sw) ? `<path d="${haloOf.filter(([, sw]) => sw).map(([, sw]) => sw).join('')}" fill="#000"/>` : '') : '';
+  const plates = `<path d="${A.pl.map(p => flatD(p, true)).join('')}" fill="currentColor"/>`;
+  const masked = (cut, inner, attrs = '') => cut ? `<mask id="k-${id}" ${MASK}><rect x="-4" y="-4" width="32" height="32" fill="#fff"/>${cut}</mask><g mask="url(#k-${id})"${attrs}>${inner}</g>` : attrs ? `<g${attrs}>${inner}</g>` : inner;
+  const faint = ` opacity="${TONE}"`;
+  if (weight === 'two-tone') return masked(halo, plates, faint) + ink + badges + line.faint;
+  const detLine = [], detFill = [], detDot = [], detCut = [], detFull = [];
+  for (const i of A.d) {
+    const d = pathOf(prims[i], P); if (!d) continue;
+    const sc = swallowed(prims[i], P, wCut), sf = swallowed(prims[i], P, w);
+    if (sc || sf) { detCut.push(sc || d); detFull.push(sf || d); continue; }
+    (R[i] === 'fill' ? detFill : P.corners === 'sharp' && isDot(prims[i], P) ? detDot : detLine).push(d);
+  }
+  for (const [, ...polys] of A.c) for (const p of polys) detLine.push(flatD(p, false));
+  if (weight === 'duotone' && !detLine.length && !detFill.length && !detDot.length && !detCut.length && !B.size) {
+    /* nothing inside to set apart: what runs along a plate goes faint with it and
+       the rest (a handle, a tail, a mark of its own) stays in full; when every
+       part runs along one, the line stays in full over the faint plate */
+    const near = bordering(prims, P, A.pl);
+    if (!near.some(x => !x)) return `<g${faint}>${plates}</g>` + ink + line.faint;
+    return `<g${faint}>${plates}${some(i => near[i], '-n')}</g>${some(i => !near[i], '-f')}${line.faint}`;
+  }
+  const cut = (detLine.length ? `<path d="${detLine.join('')}" fill="none" stroke="#000" stroke-width="${f2(wCut)}" stroke-linecap="${cap}" stroke-linejoin="round"/>` : '')
+    + (detFill.length ? `<path d="${detFill.join('')}" fill="#000" stroke="#000" stroke-width="${f2(wCut)}" stroke-linejoin="round"/>` : '')
+    + (detDot.length ? `<path d="${detDot.join('')}" fill="none" stroke="#000" stroke-width="${f2(wCut)}" stroke-linecap="square"/>` : '')
+    + (detCut.length ? `<path d="${detCut.join('')}" fill="#000"/>` : '') + halo;
+  const body = masked(cut, plates + ink, weight === 'duotone' ? faint : '');
+  if (weight !== 'duotone') return body + badges + line.faint;
+  return body
+    + (detLine.length ? `<path d="${detLine.join('')}" fill="none" stroke="currentColor" stroke-width="${f2(w)}" stroke-linecap="${cap}" stroke-linejoin="round"/>` : '')
+    + (detFill.length ? `<path d="${detFill.join('')}" fill="currentColor" stroke="currentColor" stroke-width="${f2(w)}" stroke-linejoin="round"/>` : '')
+    + (detDot.length ? `<path d="${detDot.join('')}" fill="none" stroke="currentColor" stroke-width="${f2(w)}" stroke-linecap="square"/>` : '')
+    + (detFull.length ? `<path d="${detFull.join('')}" fill="currentColor"/>` : '')
+    + badges + line.faint;
+}
+function svgInner(prims, P, opts = {}) {
+  const weight = opts.weight || P.weight;
+  if (weight !== 'outline' && !isNative(prims)) { const A = analysisOf(prims, P); if (A) return analysed(prims, P, opts, weight, A); }
+  if (weight === 'two-tone' && !isNative(prims)) {
+    /* the line over a plate: what the solid would fill, at TONE */
+    const plate = layers(prims, P, { ...opts, uid: (opts.uid || 'g') + '-p' }, 'solid');
+    return (plate.body ? `<g opacity="${TONE}">${plate.body}</g>` : '') + svgInner(prims, P, { ...opts, weight: 'outline' });
+  }
+  const L = layers(prims, P, opts, isNative(prims) ? 'drawn' : weight === 'solid' || weight === 'duotone' ? weight : 'outline');
+  return L.body + L.lines + L.faint;
+}
+/* mode: outline | solid | duotone (the solid's body at TONE, its details and
+   lines in full) | drawn (an icon's own drawing of the style) */
+function layers(prims, P, opts, mode) {
+  const { w, wCut } = widths(P);
+  const id = safeId(opts.uid || 'g');
+  const solid = mode !== 'outline';
+  const sharp = P.corners === 'sharp';
+  const cap = sharp ? 'butt' : 'round';
   const roles = opts.roles || autoRoles(prims, P);
-  const STROKE = `fill="none" stroke="currentColor" stroke-width="${f2(w)}" stroke-linecap="round" stroke-linejoin="round"`;
-  const FILL = `fill="currentColor" stroke="currentColor" stroke-width="${f2(w)}" stroke-linejoin="round" stroke-linecap="round"`;
-  const CUT = `fill="none" stroke="#000" stroke-width="${f2(wCut)}" stroke-linecap="round" stroke-linejoin="round"`;
-  const strokes = [], fills = [], flats = [], cuts = [], knocks = [], punches = [], shapes = [], faint = [], haloed = [];
-  const H = solid ? halos(prims, roles, P) : new Map();
+  const STROKE = `fill="none" stroke="currentColor" stroke-width="${f2(w)}" stroke-linecap="${cap}" stroke-linejoin="round"`;
+  const FILL = `fill="currentColor" stroke="currentColor" stroke-width="${f2(w)}" stroke-linejoin="round" stroke-linecap="${cap}"`;
+  const CUT = `fill="none" stroke="#000" stroke-width="${f2(wCut)}" stroke-linecap="${cap}" stroke-linejoin="round"`;
+  const strokes = [], dots = [], mitred = [], fills = [], flats = [], cuts = [], cutDots = [], knocks = [], punches = [], shapes = [], faint = [], haloed = [];
+  const cutDiscs = [], lineDiscs = [], bodyDiscs = [];
+  const cut = (pr, d) => { const sw = swallowed(pr, P, wCut); if (sw) cutDiscs.push(sw); else (sharp && isDot(pr, P) ? cutDots : cuts).push(d); }; // a butt end on a dot cuts nothing
+  const H = solid && mode !== 'drawn' ? halos(prims, roles, P) : new Map();
   const ds = prims.map(pr => pathOf(pr, P));
+  const strokeOf = pr => pr.join === 'miter' ? STROKE.replace('stroke-linejoin="round"', 'stroke-linejoin="miter"') : STROKE;
+  const line = (pr, d) => { const sw = swallowed(pr, P, w); if (sw) lineDiscs.push(sw); else if (pr.join === 'miter') mitred.push(d); else if (sharp && isDot(pr, P)) dots.push(d); else strokes.push(d); };
   prims.forEach((pr, i) => {
     const d = ds[i]; if (!d) return;
     const role = roles[i];
     const a = pr.alpha != null ? pr.alpha : 1;
     if (a < 1) { // a translucent part draws on its own, above the mask
-      const attrs = role === 'fill' || (solid && role === 'flat') ? `fill="currentColor" fill-rule="${pr.evenodd ? 'evenodd' : 'nonzero'}"` : STROKE;
+      const attrs = role === 'fill' || (solid && role === 'flat') ? `fill="currentColor" fill-rule="${pr.evenodd ? 'evenodd' : 'nonzero'}"` : strokeOf(pr);
       faint.push(`<path d="${d}" ${attrs} opacity="${f2(a)}"/>`); return;
     }
-    if (role === 'fill') fills.push(d);
-    else if (!solid && (role === 'flat' || role === 'knock' || role === 'cut' || role === 'punch')) strokes.push(d); // the outline weight of a filled glyph: its contours, stroked
+    if (role === 'fill') { const sw = swallowed(pr, P, w); if (sw) bodyDiscs.push(sw); else fills.push(d); }
+    else if (!solid && (role === 'flat' || role === 'knock' || role === 'cut' || role === 'punch')) line(pr, d); // the outline weight of a filled glyph: its contours, stroked
     else if (role === 'flat') flats.push(`<path d="${d}" fill="currentColor" fill-rule="${pr.evenodd ? 'evenodd' : 'nonzero'}"/>`);
-    else if (role === 'cut') cuts.push(d);
+    else if (role === 'cut') cut(pr, d);
     else if (role === 'knock') knocks.push(d);
-    else if (role === 'punch') punches.push(d);
-    else if (!solid) strokes.push(d);
+    else if (role === 'punch') { const sw = swallowed(pr, P, wCut); if (sw) cutDiscs.push(sw); else punches.push(d); }
+    else if (!solid) line(pr, d);
     else if (role === 'shape') { if (H.has(i)) haloed.push([i, d]); else shapes.push(d); }
-    else if (role === 'detail') cuts.push(pr.cut ? pathOf(pr.cut, P) : d);
-    else strokes.push(d);
+    else if (role === 'detail') { if (pr.cut) cut(pr.cut, pathOf(pr.cut, P)); else cut(pr, d); if (mode === 'duotone') line(pr, d); }
+    else line(pr, d);
   });
   let body = '', defs = '';
   if (solid && shapes.length) body += `<path d="${shapes.join('')}" ${FILL}/>`;
-  for (const [i, d] of haloed) { const gap = f2(w + 2 * (P.G != null ? P.G : 0.75) * P.S); defs += `<mask id="halo-${id}-${i}"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/><path d="${H.get(i).map(k => ds[k]).join('')}" fill="none" stroke="#000" stroke-width="${gap}" stroke-linejoin="round" stroke-linecap="round"/></mask>`; body += `<g mask="url(#halo-${id}-${i})"><path d="${d}" ${FILL}/></g>`; }
+  for (const [i, d] of haloed) { const gap = f2(w + 2 * (P.G != null ? P.G : 0.75) * P.S); defs += `<mask id="halo-${id}-${i}" ${MASK}><rect x="-4" y="-4" width="32" height="32" fill="#fff"/><path d="${H.get(i).map(k => ds[k]).join('')}" fill="none" stroke="#000" stroke-width="${gap}" stroke-linejoin="round" stroke-linecap="${cap}"/></mask>`; body += `<g mask="url(#halo-${id}-${i})"><path d="${d}" ${FILL}/></g>`; }
   if (fills.length) body += `<path d="${fills.join('')}" ${FILL}/>`;
+  if (bodyDiscs.length) body += `<path d="${bodyDiscs.join('')}" fill="currentColor"/>`;
   body += flats.join('');
   let out = defs;
-  if (body && (cuts.length || knocks.length || punches.length)) {
-    out += `<mask id="cut-${id}"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/>${cuts.length ? `<path d="${cuts.join('')}" ${CUT}/>` : ''}${knocks.length ? `<path d="${knocks.join('')}" fill="#000"/>` : ''}${punches.length ? `<path d="${punches.join('')}" fill="#000" stroke="#000" stroke-width="${f2(wCut)}" stroke-linejoin="round"/>` : ''}</mask><g mask="url(#cut-${id})">${body}</g>`;
+  if (body && (cuts.length || cutDots.length || cutDiscs.length || knocks.length || punches.length)) {
+    out += `<mask id="cut-${id}" ${MASK}><rect x="-4" y="-4" width="32" height="32" fill="#fff"/>${cuts.length ? `<path d="${cuts.join('')}" ${CUT}/>` : ''}${cutDots.length ? `<path d="${cutDots.join('')}" ${CUT.replace('stroke-linecap="butt"', 'stroke-linecap="square"')}/>` : ''}${cutDiscs.length ? `<path d="${cutDiscs.join('')}" fill="#000"/>` : ''}${knocks.length ? `<path d="${knocks.join('')}" fill="#000"/>` : ''}${punches.length ? `<path d="${punches.join('')}" fill="#000" stroke="#000" stroke-width="${f2(wCut)}" stroke-linejoin="round"/>` : ''}</mask><g mask="url(#cut-${id})">${body}</g>`;
   } else out += body;
-  if (strokes.length) out += `<path d="${strokes.join('')}" ${STROKE}/>`;
-  if (faint.length) out += `<g class="faint">${faint.join('')}</g>`;
-  return out;
+  if (mode === 'duotone' && out) out = `<g opacity="${TONE}">${out}</g>`;
+  let lines = '';
+  if (strokes.length) lines += `<path d="${strokes.join('')}" ${STROKE}/>`;
+  if (mitred.length) lines += `<path d="${mitred.join('')}" ${strokeOf({ join: 'miter' })}/>`;
+  if (dots.length) lines += `<path d="${dots.join('')}" ${STROKE.replace('stroke-linecap="butt"', 'stroke-linecap="square"')}/>`;
+  if (lineDiscs.length) lines += `<path d="${lineDiscs.join('')}" fill="currentColor"/>`;
+  return { body: out, lines, faint: faint.length ? `<g class="faint">${faint.join('')}</g>` : '' };
 }
 function gooFilter(P, id) {
   if (!(P.goo > 0)) return '';
@@ -510,11 +819,13 @@ function fromNodes(nodes, hints = {}) {
     const filled = a.fill && a.fill !== 'none' && !hints.ignoreFill;
     const role = filled ? 'flat' : undefined;
     const alpha = ['opacity', filled ? 'fill-opacity' : 'stroke-opacity'].reduce((v, k) => v * (a[k] != null && Number.isFinite(parseFloat(a[k])) ? parseFloat(a[k]) : 1), 1);
-    const add = pr => { if (role) pr.role = role; if (alpha < 1) pr.alpha = f2(alpha); prims.push(pr); };
+    const add = pr => { if (role) pr.role = role; if (alpha < 1) pr.alpha = f2(alpha); if (!filled && a['stroke-linejoin'] === 'miter') pr.join = 'miter'; prims.push(pr); };
     if (tag === 'path') {
       const segs = parsePath(a.d || '');
       if (filled) { const pr = { t: 'path', d: segsToString(segs) }; if (a['fill-rule'] === 'evenodd') pr.evenodd = true; add(pr); }
       else for (const sp of subpaths(segs)) {
+        /* exact: the drawing's own corners, curves and joins, untouched by the corner sliders */
+        if (hints.exact) { const s = sp.segs.slice(); if (sp.closed) s.push({ t: 'Z' }); add({ t: 'path', d: segsToString(s), x: 1 }); continue; }
         const poly = polyfy(sp);
         if (poly) add(poly);
         else { const s = sp.segs.slice(); if (sp.closed) s.push({ t: 'Z' }); add({ t: 'path', d: segsToString(s) }); }
@@ -541,9 +852,54 @@ function fromNodes(nodes, hints = {}) {
 
 /* ---------- outlines through Clipper, glyphs through opentype ---------- */
 const SC = 1000;
+/* a line icon's fill and duotone in one colour: the line and its plates, the details cut out */
+function outlineAnalysed(prims, P, CL, A) {
+  const { wCut } = widths(P);
+  const sharp = P.corners === 'sharp';
+  const toIP = pts => pts.map(p => ({ X: Math.round(p[0] * SC), Y: Math.round(p[1] * SC) }));
+  const flatIP = p => { const ip = []; for (let i = 0; i + 1 < p.length; i += 2) ip.push({ X: Math.round(p[i] * SC), Y: Math.round(p[i + 1] * SC) }); return ip; };
+  const plates = A.pl.map(flatIP).map(ip => (CL.Clipper.Orientation(ip) ? ip : ip.reverse()));
+  const R = autoRoles(prims, P);
+  const B = new Set(A.b || []);
+  const lineOf = keep => { const ps = [], rs = []; prims.forEach((pr, i) => { if (keep(i)) { ps.push(pr); rs.push(R[i]); } }); return ps.length ? outline(ps, P, 'outline', CL, rs) : new CL.Paths(); };
+  const u = new CL.Clipper(); u.AddPaths(B.size ? lineOf(i => !B.has(i)) : outline(prims, P, 'outline', CL), CL.PolyType.ptSubject, true); u.AddPaths(plates, CL.PolyType.ptClip, true);
+  let body = new CL.Paths(); u.Execute(CL.ClipType.ctUnion, body, CL.PolyFillType.pftNonZero, CL.PolyFillType.pftNonZero);
+  const end = sharp ? CL.EndType.etOpenButt : CL.EndType.etOpenRound;
+  if (B.size) {
+    /* a badge in the gap of an outline: the gap's width kept clear round it, then the badge */
+    const { w } = widths(P), ho = new CL.ClipperOffset(2, 0.03 * SC), halo = new CL.Paths();
+    for (const i of B) for (const part of flatten(prims[i], P)) if (part.pts.length) ho.AddPath(toIP(part.pts), CL.JoinType.jtRound, part.closed ? CL.EndType.etClosedLine : end);
+    ho.Execute(halo, (w / 2 + (P.G != null ? P.G : 0.75) * P.S) * SC);
+    const c = new CL.Clipper(); c.AddPaths(body, CL.PolyType.ptSubject, true); c.AddPaths(halo, CL.PolyType.ptClip, true);
+    const cleared = new CL.Paths(); c.Execute(CL.ClipType.ctDifference, cleared, CL.PolyFillType.pftNonZero, CL.PolyFillType.pftNonZero);
+    const v = new CL.Clipper(); v.AddPaths(cleared, CL.PolyType.ptSubject, true); v.AddPaths(lineOf(i => B.has(i)), CL.PolyType.ptClip, true);
+    body = new CL.Paths(); v.Execute(CL.ClipType.ctUnion, body, CL.PolyFillType.pftNonZero, CL.PolyFillType.pftNonZero);
+  }
+  const co = new CL.ClipperOffset(2, 0.03 * SC); let any = false;
+  for (const i of A.d) for (const part of flatten(prims[i], P)) {
+    if (!part.pts.length) continue; any = true;
+    if (R[i] === 'fill' && part.pts.length >= 3) { let ip = toIP(part.pts); if (!CL.Clipper.Orientation(ip)) ip.reverse(); co.AddPath(ip, CL.JoinType.jtRound, CL.EndType.etClosedPolygon); }
+    else co.AddPath(toIP(part.pts), CL.JoinType.jtRound, part.closed ? CL.EndType.etClosedLine : sharp && isDot(prims[i], P) ? CL.EndType.etOpenSquare : end);
+  }
+  for (const [, ...polys] of A.c) for (const p of polys) { co.AddPath(flatIP(p), CL.JoinType.jtRound, end); any = true; }
+  if (!any) return body;
+  const cut = new CL.Paths(); co.Execute(cut, (wCut / 2) * SC);
+  const c = new CL.Clipper(); c.AddPaths(body, CL.PolyType.ptSubject, true); c.AddPaths(cut, CL.PolyType.ptClip, true);
+  const out = new CL.Paths(); c.Execute(CL.ClipType.ctDifference, out, CL.PolyFillType.pftNonZero, CL.PolyFillType.pftNonZero);
+  return out;
+}
 function outline(prims, P, weight, CL, roles) {
+  if (!isNative(prims) && (weight === 'solid' || weight === 'duotone')) {
+    if (!CLIPPER) CLIPPER = CL;
+    const A = analysisOf(prims, P);
+    if (A) return A.pl.length ? outlineAnalysed(prims, P, CL, A) : outline(prims, P, 'outline', CL, roles);
+  }
   const { w, wCut } = widths(P);
-  const solid = weight === 'solid';
+  /* a font has one colour: two-tone keeps its line, duotone its body, and an
+     icon's own drawing is cut the way it was drawn; translucent plates drop out */
+  const drawn = isNative(prims);
+  const solid = drawn || weight === 'solid' || weight === 'duotone';
+  const sharp = P.corners === 'sharp';
   const R = roles || autoRoles(prims, P);
   const toIP = pts => pts.map(p => ({ X: Math.round(p[0] * SC), Y: Math.round(p[1] * SC) }));
   const body = new CL.ClipperOffset(2, 0.03 * SC), cutter = new CL.ClipperOffset(2, 0.03 * SC);
@@ -554,7 +910,9 @@ function outline(prims, P, weight, CL, roles) {
     const role = R[i];
     if (pr.alpha != null && pr.alpha < 0.5) return;
     const parts = flatten(pr, P);
-    const addStroke = (part, co) => { if (part.pts.length) co.AddPath(toIP(part.pts), CL.JoinType.jtRound, part.closed ? CL.EndType.etClosedLine : CL.EndType.etOpenRound); };
+    const end = !sharp ? CL.EndType.etOpenRound : isDot(pr, P) ? CL.EndType.etOpenSquare : CL.EndType.etOpenButt;
+    const join = pr.join === 'miter' ? CL.JoinType.jtMiter : CL.JoinType.jtRound;
+    const addStroke = (part, co) => { if (part.pts.length) co.AddPath(toIP(part.pts), join, part.closed ? CL.EndType.etClosedLine : end); };
     const addPolygon = part => { if (part.pts.length < 3) return; let ip = toIP(part.pts); if (!CL.Clipper.Orientation(ip)) ip.reverse(); body.AddPath(ip, CL.JoinType.jtRound, CL.EndType.etClosedPolygon); };
     if (role === 'fill') { for (const part of parts) { if (part.pts.length >= 3) addPolygon(part); else addStroke(part, body); } hasBody = true; }
     else if (!solid && (role === 'flat' || role === 'knock' || role === 'cut' || role === 'punch')) { for (const part of parts) addStroke(part, body); hasBody = true; }
@@ -562,7 +920,7 @@ function outline(prims, P, weight, CL, roles) {
     else if (role === 'knock') { for (const part of parts) { if (part.pts.length >= 3) { knock.push(toIP(part.pts)); hasKnock = true; } } }
     else if (role === 'punch') { const co = new CL.ClipperOffset(2, 0.03 * SC); let any = false; for (const part of parts) { if (part.pts.length < 3) continue; let ip = toIP(part.pts); if (!CL.Clipper.Orientation(ip)) ip.reverse(); co.AddPath(ip, CL.JoinType.jtRound, CL.EndType.etClosedPolygon); any = true; } if (any) { const grown = new CL.Paths(); co.Execute(grown, (wCut / 2) * SC); for (const q of grown) knock.push(q); hasKnock = true; } }
     else if (role === 'cut') { for (const part of parts) addStroke(part, cutter); hasCut = true; }
-    else if (solid && role === 'shape') {
+    else if (solid && !drawn && role === 'shape') {
       if (H.has(i)) { // grown on its own, then the later shapes' gaps taken out of it
         const co = new CL.ClipperOffset(2, 0.03 * SC); let any = false;
         for (const part of parts) { if (part.pts.length < 3) continue; let ip = toIP(part.pts); if (!CL.Clipper.Orientation(ip)) ip.reverse(); co.AddPath(ip, CL.JoinType.jtRound, CL.EndType.etClosedPolygon); any = true; }
@@ -710,6 +1068,11 @@ function deriveOutline(prims, P, CL) {
 /* an icon's parts for a weight: a native solid when the library has one */
 const primsFor = (ic, weight) => (weight === 'solid' && ic.ps ? ic.ps : ic.p);
 
+/* an imported drawing as the library stores it, [{ d, f filled, a alpha, e even-odd,
+   m mitred }], as parts drawn the way they were drawn: lines keep their own corners
+   and follow the stroke and corner settings, fills stay as they are */
+const drawn = parts => parts.map(q => { const pr = { t: 'path', d: q.d, x: 1, role: q.f ? 'flat' : 'stroke', roleLocked: true, n: 1 }; if (q.a != null) pr.alpha = q.a; if (q.e) pr.evenodd = true; if (q.m) pr.join = 'miter'; return pr; });
+
 /* ---------- the app's own parametric icons ---------- */
 const ICONS = {
   card: { name: 'Card', make: P => { const s = P.S, h = s / 2, y = 4 + 2.5 * s; return [
@@ -750,4 +1113,4 @@ const ICONS = {
 };
 const ICON_ORDER = ['card', 'home', 'bag', 'search', 'globe', 'send', 'person', 'target', 'star', 'plus', 'arrow', 'naira'];
 
-export { DEF, PRESETS, ICONS, ICON_ORDER, BASE, corners, radiusOf, parsePath, segsToString, subpaths, polyfy, arcCentre, pathOf, flatten, isClosed, bbox, autoRoles, svg, svgInner, symbol, gooFilter, widths, fromNodes, outline, buildFont, deriveOutline, primsFor, halos, safeId, f2  };
+export { DEF, WEIGHTS, TONE, PRESETS, ICONS, ICON_ORDER, BASE, corners, radiusOf, parsePath, segsToString, subpaths, polyfy, arcCentre, pathOf, flatten, isClosed, bbox, autoRoles, svg, svgInner, symbol, gooFilter, widths, fromNodes, outline, buildFont, deriveOutline, primsFor, halos, safeId, f2, f4, isNative, layers, drawn, analyse, analysisOf, useClipper  };

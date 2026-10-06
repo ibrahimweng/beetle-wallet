@@ -48,8 +48,11 @@ type ScreenProps = {
   scrollEnabled?: boolean;
 };
 
-/** How tall the soft blur at the top is: well past the shrunk title, so it is at its strongest behind it, with room under it to fade. */
-const BAND = SMALL_TOP + Math.round(SMALL * 1.43) + 52;
+/** How far down the soft blur at the top stays at its strongest: past the shrunk title's line, and 10 under it, so a
+    line passing under the title is a haze wherever the title is (Round 18). */
+const HOLD = SMALL_TOP + Math.round(SMALL * 1.43) + 10;
+/** How tall it is: that, and room under it to fade. */
+const BAND = HOLD + 56;
 /** In a sheet the head starts this far under the sheet's top, the grabber over it. */
 const SHEET_HEAD = 32;
 
@@ -70,6 +73,7 @@ function Body({ children, head, dock, wash, sink = false, bare = false, scrollEn
   const [headH, setHeadH] = useState<number | null>(null);
   const top = head ? headTop + (headH ?? 0) + frame.columnGap : headTop;
   const band = BAND - (frame.topPad - headTop);
+  const hold = HOLD - (frame.topPad - headTop);
   return (
     <HeadScroll.Provider value={y}>
       <PageScroll.Provider value={column}>
@@ -85,7 +89,7 @@ function Body({ children, head, dock, wash, sink = false, bare = false, scrollEn
           ) : null}
           {head ? (
             <View style={[s.band, { height: band }]} pointerEvents="none">
-              <SoftBlur side="top" height={band} k={blur} strong testID="head-blur" />
+              <SoftBlur side="top" height={band} hold={hold} k={blur} strong testID="head-blur" />
             </View>
           ) : null}
           <Animated.ScrollView

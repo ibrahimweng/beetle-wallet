@@ -46,7 +46,7 @@ const AnimatedBlur = blur ? Animated.createAnimatedComponent(blur.BlurView) : nu
 /** The web's blur at strength `k` of `intensity`, drawn the way expo-blur draws it there: a browser only blurs
     what is behind an element while nothing over it is see-through, so a fading blur has to thin itself
     rather than fade (Round 16: faded, it vanished at once and left the page sharp under the white). */
-function webFrost(k: number, intensity: number, tint: 'light' | 'dark'): ViewStyle {
+export function webFrost(k: number, intensity: number, tint: 'light' | 'dark'): ViewStyle {
   'worklet';
   const n = Math.min(intensity, 100);
   const f = `saturate(${(1 + 0.8 * k).toFixed(3)}) blur(${(k * n * 0.2).toFixed(2)}px)`;

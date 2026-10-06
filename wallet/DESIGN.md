@@ -20,8 +20,9 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   reaching 40 above the row, with no white in it: a white page reads as
   white and a card passing under reads as a card, blurred. No hard edge, no
   shadow line, no white band. The top of a page with a title is the same
-  soft blur, stronger, so a row passing under the shrunk title is a smear
-  and the title reads.
+  soft blur, stronger, and at its strongest down past the shrunk title
+  before it fades (Round 18), so a row passing under the title is a haze
+  and the title reads alone.
 - **Frosted white glass** for what sits over the page: the bar's Home,
   Activities and Settings in a pill that hugs them (12 of padding, no
   outline), and Back in a circle of it. A page that opens over home (Card,
@@ -66,7 +67,8 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 - **Pages slide the way the phone's own do** (Round 13): in from the right
   over the page they came from, out to the right, the swipe from the left
   edge taking them back under the finger. Nothing else moves between
-  pages: no cross-fade, no screen receding, nothing lighting up. A title
+  pages: no cross-fade, no screen receding, nothing lighting up, but the
+  foot, which stays put and changes shape (Round 18; see The foot). A title
   comes with its page; none flies from the button that opened it. What
   home's four cards open comes up from the bottom instead, as a sheet, and
   so does anything opened from a sheet (Round 14; see Pages).
@@ -79,10 +81,17 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 
 ## The foot
 
-- Each page carries its own foot, so the foot slides with its page. On
+- **The foot stays put and changes shape** (Round 18, the owner's word).
+  It is drawn once, over every page, and does not slide with them. On
   Home, Activities and Settings it is the bar (the three glyphs in their
   glass pill, and the plus). On every other page it is Back at the bottom
   left beside the page's one button, or Back alone.
+- Going to a page, the pill draws in to Back's circle where it is, the
+  glyphs fading as the arrow comes in; the plus is gone before the page's
+  button slides in beside Back, so the two are never drawn over each
+  other. Going back, the circle grows into the pill. Between two pages
+  Back stays and the button hands over the same way: the one going fades,
+  then the next slides in. All of it on `settle`, in step with the page.
 - The bar sits 12 from the bottom of the screen and 24 in from either side
   (the owner's home frame). On a phone with the home line it sits just over
   the line instead, never on it.
@@ -133,6 +142,10 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   blurred page. A page opened from a sheet comes up as a sheet over it, the
   one under stepping back; Back, or a swipe down from the sheet's top, puts
   away the one on top.
+- **A sheet rises on a long, settling curve** (Round 18): quick off the
+  mark and easing gently into place, 0.5s up and 0.4s down
+  (cubic-bezier 0.32, 0.72, 0, 1), the one under it stepping back on the
+  same curve. The web moves it too.
 
 - **No Beetle bubble on any page.** Bubbles belong to the chat. What Beetle
   has to say on a page is a plain line in the secondary grey, where the

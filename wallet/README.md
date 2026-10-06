@@ -267,7 +267,8 @@ bottom as a white sheet, nearly the height of the screen, and home steps
 back behind it, a little narrower, its top showing over the sheet's; a
 page opened from a sheet comes up as a sheet over it, and Back (or, on the
 phone, a swipe down from the sheet's top) puts away the one on top
-(`src/design/sheetStack.tsx`). There is no dollar wallet on home yet; the chip
+(`src/design/sheetStack.tsx`). A sheet comes up in half a second on a
+curve that settles gently into place, and the one under steps back on it. There is no dollar wallet on home yet; the chip
 on the card is the way to the dollars.
 
 Inside the black card, under Send and Receive, the offers
@@ -977,9 +978,16 @@ gone.
 
 ## The foot, the bar and More
 
-Every page carries its own foot (`src/features/more/Foot.tsx`), so the
-foot slides in and out with its page and follows the finger on the swipe
-back. There is no white under it: what scrolls under the foot goes soft
+The foot is drawn once over every page (`src/features/more/Foot.tsx`)
+and stays where it is while the pages slide in and out above it, changing
+shape from one page's foot to the next (Round 18, the owner's word; from
+Round 13 to Round 17 each page carried its own and it slid with the page).
+Going to a page, the bar's pill draws in to Back's circle where it sits,
+its three glyphs fading as the arrow comes in, while the plus fades away
+and the page's button slides in beside Back; going back, the circle grows
+into the pill again. Between two pages Back stays put and the button
+hands over: the one going fades where it is, then the next slides in.
+There is no white under it: what scrolls under the foot goes soft
 under a blur that grows toward the edge, with no white in it, so a white
 page reads as white and a card passing under reads as a card, blurred. On
 the three pages it is the bar: Home, Activities and Settings in a rounded
@@ -993,7 +1001,9 @@ request, Load card), or Back and Slide to send (Send money), or Back
 alone; no page but home carries an ask bar, and the plus stays on the bar
 of the three pages. Back is always at the bottom left, 20 in, with 12
 clear between it and the button so each is its own tap.
-Each screen says what its foot holds while it has focus (`useFoot`), and
+Each screen says what its foot holds (`useFoot`); the foot shows the
+screen in front (`FootScope` round every screen, `FootHost` over the
+stack, in `app/(app)/_layout.tsx`), and
 the numbers are the frames' docks: 104 tall, the row 56 with 24 above and
 below, 20 in from either side, Back 44, the button 56; the slide is 60
 tall, as the Send money frame draws it. The blur under the foot reaches
@@ -1110,11 +1120,14 @@ Round 13: a page slides in from the right over the one it came from, which
 gives way a little to the left, and going back slides it out to the
 right; on the phone a swipe from the left edge takes it back under the
 finger. The stack is expo-router's JavaScript stack (`app/(app)/_layout.tsx`),
-so the phone and the web move alike, and each page carries its own foot,
-so Back and the page's button slide with the page. Card, Services, Loan
-and Savings come up from the bottom instead, as white sheets over home,
-which steps back behind them (Round 14); a page opened from one comes up
-as a sheet over it.
+so the phone and the web move alike. The foot does not slide: it stays
+where it is and changes shape, the bar's pill drawing in to Back as the
+page comes (Round 18). Card, Services, Loan and Savings come up from the
+bottom instead, as white sheets over home, which steps back behind them
+(Round 14); a page opened from one comes up as a sheet over it. A sheet
+rises on a long, settling curve, quick off the mark and easing gently
+into place, half a second up and a little less down, and the one under it
+steps back on the same curve, on the web as on the phone (Round 18).
 Where nothing needs a page, nothing is pushed: a line on Activities opens
 where it is, the line itself, its facts growing in under it as the page
 goes soft under white (Round 17), and closes in two steps, its facts going

@@ -1260,6 +1260,48 @@ down.
 **Expo Go**: a QR code for the update, as every round that reaches the
 phone ends.
 
+## Round 18 · A foot that stays put and changes shape
+
+Asked by the owner after Round 17, testing the preview: on Activities the
+shrunk title drew over the cards scrolled under it; a square showed round
+the bar's three glyphs; the three glyphs should turn into Back smoothly
+when a page opens, and back; and the sheets that come up from the bottom
+should rise on a good ease, a sheet coming up over another smoothly too.
+The owner's answer on the foot: it stays where it is and changes shape.
+
+- [x] The shrunk title reads alone. The soft blur at the top of a page
+      was strongest above the title, where there is nothing to read, and
+      already thinning where the title stood, so a line passing under it
+      showed through; it now holds at its strongest down past the title,
+      10 under its line, and only then fades, on the phone as on the web,
+      so what passes under the title is a haze. And the web draws it: a
+      browser only blurs behind a box while nothing round it is masked,
+      rounded or see-through, and the blur was masked from outside, so it
+      was never drawn there; each sheet of it now carries its own mask.
+- [x] No square round the bar's glyphs: on the web a blur is not clipped
+      by the rounded box round it, so the pill's blur now takes the pill's
+      corners itself.
+- [x] The foot is drawn once, over every page, and stays where it is while
+      the pages slide in and out above it (reversing Round 13, where each
+      page carried its own). Going to a page, the pill draws in to Back's
+      circle, the glyphs fading as the arrow comes in; the plus goes and
+      then the page's button slides in beside Back. Going back, the circle
+      grows into the pill. Between two pages Back stays and the button
+      hands over: the one going fades, then the next slides in. The change
+      starts on the frame the page starts to slide.
+- [x] The first frame of a change could fall a moment before the change
+      began on the web, and on a curve that leaves as quickly as `settle`
+      the pill stepped 13 wider before drawing in; the foot holds its
+      changes to their ends.
+- [x] Sheets rise on a long, settling curve, half a second up and a little
+      less down, and the sheet or home under one steps back on the same
+      curve. The web stack moved nothing it was not told how to move, so on
+      the web the sheets used to appear at once; they move there now too.
+- [x] The walk waits for a sheet to stop before measuring it.
+
+**Expo Go**: a QR code for the update, as every round that reaches the
+phone ends.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

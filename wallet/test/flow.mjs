@@ -89,6 +89,24 @@ async function shot(name, settle = 700) {
 }
 /* the words, where they can be seen: a screen underneath the one showing keeps its words in the page, hidden */
 const see = text => page.getByText(text).filter({ visible: true }).first().waitFor();
+/* a sheet comes up on its curve, on the web as on the phone (Round 18): what is measured on one waits until the top
+   sheet's grabber has stood still for a few frames */
+const sheetStill = () =>
+  page
+    .waitForFunction(
+      () => {
+        const g = [...document.querySelectorAll('[data-testid="sheet-grabber"]')].pop();
+        if (!g) return false;
+        const y = Math.round(g.getBoundingClientRect().y);
+        const same = window.__sheetY === y;
+        window.__sheetY = y;
+        window.__sheetSame = same ? (window.__sheetSame || 0) + 1 : 0;
+        return window.__sheetSame >= 4;
+      },
+      null,
+      { polling: 'raf', timeout: 3000 },
+    )
+    .catch(() => {});
 /* the same, for words that are a thing's whole name: a card's title, where Beetle's own lines may carry the words too */
 const seeExactly = text => page.getByText(text, { exact: true }).filter({ visible: true }).first().waitFor();
 /* the moment a screen's words are in the page at all, before it has arrived —
@@ -2031,6 +2049,7 @@ try {
   at('/goal');
   await see('33%');
   /* the page comes up as a white sheet over home, which steps back behind it, its top showing over the sheet's (Round 14) */
+  await sheetStill();
   const over = await page.evaluate(() => {
     const grab = [...document.querySelectorAll('[data-testid="sheet-grabber"]')].pop()?.getBoundingClientRect();
     const pager = document.querySelector('[data-testid="pager"]')?.getBoundingClientRect();

@@ -7,7 +7,11 @@
    It is stacked: four sheets of expo-blur, each reaching less far in than
    the last and each masked by a gradient so its own end fades rather than
    stops, which gives a blur that grows toward the edge with no line
-   anywhere. On the phone the mask is a MaskedView; on the web it is CSS.
+   anywhere. On the phone the mask is a MaskedView; on the web it is CSS,
+   on the same box as the blur: a browser only blurs what is behind a box
+   while nothing round the box is masked, rounded or see-through, so masked
+   from outside, the blur under a page's title was never drawn and what
+   scrolled under the title stayed sharp (Round 18, the owner's word).
 
    Frosted white: a pill or a circle of blur with a little white in it, for
    the bar's glyphs and a page's Back, and the ground of a page that opens
@@ -20,6 +24,7 @@ import React, { useLayoutEffect, useRef, type ReactNode } from 'react';
 import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, { useAnimatedProps, useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import { webFrost } from './Veil';
 
 type BlurModule = typeof import('expo-blur');
 export const blurModule: BlurModule | null = (() => {
@@ -74,19 +79,19 @@ export const along = (side: Side) => ({
   end: { x: 0.5, y: side === 'top' ? 1 : 0 },
 });
 
-/** One sheet of blur, fading out at its own end. */
-export function Sheet({ side, height, children }: { side: Side; height: number; children?: ReactNode }) {
+/** One sheet of blur, whole as far as `solid` of its reach and fading out after it, to its own end. */
+export function Sheet({ side, height, solid = SHEET_SOLID, children }: { side: Side; height: number; solid?: number; children?: ReactNode }) {
   const edge = side === 'top' ? { top: 0 } : { bottom: 0 };
   const box = [{ position: 'absolute' as const, left: 0, right: 0, height }, edge];
   if (Platform.OS === 'web')
     return (
-      <WebMasked style={box} side={side} solid={SHEET_SOLID}>
+      <WebMasked style={box} side={side} solid={solid}>
         {children}
       </WebMasked>
     );
   if (Masked)
     return (
-      <Masked style={box} maskElement={<LinearGradient colors={['#000', '#000', 'transparent']} locations={[0, SHEET_SOLID, 1]} {...along(side)} style={StyleSheet.absoluteFill} />}>
+      <Masked style={box} maskElement={<LinearGradient colors={['#000', '#000', 'transparent']} locations={[0, solid, 1]} {...along(side)} style={StyleSheet.absoluteFill} />}>
         {children}
       </Masked>
     );
@@ -114,22 +119,57 @@ function WebMasked({ style, side, solid, children }: { style: object; side: Side
 /** A soft blur at the top or the foot of the screen, strongest at the edge
     and gone by `height` in, with no white in it. `k` brings it in and out:
     on the phone each sheet's blur grows with it, since a blur under a fading
-    parent is drawn badly there; the web fades the whole, which it draws well. */
-export function SoftBlur({ side, height, k, strong = false, testID }: { side: Side; height: number; k?: SharedValue<number>; strong?: boolean; testID?: string }) {
+    parent is drawn badly there; the web fades the whole, which it draws well.
+    `hold` keeps it whole as far in as that, every sheet at its strongest,
+    and only then fading, each sheet to its own end: the top of a page holds
+    it past the shrunk title, so what passes under the title is a haze and
+    the title reads alone (Round 18, the owner's word: the title drew over
+    the lines, the blur already thinning where it stood). */
+export function SoftBlur({ side, height, k, strong = false, hold, testID }: { side: Side; height: number; k?: SharedValue<number>; strong?: boolean; hold?: number; testID?: string }) {
   const Blur = blurModule?.BlurView;
   const native = Platform.OS !== 'web' && !!AnimatedBlur && !!k;
   const whole = useAnimatedStyle(() => ({ opacity: native || !k ? 1 : k.value }));
   const edge = side === 'top' ? { top: 0 } : { bottom: 0 };
+  /* each sheet's reach, and how much of it is whole: half, or as far as `hold` */
+  const sheets = (strong ? STRONG_SHEETS : SHEETS).map(([share, intensity]) => {
+    const reach = hold == null ? Math.round(height * share) : Math.round(hold + (height - hold) * share);
+    return { reach, intensity, solid: hold == null ? SHEET_SOLID : Math.min(0.96, hold / reach) };
+  });
+  /* the web: each sheet one box with its blur and its mask, `k` thinning its blur */
+  if (Platform.OS === 'web')
+    return (
+      <View pointerEvents="none" style={[{ position: 'absolute', left: 0, right: 0, height }, edge]} testID={testID}>
+        {sheets.map(({ reach, intensity, solid }, i) => (
+          <WebSheet key={i} side={side} height={reach} solid={solid} intensity={intensity} k={k} />
+        ))}
+      </View>
+    );
   if (!Blur) return null;
   return (
     <Animated.View pointerEvents="none" style={[{ position: 'absolute', left: 0, right: 0, height }, edge, whole]} testID={testID}>
-      {(strong ? STRONG_SHEETS : SHEETS).map(([share, intensity], i) => (
-        <Sheet key={i} side={side} height={Math.round(height * share)}>
+      {sheets.map(({ reach, intensity, solid }, i) => (
+        <Sheet key={i} side={side} height={reach} solid={solid}>
           {native && k ? <GrowingBlur k={k} intensity={intensity} /> : <Blur intensity={intensity} tint="light" experimentalBlurMethod={blurMethod} style={StyleSheet.absoluteFill} />}
         </Sheet>
       ))}
     </Animated.View>
   );
+}
+
+/** One sheet of the soft blur on the web: its blur and its mask on the one box (see the top of this file), the blur at
+    `k` of its strength. */
+function WebSheet({ side, height, solid, intensity, k }: { side: Side; height: number; solid: number; intensity: number; k?: SharedValue<number> }) {
+  const ref = useRef<View>(null);
+  useLayoutEffect(() => {
+    const el = ref.current as unknown as { style?: Record<string, string> } | null;
+    if (!el?.style) return;
+    const mask = `linear-gradient(to ${side === 'top' ? 'bottom' : 'top'}, #000 ${Math.round(solid * 100)}%, transparent 100%)`;
+    el.style.maskImage = mask;
+    el.style.webkitMaskImage = mask;
+  }, [side, solid]);
+  const strength = useAnimatedStyle(() => webFrost(k ? Math.max(0, Math.min(1, k.value)) : 1, intensity, 'light'), [intensity]);
+  const edge = side === 'top' ? { top: 0 } : { bottom: 0 };
+  return <Animated.View ref={ref} pointerEvents="none" style={[{ position: 'absolute', left: 0, right: 0, height }, edge, strength]} />;
 }
 
 export function GrowingBlur({ k, intensity, tint = 'light' }: { k: SharedValue<number>; intensity: number; tint?: 'light' | 'dark' }) {
@@ -141,16 +181,21 @@ export function GrowingBlur({ k, intensity, tint = 'light' }: { k: SharedValue<n
 /** How white frosted white is: enough to read as glass over a card, little
     enough that over the white page it is all but invisible (the owner's
     choice for the bar's pill). */
-const FROSTED = 'rgba(255, 255, 255, 0.55)';
+export const FROSTED = 'rgba(255, 255, 255, 0.55)';
 
 /** A shape of frosted white glass: the bar's pill, a page's Back. Its
-    corners are the caller's; it clips what it holds to them. No outline. */
+    corners are the caller's; it clips what it holds to them, and the blur
+    takes them too: on the web a blur is not clipped by the box round it, so
+    without its own corners the pill's blur showed as a square round it
+    (Round 18, the owner's word). No outline. */
 export function Glass({ style, children, testID }: { style?: StyleProp<ViewStyle>; children?: ReactNode; testID?: string }) {
   const Blur = blurModule?.BlurView;
+  const round = StyleSheet.flatten(style)?.borderRadius;
+  const corners = typeof round === 'number' ? { borderRadius: round } : null;
   return (
     <View style={[s.glass, style]} testID={testID}>
-      {Blur ? <Blur intensity={40} tint="light" experimentalBlurMethod={blurMethod} style={StyleSheet.absoluteFill} /> : null}
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: Blur ? FROSTED : 'rgba(255, 255, 255, 0.92)' }]} pointerEvents="none" />
+      {Blur ? <Blur intensity={40} tint="light" experimentalBlurMethod={blurMethod} style={[StyleSheet.absoluteFill, corners]} /> : null}
+      <View style={[StyleSheet.absoluteFill, corners, { backgroundColor: Blur ? FROSTED : 'rgba(255, 255, 255, 0.92)' }]} pointerEvents="none" />
       {children}
     </View>
   );

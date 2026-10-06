@@ -54,7 +54,7 @@ Publishing is free. Figma reviews the plugin once. Later versions do not need an
    - **Support contact:** https://github.com/ibrahimweng/beetle-wallet/issues
    - **Price:** Free.
    - **Data security:** the plugin reads no user data and has no network access.
-   - **Pictures:** an icon at 128 by 128 pixels, a thumbnail at 1920 by 1080 pixels, and up to nine more pictures, for example one per style.
+   - **Pictures:** they are ready in `glyphs/figma-plugin/listing/`. Upload `icon.png` as the icon, `thumbnail.png` as the thumbnail, and `carousel-1.png` to `carousel-8.png` as the carousel, in that order. If the site has changed since, run `node glyphs/figma-plugin/listing/make.mjs` first to draw them again.
 4. Figma gives the plugin an ID. Add it to `glyphs/figma-plugin/manifest.json` as `"id": "…"` (the one in this folder, not the one in `dist/`), then rebuild with `node glyphs/tools/build-figma-plugin.mjs` and commit. You can also ask the library session to do this.
 5. Submit. Figma emails you when it decides. Reports say this takes 5 to 10 working days.
 6. For a later version, rebuild, then choose **Publish new version** in the same place.
@@ -78,4 +78,5 @@ The plugin keeps no copies of the site. The build reads the engine, the library,
 | `ui/data.js` | answers the site's `fetch` calls from data inside the page |
 | `ui/plugin.css` | the site's styles, fitted to a narrow panel |
 | `test/` | the checks, and the stand-in for Figma |
+| `listing/` | the listing pictures, and `make.mjs`, which draws them with the site's engine |
 | `PLAN.md`, `PROGRESS.md` | the plan, and how far it has got |

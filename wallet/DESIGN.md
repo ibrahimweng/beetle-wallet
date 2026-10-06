@@ -102,11 +102,12 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   it a soft shade of the colour; the dot showing is white, the others a
   deep shade. A tap opens what it offers; a sideways swipe that starts on
   it is its own, not the pages', and a pull down is the card's. **Its ×
-  folds the offers away until Beetle next opens**: the black card gets
-  shorter by their room and the four cards rise.
-- **With nothing to offer, a quiet card** stands in their place and the
-  black card keeps its height: a ring, a grey tile, No promo over a next
-  step that is true for the account. No × and no dots.
+  puts the offers away until Beetle next opens**, and the empty card takes
+  their place.
+- **The empty card** keeps the black card's shape where the offers were,
+  once the × has put them away or when there are none: a ring, a grey
+  tile, No promos over a next step that is true for the account. No × and
+  no dots. Nothing under the black card moves.
 - Then the four cards, 24 apart both ways. **Services starts on All
   services**; Bills, Airtime and Data come after a swipe.
 

@@ -4,8 +4,9 @@
    Receive as two white pills, what Beetle has to offer, and a grabber
    (Round 14, the owner's frame: no word Wallet over it and no words under
    the grabber; Round 15: the offers moved in from the page, 36 under the
-   pills, the grabber 24 under them and 16 over the card's edge). When the
-   × folds the offers away the card gets shorter by their room.
+   pills, the grabber 24 under them and 16 over the card's edge). The card
+   keeps that shape when the × puts the offers away: the empty card stands
+   in their place (Round 16, the owner's word).
    Pulled down, it grows to two thirds of the screen and turns into the chat:
    the balance glides up into the header, shrinking as it goes, the buttons
    and the grabber soften away, and the conversation arrives from below,
@@ -20,12 +21,9 @@ import Animated, { SharedValue, interpolate, runOnJS, useAnimatedStyle, useDeriv
 import { Caption, Icon, Label, Swap, Tap, blurred, colour, dark, keys, motion, settle as settleCurve, soft, swipes, useStill } from '../../design';
 import { useDeparture } from '../../design/journey';
 import { Frost } from './Frost';
-import { OFFERS_ROOM } from './Promos';
 
 /** The card's height when closed, as the frame draws it, the offers in it (Round 15: the owner's frame, 392). */
 export const CLOSED_H = 392;
-/** Closed with the offers folded away: the grabber 36 under the pills. */
-export const BARE_H = CLOSED_H - OFFERS_ROOM;
 /** The grabber's foot, this far over the card's edge. */
 const GRAB_FOOT = 16;
 /** The status bar's allowance at the top of the card, as the frame draws it. */
@@ -65,8 +63,7 @@ export function useCardDrag({
 }: {
   open: SharedValue<number>;
   openH: SharedValue<number>;
-  /** the closed height, which the offers folding away makes shorter */
-  closedH: SharedValue<number>;
+  closedH: number;
   /** the page's scroll offset: the card only opens from the top */
   scrollY?: SharedValue<number>;
   settle: (opened: boolean) => void;
@@ -112,7 +109,7 @@ export function useCardDrag({
           runOnJS(swipes.start)();
         })
         .onUpdate(e => {
-          const travel = Math.max(1, openH.value - closedH.value);
+          const travel = Math.max(1, openH.value - closedH);
           open.value = clamp(startOpen.value + e.translationY / travel, 0, 1);
         })
         .onEnd(e => {
@@ -128,7 +125,7 @@ export function useCardDrag({
             open.value = withSpring(startOpen.value < 0.5 ? 0 : 1, keys);
           }
         }),
-    [only], // eslint-disable-line react-hooks/exhaustive-deps
+    [closedH, only], // eslint-disable-line react-hooks/exhaustive-deps
   );
 }
 
@@ -146,7 +143,7 @@ export function useCardTop() {
   const extra = top - TOP;
   /* the top haze: the card's edge down to under the header row, and the feather;
      near solid as far as the figure reaches, so the figure keeps its contrast */
-  return { top, extra, headBand: HEAD_BAND + extra, haze: top + HEADER_H + HAZE_FEATHER, hazeSolid: top + 26 };
+  return { top, extra, headBand: HEAD_BAND + extra, closedH: CLOSED_H + extra, haze: top + HEADER_H + HAZE_FEATHER, hazeSolid: top + 26 };
 }
 
 export type CardProps = {
@@ -174,10 +171,8 @@ export type CardProps = {
   /** what sits over the chat when something has to: the passcode before
       money moves, the account's own details. The chat recedes behind it. */
   over?: ReactNode;
-  /** what Beetle has to offer, under Send and Receive (see Promos) */
+  /** what Beetle has to offer, under Send and Receive, or the empty card in their place (see Promos) */
   offers?: ReactNode;
-  /** the offers' room in the card: 1 while they are there, 0 once folded away */
-  slot: SharedValue<number>;
   /** how far the chats drawer is in: the chat steps back behind it */
   recede?: SharedValue<number>;
 };
@@ -187,14 +182,12 @@ const clamp = (v: number, lo: number, hi: number) => {
   return Math.min(hi, Math.max(lo, v));
 };
 
-export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, onReceive, onDollars, chipLabel, onNew, chat, foot, over, offers, slot, flash, recede }: CardProps) {
+export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollars, onReceive, onDollars, chipLabel, onNew, chat, foot, over, offers, flash, recede }: CardProps) {
   /* Send is the way to the Send money page. Settings is the gear on the bar, not the card */
   const send = useDeparture({ id: 'card:send', to: '/send', words: 'Send' });
   const { width: W } = useWindowDimensions();
   const still = useStill();
-  const { top, extra, headBand, haze, hazeSolid } = useCardTop();
-  /* closed, the card is as tall as what it holds: shorter by the offers' room once they fold away */
-  const closedH = useDerivedValue(() => BARE_H + extra + OFFERS_ROOM * slot.value);
+  const { top, extra, headBand, closedH, haze, hazeSolid } = useCardTop();
   /* how far down the figure and the chip sit when closed, and where they go in the header */
   const figureTop = BALANCE_TOP + extra + 16 + 4;
   const figureTopOpen = top + (HEADER_H - 20) / 2;
@@ -251,10 +244,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
   }, [opened]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ---- what moves ---- */
-  const card = useAnimatedStyle(() => ({ height: closedH.value + (openH.value - closedH.value) * open.value }));
-  /* the closed body runs down to the card's edge, and the grabber sits 16 over it */
-  const body = useAnimatedStyle(() => ({ height: closedH.value - BALANCE_TOP - extra }));
-  const grabAt = useAnimatedStyle(() => ({ top: closedH.value - GRAB_FOOT - 4 }));
+  const card = useAnimatedStyle(() => ({ height: closedH + (openH.value - closedH) * open.value }));
 
   /* the closed pieces soften and lift away in the first half */
   const going = useAnimatedStyle(() => {
@@ -363,7 +353,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
 
       {/* the closed card, under the header */}
       <GestureDetector gesture={bodyPan}>
-        <Animated.View style={[s.closed, { top: s.closed.top + extra }, body, going]} pointerEvents={opened ? 'none' : 'auto'}>
+        <Animated.View style={[s.closed, { top: s.closed.top + extra }, going]} pointerEvents={opened ? 'none' : 'auto'}>
           <View style={{ alignItems: 'center', gap: 4 }}>
             <Swap value={line ?? 'Total balance'}>{w => <Caption style={{ color: line ? colour.good : dark.chipText }}>{w}</Caption>}</Swap>
             {/* the figure is drawn once, below, and travels; the chip has its place here */}
@@ -388,11 +378,11 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
               <Label>Receive</Label>
             </Tap>
           </View>
-          {/* the offers, 36 under the pills and the card's full width less 24 a side; a pull down on them is the card's */}
+          {/* the offers, or the empty card in their place, 36 under the pills and the card's full width less 24 a side; a pull down on them is the card's */}
           {offers ? <View style={s.offers}>{offers}</View> : null}
         </Animated.View>
       </GestureDetector>
-      <Animated.View style={[s.grab, grabAt, goingLate]} pointerEvents="none">
+      <Animated.View style={[s.grab, { top: s.grab.top + extra }, goingLate]} pointerEvents="none">
         <View style={s.grabber} testID="grabber" />
       </Animated.View>
 
@@ -437,14 +427,14 @@ const s = StyleSheet.create({
   headRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: HEADER_H },
   newChat: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 36, paddingHorizontal: 4 },
   /* the balance from the frame's 80, then 24 down to the pills and 36 to the offers; it runs to the card's edge, so a pull on the grabber, or under it, is the card's */
-  closed: { position: 'absolute', top: BALANCE_TOP, left: 0, right: 0, alignItems: 'center', gap: 24 },
+  closed: { position: 'absolute', top: BALANCE_TOP, left: 0, right: 0, height: CLOSED_H - BALANCE_TOP, alignItems: 'center', gap: 24 },
   offers: { alignSelf: 'stretch', marginTop: 36 - 24 },
   actions: { flexDirection: 'row', justifyContent: 'center', gap: 24, alignSelf: 'stretch' },
   /* 100 wide whatever the word, so the two are one size; 12 clear after the word */
   pill: { width: 100, height: 36, borderRadius: 18, backgroundColor: '#ffffff', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingRight: 12 },
   pillGlyph: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
-  /* the grabber alone, 16 above the card's edge, wherever that is */
-  grab: { position: 'absolute', left: 0, right: 0, alignItems: 'center', zIndex: 2 },
+  /* the grabber alone, 16 above the card's edge */
+  grab: { position: 'absolute', top: CLOSED_H - GRAB_FOOT - 4, left: 0, right: 0, alignItems: 'center', zIndex: 2 },
   grabber: { width: 27, height: 4, borderRadius: 2, backgroundColor: dark.grabber },
   opened: { position: 'absolute', top: 0, left: SIDE, right: SIDE, bottom: 0 },
   over: { position: 'absolute', left: SIDE, right: SIDE, bottom: 0, zIndex: 5 },

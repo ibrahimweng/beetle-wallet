@@ -57,7 +57,7 @@ import { chatPointedOut, markChatPointedOut } from './first';
 import { useSetup } from '../setup/store';
 import { tabs, useHoldPages, usePage, useTabAgain } from '../tabs';
 import { Grid } from './Grid';
-import { Promos, offersAway, promosFor, quietFor } from './Promos';
+import { Promos, promosFor, quietFor } from './Promos';
 import { kobo, naira } from '../../lib/format';
 
 /** What stays showing under the open card: the bar's row of glyphs, 16
@@ -200,16 +200,12 @@ function HomeScreen() {
   const { prefs } = usePrefs(account?.accountNumber);
   const { goals } = useGoals(account?.accountNumber, { demo: !!account?.demo, started: prefs.goal });
   const standings = useMemo(() => goals.map(g => standingOf(g, { goals, demo: !!account?.demo, tight: prefs.tight, moves })), [goals, account, prefs.tight, moves]);
-  /* what Beetle has to offer, in the black card; the lab can ask for none, to see the quiet card that stands in */
+  /* what Beetle has to offer, in the black card; the lab can ask for none, to see the empty card that stands in */
   const noOffers = LAB && asked.offers === 'none';
   const promos = useMemo(() => (noOffers ? [] : promosFor({ setUp: setup.done, goal: goals[0]?.name ?? null })), [noOffers, setup.done, goals]);
   const first = standings[0];
+  /* the empty card: where the offers were once the × has put them away, or when there are none */
   const quiet = useMemo(() => quietFor(first ? { name: first.goal.name, aside: first.aside } : null), [first]);
-  /* the offers' room in the card: gone once the × has folded them away this run, but the quiet card always has it */
-  const slot = useSharedValue(promos.length && offersAway() ? 0 : 1);
-  useEffect(() => {
-    if (!promos.length) slot.value = 1;
-  }, [promos.length, slot]);
   /** the Receive sheet, over everything */
   const [receive, setReceive] = useState(false);
   /** money that just arrived, for the card to show */
@@ -848,8 +844,7 @@ function HomeScreen() {
                     begin();
                   } else show(false);
                 }}
-                offers={<Promos width={W} promos={promos} quiet={quiet} slot={slot} />}
-                slot={slot}
+                offers={<Promos width={W} promos={promos} quiet={quiet} />}
                 whole={naira(balance)}
                 kobo={kobo(balance)}
                 dollars={setup.done ? `~ ${Math.round(balance / rate).toLocaleString('en-NG')} USD` : 'New account'}

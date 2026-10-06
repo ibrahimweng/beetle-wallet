@@ -6,7 +6,7 @@
    a receipt opens over whichever its page is; a line of Activities opens
    in place over the frost, the page under it soft all the way down. */
 import React, { useMemo } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View, type ViewStyle } from 'react-native';
 import Animated, { useAnimatedProps, useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -40,22 +40,43 @@ export const VEIL_BLUR = 65;
 /* The blur, able to take its strength from a shared value on the phone. */
 const AnimatedBlur = blur ? Animated.createAnimatedComponent(blur.BlurView) : null;
 
-/** `t`, where given, brings the veil in and out: on the phone the blur grows
-    in strength and the wash in opacity, since a blur under a fading parent is
-    drawn badly there (it pops, and reads as a jerk); the web fades it whole,
-    which it draws well. Without `t` it is simply there. */
+/** The web's blur at strength `k` of `intensity`, drawn the way expo-blur draws it there: a browser only blurs
+    what is behind an element while nothing over it is see-through, so a fading blur has to thin itself
+    rather than fade (Round 16: faded, it vanished at once and left the page sharp under the white). */
+function webFrost(k: number, intensity: number, tint: 'light' | 'dark'): ViewStyle {
+  'worklet';
+  const n = Math.min(intensity, 100);
+  const f = `saturate(${(1 + 0.8 * k).toFixed(3)}) blur(${(k * n * 0.2).toFixed(2)}px)`;
+  const ground = tint === 'dark' ? `rgba(25,25,25,${((k * n) / 100) * 0.78})` : `rgba(249,249,249,${((k * n) / 100) * 0.78})`;
+  return { backdropFilter: f, WebkitBackdropFilter: f, backgroundColor: ground } as unknown as ViewStyle;
+}
+
+/** `t`, where given, brings the veil in and out: the blur grows in strength
+    and the wash in opacity, on the phone and on the web alike, since a blur
+    under a fading parent is drawn badly on both (on the phone it pops; on the
+    web it is not drawn at all). Without `t` it is simply there. */
 export function Veil({ tone = 'light', intensity = VEIL_BLUR, testID, t }: { tone?: VeilTone; intensity?: number; testID?: string; t?: SharedValue<number> }) {
   const s = STOPS[tone];
   const Blur = blur?.BlurView;
   const growing = !!t && Platform.OS !== 'web' && !!AnimatedBlur;
   const strength = useAnimatedProps(() => ({ intensity: Math.max(0, Math.min(1, t ? t.value : 1)) * intensity }), [intensity]);
   const wash = useAnimatedStyle(() => ({ opacity: t ? Math.max(0, Math.min(1, t.value)) : 1 }));
+  const frosting = useAnimatedStyle(() => webFrost(Math.max(0, Math.min(1, t ? t.value : 1)), intensity, s.tint), [intensity, s.tint]);
   const blurStyle = useMemo(() => StyleSheet.absoluteFill, []);
   if (!t)
     return (
       <View style={StyleSheet.absoluteFill} pointerEvents="none" testID={testID}>
         {Blur ? <Blur intensity={intensity} tint={s.tint} experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : 'none'} style={StyleSheet.absoluteFill} /> : null}
         <LinearGradient colors={s.colors} locations={LOCATIONS} style={StyleSheet.absoluteFill} />
+      </View>
+    );
+  if (Platform.OS === 'web')
+    return (
+      <View style={StyleSheet.absoluteFill} pointerEvents="none" testID={testID}>
+        <Animated.View style={[StyleSheet.absoluteFill, frosting]} />
+        <Animated.View style={[StyleSheet.absoluteFill, wash]}>
+          <LinearGradient colors={s.colors} locations={LOCATIONS} style={StyleSheet.absoluteFill} />
+        </Animated.View>
       </View>
     );
   return (
@@ -73,13 +94,21 @@ export function Veil({ tone = 'light', intensity = VEIL_BLUR, testID, t }: { ton
 }
 
 /** A plain blur with a flat wash over it, brought in by `t` the same way as
-    a veil: the blur's strength grows on the phone, the whole fades on the web.
-    What a sheet or a peek opens over. */
+    a veil: the blur's strength grows and the wash fades in, on the phone and
+    on the web. What a sheet or a peek opens over. */
 export function GrowingBlur({ t, intensity, tint = 'light', wash }: { t: SharedValue<number>; intensity: number; tint?: 'light' | 'dark'; wash: string }) {
   const Blur = blur?.BlurView;
   const growing = Platform.OS !== 'web' && !!AnimatedBlur;
   const strength = useAnimatedProps(() => ({ intensity: Math.max(0, Math.min(1, t.value)) * intensity }), [intensity]);
   const fade = useAnimatedStyle(() => ({ opacity: Math.max(0, Math.min(1, t.value)) }));
+  const frosting = useAnimatedStyle(() => webFrost(Math.max(0, Math.min(1, t.value)), intensity, tint), [intensity, tint]);
+  if (Platform.OS === 'web')
+    return (
+      <View style={StyleSheet.absoluteFill} pointerEvents="none">
+        <Animated.View style={[StyleSheet.absoluteFill, frosting]} />
+        <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: wash }, fade]} />
+      </View>
+    );
   if (growing && AnimatedBlur)
     return (
       <View style={StyleSheet.absoluteFill} pointerEvents="none">

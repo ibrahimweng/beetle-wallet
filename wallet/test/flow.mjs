@@ -568,20 +568,22 @@ try {
   await onPage('home');
   must((await promoLabel()) === 'Borrow up to ₦250,000', `a swipe across the promo card should bring the next (it says ${await promoLabel()})`);
   await shot('home-promo-next', 300);
-  /* the × folds the offers away: the black card gets shorter by their room and the four cards rise, until Beetle next opens (Round 15, the owner's choice) */
+  /* the × puts the offers away until Beetle next opens, and the empty card takes their place, so the black card keeps
+     its shape and nothing under it moves (Round 16, the owner's word) */
   const gridBefore = (await page.getByTestId('grid-savings').boundingBox())?.y ?? 0;
   await page.getByTestId('promo-close').click();
   await page.waitForTimeout(900);
   must((await page.getByTestId('promos').count()) === 0, 'the × should put the offers away');
+  await see('No promos');
   const gridAfter = (await page.getByTestId('grid-savings').boundingBox())?.y ?? 0;
-  must(Math.round(gridBefore - gridAfter) === 108, `and the four cards should rise by the offers' room (${gridBefore} to ${gridAfter})`);
-  const bare = await page.evaluate(() => {
+  must(Math.round(gridBefore) === Math.round(gridAfter), `and nothing under the card should move (${gridBefore} to ${gridAfter})`);
+  const kept = await page.evaluate(() => {
     const card = document.querySelector('[data-testid="card"]')?.getBoundingClientRect(),
-      pill = document.querySelector('[data-testid="send-pill"]')?.getBoundingClientRect(),
-      grab = document.querySelector('[data-testid="grabber"]')?.getBoundingClientRect();
-    return card && pill && grab ? { card: Math.round(card.height), grab: Math.round(grab.y - pill.bottom) } : null;
+      empty = document.querySelector('[data-testid="promo-quiet"]')?.getBoundingClientRect();
+    return card && empty ? { card: Math.round(card.height), at: Math.round(empty.y), h: Math.round(empty.height) } : null;
   });
-  must(bare && bare.card === 284 && bare.grab === 36, `the black card should close up to 284, its grabber 36 under the pills (${JSON.stringify(bare)})`);
+  must(kept && kept.card === 392 && kept.at === 264 && kept.h === 84, `the empty card should stand where the offers were, the black card still 392 (${JSON.stringify(kept)})`);
+  must((await page.getByTestId('promo-close').count()) === 0 && (await page.getByTestId('promo-dots').count()) === 0, 'the empty card has no × and no dots');
   await shot('home-promos-away', 0);
   /* the four cards open sheets, and a page opened from a sheet comes up as a sheet over it, the one under
      stepping back; Back puts away the one on top (Round 14, the owner's word) */
@@ -1445,9 +1447,39 @@ try {
   await drag(340, 60, 60, 65);
   await onPage('activities');
   must((await page.getByTestId('in-place').count()) === 1, 'a swipe to the left should leave the line open');
-  /* and a tap off it puts it all back */
+  /* and a tap off it puts it all back, in two steps (Round 16, the owner's word): what came in under the line goes first
+     while the frost stays whole, then the frost clears, its blur thinning rather than dropping out, so the receipt and
+     the page never show through each other. Every frame of it is read in the page */
+  await page.evaluate(() => {
+    const w = window;
+    w.__closing = [];
+    const t0 = performance.now();
+    const seen = e => {
+      let o = 1;
+      for (let n = e; n && n !== document.body; n = n.parentElement) o *= +getComputedStyle(n).opacity;
+      return o;
+    };
+    const frame = () => {
+      const veil = document.querySelector('[data-testid="in-place-veil"]');
+      const row = document.querySelector('[data-testid="in-place-row"]');
+      const filter = veil ? [veil, ...veil.querySelectorAll('*')].map(e => getComputedStyle(e).backdropFilter).find(f => f && f !== 'none') : null;
+      const px = filter ? Number((/blur\(([\d.]+)px\)/.exec(filter) ?? [])[1] ?? 0) : null;
+      w.__closing.push({ ms: Math.round(performance.now() - t0), row: row ? seen(row) : 0, blur: px, veil: veil ? seen(veil) : 0 });
+      if (performance.now() - t0 < 900) requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  });
   await page.getByTestId('in-place-away').click({ position: { x: 200, y: 40 } });
   await page.getByTestId('in-place').waitFor({ state: 'detached' });
+  await page.waitForTimeout(300);
+  const closing = await page.evaluate(() => window.__closing);
+  const bare = closing.filter(f => f.row > 0.05 && (f.blur ?? 0) < 12);
+  must(!bare.length, `the receipt's rows should be gone before the frost thins (${bare.map(f => `${f.ms}ms rows ${f.row.toFixed(2)} blur ${f.blur}`).join(', ')})`);
+  const thinning = closing.filter(f => f.blur !== null && f.blur > 0.5 && f.blur < 13.5);
+  must(thinning.length >= 3, `the frost's blur should thin as it clears, not drop out (${closing.map(f => f.blur).join(' ')})`);
+  const cleared = closing.find(f => f.veil === 0 && f.ms > 0);
+  must(cleared && cleared.ms < 600, `and it should all be gone within 0.6s (${cleared?.ms}ms)`);
+  console.log(`  closed: the rows gone by ${closing.find(f => f.row <= 0.05)?.ms}ms, the frost thinning over ${thinning.length} frames, all gone at ${cleared?.ms}ms`);
   await see('Everything that moved');
   await onPage('activities');
   const barBack = await page
@@ -1460,6 +1492,8 @@ try {
   await tap('Sarah Adeyemi');
   await page.getByTestId('in-place-state').filter({ visible: true }).first().waitFor();
   await see('Do not send it again');
+  /* the line over the frost is drawn just as the page draws it, its status glyph and all, so nothing doubles as it closes */
+  must((await page.locator('[data-testid="in-place-line"] [data-testid="status-row"]').count()) === 1, 'a line on its way should keep its status glyph over the frost');
   at('/home');
   await see('GTBank · 0234 5678 90');
   must((await button('Ask about it').count()) === 1 && (await button('See the details').count()) === 1, 'a line on its way should offer to ask about it, and the details');
@@ -2364,11 +2398,11 @@ try {
   await shot('passcode-face-missed', 900);
   await tap('Back to the lab');
   await see('Beetle Lab');
-  /* with nothing to offer, a quiet card stands in the black card: the owner's No promo over a next step that is true for
-     the account, no × and no dots, and the card keeps its height; a tap takes the step (Round 15) */
+  /* with nothing to offer, the empty card stands in the black card: the owner's No promos over a next step that is true
+     for the account, no × and no dots, and the card keeps its height; a tap takes the step (Round 15, Round 16) */
   await tap('Nothing to offer');
   await arrives(DEMO_HOME);
-  await see('No promo');
+  await see('No promos');
   await see('Add to Holiday whenever you like');
   must((await page.getByTestId('promo-close').count()) === 0 && (await page.getByTestId('promo-dots').count()) === 0, 'the quiet card should have no × and no dots');
   const quietH = (await page.getByTestId('card').boundingBox())?.height ?? 0;

@@ -674,7 +674,7 @@
    {
     "name": "Title",
     "find": {
-     "text": "No promo",
+     "text": "No promos",
      "exact": true
     },
     "only": [

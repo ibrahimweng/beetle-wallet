@@ -1193,6 +1193,39 @@ offer keeps its own colour on the black.
 **Expo Go**: a QR code for the update, as every round that reaches the
 phone ends.
 
+## Round 16 · A receipt that closes cleanly, and the empty card after the ×
+
+Asked by the owner after Round 15, from a picture of a receipt on
+Activities half way through closing: the receipt and the list showed
+through each other, and the white over them had no blur. And: the No
+promo card is an empty state, there so the black card keeps its shape
+once the promos are put away, and its title was misspelled (the owner's
+answer: No promos).
+
+- [x] A line opened in place closes in two steps. What came in under it,
+      the ··· and the title drawn over the frost go first, while the frost
+      stays whole and the line settles back into its place; then the frost
+      clears. The receipt and the page are never both sharp at once.
+- [x] The frost's blur thins as it clears, on the web as on the phone. A
+      browser only blurs what is behind an element while nothing over the
+      element is see-through, so a fading frost lost its blur on the first
+      frame and left the page sharp under the white. The veils and the
+      ground a sheet opens over now thin their blur instead of fading it.
+- [x] The line drawn over the frost is drawn just as the page draws it, a
+      line still on its way with its status glyph, so when the frost has
+      cleared it is the page's own line under it, nothing doubled.
+- [x] The × on the offers puts them away until Beetle next opens and the
+      empty card takes their place (correcting Round 15, where the card got
+      shorter): the black card keeps its 392 and nothing under it moves.
+      The offers fade out and the empty card fades in where they were. Its
+      title is No promos; the line under it is still true for the account.
+- [x] The walk reads every frame of a receipt closing and holds it to
+      that: the rows gone before the frost thins, the blur thinning over
+      several frames, all of it gone within 0.6s.
+
+**Expo Go**: a QR code for the update, as every round that reaches the
+phone ends.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

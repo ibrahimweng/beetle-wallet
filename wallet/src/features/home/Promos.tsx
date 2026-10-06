@@ -13,13 +13,12 @@
    white and its second line in a soft shade of that colour, both 12 on 16;
    the dot showing is white and the others a deep shade (the frame draws
    the green one; the owner's choice: each offer keeps its own colour). The
-   small × at its top right folds the offers away, the black card getting
-   shorter by their room and the four cards rising, until Beetle next opens
-   (the owner's choice, Round 14 and again in Round 15). With nothing to
-   offer at all, a quiet card stands in their place: a ring, a grey tile,
-   No promo, and a next step that is true for the account (the owner's
-   words, fitted). */
-import React, { useMemo, useState } from 'react';
+   small × at its top right puts the offers away until Beetle next opens
+   (the owner's choice, Round 14), and the empty card takes their place, so
+   the black card keeps its shape (Round 16, the owner's word): a ring, a
+   grey tile, No promos, and a next step that is true for the account (the
+   owner's words, fitted). With nothing to offer at all it is there too. */
+import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SvgXml } from 'react-native-svg';
@@ -60,7 +59,7 @@ export function promosFor({ setUp, goal }: { setUp: boolean; goal: string | null
     words, the line under them true for the account, and where a tap goes. */
 export type Quiet = { title: string; sub: string; to: string };
 export function quietFor(goal: { name: string; aside: number } | null): Quiet {
-  const title = 'No promo';
+  const title = 'No promos';
   if (!goal) return { title, sub: 'Start a savings goal with your first deposit', to: '/goal?new=1' };
   if (goal.aside > 0) return { title, sub: `Add to ${goal.name} whenever you like`, to: '/goal' };
   return { title, sub: `Start your ${goal.name} savings with your first deposit`, to: '/goal' };
@@ -68,9 +67,6 @@ export function quietFor(goal: { name: string; aside: number } | null): Quiet {
 
 /** How tall the card is. */
 export const PROMO_H = 84;
-/** The room the offers take in the black card: the card and the 24 under it,
-    down to the grabber. The × folds it away, and the black card with it. */
-export const OFFERS_ROOM = PROMO_H + 24;
 /** The page's sides, the four cards' own. */
 const SIDE = GRID_SIDE;
 /** The × and the dots: 16 in from the card's right, 17 from its top and its bottom, level with the words. */
@@ -86,9 +82,7 @@ const CLOSE = `<svg viewBox="0 0 12 12" fill="none"><path d="M2.4 2.4L9.6 9.6M9.
 let away = false;
 export const offersAway = () => away;
 
-/** `slot` is the offers' room in the black card, 1 while they are there and
-    0 once the × has folded them away; the black card's height follows it. */
-export function Promos({ width, promos, quiet, slot }: { width: number; promos: Promo[]; quiet: Quiet; slot: SharedValue<number> }) {
+export function Promos({ width, promos, quiet }: { width: number; promos: Promo[]; quiet: Quiet }) {
   const router = useRouter();
   const still = useStill();
   const swipe = usePagerSwipe();
@@ -97,6 +91,9 @@ export function Promos({ width, promos, quiet, slot }: { width: number; promos: 
   const from = useSharedValue(0);
   const [shown, setShown] = useState(0);
   const [gone, setGone] = useState(away);
+  /* the × fades the offers out over the empty card, which fades in under them where they were */
+  const [leaving, setLeaving] = useState(false);
+  const fold = useSharedValue(1);
   const count = promos.length;
   const pan = useMemo(() => {
     const g = Gesture.Pan()
@@ -123,77 +120,79 @@ export function Promos({ width, promos, quiet, slot }: { width: number; promos: 
     return swipe ? g.blocksExternalGesture(swipe) : g;
   }, [swipe, w, count]); // eslint-disable-line react-hooks/exhaustive-deps
   const strip = useAnimatedStyle(() => ({ transform: [{ translateX: -x.value }] }));
-  /* folding away: the black card's edge rises over it as it fades */
-  const folding = useAnimatedStyle(() => ({ opacity: slot.value }));
+  const folding = useAnimatedStyle(() => ({ opacity: fold.value, transform: [{ scale: 0.98 + 0.02 * fold.value }] }));
   const press = useTap();
   /* the dots not showing, in the deep shade of whichever offer is, blending as the strip moves */
   const deeps = promos.map(p => shadeOf(p.tone).deep);
-  if (!count) return <QuietCard width={w} quiet={quiet} />;
-  if (gone) return null;
+  /* the empty card: where the offers were once the × has put them away, or when there are none; drawn first, so the
+     offers lie over it while they go, and kept as it is when they have gone */
+  const empty = !count || gone || leaving ? <QuietCard width={w} quiet={quiet} arrive={leaving} /> : null;
+  if (!count || gone) return <View>{empty}</View>;
   const promo = promos[Math.min(shown, count - 1)]!;
   /* the dots' room at the right of every card, so the words never run under them or the × */
   const dotsW = count > 1 ? 12 + (count - 1) * 9 : 12;
   const close = () => {
     away = true;
-    if (still) {
-      slot.value = 0;
-      setGone(true);
-      return;
-    }
-    slot.value = withTiming(0, { duration: motion.leave, easing: settle }, done => {
+    if (still) return setGone(true);
+    setLeaving(true);
+    fold.value = withTiming(0, { duration: motion.leave - 80, easing: settle }, done => {
       if (done) runOnJS(setGone)(true);
     });
   };
   return (
-    <Animated.View style={folding} testID="promos">
-      <View style={s.wrap}>
-        <GestureDetector gesture={pan}>
-          <Animated.View style={[s.window, { width: w }, press.style]}>
-            <Animated.View style={[s.strip, { width: w * count }, strip]}>
-              {promos.map(p => (
-                <View key={p.id} style={[s.card, { width: w, backgroundColor: wash(p.tone) }]} testID={`promo-${p.id}`}>
-                  <View style={[s.glyph, { backgroundColor: p.tone }]}>
-                    <Icon name={p.glyph} size={20} colour="#ffffff" />
+    <View>
+      {empty}
+      {/* nothing said about touches unless they are leaving: said, it would outrank the black card's own none while it is open, on the web */}
+      <Animated.View style={[leaving ? StyleSheet.absoluteFill : null, folding]} pointerEvents={leaving ? 'none' : undefined} testID="promos">
+        <View style={s.wrap}>
+          <GestureDetector gesture={pan}>
+            <Animated.View style={[s.window, { width: w }, press.style]}>
+              <Animated.View style={[s.strip, { width: w * count }, strip]}>
+                {promos.map(p => (
+                  <View key={p.id} style={[s.card, { width: w, backgroundColor: wash(p.tone) }]} testID={`promo-${p.id}`}>
+                    <View style={[s.glyph, { backgroundColor: p.tone }]}>
+                      <Icon name={p.glyph} size={20} colour="#ffffff" />
+                    </View>
+                    <View style={s.words}>
+                      <Caption numberOfLines={1} style={{ color: '#ffffff' }}>
+                        {p.title}
+                      </Caption>
+                      <Caption numberOfLines={2} style={{ color: shadeOf(p.tone).soft }}>
+                        {p.sub}
+                      </Caption>
+                    </View>
+                    <View style={{ width: dotsW }} />
                   </View>
-                  <View style={s.words}>
-                    <Caption numberOfLines={1} style={{ color: '#ffffff' }}>
-                      {p.title}
-                    </Caption>
-                    <Caption numberOfLines={2} style={{ color: shadeOf(p.tone).soft }}>
-                      {p.sub}
-                    </Caption>
-                  </View>
-                  <View style={{ width: dotsW }} />
-                </View>
-              ))}
-            </Animated.View>
-            {/* the one showing takes the tap, anywhere on the card */}
-            <Tap
-              accessibilityRole="button"
-              accessibilityLabel={promo.title}
-              accessibilityHint={count > 1 ? 'Swipe for the others' : undefined}
-              onPress={() => router.push(promo.to as never)}
-              onPressIn={press.onPressIn}
-              onPressOut={press.onPressOut}
-              scale={1}
-              style={StyleSheet.absoluteFill}
-              testID="promo-card"
-            />
-            {/* which is showing: inside the card, at its bottom right, staying put while the strip moves */}
-            {count > 1 ? (
-              <View style={s.dots} pointerEvents="none" testID="promo-dots">
-                {promos.map((p, i) => (
-                  <Dot key={p.id} i={i} x={x} step={w} deeps={deeps} />
                 ))}
-              </View>
-            ) : null}
-            <Tap accessibilityRole="button" accessibilityLabel="Hide the offers" onPress={close} hitSlop={14} scale={0.9} style={s.close} testID="promo-close">
-              <SvgXml xml={CLOSE} width={12} height={12} />
-            </Tap>
-          </Animated.View>
-        </GestureDetector>
-      </View>
-    </Animated.View>
+              </Animated.View>
+              {/* the one showing takes the tap, anywhere on the card */}
+              <Tap
+                accessibilityRole="button"
+                accessibilityLabel={promo.title}
+                accessibilityHint={count > 1 ? 'Swipe for the others' : undefined}
+                onPress={() => router.push(promo.to as never)}
+                onPressIn={press.onPressIn}
+                onPressOut={press.onPressOut}
+                scale={1}
+                style={StyleSheet.absoluteFill}
+                testID="promo-card"
+              />
+              {/* which is showing: inside the card, at its bottom right, staying put while the strip moves */}
+              {count > 1 ? (
+                <View style={s.dots} pointerEvents="none" testID="promo-dots">
+                  {promos.map((p, i) => (
+                    <Dot key={p.id} i={i} x={x} step={w} deeps={deeps} />
+                  ))}
+                </View>
+              ) : null}
+              <Tap accessibilityRole="button" accessibilityLabel="Hide the offers" onPress={close} hitSlop={14} scale={0.9} style={s.close} testID="promo-close">
+                <SvgXml xml={CLOSE} width={12} height={12} />
+              </Tap>
+            </Animated.View>
+          </GestureDetector>
+        </View>
+      </Animated.View>
+    </View>
   );
 }
 
@@ -213,13 +212,20 @@ function Dot({ i, x, step, deeps }: { i: number; x: SharedValue<number>; step: n
   return <Animated.View style={[s.dot, style]} />;
 }
 
-/** With nothing to offer: a ring on the black, a grey tile, the owner's No
-    promo over a next step that is true for the account, which a tap takes.
-    No × and no dots: there is nothing to put away or to swipe to. */
-function QuietCard({ width, quiet }: { width: number; quiet: Quiet }) {
+/** The empty card, where the offers were: a ring on the black, a grey tile,
+    the owner's No promos over a next step that is true for the account,
+    which a tap takes. No × and no dots: there is nothing to put away or to
+    swipe to. Put in place by the ×, it fades in as the offers fade out. */
+function QuietCard({ width, quiet, arrive }: { width: number; quiet: Quiet; arrive: boolean }) {
   const router = useRouter();
+  const still = useStill();
+  const k = useSharedValue(arrive && !still ? 0 : 1);
+  useEffect(() => {
+    if (k.value < 1) k.value = withTiming(1, { duration: motion.leave, easing: settle });
+  }, [k]);
+  const coming = useAnimatedStyle(() => ({ opacity: k.value, transform: [{ scale: 0.98 + 0.02 * k.value }] }));
   return (
-    <View style={s.wrap}>
+    <Animated.View style={[s.wrap, coming]}>
       <Tap accessibilityRole="button" accessibilityLabel={quiet.sub} onPress={() => router.push(quiet.to as never)} style={[s.quiet, { width }]} testID="promo-quiet">
         <View style={s.quietTile} testID="promo-quiet-tile">
           <Icon name="freeze" size={20} colour={dark.quietGlyph} />
@@ -233,7 +239,7 @@ function QuietCard({ width, quiet }: { width: number; quiet: Quiet }) {
           </Small>
         </View>
       </Tap>
-    </View>
+    </Animated.View>
   );
 }
 

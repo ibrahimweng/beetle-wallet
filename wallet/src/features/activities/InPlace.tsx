@@ -26,12 +26,17 @@
    It is one movement: what comes in under the line is measured first,
    unseen, and then the frost's blur grows, the line lifts (if it must, for
    the rows to fit above the foot) and the rows arrive one after another,
-   all together. A tap anywhere off it, or the phone's back, and it all goes
-   back the way it came. */
+   all together. A tap anywhere off it, or the phone's back, and it goes in
+   two steps (the owner's word, Round 16: the receipt and the page must
+   never show through each other): what came in under the line leaves
+   first, with the ··· and the title drawn over the frost, while the frost
+   stays whole and the line settles back into its place; then the frost
+   clears, its blur thinning as its white does, and the line, drawn just as
+   the page draws it, is the page's own again. */
 import React, { useEffect, useRef, useState } from 'react';
 import { BackHandler, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
-import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming, type SharedValue } from 'react-native-reanimated';
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withDelay, withTiming, type SharedValue } from 'react-native-reanimated';
 import { GlyphTitle, HistoryRow, Icon, Label, Meta, MoreButton, Tap, Veil, away, blurred, colour, frame, motion, settle, toast, useStill, type Rect } from '../../design';
 import type { IconName } from '../../icons';
 import { copyText } from '../receive/clipboard';
@@ -54,9 +59,15 @@ const TAP_SLOP = 12;
 const TEXT_COLUMN = 52;
 /** How long it takes to open: a little quicker than a page. */
 const OPEN_MS = motion.enter - 40;
+/** Closing: what came in under the line goes first, while the frost stays whole; then the frost clears. */
+const ROWS_OUT = 140;
+const FROST_OUT = motion.leave - 60;
 
 /** A line that has not settled: still on its way, did not go, or came back. */
 export type LineState = 'pending' | 'failed' | 'reversed';
+
+/** A line's status glyph colour, the list's and the line's drawn again over the frost: on its way in the accent, did not go in red, came back and settled in ink. */
+export const STATUS_TONE: Record<LineState | 'done', string> = { pending: colour.accent, failed: colour.alert, reversed: colour.ink, done: colour.ink };
 
 /** `at` is where the line was, `head` where the page's title row was, each in the window, when it was opened. */
 export type Opened = { id: string; glyph: IconName; name: string; detail: string; amount: string; at: Rect | null; head?: Rect | null; state?: LineState };
@@ -85,9 +96,11 @@ export function InPlace({
   /* the page's title, kept sharp over the frost while it is on the screen, with the ··· on its row */
   const head = line.head && line.head.y + line.head.h > 0 ? line.head : null;
 
-  /* 0 to 1 as it opens; how far the line lifts to make room under it */
+  /* 0 to 1 as it opens: the frost, and what comes in with it; how far the line lifts to make room under it;
+     and whether what came in under the line is still there, which goes first on the way out */
   const t = useSharedValue(still ? 1 : 0);
   const lift = useSharedValue(0);
+  const shown = useSharedValue(1);
   const going = useRef(false);
   const begun = useRef(still);
   const downAt = useRef<{ x: number; y: number } | null>(null);
@@ -95,10 +108,14 @@ export function InPlace({
     if (going.current) return;
     going.current = true;
     if (still) return onClose();
-    lift.value = withTiming(0, { duration: motion.leave, easing: away });
-    t.value = withTiming(0, { duration: motion.leave, easing: away }, done => {
-      if (done) runOnJS(onClose)();
-    });
+    shown.value = withTiming(0, { duration: ROWS_OUT, easing: away });
+    lift.value = withTiming(0, { duration: ROWS_OUT + 60, easing: away });
+    t.value = withDelay(
+      ROWS_OUT,
+      withTiming(0, { duration: FROST_OUT, easing: away }, done => {
+        if (done) runOnJS(onClose)();
+      }),
+    );
   };
   const closeRef = useRef(close);
   closeRef.current = close;
@@ -106,7 +123,7 @@ export function InPlace({
   const leaveTo = (go: () => void) => {
     if (stay) return go();
     closeRef.current();
-    setTimeout(go, motion.leave);
+    setTimeout(go, ROWS_OUT + FROST_OUT);
   };
   useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -144,7 +161,8 @@ export function InPlace({
   };
 
   const held = useAnimatedStyle(() => ({ transform: [{ translateY: lift.value }] }));
-  const dots = useAnimatedStyle(() => ({ opacity: t.value }));
+  /* the ··· and the title drawn over the frost go with the rows, before the frost clears */
+  const dots = useAnimatedStyle(() => ({ opacity: t.value * shown.value }));
 
   return (
     <View style={StyleSheet.absoluteFill} testID="in-place">
@@ -163,14 +181,16 @@ export function InPlace({
         testID="in-place-away"
       />
       <Animated.View style={[{ position: 'absolute', left: at.x, width: at.w, top: at.y }, held]} pointerEvents="box-none">
-        {/* the line itself, where it was, sharp over the frost */}
+        {/* the line itself, where it was, sharp over the frost: drawn just as the page draws it, so once the frost has
+            cleared it is the page's own line under it, nothing doubled */}
         <View pointerEvents="none" testID="in-place-line">
-          <HistoryRow glyph={line.glyph} name={line.name} detail={line.detail} amount={line.amount} />
+          <HistoryRow glyph={line.glyph} name={line.name} detail={line.detail} amount={line.amount} status={!!line.state} tone={STATUS_TONE[line.state ?? 'done']} />
         </View>
         <View style={{ marginTop: 4 }} onLayout={e => measured(e.nativeEvent.layout.height)}>
           {receipt ? (
             <Details
               t={t}
+              shown={shown}
               receipt={receipt}
               name={line.name}
               slip={slip}
@@ -218,6 +238,7 @@ function Menu({ receipt, id, onLeave }: { receipt: Receipt; id: string; onLeave:
    the one above it, out of the same blur. */
 function Details({
   t,
+  shown,
   receipt,
   name,
   slip,
@@ -228,6 +249,7 @@ function Details({
   state,
 }: {
   t: SharedValue<number>;
+  shown: SharedValue<number>;
   receipt: Receipt;
   name: string;
   slip: React.RefObject<View | null>;
@@ -251,7 +273,7 @@ function Details({
   return (
     <View ref={slip} collapsable={false} style={s.rows} testID="in-place-card">
       {state ? (
-        <Arrive t={t} i={i++}>
+        <Arrive t={t} shown={shown} i={i++}>
           <View style={s.state} testID="in-place-state">
             <View style={[s.stateDisc, { backgroundColor: state.tone }]}>
               <Icon name={state.glyph} size={14} colour="#ffffff" />
@@ -267,12 +289,12 @@ function Details({
       {groups.map((group, g) => (
         <View key={g}>
           {g ? (
-            <Arrive t={t} i={i++}>
+            <Arrive t={t} shown={shown} i={i++}>
               <Dashed />
             </Arrive>
           ) : null}
           {group.map(([label, value]) => (
-            <Arrive key={label} t={t} i={i++}>
+            <Arrive key={label} t={t} shown={shown} i={i++}>
               <View style={s.row} testID="in-place-row">
                 <Meta tone="secondary">{label}</Meta>
                 <Label style={s.value} numberOfLines={1}>
@@ -284,7 +306,7 @@ function Details({
         </View>
       ))}
       {receipt.token ? (
-        <Arrive t={t} i={i++}>
+        <Arrive t={t} shown={shown} i={i++}>
           {/* a prepaid bill's token: what was paid for, so always shown, with a button to copy it */}
           <View style={s.row} testID="in-place-token">
             <Meta tone="secondary">Token</Meta>
@@ -299,7 +321,7 @@ function Details({
           </View>
         </Arrive>
       ) : null}
-      <Arrive t={t} i={i++}>
+      <Arrive t={t} shown={shown} i={i++}>
         {/* the session id: only when it is asked for, since it matters only when the transaction is queried */}
         {session ? (
           <View style={s.row} testID="in-place-session">
@@ -320,7 +342,7 @@ function Details({
           </Tap>
         )}
       </Arrive>
-      <Arrive t={t} i={i++}>
+      <Arrive t={t} shown={shown} i={i++}>
         {state ? (
           <View style={s.actions}>
             {state.actions.map(a => (
@@ -402,11 +424,12 @@ function stateOf(state: LineState, row: LedgerRow, router: ReturnType<typeof use
   };
 }
 
-/* One row coming in: a beat after the one above it, out of a blur and up from 6 under its place. */
-function Arrive({ t, i, children }: { t: SharedValue<number>; i: number; children: React.ReactNode }) {
+/* One row coming in: a beat after the one above it, out of a blur and up from 6 under its place. On the way
+   out every row goes together, the same way back, before the frost under it clears. */
+function Arrive({ t, shown, i, children }: { t: SharedValue<number>; shown: SharedValue<number>; i: number; children: React.ReactNode }) {
   const from = Math.min(0.5, 0.18 + i * 0.05);
   const style = useAnimatedStyle(() => {
-    const k = Math.max(0, Math.min(1, (t.value - from) / (1 - from)));
+    const k = Math.max(0, Math.min(1, (t.value - from) / (1 - from))) * shown.value;
     return { opacity: k, transform: [{ translateY: 6 * (1 - k) }], ...blurred((1 - k) * motion.blur) };
   });
   return <Animated.View style={style}>{children}</Animated.View>;

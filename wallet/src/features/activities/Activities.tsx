@@ -12,7 +12,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Body, GlyphHead, HistoryRow, Insight, JourneyProvider, SayCard, ScoreRow, Screen, Segments, colour, measure, type Rect } from '../../design';
+import { Body, GlyphHead, HistoryRow, Insight, JourneyProvider, SayCard, ScoreRow, Screen, Segments, measure, type Rect } from '../../design';
 import { useApp } from '../onboarding/store';
 import { holdingsFor, type LedgerRow } from '../home/account';
 import { useMoves } from '../home/moves';
@@ -20,10 +20,8 @@ import { naira, signed } from '../../lib/format';
 import { askHome } from '../more/More';
 import { useFoot } from '../more/Foot';
 import { usePage, useHoldPages } from '../tabs';
-import { InPlace, type Opened } from './InPlace';
+import { InPlace, STATUS_TONE, type Opened } from './InPlace';
 import { SEGMENTS, activityAmount, activityRows, detailOf, type Segment } from './rows';
-
-const TONE: Record<LedgerRow['status'], string> = { pending: colour.accent, failed: colour.alert, reversed: colour.ink, done: colour.ink };
 
 export function Activities() {
   const app = useApp();
@@ -79,7 +77,7 @@ export function Activities() {
         key={r.id}
         status={r.status !== 'done'}
         glyph={r.icon}
-        tone={TONE[r.status]}
+        tone={STATUS_TONE[r.status]}
         name={r.name}
         detail={detailOf(r)}
         amount={activityAmount(r, signed, naira)}

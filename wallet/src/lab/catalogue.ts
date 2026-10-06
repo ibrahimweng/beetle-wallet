@@ -118,7 +118,7 @@ export const HOME: Feature = {
       id: 'home-no-offers',
       icon: 'home-filled',
       title: 'Nothing to offer',
-      sub: 'The demo account with no offers: the quiet No promo card in the black card, from the frame',
+      sub: 'The demo account with no offers: the empty No promos card in the black card, from the frame',
       href: '/home?offers=none',
       seed: demo,
     },

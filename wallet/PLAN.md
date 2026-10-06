@@ -1226,6 +1226,40 @@ answer: No promos).
 **Expo Go**: a QR code for the update, as every round that reaches the
 phone ends.
 
+## Round 17 · The line itself opens
+
+Asked by the owner after Round 16, testing the preview: the line that
+opened was a second one drawn over the list, so with the smallest lag the
+two showed, one over the other. The line in the list has to be the one
+that opens, its rows growing under it, with the same look and no box. Two
+answers: the rest of the page frosted where it is; the lines below pushed
+down.
+
+- [x] A line of Activities opens in the list: the line stays as it is,
+      and its rows (the same rows as before: who and where, the money, the
+      session id kept back, Share receipt and Set it up) grow in under it.
+      The lines below go down to make room and come back up when it
+      closes. Nothing is drawn over the line, so at no moment can there be
+      two of it.
+- [x] The rest of the page goes soft where it is, under the frost, above
+      the line and below its rows, the frost following them down as they
+      grow. The frost is in the page's own white, so the line on the page
+      sits on the same ground as the frost round it, with no edge or box.
+      The page's title stays sharp at the top, the ··· beside it.
+- [x] If the rows would run off the screen, the page scrolls up in step
+      with them, never taking the line under the head, and back down as it
+      closes. The page holds still otherwise while a line is open.
+- [x] A tap on the frost or on the line, or the phone's back, closes it:
+      the rows go first while the frost stays whole, then they fold away as
+      the frost clears. A line asked for by a link opens the same way.
+- [x] The receipt right after paying still opens over the page it was
+      paid from, as before: there is no line there to open.
+- [x] The walk counts the line at every frame of the opening (always
+      one), and checks the lines below go down by what grew in.
+
+**Expo Go**: a QR code for the update, as every round that reaches the
+phone ends.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

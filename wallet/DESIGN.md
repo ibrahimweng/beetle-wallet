@@ -115,7 +115,10 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 
 - **Every transaction opens in place** (Round 13): the line stays, sharp,
   the page goes soft under a white frost and the facts come in under the
-  line. On Activities, and for the receipt right after paying, over the
+  line. On Activities **the line itself opens** (Round 17): its facts grow
+  in under it in the list, pushing the lines below down, and nothing is
+  ever drawn over it; the frost lies round it in the page's own white, so
+  there is no edge or box. The receipt right after paying opens over the
   page paid from. There is no full receipt page.
 - A line not settled — still on its way, did not go, came back — says what
   happened in place, with the bank and the account, and offers its next

@@ -135,7 +135,8 @@ function exportMadeOf(file, name, seen) {
 }
 /* packages whose names are made for the animation thread */
 const THREAD_PACKAGES = new Set(['react-native-reanimated', 'react-native-worklets']);
-/* hooks whose results can be copied there: shared values, a ref (a plain object; a call on what it holds is caught as a call), the page's scroll */
+/* hooks whose results can be copied there: shared values, a ref (a plain object; a call on what it holds is caught as a call), the page's scroll,
+   and the page's column, which is an animated ref (collapse.ts) */
 const COPYABLE_HOOKS = new Set([
   'useSharedValue',
   'useDerivedValue',
@@ -148,6 +149,7 @@ const COPYABLE_HOOKS = new Set([
   'useMemo',
   'useRef',
   'useHeadScroll',
+  'usePageScroll',
 ]);
 /** why a value made like this cannot be copied to the animation thread, or null */
 function uncopyable(made) {

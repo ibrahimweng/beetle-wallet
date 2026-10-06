@@ -1,4 +1,9 @@
-/* A settled line of Activities, opened where it is.
+/* A receipt opened where it is, over the page it came from: the receipt
+   right after paying (receipts/Over.tsx). Activities opens its own lines in
+   the list itself, the line growing its rows under it (OpenLine.tsx, Round
+   17), with this file's Details; what follows is how this one looks.
+
+   A settled line of Activities, opened where it is.
 
    Nothing new is pushed and nothing fills the screen. The line stays in its
    place, sharp, and the page under it goes soft behind a frost of white —
@@ -54,14 +59,14 @@ const LINKED_TOP = 180;
 /** Room kept clear under what grows in: the bar goes down while a line is open, so only the phone's own foot. */
 const FOOT_ROOM = 28;
 /** How far a finger can move and still have tapped. */
-const TAP_SLOP = 12;
+export const TAP_SLOP = 12;
 /** The rows line up under the line's own words: past its 40 glyph and the 12 beside it. */
 const TEXT_COLUMN = 52;
 /** How long it takes to open: a little quicker than a page. */
-const OPEN_MS = motion.enter - 40;
+export const OPEN_MS = motion.enter - 40;
 /** Closing: what came in under the line goes first, while the frost stays whole; then the frost clears. */
-const ROWS_OUT = 140;
-const FROST_OUT = motion.leave - 60;
+export const ROWS_OUT = 140;
+export const FROST_OUT = motion.leave - 60;
 
 /** A line that has not settled: still on its way, did not go, or came back. */
 export type LineState = 'pending' | 'failed' | 'reversed';
@@ -225,7 +230,7 @@ export function InPlace({
   );
 }
 
-function Menu({ receipt, id, onLeave }: { receipt: Receipt; id: string; onLeave: (go: () => void) => void }) {
+export function Menu({ receipt, id, onLeave }: { receipt: Receipt; id: string; onLeave: (go: () => void) => void }) {
   const items = useReceiptMenu(receipt, id).map(it => ({
     ...it,
     onPress: () => onLeave(it.onPress),
@@ -236,7 +241,7 @@ function Menu({ receipt, id, onLeave }: { receipt: Receipt; id: string; onLeave:
 /* What comes in under the line: the rows in their groups, the session id
    kept back, and the two things to do with it. Each row arrives a beat after
    the one above it, out of the same blur. */
-function Details({
+export function Details({
   t,
   shown,
   receipt,
@@ -369,12 +374,12 @@ function Details({
   );
 }
 
-type StateWords = { glyph: IconName; tone: string; title: string; sub: string; bank?: string; actions: { label: string; glyph: IconName; onPress: () => void }[] };
+export type StateWords = { glyph: IconName; tone: string; title: string; sub: string; bank?: string; actions: { label: string; glyph: IconName; onPress: () => void }[] };
 
 /** What a line that has not settled says in place, and its next steps: the
     words the state pages used (transfers/Transfer.tsx), made short. `leave`
     puts the line away first, then goes. */
-function stateOf(state: LineState, row: LedgerRow, router: ReturnType<typeof useRouter>, id: string, leave: (go: () => void) => void): StateWords {
+export function stateOf(state: LineState, row: LedgerRow, router: ReturnType<typeof useRouter>, id: string, leave: (go: () => void) => void): StateWords {
   const bank = bankOf(row);
   const first = firstOf(row.name);
   const who = personOf(row);

@@ -129,7 +129,7 @@ mocks in and says so on the code screen; a real `AuthService` and
 | `src/features/transfers/` | A transfer that is not done: Still on its way, It did not go and It came back (`Transfer.tsx`), What went wrong? (`Wrong.tsx`), Asking for it back (`Recall.tsx`), I sent it wrong (`AlreadyGone.tsx`), what each says about a line (`states.ts`) |
 | `src/features/receipts/` | A receipt for every line of the record: the record and the frames' own figures (`receipts.ts`), a receipt by its address opened in place over the page it came from (`Over.tsx`, with the line itself in `src/features/activities/InPlace.tsx`), what a receipt's view shares — the receipt, its ··· and sharing it (`use.tsx`), the share sheet (`ShareSheet.tsx`); the card in the chat is `src/features/agent/ReceiptCard.tsx` |
 | `src/features/more/` | The one foot every screen shares (`Foot.tsx`): the bar on the three pages and under the open chat, and on a page Back beside its button, Back and Slide to send, or Back alone, morphing from the one to the other; and More, the actions up out of its plus (`More.tsx`), with the way a page hands a question, or a transaction, to the chat on home |
-| `src/features/activities/` | The record (`Activities.tsx`) in the frame's order (`rows.ts`), a line opened where it is (`InPlace.tsx`), and the answer to a question about spending (`Answer.tsx`) |
+| `src/features/activities/` | The record (`Activities.tsx`) in the frame's order (`rows.ts`), a line opened where it is, the line itself, with the frost round it (`OpenLine.tsx`), a receipt opened over the page it came from and the rows both show (`InPlace.tsx`), and the answer to a question about spending (`Answer.tsx`) |
 | `src/features/settings/` | Settings from the gear on the bar (`Settings.tsx`), Your details on its sheet (`Details.tsx`), what the pages set, kept per account (`prefs.ts`), and the pages: Lock and privacy, Spending limits and Past your own limit (`words.ts` holds the three words), Standing instructions and Set this up?, Devices, Not your phone, A new passcode, Virtual card |
 | `src/lab/` | The lab: which builds have it (`enabled.ts`), every feature and the places in it with the state each needs (`catalogue.ts`), the screen, and the tab that comes back to it |
 | `src/services/` | `AuthService`, `IdentityService`, `AgentService` (Beetle: the model in `model.ts` where there is a key, the script in `agent.ts` where there is not), what Beetle knows of the country (`nigeria.ts`: the networks by prefix, the data plans, the electricity companies, what a meter number looks like, a `MeterService` that says whose a meter is, and the people, lines and meters paid before), `ReaderService` (the device's text reader, or a stand-in), storage and hashing behind interfaces, with the mocks this build runs on, and the last problem that stopped the app, kept for the next open (`problems.ts`) |
@@ -888,21 +888,25 @@ service works it out. "money health" typed at home opens the page.
 ## Receipts
 
 Every line on Activities opens where it is, the way Fuse opens a
-coin in its list (`src/features/activities/InPlace.tsx`): nothing is
-pushed and nothing fills the screen. The line stays in its place, sharp,
-and the page under it goes soft behind a frost of white — still there, out
-of focus — while the bar steps out of the way. Under the line the rest of
-it grows in, out of a blur: what the line does not already say. Not who
+coin in its list (`src/features/activities/OpenLine.tsx`): nothing is
+pushed and nothing fills the screen. The line itself opens (Round 17,
+the owner's word): it stays in its place in the list, sharp, nothing drawn
+over it, and the rest of the page goes soft where it is behind a frost of
+the page's own white — still there, out of focus — above the line and
+below what grows in under it, while the bar steps out of the way. Under
+the line the rest of it grows in, in the list, out of a blur, the lines
+below going down to make room: what the line does not already say. Not who
 (the line says that) and not the total (the amount and the fee say that):
 where it came from and the fee, the amount and the balance after, anything
 written with it, and the session id, kept back behind Show it, since it
 only matters when the transaction is being queried. Then Share receipt and
 the thing Beetle offers — Set it up, the same again — side by side. The ···
 for the rest sits at the top right beside the page's title, which stays
-sharp over the frost with it: Ask Beetle about this, Report a problem. A line low on the page lifts just enough for
-what grows under it to fit. A tap anywhere off it, or the phone's back,
-puts it all back the way it came — a tap, not a swipe: a finger that moves
-across the frost leaves it open — and the pages hold still while it is open.
+sharp with it: Ask Beetle about this, Report a problem. A line low on the page scrolls up with what grows under it, just enough for
+it to fit, and back down as it closes. A tap on the frost or on the line again, or the phone's back,
+puts it all back — what grew in first, then the frost clearing as it folds away — a tap, not a swipe: a finger that moves
+across the frost leaves it open — and the pages hold still while it is open. The receipt right after paying opens
+the same way over the page paid from (`InPlace.tsx`), the line drawn there, since there is no line to open.
 
 A line still on its way, one that did not go and one that came back open
 the same way. What happened comes first under the line, on a glyph of its
@@ -1112,11 +1116,11 @@ and Savings come up from the bottom instead, as white sheets over home,
 which steps back behind them (Round 14); a page opened from one comes up
 as a sheet over it.
 Where nothing needs a page, nothing is pushed: a line on Activities opens
-in place, its facts coming in under it as the page goes soft under white,
-and closes in two steps, its facts going first while the white stays whole
-and then the white clearing, its blur thinning as it goes (Round 16); the
-receipt right after paying opens the same way over the page paid
-from, and the receipt in the chat grows in place a little, the chat soft
+where it is, the line itself, its facts growing in under it as the page
+goes soft under white (Round 17), and closes in two steps, its facts going
+first while the white stays whole and then the white clearing, its blur
+thinning as it goes (Round 16); the receipt right after paying opens over
+the page paid from, and the receipt in the chat grows in place a little, the chat soft
 under dark. The three pages turn on a spring that settles without running
 past, carrying the finger's speed when it lets go.
 

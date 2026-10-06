@@ -20,7 +20,7 @@ const blur: BlurModule | null = (() => {
   }
 })();
 
-export type VeilTone = 'light' | 'paper' | 'dark' | 'frost';
+export type VeilTone = 'light' | 'paper' | 'dark' | 'frost' | 'page';
 
 /** The gradient's stops: the frame's 76% at the top, most of the way solid by the middle, solid at the foot.
     Paper is the white a receipt opens over: the same way down, but near solid from the top, so the
@@ -31,6 +31,9 @@ const STOPS: Record<VeilTone, { colors: [string, string, string]; tint: 'light' 
   dark: { colors: ['rgba(14,14,16,0.74)', 'rgba(14,14,16,0.9)', 'rgba(14,14,16,0.98)'], tint: 'dark' },
   /* the same white all the way down, thin enough that the page shows through soft: what a line opens in place over (see Activities) */
   frost: { colors: ['rgba(247,247,249,0.8)', 'rgba(247,247,249,0.82)', 'rgba(247,247,249,0.86)'], tint: 'light' },
+  /* the frost in the page's own white: laid round a line of Activities that opens in the list, so the line, on the
+     page's white, sits on the same ground as the frost round it, with no edge between them (Round 17) */
+  page: { colors: ['rgba(255,255,255,0.8)', 'rgba(255,255,255,0.82)', 'rgba(255,255,255,0.86)'], tint: 'light' },
 };
 const LOCATIONS: [number, number, number] = [0, 0.55, 1];
 

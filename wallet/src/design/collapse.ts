@@ -10,7 +10,8 @@
    the line under it fades. Scrolled back to the top, it grows back. The
    page (Screen) keeps how far it has scrolled; the heads read it here. */
 import { createContext, useContext } from 'react';
-import type { SharedValue } from 'react-native-reanimated';
+import type Animated from 'react-native-reanimated';
+import type { AnimatedRef, SharedValue } from 'react-native-reanimated';
 
 /** How far the page scrolls while the title shrinks. */
 export const COLLAPSE = 56;
@@ -23,6 +24,11 @@ export const HeadScroll = createContext<SharedValue<number> | null>(null);
 
 /** How far the page this head is on has scrolled, or null off a page. */
 export const useHeadScroll = () => useContext(HeadScroll);
+
+/** The page's own column, for what in it has to move the column along with itself: a line of Activities that opens
+    and would run off the screen scrolls the column up in step with it (Round 17). */
+export const PageScroll = createContext<AnimatedRef<Animated.ScrollView> | null>(null);
+export const usePageScroll = () => useContext(PageScroll);
 
 /** 0 at the top, 1 once the title has shrunk all the way. */
 export function collapsed(y: number): number {

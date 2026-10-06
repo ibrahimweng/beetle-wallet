@@ -96,13 +96,11 @@ const seeExactly = text => page.getByText(text, { exact: true }).filter({ visibl
 const arrives = text => page.waitForFunction(t => (document.body.innerText || '').includes(t), text, { polling: 16, timeout: 15000 });
 /* a receipt, opened in place over the page it came from (Round 13): the line, and its facts come in under it */
 const receiptInPlace = () => page.getByTestId('in-place-card').filter({ visible: true }).first().waitFor();
-/* and put away: a tap on the frost above it */
+/* and put away: a tap on the frost above it, near the top of the screen (on Activities the frost lies in the page's
+   column, round the line, so where its box starts depends on how far the column has scrolled) */
 const closeInPlace = async () => {
-  await page
-    .getByTestId('in-place-away')
-    .filter({ visible: true })
-    .first()
-    .click({ position: { x: 200, y: 60 } });
+  await page.getByTestId('in-place-away').filter({ visible: true }).first().waitFor();
+  await page.mouse.click(200, 60);
   await page.waitForTimeout(700);
 };
 /* a covered page keeps its buttons in the page, hidden: only the one that can be seen is pressed */
@@ -1394,6 +1392,32 @@ try {
   await button('Ikeja Electric').scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);
   const ikejaRow = await button('Ikeja Electric').boundingBox();
+  /* the gap from the line to the next line under it, in the page as it is, so a scroll cannot change it */
+  const gapUnder = () =>
+    page.evaluate(() => {
+      const lines = [...document.querySelectorAll('[data-testid="done-row"], [data-testid="status-row"]')]
+        .map(e => ({ name: e.getAttribute('aria-label'), top: e.getBoundingClientRect().top, left: e.getBoundingClientRect().left }))
+        .filter(l => l.left >= 0 && l.left < window.innerWidth);
+      const at = lines.findIndex(l => l.name === 'Ikeja Electric');
+      return at >= 0 && lines[at + 1] ? lines[at + 1].top - lines[at].top : null;
+    });
+  const gapBefore = await gapUnder();
+  /* the line itself opens (Round 17, the owner's word): at no frame of the opening is the line drawn twice */
+  await page.evaluate(() => {
+    const w = window;
+    w.__lines = [];
+    const t0 = performance.now();
+    const frame = () => {
+      const drawn = [...document.querySelectorAll('div')].filter(e => {
+        if (e.childElementCount || e.textContent !== 'Ikeja Electric') return false;
+        const r = e.getBoundingClientRect();
+        return r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < window.innerHeight && r.right > 0 && r.left < window.innerWidth;
+      });
+      w.__lines.push(drawn.length);
+      if (performance.now() - t0 < 1600) requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  });
   await tap('Ikeja Electric');
   const opened = await trace(
     'in-place',
@@ -1410,6 +1434,16 @@ try {
     `the line should stay where it was (${Math.round(held[0]?.top ?? 0)}, the line at ${Math.round(ikejaRow?.y ?? 0)}; seen in ${held.length} of ${opened.length} samples: ${opened.map(x => (x.line ? Math.round(x.line.top) : '-')).join(' ')})`,
   );
   await page.getByTestId('in-place-card').waitFor();
+  await page.waitForTimeout(400);
+  const drawnTwice = (await page.evaluate(() => window.__lines)).filter(n => n !== 1).length;
+  must(!drawnTwice, `the line should be drawn once at every frame of opening, not twice (${drawnTwice} frames otherwise)`);
+  must((await page.locator('[data-testid="in-place-line"] [data-testid="done-row"]').count()) === 1, "the open line should be the list's own line");
+  const gapAfter = await gapUnder();
+  const grownIn = (await page.getByTestId('in-place-card').boundingBox())?.height ?? 0;
+  must(
+    gapBefore !== null && gapAfter !== null && gapAfter - gapBefore > grownIn - 20,
+    `the lines below should go down to make room (the next line ${Math.round(gapBefore ?? 0)} under it, then ${Math.round(gapAfter ?? 0)}, ${Math.round(grownIn)} grown in)`,
+  );
   must((await page.getByTestId('in-place-veil').count()) === 1, 'the page should go soft under the frost');
   /* the bar goes down under the bottom of the screen while a line is open */
   const barAway = await page
@@ -1469,7 +1503,7 @@ try {
     };
     requestAnimationFrame(frame);
   });
-  await page.getByTestId('in-place-away').click({ position: { x: 200, y: 40 } });
+  await page.mouse.click(200, 40);
   await page.getByTestId('in-place').waitFor({ state: 'detached' });
   await page.waitForTimeout(300);
   const closing = await page.evaluate(() => window.__closing);

@@ -554,7 +554,15 @@ function Drawn({ spec, who }: { spec: FootSpec; who: number }) {
           ) : null}
           {boxNow ? (
             /* one per page and kind: the same page's button saying something else is the same button, changed where it is */
-            <Animated.View key={`${pageOf}|${boxNow.kind}`} style={[s.box, place(boxNow), box]} pointerEvents={isPage && live ? 'box-none' : 'none'}>
+            /* kept, unseen, while the bar is up (so it can morph back out); VoiceOver is not told of it then */
+            <Animated.View
+              key={`${pageOf}|${boxNow.kind}`}
+              style={[s.box, place(boxNow), box]}
+              pointerEvents={isPage && live ? 'box-none' : 'none'}
+              aria-hidden={!isPage}
+              accessibilityElementsHidden={!isPage}
+              importantForAccessibility={isPage ? 'auto' : 'no-hide-descendants'}
+            >
               {drawn(boxNow)}
             </Animated.View>
           ) : null}

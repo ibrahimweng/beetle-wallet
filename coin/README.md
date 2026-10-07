@@ -16,7 +16,7 @@ tools.
 | `coin-hole.glb` | The model. One mesh, one material, its three textures inside. |
 | `textures/` | The same three textures as loose files, if you want to grade or swap them. |
 | `previews/` | The model beside each photo, lit the way that photo was (`compare.png`); the silhouette fit against the angled photo (`angle_fit.png`: grey where both agree, red photo only, blue model only); and a turntable. |
-| `reference/` | The two photos it was measured from. |
+| `reference/` | The two photos it was measured from, and the Beetle logo: the picture it came as (`beetle-logo.png`) and the clean vector rebuilt from it (`beetle-logo.svg`). |
 | `tools/` | The scripts that measure the photos and build the model. |
 
 ### The model
@@ -105,9 +105,22 @@ python fit_thickness.py ../reference/angle.png                      # the thickn
 python build_coin.py --turntable 72                                 # textures, GLB, previews
 python build_coin.py --look                                         # quick renders while tuning the glaze
 python build_coin.py --turntable-only --turntable 96                # just the spin, from the textures already baked
+python trace_logo.py ../reference/beetle-logo.png ../reference/beetle-logo.svg   # the logo, as a vector
 ```
 
 `fit_thickness.py` reports the thickness; it goes into `PARAMS["thickness"]` in
 `coin_geometry.py`, which holds every dimension in one place, in units of
 the coin's radius. The glaze's colours are at the top of the material section
 of `build_coin.py`.
+
+### The logo
+
+`trace_logo.py` does not follow the logo picture's pixels, which are hard
+steps. It finds each edge, fits the true line, circle or ellipse to it and the
+radius of each rounded tip, and draws the logo again from those. That is what it
+is made of: both straight edges run at exactly 45°; the long shape's two lobes
+are circles of one radius; the lower piece's two hollow sides are circles of
+another; the two remaining curves are ellipses whose axes lie on the same
+diagonal; and every tip is rounded at about the same radius. The rebuilt
+outline sits within 0.4 px of the picture's on average, about as close as its
+pixel steps allow.

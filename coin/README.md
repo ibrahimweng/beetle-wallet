@@ -1,25 +1,32 @@
-# The clay coin, in 3D
+# The clay coins, in 3D
 
-A replica of the glazed clay coin in `reference/`, built from those two photos,
-as a GLB to use in After Effects. This is the first of three: the coin with the
-hole. The others (one without the hole, and a third) come next, from the same
-tools.
+Replicas of the glazed clay coin in `reference/`, built from those two photos,
+as GLBs to use in After Effects. Two so far, from the same tools:
+
+- **`coin-hole.glb`**, the coin as it is, with its hole;
+- **`coin-logo.glb`**, the same coin without the hole, with the Beetle logo
+  pressed into both faces.
 
 ![Photo and model, from the front and from the side](previews/compare.png)
 
 ![The model turning](previews/turntable.gif)
 
+![The coin with the logo: front, back, and from the angle of the second photo](previews/logo_compare.png)
+
+![The coin with the logo, turning](previews/logo_turntable.gif)
+
 ## What is here
 
 | File | What it is |
 | --- | --- |
-| `coin-hole.glb` | The model. One mesh, one material, its three textures inside. |
-| `textures/` | The same three textures as loose files, if you want to grade or swap them. |
-| `previews/` | The model beside each photo, lit the way that photo was (`compare.png`); the silhouette fit against the angled photo (`angle_fit.png`: grey where both agree, red photo only, blue model only); and a turntable. |
+| `coin-hole.glb` | The coin with the hole. One mesh, one material, its three textures inside. |
+| `coin-logo.glb` | The coin with the logo. The same, laid out the same way. |
+| `textures/` | Each coin's three textures as loose files (`coin-hole_*`, `coin-logo_*`), if you want to grade or swap them. |
+| `previews/` | The coin with the hole beside each photo, lit the way that photo was (`compare.png`), and the silhouette fit against the angled photo (`angle_fit.png`: grey where both agree, red photo only, blue model only). The coin with the logo from the front, the back, the photo's angle and close up (`logo_*.png`). A turntable of each. |
 | `reference/` | The two photos it was measured from, and the Beetle logo: the picture it came as (`beetle-logo.png`) and the clean vector rebuilt from it (`beetle-logo.svg`). |
-| `tools/` | The scripts that measure the photos and build the model. |
+| `tools/` | The scripts that measure the photos and the logo and build the coins. |
 
-### The model
+### The coin with the hole
 
 - **Size:** 40 mm across and 7.2 mm thick at the rim, in real units
   (glTF is in metres). The real coin's size is not in the photos, so 40 mm is a
@@ -43,11 +50,28 @@ tools.
   All three are 4096 × 1024, wrapped round the coin once each way, so there is
   no visible seam.
 
+### The coin with the logo
+
+- **The same coin:** the same 40 × 7.2 mm, the same rim, groove and side, the
+  same glaze, placed the same way (logo upright, +Y). Inside the groove the
+  field carries on level across the middle, where the hole was.
+- **The logo** is 17.9 mm across, centred, pressed 0.5 mm into the field, its
+  walls rounded over the way clay rounds under a stamp. The glaze runs into the
+  pressing and lies thicker there, darker and glossier, and breaks a little
+  lighter on the edge above, as glaze does.
+- **The back** is the same as the front. The logo there is mirrored in the
+  model, so that it reads the right way round when the coin is turned over.
+- **Mesh:** 104,203 vertices, 206,268 triangles, one closed
+  surface: dense where the logo's walls are, light on the flat.
+- **Material:** the same three textures, here 4096 × 4096 (the normal map
+  2048 × 2048): the front and back faces each have a square of their own, and
+  the rim and side run along the bottom half.
+
 ## Using it in After Effects
 
 Needs After Effects 24.1 or later.
 
-1. **Import** `coin-hole.glb` (File › Import). Drag it into a comp; it comes in
+1. **Import** `coin-hole.glb` or `coin-logo.glb` (File › Import). Drag it into a comp; it comes in
    as a 3D model layer.
 2. **Renderer:** Composition Settings › 3D Renderer › **Advanced 3D**.
 3. **Size:** in the layer's Model Settings, either choose **Make Comp Size**,
@@ -59,7 +83,8 @@ Needs After Effects 24.1 or later.
    almost black. A studio HDRI with a few softboxes on a dark room gives the
    front photo's look (dark brown, bright edges, colour where the light catches);
    a bright, even one gives the angled photo's (the lustre all over).
-5. **Spin** with Y Rotation. The hole is see-through, so put something behind it.
+5. **Spin** with Y Rotation. The hole is see-through, so put something behind
+   the coin that has one.
 
 Nothing in the file is beyond the core glTF material, so it looks the same in
 any viewer that reads GLB.
@@ -97,12 +122,13 @@ The tools run on Blender's Python module, without Blender itself:
 
 ```sh
 python -m venv .venv && . .venv/bin/activate
-pip install bpy numpy scipy scikit-image pillow   # bpy 5.2 wants Python 3.13; ffmpeg for the turntable
+pip install bpy numpy scipy scikit-image pillow svgpathtools   # bpy 5.2 wants Python 3.13; ffmpeg for the turntable
 
 cd coin/tools
 python measure_hole.py ../reference/front.png hole_outline.json   # the hole, from the photo
 python fit_thickness.py ../reference/angle.png                      # the thickness and the camera -> fit_camera.json
-python build_coin.py --turntable 72                                 # textures, GLB, previews
+python build_coin.py --turntable 96                                 # the coin with the hole: textures, GLB, previews
+python build_coin.py --variant logo --turntable 96                  # the coin with the logo (reads ../reference/beetle-logo.svg)
 python build_coin.py --look                                         # quick renders while tuning the glaze
 python build_coin.py --turntable-only --turntable 96                # just the spin, from the textures already baked
 python trace_logo.py ../reference/beetle-logo.png ../reference/beetle-logo.svg   # the logo, as a vector

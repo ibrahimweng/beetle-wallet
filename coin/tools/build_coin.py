@@ -1,14 +1,15 @@
-"""Build the coin in Blender: the mesh, its glaze, the baked textures, the GLB,
-and renders to compare against the photographs.
+"""Build a coin in Blender: the mesh, its glaze, the baked textures, the GLB,
+and renders to look at.
 
 Runs on Blender's Python module (pip install bpy), with no Blender window:
 
-    python build_coin.py                 # everything
-    python build_coin.py --shape-only    # quick grey renders to check the shape
-    python build_coin.py --variant solid # the coin without the hole (not yet)
+    python build_coin.py                  # the coin with the hole
+    python build_coin.py --variant logo   # the coin without the hole, the logo pressed in
+    python build_coin.py --shape-only     # quick grey renders to check the shape
+    python build_coin.py --previews-only  # stills again, from the textures already baked
 
-Writes ../coin-hole.glb, ../textures/*.{jpg,png} (what the GLB carries) and
-../previews/*.png.
+Writes ../coin-<variant>.glb, ../textures/coin-<variant>_*.{jpg,png} (what the
+GLB carries) and ../previews/*.png.
 """
 import argparse
 import math
@@ -38,22 +39,25 @@ def reset():
     return scene
 
 
-def make_coin(params, name="Coin"):
-    v, q, uv = geo.build(params)
+def make_coin(mesh, name="Coin"):
+    v = mesh["verts"]
     # Stand it up facing the viewer: glTF's front is +Z with +Y up, which is
     # Blender's -Y with +Z up.
     v = np.c_[v[:, 0], -v[:, 2], v[:, 1]] * RADIUS_M
+    loops, sizes = mesh["loops"], mesh["sizes"]
     me = bpy.data.meshes.new(name)
     me.vertices.add(len(v))
     me.vertices.foreach_set("co", v.astype(np.float32).ravel())
-    me.loops.add(q.size)
-    me.loops.foreach_set("vertex_index", q.astype(np.int32).ravel())
-    me.polygons.add(len(q))
-    me.polygons.foreach_set("loop_start", np.arange(0, q.size, 4, dtype=np.int32))
+    me.loops.add(len(loops))
+    me.loops.foreach_set("vertex_index", loops.astype(np.int32))
+    me.polygons.add(len(sizes))
+    me.polygons.foreach_set("loop_start", np.r_[0, np.cumsum(sizes)[:-1]].astype(np.int32))
     me.update(calc_edges=True)
     me.validate()
     layer = me.uv_layers.new(name="UVMap")
-    layer.data.foreach_set("uv", uv.astype(np.float32).ravel())
+    layer.data.foreach_set("uv", mesh["uv"].astype(np.float32).ravel())
+    for key, values in mesh["attrs"].items():  # for the glaze; not exported
+        me.attributes.new(key, "FLOAT", "POINT").data.foreach_set("value", values.astype(np.float32))
     me.shade_smooth()
     ob = bpy.data.objects.new(name, me)
     bpy.context.scene.collection.objects.link(ob)
@@ -254,11 +258,17 @@ LUSTRE = [
 ]
 SPECK_DARK = srgb(10, 8, 7)
 SPECK_LIGHT = srgb(120, 110, 95)
+# Where a stamp has pressed the clay in, the glaze runs into it and lies
+# thicker: darker and glossier. On the edge above, it runs thin and breaks
+# lighter.
+POOLED = srgb(22, 15, 12)
+BROKEN = srgb(132, 96, 64)
 
 
-def glaze_channels(g):
+def glaze_channels(g, pooled=False):
     """Build the procedural glaze. Returns sockets for colour, metallic,
-    roughness and the height used for the normal map."""
+    roughness and the height used for the normal map. With `pooled`, the mesh's
+    `pool` and `brk` attributes say where the glaze lies thick and thin."""
     tc = g.node("ShaderNodeTexCoord")
     p = g.node("ShaderNodeVectorMath", operation="SCALE")
     g.set(p.inputs[0], tc.outputs["Object"])
@@ -302,6 +312,13 @@ def glaze_channels(g):
     rough = g.math("ADD", 0.15, g.math("MULTIPLY", g.noise(p, 3.5, offset=(2.0, 4.0, 6.0)), 0.10))
     rough = g.math("ADD", rough, g.math("MULTIPLY", g.math("SUBTRACT", 1.0, plain), 0.40), clamp=True)
 
+    if pooled:
+        pool = g.node("ShaderNodeAttribute", attribute_name="pool", attribute_type="GEOMETRY").outputs["Fac"]
+        brk = g.node("ShaderNodeAttribute", attribute_name="brk", attribute_type="GEOMETRY").outputs["Fac"]
+        colour = g.mix(g.math("MULTIPLY", pool, 0.55), colour, POOLED)
+        colour = g.mix(g.math("MULTIPLY", brk, 0.30), colour, BROKEN)
+        rough = g.math("SUBTRACT", rough, g.math("MULTIPLY", pool, 0.05), clamp=True)
+
     # Height in coin radii: the glaze's slow waves, its orange peel, and pinholes.
     wave = g.math("MULTIPLY", g.math("SUBTRACT", g.noise(p, 2.2, detail=2.0, offset=(9.0, 1.0, 4.0)), 0.5), 0.0035)
     peel = g.math("MULTIPLY", g.math("SUBTRACT", g.noise(p, 34.0, detail=3.0, roughness=0.45), 0.5), 0.0007)
@@ -310,7 +327,7 @@ def glaze_channels(g):
     return colour, metallic, rough, height
 
 
-def glaze_material(name="Glazed clay"):
+def glaze_material(name="Glazed clay", pooled=False):
     """The procedural glaze, live, for baking from."""
     mat = bpy.data.materials.new(name + " (procedural)")
     mat.use_nodes = True
@@ -318,7 +335,7 @@ def glaze_material(name="Glazed clay"):
     g = Graph(nt)
     bsdf = nt.nodes["Principled BSDF"]
     out = nt.nodes["Material Output"]
-    colour, metallic, rough, height = glaze_channels(g)
+    colour, metallic, rough, height = glaze_channels(g, pooled)
     g.set(bsdf.inputs["Base Color"], colour)
     g.set(bsdf.inputs["Metallic"], metallic)
     g.set(bsdf.inputs["Roughness"], rough)
@@ -379,9 +396,10 @@ def bake(scene, ob, mat, sockets, size, folder, samples_ao=96):
     return results
 
 
-def save_textures(maps, folder, w, h):
+def save_textures(maps, folder, w, h, name="coin-hole", normal_size=None):
     """Write the textures: colour as sRGB JPEG, the occlusion/roughness/metal
-    pack as JPEG, and the normal map as PNG (JPEG blocks show in reflections)."""
+    pack as JPEG, and the normal map as PNG (JPEG blocks show in reflections),
+    at `normal_size` if given: it only carries the glaze's fine grain."""
     os.makedirs(folder, exist_ok=True)
 
     def px(img):
@@ -394,16 +412,19 @@ def save_textures(maps, folder, w, h):
 
     from PIL import Image
 
-    def write(a, name, fmt, **kw):
+    def write(a, file, fmt, size=None, **kw):
         a = np.clip(np.round(a[::-1] * 255), 0, 255).astype(np.uint8)  # Blender's rows run bottom-up
-        path = os.path.join(folder, name)
-        Image.fromarray(a).save(path, fmt, **kw)
+        path = os.path.join(folder, file)
+        im = Image.fromarray(a)
+        if size:
+            im = im.resize(size, Image.LANCZOS)
+        im.save(path, fmt, **kw)
         return path
 
     return {
-        "colour": write(colour, "coin-hole_basecolor.jpg", "JPEG", quality=93, subsampling=0),
-        "orm": write(orm, "coin-hole_occlusion-roughness-metallic.jpg", "JPEG", quality=95, subsampling=0),
-        "normal": write(normal, "coin-hole_normal.png", "PNG", optimize=True),
+        "colour": write(colour, f"{name}_basecolor.jpg", "JPEG", quality=93, subsampling=0),
+        "orm": write(orm, f"{name}_occlusion-roughness-metallic.jpg", "JPEG", quality=95, subsampling=0),
+        "normal": write(normal, f"{name}_normal.png", "PNG", size=normal_size, optimize=True),
     }
 
 
@@ -475,20 +496,33 @@ def export_glb(ob, path):
     )
 
 
+VARIANTS = {
+    # name: (texture size, preview prefix, AO samples, normal map size)
+    "hole": ((4096, 1024), "", 96, None),
+    "logo": ((4096, 4096), "logo_", 32, (2048, 2048)),
+}
+
+
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--variant", choices=sorted(VARIANTS), default="hole")
     ap.add_argument("--shape-only", action="store_true")
     ap.add_argument("--look", action="store_true", help="render the live procedural glaze, no bake or export")
     ap.add_argument("--samples", type=int, default=128)
-    ap.add_argument("--tex", type=int, nargs=2, default=(4096, 1024), help="texture size, around x across")
+    ap.add_argument("--tex", type=int, nargs=2, help="texture size (default: the variant's)")
     ap.add_argument("--turntable", type=int, default=0, metavar="FRAMES", help="also render a spin of this many frames")
     ap.add_argument("--turntable-only", action="store_true", help="reuse the textures already baked and only render the spin")
+    ap.add_argument("--previews-only", action="store_true", help="reuse the textures already baked and only render the stills")
     ap.add_argument("--out", default=ROOT)
     args = ap.parse_args()
+    tex, prefix, ao_samples, normal_size = VARIANTS[args.variant]
+    tex = tuple(args.tex) if args.tex else tex
+    name = f"coin-{args.variant}"
 
     scene = reset()
     params = dict(geo.PARAMS)
-    coin = make_coin(params)
+    mesh = geo.build_logo(params) if args.variant == "logo" else geo.as_mesh(*geo.build(params))
+    coin = make_coin(mesh)
     studio(scene, "dark")
 
     import json
@@ -502,39 +536,43 @@ def main():
         angle = camera_fit(scene, 315, 413, [fit[k] for k in ("yaw", "pitch", "roll", "distance", "scale", "cx", "cy")])
     previews = os.path.join(args.out, "previews")
     os.makedirs(previews, exist_ok=True)
+    show = previews_logo if args.variant == "logo" else previews_both
 
     if args.shape_only:
         coin.data.materials.append(grey_material())
-        render(scene, front, (415, 424), os.path.join(previews, "shape_front.png"), args.samples)
+        render(scene, front, (415, 424), os.path.join(previews, prefix + "shape_front.png"), args.samples)
         if angle:
-            render(scene, angle, (315, 413), os.path.join(previews, "shape_angle.png"), args.samples)
+            render(scene, angle, (315, 413), os.path.join(previews, prefix + "shape_angle.png"), args.samples)
         return
 
-    proc, sockets = glaze_material()
+    proc, sockets = glaze_material(pooled="pool" in mesh["attrs"])
     coin.data.materials.append(proc)
     if args.look:
-        previews_both(scene, front, angle, previews, args.samples, "look_")
+        show(scene, coin, front, angle, previews, args.samples, prefix + "look_")
         return
-    if args.turntable_only:
+    if args.turntable_only or args.previews_only:
         folder = os.path.join(args.out, "textures")
-        paths = {k: os.path.join(folder, f) for k, f in (
-            ("colour", "coin-hole_basecolor.jpg"), ("orm", "coin-hole_occlusion-roughness-metallic.jpg"), ("normal", "coin-hole_normal.png"))}
+        paths = {k: os.path.join(folder, f"{name}_{f}") for k, f in (
+            ("colour", "basecolor.jpg"), ("orm", "occlusion-roughness-metallic.jpg"), ("normal", "normal.png"))}
         coin.data.materials.clear()
         coin.data.materials.append(textured_material(paths))
-        turntable(scene, coin, args.turntable or 72, previews, max(16, args.samples // 2))
+        if args.previews_only:
+            show(scene, coin, front, angle, previews, args.samples, prefix)
+        else:
+            turntable(scene, coin, args.turntable or 72, previews, max(16, args.samples // 2), prefix)
         return
-    maps = bake(scene, coin, proc, sockets, args.tex, None)
-    paths = save_textures(maps, os.path.join(args.out, "textures"), *args.tex)
+    maps = bake(scene, coin, proc, sockets, tex, None, samples_ao=ao_samples)
+    paths = save_textures(maps, os.path.join(args.out, "textures"), *tex, name=name, normal_size=normal_size)
     coin.data.materials.clear()
     coin.data.materials.append(textured_material(paths))
 
-    export_glb(coin, os.path.join(args.out, "coin-hole.glb"))
-    previews_both(scene, front, angle, previews, args.samples)
+    export_glb(coin, os.path.join(args.out, f"{name}.glb"))
+    show(scene, coin, front, angle, previews, args.samples, prefix)
     if args.turntable:
-        turntable(scene, coin, args.turntable, previews, max(16, args.samples // 2))
+        turntable(scene, coin, args.turntable, previews, max(16, args.samples // 2), prefix)
 
 
-def turntable(scene, coin, frames, folder, samples, size=540):
+def turntable(scene, coin, frames, folder, samples, prefix="", size=540):
     """One full turn about the vertical axis, rendered from slightly above,
     then made into turntable.mp4 and turntable.gif on white."""
     import shutil
@@ -559,14 +597,14 @@ def turntable(scene, coin, frames, folder, samples, size=540):
     frames_in = ["-framerate", "24", "-i", os.path.join(tmp, "f%04d.png")]
     over = "[0][1]overlay=shortest=1"
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", *bg, *frames_in, "-filter_complex", over + ",format=yuv420p",
-                    "-c:v", "libx264", "-crf", "18", os.path.join(folder, "turntable.mp4")], check=True)
+                    "-c:v", "libx264", "-crf", "18", os.path.join(folder, prefix + "turntable.mp4")], check=True)
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", *bg, *frames_in, "-filter_complex",
                     over + ",scale=360:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=192[p];[b][p]paletteuse=dither=sierra2_4a",
-                    os.path.join(folder, "turntable.gif")], check=True)
+                    os.path.join(folder, prefix + "turntable.gif")], check=True)
     shutil.rmtree(tmp)
 
 
-def previews_both(scene, front, angle, folder, samples, prefix=""):
+def previews_both(scene, coin, front, angle, folder, samples, prefix=""):
     studio(scene, "dark")
     render(scene, front, (415, 424), os.path.join(folder, prefix + "front.png"), samples)
     if angle:
@@ -577,6 +615,30 @@ def previews_both(scene, front, angle, folder, samples, prefix=""):
              os.path.join(ROOT, "reference", "angle.png"), os.path.join(folder, prefix + "angle.png")],
             os.path.join(folder, prefix + "compare.png"),
         )
+
+
+def previews_logo(scene, coin, front, angle, folder, samples, prefix=""):
+    """The front, the back (turned over, so the logo should read the right way
+    round), the angle of the second photo, and a close look at the pressing."""
+    studio(scene, "dark")
+    render(scene, front, (415, 424), os.path.join(folder, prefix + "front.png"), samples)
+    coin.rotation_euler = (0, 0, math.pi)
+    render(scene, front, (415, 424), os.path.join(folder, prefix + "back.png"), samples)
+    coin.rotation_euler = (0, 0, 0)
+    cam = bpy.data.cameras.new("Close")
+    cam.lens = 85
+    cam.clip_start = 0.005  # it is closer than Blender's default 10 cm
+    ob = bpy.data.objects.new("Close", cam)
+    az, el, dist = math.radians(28), math.radians(34), 0.105
+    ob.location = (dist * math.sin(az) * math.cos(el), -dist * math.cos(az) * math.cos(el), dist * math.sin(el))
+    ob.rotation_euler = _look_rotation(-np.array(ob.location))
+    scene.collection.objects.link(ob)
+    render(scene, ob, (640, 640), os.path.join(folder, prefix + "close.png"), samples)
+    if angle:
+        studio(scene, "tent")
+        render(scene, angle, (315, 413), os.path.join(folder, prefix + "angle.png"), samples)
+    side_by_side([os.path.join(folder, prefix + f) for f in ("front.png", "back.png", "angle.png") if os.path.exists(os.path.join(folder, prefix + f))],
+                 os.path.join(folder, prefix + "compare.png"))
 
 
 def side_by_side(paths, out, scale=2):

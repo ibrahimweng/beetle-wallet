@@ -1,5 +1,5 @@
-/* The light at the card's edge, on the web (Round 21; what it draws is
-   glow's): the same shader in WebGL, on a canvas over the card, drawn a
+/* The light at the card's border, on the web (Round 21, made a soft border
+   glow in Round 24; what it draws is glow's): the same shader in WebGL, on a canvas over the card, drawn a
    frame at a time only while there is light, and hidden the rest of the
    time. A browser without WebGL draws nothing, and the card opens as it
    did. */
@@ -53,7 +53,7 @@ function painterFor(canvas: HTMLCanvasElement): Painter | null {
   gl.enableVertexAttribArray(q);
   gl.vertexAttribPointer(q, 2, gl.FLOAT, false, 0, 0);
   const at = (n: string) => gl.getUniformLocation(prog, n);
-  const U = { res: at('res'), dpr: at('dpr'), o: at('o'), a: at('a'), po: at('po'), t: at('t'), reach: at('reach'), g: at('g') };
+  const U = { res: at('res'), dpr: at('dpr'), size: at('size'), a: at('a'), t: at('t'), g: at('g') };
   const clear = () => {
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0, 0, 0, 0);
@@ -71,11 +71,9 @@ function painterFor(canvas: HTMLCanvasElement): Painter | null {
       clear();
       gl.uniform2f(U.res, width, height);
       gl.uniform1f(U.dpr, k);
-      gl.uniform2f(U.o, u.o[0]!, u.o[1]!);
+      gl.uniform2f(U.size, u.size[0]!, u.size[1]!);
       gl.uniform1f(U.a, u.a);
-      gl.uniform2f(U.po, u.po[0]!, u.po[1]!);
       gl.uniform1f(U.t, u.t);
-      gl.uniform1f(U.reach, u.reach);
       gl.uniform1f(U.g, u.g);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     },

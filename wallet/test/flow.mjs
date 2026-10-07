@@ -1506,15 +1506,23 @@ try {
   await tap('Activities');
   await see('Everything that moved');
   await onPage('activities');
-  /* all of the record is here now: Money health at the top, All / Insights / In / Out, what Beetle noticed among the lines */
+  /* all of the record is here now: All / Insights / In / Out, Money health under them on All and Insights only
+     (Round 24, the owner's word), what Beetle noticed among the lines */
   await see('Money health');
   await see('Your usual top up');
+  const filtersBox = () => page.getByRole('button', { name: 'Insights', exact: true }).filter({ visible: true }).first().boundingBox();
+  const healthBox = () => button('Money health').boundingBox();
+  const filtersAt = await filtersBox();
+  must((await healthBox()).y > filtersAt.y + filtersAt.height, 'Money health should sit under the row of filters');
   await shot('activities', 700);
   await tap('In');
   must((await page.getByText('Pagrin Limited').filter({ visible: true }).count()) === 1, 'In should keep the salary');
   must((await page.getByText('Ikeja Electric').filter({ visible: true }).count()) === 0, 'and drop what went out');
+  must((await page.getByText('Money health').filter({ visible: true }).count()) === 0, 'Money health is All and Insights only');
+  must(Math.abs((await filtersBox()).y - filtersAt.y) < 1, 'the row of filters should stay put as Money health comes and goes');
   await tap('Insights');
   await see('Where your money went');
+  await see('Money health');
   must((await page.getByText('Pagrin Limited').filter({ visible: true }).count()) === 0, 'Insights should hold what Beetle noticed, not the lines');
   await shot('activities-insights', 400);
   await tap('All');

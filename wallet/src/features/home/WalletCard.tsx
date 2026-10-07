@@ -66,10 +66,10 @@ const FIGURE_LEFT = SIDE;
 /** the drag has to travel this far before the card takes it */
 const SLACK = 10;
 
-/** The light at the card's edge, as a drag that opens the card sees it: told
-    while a pull is gathering it, and told to pulse where the card goes on by
-    itself (see glow). */
-export type CardLight = { pulling: SharedValue<boolean>; fire: (edge: number, held: number) => void };
+/** The light at the card's border, as a drag that opens the card sees it:
+    told while a pull is gathering it, and told to swell where the card goes
+    on by itself (see glow). */
+export type CardLight = { pulling: SharedValue<boolean>; fire: (held: number) => void };
 
 /** The drag that opens and closes the card, for whoever holds it: the card's
     own header and body, the chat once it has scrolled to its end, and the
@@ -154,9 +154,9 @@ export function useCardDrag({
           if (k > knocked.value) runOnJS(feel.gather)(k);
           knocked.value = k;
           if (p >= GATHER) {
-            /* far enough: the light pulses and the card goes on by itself, finger down or not */
+            /* far enough: the border swells and the card goes on by itself, finger down or not */
             fired.value = true;
-            light.fire(closedH + travel * p, gathered(p));
+            light.fire(gathered(p));
             open.value = withSpring(1, keys);
             runOnJS(feel.pulse)();
             runOnJS(settle)(true);
@@ -168,9 +168,9 @@ export function useCardDrag({
           const opening = startOpen.value < 0.5;
           const to = v > 400 ? 1 : v < -400 ? 0 : open.value > (opening ? GATHER : 0.65) ? 1 : 0;
           if (light && opening && to === 1) {
-            /* flung open before it got that far: the light pulses all the same */
+            /* flung open before it got that far: the border swells all the same */
             fired.value = true;
-            light.fire(closedH + (openH.value - closedH) * open.value, gathered(open.value));
+            light.fire(gathered(open.value));
             runOnJS(feel.pulse)();
           }
           open.value = withSpring(to, keys);
@@ -284,10 +284,9 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
     into.value = e.nativeEvent.layout.width;
   };
 
-  /* ---- the light at the edge (see glow) ---- */
-  /* the pulse's clock, in seconds since it fired, -1 when there is none; the edge where it fired; the light gathered then */
+  /* ---- the light at the border (see glow) ---- */
+  /* the swell's clock, in seconds since it fired, -1 when there is none; the light gathered then */
   const pulseT = useSharedValue(-1);
-  const pulseAt = useSharedValue(0);
   const pulseHeld = useSharedValue(0);
   /* a finger is pulling the closed card down; the card has been open, so what closes it now draws the quiet glow */
   const pulling = useSharedValue(false);
@@ -295,9 +294,8 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
   const light = useMemo<CardLight>(
     () => ({
       pulling,
-      fire: (edge: number, held: number) => {
+      fire: (held: number) => {
         'worklet';
-        pulseAt.value = edge;
         pulseHeld.value = held;
         pulling.value = false;
         pulseT.value = 0;
@@ -306,7 +304,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
         });
       },
     }),
-    [pulling, pulseAt, pulseHeld, pulseT],
+    [pulling, pulseHeld, pulseT],
   );
   useAnimatedReaction(
     () => [open.value, pulseT.value] as const,
@@ -323,10 +321,8 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
     const t = pulseT.value;
     return uniformsOf({
       width: W,
-      height: openH.value,
       edge: closedH + (openH.value - closedH) * p,
       a: t >= 0 ? pulseHeld.value : pulling.value ? gathered(p) : 0,
-      at: pulseAt.value,
       t,
       g: wasOpen.value && t < 0 ? closingGlow(p) : 0,
     });

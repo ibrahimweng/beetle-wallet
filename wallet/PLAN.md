@@ -1523,6 +1523,35 @@ nothing to revoke; and an APK built before this round needs building again
 for the backup setting and the splash's new place (everything else comes
 as an update).
 
+## Round 24 · A soft glow on the card's border, and Money health under the filters
+
+Asked by the owner after Round 23: the pull down made slick, the card's
+border glowing subtly; the streaks and the light at the foot gone; the
+aberration kept, softly, on the black card's border while it animates;
+soft edge glows the way. Four answers: strongest along the bottom curve,
+fading up the sides; inside the black card; one soft brighten as it opens,
+then a fade; and a quiet glow on closing. And, from a picture of
+Activities: Money health under the row of filters, since it is only on All
+and Insights.
+
+- [x] The light is the card's own border now (home/glow.ts): a fine line just
+      in from the edge, its outer side warm and its inner side cool, a faint
+      glow inward from it, strongest along the rounded bottom and thinning
+      up the sides. It grows with the pull, as before, with the same knocks.
+- [x] Gone: the bow at the foot, its streaks, the flash, the ring and its
+      echo running down the chat. At the open point the border swells once,
+      softly, and fades as the chat settles, in under a second.
+- [x] Closing, the same border glow, quieter, rises and is gone before the
+      card shuts.
+- [x] Activities: All / Insights / In / Out first, Money health under them
+      on All and Insights only, so the row of filters stays put as it comes
+      and goes.
+- [x] Tested: the shader compiled and drawn by Skia's own CanvasKit (nothing
+      at rest; the rim at the bottom edge, nothing in the middle or below the
+      card, the sides fading up; warm outside and cool inside; the swell and
+      its fade); the walk checks Money health sits under the filters, is gone
+      on In and the row does not move.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

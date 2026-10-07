@@ -310,19 +310,19 @@ back up. A push up on the header or on the chat once it has scrolled to its
 end, or the phone's own back, closes it too. The first time on a phone, the card dips on its own,
 once, so the pull is seen.
 
-Pulled, the card gathers light along its edge, where the finger is (Round
-21, the owner's word, after Apple's NameDrop: `src/features/home/glow.ts`
-and `Light.tsx`): a soft bow of white rising from the middle of the edge,
-streaked, its rim split warm outside and cool inside, growing with the pull
-while what the card holds is drawn out a little toward it, and the phone
-answering it a step at a time, a tick and two soft knocks. Pulled as far as
-letting go has always opened it, the card goes on by itself, finger down or
-not, and the light pulses: a flash where it gathered and a firm knock, a
-fringed ring and a fainter echo running out through the opening chat, and
-the bow riding the edge down to the foot as it dies, all in under a second
-and the open no slower for it. Let go short of that and the light ebbs with
-the card. Closing, a quieter glow rises along the edge and is gone before it
-shuts. On the phone Skia draws it (in Expo Go, and in any APK built after it
+Pulled, the card's border lights up softly from inside (Round 21 after
+Apple's NameDrop, made quieter in Round 24, the owner's word:
+`src/features/home/glow.ts` and `Light.tsx`): a fine line of light just in
+from the edge, its outer side warm and its inner side cool, softly, with a
+faint glow inward from it, strongest along the rounded bottom where the
+finger pulls and thinning out up the sides; it grows with the pull while
+what the card holds is drawn out a little toward it, and the phone answers
+it a step at a time, a tick and two soft knocks. Pulled as far as letting go
+has always opened it, the card goes on by itself, finger down or not, and
+the border swells once, softly, with a firm knock, then fades as the chat
+settles: no streaks, no light at the foot, no ring. Let go short of that and
+the light ebbs with the card. Closing, a quieter glow rises along the border
+and is gone before it shuts. On the phone Skia draws it (in Expo Go, and in any APK built after it
 was added; an older APK opens the card as before, without the light), on the
 web the same shader in WebGL; somebody who has asked their phone to keep
 still gets no light. The keyboard shrinks the open
@@ -908,7 +908,7 @@ them.
 
 ## Money health
 
-The Money health row on home opens the page from its frame: the score on a
+The Money health row on Activities opens the page from its frame: the score on a
 ring with how it moved, Beetle's word on what holds it down, the five
 habits that move it — checking before sending, saving on payday, the
 balance kept covered, only you opening the app, watching where it goes —
@@ -1071,7 +1071,8 @@ sheet up.
 ## Activities
 
 The second of the three pages holds all of the record, from its frame:
-Money health at the top, All / Insights / In / Out to narrow it, today and
+All / Insights / In / Out to narrow it, with Money health under them on All
+and Insights only, so the row stays put and the card reads as theirs; today and
 yesterday, what Beetle noticed set among the lines, and what Beetle makes
 of it at the foot. What is still on its way, did not go or came back
 stands first with its status glyph and a chevron, and what settled follows

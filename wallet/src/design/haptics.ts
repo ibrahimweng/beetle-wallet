@@ -44,7 +44,7 @@ export const feel = {
     if (step === 1) haptics.selectionAsync().catch(() => undefined);
     else haptics.impactAsync(step === 2 ? haptics.ImpactFeedbackStyle.Soft : haptics.ImpactFeedbackStyle.Light).catch(() => undefined);
   },
-  /** The light pulsing as the card goes open: a firm knock, and a soft one with its echo. */
+  /** The border swelling as the card goes open: a firm knock, and a soft one after it. */
   pulse() {
     if (!haptics) return;
     const h = haptics;

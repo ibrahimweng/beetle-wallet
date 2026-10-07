@@ -1,7 +1,8 @@
-/* The light at the card's edge (Round 21): how much a pull gathers, when
-   the phone knocks, the glow as it closes, and what the shader is handed.
-   The shader itself is drawn in glow-shader.test.mjs. */
-import { GATHER, PULSE, closingGlow, gathered, knocks, lit, reachOf, uniformsOf } from '../src/features/home/glow';
+/* The light at the card's border (Round 21, a soft border glow since Round
+   24): how much a pull gathers, when the phone knocks, the glow as it
+   closes, and what the shader is handed. The shader itself is drawn in
+   glow-shader.test.mjs. */
+import { GATHER, PULSE, closingGlow, gathered, knocks, lit, uniformsOf } from '../src/features/home/glow';
 
 describe('the light a pull gathers', () => {
   it('is none at rest and all of it where the card goes on by itself', () => {
@@ -17,7 +18,7 @@ describe('the light a pull gathers', () => {
       last = gathered(p);
     }
   });
-  it('knocks a quarter of the way, then twice more, before the pulse', () => {
+  it('knocks a quarter of the way, then twice more, before the swell', () => {
     expect(knocks(0)).toBe(0);
     expect(knocks(GATHER * 0.24)).toBe(0);
     expect(knocks(GATHER * 0.26)).toBe(1);
@@ -37,17 +38,16 @@ describe('the glow as the card closes', () => {
 });
 
 describe('what the shader is handed', () => {
-  it('draws nothing at rest', () => {
-    expect(lit(uniformsOf({ width: 393, height: 852, edge: 392, a: 0, at: 0, t: -1, g: 0 }))).toBe(false);
-    expect(lit(uniformsOf({ width: 393, height: 852, edge: 768, a: 0, at: 524, t: PULSE + 0.01, g: 0 }))).toBe(false);
+  it('is the card: its width and where its edge is', () => {
+    expect(uniformsOf({ width: 393, edge: 450, a: 0.4, t: -1, g: 0 })).toEqual({ size: [393, 450], a: 0.4, t: -1, g: 0 });
   });
-  it('draws while it gathers, pulses or glows', () => {
-    expect(lit(uniformsOf({ width: 393, height: 852, edge: 450, a: 0.4, at: 0, t: -1, g: 0 }))).toBe(true);
-    expect(lit(uniformsOf({ width: 393, height: 852, edge: 700, a: 1, at: 524, t: 0.2, g: 0 }))).toBe(true);
-    expect(lit(uniformsOf({ width: 393, height: 852, edge: 600, a: 0, at: 0, t: -1, g: 0.6 }))).toBe(true);
+  it('draws nothing at rest, or once the swell has run', () => {
+    expect(lit(uniformsOf({ width: 393, edge: 392, a: 0, t: -1, g: 0 }))).toBe(false);
+    expect(lit(uniformsOf({ width: 393, edge: 768, a: 0, t: PULSE + 0.01, g: 0 }))).toBe(false);
   });
-  it('runs its ring past the farthest corner of the card', () => {
-    const at = 524;
-    expect(reachOf(393, 852, at)).toBeGreaterThan(Math.hypot(393 / 2, at));
+  it('draws while it gathers, swells or glows', () => {
+    expect(lit(uniformsOf({ width: 393, edge: 450, a: 0.4, t: -1, g: 0 }))).toBe(true);
+    expect(lit(uniformsOf({ width: 393, edge: 700, a: 1, t: 0.2, g: 0 }))).toBe(true);
+    expect(lit(uniformsOf({ width: 393, edge: 600, a: 0, t: -1, g: 0.6 }))).toBe(true);
   });
 });

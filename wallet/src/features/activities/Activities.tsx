@@ -1,6 +1,9 @@
 /* Activities, the second of the three pages, from the History frame: all
-   of the record lives here now, none of it on home. Money health at the
-   top; All / Insights / In / Out to narrow it; today and yesterday, what is
+   of the record lives here now, none of it on home. All / Insights / In /
+   Out to narrow it, and Money health under them where it belongs, on All
+   and Insights only, so the row of filters stays put and the card reads as
+   theirs (Round 24, the owner's word; it was above them, and the row moved
+   when it went); today and yesterday, what is
    still on its way, did not go or came back first with its status glyph
    and a chevron, what settled after on the grey square; what Beetle
    noticed set among the lines; and its word at the foot. Every line opens
@@ -192,10 +195,11 @@ export function Activities() {
     <JourneyProvider>
       <View style={{ flex: 1 }}>
         <Screen head={<GlyphHead title="Activities" sub={nothing ? 'Nothing has moved yet' : 'Everything that moved, newest first'} rowRef={headRow} />} scrollEnabled={!over}>
-          {health ? <ScoreRow score={h.health!} title="Money health" sub={h.healthMove} onPress={() => router.push('/health')} /> : null}
           {/* the frame puts 16 between the segments and the record, and 10 between a day's name and its lines, and between one day and the next */}
           <View style={{ gap: 16 }}>
             <Segments options={SEGMENTS} value={segment} onChange={v => setSegment(v as Segment)} />
+            {/* Money health, under the filters it belongs to: All and Insights */}
+            {health ? <ScoreRow score={h.health!} title="Money health" sub={h.healthMove} onPress={() => router.push('/health')} /> : null}
             <View style={{ gap: 10 }}>
               {today.length || noticedToday.length ? <Body tone="secondary">Today</Body> : null}
               {today.length || noticedToday.length ? (

@@ -1,8 +1,9 @@
-/* The light at the card's edge, on the phone (Round 21; what it draws is
-   glow's). Skia draws the shader over the card, fed straight from the
-   card's own numbers where they move, so it keeps up with the finger and
-   the pulse runs whole whatever the chat is busy with. Outside a pull, a
-   pulse or a closing it draws nothing and is not shown.
+/* The light at the card's border, on the phone (Round 21, a soft border
+   glow since Round 24; what it draws is glow's). Skia draws the shader over
+   the card, fed straight from the card's own numbers where they move, so it
+   keeps up with the finger and the swell runs whole whatever the chat is
+   busy with. Outside a pull, a swell or a closing it draws nothing and is
+   not shown.
 
    An installed build made before the light has no Skia in it: there it
    draws nothing, and the card opens as it did. */

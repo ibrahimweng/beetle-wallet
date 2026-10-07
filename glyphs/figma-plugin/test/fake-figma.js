@@ -27,11 +27,12 @@ export function makeFigma({ command = '', storage = {}, noId = false } = {}) {
     rescale(s) { log('rescale', { id: this.id, scale: s }); this._scale(s); }
     _scale(s) { this.width *= s; this.height *= s; if (this.strokeWeight) this.strokeWeight *= s; for (const c of this.children || []) { c.x *= s; c.y *= s; c._scale(s); } }
     resize(w, h) { this.width = w; this.height = h; }
-    getPluginData(k) { return this._data[k] || ''; }
-    setPluginData(k, v) { log('setPluginData', { id: this.id, key: k }); this._data[k] = v; }
-    setRelaunchData(d) { this.relaunch = d; log('setRelaunchData', { id: this.id, data: d }); }
+    /* with noId, the stand-in refuses everything Figma might keep from a plugin with no ID */
+    getPluginData(k) { if (noId) throw new Error('Cannot access plugin data without a plugin ID'); return this._data[k] || ''; }
+    setPluginData(k, v) { if (noId) throw new Error('Cannot set plugin data without a plugin ID'); log('setPluginData', { id: this.id, key: k }); this._data[k] = v; }
+    setRelaunchData(d) { if (noId) throw new Error('Cannot set relaunch data without a plugin ID'); this.relaunch = d; log('setRelaunchData', { id: this.id, data: d }); }
     findAll(fn) { const out = []; const walk = n => { for (const c of n.children || []) { if (!fn || fn(c)) out.push(c); walk(c); } }; walk(this); return out; }
-    findAllWithCriteria(c) { return this.findAll(n => (!c.types || c.types.includes(n.type)) && (!c.pluginData || c.pluginData.keys.every(k => n._data[k]))); }
+    findAllWithCriteria(c) { if (noId && c.pluginData) throw new Error('Cannot search plugin data without a plugin ID'); return this.findAll(n => (!c.types || c.types.includes(n.type)) && (!c.pluginData || c.pluginData.keys.every(k => n._data[k]))); }
     get remote() { return false; }
     /* instances */
     async getMainComponentAsync() { return this.main || null; }

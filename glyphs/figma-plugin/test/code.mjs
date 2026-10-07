@@ -140,6 +140,15 @@ export async function run(codePath = resolve(here, '../dist/code.js')) {
   await figma.message({ type: 'sync-apply', job: 'relaunch', items: [], last: true });
   ok(figma.closed, 'and closes when it is done');
 
+  /* a copy with no plugin ID yet, as Figma gives one only at first publish */
+  figma = boot(code, { noId: true });
+  await figma.message({ type: 'ready' });
+  ok(last(figma, 'init') && last(figma, 'init').saved === null && !figma.calls.some(c => c.name === 'notify' && c.error), 'with no plugin ID yet, the panel still opens, with the defaults and no error');
+  await figma.message({ type: 'save', settings: { P: P('solid') } });
+  ok(!figma.calls.some(c => c.name === 'notify' && c.error) && !last(figma, 'error'), 'and saving settings fails quietly instead of stopping the plugin');
+  await figma.message({ type: 'insert', id: 'n', as: 'frame', size: 24, total: 1, items: [item('core:x')], last: true });
+  ok(figma.currentPage.children.some(n => data(n) && data(n).key === 'core:x'), 'and icons still insert');
+
   /* an error reaches the user and the panel */
   figma = boot(code);
   await figma.message({ type: 'insert', id: 'z', as: 'frame', size: 24, total: 1, items: [{ ...item('core:x'), svg: 'not svg' }], last: true });

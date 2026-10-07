@@ -1,7 +1,7 @@
 /* A small stand-in for Figma's plugin API, enough to run code.js outside
    Figma. It keeps a tree of layers and records every call that matters, so a
    test can read what the plugin did. It runs in Node and in a browser page. */
-export function makeFigma({ command = '', storage = {} } = {}) {
+export function makeFigma({ command = '', storage = {}, noId = false } = {}) {
   let ids = 0;
   const calls = [];
   const log = (name, detail) => calls.push({ name, ...detail });
@@ -57,8 +57,9 @@ export function makeFigma({ command = '', storage = {} } = {}) {
     ui,
     clientStorage: {
       data: storage,
-      async getAsync(k) { return storage[k]; },
-      async setAsync(k, v) { log('clientStorage.setAsync', { key: k }); storage[k] = JSON.parse(JSON.stringify(v)); },
+      /* as Figma does for a plugin that has no ID yet, which is every copy before its first publish */
+      async getAsync(k) { if (noId) throw new Error(`Failed to get client storage key "${k}": Error: Cannot access client storage without a plugin ID`); return storage[k]; },
+      async setAsync(k, v) { if (noId) throw new Error(`Failed to set client storage key "${k}": Error: Cannot access client storage without a plugin ID`); log('clientStorage.setAsync', { key: k }); storage[k] = JSON.parse(JSON.stringify(v)); },
     },
     showUI(html, opts) { log('showUI', { opts, html: typeof html === 'string' ? html.length : 0 }); },
     closePlugin(msg) { log('closePlugin', { msg }); figma.closed = true; },

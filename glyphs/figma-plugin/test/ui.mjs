@@ -23,7 +23,8 @@ const HOST = `<!doctype html><meta charset="utf-8"><link rel="icon" href="data:,
 <script type="module">
 import { makeFigma } from '/figma-plugin/test/fake-figma.js';
 const [html, code] = await Promise.all(['/figma-plugin/dist/ui.html', '/figma-plugin/dist/code.js'].map(u => fetch(u).then(r => r.text())));
-const figma = makeFigma({ command: new URLSearchParams(location.search).get('command') || '' });
+const q = new URLSearchParams(location.search);
+const figma = makeFigma({ command: q.get('command') || '', noId: q.has('noid') });
 window.figma = figma; window.drops = [];
 const frame = document.createElement('iframe');
 frame.setAttribute('sandbox', 'allow-scripts allow-downloads');
@@ -219,6 +220,16 @@ console.log('figma plugin panel');
     await page.waitForTimeout(300);
     await page.screenshot({ path: resolve(here, 'shots/panel-dark.png') });
   }
+  await page.close();
+}
+
+console.log('figma plugin: a copy with no plugin ID yet');
+{
+  const { page, ui, errors } = await open('?noid');
+  const drew = await ui.locator('.grid .tile').nth(100).waitFor({ timeout: 20000 }).then(() => true, () => false);
+  ok(drew, 'the grid draws even though Figma will not keep its settings yet');
+  ok(!(await page.evaluate(() => window.figma.calls.some(c => c.name === 'notify' && c.error))), 'and no error is shown');
+  ok(!errors.length, 'no errors in the console', errors.join(' | '));
   await page.close();
 }
 

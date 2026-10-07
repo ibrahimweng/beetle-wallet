@@ -345,6 +345,19 @@ async function sendSelection() {
   figma.ui.postMessage({ type: 'selection', selection: await describeSelection() });
 }
 
+/* ---------- settings, kept by Figma on this computer ---------- */
+/* Figma keeps a plugin's storage only once the plugin has an ID, which it
+   gets when it is first published. Until then, or if storage fails for any
+   other reason, the panel opens with the defaults and nothing is saved. */
+var memory = null;
+async function loadSettings() {
+  try { return await figma.clientStorage.getAsync(SETTINGS); } catch (e) { return memory; }
+}
+async function saveSettings(settings) {
+  memory = settings;
+  try { await figma.clientStorage.setAsync(SETTINGS, settings); } catch (e) { /* kept for this run only */ }
+}
+
 /* ---------- messages from the panel ---------- */
 var command = figma.command || 'open';
 var resolveReady;
@@ -353,11 +366,11 @@ async function onMessage(msg) {
   if (!msg || !msg.type) return;
   try {
     if (msg.type === 'ready') {
-      var saved = await figma.clientStorage.getAsync(SETTINGS);
+      var saved = await loadSettings();
       figma.ui.postMessage({ type: 'init', command: command, saved: saved || null, selection: await describeSelection() });
       resolveReady();
     } else if (msg.type === 'save') {
-      await figma.clientStorage.setAsync(SETTINGS, msg.settings);
+      await saveSettings(msg.settings);
     } else if (msg.type === 'insert') {
       var n = insert(msg);
       figma.ui.postMessage({ type: 'inserted', id: msg.id, count: n, last: !!msg.last });

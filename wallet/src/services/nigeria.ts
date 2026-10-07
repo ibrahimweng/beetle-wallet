@@ -303,7 +303,7 @@ export type Paid = {
   status: string;
   kind: string;
   time: string;
-  day: 'today' | 'yesterday';
+  day: 'today' | 'yesterday' | 'earlier';
   person?: { bank: string; number: string };
   target?: Target;
 };
@@ -352,7 +352,7 @@ export function ownLine(phone: string): LinePaid | null {
   return { kind: 'line', id: `line:${normalisePhone(phone)}`, label: 'Your line', number: normalisePhone(phone), network, when: '', times: 0, own: true };
 }
 
-const whenOf = (row: Paid) => `${row.day === 'today' ? 'Today' : 'Yesterday'} ${row.time}`;
+const whenOf = (row: Paid) => (row.day === 'earlier' ? 'Earlier' : `${row.day === 'today' ? 'Today' : 'Yesterday'} ${row.time}`);
 
 /** Everyone and everything paid before, newest first: what the day shows
     (the rows in the order given, newest first), then what was saved from

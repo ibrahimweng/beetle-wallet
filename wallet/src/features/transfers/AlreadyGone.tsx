@@ -4,7 +4,7 @@
    today or the bank asked to recall it, and the offer to say how it stops
    this. Taking the cover puts the money back in the day as money in, with
    its receipt. */
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Banner, BigStatus, Body, ChoiceList, Head, PageHead, Say, SayCard, Screen, colour, toast } from '../../design';
@@ -20,6 +20,7 @@ export function AlreadyGone({ id }: { id: string }) {
   const router = useRouter();
   const { ok, ready, row, balance, moves, add } = useLine(id);
   const [asked, setAsked] = useState(false);
+  const taking = useRef(false);
   const about = row ? `${naira(row.amount)} sent to the wrong account, covered by Beetle` : undefined;
   useFoot({ kind: 'back' });
   if (!ok) return null;
@@ -38,10 +39,22 @@ export function AlreadyGone({ id }: { id: string }) {
     );
   const bank = bankOf(row);
   const amount = Math.abs(row.amount);
-  /* the cover: money in from Beetle, in the day and on its receipt */
+  /* the cover already taken for this line, if it was: it is paid once (the analysis after Round 21) */
+  const cover = moves.find(m => m.covers === row.id);
+  /* the cover: money in from Beetle, in the day and on its receipt; a second tap, or a tap once it is paid, opens what was paid */
   const takeBack = () => {
+    if (cover) {
+      router.replace(`/receipt/${cover.id}`);
+      return;
+    }
+    if (taking.current) return;
+    taking.current = true;
     const at = clock();
-    const back = rowFrom({ name: 'Beetle', detail: `Cover · received · ${at}`, amount, icon: 'bank', kind: 'in', reference: 'Cover for a number read wrong' }, balance, 17 + moves.length);
+    const back = rowFrom(
+      { name: 'Beetle', detail: `Cover · received · ${at}`, amount, icon: 'bank', kind: 'in', reference: 'Cover for a number read wrong', covers: row.id },
+      balance,
+      17 + moves.length,
+    );
     add(back);
     toast(`${naira(amount)} is back in Everyday.`);
     router.replace(`/receipt/${back.id}`);
@@ -62,7 +75,9 @@ export function AlreadyGone({ id }: { id: string }) {
         <ChoiceList
           testID="ways"
           items={[
-            { glyph: 'up', title: `Take ${naira(amount)} back`, sub: 'Paid by us today, not in days', onPress: takeBack },
+            cover
+              ? { glyph: 'up', title: `${naira(amount)} is back`, sub: `Paid by us at ${cover.time}`, onPress: takeBack }
+              : { glyph: 'up', title: `Take ${naira(amount)} back`, sub: 'Paid by us today, not in days', onPress: takeBack },
             { glyph: 'bank', title: `Ask ${bank} to recall it`, sub: 'We do this to recover our side', to: `/recall/${row.id}` },
           ]}
         />

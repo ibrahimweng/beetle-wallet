@@ -3,15 +3,20 @@
    a time, the way somebody says one thing and then the next. An ask panel
    is Beetle's question with the fields in it: what you fill goes into it,
    and Continue hands it back. Confirming a panel moves the money — through
-   whoever is told about the move — and Beetle says so. */
+   whoever is told about the move — and Beetle says so.
+
+   An answer belongs to the chat it was asked in. If that chat is put away
+   while the answer is on its way (a new chat, another picked, the card
+   closed), the rest of it goes to that chat where it is filed, whole, and
+   never into the one now showing (the analysis after Round 21). */
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { agent, type Ask, type AskFound, type AskPanel, type AskValues, type Block, type Context, type Move, type Panel, type PanelRow, type Pending, type Photo } from '../../services';
 import { askMissing } from '../../services/agent';
 import { naira } from '../../lib/format';
 import { useStill } from '../../design';
-import { newId as id, turn, type AskState, type ReceiptCard, type Turn } from './turns';
+import { isAsk, isPanel, newId as id, turn, withBlock, type AskState, type AskTurn, type PanelTurn, type ReceiptCard, type Turn } from './turns';
 
-export { turn, type AskState, type ReceiptCard, type Turn };
+export { isAsk, isPanel, turn, withBlock, type AskState, type ReceiptCard, type Turn };
 
 /** Beetle at work: the lines so far, the last one still going. */
 export type Thinking = { lines: string[] } | null;
@@ -45,10 +50,24 @@ export type Conversation = {
   open(text: string): void;
   /** something Beetle is told, as a note in the chat: a receipt a question is about */
   note(title: string, body: string): void;
+  /** a line of small print in the chat, beside a lock */
+  aside(text: string): void;
   /** a chat from the day, picked up where it was left */
   load(turns: Turn[], pending: Pending): void;
   /** the slate wiped for a new chat */
   reset(): void;
+  /** the chat filed as the card closes: what is still on its way goes to it where it is filed */
+  shelve(): void;
+  /** what arrived for this chat while it was filed, now it is on the card again */
+  take(change: (turns: Turn[]) => Turn[], pending?: Pending): void;
+};
+
+/** Who holds the chats: the one on the card, and where an answer goes when its chat is no longer there. */
+export type Holder = {
+  /** the id the chat on the card is filed under */
+  whose(): string;
+  /** what arrived for a chat put away: how its turns change, and what Beetle now waits for in it */
+  arrive(chatId: string, change: (turns: Turn[]) => Turn[], pending?: Pending): void;
 };
 
 const wait = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
@@ -68,12 +87,7 @@ const clock = () => {
     than a couple of seconds however much it says. */
 const wordPace = (words: number) => Math.min(60, Math.max(26, 2200 / Math.max(1, words)));
 
-type AskTurn = Extract<Turn, { who: 'beetle'; block: { kind: 'ask' } }>;
-export const isAsk = (t: Turn): t is AskTurn => t.who === 'beetle' && t.block.kind === 'ask';
-type PanelTurn = Extract<Turn, { who: 'beetle'; block: { kind: 'panel' } }>;
-export const isPanel = (t: Turn): t is PanelTurn => t.who === 'beetle' && t.block.kind === 'panel';
-
-export function useConversation(context: () => Omit<Context, 'pending'>, onMove: (move: Move) => string | void, opening?: string): Conversation {
+export function useConversation(context: () => Omit<Context, 'pending'>, onMove: (move: Move) => string | void, opening?: string, holder?: Holder): Conversation {
   const still = useStill();
   const [turns, setTurns] = useState<Turn[]>(() => (opening ? [{ id: id(), who: 'beetle', block: { kind: 'say', text: opening } }] : []));
   const [thinking, setThinking] = useState<Thinking>(null);
@@ -84,6 +98,25 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
   const keep = useCallback((p: Pending) => {
     pendingRef.current = p;
     setPending(p);
+  }, []);
+  /** which chat the card holds: moved on when another is loaded, the slate is wiped, or the chat is filed */
+  const epoch = useRef(0);
+  const moveOn = useCallback(() => {
+    epoch.current++;
+    setThinking(null);
+  }, []);
+  const holderRef = useRef(holder);
+  holderRef.current = holder;
+  /** where what is said now goes: here while the chat is on the card, else to it where it is filed */
+  const mark = useCallback(() => {
+    const at = epoch.current;
+    const chatId = holderRef.current?.whose();
+    return {
+      here: () => epoch.current === at,
+      away: (change: (turns: Turn[]) => Turn[], p?: Pending) => {
+        if (chatId !== undefined) holderRef.current?.arrive(chatId, change, p);
+      },
+    };
   }, []);
 
   const add = useCallback((turn: Turn) => setTurns(t => [...t, turn]), []);
@@ -123,76 +156,65 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
     return t && isAsk(t) ? { need: 'ask', ask: t.block.ask } : p;
   }, []);
 
-  /* the ask goes to Beetle, and its answer arrives a block at a time */
+  /* the ask goes to Beetle, and its answer arrives a block at a time; once
+     its chat is put away, the rest goes to that chat, whole. `finish` is
+     what the asking leaves behind it, wherever the answer lands. Says
+     whether the answer landed here. */
   const deliver = useCallback(
-    async (a: Ask) => {
+    async (a: Ask, finish?: (list: Turn[]) => Turn[]): Promise<boolean> => {
+      const to = mark();
       setThinking({ lines: [] });
       const lines: string[] = [];
       const onStep = (line: string) => {
         lines.push(line);
-        setThinking({ lines: [...lines] });
+        if (to.here()) setThinking({ lines: [...lines] });
+      };
+      const elsewhere = (blocks: Block[], p: Pending, thought: boolean) => {
+        to.away(list => {
+          let out = thought && lines.length ? [...list, turn.thought([...lines])] : list;
+          for (const block of blocks) out = withBlock(out, block);
+          return finish ? finish(out) : out;
+        }, p);
+        return false;
       };
       try {
         const reply = await agent.ask(a, { ...context(), pending: pendingNow() }, onStep);
+        if (!to.here()) return elsewhere(reply.blocks, reply.pending, true);
         /* the steps stay, dimmed, above what they led to */
         if (lines.length) {
           setThinking({ lines: [...lines] });
           await wait(still ? 0 : 360);
-          add({ id: id(), who: 'beetle', block: { kind: 'thought', lines: [...lines] } });
+          if (!to.here()) return elsewhere(reply.blocks, reply.pending, true);
+          add(turn.thought([...lines]));
         }
         setThinking(null);
         for (const [i, block] of reply.blocks.entries()) {
           if (i && block.kind !== 'fill') await wait(BEAT);
+          if (!to.here()) return elsewhere(reply.blocks.slice(i), reply.pending, false);
           if (block.kind === 'say' && !still) {
             const turnId = id();
             add({ id: turnId, who: 'beetle', block, shown: '' });
             await stream(turnId, block.text);
             continue;
           }
-          if (block.kind === 'amend') {
-            patchPanel(block.panelId, turn => {
-              const panel = turn.block.panel;
-              const rows = panel.rows.map(r => (r.label === 'Amount' ? { ...r, value: naira(block.amount) } : r));
-              const action = panel.action
-                ? {
-                    ...panel.action,
-                    label: panel.action.label.replace(/₦[\d,]+/, naira(block.amount)),
-                    amount: block.amount + (panel.action.amount - Number(panel.rows.find(r => r.label === 'Amount')?.value.replace(/[^\d]/g, '') ?? 0)),
-                  }
-                : undefined;
-              const move = panel.move ? { ...panel.move, amount: -block.amount } : undefined;
-              return { ...turn, block: { kind: 'panel', panel: { ...panel, rows, action, move } } };
-            });
-          } else if (block.kind === 'fill') {
-            patchAsk(block.askId, turn => ({
-              ...turn,
-              state: block.done ? 'done' : 'open',
-              block: {
-                kind: 'ask',
-                ask: {
-                  ...turn.block.ask,
-                  values: block.values,
-                  found: block.found ?? turn.block.ask.found,
-                  note: block.note,
-                  confirmWho: block.confirmWho ?? turn.block.ask.confirmWho,
-                  hint: block.hint ?? turn.block.ask.hint,
-                },
-              },
-            }));
-          } else if (block.kind === 'ask') add({ id: id(), who: 'beetle', block, state: 'open' });
-          else if (block.kind === 'panel') add({ id: id(), who: 'beetle', block, state: 'running' });
-          else if (block.kind === 'loan') add({ id: id(), who: 'beetle', block, state: 'open' });
-          else if (block.kind === 'save') add({ id: id(), who: 'beetle', block, state: 'open' });
-          else if (block.kind === 'receive') add({ id: id(), who: 'beetle', block });
-          else add({ id: id(), who: 'beetle', block });
+          /* a fill is read back at once (what Beetle waits for is the card as it is now) */
+          if (block.kind === 'fill') turnsRef.current = withBlock(turnsRef.current, block);
+          setTurns(t => withBlock(t, block));
         }
+        if (!to.here()) return elsewhere([], reply.pending, false);
         keep(reply.pending);
+        if (finish) setTurns(finish);
+        return true;
       } catch {
+        const sorry: Block = { kind: 'say', text: 'I could not answer that just now. Check the network and ask again.' };
+        if (!to.here()) return elsewhere([sorry], pendingNow(), false);
         setThinking(null);
-        add({ id: id(), who: 'beetle', block: { kind: 'say', text: 'I could not answer that just now. Check the network and ask again.' } });
+        add({ id: id(), who: 'beetle', block: sorry });
+        if (finish) setTurns(finish);
+        return true;
       }
     },
-    [add, context, keep, patchPanel, patchAsk, pendingNow, stream, still],
+    [add, context, keep, mark, pendingNow, stream, still],
   );
 
   const ask = useCallback(
@@ -230,9 +252,8 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
       const asked = t.block.ask;
       if (askMissing(asked).length) return;
       patchAsk(askId, turn => ({ ...turn, state: 'busy' }));
-      await deliver({ answers: { askId, values: asked.values } });
       /* still waiting on something: back to filling */
-      patchAsk(askId, turn => (turn.state === 'busy' ? { ...turn, state: 'open' } : turn));
+      await deliver({ answers: { askId, values: asked.values } }, list => list.map(x => (isAsk(x) && x.block.ask.id === askId && x.state === 'busy' ? { ...x, state: 'open' } : x)));
     },
     [deliver, patchAsk],
   );
@@ -258,14 +279,16 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
             : panel.tool === 'airtime'
               ? 'Done. The airtime is on the line.'
               : 'Done. The data is on the line.');
-      /* the receipt lands first, then the word about it */
+      /* the receipt lands first, then the word about it, in the chat it was confirmed in */
+      const where = mark();
+      const later = (t: Turn, ms: number) => setTimeout(() => (where.here() ? add(t) : where.away(list => [...list, t])), ms);
       if (move && rowId) {
         const card: ReceiptCard = { rowId, amount: naira(Math.abs(move.amount)), line: receiptLine(move), status: move.kind === 'in' ? 'Received' : 'Successful', time: at };
-        setTimeout(() => add({ id: id(), who: 'beetle', block: { kind: 'receipt', card } }), BEAT);
-        setTimeout(() => add({ id: id(), who: 'beetle', block: { kind: 'say', text: what } }), BEAT * 2);
-      } else setTimeout(() => add({ id: id(), who: 'beetle', block: { kind: 'say', text: what } }), BEAT);
+        later(turn.receipt(card), BEAT);
+        later(turn.say(what), BEAT * 2);
+      } else later(turn.say(what), BEAT);
     },
-    [onMove, keep, add],
+    [onMove, keep, add, mark],
   );
 
   const confirm = useCallback(
@@ -307,20 +330,19 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
   const offer = useCallback(
     (you: string, text: string, block: Offer) => {
       add({ id: id(), who: 'you', text: you });
+      const to = mark();
       setTimeout(
         () => {
-          add({ id: id(), who: 'beetle', block: { kind: 'say', text } });
-          if (block.kind === 'ask') {
-            add({ id: id(), who: 'beetle', block, state: 'open' });
-            keep({ need: 'ask', ask: block.ask });
-          } else if (block.kind === 'loan') add({ id: id(), who: 'beetle', block, state: 'open' });
-          else if (block.kind === 'save') add({ id: id(), who: 'beetle', block, state: 'open' });
-          else add({ id: id(), who: 'beetle', block });
+          const change = (list: Turn[]) => withBlock(withBlock(list, { kind: 'say', text }), block);
+          const p: Pending | undefined = block.kind === 'ask' ? { need: 'ask', ask: block.ask } : undefined;
+          if (!to.here()) return to.away(change, p);
+          setTurns(change);
+          if (p) keep(p);
         },
         still ? 0 : BEAT,
       );
     },
-    [add, keep, still],
+    [add, keep, mark, still],
   );
 
   const edit = useCallback(
@@ -335,27 +357,46 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
 
   const preload = useCallback(
     (list: Turn[], p: Pending = null) => {
-      const next = list.map(t => (isPanel(t) ? { ...t, quick: true } : t));
+      moveOn();
+      /* drawn whole: a panel without its rows landing one by one, words without streaming in, and an ask filed while Beetle looked at it open again */
+      const next = list.map(t =>
+        isPanel(t)
+          ? { ...t, quick: true }
+          : isAsk(t) && t.state === 'busy'
+            ? { ...t, state: 'open' as const }
+            : t.who === 'beetle' && t.block.kind !== 'thought' && 'shown' in t && t.shown !== undefined
+              ? { ...t, shown: undefined }
+              : t,
+      );
       turnsRef.current = next;
       setTurns(next);
       keep(p);
     },
-    [keep],
+    [keep, moveOn],
   );
 
   const open = useCallback((text: string) => add({ id: id(), who: 'beetle', block: { kind: 'say', text } }), [add]);
   const note = useCallback((title: string, body: string) => add({ id: id(), who: 'beetle', block: { kind: 'note', title, body } }), [add]);
+  const aside = useCallback((text: string) => add(turn.aside(text)), [add]);
   const load = useCallback((list: Turn[], p: Pending) => preload(list, p), [preload]);
   const reset = useCallback(() => {
+    moveOn();
     turnsRef.current = [];
     setTurns([]);
-    setThinking(null);
     keep(null);
-  }, [keep]);
+  }, [keep, moveOn]);
+  const shelve = moveOn;
+  const take = useCallback(
+    (change: (turns: Turn[]) => Turn[], p?: Pending) => {
+      setTurns(change);
+      if (p !== undefined) keep(p);
+    },
+    [keep],
+  );
 
   return useMemo(
-    () => ({ turns, thinking, pending, ask, ready, confirm, edit, fill, settleAsk, takeLoan, putAway, offer, answer, preload, open, note, load, reset }),
-    [turns, thinking, pending, ask, ready, confirm, edit, fill, settleAsk, takeLoan, putAway, offer, answer, preload, open, note, load, reset],
+    () => ({ turns, thinking, pending, ask, ready, confirm, edit, fill, settleAsk, takeLoan, putAway, offer, answer, preload, open, note, aside, load, reset, shelve, take }),
+    [turns, thinking, pending, ask, ready, confirm, edit, fill, settleAsk, takeLoan, putAway, offer, answer, preload, open, note, aside, load, reset, shelve, take],
   );
 }
 

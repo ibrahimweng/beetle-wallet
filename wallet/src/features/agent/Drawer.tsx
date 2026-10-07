@@ -25,6 +25,7 @@ import type { StyleProp, ViewStyle } from 'react-native';
 import { Caption, Icon, Meta, Tap, blurred, colour, dark, swipes } from '../../design';
 import { Frost } from '../home/Frost';
 import type { Chat } from './chats';
+import { dayName } from '../../lib/days';
 
 type BlurModule = typeof import('expo-blur');
 const blurKit: BlurModule | null = (() => {
@@ -129,7 +130,12 @@ export function ChatsEdge({
         accessibilityRole="button"
         accessibilityLabel="Your chats"
         accessibilityHint="Swipe right, or tap, for the chats"
-        onAccessibilityTap={onOpen}
+        /* VoiceOver's double tap brings the drawer in as a tap does, not only says it is in (the analysis after Round 21: it stayed unseen, over the chat, taking every tap) */
+        onAccessibilityTap={() => {
+          d.value = withSpring(1, SPRING);
+          putKeyboardAway();
+          onOpen();
+        }}
         testID="chats-edge"
       >
         <Glow />
@@ -222,8 +228,11 @@ export function ChatsDrawer({
   const area = useAnimatedStyle(() => ({ height: height.value }));
   /* put away, the panel is not drawn at all */
   const panel = useAnimatedStyle(() => ({ transform: [{ translateX: -width * (1 - d.value) }], opacity: d.value > 0.001 ? 1 : 0 }));
-  const today = chats.filter(c => c.day === 'today');
-  const yesterday = chats.filter(c => c.day !== 'today');
+  /* the day a chat was last touched, by this phone's calendar: "today" does not last for ever (the analysis after Round 21) */
+  const dayOf = (c: Chat) => (c.lastAt !== undefined ? dayName(c.lastAt) : c.day);
+  const today = chats.filter(c => dayOf(c) === 'today');
+  const yesterday = chats.filter(c => dayOf(c) === 'yesterday');
+  const earlier = chats.filter(c => dayOf(c) === 'earlier');
   /* New chat comes first; the groups and their chats after it, in order */
   let n = 1;
   const group = (name: string, list: Chat[]) =>
@@ -259,6 +268,7 @@ export function ChatsDrawer({
               <>
                 {group('Today', today)}
                 {group('Yesterday', yesterday)}
+                {group('Earlier', earlier)}
               </>
             ) : (
               <Meta style={{ color: dark.label, paddingHorizontal: 12 }}>No chats yet. What you ask is kept here, a line for each.</Meta>
@@ -291,7 +301,7 @@ function PanelGround() {
 function Fog() {
   const Blur = blurKit?.BlurView;
   if (!Blur) return null;
-  const glass = <Blur intensity={22} tint="dark" experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : 'none'} style={StyleSheet.absoluteFill} />;
+  const glass = <Blur intensity={22} tint="dark" style={StyleSheet.absoluteFill} />;
   const box = { position: 'absolute' as const, left: 0, right: 0, bottom: 0, height: FOG };
   if (Platform.OS === 'web') return <WebFog style={box} />;
   if (Masked)

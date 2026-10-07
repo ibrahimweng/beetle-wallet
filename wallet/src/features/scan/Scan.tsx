@@ -9,13 +9,18 @@
    account, a light bill, a message asking for data. The photo is read
    here first: a message asking to be paid or for data puts Read from
    your photo up over the camera and goes on from there, a bill goes to
-   What I found, and anything else goes back with what was read. */
+   What I found, and anything else goes back with what was read, to the
+   chat or Send, the two that read it. Opened for a bill or for data, a
+   photo that is neither says so and the camera stays (the analysis after
+   Round 21: it went back with the photo, which then turned up in the
+   chat). Where the build has no reader of its own, the camera says so:
+   whatever is taken reads as the sample. */
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Body, Caption, Head, Icon, Label, Meta, Row, Sheet, Tap, colour, dark, toast } from '../../design';
-import { groupMeter, groupPhoneNumber, reader, type Photo, type RequestReading, type TopupReading } from '../../services';
+import { groupMeter, groupPhoneNumber, reader, type Photo, type RequestReading, type SampleKind, type TopupReading } from '../../services';
 import { FoundSheet, requestDraft } from '../request';
 import { TopupSheet } from '../data/TopupSheet';
 import { topupDraft } from '../data/hand';
@@ -24,7 +29,7 @@ import { LAB } from '../../lab/enabled';
 import { groupAccount, groupDigits } from '../../lib/format';
 import { handoff } from './handoff';
 import { idPhoto } from '../setup/hand';
-import { SAMPLES, sampleOfKind, type SampleKind } from './sample';
+import { SAMPLES, sampleOfKind } from './sample';
 
 type CameraModule = typeof import('expo-camera');
 type CameraViewRef = InstanceType<CameraModule['CameraView']>;
@@ -49,10 +54,15 @@ export function Scan() {
   const router = useRouter();
   const asked = useLocalSearchParams<{
     demo?: string;
-    /** what the camera is pointed at: a bill, where the Bills pages opened it; an ID, where setting up did */ for?: string;
+    /** what the camera is pointed at: a bill, where the Bills pages opened it; a message asking for data, where Data did; an ID, where setting up did */ for?: string;
     /** the lab: hold the photo as read, rather than going on */ hold?: string;
   }>();
   const forBill = asked.for === 'bill' || asked.demo === 'bill';
+  const forData = asked.for === 'data';
+  const forId = asked.for === 'id';
+  /** no reader in this build (Expo Go, the web): a stand-in reads every photo as the sample this camera is for */
+  const standIn = !reader.real;
+  const stood: SampleKind = forBill ? 'bill' : forData ? 'topup' : 'slip';
   const [state, setState] = useState<State>('asking');
   const [note, setNote] = useState<string | null>(null);
   const [torch, setTorch] = useState(false);
@@ -66,6 +76,18 @@ export function Scan() {
   const camera = useRef<CameraViewRef>(null);
   const onward = useRef<(() => void) | null>(null);
   const failed = useRef(false);
+  /** the moment's wait before going on with what was read, called off if the camera is closed first */
+  const later = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const alive = useRef(true);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+      clearTimeout(later.current);
+    };
+  }, []);
+  /** back where the camera came from; opened straight from an address, home */
+  const leave = () => (router.canGoBack() ? router.back() : router.replace('/home'));
 
   useEffect(() => {
     if (!cam) {
@@ -96,7 +118,22 @@ export function Scan() {
   const done = async (photo: Photo) => {
     const before = state;
     setState('taking');
-    const reading = await reader.read(photo.uri).catch(() => undefined);
+    setNote(null);
+    const reading = await reader.read(photo.uri, photo.sample).catch(() => undefined);
+    if (!alive.current) return;
+    /* opened for a bill or for data, and the photo is neither: said, and the camera stays */
+    const wrong =
+      forBill && !reading?.bill
+        ? 'That does not look like a bill. Point at the bill, or at the meter.'
+        : forData && !reading?.topup
+          ? 'That does not look like a message asking for data or airtime.'
+          : null;
+    if (wrong) {
+      setRead(null);
+      setState(before === 'taking' ? 'ready' : before);
+      setNote(wrong);
+      return;
+    }
     const chip = reading?.bill
       ? groupMeter(reading.bill.meter)
       : reading?.topup
@@ -106,26 +143,28 @@ export function Scan() {
           : (reading?.request?.from ?? null);
     setRead({ photo, chip });
     setState(before === 'taking' ? 'ready' : before);
-    if (reading?.request) {
+    if (!forId && !forBill && reading?.request) {
       setFound(reading.request);
       return;
     }
-    if (reading?.topup) {
+    if (!forId && !forBill && reading?.topup) {
       setTopup(reading.topup);
       return;
     }
     const go = () => {
       onward.current = null;
-      if (reading?.bill) {
-        billDraft.put({ reading: reading.bill, read: 'photo' });
-        router.replace('/meter');
-      } else if (asked.for === 'id') {
+      later.current = undefined;
+      if (forId) {
         /* the ID: the number read off it goes back to setting up; the name is the account's own */
         idPhoto.put({ name: '', number: reading?.numbers[0] ? groupDigits(reading.numbers[0], [4, 4, 3]) : 'not read' });
-        router.back();
+        leave();
+      } else if (reading?.bill) {
+        billDraft.put({ reading: reading.bill, read: 'photo' });
+        router.replace('/meter');
       } else {
+        /* the chat or Send, whichever opened the camera, takes it the moment it is in front */
         handoff.put({ ...photo, reading });
-        router.back();
+        leave();
       }
     };
     /* the lab holds the frame's moment; a tap on what was found goes on */
@@ -133,7 +172,7 @@ export function Scan() {
       onward.current = go;
       return;
     }
-    setTimeout(go, 900);
+    later.current = setTimeout(go, 900);
   };
   const ask = (draft: Parameters<typeof requestDraft.put>[0]) => {
     requestDraft.put(draft);
@@ -157,7 +196,7 @@ export function Scan() {
     try {
       const shot = await camera.current?.takePictureAsync({ quality: 0.8, skipProcessing: Platform.OS === 'android' });
       if (!shot?.uri) throw new Error('nothing came back');
-      await done({ uri: shot.uri, width: shot.width, height: shot.height });
+      await done({ uri: shot.uri, width: shot.width, height: shot.height, sample: standIn ? stood : undefined });
     } catch {
       setState('ready');
       setNote('That did not take. Hold the phone still and try again.');
@@ -177,12 +216,31 @@ export function Scan() {
     if (asked.demo === 'bill') void sample('bill');
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const back = () => router.back();
+  /* closed: what was read goes nowhere */
+  const back = () => {
+    clearTimeout(later.current);
+    later.current = undefined;
+    onward.current = null;
+    leave();
+  };
   const CameraView = cam?.CameraView;
   const live = state === 'ready' || state === 'taking';
-  const title = forBill ? 'Point at a bill or a meter' : 'Point at an account number';
-  const sub = note ?? (forBill ? 'The number on the card works too.' : 'A QR code works too. So does a screenshot of a message, or a bill.');
-  const caption = forBill ? 'Or the meter number, typed, if the light is bad.' : 'Or send a screenshot straight to Beetle in the chat.';
+  const title = forBill ? 'Point at a bill or a meter' : forData ? 'Point at a message asking for data' : 'Point at an account number';
+  const sub =
+    note ??
+    (forBill
+      ? 'The number on the card works too.'
+      : forData
+        ? 'Or for airtime, on paper or on a screen.'
+        : 'On a slip, a screen or a card. A message asking to be paid works too, and so does a bill.');
+  const caption =
+    standIn && live
+      ? `This build cannot read photos yet, so whatever you take reads as the sample ${forBill ? 'bill' : forData ? 'message' : 'slip'}.`
+      : forBill
+        ? 'Or the meter number, typed, if the light is bad.'
+        : forData
+          ? 'Or the number, typed, if the light is bad.'
+          : 'Or the number, typed in Send, if the light is bad.';
 
   return (
     <View style={s.screen}>
@@ -238,11 +296,13 @@ export function Scan() {
             </View>
           ) : state === 'asking' ? (
             <Card
-              title={forBill ? 'The camera reads the bill' : 'The camera reads the number'}
+              title={forBill ? 'The camera reads the bill' : forData ? 'The camera reads the message' : 'The camera reads the number'}
               body={
                 forBill
                   ? 'Point it at a bill or a meter, and Beetle reads the company, the meter and what is owed off the photo. The photo stays on this phone.'
-                  : 'Point it at an account number on a slip, a screen or a card, and Beetle reads it off the photo. The photo stays on this phone.'
+                  : forData
+                    ? 'Point it at a message asking for data or airtime, and Beetle reads whose line it is and how much. The photo stays on this phone.'
+                    : 'Point it at an account number on a slip, a screen or a card, and Beetle reads it off the photo. The photo stays on this phone.'
               }
               action="Allow the camera"
               onAction={allow}
@@ -283,7 +343,7 @@ export function Scan() {
           >
             {state === 'taking' ? <ActivityIndicator color="#ffffff" /> : <View style={s.shutterInner} />}
           </Tap>
-          <Pressable accessibilityRole="button" accessibilityLabel="Read a code" onPress={() => toast('Paying by pointing at a code comes with round 6.')} style={s.disc52}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Read a code" onPress={() => toast('Beetle does not read codes yet. Point at the account number written by it.')} style={s.disc52}>
             <Icon name="qr" size={22} colour="#ffffff" />
           </Pressable>
         </View>

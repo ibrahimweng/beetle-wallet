@@ -1,5 +1,6 @@
 /* The root: the providers, the toast host, the tab back to the lab where
-   there is one, and the stack the way in, the app and the camera live in.
+   there is one, and the stack the way in and the app live in (the camera is
+   one of the app's pages, so what it opens stays in the app's one stack).
    It moves the way the phone does, as the app's own stack does (see
    app/(app)/_layout.tsx): a screen slides in from the right and back out.
    Each page of the app carries its own foot.
@@ -18,6 +19,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProvider } from '../src/features/onboarding/store';
 import { Body, Button, Title, ToastHost, colour, frame } from '../src/design';
 import { LabTab } from '../src/lab/LabTab';
+import { AppLock } from '../src/features/lock/AppLock';
 import { LAB } from '../src/lab/enabled';
 import { copyText } from '../src/features/receive/clipboard';
 import { keepProblem, problemOf, takeLastProblem, watchProblems } from '../src/services/problems';
@@ -54,6 +56,8 @@ export default function Root() {
             <Stack.Screen name="index" options={{ gestureEnabled: false }} />
           </Stack>
           <LabTab />
+          {/* over everything but the toasts: the app locked, on opening and after the wait */}
+          <AppLock />
           <ToastHost />
         </AppProvider>
       </SafeAreaProvider>

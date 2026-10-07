@@ -31,9 +31,14 @@ export type RequestReading = { from: string; amount: number; note?: string; when
 export type BillReading = { disco: string; meterKind: 'prepaid' | 'postpaid'; meter: string; amount?: number; address?: string };
 export type TopupReading = { from: string; line: string; network: string; amount?: number; data: boolean };
 
+/** Which of the sample photos a photo is, where it is one: the stand-in
+    reads it by this. Its address is not enough, since a phone may keep an
+    asset under a name of its own (Expo Go on the iPhone does). */
+export type SampleKind = 'slip' | 'message' | 'bill' | 'topup';
+
 export interface ReaderService {
   readonly real: boolean;
-  read(uri: string): Promise<Reading>;
+  read(uri: string, sample?: SampleKind): Promise<Reading>;
 }
 
 /** Nigerian account numbers are ten digits (NUBAN). They are often written
@@ -186,15 +191,16 @@ export class MockReader implements ReaderService {
   readonly real = false;
   constructor(private readonly delay = 900) {}
   /** the sample slip; a photo whose name says it is soft comes back with the
-      digit in doubt, one whose name says it is a message as the friend
-      asking to be paid, a bill as the company's slip, and a top-up as Mum
-      out of data */
-  async read(uri = ''): Promise<Reading> {
+      digit in doubt, a message as the friend asking to be paid, a bill as
+      the company's slip, and a top-up as Mum out of data. A sample says
+      which it is; anything else is known by its name. */
+  async read(uri = '', sample?: SampleKind): Promise<Reading> {
     await wait(this.delay);
     if (uri.includes('soft')) return { ...SOFT_READING };
-    if (uri.includes('message')) return { ...MESSAGE_READING };
-    if (uri.includes('bill')) return { ...BILL_READING };
-    if (uri.includes('topup')) return { ...TOPUP_READING };
+    const kind = sample ?? (uri.includes('message') ? 'message' : uri.includes('bill') ? 'bill' : uri.includes('topup') ? 'topup' : 'slip');
+    if (kind === 'message') return { ...MESSAGE_READING };
+    if (kind === 'bill') return { ...BILL_READING };
+    if (kind === 'topup') return { ...TOPUP_READING };
     return { text: SAMPLE_TEXT, numbers: accountNumbersIn(SAMPLE_TEXT), real: false };
   }
 }
@@ -221,8 +227,8 @@ export class MlKitReader implements ReaderService {
   get real() {
     return this.kit !== null;
   }
-  async read(uri: string): Promise<Reading> {
-    if (!this.kit) return this.standIn.read(uri);
+  async read(uri: string, sample?: SampleKind): Promise<Reading> {
+    if (!this.kit) return this.standIn.read(uri, sample);
     let r: { text: string };
     try {
       r = await this.kit.recognizeText(uri);

@@ -90,18 +90,19 @@ mocks in and says so on the code screen; a real `AuthService` and
 | Six digits | `123456` | `000000` has expired; any other six do not match, three of those and a fresh code is sent on its own |
 | Who you are | `1234 5678 900` comes back as Ibrahim Musa, born 14 June 1996 | eleven digits with `0000` in them match nothing; the rest come back as a name made from the digits |
 | Your face | on a phone, the device's own face check; on the web, a moment's wait | a face check that does not take, with try again; or do it later |
-| A passcode | six digits typed twice; this build also lets `654321` and `123456` through, so trying it never means thinking one up | the same digit six times, a run, a repeated pair, your year of birth, and the handful everybody picks |
+| A passcode | six digits typed twice, kept stretched for that account alone; in the lab `654321` and `123456` pass too, so trying it never means thinking one up | the same digit six times, a run, a repeated pair, your year of birth, and the handful everybody picks |
 | Finishing setting up | Finish setting up on the ready screen, or wherever a limit it lifts is in the way (Spending limits, Dollars, Borrow, the New account chip on the card): a street and an area typed into one card, Take it for the ID (the camera on a phone, a moment on the web), one tap on where the money comes from, and Take me in; the day's cap can then be raised to ₦1,000,000, and dollars and borrowing open | a street or an area under three letters; Continue waits for a source to be picked; Back on every step, to the ready screen or to the page that opened it |
-| Welcome back | `0906 911 3588`, the owner's own number, opens the demo account, history and all; any number that opened an account on this device opens that one | a number nobody has opened an account with, with a way to open one |
+| Welcome back | `0803 000 0001`, the demo account's made-up number, opens the demo account, history and all; any number that opened an account on this device opens that one | a number nobody has opened an account with, with a way to open one |
 | The chat | "Send 20k to Sarah", "top up my light", "buy data", "what about dollars", "how much do I have"; the people it knows are Sarah Adeyemi, Chidi Okafor, Musa Danjuma and John Doe, by name or account number | more than the balance; a name it does not know; anything else, with what it can do |
 | Send money | Send on the card, or Send money in More: someone paid before, a ten-digit number typed, or one read off a photo; any amount up to what Everyday holds; a reference; Slide to send, then the passcode | more than the balance: Not enough, with three ways to close it; a digit the reader was not sure of: Check this number, with both readings |
 | The fee | nothing under ₦10,000; ₦26.88 up to ₦50,000 and ₦53.75 above, the banks' own with the tax on it, on the page, in the chat's panel and on the receipt alike | |
-| Before money moves | the passcode set on the way in, or `654321` and `123456` in this build; the face, on a phone with one enrolled | three wrong tries shut the gate for thirty seconds and Beetle says so; a face that does not take says so in red, and the face key tries again |
+| Before money moves | the account's own passcode, or `654321` and `123456` in the lab and on the demo account; the face, on a phone with one enrolled and Face ID on in Lock and privacy; past one transfer's cap or the day's, the three words typed in full after the passcode (the demo's day has ₦84,000 out already) | three wrong tries shut the gate for half a minute, then five minutes, half an hour, two hours, kept on the phone; a face that does not take says so in red, and the face key tries again |
+| Opening the app | with an account signed in, and back after the wait Ask again after sets: the face or the passcode, as before money moves; Not you? signs out | the same gate: three wrong tries shut it |
 | Being paid | Receive on the card, the Receive shortcut or Receive in More: the sheet with the account number and the $tag, Copy on each and Share details, then Ask someone and In dollars; "how do I get paid" typed at home puts the chat's Receive card up; the lab can have ₦50,000 arrive from Sarah | a build that cannot reach the clipboard says to read it off the sheet; nothing here can take money out |
 | Asking for money | "ask musa for 20k for the rent balance" typed at home, a photo of a message asking for the account (the sample message in this build), or Ask someone on the Receive sheet; the people it can ask are Musa Danjuma, Sarah Adeyemi and Chidi Okafor, or a name with a phone number typed in the reply bar; the amount on the keypad; Send the request once it has a date | a reply with no name or figure in it says so; asking cannot move money, so there is no passcode |
 | Saving | Savings on home, Add money, Put away, the passcode: four taps; + New goal, filled with the next idea (Rent, Emergency fund, School fees…), and Start saving: three; Take out, Edit goal, Pause goal and End goal from the page and its ···; the Save chip in the open chat, or "save 10k for rent" typed there | more than Everyday holds, or than the goal holds when taking out, stops the picker hard; a goal with nothing in it ends after the sheet that asks first, one with money in it through the passcode |
-| Beetle's model | a key kept on the phone from the lab's model screen, or one in the build, puts Claude behind Beetle; without one the script answers | a key that is refused, or no network: the script answers, with a note saying why |
-| A photo | on the phone, the camera and the device's own reader; on the web and in Expo Go, the sample slip, which reads as Sarah Adeyemi at GTBank, `0234 5678 90`, and the sample message, which reads as Musa asking for 20k for the rent balance | a photo with no ten-digit number on it; on the Send money page, a reading the reader is not sure of stops at Check this number; a message asking to be paid stops at Read from your photo, over the camera |
+| Beetle's model | a key kept on the phone from the lab's model screen, or a server of Beetle's own named at export time, puts Claude behind Beetle (a key in a build only while developing); without one the script answers | a key that is refused, or no network: the script answers, with a note saying why |
+| A photo | on the phone, the camera and the device's own reader; on the web and in Expo Go a stand-in, which says so on the camera: the samples read as themselves (the slip as Sarah Adeyemi at GTBank, `0234 5678 90`, the message as Musa asking for 20k for the rent balance, the bill and the data message), and a photo taken reads as the sample the camera was opened for | a photo with no ten-digit number on it; opened for a bill or for data, a photo that is neither, said, with the camera staying; on the Send money page, a reading the reader is not sure of stops at Check this number; a message asking to be paid stops at Read from your photo, over the camera |
 
 ## How it is put together
 
@@ -400,15 +401,22 @@ rebuilt on every ask, so a chat reopened from the drawer carries on. When the
 model cannot answer — the key refused, no network — the script answers
 instead, with a note saying why.
 
-The key comes from the phone's keychain, set on the lab's "Beetle's model"
-screen, or from the build (`EXPO_PUBLIC_ANTHROPIC_API_KEY` at export time;
-the Phone workflow passes the repository secret `ANTHROPIC_API_KEY` there,
-so adding that secret puts the model behind Beetle on the phone). Neither is
-the shape a shipped app should have: that is a server that keeps the key,
-and `EXPO_PUBLIC_ANTHROPIC_BASE_URL` is where it goes when there is one. The
-model is called with plain `fetch`, since React Native is not a runtime the
-SDK supports; `npm test` drives it against a fake API to check the request,
-the tool loop, the steps, the panels and the fallback.
+Where Beetle answers from, the first that is there: a key kept in the
+phone's keychain, set on the lab's "Beetle's model" screen and sent straight
+to Anthropic; a server of Beetle's own that keeps the key
+(`EXPO_PUBLIC_ANTHROPIC_BASE_URL` at export time, which the Phone workflow
+takes from the repository variable `ANTHROPIC_BASE_URL`): the phone sends it
+no key at all; and, only while developing (`__DEV__`), a key from the build
+(`EXPO_PUBLIC_ANTHROPIC_API_KEY`). Never put a key in a published build, and
+never add one as a repository secret for the Phone workflow: anything in a
+published bundle can be read by anyone who has the bundle, and the
+repository is public. The web preview's packaging refuses a bundle that
+carries a key. A new chat says, in small print, when Claude is answering:
+what is typed, and the words read off a photo, go to Anthropic. The model is
+called with plain `fetch`, since React Native is not a runtime the SDK
+supports; `npm test` drives it against a fake API to check the request, the
+tool loop, the steps, the panels and the fallback, and that a server of
+Beetle's own is sent no key.
 
 The chats live in the chat, in a drawer inside its dark card, and nowhere
 else. While the chat is open a soft light runs down the card's left edge;
@@ -1088,8 +1096,11 @@ copy and when the account was opened; Sign out asks first, in a small
 sheet that says what signing out does, with Sign out in red and Cancel. Lock and privacy
 has the switches — Face ID, what other people can see — kept on this phone
 per account (`src/features/settings/prefs.ts`), Passcode leading to a new
-one on the keypad, six digits twice with the weak ones refused, and Ask
-again after cycling through the waits. Spending limits shows where today
+one on the keypad, the passcode it is now (or the face) first, then six
+digits twice with the weak ones refused, and Ask again after cycling
+through the waits, which the app keeps: away that long, and it asks for the
+face or the passcode again before anything shows
+(`src/features/lock/AppLock.tsx`). Spending limits shows where today
 stands against the day's cap — the figure is the day's own — the three
 caps, and what happens at the line; Show me what that looks like opens Past
 your own limit, where the passcode is done and the three words are typed in
@@ -1102,18 +1113,22 @@ the odd one marked, and Sign out everywhere else asks first, then leaves
 this phone alone. Freezing does not ask: it has to be quick in a bad
 moment, and it lifts as easily as it went on.
 Keys and recovery opens Not your phone, what recovery looks like: freeze
-the money, then prove it is you with a new passcode, which lifts the
-freeze. Cards opens the virtual card: its face, Reveal for ten seconds,
-Freeze kept on the phone and greying the face, Rules to the instructions,
-and how much of its ceiling has gone; funding it and a second card come
-with their rounds. Beetle Plus, Contact support and Give feedback open the
+the money, then prove it is you with the passcode it is now (or the face)
+and set a new one, which lifts the freeze; sending then waits twelve hours.
+Cards opens the virtual card: its face, Reveal for ten seconds after the
+passcode, Freeze kept on the phone and greying the face, Load card, Rules
+to the instructions, and how much of its ceiling has gone; there is one
+card for now. Beetle Plus, Contact support and Give feedback open the
 chat with the question asked; Notifications and Saved people say what they
 are waiting on.
 
 The camera at the end of the ask bar reads an account number off whatever it
 sees — a slip, a screen, a card. On a phone with the build that carries it,
 Google's on-device text reader does the reading, offline; the web and Expo
-Go use a stand-in that reads the sample slip in `assets/`. The scripted
+Go use a stand-in that reads the samples in `assets/` as themselves, says
+on the camera that it is a stand-in, and reads a photo taken as the sample
+the camera was opened for. The camera is one of the app's own pages, so a
+bill read off a photo opens What I found in its place, in the same stack. The scripted
 Beetle and the reader sit behind `AgentService` and `ReaderService` in
 `src/services/`, so a real model and a real service slot in without a screen
 changing.

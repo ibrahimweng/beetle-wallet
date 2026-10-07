@@ -1,2 +1,2 @@
 export { PasscodeSheet } from './Passcode';
-export { checkCode, lockedFor, resetGate, refusal, TRIES, LOCK_MS } from './check';
+export { checkCode, lockedFor, resetGate, refusal, waitWords, loadGate, demoPasscodeOpens, TRIES, LOCK_MS, LOCKS_MS } from './check';

@@ -19,6 +19,8 @@ const jsDir = join(DIST, '_expo/static/js/web');
 const entry = readdirSync(jsDir).find(f => /^entry-.*\.js$/.test(f));
 if (!entry) throw new Error('No exported bundle in dist/. Run npm run bundle first.');
 const js = readFileSync(join(jsDir, entry), 'utf8').replace(/"\/assets\//g, '"assets/');
+/* a page anyone can open never carries a key: a bundle exported with one is refused here, before it goes anywhere */
+if (/sk-ant-[A-Za-z0-9_-]{20,}/.test(js)) throw new Error('The bundle carries an Anthropic key. Export it again without EXPO_PUBLIC_ANTHROPIC_API_KEY set.');
 writeFileSync(join(OUT, 'js', entry), js);
 cpSync(join(DIST, 'assets'), join(OUT, 'assets'), { recursive: true });
 

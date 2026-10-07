@@ -18,7 +18,8 @@ export type Chat = {
   detail: string;
   /** HH:MM, when it was last touched */
   time: string;
-  day: 'today' | 'yesterday';
+  /** the day it was filed on; one with `lastAt` is aged from that as it is shown */
+  day: 'today' | 'yesterday' | 'earlier';
   turns: Turn[];
   pending: Pending;
   /** started by Beetle and not yet opened */
@@ -30,6 +31,9 @@ export type Chat = {
 };
 
 const key = (account: string) => `beetle.chats.${account}.v1`;
+
+/** The id a new chat is filed under, made as it begins. */
+export const newChatId = () => `chat-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 
 /* one list per account, shared by every screen holding it */
 const kept = new Map<string, Chat[]>();
@@ -136,6 +140,16 @@ export function useChats(account: string | undefined, demo: boolean) {
     [account, put],
   );
 
+  /** A chat already filed, changed: what arrived for it after it was put away. It goes to the top. */
+  const change = useCallback(
+    (id: string, how: (chat: Chat) => Chat) => {
+      const now = (account && kept.get(account)) || [];
+      const was = now.find(c => c.id === id);
+      if (was) put([how(was), ...now.filter(c => c.id !== id)]);
+    },
+    [account, put],
+  );
+
   const read = useCallback(
     (id: string) => {
       const now = (account && kept.get(account)) || [];
@@ -145,5 +159,5 @@ export function useChats(account: string | undefined, demo: boolean) {
     [account, put],
   );
 
-  return { chats, ready, file, read };
+  return { chats, ready, file, change, read };
 }

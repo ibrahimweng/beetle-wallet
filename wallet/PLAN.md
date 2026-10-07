@@ -17,7 +17,7 @@ after that. The feature-by-feature door — the lab, every place on its own —
 stays for the checks and for a look at a rare state, behind a long press on
 the version line in Settings, and nothing of it shows while the app is being
 used as an app. The day the frames are drawn around is the owner's account:
-sign in with 0906 911 3588 and the code 123456. A number of your own opens
+sign in with 0803 000 0001 and the code 123456. A number of your own opens
 a new account with an empty day.
 
 ## The rule for every screen
@@ -1428,6 +1428,101 @@ edges; and a quiet reverse on closing.
 **Expo Go**: a QR code for the update, as every round that reaches the
 phone ends.
 
+## Round 23 · What the analysis after Round 21 found, fixed
+
+Asked by the owner after Round 21: look over the whole project for
+problems, then fix all of them. (Round 22, the camera at the top of the
+Receive sheet and the plus taken off, waits on the owner's word.)
+
+Money
+
+- [x] What leaves is checked against Everyday everywhere it can leave: the
+      chat's cards, Save, a loan's slide, bills, data, a meter, a card
+      loaded, a goal's money; past it, Beetle says what it comes to and
+      what Everyday holds. A figure below nothing shows its minus.
+- [x] The balance kept to the kobo: a fee that rounds is never let past
+      the last kobo; dollars spent are rounded up to the cent, never down.
+- [x] The caps on Spending limits are kept: past one transfer's cap or the
+      day's, the passcode is not enough (no face) and the three words are
+      typed in full, as What happens at the line shows. The demo's day, as
+      its frames draw it, has ₦84,000 out already, so the next ₦16,000 is
+      past it. Not your phone's freeze and the twelve hours after a new
+      passcode are kept too: nothing leaves until then.
+- [x] A changed amount draws its card again (the fee, a bill's units and its
+      token follow it). Money that came back is covered once, not again on
+      every tap. A loan counts what is already out against the limit, and
+      its payments add up to what is paid back, to the naira. Not enough's
+      Move it from Holiday goes through the passcode, and opened from a
+      bill, data or a top up it goes back there rather than to Send.
+- [x] Today ends: a line keeps the moment it moved and is today, yesterday
+      or earlier by the phone's calendar; a receipt's date is the phone's
+      own day.
+
+Security
+
+- [x] The build's keys (123456 and 654321) open only the lab and the demo
+      account; every other account needs its own passcode, in every build.
+- [x] The app locks: opened with an account signed in, and back after the
+      wait Ask again after sets, it asks for the face (where Face ID is on)
+      or the passcode. Not you? signs out.
+- [x] Three wrong tries shut the gate for half a minute, then five minutes,
+      half an hour, two hours; the gate is kept on the phone, so closing
+      the app does not open it.
+- [x] Each account's passcode is its own, stretched (PBKDF2 over SHA-256,
+      versioned so it can be made stronger); one kept the old way moves
+      across the first time it is typed right.
+- [x] A new passcode asks for the one it is now (or the face) first;
+      Reveal asks before the card's whole number shows; Face ID off in Lock
+      and privacy means no face is asked for.
+- [x] The lab and the model's page are only in builds with the lab. A link
+      cannot put words in the owner's mouth: home asks only questions the
+      app sent itself.
+- [x] No Anthropic key in a published build: the phone workflow no longer
+      passes one, a build reads one only while developing, the web
+      preview's packaging refuses a bundle that carries one, and Beetle can
+      talk to a server of its own that keeps the key. A new chat says, in
+      small print, when Claude is answering and what goes to Anthropic.
+- [x] Who somebody is (phone, ID record, ID number, address) is kept in the
+      secure store, moved there from plain storage; Android keeps no backup
+      of the app's data. The workflows' token reads and nothing more; the
+      packages go in before the Expo token is in the run; eas-cli is pinned.
+- [x] The demo account's number is made up now (0803 000 0001); it was the
+      owner's own.
+
+Screens
+
+- [x] The camera is one of the app's pages, so what it opens stays in one
+      stack: Done on a bill paid from a photo no longer comes back to a
+      live Continue. Closing it calls off what it was about to do; a bill or
+      data camera says when a photo is neither, and the photo goes only to
+      the chat or Send. The samples read as themselves in Expo Go. Where the
+      build cannot read photos, the camera says so; it no longer promises
+      codes or screenshots it does not take.
+- [x] An answer still on its way goes to the chat that asked, wherever that
+      chat is by then; a photo into a closed card no longer files the last
+      chat twice.
+- [x] VoiceOver: the slide is a button there, the card opens the chat with
+      a double tap, the chats drawer comes in properly, and a line of the
+      record or a receipt in the chat says its money, its way and its time.
+- [x] Back from a page opened straight from its address goes home; a
+      receipt that is not on this phone says so and goes; More's close sits
+      exactly on the plus; the deprecated blur setting is gone (it warned on
+      every blur); the words that spoke of rounds and frames speak plainly.
+
+Housekeeping
+
+- [x] Expo's packages at the versions SDK 57 expects, TypeScript back to
+      6.0; the audit's safe fixes (the one critical one with them); the
+      app's config without its deprecated fields; the photos permission
+      says it is for receipts.
+
+What code cannot do: the owner's number is still in the repository's
+history (rewriting a public history is the owner's call); no key was ever
+published (the phone workflow's runs show the secret empty), so there is
+nothing to revoke; and an APK built before this round needs building again
+for the backup setting and the splash's new place (everything else comes
+as an update).
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the
@@ -1463,8 +1558,8 @@ phone ends.
   paying in from a card: the owner took them off after Round 11, so being
   paid is the Receive sheet's own details. Their fixtures left the check.
 - Fixed savings (money locked for a set time): Take out works on every goal
-  whenever it is wanted, and All services still says Fixed savings are not
-  in the frames.
+  whenever it is wanted, and All services says Fixed savings are not in
+  Beetle yet.
 - The file's older home (225:3): the card and the day in the app are the
   home to keep.
 - The dock at the foot of home: the ask bar lives in the card. Other screens

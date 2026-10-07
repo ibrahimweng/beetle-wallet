@@ -5,7 +5,7 @@
    with nothing picked. The Send money page adds two rows under the people:
    a number to type, and the camera. */
 import React, { useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { Avatar, Caption, Icon, Label, Tap, colour, lift, settle, useStill, type Rect } from '../../design';
 import { discoById, groupMeter, groupPhoneNumber, networkInfo, planById, planName, type Beneficiary } from '../../services';
@@ -84,7 +84,7 @@ export function SavedPeek({
     <View style={StyleSheet.absoluteFill} testID="saved">
       <Pressable style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel="Close" onPress={() => leave(onClose)}>
         <Animated.View style={[StyleSheet.absoluteFill, veil]} pointerEvents="none">
-          {Blur ? <Blur intensity={36} tint="light" experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : 'none'} style={StyleSheet.absoluteFill} /> : null}
+          {Blur ? <Blur intensity={36} tint="light" style={StyleSheet.absoluteFill} /> : null}
           <View style={s.wash} />
         </Animated.View>
       </Pressable>

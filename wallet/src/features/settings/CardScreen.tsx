@@ -1,20 +1,21 @@
 /* Virtual card, from its frame: the card's face, the four things you can do
    to it, what Beetle has seen it pay, how much of its ceiling has gone, and
-   the way to another. Reveal shows the whole number for ten seconds; Freeze
+   the way to another. Reveal asks for the passcode (or the face) and then
+   shows the whole number for ten seconds (the analysis after Round 21: it
+   showed it to whoever held the phone); Freeze
    is kept on this phone and greys the face; Rules opens the standing
    instructions. Load card, beside Back at the foot (and Load among the
    four), puts the amount picker up over the page — stopping hard at what
    Everyday holds — then the passcode, the line in the day and its receipt;
    what is loaded is the card's to spend on top of what its month allows.
-   A second card comes with its round. This page runs 12 between its
-   blocks. */
+   There is one card for now. This page runs 12 between its blocks. */
 import React, { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AmountSheet, Banner, Card, CardFace, Label, Meta, Meter, PageHead, PillRow, SayCard, Screen, Tools, colour, toast } from '../../design';
 import { holdingsFor } from '../home/account';
 import { balanceOf, rowFrom, useMoves } from '../home/moves';
-import { PasscodeSheet, lockedFor } from '../passcode';
+import { PasscodeSheet, lockedFor, waitWords } from '../passcode';
 import { clock } from '../../lib/clock';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -37,11 +38,13 @@ export function CardScreen() {
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState(0);
   const [guard, setGuard] = useState(false);
+  /** the passcode before the whole number shows */
+  const [revealing, setRevealing] = useState(false);
   const picked = (v: number) => {
     setLoading(false);
     const shut = lockedFor();
     if (shut) {
-      toast(`That was three wrong tries. Give it ${shut} seconds and try again.`);
+      toast(`That was three wrong tries. Give it ${waitWords(shut)} and try again.`);
       return;
     }
     setAmount(v);
@@ -64,7 +67,7 @@ export function CardScreen() {
     [],
   );
   /* the foot: Back, and Load card beside it */
-  useFoot({ kind: 'button', label: 'Load card', leading: 'plus', disabled: prefs.cardFrozen, onPress: () => setLoading(true), veil: loading || guard ? 'away' : undefined });
+  useFoot({ kind: 'button', label: 'Load card', leading: 'plus', disabled: prefs.cardFrozen, onPress: () => setLoading(true), veil: loading || guard || revealing ? 'away' : undefined });
   if (!ok || !account) return null;
   if (!ready)
     return (
@@ -75,6 +78,16 @@ export function CardScreen() {
   const reveal = () => {
     if (hide.current) clearTimeout(hide.current);
     if (shown) return setShown(false);
+    const shut = lockedFor();
+    if (shut) {
+      toast(`That was three wrong tries. Give it ${waitWords(shut)} and try again.`);
+      return;
+    }
+    setRevealing(true);
+  };
+  /* the passcode landed: the whole number, for ten seconds */
+  const revealed = () => {
+    setRevealing(false);
     setShown(true);
     hide.current = setTimeout(() => setShown(false), 10000);
   };
@@ -83,7 +96,6 @@ export function CardScreen() {
     set({ cardFrozen: now });
     toast(now ? 'Frozen. Nothing can be charged to it.' : 'The card is live again.');
   };
-  const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
   const left = CARD.ceiling - CARD.spent + (prefs.cardLoaded ?? 0);
   return (
     <View style={{ flex: 1 }}>
@@ -110,14 +122,14 @@ export function CardScreen() {
             <Meter pct={(CARD.spent / CARD.ceiling) * 100} height={7} />
             <Meta tone="secondary">{naira(left)} left before it stops working</Meta>
           </Card>
-          <PillRow glyph="plus" label="Make another card" onPress={() => toast('A second card is not in the frames yet.')} />
+          <PillRow glyph="plus" label="Make another card" onPress={() => toast('Beetle gives one card for now.')} />
         </View>
       </Screen>
       {loading ? (
         <AmountSheet
           title="Load the card"
           sub={`From Everyday onto •••• ${lastFour()}. It can spend what you load, on top of what its month allows.`}
-          start={Math.min(5_000, Math.floor(balance))}
+          start={Math.max(0, Math.min(5_000, Math.floor(balance)))}
           max={Math.max(0, Math.floor(balance))}
           note={`Everyday has ${naira(balance)}`}
           chips={[5_000, 10_000, 20_000]}
@@ -141,6 +153,17 @@ export function CardScreen() {
           verify={app.checkPasscode}
           onDone={done}
           onCancel={() => setGuard(false)}
+        />
+      ) : null}
+      {revealing ? (
+        <PasscodeSheet
+          amount={`•••• ${lastFour()}`}
+          name="Virtual card"
+          detail="The whole number, for ten seconds"
+          glyph="card"
+          verify={app.checkPasscode}
+          onDone={revealed}
+          onCancel={() => setRevealing(false)}
         />
       ) : null}
     </View>

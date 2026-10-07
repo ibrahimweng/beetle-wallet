@@ -15,7 +15,9 @@ export type Cost = {
   fee: number;
   total: number;
   payments: number;
+  /** each payment, and the last, which takes what rounding to the naira left over, so they come to the total */
   each: number;
+  last: number;
   first: Date;
 };
 
@@ -26,13 +28,35 @@ export function costOf(amount: number, days: Term, today = new Date()): Cost {
   const total = amount + interest + fee;
   const first = new Date(today);
   first.setDate(first.getDate() + 30);
-  return { amount, days, interest, fee, total, payments: months, each: Math.round(total / months), first };
+  /* whole naira each, and the last takes the remainder: the payments come to what is paid back, to the naira (the
+     analysis after Round 21: three of ₦18,833 came to ₦1 short of ₦56,500) */
+  const each = Math.floor(total / months);
+  return { amount, days, interest, fee, total, payments: months, each, last: total - each * (months - 1), first };
 }
+
+/** What each payment is: ₦56,500, or ₦18,833 with the last ₦18,834 where the total does not divide evenly. */
+export const eachWords = (c: Pick<Cost, 'each' | 'last'>, naira: (n: number) => string) => (c.last === c.each ? naira(c.each) : `${naira(c.each)}, the last ${naira(c.last)}`);
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 /** 19 September, the way the frame says a day. */
 export const dayOf = (d: Date) => `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+
+/** What is borrowed and not yet paid back, from the lines in the day: paying back is not in this build, so every loan
+    taken is still out. */
+export const borrowedIn = (rows: { kind: string; name: string; amount: number }[]) => rows.filter(r => r.kind === 'in' && r.name === 'Beetle Loans').reduce((a, r) => a + r.amount, 0);
+
+/** How much more can be borrowed: the limit, less what is out (the analysis after Round 21: the limit was only the
+    most one loan could be, so it could be taken again and again). */
+export const leftToBorrow = (rows: { kind: string; name: string; amount: number }[]) => Math.max(0, LOAN.most - borrowedIn(rows));
+
+/** The line under the amount: what is left of the limit, or that it is all out. */
+export const limitNote = (left: number, naira: (n: number) => string) =>
+  left < LOAN.least
+    ? `${naira(LOAN.most - left)} is out, all of your limit. It frees up as you pay it back.`
+    : left < LOAN.most
+      ? `${naira(left)} is left of your limit`
+      : `${naira(left)} is your limit`;
 
 /** One, Three, Six: how the frame counts payments. */
 export const countWord = (n: number) => ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six'][n] ?? String(n);

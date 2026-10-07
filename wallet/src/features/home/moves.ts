@@ -3,8 +3,9 @@
    account, so the balance and the receipts hold across a restart. Every
    screen that holds the list sees a line the moment any of them adds it:
    home's day picks up what the Send money page moved. */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { storage, type Move } from '../../services';
+import { dayName, sessionWhen } from '../../lib/days';
 import type { LedgerRow } from './account';
 import { fromEveryday } from './everyday';
 
@@ -42,9 +43,20 @@ export function rowFrom(m: Move, balanceBefore: number, seq: number, at = new Da
     read: m.read,
     usd: m.usd,
     goal: m.goal,
+    covers: m.covers,
     session: sessionId(at, seq),
     after: Math.round((balanceBefore + fromEveryday(m)) * 100) / 100,
+    at: at.getTime(),
   };
+}
+
+/** A line as it stands today: one moved on this phone is today's, yesterday's or earlier, by when it moved (or the
+    date in its session id, for one kept before lines kept their moment); a line the frames draw keeps its day. */
+export function aged(row: LedgerRow, now = new Date()): LedgerRow {
+  const when = row.at ?? sessionWhen(row.session);
+  if (when === undefined) return row;
+  const day = dayName(when, now);
+  return day === row.day && row.at === when ? row : { ...row, day, at: when };
 }
 
 /* one list per account, shared by every screen holding it */
@@ -95,5 +107,7 @@ export function useMoves(account: string | undefined) {
     [account],
   );
 
-  return { moves, ready, add };
+  /* each line on the day it is now, not the day it was added on */
+  const shown = useMemo(() => moves.map(r => aged(r)), [moves]);
+  return { moves: shown, ready, add };
 }

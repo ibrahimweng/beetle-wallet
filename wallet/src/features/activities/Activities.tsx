@@ -182,6 +182,7 @@ export function Activities() {
   };
   const today = rows('today');
   const yesterday = rows('yesterday');
+  const earlier = rows('earlier');
   const noticedToday = [insight('topup', { dismiss: true }), insight('data'), insight('changes')].filter(Boolean);
   const noticedYesterday = [insight('spend')].filter(Boolean);
   /* the first of what was noticed comes after the day's first three lines, as the day on home had it */
@@ -213,6 +214,8 @@ export function Activities() {
                   {yesterday.slice(2)}
                 </View>
               ) : null}
+              {earlier.length ? <Body tone="secondary">Earlier</Body> : null}
+              {earlier.length ? <View testID="earlier">{earlier}</View> : null}
               {!today.length && !yesterday.length && !nothing && segment !== 'Insights' ? (
                 <Body tone="tertiary">Nothing {segment === 'In' ? 'came in' : segment === 'Out' ? 'went out' : 'moved'} yet.</Body>
               ) : null}

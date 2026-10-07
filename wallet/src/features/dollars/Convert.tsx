@@ -19,7 +19,7 @@ import { useFoot } from '../more/Foot';
 import { holdingsFor } from '../home/account';
 import { balanceOf, rowFrom, useMoves } from '../home/moves';
 import { clock } from '../../lib/clock';
-import { PasscodeSheet, lockedFor } from '../passcode';
+import { PasscodeSheet, lockedFor, waitWords } from '../passcode';
 import { LAB } from '../../lab/enabled';
 import { naira } from '../../lib/format';
 import { RATE_MOVE, dollarsOf, feeForUsd, nairaOf, rateLine, usdFull, usdOf } from './dollars';
@@ -42,14 +42,16 @@ export function Convert() {
   const [guard, setGuard] = useState(false);
   const amount = Number(digits || 0);
   const usd = toDollars ? usdOf(amount, rate) : amount;
-  const nairaAmount = toDollars ? amount : nairaOf(amount, rate);
   const fee = feeForUsd(usd);
+  /* the fee comes out of the dollars going across, both ways: into dollars there are fewer of them, back to naira
+     there is less naira (the analysis after Round 21: back to naira showed the fee and took none) */
+  const nairaAmount = toDollars ? amount : nairaOf(Math.max(0, usd - fee), rate);
   const gets = toDollars ? usdFull(Math.max(0, usd - fee)) : naira(nairaAmount);
 
   const slide = () => {
     if (!amount) return;
     if (toDollars && amount > balance) {
-      router.push(`/short?asked=${amount}`);
+      router.push(`/short?asked=${amount}&for=convert`);
       return;
     }
     if (toDollars && usd < 1) {
@@ -62,7 +64,7 @@ export function Convert() {
     }
     const shut = lockedFor();
     if (shut) {
-      toast(`That was three wrong tries. Give it ${shut} seconds and slide again.`);
+      toast(`That was three wrong tries. Give it ${waitWords(shut)} and slide again.`);
       return;
     }
     setGuard(true);
@@ -81,7 +83,15 @@ export function Convert() {
           usd: Math.round((usd - fee) * 100) / 100,
           fee: fee ? nairaOf(fee, rate) : undefined,
         }
-      : { name: 'Everyday', detail: `From ${usdFull(usd)} at ${rateLine(rate)} · ${at}`, amount: nairaAmount, icon: 'swap', kind: 'convert', usd: -usd };
+      : {
+          name: 'Everyday',
+          detail: `From ${usdFull(usd)} at ${rateLine(rate)} · ${at}`,
+          amount: nairaAmount,
+          icon: 'swap',
+          kind: 'convert',
+          usd: -usd,
+          fee: fee ? nairaOf(fee, rate) : undefined,
+        };
     const row = rowFrom(move, balance, 17 + moves.length);
     addMove(row);
     setGuard(false);

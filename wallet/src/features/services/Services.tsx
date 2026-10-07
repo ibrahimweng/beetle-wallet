@@ -26,7 +26,7 @@ export function Services() {
   const dollars = useMemo(() => (account ? holdingsFor(account).dollars : 0), [account]);
   const go = (s: Service) => {
     if (s.to) router.push(s.to as never);
-    else toast(s.later ?? `${s.label} is not drawn yet.`);
+    else toast(s.later ?? `${s.label} is not in Beetle yet.`);
   };
   /* the search: what matches as you type; on return, a service by name opens, a page's words open the page, anything else goes to Beetle at home */
   const [query, setQuery] = useState('');

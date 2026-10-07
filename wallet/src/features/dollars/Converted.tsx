@@ -7,11 +7,11 @@
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Body, Button, Display, Facts, Head, Icon, Label, Meta, PageHead, Say, Screen, Tap, colour, toast, useDeparture } from '../../design';
+import { Body, Button, Display, Facts, Head, Icon, Label, Meta, PageHead, Say, Screen, Tap, colour, useDeparture } from '../../design';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
-import { askHome } from '../more/More';
+import { askAbout, askHome } from '../more/More';
 import { holdingsFor, type LedgerRow } from '../home/account';
 import { useMoves } from '../home/moves';
 import { LAB } from '../../lab/enabled';
@@ -93,7 +93,12 @@ export function Converted({ id }: { id: string }) {
         <Button label="Set it up" tone="grey" size={48} trailing="chevron" to="/rule?offer=dollars" />
       </View>
       <Link label="See your dollars" to="/dollars" testID="see-dollars" />
-      <Link label="Something wrong with this?" onPress={() => toast('What went wrong comes with round 7.')} testID="wrong" />
+      {/* a fresh chat about this one conversion, Beetle asking what is wrong with it */}
+      <Link
+        label="Something wrong with this?"
+        onPress={() => askAbout(router, `${intoDollars ? `${usdFull(usd)} bought with ${naira(row.amount)}` : `${naira(row.amount)} from ${usdFull(usd)}`}, ${row.detail}`)}
+        testID="wrong"
+      />
     </Screen>
   );
 }

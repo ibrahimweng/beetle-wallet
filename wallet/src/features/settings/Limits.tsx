@@ -16,8 +16,9 @@ import { askHome } from '../more/More';
 import { s } from './Lock';
 import { dayCap, useSetup } from '../setup';
 import { SetupOffer } from '../setup/Offer';
+import { CAPS, spentToday } from './gate';
 
-export const CAPS = { transfer: 50000, day: 100000, month: 900000 } as const;
+export { CAPS } from './gate';
 
 export function Limits() {
   const app = useApp();
@@ -35,7 +36,7 @@ export function Limits() {
         <View />
       </Screen>
     );
-  const out = [...moves, ...holdingsFor(account).ledger].filter(r => r.day === 'today' && r.status === 'done' && r.amount < 0 && r.kind !== 'saving').reduce((a, r) => a - r.amount, 0);
+  const out = spentToday([...moves, ...holdingsFor(account).ledger]);
   /* the caps are what you set; finishing setting up is what lets the day's go up to a million */
   const day = CAPS.day;
   const left = Math.max(0, day - out);

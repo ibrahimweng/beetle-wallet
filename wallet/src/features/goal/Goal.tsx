@@ -24,7 +24,7 @@ import { askHome } from '../more/More';
 import { holdingsFor } from '../home/account';
 import { balanceOf, rowFrom, useMoves } from '../home/moves';
 import { usePrefs } from '../settings/prefs';
-import { PasscodeSheet, lockedFor } from '../passcode';
+import { PasscodeSheet, lockedFor, waitWords } from '../passcode';
 import { LAB } from '../../lab/enabled';
 import { clock } from '../../lib/clock';
 import { naira } from '../../lib/format';
@@ -74,7 +74,7 @@ export function Goal() {
   /* the gate shut after three wrong tries: say how long, and move nothing */
   const gate = (then: () => void) => {
     const shut = lockedFor();
-    if (shut) toast(`That was three wrong tries. Give it ${shut} seconds and try again.`);
+    if (shut) toast(`That was three wrong tries. Give it ${waitWords(shut)} and try again.`);
     else then();
   };
   const putIn = (amount: number) => {
@@ -261,7 +261,7 @@ export function Goal() {
         <AmountSheet
           title={`Into ${st.goal.name}`}
           sub="From Everyday. Nothing here is locked; take it out whenever you need it."
-          start={Math.min(10_000, Math.floor(balance))}
+          start={Math.max(0, Math.min(10_000, Math.floor(balance)))}
           max={Math.max(0, Math.floor(balance))}
           note={`Everyday has ${naira(balance)}`}
           chips={[5_000, 10_000, 20_000]}

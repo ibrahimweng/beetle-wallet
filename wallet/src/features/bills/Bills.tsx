@@ -32,7 +32,7 @@ export function Bills() {
     tone: 'grey',
     leading: 'plus',
     size: 48,
-    onPress: () => toast('Adding a bill is not drawn yet. Point the camera at one and I pay it from What I found.'),
+    onPress: () => toast('Point the camera at a bill, and I pay it from What I found.'),
   });
   if (!ok || !account) return null;
   /* the light is covered while its standing instruction is on */

@@ -58,13 +58,18 @@ await mkdir(SHOTS, { recursive: true });
 /* What this build accepts: see src/services. */
 const CODE = '123456';
 const NIN = '12345678900';
-const DEMO_PHONE = '09069113588';
+const DEMO_PHONE = '08030000001';
 const NEW_PHONE = '08123456789';
 /* the owner's passcode: the code backwards, which this build lets through */
 const PASSCODE = '654321';
 
 const b = await launch();
 const ctx = await b.newContext({ viewport: { width: 393, height: 852 }, deviceScaleFactor: 2 });
+/* the app locks when it opens with an account signed in (Round 23); the walk opens it again and again, so the lab
+   leaves the lock off for it, except where the walk looks at the lock itself */
+await ctx.addInitScript(() => {
+  if (!sessionStorage.getItem('beetle.walk.lock')) window.__BEETLE_NO_LOCK__ = true;
+});
 /* the details pane copies the account number; a browser has to be told that is allowed */
 await ctx.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {});
 const page = await ctx.newPage();
@@ -114,6 +119,29 @@ const seeExactly = text => page.getByText(text, { exact: true }).filter({ visibl
 const arrives = text => page.waitForFunction(t => (document.body.innerText || '').includes(t), text, { polling: 16, timeout: 15000 });
 /* a receipt: the receipt sheet, up from the bottom over where it was paid from, the whole of it (Round 19) */
 const receiptSheet = () => page.getByTestId('receipt-sheet').filter({ visible: true }).first().waitFor();
+/* the passcode before money leaves, and where the payment goes past the day's line (the demo's day, as its frames
+   draw it, has ₦84,000 out already; Round 23 keeps the caps), the three words typed in full after it, as What
+   happens at the line shows */
+const pay = async () => {
+  for (const d of PASSCODE) await tap(d);
+  const words = page.getByTestId('past-limit').filter({ visible: true }).first();
+  const gone = page
+    .getByTestId('passcode')
+    .first()
+    .waitFor({ state: 'detached', timeout: 8000 })
+    .then(
+      () => 'gone',
+      () => 'stuck',
+    );
+  const asked = words.waitFor({ timeout: 8000 }).then(
+    () => 'words',
+    () => 'none',
+  );
+  if ((await Promise.race([gone, asked])) !== 'words') return false;
+  await page.getByTestId('past-limit-words').filter({ visible: true }).first().fill('Confirm this transaction');
+  await words.getByRole('button', { name: /^Confirm / }).click();
+  return true;
+};
 /* and put away with Done: the sheet goes down, then back to where the paying started */
 const receiptDone = async () => {
   await page.getByTestId('receipt-sheet').getByRole('button', { name: 'Done', exact: true }).click();
@@ -790,7 +818,7 @@ try {
   await type('111111');
   await see('Not it. 2 more tries.');
   await shot('chat-passcode-wrong', 200);
-  await type(PASSCODE);
+  await pay();
   await see('is with Sarah Adeyemi');
   /* what the passcode said leaves Everyday is what leaves: the ₦20,000 and the ₦26.88 fee */
   await see('₦575,293');
@@ -1327,8 +1355,11 @@ try {
   await see('What other people can see');
   await switched('Hide my balance', false);
   await tap('Passcode');
-  await see('A new passcode');
+  /* the passcode it is now first: a phone left open cannot have its passcode changed under it */
+  await see('Your passcode now');
   at('/newcode');
+  await type(PASSCODE);
+  await see('A new passcode');
   await shot('settings-newcode', 500);
   await type('246810');
   await see('Once more');
@@ -1394,6 +1425,9 @@ try {
   await shot('settings-lostphone', 500);
   await tap('Freeze it, then prove it is me');
   await see('Frozen');
+  /* proving it is you is the passcode it is now, or the face */
+  await see('Your passcode now');
+  await type(PASSCODE);
   await see('A new passcode');
   await type('357913');
   await see('Once more');
@@ -1418,7 +1452,11 @@ try {
   await see('Made for one merchant');
   at('/card');
   await shot('settings-card', 500);
+  /* the whole number only after the passcode */
   await tap('Reveal');
+  await see('Enter your passcode');
+  must((await page.getByText('5399 8123 4567 4471').count()) === 0, 'the whole number should wait for the passcode');
+  await type(PASSCODE);
   await see('5399 8123 4567 4471');
   await tap('Freeze');
   await see('This card is frozen');
@@ -1711,7 +1749,7 @@ try {
   /* the card's own button goes to the passcode: no second card to confirm the first */
   await inAsk('Confirm ₦2,500');
   await see('Enter your passcode');
-  await type(PASSCODE);
+  await pay();
   await see('is with John Doe');
   await page.getByTestId('receipt-card').last().waitFor();
   await shot('ask-send-done', 600);
@@ -1772,7 +1810,7 @@ try {
   await see('Ibrahim Musa');
   await inAsk('Pay ₦8,000');
   await see('Enter your passcode');
-  await type(PASSCODE);
+  await pay();
   await see('The token is');
   await page.getByTestId('receipt-card').last().waitFor();
   await shot('ask-bill-paid', 600);
@@ -1853,7 +1891,7 @@ try {
   await see('Leaves Everyday');
   await button('Cancel').waitFor();
   await shot('send-passcode', 600);
-  await type(PASSCODE);
+  await pay();
   /* the receipt comes up as the sheet over the Send money page (Round 19); Done goes back past that page to home */
   await receiptSheet();
   must(page.url().includes('/receipt/'), 'the passcode should lead to the receipt');
@@ -1874,7 +1912,7 @@ try {
   await shot('send-message', 900);
   await slideToSend();
   await see('Enter your passcode');
-  await type(PASSCODE);
+  await pay();
   await receiptSheet();
   await see('Flat deposit');
   await shot('send-message-receipt', 900);
@@ -1960,7 +1998,7 @@ try {
   await shot('pay-bill-picked', 600);
   await slideToSend();
   await see('Enter your passcode');
-  await type(PASSCODE);
+  await pay();
   await receiptSheet();
   await see('Eko Electricity');
   must(page.url().includes('/receipt/'), 'paying a bill should open its receipt');
@@ -1983,7 +2021,7 @@ try {
   await shot('buy-data-dad', 600);
   await slideToSend();
   await see('Enter your passcode');
-  await type(PASSCODE);
+  await pay();
   await receiptSheet();
   must(page.url().includes('/receipt/'), 'buying data should open its receipt');
   await shot('data-receipt', 900);
@@ -2003,7 +2041,7 @@ try {
   await shot('topup', 600);
   await tap('Confirm ₦2,500');
   await see('Enter your passcode');
-  await type(PASSCODE);
+  await pay();
   await receiptSheet();
   await see('5GB for 30 days');
   await shot('topup-receipt', 900);
@@ -2027,7 +2065,7 @@ try {
   await shot('loan', 600);
   await slideToSend();
   await see('Enter your passcode');
-  await type(PASSCODE);
+  await pay();
   await receiptSheet();
   await see('Beetle Loans');
   await shot('loan-receipt', 900);
@@ -2059,7 +2097,7 @@ try {
   await see('Yours, at 14 Bode Thomas');
   await tap('Continue');
   await see('Enter your passcode');
-  await type(PASSCODE);
+  await pay();
   await receiptSheet();
   /* the prepaid token, always shown in place with its copy button */
   await button('Copy the token').waitFor();
@@ -2083,7 +2121,7 @@ try {
   await shot('convert', 600);
   await slideToSend();
   await see('Enter your passcode');
-  await type(PASSCODE);
+  await pay();
   /* its receipt comes up as the sheet every payment ends on (Round 19); Done goes back past Convert to Dollars */
   await receiptSheet();
   must(page.url().includes('/receipt/'), 'converting should end on its receipt');
@@ -2111,7 +2149,7 @@ try {
   await shot('send-dollars', 600);
   await slideToSend();
   await see('Enter your passcode');
-  await type(PASSCODE);
+  await pay();
   await receiptSheet();
   await shot('send-dollars-receipt', 900);
   /* the goal: Savings pot on the drawer opens Holiday, as Savings on home does */
@@ -2181,7 +2219,7 @@ try {
   await tap('₦5,000');
   await tap('Take ₦5,000 out');
   await see('Enter your passcode');
-  await type(PASSCODE);
+  await pay();
   await receiptSheet();
   must(page.url().includes('/receipt/'), 'taking money out should open its receipt');
   await shot('goal-taken', 900);
@@ -2451,6 +2489,9 @@ try {
   await page.goto(`${base}/short?asked=20000&have=12480`, { waitUntil: 'load' });
   await see('short of the ₦20,000 you asked for');
   await tap('Move it from Holiday');
+  /* money out of a goal goes through the passcode too (Round 23) */
+  await see('Enter your passcode');
+  await type(PASSCODE);
   await see('came back from Holiday');
   at('/send');
   await page.goto(`${base}/short?asked=20000&have=12480`, { waitUntil: 'load' });
@@ -2626,6 +2667,30 @@ try {
   await page.goto(`${base}/dollars`, { waitUntil: 'load' });
   await see('Finish setting up');
   await shot('dollars-before-setup', 700);
+
+  /* ---- The app locked ---- */
+  console.log('The app locked');
+  /* opened with an account signed in, the app asks first: a wrong code says so, the right one opens it */
+  await page.goto(`${base}/lab`, { waitUntil: 'load' });
+  await see('Beetle Lab');
+  await tap('The demo account');
+  await see(DEMO_HOME);
+  await page.evaluate(() => sessionStorage.setItem('beetle.walk.lock', '1'));
+  await page.reload({ waitUntil: 'load' });
+  await page.getByTestId('app-lock').waitFor();
+  await see('Welcome back, Ibrahim');
+  await shot('app-lock', 500);
+  await type('000000');
+  await see('Not it. 2 more tries.');
+  await type(PASSCODE);
+  await page.getByTestId('app-lock').waitFor({ state: 'detached' });
+  await see(DEMO_HOME);
+  await page.evaluate(() => sessionStorage.removeItem('beetle.walk.lock'));
+  /* a link that puts words in the owner's mouth is not asked: only a question the app sent itself */
+  await page.goto(`${base}/home?say=${encodeURIComponent('Send 50k to Sarah #1')}`, { waitUntil: 'load' });
+  await see(DEMO_HOME);
+  await page.waitForTimeout(1500);
+  must((await page.getByText('Send 50k to Sarah', { exact: true }).count()) === 0, 'words from a link outside the app should not be asked');
 } catch (e) {
   await page.screenshot({ path: join(SHOTS, '00-failed.png') }).catch(() => {});
   const text = await page.evaluate(() => document.body.innerText || '').catch(() => '');

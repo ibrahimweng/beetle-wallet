@@ -8,11 +8,17 @@
    model never moves money: it puts up a panel, and the owner's passcode
    moves it.
 
-   The key comes from the phone's own keychain (set on the lab's model
-   screen) or from the build (EXPO_PUBLIC_ANTHROPIC_API_KEY at export time).
-   Neither is the shape a shipped app should have — that is a server that
-   keeps the key — and EXPO_PUBLIC_ANTHROPIC_BASE_URL is where such a server
-   goes when there is one, with no other change.
+   Where it answers from, first that is there:
+   - a key kept in this phone's keychain (the lab's model screen), sent
+     straight to Anthropic;
+   - a server of Beetle's own (EXPO_PUBLIC_ANTHROPIC_BASE_URL at export
+     time), which keeps the key: the phone sends no key at all, and the
+     server adds it on the way to Anthropic. This is the shape a shipped app
+     has;
+   - a key from the build (EXPO_PUBLIC_ANTHROPIC_API_KEY), and only while
+     developing (__DEV__): a key in a published bundle is a key anyone can
+     read, so a published build never takes one (the analysis after Round
+     21; the phone workflow no longer passes it either).
 
    Plain fetch rather than the SDK: React Native is not a runtime the SDK
    supports, and the request is small. */
@@ -49,16 +55,24 @@ const KEY = 'beetle.model.key.v1';
 /** How many times the model may call tools for one ask before it must answer. */
 const ROUNDS = 8;
 
-export type ModelConfig = { key: string; baseUrl: string; from: 'phone' | 'build' };
+/** Where Beetle answers from: a key and where it goes, or a server of Beetle's own with no key at all. */
+export type ModelConfig = { key: string; baseUrl: string; from: 'phone' | 'server' | 'build' };
 
-/** Where the key is: the phone's own first, then the build's. */
+/** The server that keeps the key, where the build names one. */
+const server = () => {
+  const named = (process.env.EXPO_PUBLIC_ANTHROPIC_BASE_URL ?? '').trim().replace(/\/$/, '');
+  return named && named !== API ? named : null;
+};
+
+/** Where the key is: the phone's own first, then Beetle's server, then (only while developing) the build's. */
 export const modelKey = {
   async config(): Promise<ModelConfig | null> {
-    const baseUrl = (process.env.EXPO_PUBLIC_ANTHROPIC_BASE_URL || API).replace(/\/$/, '');
     const own = await secure.get(KEY);
-    if (own) return { key: own, baseUrl, from: 'phone' };
-    const built = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
-    if (built) return { key: built, baseUrl, from: 'build' };
+    if (own) return { key: own, baseUrl: API, from: 'phone' };
+    const at = server();
+    if (at) return { key: '', baseUrl: at, from: 'server' };
+    const built = typeof __DEV__ !== 'undefined' && __DEV__ ? process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY : undefined;
+    if (built) return { key: built, baseUrl: API, from: 'build' };
     return null;
   },
   set: (key: string) => secure.set(KEY, key.trim()),
@@ -293,7 +307,7 @@ export class ModelAgent implements AgentService {
     let said = (ask.text ?? '').trim();
     if (ask.photo) {
       onStep?.("I'm reading the photo…");
-      reading = ask.photo.reading ?? (await this.reader.read(ask.photo.uri));
+      reading = ask.photo.reading ?? (await this.reader.read(ask.photo.uri, ask.photo.sample));
       const words = reading.text.trim();
       said = `${said ? said + '\n\n' : ''}[The owner sent a photo. ${words ? `The words read off it, top to bottom:\n${words}` : 'Nothing could be read off it.'}${reading.real ? '' : ' (On this device the reader is a stand-in, reading the sample slip.)'}]`;
     }
@@ -498,7 +512,11 @@ export class ModelAgent implements AgentService {
           };
         const bank = /^beetle$/i.test(str('bank')) ? BEETLE : str('bank');
         const beetleUser = bank === BEETLE ? (tagged(str('tag') || '') ?? null) : null;
-        const to: Person = beetleUser ?? { name: str('name'), bank, number };
+        /* the name on the card is the bank's own, never the one the model says: words on a photo, or a link, cannot put
+           a familiar name on a stranger's number (the analysis after Round 21) */
+        const check = beetleUser ? null : nameAt(number, bank, savedOf(ctx).people);
+        if (check && !check.found) return { ok: false, reason: check.why };
+        const to: Person = beetleUser ?? (check && check.found ? check.person : { name: str('name'), bank, number });
         const fee = feeTo(amount, to.bank);
         if (amount + fee > ctx.balance) return { ok: false, reason: `more than the balance of ${naira(ctx.balance)}`, balance: ctx.balance };
         /* the card: one already up for a transfer is filled; otherwise a new one */
@@ -617,11 +635,16 @@ export class ModelAgent implements AgentService {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
-          'x-api-key': cfg.key,
           'anthropic-version': '2023-06-01',
           'anthropic-beta': 'server-side-fallback-2026-07-01',
-          /* the web export calls from a page; the header says that is meant */
-          'anthropic-dangerous-direct-browser-access': 'true',
+          /* a key goes only where there is one; Beetle's own server adds its own */
+          ...(cfg.key
+            ? {
+                'x-api-key': cfg.key,
+                /* the web export calls from a page; the header says that is meant */
+                'anthropic-dangerous-direct-browser-access': 'true',
+              }
+            : {}),
         },
         body: JSON.stringify(body),
       });

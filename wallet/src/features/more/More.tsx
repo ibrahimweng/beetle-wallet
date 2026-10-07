@@ -47,7 +47,15 @@ export function moreTo(router: Router, item: MoreItem) {
   else openTab(router, 'home', { receive: `pick-${Date.now()}` });
 }
 
-export function More({ onPick, onClose }: { onPick: (item: MoreItem) => void; onClose: () => void }) {
+export function More({
+  onPick,
+  onClose,
+  at,
+}: {
+  onPick: (item: MoreItem) => void;
+  onClose: () => void;
+  /** where the bar's plus is, from the screen's corner: the close is drawn there */ at: { right: number; bottom: number };
+}) {
   const frozen = useStill();
   /* 1 while the menu is open, 0 while it is folding away */
   const open = useSharedValue(frozen ? 1 : 0);
@@ -85,7 +93,7 @@ export function More({ onPick, onClose }: { onPick: (item: MoreItem) => void; on
           <Item key={it.id} item={it} open={open} frozen={frozen} step={ITEMS.length - 1 - i} onPress={() => leave(() => onPick(it.id))} />
         ))}
       </View>
-      <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={() => leave(onClose)} style={s.fab} testID="more-close">
+      <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={() => leave(onClose)} style={[s.fab, at]} testID="more-close">
         <Animated.View style={turning}>
           <Icon name="fab-plus" size={24} colour={colour.textInverse} />
         </Animated.View>
@@ -137,18 +145,34 @@ function Item({ item, open, step, frozen, onPress }: { item: (typeof ITEMS)[numb
 const s = StyleSheet.create({
   items: { position: 'absolute', right: 28, bottom: 100, alignItems: 'flex-end', gap: 16 },
   item: { flexDirection: 'row', alignItems: 'center', gap: 32, height: 52 },
-  /* exactly where the dock's own button is, so the one you pressed is the one that closes this */
-  fab: { position: 'absolute', right: 16, bottom: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' },
+  /* exactly where the bar's own plus is (the foot says where), so the one you pressed is the one that closes this */
+  fab: { position: 'absolute', width: 56, height: 56, borderRadius: 28, backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' },
 });
+
+/* A question carried to home rides on its address, and an address can come
+   from outside the app (a link). So each one the app itself sends carries a
+   pass made for it here and kept in memory, and home asks only what carries
+   one, once (the analysis after Round 21: a link could put words in the
+   owner's mouth). */
+const passes = new Set<string>();
+const passFor = () => {
+  const pass = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+  passes.add(pass);
+  return pass;
+};
+/** Was this question sent by the app itself? True once, for the pass it carries. */
+export function sentByApp(pass: string | undefined): boolean {
+  return !!pass && passes.delete(pass);
+}
 
 /** A question for Beetle from another page: back to home, turned to Home,
     with the chat opening on it. Stamped, so the same words asked twice are
     asked twice. */
 export function askHome(router: Router, q: string, about?: string) {
-  openTab(router, 'home', { say: `${q} #${Date.now()}`, ...(about ? { about } : {}) });
+  openTab(router, 'home', { say: `${q} #${Date.now()}`, pass: passFor(), ...(about ? { about } : {}) });
 }
 
 /** Ask Beetle about this: a fresh chat on home with the transaction as what it is about, and Beetle asking what you want to know. */
 export function askAbout(router: Router, about: string) {
-  openTab(router, 'home', { about, fresh: String(Date.now()) });
+  openTab(router, 'home', { about, fresh: String(Date.now()), pass: passFor() });
 }

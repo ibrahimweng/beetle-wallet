@@ -2,12 +2,21 @@
    Beetle's word that none of the ways out costs anything, and the three —
    from a goal (the first that holds enough), what there is now with the
    rest on payday, or asking someone who owes you. Reached from Slide to
-   send when the amount is past the balance, and from the keypad's question. */
-import React, { useMemo } from 'react';
+   send when the amount is past the balance, and from the keypad's question;
+   and from paying a bill, buying data or airtime, and converting, where the
+   ways are the goal and asking someone, and the goal's money goes back to
+   that payment rather than to Send money.
+
+   What is short counts the fee the transfer carries, so moving it from a
+   goal is enough to send; moving it out of a goal goes through the passcode,
+   as Take out on the goal does; and nothing moves when nothing is short
+   (the analysis after Round 21). */
+import React, { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { BigStatus, ChoiceList, Facts, PageHead, Say, Screen, colour, toast } from '../../design';
 import { feeFor, type Move } from '../../services';
+import { PasscodeSheet, lockedFor, waitWords } from '../passcode';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
@@ -39,7 +48,7 @@ export function Short() {
   const app = useApp();
   const router = useRouter();
   const ok = useSessionGuard();
-  const asked = useLocalSearchParams<{ asked?: string; have?: string }>();
+  const asked = useLocalSearchParams<{ asked?: string; have?: string; fee?: string; for?: string }>();
   const account = app.session?.account;
   const { moves, add: addMove } = useMoves(account?.accountNumber);
   const { prefs } = usePrefs(account?.accountNumber);
@@ -49,7 +58,12 @@ export function Short() {
   /* the lab opens it with the balance the frame draws */
   const have = LAB && asked.have ? Number(asked.have) : (h?.everyday ?? 0) + balanceOf(moves);
   const want = Number(asked.asked ?? 0) || 0;
-  const short = Math.max(0, want - have);
+  /* a transfer's fee leaves with it, so it is short by that too */
+  const fee = Number(asked.fee ?? 0) || 0;
+  const short = Math.max(0, Math.round((want + fee - have) * 100) / 100);
+  /* paying a bill, data, airtime or converting: the goal's money goes back to that, and there is no sending now */
+  const sending = !asked.for || asked.for === 'send';
+  const [guard, setGuard] = useState(false);
   const list = goals.map(g => standingOf(g, { goals, demo: !!account?.demo, tight: prefs.tight, moves }));
   const from = list.find(s => s.aside >= short) ?? list[0];
   const holiday = from?.aside ?? 0;
@@ -63,8 +77,20 @@ export function Short() {
     draft.put({ amount: can, amountNote: 'What Everyday holds, less the fee' });
     toSend();
   };
-  /* the goal gives the shortfall back: a line in the day, and Everyday has it */
+  /* back to what was being paid: Send money with the amount as asked, or the page underneath as it was left */
+  const onward = (note?: string) => {
+    if (sending) {
+      draft.put({ amount: want, amountNote: note });
+      toSend();
+    } else router.back();
+  };
+  /* the goal gives the shortfall back, through the passcode: a line in the day, and Everyday has it */
   const fromHoliday = () => {
+    if (!short) {
+      toast('Everyday has enough for it now.');
+      onward();
+      return;
+    }
     if (!from) {
       toast('Nothing is put aside yet. Start a goal from Savings on home.');
       return;
@@ -73,12 +99,21 @@ export function Short() {
       toast(`${name} holds ${naira(holiday)}, ${naira(short - holiday)} short of what you need.`);
       return;
     }
+    const shut = lockedFor();
+    if (shut) {
+      toast(`That was three wrong tries. Give it ${waitWords(shut)} and try again.`);
+      return;
+    }
+    setGuard(true);
+  };
+  const movedBack = () => {
+    setGuard(false);
+    if (!from) return;
     const at = clock();
     const move: Move = { name, detail: `Taken back · ${at}`, amount: short, icon: 'pot', kind: 'saving', goal: from.goal.id };
     addMove(rowFrom(move, have, 17 + moves.length));
-    draft.put({ amount: want, amountNote: `${naira(short)} came back from ${name}` });
     toast(`${naira(short)} is back from ${name}. Everyday has it now.`);
-    toSend();
+    onward(`${naira(short)} came back from ${name}`);
   };
   /* a request to whoever owes you, with the shortfall filled in */
   const askFor = () => {
@@ -102,14 +137,14 @@ export function Short() {
         />
       </View>
       <View style={{ marginTop: -8 }}>
-        <Say testID="line">Three ways to close it. None of them costs you anything.</Say>
+        <Say testID="line">{sending ? 'Three ways to close it.' : 'Two ways to close it.'} None of them costs you anything.</Say>
       </View>
       <View style={{ marginTop: -8 }}>
         <ChoiceList
           testID="ways"
           items={[
             { glyph: 'pot', title: `Move it from ${name}`, sub: holiday ? `${naira(holiday)} is sitting there` : 'Nothing put aside yet', onPress: fromHoliday },
-            { glyph: 'up', title: `Send ${naira(can)} now`, sub: 'The rest when your salary lands', onPress: sendNow },
+            ...(sending ? [{ glyph: 'up' as const, title: `Send ${naira(can)} now`, sub: 'The rest when your salary lands', onPress: sendNow }] : []),
             {
               glyph: 'down',
               title: `Ask ${account.demo ? 'Musa' : 'someone'} for ${naira(short)}`,
@@ -119,6 +154,22 @@ export function Short() {
           ]}
         />
       </View>
+      {guard && from ? (
+        <PasscodeSheet
+          amount={naira(short)}
+          name={name}
+          detail="Taken out, into Everyday"
+          glyph="pot"
+          rows={[
+            { label: 'From', value: name },
+            { label: 'Fee', value: 'Free' },
+            { label: 'Into Everyday', value: naira(short), strong: true },
+          ]}
+          verify={app.checkPasscode}
+          onDone={movedBack}
+          onCancel={() => setGuard(false)}
+        />
+      ) : null}
     </Screen>
   );
 }

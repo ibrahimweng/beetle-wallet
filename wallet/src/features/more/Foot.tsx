@@ -26,14 +26,14 @@
    frame (Round 14): 12 from the bottom and 24 in from either side, and on a
    phone with the home line just over the line instead (see barLift). */
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Keyboard, Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Keyboard, Platform, StyleSheet, View, useWindowDimensions, type AccessibilityActionEvent } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tabs, useHoldPages, useTab, type Tab } from '../tabs';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { SharedValue, runOnJS, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import { ActionButton, Body, Button, Icon, Row, Tap, colour, frame, keys, motion, settle, useStill, type ButtonSize, type ButtonTone } from '../../design';
-import { AnimatedBlur, FROSTED, SoftBlur, blurMethod } from '../../design/Glass';
+import { AnimatedBlur, FROSTED, SoftBlur } from '../../design/Glass';
 import { useSheet } from '../../design/sheetStack';
 import type { IconName } from '../../icons';
 import { More, moreTo, type MoreItem } from './More';
@@ -523,7 +523,7 @@ function Drawn({ spec, who }: { spec: FootSpec; who: number }) {
         <Animated.View style={[s.surface, whole]} pointerEvents={live && spec.kind !== 'none' ? 'box-none' : 'none'} testID={bar ? 'bar' : 'foot'}>
           {/* the one frosted shape, pill or circle */}
           <Animated.View style={[s.shape, shape]} pointerEvents="none" testID={bar ? 'bar-pill' : 'back-glass'}>
-            {Blur ? <Blur intensity={40} tint="light" experimentalBlurMethod={blurMethod} style={[StyleSheet.absoluteFill, corner]} /> : null}
+            {Blur ? <Blur intensity={40} tint="light" style={[StyleSheet.absoluteFill, corner]} /> : null}
             <Animated.View style={[StyleSheet.absoluteFill, corner, { backgroundColor: Blur ? FROSTED : 'rgba(255, 255, 255, 0.92)' }]} />
           </Animated.View>
           {/* the three glyphs, where the pill is */}
@@ -532,7 +532,14 @@ function Drawn({ spec, who }: { spec: FootSpec; who: number }) {
           </Animated.View>
           {/* Back's arrow, where the circle is */}
           <Animated.View style={[s.back, arrow]} pointerEvents={isPage && live ? 'auto' : 'none'}>
-            <Tap accessibilityRole="button" accessibilityLabel="Back" aria-hidden={!isPage} onPress={() => (onBack ? onBack() : router.back())} scale={0.92} style={s.backHit}>
+            <Tap
+              accessibilityRole="button"
+              accessibilityLabel="Back"
+              aria-hidden={!isPage}
+              onPress={() => (onBack ? onBack() : router.canGoBack() ? router.back() : router.replace('/home'))}
+              scale={0.92}
+              style={s.backHit}
+            >
               <Icon name="back" size={22} />
             </Tap>
           </Animated.View>
@@ -554,7 +561,7 @@ function Drawn({ spec, who }: { spec: FootSpec; who: number }) {
         </Animated.View>
       </View>
       {/* More sits outside the clip: a browser will not blur through a clipped box to the page behind it */}
-      {bar && more ? <More onPick={pick} onClose={() => setMore(false)} /> : null}
+      {bar && more ? <More onPick={pick} onClose={() => setMore(false)} at={{ right: BAR_SIDE, bottom: barLift(insets.bottom) }} /> : null}
     </>
   );
 }
@@ -628,9 +635,22 @@ function Slide({ label, amount, disabled, onSlide, ghost = false }: { label: str
       style={[s.slide, disabled ? s.slideOff : null]}
       onLayout={e => setWidth(e.nativeEvent.layout.width)}
       testID={ghost ? undefined : 'slide'}
-      accessibilityRole="adjustable"
-      accessibilityLabel={`${label} ${amount}`}
-      accessibilityState={{ disabled }}
+      /* VoiceOver cannot drag the knob: there the slide is a button, a
+         double tap is the slide, and the passcode still stands after it
+         (the analysis after Round 21: money could not be moved at all) */
+      {...(ghost
+        ? { accessible: false, importantForAccessibility: 'no-hide-descendants' as const }
+        : {
+            accessible: true,
+            accessibilityRole: 'button' as const,
+            accessibilityLabel: `${label} ${amount}`,
+            accessibilityHint: 'Double tap for the passcode',
+            accessibilityState: { disabled },
+            accessibilityActions: disabled ? [] : [{ name: 'activate' as const }],
+            onAccessibilityAction: (e: AccessibilityActionEvent) => {
+              if (e.nativeEvent.actionName === 'activate' && !disabled) fire();
+            },
+          })}
     >
       <Animated.View style={[s.slideWords, words]} pointerEvents="none">
         <Row tone={disabled ? 'tertiary' : 'inverse'}>{label}</Row>

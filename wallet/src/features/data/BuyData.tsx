@@ -31,20 +31,20 @@ import {
   type Plan,
 } from '../../services';
 import { useApp } from '../onboarding/store';
+import { useSendGate } from '../settings/sendGate';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
 import { useFedName } from '../goal/store';
 import { holdingsFor } from '../home/account';
 import { balanceOf, rowFrom, useMoves } from '../home/moves';
-import { PayFromSheet, dollarsOf, usdFull, usdOf, type Source } from '../dollars';
+import { PayFromSheet, dollarsOf, usdCost, usdFull, type Source } from '../dollars';
 import { clock } from '../../lib/clock';
 import { SavedPeek } from '../agent/SavedPeek';
-import { PasscodeSheet, lockedFor } from '../passcode';
+import { PasscodeSheet, lockedFor, waitWords } from '../passcode';
 import { LAB } from '../../lab/enabled';
 import { groupAccount, initialsOf, naira } from '../../lib/format';
 import { topupDraft } from './hand';
 
-const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
 /** The frame's words, for the lab. */
 const SAID = '2k data for mum';
 
@@ -80,6 +80,7 @@ export function BuyData() {
   /* round ups go to the first goal, by its name */
   const fed = useFedName(account);
   const { moves, add: addMove } = useMoves(account?.accountNumber);
+  const sendGate = useSendGate(account);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
   const balance = (h?.everyday ?? 0) + balanceOf(moves);
   const rate = h?.rate ?? 1_552;
@@ -89,7 +90,7 @@ export function BuyData() {
   const [choosing, setChoosing] = useState(false);
   const fromDollars = source === 'dollars';
   const saved = useMemo(
-    () => beneficiariesOf([...moves, ...(h?.ledger ?? [])], account?.demo ? DEMO_SAVED : { lines: [], meters: [] }, PEOPLE, account ? ownLine(account.phone) : null),
+    () => beneficiariesOf([...moves, ...(h?.ledger ?? [])], account?.demo ? DEMO_SAVED : { lines: [], meters: [] }, account?.demo ? PEOPLE : [], account ? ownLine(account.phone) : null),
     [moves, h, account],
   );
   /* the line topped up most, and what it usually gets */
@@ -164,17 +165,23 @@ export function BuyData() {
   const price = airtime ? amount : (plan?.price ?? 0);
   const slide = () => {
     if (!line || !price) return;
-    if (fromDollars && usdOf(price, rate) > dollars) {
+    /* frozen, or the twelve hours after a new passcode: nothing leaves (see settings/gate) */
+    const stopped = sendGate.stopped();
+    if (stopped) {
+      toast(stopped);
+      return;
+    }
+    if (fromDollars && usdCost(price, rate) > dollars) {
       toast(`That is more than the ${usdFull(dollars)} you hold. Pay from Everyday, or convert some first.`);
       return;
     }
     if (!fromDollars && price > balance) {
-      router.push(`/short?asked=${price}`);
+      router.push(`/short?asked=${price}&for=data`);
       return;
     }
     const shut = lockedFor();
     if (shut) {
-      toast(`That was three wrong tries. Give it ${shut} seconds and slide again.`);
+      toast(`That was three wrong tries. Give it ${waitWords(shut)} and slide again.`);
       return;
     }
     setGuard(true);
@@ -186,7 +193,7 @@ export function BuyData() {
     const phone = { number: line.number, network: line.network, label: line.own ? 'Your line' : line.label };
     const base = airtime || !plan ? airtimePanelFor(phone, amount).move : dataPanelFor(phone, plan).move;
     if (!base) return;
-    const row = rowFrom({ ...base, detail: `${base.detail}${fromDollars ? ' · from dollars' : ''} · ${at}`, ...(fromDollars ? { usd: -usdOf(price, rate) } : {}) }, balance, 17 + moves.length);
+    const row = rowFrom({ ...base, detail: `${base.detail}${fromDollars ? ' · from dollars' : ''} · ${at}`, ...(fromDollars ? { usd: -usdCost(price, rate) } : {}) }, balance, 17 + moves.length);
     addMove(row);
     setGuard(false);
     router.push(`/receipt/${row.id}?paid=1`);
@@ -364,7 +371,7 @@ export function BuyData() {
               label: 'Point the camera at a message',
               onPress: () => {
                 setPick(null);
-                router.push('/scan');
+                router.push('/scan?for=data');
               },
             },
           ]}
@@ -380,6 +387,7 @@ export function BuyData() {
       {guard && line ? (
         <PasscodeSheet
           amount={naira(price)}
+          pastLimit={sendGate.past(price)}
           name={airtime || !plan ? `${line.network} · Airtime` : `${line.network} · ${planSize(plan)}`}
           detail={`${line.own ? 'Your line' : line.label} · ${groupPhoneNumber(line.number)}`}
           glyph={airtime ? 'airtime' : 'data'}
@@ -387,7 +395,7 @@ export function BuyData() {
             airtime || !plan ? { label: 'Airtime', value: naira(price) } : { label: 'Plan', value: planName(plan) },
             { label: 'Lands', value: 'At once' },
             { label: 'Fee', value: 'Free' },
-            fromDollars ? { label: 'Leaves Dollars', value: usdFull(usdOf(price, rate)), strong: true } : { label: 'Leaves Everyday', value: naira(price), strong: true },
+            fromDollars ? { label: 'Leaves Dollars', value: usdFull(usdCost(price, rate)), strong: true } : { label: 'Leaves Everyday', value: naira(price), strong: true },
           ]}
           verify={app.checkPasscode}
           onDone={done}

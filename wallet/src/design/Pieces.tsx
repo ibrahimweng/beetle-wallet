@@ -21,6 +21,7 @@ import { ORIGIN, useFade, useShrink } from './PageHead';
 import { SMALL_TOP } from './collapse';
 import { Tap, keys, useStill } from './motion';
 import { measure, useDeparture, type Rect } from './journey';
+import { spokenLine } from '../lib/spoken';
 
 /* ---- a page's head with a glyph beside the title ---- */
 
@@ -539,6 +540,8 @@ export function HistoryRow({
       ref={j.ref}
       accessibilityRole="button"
       accessibilityLabel={name}
+      /* what VoiceOver says after the name: which way the money went, how much, and the line's own words (when, and where it is) */
+      accessibilityValue={{ text: spokenLine(amount, detail) }}
       onPress={() => (onOpen ? void Promise.all([measure(j.ref), measure(figure)]).then(([at, fig]) => onOpen(at, fig)) : to ? void j.onPress() : onPress?.())}
       style={[status ? s.statusRow : s.doneRow]}
       testID={status ? 'status-row' : 'done-row'}

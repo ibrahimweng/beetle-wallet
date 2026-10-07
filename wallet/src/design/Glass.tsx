@@ -50,8 +50,11 @@ const Masked: MaskModule['default'] | null = (() => {
 /** A sheet's blur able to take its strength from a shared value on the phone. */
 export const AnimatedBlur = blurModule ? Animated.createAnimatedComponent(blurModule.BlurView) : null;
 
-/** Android draws a real blur only with this method; iOS and the web always do. */
-export const blurMethod = Platform.OS === 'android' ? ('dimezisBlurView' as const) : ('none' as const);
+/* No blur method is named: iOS and the web always blur, and Android blurs
+   only through a view marked as what to blur (expo-blur's BlurTargetView),
+   which this app does not have, so there the glass is its white alone, as
+   it was. (The old way of naming it is deprecated, and said so every time a
+   blur came up; the analysis after Round 21.) */
 
 export type Side = 'top' | 'bottom';
 
@@ -149,7 +152,7 @@ export function SoftBlur({ side, height, k, strong = false, hold, testID }: { si
     <Animated.View pointerEvents="none" style={[{ position: 'absolute', left: 0, right: 0, height }, edge, whole]} testID={testID}>
       {sheets.map(({ reach, intensity, solid }, i) => (
         <Sheet key={i} side={side} height={reach} solid={solid}>
-          {native && k ? <GrowingBlur k={k} intensity={intensity} /> : <Blur intensity={intensity} tint="light" experimentalBlurMethod={blurMethod} style={StyleSheet.absoluteFill} />}
+          {native && k ? <GrowingBlur k={k} intensity={intensity} /> : <Blur intensity={intensity} tint="light" style={StyleSheet.absoluteFill} />}
         </Sheet>
       ))}
     </Animated.View>
@@ -175,7 +178,7 @@ function WebSheet({ side, height, solid, intensity, k }: { side: Side; height: n
 export function GrowingBlur({ k, intensity, tint = 'light' }: { k: SharedValue<number>; intensity: number; tint?: 'light' | 'dark' }) {
   const strength = useAnimatedProps(() => ({ intensity: Math.max(0, Math.min(1, k.value)) * intensity }), [intensity]);
   if (!AnimatedBlur) return null;
-  return <AnimatedBlur animatedProps={strength} tint={tint} experimentalBlurMethod={blurMethod} style={StyleSheet.absoluteFill} />;
+  return <AnimatedBlur animatedProps={strength} tint={tint} style={StyleSheet.absoluteFill} />;
 }
 
 /** How white frosted white is: enough to read as glass over a card, little
@@ -194,7 +197,7 @@ export function Glass({ style, children, testID }: { style?: StyleProp<ViewStyle
   const corners = typeof round === 'number' ? { borderRadius: round } : null;
   return (
     <View style={[s.glass, style]} testID={testID}>
-      {Blur ? <Blur intensity={40} tint="light" experimentalBlurMethod={blurMethod} style={[StyleSheet.absoluteFill, corners]} /> : null}
+      {Blur ? <Blur intensity={40} tint="light" style={[StyleSheet.absoluteFill, corners]} /> : null}
       <View style={[StyleSheet.absoluteFill, corners, { backgroundColor: Blur ? FROSTED : 'rgba(255, 255, 255, 0.92)' }]} pointerEvents="none" />
       {children}
     </View>

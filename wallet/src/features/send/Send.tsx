@@ -15,21 +15,22 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { AmountPicker, Body, Caption, Icon, Label, Meta, PageHead, Screen, Tap, YouTyped, colour, toast } from '../../design';
-import { DEMO_SAVED, PEOPLE, arrivesAt, beneficiariesOf, feeLabel, feeTo, isBeetle, ownLine, reader, whose, type Move, type Person, type Reading } from '../../services';
+import { DEMO_SAVED, PEOPLE, arrivesAt, beneficiariesOf, feeLabel, feeTo, isBeetle, ownLine, reader, whose, type Move, type Person, type Photo } from '../../services';
 import { useApp } from '../onboarding/store';
+import { useSendGate } from '../settings/sendGate';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
 import { holdingsFor } from '../home/account';
 import { balanceOf, rowFrom, useMoves } from '../home/moves';
 import { clock } from '../agent/chats';
-import { PasscodeSheet, lockedFor } from '../passcode';
+import { PasscodeSheet, lockedFor, waitWords } from '../passcode';
 import { handoff } from '../scan/handoff';
 import { LAB } from '../../lab/enabled';
 import { moneyExact, naira } from '../../lib/format';
 import { checkFor, draft, softReading } from './hand';
 import { refuses } from './rules';
 import { useOnline } from '../offline';
-import { PayFromSheet, dollarsOf, usdFull, usdOf, type Source } from '../dollars';
+import { PayFromSheet, dollarsOf, usdCost, usdFull, type Source } from '../dollars';
 import { ToField, howOf, whereOf } from './ToField';
 
 /** The three parts the frame's message fills in, for the lab. */
@@ -46,12 +47,13 @@ export function Send() {
   const demo = LAB && asked.demo === '1';
   const account = app.session?.account;
   const { moves, add: addMove } = useMoves(account?.accountNumber);
+  const sendGate = useSendGate(account);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
   const balance = (h?.everyday ?? 0) + balanceOf(moves);
   const rate = h?.rate ?? 1_552;
   const dollars = dollarsOf(h?.dollars ?? 0, moves);
   const saved = useMemo(
-    () => beneficiariesOf([...moves, ...(h?.ledger ?? [])], account?.demo ? DEMO_SAVED : { lines: [], meters: [] }, PEOPLE, account ? ownLine(account.phone) : null),
+    () => beneficiariesOf([...moves, ...(h?.ledger ?? [])], account?.demo ? DEMO_SAVED : { lines: [], meters: [] }, account?.demo ? PEOPLE : [], account ? ownLine(account.phone) : null),
     [moves, h, account],
   );
 
@@ -72,13 +74,13 @@ export function Send() {
   const [source, setSource] = useState<Source>(asked.from === 'dollars' ? 'dollars' : 'everyday');
   const [choosing, setChoosing] = useState(LAB && asked.from === 'pick');
   const fromDollars = source === 'dollars';
-  const usd = fromDollars ? usdOf(amount, rate) : 0;
+  const usd = fromDollars ? usdCost(amount, rate) : 0;
 
   /* a photo the camera took: the number on it, or both readings where the reader was not sure */
   const readPhoto = useCallback(
-    async (photo: { uri: string; reading?: Reading }) => {
+    async (photo: Photo) => {
       setBusy(true);
-      const r = photo.reading ?? (await reader.read(photo.uri));
+      const r = photo.reading ?? (await reader.read(photo.uri, photo.sample));
       setBusy(false);
       if (r.soft) {
         softReading.put(r);
@@ -126,20 +128,20 @@ export function Send() {
   /* Slide to send: past the balance it is Not enough; otherwise the passcode */
   const slide = () => {
     if (!who || !amount) return;
+    /* frozen, or the twelve hours after a new passcode: nothing leaves (see settings/gate) */
+    const stopped = sendGate.stopped();
+    if (stopped) {
+      toast(stopped);
+      return;
+    }
     /* no network: nothing is sent against a balance that cannot be checked */
     if (!online) {
       router.push(`/offline?asked=${amount}&name=${encodeURIComponent(who.name.split(' ')[0] ?? who.name)}`);
       return;
     }
-    /* the whole balance to somebody never paid before: Beetle stops and says why */
-    if (
-      !fromDollars &&
-      refuses(
-        amount,
-        balance,
-        saved.people.some(p => p.number === who.number),
-      )
-    ) {
+    /* the whole balance to somebody never paid before: Beetle stops and says why — all the dollars too, where it is paid from them */
+    const paidBefore = saved.people.some(p => p.number === who.number);
+    if (fromDollars ? !paidBefore && usd > 0 && dollars - usd < 0.01 : refuses(amount, balance, paidBefore, who.bank)) {
       router.push(`/refused?amount=${amount}&name=${encodeURIComponent(who.name)}&number=${who.number}`);
       return;
     }
@@ -148,12 +150,12 @@ export function Send() {
       return;
     }
     if (!fromDollars && amount + fee > balance) {
-      router.push(`/short?asked=${amount}`);
+      router.push(`/short?asked=${amount}&fee=${fee}`);
       return;
     }
     const shut = lockedFor();
     if (shut) {
-      toast(`That was three wrong tries. Give it ${shut} seconds and slide again.`);
+      toast(`That was three wrong tries. Give it ${waitWords(shut)} and slide again.`);
       return;
     }
     setGuard(true);
@@ -326,7 +328,18 @@ export function Send() {
       {choosing ? (
         <PayFromSheet everyday={balance} dollars={dollars} rate={rate} value={source} who={who ? first : 'Whoever it is for'} onPick={setSource} onDismiss={() => setChoosing(false)} />
       ) : null}
-      {guard && who ? <PasscodeSheet amount={naira(amount)} name={who.name} detail={whereOf(who)} rows={breakdown} verify={app.checkPasscode} onDone={done} onCancel={() => setGuard(false)} /> : null}
+      {guard && who ? (
+        <PasscodeSheet
+          amount={naira(amount)}
+          name={who.name}
+          detail={whereOf(who)}
+          rows={breakdown}
+          pastLimit={sendGate.past(amount)}
+          verify={app.checkPasscode}
+          onDone={done}
+          onCancel={() => setGuard(false)}
+        />
+      ) : null}
     </>
   );
 }

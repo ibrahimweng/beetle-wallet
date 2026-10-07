@@ -43,6 +43,19 @@ type Props = {
 
 export function ReceiptSheet(props: Props) {
   const { receipt } = useReceipt(props.id);
+  /* a receipt this phone does not have, once a line still being written has
+     had its moment: said, and put away, rather than an empty page holding
+     the screen (the analysis after Round 21: a stale link froze it) */
+  const done = useRef(props.onDone);
+  done.current = props.onDone;
+  useEffect(() => {
+    if (receipt) return;
+    const t = setTimeout(() => {
+      toast('That receipt is not on this phone.');
+      done.current();
+    }, 2000);
+    return () => clearTimeout(t);
+  }, [receipt]);
   return receipt ? <Drawn receipt={receipt} {...props} /> : null;
 }
 

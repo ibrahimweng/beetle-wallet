@@ -76,6 +76,13 @@ describe('the rules before money moves', () => {
     expect(refuses(595_320, 595_320, true)).toBe(false);
     expect(refuses(20_000, 595_320, false)).toBe(false);
     expect(refuses(0, 0, false)).toBe(false);
+    /* All of it: the balance less the fee, rounded down to the naira, leaves a few kobo, and is still all of it */
+    expect(refuses(575_240, 575_293.87, false)).toBe(true);
+    expect(refuses(249_946, 250_000, false)).toBe(true);
+    expect(refuses(575_239, 575_293.87, false)).toBe(false);
+    /* to a Beetle account there is no fee to count */
+    expect(refuses(30_000, 30_000, false, 'Beetle')).toBe(true);
+    expect(refuses(29_999, 30_000, false, 'Beetle')).toBe(false);
     expect(accountAge(false)).toBe('Four minutes');
     expect(accountAge(true)).toBeUndefined();
     expect(TRY_FIRST).toBe(20_000);

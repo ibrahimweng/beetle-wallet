@@ -14,7 +14,11 @@
    moves nothing it is not told how to move, so the sheets used to appear
    at once there). A receipt opens in
    place over whatever it came from, with no slide of its own: the line
-   stays and the rest grows in under it (see receipts/Over.tsx).
+   stays and the rest grows in under it (see receipts/Over.tsx). The
+   camera is a page, the whole screen, from wherever it is opened; what it
+   reads opens in its place, in this same stack, so Done on that page's
+   receipt goes back past it (the analysis after Round 21: from a stack of
+   its own, a bill read off a photo could be paid twice).
 
    Each screen says what its foot holds (FootScope); the foot is drawn
    once over the whole stack (FootHost), staying put while pages slide in

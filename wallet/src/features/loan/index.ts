@@ -1,2 +1,2 @@
 export { Loan } from './Loan';
-export { LOAN, TERMS, costOf, countWord, dayOf, held, type Cost, type Term } from './loan';
+export { LOAN, TERMS, borrowedIn, costOf, countWord, dayOf, eachWords, held, leftToBorrow, limitNote, type Cost, type Term } from './loan';

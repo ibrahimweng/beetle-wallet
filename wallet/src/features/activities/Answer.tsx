@@ -35,7 +35,6 @@ export function Answer() {
   const ok = useSessionGuard();
   useFoot({ kind: 'back' });
   if (!ok) return null;
-  const later = (what: string) => () => toast(`${what} comes with round 6.`);
   return (
     <Screen head={<PageHead title="Airtime and data" sub="You asked how much you spend on staying connected" />}>
       <View style={{ gap: 12 }}>
@@ -63,13 +62,7 @@ export function Answer() {
           </View>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             {['Airtime and data', 'Last month'].map(t => (
-              <Tap
-                key={t}
-                accessibilityRole="button"
-                accessibilityLabel={t}
-                onPress={() => toast('Changing the question is not in the frames yet. Ask it in the chat and I answer there.')}
-                style={s.term}
-              >
+              <Tap key={t} accessibilityRole="button" accessibilityLabel={t} onPress={() => toast('Ask it a new way in the chat, and I answer there.')} style={s.term}>
                 <Label>{t}</Label>
                 <Icon name="check-small" size={12} colour={colour.textTertiary} />
               </Tap>

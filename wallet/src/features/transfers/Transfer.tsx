@@ -117,7 +117,7 @@ function Failed({ id }: { id: string }) {
           testID="ways"
           items={[
             { glyph: 'up', title: 'Try again now', sub: 'It may have cleared already', onPress: again },
-            { glyph: 'bank', title: 'Send it another way', sub: 'Through your Zenith account', onPress: () => toast('Paying from your Zenith account is not in the frames yet.') },
+            { glyph: 'bank', title: 'Send it another way', sub: 'Through your Zenith account', onPress: () => toast('Paying from your Zenith account is not in Beetle yet.') },
           ]}
         />
       </View>

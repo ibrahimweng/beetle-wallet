@@ -6,11 +6,6 @@
     "orientation": "portrait",
     "scheme": "beetle",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "backgroundColor": "#ffffff",
-      "resizeMode": "contain"
-    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.beetle.wallet",
@@ -21,7 +16,7 @@
     },
     "android": {
       "package": "com.beetle.wallet",
-      "edgeToEdgeEnabled": true,
+      "allowBackup": false,
       "permissions": [
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT",
@@ -46,7 +41,7 @@
       [
         "expo-media-library",
         {
-          "savePhotosPermission": "Beetle saves your code to Photos so you can hand it out.",
+          "savePhotosPermission": "Beetle saves a receipt to Photos when you ask it to.",
           "isAccessMediaLocationEnabled": false
         }
       ],
@@ -57,7 +52,13 @@
         }
       ],
       "expo-status-bar",
-      "expo-splash-screen",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#ffffff",
+          "resizeMode": "contain"
+        }
+      ],
       "expo-sharing"
     ],
     "owner": "ibrahimweng",

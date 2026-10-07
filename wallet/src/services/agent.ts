@@ -48,11 +48,12 @@ import {
   type Plan,
   type Target,
 } from './nigeria';
-import type { Reading, ReaderService } from './reader';
+import type { Reading, ReaderService, SampleKind } from './reader';
 import { wait } from './support';
 
-/** A photo, and what was already read off it where the camera read it first. */
-export type Photo = { uri: string; width?: number; height?: number; reading?: Reading };
+/** A photo, and what was already read off it where the camera read it first;
+    a sample photo says which it is. */
+export type Photo = { uri: string; width?: number; height?: number; reading?: Reading; sample?: SampleKind };
 /** What is asked: words, a photo, or an ask panel's fields, filled. */
 export type Ask = { text?: string; photo?: Photo; answers?: { askId: string; values: AskValues } };
 
@@ -97,6 +98,8 @@ export type Move = {
   usd?: number;
   /** the goal a saving went into or came out of */
   goal?: string;
+  /** the line a cover from Beetle paid back */
+  covers?: string;
 };
 
 /* ---- what Beetle asks for ---- */
@@ -484,9 +487,24 @@ export function billPanelFor(meter: Meter, amount: number): Panel {
   };
 }
 
+/** A panel with its amount changed: drawn again from who or what it pays, so the fee, the units and a bill's token all
+    follow the new amount (the analysis after Round 21: only the Amount row and the button changed). It keeps its id. */
+export function withAmount(panel: Panel, amount: number): Panel {
+  const t = panel.move?.target;
+  if (panel.tool === 'transfer' && panel.person) return { ...transferPanel(panel.person, amount), id: panel.id };
+  if (panel.tool === 'pay' && t?.kind === 'meter')
+    return { ...billPanelFor({ disco: t.disco, meterKind: t.meterKind, meter: t.meter, name: t.name ?? 'the account holder', label: t.label }, amount), id: panel.id, done: panel.done };
+  if (panel.tool === 'airtime' && t?.kind === 'line') return { ...airtimePanelFor({ number: t.number, network: t.network, label: t.label }, amount), id: panel.id, done: panel.done };
+  /* anything else: the Amount row, the button and what moves */
+  const rows = panel.rows.map(r => (r.label === 'Amount' ? { ...r, value: naira(amount) } : r));
+  const action = panel.action ? { ...panel.action, label: panel.action.label.replace(/₦[\d,]+/, naira(amount)), amount } : undefined;
+  const move = panel.move ? { ...panel.move, amount: panel.move.amount < 0 ? -amount : amount } : undefined;
+  return { ...panel, rows, action, move };
+}
+
 /** The demo account's usual: its meter at Ikeja Electric, and the 5GB on its own line. */
 export const USUAL_METER: Meter = { disco: 'ikeja', meterKind: 'prepaid', meter: '44578891', name: 'Ibrahim Musa', label: 'Home' };
-export const USUAL_LINE: PhoneLine = { number: '09069113588', network: 'MTN', label: 'Your line' };
+export const USUAL_LINE: PhoneLine = { number: '08030000001', network: 'MTN', label: 'Your line' };
 export const powerPanel = () => billPanelFor(USUAL_METER, 8_000);
 export const dataPanel = () => dataPanelFor(USUAL_LINE, planById('mtn-5gb-30d')!);
 
@@ -509,7 +527,7 @@ const ASK_LOOK: Record<AskTool, { title: string; icon: IconName; saved: 'person'
     passes, or, for the demo account asked with none, the demo's own. */
 export function savedOf(ctx: Context): Beneficiaries {
   if (ctx.saved) return ctx.saved;
-  return beneficiariesOf([], ctx.account.demo ? DEMO_SAVED : { lines: [], meters: [] }, PEOPLE, ownLine(ctx.account.phone));
+  return beneficiariesOf([], ctx.account.demo ? DEMO_SAVED : { lines: [], meters: [] }, ctx.account.demo ? PEOPLE : [], ownLine(ctx.account.phone));
 }
 
 /** What is there to pick from, for a tool. */
@@ -606,7 +624,7 @@ export class ScriptedAgent implements AgentService {
     const asked = wantsEverything(lower) ? ctx.balance : amount;
     const number = person ? null : accountIn(text);
     const paidBefore = person ? paid.some(p => p.number === person.number) : !!number && paid.some(p => p.number === number);
-    if ((person || number) && asked && refuses(asked, ctx.balance, paidBefore)) return { blocks: [say(refusalLine(naira(ctx.balance), naira(TRY_FIRST)))], pending: keep };
+    if ((person || number) && asked && refuses(asked, ctx.balance, paidBefore, person?.bank)) return { blocks: [say(refusalLine(naira(ctx.balance), naira(TRY_FIRST)))], pending: keep };
     const over = !!person && !!amount && amount + feeTo(amount, person.bank) > ctx.balance;
     if (person) await this.transfer(onStep, person);
     const note = over ? `That is more than the ${naira(ctx.balance)} you have.` : w.why;
@@ -793,7 +811,7 @@ export class ScriptedAgent implements AgentService {
     /* a photo: read it, and go on from what it says */
     if (ask.photo) {
       onStep?.("I'm reading the photo…");
-      const reading = ask.photo.reading ?? (await this.reader.read(ask.photo.uri));
+      const reading = ask.photo.reading ?? (await this.reader.read(ask.photo.uri, ask.photo.sample));
       const number = reading.numbers[0];
       if (number) {
         await this.step(onStep, `I'm looking up ${groupAccount(number)}…`, 1);

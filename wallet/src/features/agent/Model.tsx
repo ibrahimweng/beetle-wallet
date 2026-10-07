@@ -59,7 +59,9 @@ export function Model() {
         ? 'No key. Beetle answers from the script.'
         : cfg.from === 'phone'
           ? `A key kept on this phone. Beetle answers from ${MODEL}.`
-          : `A key from the build. Beetle answers from ${MODEL}.`;
+          : cfg.from === 'server'
+            ? `Beetle's own server, which keeps the key. Beetle answers from ${MODEL}.`
+            : `A key from the build, while developing. Beetle answers from ${MODEL}.`;
 
   return (
     <Screen>
@@ -118,8 +120,8 @@ export function Model() {
       <View style={{ gap: space.s2 }}>
         <Label>Where the key should live</Label>
         <Caption tone="secondary">
-          A shipped app keeps its key on a server of its own and the phone talks to that; EXPO_PUBLIC_ANTHROPIC_BASE_URL at export time points Beetle there, with nothing else to change. A key in the
-          phone build (EXPO_PUBLIC_ANTHROPIC_API_KEY, from the repository's secrets) is for this prototype only.
+          A shipped app keeps its key on a server of its own and the phone talks to that, sending no key; EXPO_PUBLIC_ANTHROPIC_BASE_URL at export time points Beetle there. A key in a build
+          (EXPO_PUBLIC_ANTHROPIC_API_KEY) is read only while developing: anyone can read a key out of a published bundle, so a published one never takes it.
         </Caption>
       </View>
       <Ghost label="Back to the lab" onPress={() => (router.canDismiss() ? router.dismissTo('/lab') : router.replace('/lab'))} />

@@ -3,7 +3,7 @@
    every copy, and Done. WhatsApp takes a picture of the receipt and hands it
    to the phone's share sheet (the words, where there is none), Save to
    photos puts the picture in Photos, Somewhere else hands the words to the
-   phone, and the PDF comes with a later round. */
+   phone; there is no PDF yet. */
 import React, { type RefObject } from 'react';
 import { Linking, Share, StyleSheet, View } from 'react-native';
 import { Body, Button, Head, Icon, Meta, Row, Sheet, Tap, colour, toast } from '../../design';
@@ -48,7 +48,7 @@ export function ShareSheet({
     toast(await sharePicture(capture, message, 'Your receipt'));
   };
   const save = async () => toast(capture ? await savePicture(capture, 'beetle-receipt.png') : 'This build cannot draw the picture to save it.');
-  const pdf = () => toast('The PDF comes with a later round.');
+  const pdf = () => toast('Beetle cannot make a PDF yet. Share the picture, or save it.');
   const way = (glyph: IconName, title: string, sub: string, go: () => void) => (
     <Tap key={title} accessibilityRole="button" accessibilityLabel={title} onPress={go} style={s.way}>
       <View style={s.mark}>

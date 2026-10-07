@@ -1,17 +1,48 @@
 /* The gate money goes through. Six digits, checked against the passcode
-   kept on this device — hashed, never as typed — or, in this build, the two
-   keys it lets through so that trying the app never means remembering one.
-   Three wrong in a row and the gate shuts for half a minute; a right one
-   opens it and forgets the wrong ones. The face, where the phone has one and
-   it is enrolled, is the way past the digits. */
+   kept on this device for the account — stretched, never as typed — or,
+   where the build lets them (the lab, and the demo account), its two keys,
+   so that trying the app never means remembering one; the device's own
+   check says which (onboarding/store). Three wrong in a row and the gate
+   shuts: half a minute the first time, then five minutes, then half an hour,
+   then two hours each time after. A right one opens it and forgets the
+   wrong ones. The gate is kept on the phone, so closing the app does not
+   open it again (the analysis after Round 21: it was kept in memory only,
+   and shut for half a minute at most). The face, where the phone has one
+   and it is enrolled and switched on, is the way past the digits. */
 import { Platform } from 'react-native';
-import { DEMO_PASSCODES, MOCK } from '../../services';
+import { DEMO_PASSCODES, MOCK, storage } from '../../services';
+import { LAB } from '../../lab/enabled';
+
+/** The build's own keys (123456 and 654321) let anyone through only where
+    trying the app is the point: the lab, and the demo account. Every other
+    account needs its own passcode, in every build (the analysis after Round
+    21: they opened every account in every build). */
+export const demoPasscodeOpens = (code: string, account: { demo?: boolean } | undefined, lab = LAB) => MOCK && (lab || !!account?.demo) && DEMO_PASSCODES.includes(code);
 
 export const TRIES = 3;
-export const LOCK_MS = 30_000;
+/** How long the gate stays shut each time it shuts, one after another; the last holds after that. */
+export const LOCKS_MS = [30_000, 5 * 60_000, 30 * 60_000, 2 * 60 * 60_000] as const;
+export const LOCK_MS = LOCKS_MS[0];
+const GATE_KEY = 'beetle.gate.v1';
 
-type Gate = { wrong: number; lockedUntil: number };
-const gate: Gate = { wrong: 0, lockedUntil: 0 };
+type Gate = { wrong: number; lockedUntil: number; shut: number };
+const gate: Gate = { wrong: 0, lockedUntil: 0, shut: 0 };
+let loaded: Promise<void> | null = null;
+
+/** The gate as the phone kept it, read once. */
+export function loadGate(): Promise<void> {
+  loaded ??= storage
+    .get<Partial<Gate>>(GATE_KEY)
+    .then(kept => {
+      if (!kept) return;
+      gate.wrong = Math.max(gate.wrong, kept.wrong ?? 0);
+      gate.lockedUntil = Math.max(gate.lockedUntil, kept.lockedUntil ?? 0);
+      gate.shut = Math.max(gate.shut, kept.shut ?? 0);
+    })
+    .catch(() => undefined);
+  return loaded;
+}
+const keepGate = () => void storage.set(GATE_KEY, { ...gate });
 
 /** Seconds the gate stays shut for, or 0 when it is open. */
 export function lockedFor(now = Date.now()): number {
@@ -20,22 +51,27 @@ export function lockedFor(now = Date.now()): number {
 
 export type Verdict = { ok: true } | { ok: false; triesLeft: number } | { ok: false; lockedFor: number };
 
-/** What was typed, against what the device holds. `own` is the device's own
-    check; the build's keys go through without it. */
+/** What was typed, against what the device holds (`own`, the device's own check). */
 export async function checkCode(code: string, own: (code: string) => Promise<boolean>, now = Date.now()): Promise<Verdict> {
+  await loadGate();
   const shut = lockedFor(now);
   if (shut) return { ok: false, lockedFor: shut };
-  const right = (MOCK && DEMO_PASSCODES.includes(code)) || (await own(code));
-  if (right) {
+  if (await own(code)) {
     gate.wrong = 0;
+    gate.shut = 0;
+    keepGate();
     return { ok: true };
   }
   gate.wrong += 1;
   if (gate.wrong >= TRIES) {
+    const ms = LOCKS_MS[Math.min(gate.shut, LOCKS_MS.length - 1)]!;
     gate.wrong = 0;
-    gate.lockedUntil = now + LOCK_MS;
-    return { ok: false, lockedFor: Math.ceil(LOCK_MS / 1000) };
+    gate.shut += 1;
+    gate.lockedUntil = now + ms;
+    keepGate();
+    return { ok: false, lockedFor: Math.ceil(ms / 1000) };
   }
+  keepGate();
   return { ok: false, triesLeft: TRIES - gate.wrong };
 }
 
@@ -43,11 +79,21 @@ export async function checkCode(code: string, own: (code: string) => Promise<boo
 export function resetGate() {
   gate.wrong = 0;
   gate.lockedUntil = 0;
+  gate.shut = 0;
+  keepGate();
+}
+
+/** How long, in words: "30 seconds", "5 minutes", "2 hours". */
+export function waitWords(seconds: number): string {
+  if (seconds < 90) return `${seconds} seconds`;
+  const minutes = Math.ceil(seconds / 60);
+  if (minutes < 90) return `${minutes} minutes`;
+  return `${Math.ceil(minutes / 60)} hours`;
 }
 
 /** The words for a verdict that said no. */
 export function refusal(v: Extract<Verdict, { ok: false }>): string {
-  if ('lockedFor' in v) return `That was three tries. Give it ${v.lockedFor} seconds and try again.`;
+  if ('lockedFor' in v) return `That was three tries. Give it ${waitWords(v.lockedFor)} and try again.`;
   return v.triesLeft === 1 ? 'Not it. One more try.' : `Not it. ${v.triesLeft} more tries.`;
 }
 

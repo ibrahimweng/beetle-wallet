@@ -277,9 +277,26 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 - What protects does not ask: freezing the money from Not your phone, or
   freezing the card, is one tap, since it has to be quick in a bad moment
   and lifts as easily as it went on.
+- What shows the money's keys asks first, as money does: a new passcode
+  asks for the one it is now (or the face), Reveal asks before the card's
+  whole number shows, and the app itself asks on opening and after the wait
+  Ask again after sets. The face only where Face ID is on in Lock and
+  privacy; past a cap, never the face, since a face can be held up to a
+  phone.
+
+## Everyone
+
+- Whatever a finger drags, VoiceOver can do with a double tap: the slide
+  is a button there, the card opens the chat, the chats' edge brings the
+  drawer in. A line of money says its way (in or out), its amount and its
+  own words after its name.
 
 ## Words
 
 - Beetle speaks in the first person, warm, plain and short. Screens use
   sentence case and say what will happen, not what the system is.
+- Words say only what is true of this build: nothing about rounds or frames,
+  nothing promised that is not there (a code the camera cannot read, a
+  screenshot the chat cannot take). Something not built says so plainly:
+  "not in Beetle yet".
 - Naira with ₦ and thousands; kobo only where a fee has them.

@@ -16,13 +16,14 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { AmountPicker, Button, Head, Icon, Label, LightPanel, Meta, PageHead, Row, Screen, Sheet, Tap, YouTyped, colour, toast } from '../../design';
 import { DEMO_SAVED, airtimePanelFor, dataPanelFor, groupPhoneNumber, planById, planFor, planName, planSize, plansFor, type LinePaid, type Plan } from '../../services';
 import { useApp } from '../onboarding/store';
+import { useSendGate } from '../settings/sendGate';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
 import { holdingsFor } from '../home/account';
 import { balanceOf, rowFrom, useMoves } from '../home/moves';
 import { clock, useChats } from '../agent/chats';
 import { turn } from '../agent/turns';
-import { PasscodeSheet, lockedFor } from '../passcode';
+import { PasscodeSheet, lockedFor, waitWords } from '../passcode';
 import { LAB } from '../../lab/enabled';
 import { naira } from '../../lib/format';
 import { topupDraft, type TopupDraft } from './hand';
@@ -54,6 +55,7 @@ export function Topup() {
   const demo = LAB && asked.demo === '1';
   const account = app.session?.account;
   const { moves, add: addMove } = useMoves(account?.accountNumber);
+  const sendGate = useSendGate(account);
   const balance = (account ? holdingsFor(account).everyday : 0) + balanceOf(moves);
   const { file } = useChats(account?.accountNumber, !!account?.demo);
 
@@ -131,13 +133,19 @@ export function Topup() {
   const price = airtime ?? plan?.price ?? 0;
   const confirm = () => {
     if (!line || !price || busy) return;
+    /* frozen, or the twelve hours after a new passcode: nothing leaves (see settings/gate) */
+    const stopped = sendGate.stopped();
+    if (stopped) {
+      toast(stopped);
+      return;
+    }
     if (price > balance) {
-      router.push(`/short?asked=${price}`);
+      router.push(`/short?asked=${price}&for=topup`);
       return;
     }
     const shut = lockedFor();
     if (shut) {
-      toast(`That was three wrong tries. Give it ${shut} seconds and try again.`);
+      toast(`That was three wrong tries. Give it ${waitWords(shut)} and try again.`);
       return;
     }
     setGuard(true);
@@ -267,6 +275,7 @@ export function Topup() {
       {guard && line ? (
         <PasscodeSheet
           amount={naira(price)}
+          pastLimit={sendGate.past(price)}
           name={airtime || !plan ? `${line.network} · Airtime` : `${line.network} · ${planSize(plan)}`}
           detail={`${line.label} · ${groupPhoneNumber(line.number)}`}
           glyph={airtime ? 'airtime' : 'data'}

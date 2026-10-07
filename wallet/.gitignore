@@ -6,3 +6,6 @@ expo-env.d.ts
 *.log
 .DS_Store
 artifact/out/
+# keys and other secrets stay off the repository
+.env
+.env.*

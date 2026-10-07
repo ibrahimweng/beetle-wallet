@@ -8,6 +8,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+# The token the run is given can read the repository and nothing more.
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest

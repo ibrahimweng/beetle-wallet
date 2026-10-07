@@ -1,8 +1,10 @@
-/* The setting-up answers, kept on this phone for the account, the way the
-   disputes are: read back before a screen draws, shared by every screen
-   that holds them. The demo account has finished, by its frames. */
+/* The setting-up answers, kept on this phone for the account in the secure
+   store (an address and an ID number are worth more than the rest), and
+   otherwise the way the disputes are: read back before a screen draws,
+   shared by every screen that holds them. The demo account has finished, by
+   its frames. */
 import { useCallback, useEffect, useState } from 'react';
-import { storage } from '../../services';
+import { sealed } from '../../services';
 import { DEMO_SETUP, EMPTY_SETUP, type Setup } from './setup';
 
 export const setupKey = (account: string) => `beetle.setup.${account}.v1`;
@@ -29,7 +31,7 @@ export function useSetup(account: string | undefined, demo: boolean) {
       setSetup(kept.get(account) ?? EMPTY_SETUP);
       setReady(true);
     } else {
-      void storage.get<Setup>(key(account)).then(s => {
+      void sealed.get<Setup>(key(account)).then(s => {
         if (!live) return;
         if (!kept.has(account)) kept.set(account, s ?? (demo ? DEMO_SETUP : EMPTY_SETUP));
         setSetup(kept.get(account) ?? EMPTY_SETUP);
@@ -47,7 +49,7 @@ export function useSetup(account: string | undefined, demo: boolean) {
       if (!account) return;
       const next = { ...(kept.get(account) ?? (demo ? DEMO_SETUP : EMPTY_SETUP)), ...patch };
       kept.set(account, next);
-      void storage.set(key(account), next);
+      void sealed.set(key(account), next);
       listeners.forEach(l => l(account));
     },
     [account, demo],

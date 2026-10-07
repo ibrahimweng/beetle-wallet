@@ -11,6 +11,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } 
 import { Aside, Avatar, Body, Caption, Card, Display, Field, Icon, Label, Meta, More, Pips, Row as RowText, Say, Swap, Tap, Tick, colour, motion, space, toast, useStill, washes } from '../../design';
 import type { IconName } from '../../icons';
 import { auth, identity, DEMO_PASSCODES, MOCK, MOCK_CODE } from '../../services';
+import { LAB } from '../../lab/enabled';
 import { groupAccount, groupDigits, groupPhone, initialsOf, longDate } from '../../lib/format';
 import { checkPhone, passcodeProblem, PASSCODE_WORDS } from './validation';
 import type { useApp } from './store';
@@ -422,7 +423,7 @@ function nomatch(c: Ctx): StageView {
           <Meta tone="secondary">No record matches {shown}. One wrong digit is the usual reason, so it is worth reading them again.</Meta>
         </Card>
         <Say>If the digits are right and it still says this, your BVN will work instead. It is the same eleven digits from a different register.</Say>
-        <More label="Talk to someone" onPress={() => toast('Support opens here once the chat is built.')} />
+        <More label="Talk to someone" onPress={() => toast('Talking to a person is not in Beetle yet. Your BVN is the quickest way past this.')} />
       </View>
     ),
     bar: { label: 'Try again', onPress: () => c.go('identity') },
@@ -483,7 +484,8 @@ function passcode(c: Ctx): StageView {
   const again = c.first !== null;
   const full = async (d: string) => {
     if (c.first === null) {
-      const problem = MOCK && DEMO_PASSCODES.includes(d) ? null : passcodeProblem(d, { birthYear });
+      /* the build's keys pass the rules only in the lab: a real account never gets 123456 as its passcode */
+      const problem = MOCK && LAB && DEMO_PASSCODES.includes(d) ? null : passcodeProblem(d, { birthYear });
       if (problem) {
         c.setNote({ text: PASSCODE_WORDS[problem], tone: 'bad' });
         c.bump();
@@ -536,7 +538,7 @@ function passcode(c: Ctx): StageView {
       />
     ),
     keypad: typing(c, 6, full),
-    hint: MOCK ? `This build lets ${DEMO_PASSCODES.join(' and ')} through all the same.` : undefined,
+    hint: MOCK && LAB ? `The lab lets ${DEMO_PASSCODES.join(' and ')} through all the same.` : undefined,
     back: again
       ? () => {
           c.setFirst(null);

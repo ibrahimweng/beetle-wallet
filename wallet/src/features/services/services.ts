@@ -12,7 +12,7 @@ export const MOST: Service[] = [
   { glyph: 'power', label: 'Power', to: '/pay?biller=ikeja' },
   { glyph: 'send', label: 'Send', to: '/send' },
   { glyph: 'tv', label: 'Cable TV', to: '/pay?biller=dstv' },
-  { glyph: 'bet', label: 'Betting', later: 'Betting is not in the frames yet.' },
+  { glyph: 'bet', label: 'Betting', later: 'Betting is not in Beetle yet.' },
   { glyph: 'loan', label: 'Loan', to: '/loan' },
   { glyph: 'card', label: 'Cards', to: '/card' },
 ];
@@ -23,16 +23,16 @@ export const LISTS: { title: string; items: Service[] }[] = [
     title: 'Bills',
     items: [
       { glyph: 'globe', label: 'Internet', sub: 'Spectranet, Smile, Starlink', to: '/pay?biller=spectranet' },
-      { glyph: 'water', label: 'Water', sub: 'State water boards', later: 'Water bills are not in the frames yet.' },
+      { glyph: 'water', label: 'Water', sub: 'State water boards', later: 'Water bills are not in Beetle yet.' },
       { glyph: 'waste', label: 'Waste', sub: 'LAWMA and others', to: '/pay?biller=lawma' },
-      { glyph: 'school', label: 'School fees', sub: 'WAEC, JAMB, tuition', later: 'School fees are not in the frames yet.' },
+      { glyph: 'school', label: 'School fees', sub: 'WAEC, JAMB, tuition', later: 'School fees are not in Beetle yet.' },
     ],
   },
   {
     title: 'Save and borrow',
     items: [
       { glyph: 'pot', label: 'Savings pot', sub: 'Put money aside', to: '/goal' },
-      { glyph: 'lock', label: 'Fixed savings', sub: 'Lock it for a set time', later: 'Fixed savings are not in the frames yet.' },
+      { glyph: 'lock', label: 'Fixed savings', sub: 'Lock it for a set time', later: 'Fixed savings are not in Beetle yet.' },
     ],
   },
   {
@@ -40,7 +40,7 @@ export const LISTS: { title: string; items: Service[] }[] = [
     items: [
       { glyph: 'dollar', label: 'Dollars', sub: 'holding steady', to: '/dollars' },
       { glyph: 'up', label: 'Request money', sub: 'Ask someone to pay you', to: '/request' },
-      { glyph: 'globe', label: 'Send abroad', sub: 'Pounds, dollars and euros', later: 'Sending abroad is not in the frames yet.' },
+      { glyph: 'globe', label: 'Send abroad', sub: 'Pounds, dollars and euros', later: 'Sending abroad is not in Beetle yet.' },
     ],
   },
 ];

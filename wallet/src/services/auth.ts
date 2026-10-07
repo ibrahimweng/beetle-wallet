@@ -29,9 +29,10 @@ export interface AuthService {
   signIn(phone: string, token: string): Promise<Session | null>;
 }
 
-/** The owner's own number. Signing in with it opens the demo account, history
-    and all. */
-export const DEMO_PHONE = '09069113588';
+/** The demo account's number, made up for it: signing in with it opens the
+    demo account, history and all. (It was the owner's own number until the
+    analysis after Round 21; a real number has no place in a public repository.) */
+export const DEMO_PHONE = '08030000001';
 export const DEMO_ACCOUNT: Account = {
   accountNumber: '0102445788',
   phone: DEMO_PHONE,

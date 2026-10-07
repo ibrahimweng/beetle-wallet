@@ -8,7 +8,8 @@ import type { IconName } from '../../icons';
 
 export type LedgerRow = {
   id: string;
-  day: 'today' | 'yesterday';
+  /** the day the frames draw it on; a line moved on this phone is aged from `at` as it is shown (see lib/days) */
+  day: 'today' | 'yesterday' | 'earlier';
   time: string;
   icon: IconName;
   name: string;
@@ -31,6 +32,10 @@ export type LedgerRow = {
   session?: string;
   /** the balance once it had moved */
   after?: number;
+  /** when it moved, where this phone moved it */
+  at?: number;
+  /** the line a cover from Beetle paid back, so it is paid once */
+  covers?: string;
 };
 
 export type Insight = { id: string; kicker: string; body: string; action: string };

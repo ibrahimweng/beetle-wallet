@@ -12,7 +12,7 @@ import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 import { Caption, Card, Display, Divider, Head, Icon, Label, Meta, More, Row, Screen, Tap, colour, space } from '../design';
 import { useApp } from '../features/onboarding/store';
-import { storage } from '../services';
+import { sealed, storage } from '../services';
 import { forgetMoves, movesKey } from '../features/home/moves';
 import { forgetChats } from '../features/agent/chats';
 import { forgetSetup, setupKey } from '../features/setup/store';
@@ -63,7 +63,7 @@ export function Lab() {
         forgetGoals(p.seed.session.account.accountNumber);
         forgetChats(p.seed.session.account.accountNumber);
         forgetRequests(p.seed.session.account.accountNumber);
-        await storage.remove(setupKey(p.seed.session.account.accountNumber));
+        await sealed.remove(setupKey(p.seed.session.account.accountNumber));
         forgetSetup(p.seed.session.account.accountNumber);
       }
       await app.seed(p.seed.progress, p.seed.session);

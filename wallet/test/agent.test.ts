@@ -187,7 +187,7 @@ describe('the scripted Beetle', () => {
     expect(bill?.move?.reference).toMatch(/^\d{5} \d{5} \d{5} \d{5}$/);
     const data = panels((await agent.ask({ text: 'buy data' }, ctx())).blocks)[0];
     expect(data?.tool).toBe('data');
-    expect(data?.rows.map(x => x.value)).toEqual(['0906 911 3588 · your line', 'MTN', '5GB for 30 days', '₦2,500']);
+    expect(data?.rows.map(x => x.value)).toEqual(['0803 000 0001 · your line', 'MTN', '5GB for 30 days', '₦2,500']);
     const d = await agent.ask({ text: 'what about dollars' }, ctx());
     expect(d.blocks[0]?.kind).toBe('note');
     expect(said((await agent.ask({ text: 'how much do I have' }, ctx())).blocks)).toContain('₦595,320');
@@ -238,11 +238,11 @@ describe('what Beetle asks for', () => {
   it('asks how much airtime, on the own line', async () => {
     const r = await agent.ask({ text: 'airtime' }, ctx());
     const [ask] = asks(r.blocks);
-    expect(ask).toMatchObject({ tool: 'airtime', values: { number: '09069113588' } });
+    expect(ask).toMatchObject({ tool: 'airtime', values: { number: '08030000001' } });
     expect(askMissing(ask!)).toEqual(['amount']);
     const r2 = await agent.ask({ text: '500' }, ctx(r.pending));
     const ready = r2.pending?.need === 'ask' ? r2.pending.ask : null;
-    expect(panelFromAsk(ready!, savedOf(ctx()))?.rows.map(x => x.value)).toEqual(['0906 911 3588 · your line', 'MTN', '₦500', 'At once']);
+    expect(panelFromAsk(ready!, savedOf(ctx()))?.rows.map(x => x.value)).toEqual(['0803 000 0001 · your line', 'MTN', '₦500', 'At once']);
     expect(panels((await agent.ask({ text: '1k airtime for 0803 214 4471' }, ctx())).blocks)[0]?.rows[0]?.value).toBe('Mum · 0803 214 4471');
   });
   it('asks for a new meter piece by piece, and looks it up', async () => {

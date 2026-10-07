@@ -64,13 +64,16 @@ export function forModalPresentationIOS({ index, current, next, inverted, layout
 const SHEETS = new Set(['card', 'services', 'loan', 'goal']);
 /** A receipt opens in place over what it came from (no sheet of its own), and passes on what is under it. */
 const IN_PLACE = new Set(['receipt/[id]']);
+/** The camera is the whole screen, black, wherever it is opened from. */
+const WHOLE = new Set(['scan']);
 
 /** Is the route with this key a sheet? It is one of the four, or it was
-    opened from a sheet (or from a receipt open over one). Home never is. */
+    opened from a sheet (or from a receipt open over one). Home never is,
+    and the camera never is. */
 export function isSheet(routes: readonly { key: string; name: string }[], key: string): boolean {
   let under = false;
   for (const r of routes) {
-    const sheet: boolean = SHEETS.has(r.name) || (under && r.name !== 'home' && !IN_PLACE.has(r.name));
+    const sheet: boolean = !WHOLE.has(r.name) && (SHEETS.has(r.name) || (under && r.name !== 'home' && !IN_PLACE.has(r.name)));
     if (r.key === key) return sheet;
     under = IN_PLACE.has(r.name) ? under : sheet;
   }

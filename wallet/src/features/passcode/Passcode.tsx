@@ -11,14 +11,22 @@
    a phone with a face enrolled the face is asked first, and the pad is the
    way past it; a face that did not take says so in red, with the face key
    there to try again. Cancel, a tap on what is behind, or a pull down on
-   the sheet puts it away with nothing moved. */
+   the sheet puts it away with nothing moved.
+
+   Past a cap set on Spending limits, the face is not asked (a face can be
+   held up to a phone), and once the six digits are right the three words are
+   typed in full before it goes, as What happens at the line says (the
+   analysis after Round 21: the caps were shown and never kept). */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import { Avatar, Button, Display, Head, Icon, Keypad, Label, Meta, PAD_CELLS, Pips, Pop, Row, Sheet, Swap, colour, padHeight, useStill } from '../../design';
 import type { IconName } from '../../icons';
 import { initialsOf } from '../../lib/format';
-import { checkCode, checkFace, faceAvailable, lockedFor, refusal } from './check';
+import { checkCode, checkFace, faceAvailable, lockedFor, refusal, waitWords } from './check';
+import { WORDS, typedState } from '../settings/words';
+import { useApp } from '../onboarding/store';
+import { usePrefs } from '../settings/prefs';
 
 /** The frame's words for a face that did not take. */
 const MISSED = 'Face ID did not catch you. Tap the face to try again.';
@@ -39,6 +47,7 @@ export function PasscodeSheet({
   faceMissed = false,
   glyph,
   rows = [],
+  pastLimit,
 }: {
   amount: string;
   /** who it is going to */
@@ -55,9 +64,14 @@ export function PasscodeSheet({
   faceMissed?: boolean;
   /** a bill or a bundle rather than a person: the glyph on a 40 square in the avatar's place */
   glyph?: IconName;
+  /** the cap this crosses, as the line says it: no face, and the three words after the six digits */
+  pastLimit?: string | null;
 }) {
   const still = useStill();
   const { height: H } = useWindowDimensions();
+  /* the face only where Face ID is switched on in Lock and privacy (the analysis after Round 21: the switch was not kept) */
+  const app = useApp();
+  const { prefs, ready: prefsReady } = usePrefs(app.session?.account.accountNumber);
   /* the pad as big as there is room for under everything else on the sheet */
   const room = H * 0.92 - besides(rows.length);
   const cell = room >= padHeight(PAD_CELLS.big) ? PAD_CELLS.big : room >= padHeight(PAD_CELLS.snug) ? PAD_CELLS.snug : PAD_CELLS.small;
@@ -67,6 +81,10 @@ export function PasscodeSheet({
   const [state, setState] = useState<'typing' | 'checking' | 'right' | 'leaving'>('typing');
   const [shake, setShake] = useState(0);
   const done = useRef(false);
+  /* past a cap: the six digits, then the words */
+  const [stage, setStage] = useState<'code' | 'words'>('code');
+  const [typed, setTyped] = useState('');
+  const words = typedState(typed);
 
   /* the way through once the code is right: the tick lands, then the sheet goes */
   const through = useCallback(() => {
@@ -85,9 +103,10 @@ export function PasscodeSheet({
     }
   }, [through]);
 
-  /* a phone with a face enrolled is asked for it first, once the sheet is there */
+  /* a phone with a face enrolled, and Face ID on, is asked for it first, once the sheet is there; never past a cap */
   useEffect(() => {
     let live = true;
+    if (pastLimit || !prefsReady || !prefs.faceId) return;
     faceAvailable().then(can => {
       if (!live || !can) return;
       setFace(true);
@@ -98,13 +117,13 @@ export function PasscodeSheet({
     return () => {
       live = false;
     };
-  }, [tryFace]);
+  }, [tryFace, pastLimit, prefsReady, prefs.faceId]);
 
   const key = async (k: string) => {
     if (state !== 'typing') return;
     const shut = lockedFor();
     if (shut) {
-      setNote({ text: `The gate is shut for ${shut} more seconds.`, bad: true });
+      setNote({ text: `The gate is shut for ${waitWords(shut)} more.`, bad: true });
       return;
     }
     const d = k === 'del' ? digits.slice(0, -1) : (digits + k).slice(0, 6);
@@ -114,6 +133,11 @@ export function PasscodeSheet({
     setState('checking');
     const verdict = await checkCode(d, verify);
     if (verdict.ok) {
+      if (pastLimit) {
+        setStage('words');
+        setState('typing');
+        return;
+      }
       through();
       return;
     }
@@ -169,36 +193,66 @@ export function PasscodeSheet({
           </>
         ) : null}
       </View>
-      <View style={{ alignItems: 'center', gap: 4, marginTop: 20 }}>
-        <Head>Enter your passcode</Head>
-        <Swap value={line}>
-          {shown => (
-            <Meta tone={note?.bad ? 'bad' : 'secondary'} style={{ textAlign: 'center' }} accessibilityLiveRegion="polite" testID="note">
-              {shown}
+      {stage === 'words' ? (
+        <View style={{ gap: 12, marginTop: 20 }} testID="past-limit">
+          <View style={{ alignItems: 'center', gap: 4 }}>
+            <Head>Past your own limit</Head>
+            <Meta tone="secondary" style={{ textAlign: 'center' }}>
+              {`${pastLimit}. Your passcode is done; now type the three words in full.`}
             </Meta>
-          )}
-        </Swap>
-      </View>
-      <View style={{ height: 14, marginTop: 14, alignItems: 'center', justifyContent: 'center' }}>
-        {state === 'right' || state === 'leaving' ? (
-          <Pop delay={0}>
-            <View style={s.tick} accessibilityLabel="Confirmed">
-              <Icon name="check" size={14} colour={colour.textInverse} />
-            </View>
-          </Pop>
-        ) : (
-          <Shake n={shake}>
-            <Pips filled={digits.length} />
-          </Shake>
-        )}
-      </View>
-      <View style={{ marginTop: 14 }}>
-        <Keypad size={cell} onKey={k => void key(k)} onFace={face ? () => void tryFace() : undefined} />
-      </View>
-      {/* plainly, under the pad: the sixth digit sends it, so stopping is one tap away the whole time */}
-      <View style={{ marginTop: 12 }}>
-        <Button label="Cancel" tone="grey" size={48} disabled={state !== 'typing'} onPress={() => setCancelled(true)} />
-      </View>
+          </View>
+          <TextInput
+            accessibilityLabel="Type the three words"
+            value={typed}
+            onChangeText={setTyped}
+            placeholder={WORDS}
+            autoFocus
+            autoCorrect={false}
+            autoCapitalize="sentences"
+            spellCheck={false}
+            style={s.words}
+            testID="past-limit-words"
+          />
+          <Meta tone={words.right ? 'secondary' : 'bad'} style={{ textAlign: 'center' }} accessibilityLiveRegion="polite">
+            {words.line}
+          </Meta>
+          <Button label={`Confirm ${amount}`} size={48} disabled={!words.done || state !== 'typing'} onPress={through} />
+          <Button label="Cancel" tone="grey" size={48} disabled={state !== 'typing'} onPress={() => setCancelled(true)} />
+        </View>
+      ) : (
+        <>
+          <View style={{ alignItems: 'center', gap: 4, marginTop: 20 }}>
+            <Head>Enter your passcode</Head>
+            <Swap value={line}>
+              {shown => (
+                <Meta tone={note?.bad ? 'bad' : 'secondary'} style={{ textAlign: 'center' }} accessibilityLiveRegion="polite" testID="note">
+                  {shown}
+                </Meta>
+              )}
+            </Swap>
+          </View>
+          <View style={{ height: 14, marginTop: 14, alignItems: 'center', justifyContent: 'center' }}>
+            {state === 'right' || state === 'leaving' ? (
+              <Pop delay={0}>
+                <View style={s.tick} accessibilityLabel="Confirmed">
+                  <Icon name="check" size={14} colour={colour.textInverse} />
+                </View>
+              </Pop>
+            ) : (
+              <Shake n={shake}>
+                <Pips filled={digits.length} />
+              </Shake>
+            )}
+          </View>
+          <View style={{ marginTop: 14 }}>
+            <Keypad size={cell} onKey={k => void key(k)} onFace={face ? () => void tryFace() : undefined} />
+          </View>
+          {/* plainly, under the pad: the sixth digit sends it, so stopping is one tap away the whole time */}
+          <View style={{ marginTop: 12 }}>
+            <Button label="Cancel" tone="grey" size={48} disabled={state !== 'typing'} onPress={() => setCancelled(true)} />
+          </View>
+        </>
+      )}
     </Sheet>
   );
 }
@@ -221,6 +275,7 @@ const s = StyleSheet.create({
   rule: { height: 1, backgroundColor: colour.rule, marginTop: 12, marginBottom: 8 },
   line: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, height: 26 },
   square: { width: 40, height: 40, borderRadius: 12, backgroundColor: colour.surface, alignItems: 'center', justifyContent: 'center' },
+  words: { height: 52, borderRadius: 16, paddingHorizontal: 16, backgroundColor: colour.surface2, color: colour.ink, fontSize: 17 },
   tick: {
     width: 28,
     height: 28,

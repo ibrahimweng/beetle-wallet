@@ -52,6 +52,7 @@ export function Chat({
   account,
   tag,
   canBorrow = false,
+  loanLeft,
   onConfirmAsk,
   onBorrow,
   onSetUp,
@@ -80,6 +81,8 @@ export function Chat({
   tag?: string;
   /** borrowing is turned on */
   canBorrow?: boolean;
+  /** what is left of the borrowing limit */
+  loanLeft?: number;
   /** a card's own button, with all it needs: on to the passcode */
   onConfirmAsk?: (ask: AskPanel) => void;
   /** the Loan card's Borrow */
@@ -242,6 +245,7 @@ export function Chat({
                 state={t.state as 'open' | 'done'}
                 taken={'taken' in t ? t.taken : undefined}
                 canBorrow={canBorrow}
+                left={loanLeft}
                 onSetUp={() => onSetUp?.()}
                 onBorrow={(amount, days) => onBorrow?.(turnId, amount, days)}
               />

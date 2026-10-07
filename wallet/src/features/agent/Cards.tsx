@@ -22,7 +22,7 @@ import type { Account } from '../../services';
 import { naira } from '../../lib/format';
 import { detailsOf } from '../receive/details';
 import { copyDetail, shareDetails } from '../receive/share';
-import { COLLECTED, LOAN, MISSED, TERMS, costOf, countWord, dayOf, type Term } from '../loan/loan';
+import { COLLECTED, LOAN, MISSED, TERMS, costOf, countWord, dayOf, eachWords, limitNote, type Term } from '../loan/loan';
 import type { Standing } from '../goal/goals';
 
 /* ---- receive ---- */
@@ -59,6 +59,7 @@ export function LoanCard({
   state,
   taken,
   canBorrow,
+  left = LOAN.most,
   onSetUp,
   onBorrow,
 }: {
@@ -66,10 +67,13 @@ export function LoanCard({
   taken?: { amount: number; days: number };
   /** borrowing is one of the things finishing setting up turns on */
   canBorrow: boolean;
+  /** what is left of the limit once what is already borrowed is counted */
+  left?: number;
   onSetUp: () => void;
   onBorrow: (amount: number, days: Term) => void;
 }) {
-  const [amount, setAmount] = useState(taken?.amount ?? 50_000);
+  const [picked, setAmount] = useState(taken?.amount ?? 50_000);
+  const amount = state === 'open' ? Math.min(picked, left) : picked;
   const [days, setDays] = useState<Term>((taken?.days as Term) ?? 30);
   const [choosing, setChoosing] = useState(false);
   const [more, setMore] = useState(false);
@@ -84,9 +88,9 @@ export function LoanCard({
             tone="dark"
             value={amount}
             onChange={v => setAmount(Math.max(0, v))}
-            max={LOAN.most}
-            note={amount && amount < LOAN.least ? `The least is ${naira(LOAN.least)}` : `${naira(LOAN.most)} is your limit`}
-            warn={!!amount && amount < LOAN.least}
+            max={left}
+            note={left >= LOAN.least && amount && amount < LOAN.least ? `The least is ${naira(LOAN.least)}` : limitNote(left, naira)}
+            warn={(!!amount && amount < LOAN.least) || left < LOAN.least}
             chips={[20_000, 50_000, 100_000]}
             testID="loan-picker"
           />
@@ -128,7 +132,7 @@ export function LoanCard({
           </View>
         ) : null}
         <Line label="You pay back" value={naira(cost.total)} strong />
-        <Line label={`${countWord(cost.payments)} payment${cost.payments === 1 ? '' : 's'} of`} value={naira(cost.each)} />
+        <Line label={`${countWord(cost.payments)} payment${cost.payments === 1 ? '' : 's'} of`} value={eachWords(cost, naira)} />
         <Line label="First payment" value={dayOf(cost.first)} />
         <Line label="Taken" value="From Everyday" />
         <Tap accessibilityRole="button" accessibilityLabel="If a payment is missed" accessibilityState={{ expanded: more }} onPress={() => setMore(m => !m)} style={s.line} testID="loan-missed">

@@ -13,6 +13,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Body, Button, Caption, Head, Icon, Label, Meta, PageHead, Screen, Tap, colour, toast } from '../../design';
 import { BILL_READING, billPanelFor, discoById, groupMeter, meters, type BillReading, type MeterRecord } from '../../services';
 import { useApp } from '../onboarding/store';
+import { useSendGate } from '../settings/sendGate';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
 import { holdingsFor } from '../home/account';
@@ -20,7 +21,7 @@ import { balanceOf, rowFrom, useMoves } from '../home/moves';
 import { clock } from '../../lib/clock';
 import { clock12 } from '../receipts/receipts';
 import { ReadRows } from '../scan/ReadRows';
-import { PasscodeSheet, lockedFor } from '../passcode';
+import { PasscodeSheet, lockedFor, waitWords } from '../passcode';
 import { LAB } from '../../lab/enabled';
 import { initialsOf, naira } from '../../lib/format';
 import { billDraft } from './hand';
@@ -33,6 +34,7 @@ export function Meter() {
   const demo = LAB && asked.demo === '1';
   const account = app.session?.account;
   const { moves, add: addMove } = useMoves(account?.accountNumber);
+  const sendGate = useSendGate(account);
   const balance = (account ? holdingsFor(account).everyday : 0) + balanceOf(moves);
 
   /* what the camera handed here, taken once; the lab has the frame's bill */
@@ -61,9 +63,20 @@ export function Meter() {
   }, [reading]);
 
   const go = () => {
+    /* frozen, or the twelve hours after a new passcode: nothing leaves (see settings/gate) */
+    const stopped = sendGate.stopped();
+    if (stopped) {
+      toast(stopped);
+      return;
+    }
+    /* more than Everyday holds: the ways to close it, and back here to pay */
+    if (amount > balance) {
+      router.push(`/short?asked=${amount}&for=bill`);
+      return;
+    }
     const shut = lockedFor();
     if (shut) {
-      toast(`That was three wrong tries. Give it ${shut} seconds and try again.`);
+      toast(`That was three wrong tries. Give it ${waitWords(shut)} and try again.`);
       return;
     }
     setGuard(true);
@@ -168,10 +181,18 @@ export function Meter() {
               <Label>{record ? `Yours, at ${record.address}` : 'Yours'}</Label>
             </View>
           ) : (
-            <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
-              <Button label="Yes, that is mine" size={48} onPress={() => setMine(true)} style={{ flex: 1 }} />
-              <Button label="No" size={48} tone="grey" full={false} onPress={no} style={{ width: 62 }} />
-            </View>
+            <>
+              {/* a meter the company does not have is nobody's to pay: only No, until the digits are checked (the analysis after Round 21) */}
+              {record === null ? (
+                <Meta tone="secondary" style={{ marginTop: 12 }} testID="no-such-meter">
+                  {`${disco?.name ?? 'The company'} has no such meter. Check the number on the bill, or type it on Pay a bill.`}
+                </Meta>
+              ) : null}
+              <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
+                <Button label="Yes, that is mine" size={48} disabled={!record} onPress={() => setMine(true)} style={{ flex: 1 }} />
+                <Button label="No" size={48} tone="grey" full={false} onPress={no} style={{ width: 62 }} />
+              </View>
+            </>
           )}
         </View>
         {/* the three pieces the payment needs */}
@@ -193,6 +214,7 @@ export function Meter() {
       {guard ? (
         <PasscodeSheet
           amount={naira(amount)}
+          pastLimit={sendGate.past(amount)}
           name={name}
           detail={`${reading.meterKind === 'prepaid' ? 'Prepaid' : 'Postpaid'} · ${groupMeter(reading.meter)}`}
           glyph="power"

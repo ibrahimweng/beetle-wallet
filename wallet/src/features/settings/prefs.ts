@@ -43,6 +43,8 @@ export type Prefs = {
   othersSignedOut: boolean;
   /** the money frozen from Not your phone, until a new passcode is set */
   frozen: boolean;
+  /** sending waits until then: twelve hours after a new passcode set from Not your phone */
+  sendAfter?: number;
 };
 
 export const DEFAULT_PREFS: Prefs = {
@@ -66,6 +68,15 @@ export const prefsKey = (account: string) => `beetle.prefs.${account}.v1`;
 
 /** The waits Ask again after cycles through. */
 export const ASK_AGAIN = ['2 minutes', '5 minutes', '15 minutes', 'Straight away'];
+
+/** How long a wait of Ask again after is: away from the app for this long, and it asks again. */
+export const askAfterMs = (wait: string) => (wait === 'Straight away' ? 0 : (Number.parseInt(wait, 10) || 2) * 60_000);
+
+/** The prefs as the phone keeps them, read once, outside any screen (the lock reads them so). */
+export async function readPrefs(account: string): Promise<Prefs> {
+  const kept = await storage.get<Partial<Prefs>>(prefsKey(account));
+  return { ...DEFAULT_PREFS, ...(kept ?? {}), rules: { ...DEFAULT_PREFS.rules, ...(kept?.rules ?? {}) }, feeds: { ...DEFAULT_PREFS.feeds, ...(kept?.feeds ?? {}) } };
+}
 
 /** How many standing instructions are running. */
 export const rulesRunning = (p: Prefs) => Object.values(p.rules).filter(Boolean).length;

@@ -49,6 +49,10 @@ await mkdir(OUT, { recursive: true });
 const { base, close } = await serve(process.argv[2] || 'dist');
 const b = await launch();
 const ctx = await b.newContext({ viewport: { width: 393, height: 852 }, deviceScaleFactor: 1 });
+/* the app locks when it opens with an account signed in (Round 23); the frames are drawn with it open */
+await ctx.addInitScript(() => {
+  window.__BEETLE_NO_LOCK__ = true;
+});
 await ctx.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {});
 const page = await ctx.newPage();
 page.setDefaultTimeout(15000);

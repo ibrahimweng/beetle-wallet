@@ -33,7 +33,16 @@ export function ReceiptCard({
   /* the outline, a layer of its own so it can go: an open receipt has none (the owner's word) */
   const outline = useAnimatedStyle(() => ({ opacity: p ? 1 - Math.max(0, Math.min(1, p.value)) : 1 }));
   return (
-    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={card.kind === 'request' ? 'Request' : 'Receipt'} onPress={press} style={s.card} testID="receipt-card">
+    <Tap
+      ref={j.ref}
+      accessibilityRole="button"
+      accessibilityLabel={card.kind === 'request' ? 'Request' : 'Receipt'}
+      /* what VoiceOver says after it: how much, to or from whom, how it went and when */
+      accessibilityValue={{ text: `${card.amount}, ${card.line}, ${card.status}, ${card.time}` }}
+      onPress={press}
+      style={s.card}
+      testID="receipt-card"
+    >
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, s.outline, outline]} testID="receipt-card-outline" />
       <View style={s.head}>
         <View style={s.disc}>

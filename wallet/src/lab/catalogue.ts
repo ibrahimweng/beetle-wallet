@@ -473,7 +473,7 @@ export const SETTINGS: Feature = {
     settingsPage('settings-rule', 'plus', 'Set this up?', 'A standing instruction offered, from a receipt or the list', '/rule'),
     settingsPage('settings-devices', 'laptop-filled', 'Devices', 'Three signed in, one that does not belong, and the button', '/devices'),
     settingsPage('settings-lostphone', 'lock-filled', 'Not your phone', 'A device the account has never seen: freeze, then prove it is you', '/lostphone'),
-    settingsPage('settings-newcode', 'key-filled', 'A new passcode', 'Six digits on the keypad, after the freeze', '/newcode?from=frozen'),
+    settingsPage('settings-newcode', 'key-filled', 'A new passcode', 'Six digits on the keypad, after the freeze and the proof', '/newcode?from=frozen&proved=1'),
     settingsPage('settings-card', 'card-filled', 'Virtual card', 'The face, Reveal, Freeze, Fund, Rules, and how much of its ceiling has gone', '/card'),
   ],
 };

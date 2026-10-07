@@ -5,6 +5,7 @@
    its arrival knew. */
 import type { Account } from '../../services';
 import { groupAccount, longDate, naira } from '../../lib/format';
+import { localIsoDay, sessionWhen } from '../../lib/days';
 import type { LedgerRow } from '../home/account';
 import { fromEveryday } from '../home/everyday';
 import { usdFull } from '../dollars/dollars';
@@ -57,13 +58,14 @@ export const clock12 = (hhmm: string) => {
   return `${hour % 12 || 12}:${String(m ?? 0).padStart(2, '0')} ${hour < 12 ? 'AM' : 'PM'}`;
 };
 
-const isoDay = (d: Date) => d.toISOString().slice(0, 10);
-
-/** When a line happened, as the page says it: the day and the time. */
+/** When a line happened, as the page says it: the day and the time, by this phone's own calendar (the UTC day is
+    yesterday's for the hour after midnight in Lagos); from the moment it moved, where it is known. */
 export function whenOf(row: LedgerRow, now = new Date()): string {
+  const at = row.at ?? sessionWhen(row.session);
+  if (at !== undefined) return `${longDate(localIsoDay(new Date(at)))} at ${clock12(row.time)}`;
   const d = new Date(now);
   if (row.day === 'yesterday') d.setDate(d.getDate() - 1);
-  return `${longDate(isoDay(d))} at ${clock12(row.time)}`;
+  return `${longDate(localIsoDay(d))} at ${clock12(row.time)}`;
 }
 
 /** The balance once a line had moved: kept on the line where this phone
@@ -275,9 +277,11 @@ export function receiptFor(row: LedgerRow, ctx: { account: Account; balanceNow: 
         intoDollars ? ['To', 'Dollars', usd] : ['From', 'Dollars', usd],
         intoDollars ? ['From', 'Everyday', number] : ['To', 'Everyday', number],
         ['Rate', rate],
-        ['Amount', nairaFull(amount)],
-        fee > 0 ? ['Fee', nairaFull(fee), 'One percent over $500'] : ['Fee', 'Free', 'Because it is under $500'],
-        [intoDollars ? 'Total charged' : 'Total credited', nairaFull(amount + fee)],
+        /* the fee comes out of the dollars going across, never on top of the naira (the analysis after Round 21):
+           into dollars, the naira charged is the amount; back to naira, what is credited is the amount less the fee */
+        ['Amount', nairaFull(intoDollars ? amount : amount + fee)],
+        fee > 0 ? ['Fee', nairaFull(fee), 'One percent over $500, out of the dollars'] : ['Fee', 'Free', 'Because it is under $500'],
+        [intoDollars ? 'Total charged' : 'Total credited', nairaFull(amount)],
         ['Balance after', after],
       ],
       session,
@@ -321,7 +325,9 @@ export function receiptFor(row: LedgerRow, ctx: { account: Account; balanceNow: 
         from,
         ...(row.reference ? [['Narration', row.reference] as Field] : []),
         ['Amount', nairaFull(amount)],
-        fee > 0 ? ['Fee', nairaFull(fee), 'Transfers under ₦10,000 carry none'] : ['Fee', 'Free', paidInUsd ? 'Nothing on money from your dollars' : 'Because it is under ₦10,000'],
+        fee > 0
+          ? ['Fee', nairaFull(fee), 'Transfers under ₦10,000 carry none']
+          : ['Fee', 'Free', paidInUsd ? 'Nothing on money from your dollars' : row.person?.bank === 'Beetle' ? 'Nothing between Beetle accounts' : 'Because it is under ₦10,000'],
         ['Total charged', paidInUsd ? usdFull(paidInUsd) : nairaFull(amount + fee)],
         ['Balance after', after],
       ],

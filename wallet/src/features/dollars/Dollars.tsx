@@ -62,7 +62,7 @@ export function Dollars() {
       <Tap
         accessibilityRole="button"
         accessibilityLabel="The rate"
-        onPress={() => toast('The rate over time is not in the frames yet. This build runs at one rate all day.')}
+        onPress={() => toast('Beetle keeps no history of the rate yet. This build runs at one rate all day.')}
         style={s.rate}
         testID="rate-row"
       >

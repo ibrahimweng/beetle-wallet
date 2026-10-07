@@ -38,7 +38,6 @@ export function Settings() {
   useHoldPages('details', details || leaving);
   if (!app.ready || !account) return null;
 
-  const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
   const ask = (q: string) => () => askHome(router, q);
   const signOut = () => void app.signOut().then(() => router.replace('/way-in'));
   const section = (label: string, rows: React.ReactNode) => (
@@ -81,8 +80,8 @@ export function Settings() {
             'Your account',
             <>
               <SettingRow glyph="person-filled" ink={colour.accent} title="Your details" onPress={() => setDetails(true)} />
-              <SettingRow glyph="bell-filled" ink={colour.warn} title="Notifications" onPress={() => toast('Notifications have no frame yet; what they carry is set under Lock and privacy.')} />
-              <SettingRow glyph="gift-filled" title="Saved people" onPress={() => toast('Saved people sit behind the person card on Send money. A page of their own is not in the frames yet.')} />
+              <SettingRow glyph="bell-filled" ink={colour.warn} title="Notifications" onPress={() => toast('What notifications show is set under Lock and privacy.')} />
+              <SettingRow glyph="gift-filled" title="Saved people" onPress={() => toast('Saved people are on Send money, behind the person card.')} />
               <SettingRow glyph="card-filled" title="Cards" value="1 virtual" to="/card" />
             </>,
           )}

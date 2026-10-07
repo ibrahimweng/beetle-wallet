@@ -1,7 +1,8 @@
 /* Where things are kept on the device. Ordinary state goes through
    AsyncStorage. Anything that guards money — the session token and the
-   passcode's hash — goes through the secure store, which is the keychain on
-   iOS and the keystore on Android. The web has no keychain, so there the
+   passcode, stretched — and who somebody is (see `sealed`, below) go through
+   the secure store, which is the keychain on iOS and the keystore on
+   Android. The web has no keychain, so there the
    secure store is AsyncStorage under a different key, which is fine for a
    preview and said so in the README. */
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -72,3 +73,32 @@ if (Platform.OS !== 'web') {
 }
 
 export const secure: Secure = nativeSecure ?? webSecure;
+
+/** Who somebody is (their phone, the ID record, the ID number and address
+    from setting up), kept as the secure store keeps the passcode rather than
+    in plain storage (the analysis after Round 21: anyone with the phone's
+    files, or a backup of them, could read it). What was kept plainly before
+    moves across the first time it is read. */
+export const sealed = {
+  async get<T>(key: string): Promise<T | null> {
+    const raw = await secure.get(key);
+    if (raw) {
+      try {
+        return JSON.parse(raw) as T;
+      } catch {
+        return null;
+      }
+    }
+    const plain = await storage.get<T>(key);
+    if (plain !== null) {
+      await secure.set(key, JSON.stringify(plain));
+      await storage.remove(key);
+    }
+    return plain;
+  },
+  set: (key: string, value: unknown) => secure.set(key, JSON.stringify(value)),
+  async remove(key: string) {
+    await secure.remove(key);
+    await storage.remove(key);
+  },
+};

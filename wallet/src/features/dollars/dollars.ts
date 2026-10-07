@@ -17,6 +17,9 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
 
 /** $32.22 from ₦50,000 at ₦1,552. */
 export const usdOf = (nairaAmount: number, rate: number) => round2(nairaAmount / rate);
+/** What a naira payment costs in dollars: rounded up to the cent, so a charge is never short of what goes (the analysis
+    after Round 21: rounded to the nearest cent, ₦7 could go for $0.00). */
+export const usdCost = (nairaAmount: number, rate: number) => (nairaAmount > 0 ? Math.ceil(Math.round((nairaAmount / rate) * 1e6) / 1e4) / 100 : 0);
 /** ₦155,200 from $100 at ₦1,552. */
 export const nairaOf = (usd: number, rate: number) => Math.round(usd * rate);
 /** $412.60, $1,234.50: dollars the way the frames print them. */

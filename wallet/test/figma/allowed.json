@@ -87,6 +87,10 @@
  ],
  "actions": [
   {
+   "piece": "Action button",
+   "why": "the close sits exactly where the bar's plus is, 24 from the side and level with the bar's row (Round 23): the frame predates the owner's Round 14 home, which moved the plus there, and the button jumped as More opened"
+  },
+  {
    "pieces": [
     "Camera",
     "Send money",
@@ -1076,6 +1080,13 @@
   }
  ],
  "foundsvc": [
+  {
+   "texts": [
+    "A QR code works too",
+    "Or send a screenshot"
+   ],
+   "why": "the camera says only what it does (Round 23): it does not read codes yet, and the chat takes no screenshots, so the lines under it say what does work"
+  },
   {
    "piece": "Sheet",
    "why": "the sheet's head band is 32 here, as on every sheet, where the frame's grabber sits at the very edge: the sheet is 4 taller and starts 4 higher"

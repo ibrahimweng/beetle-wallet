@@ -3,6 +3,7 @@
    first. What you moved into your own goal is not in it: that money is
    still yours. */
 import type { LedgerRow } from '../home/account';
+import { shortDay } from '../../lib/days';
 
 export type Segment = 'All' | 'Insights' | 'In' | 'Out';
 export const SEGMENTS: Segment[] = ['All', 'Insights', 'In', 'Out'];
@@ -15,7 +16,8 @@ const minutes = (t: string) => {
 export function activityRows(ledger: LedgerRow[], day: LedgerRow['day'], segment: Segment): LedgerRow[] {
   if (segment === 'Insights') return [];
   const inDay = ledger.filter(r => r.day === day && r.kind !== 'saving').filter(r => (segment === 'All' ? true : segment === 'In' ? r.amount > 0 : r.amount < 0));
-  const byTime = (a: LedgerRow, b: LedgerRow) => minutes(b.time) - minutes(a.time);
+  /* newest first: by the moment it moved where both know it, else by the time of day */
+  const byTime = (a: LedgerRow, b: LedgerRow) => (a.at !== undefined && b.at !== undefined ? b.at - a.at : minutes(b.time) - minutes(a.time));
   const open = inDay.filter(r => r.status !== 'done').sort(byTime);
   const settled = inDay.filter(r => r.status === 'done').sort(byTime);
   return [...open, ...settled];
@@ -24,5 +26,9 @@ export function activityRows(ledger: LedgerRow[], day: LedgerRow['day'], segment
 /** The figure on a line: signed once it settled or is on its way, bare where it did not go or came back. */
 export const activityAmount = (r: LedgerRow, signed: (n: number) => string, naira: (n: number) => string) => (r.status === 'failed' || r.status === 'reversed' ? naira(r.amount) : signed(r.amount));
 
-/** What a line says under its name: its own words with the time, where they do not carry one already. */
-export const detailOf = (r: LedgerRow) => (r.detail.includes(':') ? r.detail : `${r.detail} · ${r.time}`);
+/** What a line says under its name: its own words with the time, where they do not carry one already; a line from
+    before yesterday says its date too. */
+export const detailOf = (r: LedgerRow) => {
+  const words = r.detail.includes(':') ? r.detail : `${r.detail} · ${r.time}`;
+  return r.day === 'earlier' && r.at !== undefined ? `${shortDay(r.at)} · ${words}` : words;
+};

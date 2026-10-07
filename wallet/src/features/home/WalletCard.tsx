@@ -499,6 +499,22 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
       <Animated.View style={[s.grab, { top: s.grab.top + extra }, goingLate]} pointerEvents="none">
         <View style={s.grabber} testID="grabber" />
       </Animated.View>
+      {/* VoiceOver cannot pull the card down: the grabber is a button there,
+          and a double tap opens the chat (the analysis after Round 21) */}
+      <View
+        style={[s.grabSpot, { top: s.grab.top + extra - 12 }]}
+        pointerEvents="none"
+        accessible={!opened}
+        accessibilityElementsHidden={opened}
+        importantForAccessibility={opened ? 'no-hide-descendants' : 'yes'}
+        accessibilityRole="button"
+        accessibilityLabel="Talk to Beetle"
+        accessibilityHint="Opens the chat, as pulling the card down does"
+        onAccessibilityTap={() => {
+          open.value = withSpring(1, keys);
+          settle(true);
+        }}
+      />
 
       {/* the figure, in whichever place `open` says */}
       <Animated.View style={[s.figure, figure]} pointerEvents="none">
@@ -553,6 +569,7 @@ const s = StyleSheet.create({
   /* the grabber alone, 16 above the card's edge */
   grab: { position: 'absolute', top: CLOSED_H - GRAB_FOOT - 4, left: 0, right: 0, alignItems: 'center', zIndex: 2 },
   grabber: { width: 27, height: 4, borderRadius: 2, backgroundColor: dark.grabber },
+  grabSpot: { position: 'absolute', left: 0, right: 0, height: 28 },
   opened: { position: 'absolute', top: 0, left: SIDE, right: SIDE, bottom: 0 },
   over: { position: 'absolute', left: SIDE, right: SIDE, bottom: 0, zIndex: 5 },
   foot: { position: 'absolute', left: 0, right: 0, bottom: 0, height: FOOT_BAND },

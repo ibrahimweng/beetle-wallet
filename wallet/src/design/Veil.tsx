@@ -69,7 +69,7 @@ export function Veil({ tone = 'light', intensity = VEIL_BLUR, testID, t }: { ton
   if (!t)
     return (
       <View style={StyleSheet.absoluteFill} pointerEvents="none" testID={testID}>
-        {Blur ? <Blur intensity={intensity} tint={s.tint} experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : 'none'} style={StyleSheet.absoluteFill} /> : null}
+        {Blur ? <Blur intensity={intensity} tint={s.tint} style={StyleSheet.absoluteFill} /> : null}
         <LinearGradient colors={s.colors} locations={LOCATIONS} style={StyleSheet.absoluteFill} />
       </View>
     );
@@ -84,11 +84,7 @@ export function Veil({ tone = 'light', intensity = VEIL_BLUR, testID, t }: { ton
     );
   return (
     <Animated.View style={[StyleSheet.absoluteFill, growing ? null : wash]} pointerEvents="none" testID={testID}>
-      {growing && AnimatedBlur ? (
-        <AnimatedBlur animatedProps={strength} tint={s.tint} experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : 'none'} style={blurStyle} />
-      ) : Blur ? (
-        <Blur intensity={intensity} tint={s.tint} experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : 'none'} style={StyleSheet.absoluteFill} />
-      ) : null}
+      {growing && AnimatedBlur ? <AnimatedBlur animatedProps={strength} tint={s.tint} style={blurStyle} /> : Blur ? <Blur intensity={intensity} tint={s.tint} style={StyleSheet.absoluteFill} /> : null}
       <Animated.View style={[StyleSheet.absoluteFill, growing ? wash : null]}>
         <LinearGradient colors={s.colors} locations={LOCATIONS} style={StyleSheet.absoluteFill} />
       </Animated.View>
@@ -115,7 +111,7 @@ export function GrowingBlur({ t, intensity, tint = 'light', wash }: { t: SharedV
   if (growing && AnimatedBlur)
     return (
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        <AnimatedBlur animatedProps={strength} tint={tint} experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : 'none'} style={StyleSheet.absoluteFill} />
+        <AnimatedBlur animatedProps={strength} tint={tint} style={StyleSheet.absoluteFill} />
         <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: wash }, fade]} />
       </View>
     );

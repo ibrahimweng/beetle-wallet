@@ -13,20 +13,20 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { AmountPicker, Body, Caption, Icon, Label, Meta, PageHead, Picks, Screen, Tap, YouTyped, colour, measure, toast, type Rect } from '../../design';
 import { DEMO_SAVED, PEOPLE, beneficiariesOf, billPanelFor, discoById, groupMeter, ownLine, type MeterPaid, type Move } from '../../services';
 import { useApp } from '../onboarding/store';
+import { useSendGate } from '../settings/sendGate';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
 import { holdingsFor } from '../home/account';
 import { balanceOf, rowFrom, useMoves } from '../home/moves';
-import { PayFromSheet, dollarsOf, usdFull, usdOf, type Source } from '../dollars';
+import { PayFromSheet, dollarsOf, usdCost, usdFull, type Source } from '../dollars';
 import { clock } from '../../lib/clock';
 import { SavedPeek } from '../agent/SavedPeek';
-import { PasscodeSheet, lockedFor } from '../passcode';
+import { PasscodeSheet, lockedFor, waitWords } from '../passcode';
 import { LAB } from '../../lab/enabled';
 import { groupAccount, naira } from '../../lib/format';
 import { billDraft } from './hand';
 import { BILLERS, billerById, buysWords } from './billers';
 
-const later = (what: string, round: number) => () => toast(`${what} comes with round ${round}.`);
 /** The frame's words, for the lab. */
 const SAID = 'pay my light bill';
 
@@ -40,6 +40,7 @@ export function PayBill() {
   const power = biller.kind === 'power';
   const account = app.session?.account;
   const { moves, add: addMove } = useMoves(account?.accountNumber);
+  const sendGate = useSendGate(account);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
   const balance = (h?.everyday ?? 0) + balanceOf(moves);
   const rate = h?.rate ?? 1_552;
@@ -49,7 +50,7 @@ export function PayBill() {
   const [choosing, setChoosing] = useState(false);
   const fromDollars = source === 'dollars';
   const saved = useMemo(
-    () => beneficiariesOf([...moves, ...(h?.ledger ?? [])], account?.demo ? DEMO_SAVED : { lines: [], meters: [] }, PEOPLE, account ? ownLine(account.phone) : null),
+    () => beneficiariesOf([...moves, ...(h?.ledger ?? [])], account?.demo ? DEMO_SAVED : { lines: [], meters: [] }, account?.demo ? PEOPLE : [], account ? ownLine(account.phone) : null),
     [moves, h, account],
   );
 
@@ -81,17 +82,23 @@ export function PayBill() {
 
   const slide = () => {
     if (!amount) return;
-    if (fromDollars && usdOf(amount, rate) > dollars) {
+    /* frozen, or the twelve hours after a new passcode: nothing leaves (see settings/gate) */
+    const stopped = sendGate.stopped();
+    if (stopped) {
+      toast(stopped);
+      return;
+    }
+    if (fromDollars && usdCost(amount, rate) > dollars) {
       toast(`That is more than the ${usdFull(dollars)} you hold. Pay from Everyday, or convert some first.`);
       return;
     }
     if (!fromDollars && amount > balance) {
-      router.push(`/short?asked=${amount}`);
+      router.push(`/short?asked=${amount}&for=bill`);
       return;
     }
     const shut = lockedFor();
     if (shut) {
-      toast(`That was three wrong tries. Give it ${shut} seconds and slide again.`);
+      toast(`That was three wrong tries. Give it ${waitWords(shut)} and slide again.`);
       return;
     }
     setGuard(true);
@@ -109,7 +116,7 @@ export function PayBill() {
           kind: 'bill',
         })
       : { name: biller.name, detail: `${biller.accountLabel} ${biller.account}`, amount: -amount, icon: biller.glyph, kind: 'bill' };
-    const row = rowFrom({ ...base, detail: `${base.detail}${fromDollars ? ' · from dollars' : ''} · ${at}`, ...(fromDollars ? { usd: -usdOf(amount, rate) } : {}) }, balance, 17 + moves.length);
+    const row = rowFrom({ ...base, detail: `${base.detail}${fromDollars ? ' · from dollars' : ''} · ${at}`, ...(fromDollars ? { usd: -usdCost(amount, rate) } : {}) }, balance, 17 + moves.length);
     addMove(row);
     setGuard(false);
     router.push(`/receipt/${row.id}?paid=1`);
@@ -232,6 +239,7 @@ export function PayBill() {
       {guard ? (
         <PasscodeSheet
           amount={naira(amount)}
+          pastLimit={sendGate.past(amount)}
           name={name}
           detail={meter ? `Meter ${groupMeter(meter.meter)}` : `${biller.accountLabel} ${biller.account}`}
           glyph={biller.glyph}

@@ -13,7 +13,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { SHEETS, Sheet, along, blurMethod, blurModule, type Side } from '../../design/Glass';
+import { SHEETS, Sheet, along, blurModule, type Side } from '../../design/Glass';
 
 export const hasBlur = blurModule !== null;
 
@@ -51,7 +51,7 @@ export function Frost({
       {Blur
         ? SHEETS.map(([share, intensity], i) => (
             <Sheet key={i} side={side} height={Math.round(height * share)}>
-              <Blur intensity={intensity} tint="dark" experimentalBlurMethod={blurMethod} style={StyleSheet.absoluteFill} />
+              <Blur intensity={intensity} tint="dark" style={StyleSheet.absoluteFill} />
             </Sheet>
           ))
         : null}

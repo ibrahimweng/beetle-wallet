@@ -3,14 +3,36 @@
    back from the device before the first screen draws, so nothing ever renders
    against nothing and then jumps. */
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { auth, secure, storage, type Session } from '../../services';
-import { hashPasscode, randomSalt } from '../../services/crypto';
+import { auth, sealed, secure, type Session } from '../../services';
+import { keepPasscode, keptWeakly, matchesPasscode, type KeptPasscode } from '../../services/crypto';
+import { demoPasscodeOpens } from '../passcode/check';
 import type { IdentityRecord } from '../../services/identity';
 import { EMPTY, type Progress } from './machine';
 
 const PROGRESS_KEY = 'beetle.progress.v1';
 const SESSION_KEY = 'beetle.session.v1';
-const PASSCODE_KEY = 'beetle.passcode.v1';
+/* Each account's passcode is its own (the analysis after Round 21: one
+   passcode for the whole phone let any account signed in on it through
+   with another's). One kept the old way, for the whole phone, is checked
+   for the account signed in and moves to it the first time it is right. */
+const LEGACY_PASSCODE_KEY = 'beetle.passcode.v1';
+const passcodeKey = (account: string) => `beetle.passcode.${account}.v2`;
+
+async function keptFor(account: string | undefined): Promise<{ kept: KeptPasscode; legacy: boolean } | null> {
+  const read = async (key: string) => {
+    const raw = await secure.get(key);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as KeptPasscode;
+    } catch {
+      return null;
+    }
+  };
+  const own = account ? await read(passcodeKey(account)) : null;
+  if (own) return { kept: own, legacy: false };
+  const legacy = await read(LEGACY_PASSCODE_KEY);
+  return legacy ? { kept: legacy, legacy: true } : null;
+}
 
 type Actions = {
   setPhone(phone: string): Promise<void>;
@@ -23,10 +45,12 @@ type Actions = {
   startOver(): Promise<void>;
   signIn(session: Session): Promise<void>;
   signOut(): Promise<void>;
-  /** Does what was typed match the passcode kept on this device? */
+  /** Does what was typed match the passcode kept on this device for the account signed in? */
   checkPasscode(code: string): Promise<boolean>;
-  /** A new passcode in place of the old one, hashed the same way. */
+  /** A new passcode in place of the old one, for the account signed in. */
   setPasscode(code: string): Promise<void>;
+  /** Is there a passcode kept on this device for the account signed in? */
+  hasPasscode(): Promise<boolean>;
   /** Put the app in a state: how far the way in has got, and who is signed
       in. The lab uses it to open a place with the way there already walked. */
   seed(progress: Progress, session: Session | null): Promise<void>;
@@ -41,17 +65,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [progress, setProgressState] = useState<Progress>(EMPTY);
   const progressRef = useRef(progress);
+  const sessionRef = useRef<Session | null>(null);
 
   useEffect(() => {
     (async () => {
-      const [p, s] = await Promise.all([storage.get<Progress>(PROGRESS_KEY), secure.get(SESSION_KEY)]);
+      const [p, s] = await Promise.all([sealed.get<Progress>(PROGRESS_KEY), secure.get(SESSION_KEY)]);
       if (p) {
         progressRef.current = p;
         setProgressState(p);
       }
       if (s) {
         try {
-          setSession(JSON.parse(s) as Session);
+          const kept = JSON.parse(s) as Session;
+          sessionRef.current = kept;
+          setSession(kept);
         } catch {
           await secure.remove(SESSION_KEY);
         }
@@ -64,17 +91,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const next = { ...progressRef.current, ...change };
     progressRef.current = next;
     setProgressState(next);
-    await storage.set(PROGRESS_KEY, next);
+    await sealed.set(PROGRESS_KEY, next);
   }, []);
 
   const replaceProgress = useCallback(async (next: Progress) => {
     progressRef.current = next;
     setProgressState(next);
-    if (Object.keys(next).length) await storage.set(PROGRESS_KEY, next);
-    else await storage.remove(PROGRESS_KEY);
+    if (Object.keys(next).length) await sealed.set(PROGRESS_KEY, next);
+    else await sealed.remove(PROGRESS_KEY);
   }, []);
 
   const keepSession = useCallback(async (s: Session | null) => {
+    sessionRef.current = s;
     setSession(s);
     if (s) await secure.set(SESSION_KEY, JSON.stringify(s));
     else await secure.remove(SESSION_KEY);
@@ -91,16 +119,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       async finish(passcode) {
         const p = progressRef.current;
         if (!p.phone || !p.identity) throw new Error('The way in is not complete.');
-        const salt = await randomSalt();
-        const hash = await hashPasscode(passcode, salt);
-        await secure.set(PASSCODE_KEY, JSON.stringify({ hash, salt }));
+        const kept = await keepPasscode(passcode);
         const s = await auth.createAccount({
           phone: p.phone,
           record: p.identity.record,
-          passcodeHash: hash,
-          salt,
+          passcodeHash: kept.hash,
+          salt: kept.salt,
           faceEnrolled: p.face === 'enrolled',
         });
+        await secure.set(passcodeKey(s.account.accountNumber), JSON.stringify(kept));
         await patch({ passcodeSet: true, accountNumber: s.account.accountNumber });
         await keepSession(s);
         return s;
@@ -116,15 +143,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         await replaceProgress(EMPTY);
       },
       async checkPasscode(code) {
-        const raw = await secure.get(PASSCODE_KEY);
-        if (!raw) return false;
-        const { hash, salt } = JSON.parse(raw) as { hash: string; salt: string };
-        return (await hashPasscode(code, salt)) === hash;
+        const account = sessionRef.current?.account;
+        if (demoPasscodeOpens(code, account)) return true;
+        const found = await keptFor(account?.accountNumber);
+        if (!found) return false;
+        const right = await matchesPasscode(code, found.kept);
+        /* right, and kept the old way or for the whole phone: kept again the new way, for this account alone */
+        if (right && account && (found.legacy || keptWeakly(found.kept))) {
+          await secure.set(passcodeKey(account.accountNumber), JSON.stringify(await keepPasscode(code)));
+          if (found.legacy) await secure.remove(LEGACY_PASSCODE_KEY);
+        }
+        return right;
       },
       async setPasscode(code) {
-        const salt = await randomSalt();
-        const hash = await hashPasscode(code, salt);
-        await secure.set(PASSCODE_KEY, JSON.stringify({ hash, salt }));
+        const account = sessionRef.current?.account;
+        if (!account) throw new Error('Nobody is signed in.');
+        await secure.set(passcodeKey(account.accountNumber), JSON.stringify(await keepPasscode(code)));
+      },
+      async hasPasscode() {
+        return !!(await keptFor(sessionRef.current?.account.accountNumber));
       },
       async seed(p, s) {
         await replaceProgress(p);

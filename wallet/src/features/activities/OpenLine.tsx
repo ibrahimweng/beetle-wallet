@@ -151,7 +151,11 @@ export function PageFrost({ ctl, onClose }: { ctl: OpenCtl; onClose: () => void 
   const column = usePageScroll();
   const { height: H } = useWindowDimensions();
   /* where the column stood when the line opened, and how far it has to move for the line and its rows to show */
-  const from = useSharedValue(y ? y.value : 0);
+  const from = useSharedValue(0);
+  /* read once it is drawn, not while it is drawing (Reanimated warns of a value read in the middle of a render) */
+  useEffect(() => {
+    if (y) from.value = y.value;
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const shift = useSharedValue(0);
   useAnimatedReaction(
     () => (ctl.rowH.value > 0 ? ctl.grown.value : 0),

@@ -65,6 +65,15 @@ describe('the tools the model is given', () => {
 });
 
 describe('Beetle with a model behind it', () => {
+  it('sends no key at all to a server of its own, which keeps the key', async () => {
+    const api = fakeApi([{ content: [text('Hello.')], stop_reason: 'end_turn' }]);
+    const agent = new ModelAgent(new MockReader(0), async () => ({ key: '', baseUrl: 'https://beetle.server', from: 'server' }), api.fetchFn);
+    await agent.ask({ text: 'hi' }, ctx());
+    const [req] = api.requests;
+    expect(req?.url).toBe('https://beetle.server/v1/messages');
+    expect(req?.headers['x-api-key']).toBeUndefined();
+    expect(req?.headers['anthropic-dangerous-direct-browser-access']).toBeUndefined();
+  });
   it('asks the model the right way', async () => {
     const api = fakeApi([{ content: [text('Hello Ibrahim. What do you need?')], stop_reason: 'end_turn' }]);
     const agent = new ModelAgent(

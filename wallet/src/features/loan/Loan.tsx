@@ -26,9 +26,9 @@ import { useSetup } from '../setup';
 import { SetupOffer } from '../setup/Offer';
 import { clock, useChats } from '../agent/chats';
 import { turn } from '../agent/turns';
-import { PasscodeSheet, lockedFor } from '../passcode';
+import { PasscodeSheet, lockedFor, waitWords } from '../passcode';
 import { naira } from '../../lib/format';
-import { COLLECTED, LOAN, MISSED, TERMS, costOf, countWord, dayOf, type Term } from './loan';
+import { COLLECTED, LOAN, MISSED, TERMS, costOf, countWord, dayOf, eachWords, leftToBorrow, limitNote, type Term } from './loan';
 
 export function Loan() {
   const app = useApp();
@@ -40,8 +40,11 @@ export function Loan() {
   const { file } = useChats(account?.accountNumber, !!account?.demo);
   const balance = (account ? holdingsFor(account).everyday : 0) + balanceOf(moves);
   /* the frame opens on ₦150,000 for 90 days */
-  const [amount, setAmount] = useState(150_000);
+  const [picked, setAmount] = useState(150_000);
   const [days, setDays] = useState<Term>(90);
+  /* what is left of the limit once what is already borrowed is counted */
+  const left = leftToBorrow([...moves, ...(account ? holdingsFor(account).ledger : [])]);
+  const amount = Math.min(picked, left);
   /** what is open in place: the days, what happens if a payment is missed, the cost line by line */
   const [open, setOpen] = useState<null | 'days' | 'missed' | 'cost'>(null);
   const [guard, setGuard] = useState(false);
@@ -49,9 +52,10 @@ export function Loan() {
   const toggle = (k: 'days' | 'missed' | 'cost') => setOpen(o => (o === k ? null : k));
 
   const slide = () => {
+    if (amount < LOAN.least || amount > left) return;
     const shut = lockedFor();
     if (shut) {
-      toast(`That was three wrong tries. Give it ${shut} seconds and slide again.`);
+      toast(`That was three wrong tries. Give it ${waitWords(shut)} and slide again.`);
       return;
     }
     setGuard(true);
@@ -96,9 +100,9 @@ export function Loan() {
             <AmountPicker
               value={amount}
               onChange={setAmount}
-              max={LOAN.most}
-              note={amount && amount < LOAN.least ? `The least is ${naira(LOAN.least)}` : `${naira(LOAN.most)} is your limit`}
-              warn={!!amount && amount < LOAN.least}
+              max={left}
+              note={left >= LOAN.least && amount && amount < LOAN.least ? `The least is ${naira(LOAN.least)}` : limitNote(left, naira)}
+              warn={(!!amount && amount < LOAN.least) || left < LOAN.least}
               chips={[50_000, 100_000]}
               all="Your limit"
             />
@@ -134,7 +138,7 @@ export function Loan() {
                     style={s.choice}
                   >
                     <Label style={{ flex: 1 }}>{`${t} days`}</Label>
-                    <Caption tone="secondary">{`${countWord(t / 30).toLowerCase()} payment${t === 30 ? '' : 's'} of ${naira(costOf(amount, t).each)}`}</Caption>
+                    <Caption tone="secondary">{`${countWord(t / 30).toLowerCase()} payment${t === 30 ? '' : 's'} of ${eachWords(costOf(amount, t), naira)}`}</Caption>
                     {t === days ? <Icon name="check" size={14} colour={colour.ink} /> : <View style={{ width: 14 }} />}
                   </Tap>
                 ))}
@@ -146,7 +150,7 @@ export function Loan() {
             </View>
             <View style={s.line}>
               <Meta tone="secondary">{payments}</Meta>
-              <Label>{naira(cost.each)}</Label>
+              <Label>{eachWords(cost, naira)}</Label>
             </View>
             <View style={s.line}>
               <Meta tone="secondary">First payment</Meta>
@@ -185,7 +189,7 @@ export function Loan() {
         <PasscodeSheet
           amount={naira(amount)}
           name="Beetle Loans"
-          detail={`${days} days · ${countWord(cost.payments).toLowerCase()} payment${cost.payments === 1 ? '' : 's'} of ${naira(cost.each)}`}
+          detail={`${days} days · ${countWord(cost.payments).toLowerCase()} payment${cost.payments === 1 ? '' : 's'} of ${eachWords(cost, naira)}`}
           glyph="loan"
           rows={[
             { label: 'You get today', value: naira(amount) },

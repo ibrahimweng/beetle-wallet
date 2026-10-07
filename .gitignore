@@ -10,3 +10,5 @@ mobile/.expo/
 mobile/dist/
 glyphs/sheets/
 glyphs/qa-*.json
+.env
+.env.*

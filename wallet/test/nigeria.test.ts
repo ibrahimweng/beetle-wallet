@@ -33,7 +33,7 @@ describe('phone numbers', () => {
     expect(networkOf('0812 345 6789')).toBe('Airtel');
     expect(networkOf('+234 805 331 0921')).toBe('Glo');
     expect(networkOf('2348091183350')).toBe('9mobile');
-    expect(networkOf('09069113588')).toBe('MTN');
+    expect(networkOf('08030000001')).toBe('MTN');
     expect(networkOf('0123456789')).toBeNull();
   });
   it('says what is wrong with a number', () => {
@@ -139,7 +139,7 @@ describe('what has been paid before', () => {
       target: { kind: 'meter', disco: 'ikeja', meterKind: 'prepaid', meter: '44578891', name: 'Ibrahim Musa' },
     },
   ];
-  const saved = beneficiariesOf(rows, DEMO_SAVED, PEOPLE, ownLine('09069113588'));
+  const saved = beneficiariesOf(rows, DEMO_SAVED, PEOPLE, ownLine('08030000001'));
   it('counts the people paid, newest first, only what went through', () => {
     expect(saved.people.map(p => [p.name, p.times, p.when])).toEqual([
       ['John Doe', 1, 'Today 10:45'],
@@ -153,7 +153,7 @@ describe('what has been paid before', () => {
     expect(saved.people[1]?.bank).toBe('GTBank');
   });
   it('puts the own line first, then the lines topped up, with what they had last', () => {
-    expect(saved.lines[0]).toMatchObject({ label: 'Your line', number: '09069113588', network: 'MTN', own: true });
+    expect(saved.lines[0]).toMatchObject({ label: 'Your line', number: '08030000001', network: 'MTN', own: true });
     expect(saved.lines[1]).toMatchObject({ label: 'Mum', times: 7, when: 'Today 08:02', plan: 'mtn-5gb-30d' });
     expect(saved.lines.map(l => l.label)).toEqual(['Your line', 'Mum', 'Dad', 'Kemi', 'Bola', 'Tunde']);
   });

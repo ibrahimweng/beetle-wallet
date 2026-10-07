@@ -1,0 +1,13 @@
+{
+ "about": "The camera fit_thickness.py found for reference/angle.png. Angles in radians, distance in coin radii, scale and centre in photo pixels.",
+ "error": 0.00814,
+ "yaw": -0.888045,
+ "pitch": 0.020857,
+ "roll": 0.015249,
+ "distance": 13.540905,
+ "scale": 186.991925,
+ "cx": 151.503832,
+ "cy": 205.492064,
+ "thickness": 1.266141,
+ "hole_shift_x": -0.015397
+}

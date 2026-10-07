@@ -1,6 +1,6 @@
 # Beetle
 
-Four things live in this repository, each in its own place:
+Five things live in this repository, each in its own place:
 
 | Folder | What it is | How it ships |
 | --- | --- | --- |
@@ -8,6 +8,7 @@ Four things live in this repository, each in its own place:
 | `mobile/` | The same app in React Native with Expo, sharing the state layer and the icon set | Expo, see `mobile/README.md` |
 | `glyphs/` | Beetle Glyphs: the parametric icon library and editor, with 1,366 icons in four styles and two corners, a core set of 1,854, and the app's own glyphs and scenarios | Vercel with Root Directory `glyphs`, or served at `/glyphs/` by the root deploy; see `glyphs/README.md` |
 | `wallet/` | The product itself, built from the frames in React Native with Expo. So far: the way in and finishing setting up, home with the chat Beetle answers in, sending money, every state a transfer can be in and what happens when it goes wrong (a dispute, Beetle's own checks, the phone offline), being paid and asking for money, bills, data and the services drawer, borrowing, dollars, several savings goals saved into in four taps and money health, every transaction opened in place, Settings, the camera that reads a slip, a bill or a message, and a lab that opens each screen on its own | Expo, see `wallet/README.md` |
+| `coin/` | The clay coin in 3D: a GLB for After Effects, measured from two photos of the real glazed coin, with the tools that build it | Not deployed; see `coin/README.md` |
 
 A Nigerian bank app with an agent that actually thinks, built in code from the
 Figma file. A hundred screens across four acts, every route in every flow, the design

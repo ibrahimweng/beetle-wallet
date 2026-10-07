@@ -1,11 +1,14 @@
 # The clay coins, in 3D
 
 Replicas of the glazed clay coin in `reference/`, built from those two photos,
-as GLBs to use in After Effects. Two so far, from the same tools:
+as GLBs to use in After Effects, from the same tools:
 
 - **`coin-hole.glb`**, the coin as it is, with its hole;
 - **`coin-logo.glb`**, the same coin without the hole, with the Beetle logo
-  pressed into both faces.
+  pressed into both faces;
+- **`coin-logo-text.glb`**, that coin with words set round the logo, raised,
+  the way a country's coins letter theirs: BEETLE and 2026 on the front,
+  TRUSTED HUMAN INTELLIGENCE on the back.
 
 ![Photo and model, from the front and from the side](previews/compare.png)
 
@@ -15,15 +18,21 @@ as GLBs to use in After Effects. Two so far, from the same tools:
 
 ![The coin with the logo, turning](previews/logo_turntable.gif)
 
+![The coin with the logo and the words: front, back, and from the angle of the second photo](previews/logo-text_compare.png)
+
+![The coin with the logo and the words, turning](previews/logo-text_turntable.gif)
+
 ## What is here
 
 | File | What it is |
 | --- | --- |
 | `coin-hole.glb` | The coin with the hole. One mesh, one material, its three textures inside. |
 | `coin-logo.glb` | The coin with the logo. The same, laid out the same way. |
-| `textures/` | Each coin's three textures as loose files (`coin-hole_*`, `coin-logo_*`), if you want to grade or swap them. |
-| `previews/` | The coin with the hole beside each photo, lit the way that photo was (`compare.png`), and the silhouette fit against the angled photo (`angle_fit.png`: grey where both agree, red photo only, blue model only). The coin with the logo from the front, the back, the photo's angle and close up (`logo_*.png`). A turntable of each. |
+| `coin-logo-text.glb` | The coin with the logo and the words round it. The same again. |
+| `textures/` | Each coin's three textures as loose files (`coin-hole_*`, `coin-logo_*`, `coin-logo-text_*`), if you want to grade or swap them. |
+| `previews/` | The coin with the hole beside each photo, lit the way that photo was (`compare.png`), and the silhouette fit against the angled photo (`angle_fit.png`: grey where both agree, red photo only, blue model only). The coins without the hole from the front, the back, the photo's angle and close up (`logo_*.png`, `logo-text_*.png`). A turntable of each. |
 | `reference/` | The two photos it was measured from, and the Beetle logo: the picture it came as (`beetle-logo.png`) and the clean vector rebuilt from it (`beetle-logo.svg`). |
+| `fonts/` | Cinzel SemiBold, the lettering's typeface, with its licence (SIL Open Font License). |
 | `tools/` | The scripts that measure the photos and the logo and build the coins. |
 
 ### The coin with the hole
@@ -67,11 +76,33 @@ as GLBs to use in After Effects. Two so far, from the same tools:
   2048 × 2048): the front and back faces each have a square of their own, and
   the rim and side run along the bottom half.
 
+### The coin with the logo and the words
+
+- **The coin with the logo,** unchanged: the same size, rim, logo and glaze.
+- **The words** run round the logo between it and the groove, in classical
+  inscription capitals (Cinzel SemiBold), spaced the way coin legends are.
+  The top line reads clockwise with its feet towards the middle; the bottom
+  line reads anticlockwise with its heads towards the middle, so both read
+  upright. A small dot sits in each gap between the two lines.
+  - Front: **BEETLE** over the top, **2026** along the bottom.
+  - Back: **TRUSTED HUMAN** over the top, **INTELLIGENCE** along the bottom,
+    reading the right way round when the coin is turned over.
+- **Raised:** the letters stand 0.2 mm proud of the field, with soft clay
+  edges, their tops level with the rim's (within 0.02 mm), so the rim still
+  shields them. The
+  glaze runs thin on their faces, so they catch a lighter edge, and pools a
+  little round their feet.
+- **Size:** capitals 1.9 mm tall on the 40 mm coin.
+- **Mesh:** 182,880 vertices, 363,622 triangles, one closed
+  surface. Textures as for the coin with the logo.
+- The words, their size, spacing and height are all in `LEGEND` in
+  `tools/coin_geometry.py`; change them and rebuild.
+
 ## Using it in After Effects
 
 Needs After Effects 24.1 or later.
 
-1. **Import** `coin-hole.glb` or `coin-logo.glb` (File › Import). Drag it into a comp; it comes in
+1. **Import** `coin-hole.glb`, `coin-logo.glb` or `coin-logo-text.glb` (File › Import). Drag it into a comp; it comes in
    as a 3D model layer.
 2. **Renderer:** Composition Settings › 3D Renderer › **Advanced 3D**.
 3. **Size:** in the layer's Model Settings, either choose **Make Comp Size**,
@@ -122,13 +153,14 @@ The tools run on Blender's Python module, without Blender itself:
 
 ```sh
 python -m venv .venv && . .venv/bin/activate
-pip install bpy numpy scipy scikit-image pillow svgpathtools   # bpy 5.2 wants Python 3.13; ffmpeg for the turntable
+pip install bpy numpy scipy scikit-image pillow svgpathtools fonttools   # bpy 5.2 wants Python 3.13; ffmpeg for the turntable
 
 cd coin/tools
 python measure_hole.py ../reference/front.png hole_outline.json   # the hole, from the photo
 python fit_thickness.py ../reference/angle.png                      # the thickness and the camera -> fit_camera.json
 python build_coin.py --turntable 96                                 # the coin with the hole: textures, GLB, previews
 python build_coin.py --variant logo --turntable 96                  # the coin with the logo (reads ../reference/beetle-logo.svg)
+python build_coin.py --variant logo-text --turntable 96             # ... and the words round it (LEGEND, in Cinzel from ../fonts)
 python build_coin.py --look                                         # quick renders while tuning the glaze
 python build_coin.py --turntable-only --turntable 96                # just the spin, from the textures already baked
 python trace_logo.py ../reference/beetle-logo.png ../reference/beetle-logo.svg   # the logo, as a vector

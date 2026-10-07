@@ -5,6 +5,7 @@ Runs on Blender's Python module (pip install bpy), with no Blender window:
 
     python build_coin.py                  # the coin with the hole
     python build_coin.py --variant logo   # the coin without the hole, the logo pressed in
+    python build_coin.py --variant logo-text  # ... and the words round it, raised
     python build_coin.py --shape-only     # quick grey renders to check the shape
     python build_coin.py --previews-only  # stills again, from the textures already baked
 
@@ -500,6 +501,7 @@ VARIANTS = {
     # name: (texture size, preview prefix, AO samples, normal map size)
     "hole": ((4096, 1024), "", 96, None),
     "logo": ((4096, 4096), "logo_", 32, (2048, 2048)),
+    "logo-text": ((4096, 4096), "logo-text_", 32, (2048, 2048)),
 }
 
 
@@ -521,7 +523,10 @@ def main():
 
     scene = reset()
     params = dict(geo.PARAMS)
-    mesh = geo.build_logo(params) if args.variant == "logo" else geo.as_mesh(*geo.build(params))
+    if args.variant == "hole":
+        mesh = geo.as_mesh(*geo.build(params))
+    else:
+        mesh = geo.build_logo(params, legend=geo.LEGEND if args.variant == "logo-text" else None)
     coin = make_coin(mesh)
     studio(scene, "dark")
 
@@ -536,7 +541,7 @@ def main():
         angle = camera_fit(scene, 315, 413, [fit[k] for k in ("yaw", "pitch", "roll", "distance", "scale", "cx", "cy")])
     previews = os.path.join(args.out, "previews")
     os.makedirs(previews, exist_ok=True)
-    show = previews_logo if args.variant == "logo" else previews_both
+    show = previews_both if args.variant == "hole" else previews_logo
 
     if args.shape_only:
         coin.data.materials.append(grey_material())

@@ -1,10 +1,13 @@
-"""The coin's shape, as numbers.
+"""The coins' shapes, as numbers.
 
 Everything is in units of the coin's radius (R = 1), with the coin lying in the
 XY plane, its face towards +Z and the hole's point towards +Y. The front and
 back are mirror images.
 
-The mesh is one quad grid wrapped twice: once around the hole (u) and once
+build() makes the coin with the hole; build_logo() the coin without it, with
+the logo pressed in and, given LEGEND, the words raised round it (see there).
+
+The coin with the hole is one quad grid wrapped twice: once around the hole (u) and once
 around the cross-section (v), so it is a torus, which is what a coin with a hole
 in it is. Each column of the grid is one slice through the coin:
 
@@ -392,6 +395,131 @@ def logo_distance(logo, polys):
     return at, contours
 
 
+# The legend: words set round the logo, the way a country's coins letter
+# their name and year. The top line reads clockwise with its feet towards the
+# middle; the bottom line reads anticlockwise with its heads towards the middle,
+# so both read upright. A small dot sits in each gap between them. The letters
+# stand up from the field.
+LEGEND = {
+    "font": os.path.join(HERE, "..", "fonts", "Cinzel-SemiBold.woff"),
+    "front": ("BEETLE", "2026"),
+    "back": ("TRUSTED HUMAN", "INTELLIGENCE"),  # as read with the coin turned over
+    "cap": 0.095,  # height of the capitals, in coin radii
+    "inner": 0.640,  # the circle the letters' inner ends sit on
+    "tracking": 0.25,  # extra space between letters, in capital heights
+    "dot": 0.015,  # radius of the dots between the lines; 0 for none
+    "raise": 0.0085,  # how far the letters stand up, before the thickness scale: their tops come level with the rim
+    "wall": 0.0018,  # half the width of their soft sides
+    "wall_levels": (-1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5),
+    "wall_step": 0.0015,
+    "grid": 5120,
+}
+
+
+def _glyphs(path):
+    """Each character's outline, as closed polygons in font units (y up), with
+    its advance and the font's capital height."""
+    from fontTools.pens.svgPathPen import SVGPathPen
+    from fontTools.ttLib import TTFont
+    from svgpathtools import parse_path
+
+    font = TTFont(path)
+    glyph_set = font.getGlyphSet()
+    cmap = font.getBestCmap()
+    cache = {}
+
+    def outline(ch):
+        if ch not in cache:
+            name = cmap[ord(ch)]
+            pen = SVGPathPen(glyph_set)
+            glyph_set[name].draw(pen)
+            polys = []
+            d = pen.getCommands()
+            if d:
+                for sub in parse_path(d).continuous_subpaths():
+                    n = max(24, int(sub.length() / 4))
+                    pts = np.array([sub.point(t) for t in np.linspace(0, 1, n, endpoint=False)])
+                    polys.append(np.c_[pts.real, pts.imag])
+            cache[ch] = (polys, font["hmtx"][name][0])
+        return cache[ch]
+
+    return outline, font["OS/2"].sCapHeight
+
+
+def legend_outline(lines, legend=LEGEND):
+    """The legend for one face, as (polygon, winding) pairs in coin radii, y up,
+    as read on that face."""
+    outline, cap_units = _glyphs(legend["font"])
+    cap, inner = legend["cap"], legend["inner"]
+    s = cap / cap_units
+    r_mid = inner + cap / 2
+    shapes, spans = [], []
+    for where, text in zip(("top", "bottom"), lines):
+        widths = [outline(ch)[1] * s for ch in text]
+        gap = legend["tracking"] * cap
+        total = sum(widths) + gap * (len(text) - 1)
+        span = total / r_mid
+        spans.append(span)
+        x = 0.0
+        for ch, w in zip(text, widths):
+            centre = x + w / 2
+            x += w + gap
+            polys, adv = outline(ch)
+            if where == "top":  # clockwise from the left, feet on the inner circle
+                th = math.pi / 2 + span / 2 - centre / r_mid
+                e_r = np.array([math.cos(th), math.sin(th)])
+                right, up, base = np.array([math.sin(th), -math.cos(th)]), e_r, inner
+            else:  # anticlockwise from the left, heads on the inner circle
+                th = -math.pi / 2 - span / 2 + centre / r_mid
+                e_r = np.array([math.cos(th), math.sin(th)])
+                right, up, base = np.array([-math.sin(th), math.cos(th)]), -e_r, inner + cap
+            for p in polys:
+                gx = (p[:, 0] - adv / 2) * s
+                gy = p[:, 1] * s
+                shapes.append(base * e_r + gx[:, None] * right + gy[:, None] * up)
+    if legend["dot"] > 0:
+        shift = (spans[0] - spans[1]) / 4
+        for th in (math.pi + shift, -shift):
+            a = np.linspace(0, 2 * math.pi, 48, endpoint=False)
+            shapes.append(np.c_[r_mid * math.cos(th) + legend["dot"] * np.cos(a), r_mid * math.sin(th) + legend["dot"] * np.sin(a)])
+    out = []
+    for p in shapes:
+        area = 0.5 * np.sum(p[:, 0] * np.roll(p[:, 1], -1) - np.roll(p[:, 0], -1) * p[:, 1])
+        out.append((p, 1 if area > 0 else -1))
+    return out, [math.degrees(x) for x in spans]
+
+
+def legend_distance(shapes, legend=LEGEND):
+    """Signed distance to the legend's letters (negative inside), as for the logo:
+    the letters are filled by their winding, so the holes in B and 0 stay open."""
+    from PIL import Image, ImageDraw
+    from scipy.ndimage import distance_transform_edt, map_coordinates
+    from skimage import measure
+
+    n = legend["grid"]
+    lim = legend["inner"] + legend["cap"] + 0.03
+    px = 2 * lim / (n - 1)
+    winding = np.zeros((n, n), np.int16)
+    for p, sign in shapes:
+        cols, rows = (p[:, 0] + lim) / px, (lim - p[:, 1]) / px
+        c0, r0 = int(cols.min()) - 1, int(rows.min()) - 1
+        c1, r1 = int(cols.max()) + 2, int(rows.max()) + 2
+        img = Image.new("1", (c1 - c0, r1 - r0), 0)
+        ImageDraw.Draw(img).polygon(list(zip(cols - c0, rows - r0)), fill=1)
+        winding[r0:r1, c0:c1] += sign * np.asarray(img, np.int16)
+    inside = winding != 0
+    sd = np.where(inside, -(distance_transform_edt(inside) - 0.5), distance_transform_edt(~inside) - 0.5) * px
+
+    def at(xy):
+        xy = np.atleast_2d(xy)
+        return map_coordinates(sd, [(lim - xy[:, 1]) / px, (xy[:, 0] + lim) / px], order=1, mode="nearest")
+
+    def contours(level):
+        return [np.c_[c[:, 1] * px - lim, lim - c[:, 0] * px] for c in measure.find_contours(sd, level)]
+
+    return at, contours
+
+
 def smootherstep(t):
     t = np.clip(t, 0, 1)
     return t * t * t * (t * (6 * t - 15) + 10)
@@ -405,11 +533,13 @@ def _resample_open(p, step, closed=True):
     return np.c_[np.interp(t, s, q[:, 0]), np.interp(t, s, q[:, 1])]
 
 
-def build_logo(params=PARAMS, logo=LOGO):
-    """The coin without the hole. Returns a dict: vertices, faces (as one flat
+def build_logo(params=PARAMS, logo=LOGO, legend=None):
+    """The coin without the hole, the logo pressed in, and with `legend` the
+    words set round it, raised. Returns a dict: vertices, faces (as one flat
     list of vertex indices and the size of each face), a uv per face corner, and
-    per-vertex `pool` (1 where the logo is pressed in) and `brk` (the top edge of
-    its walls), which the glaze uses."""
+    per-vertex `pool` (where the glaze lies thick: in the logo, and round the
+    feet of the letters) and `brk` (where it runs thin: the logo's top edge and
+    the letters' faces), which the glaze uses."""
     from scipy.spatial import Delaunay
 
     prof = revolved_profile(params)
@@ -423,45 +553,69 @@ def build_logo(params=PARAMS, logo=LOGO):
         profile's own at r0, so the two meet without a crease."""
         t = np.clip((r - r1) / span, 0, 1)
         return z0 - slope0 * span * (0.5 - (t ** 3 - t ** 4 / 2))
+
     nu = params["around"]
-    w, depth = logo["wall"], logo["depth"]
-
-    polys = logo_outline(logo)
-    dist, contours = logo_distance(logo, polys)
-
-    # Points for one face: the rim's first circle, rings that follow the logo's
-    # walls, and an even scatter over the rest.
     phi = 2 * np.pi * np.arange(nu) / nu
     ring = np.c_[np.cos(phi), np.sin(phi)] * r0
-    walls = []
-    for level in logo["wall_levels"]:
-        for c in contours(level * w):
-            if len(c) > 8:
-                walls.append(_resample_open(c, logo["wall_step"]))
-    walls = np.vstack(walls)
-    f = logo["field_step"]
-    gx, gy = np.meshgrid(np.arange(-r0, r0 + f, f), np.arange(-r0, r0 + f, f * math.sqrt(3) / 2))
-    gx = gx + (np.arange(gx.shape[0])[:, None] % 2) * f / 2
-    grid = np.c_[gx.ravel(), gy.ravel()]
-    grid = grid[np.hypot(grid[:, 0], grid[:, 1]) < r0 - 0.6 * f]
-    d = dist(grid)
-    lo, hi = min(logo["wall_levels"]) * w - 0.6 * f, max(logo["wall_levels"]) * w + 0.6 * f
-    grid = grid[(d < lo) | (d > hi)]
-    inner = np.vstack([walls, grid])
-    inner = inner[np.hypot(inner[:, 0], inner[:, 1]) < r0 - 0.3 * f]
-    pts2 = np.vstack([ring, inner])
-    tris = Delaunay(pts2).simplices
-    a, b, c = pts2[tris[:, 0]], pts2[tris[:, 1]], pts2[tris[:, 2]]
-    cross = (b[:, 0] - a[:, 0]) * (c[:, 1] - a[:, 1]) - (b[:, 1] - a[:, 1]) * (c[:, 0] - a[:, 0])
-    tris = np.where((cross < 0)[:, None], tris[:, [0, 2, 1]], tris)  # anticlockwise: facing +z
-    tris = tris[np.abs(cross) > 1e-12]
+    logo_dist, logo_contours = logo_distance(logo, logo_outline(logo))
 
-    dd = dist(pts2)
-    pressed = 1 - smootherstep((dd + w) / (2 * w))
-    r = np.hypot(pts2[:, 0], pts2[:, 1])
-    z_face = (field(r) - depth * pressed) * params["thickness"]
-    z_face[:nu] = z0 * params["thickness"]
-    brk = np.exp(-(((dd - 1.1 * w) / (0.6 * w)) ** 2))
+    def walls(contours, levels, width, step):
+        out = []
+        for level in levels:
+            for c in contours(level * width):
+                if len(c) > 8:
+                    out.append(_resample_open(c, step))
+        return np.vstack(out)
+
+    def face(lines):
+        """One face as read from in front of it: 2D points (the rim's circle
+        first), triangles facing +z, heights, and the glaze's two attributes."""
+        w, depth = logo["wall"], logo["depth"]
+        parts = [walls(logo_contours, logo["wall_levels"], w, logo["wall_step"])]
+        bands = [(logo_dist, min(logo["wall_levels"]) * w, max(logo["wall_levels"]) * w)]
+        text_dist = None
+        if lines:
+            text_dist, text_contours = legend_distance(legend_outline(lines, legend)[0], legend)
+            wt = legend["wall"]
+            parts.append(walls(text_contours, legend["wall_levels"], wt, legend["wall_step"]))
+            bands.append((text_dist, min(legend["wall_levels"]) * wt, max(legend["wall_levels"]) * wt))
+
+        # An even scatter over the flat, kept clear of the walls.
+        f = logo["field_step"]
+        gx, gy = np.meshgrid(np.arange(-r0, r0 + f, f), np.arange(-r0, r0 + f, f * math.sqrt(3) / 2))
+        gx = gx + (np.arange(gx.shape[0])[:, None] % 2) * f / 2
+        grid = np.c_[gx.ravel(), gy.ravel()]
+        grid = grid[np.hypot(grid[:, 0], grid[:, 1]) < r0 - 0.6 * f]
+        for dist, lo, hi in bands:
+            d = dist(grid)
+            grid = grid[(d < lo - 0.6 * f) | (d > hi + 0.6 * f)]
+        inner = np.vstack(parts + [grid])
+        inner = inner[np.hypot(inner[:, 0], inner[:, 1]) < r0 - 0.3 * f]
+        pts2 = np.vstack([ring, inner])
+        tris = Delaunay(pts2).simplices
+        a, b, c = pts2[tris[:, 0]], pts2[tris[:, 1]], pts2[tris[:, 2]]
+        cross = (b[:, 0] - a[:, 0]) * (c[:, 1] - a[:, 1]) - (b[:, 1] - a[:, 1]) * (c[:, 0] - a[:, 0])
+        tris = np.where((cross < 0)[:, None], tris[:, [0, 2, 1]], tris)  # anticlockwise: facing +z
+        tris = tris[np.abs(cross) > 1e-12]
+
+        dd = logo_dist(pts2)
+        pressed = 1 - smootherstep((dd + w) / (2 * w))
+        r = np.hypot(pts2[:, 0], pts2[:, 1])
+        z = field(r) - depth * pressed
+        pool = pressed
+        brk = np.exp(-(((dd - 1.1 * w) / (0.6 * w)) ** 2))
+        if text_dist is not None:
+            dt = text_dist(pts2)
+            raised = 1 - smootherstep((dt + wt) / (2 * wt))
+            z = z + legend["raise"] * raised
+            pool = np.maximum(pool, 0.35 * np.exp(-(((dt - 1.4 * wt) / (1.0 * wt)) ** 2)))
+            brk = np.maximum(brk, 0.75 * raised)
+        z = z * params["thickness"]
+        z[:nu] = z0 * params["thickness"]
+        return pts2, tris, z, pool, brk
+
+    front_pts, front_tris, front_z, front_pool, front_brk = face(legend["front"] if legend else None)
+    back_pts, back_tris, back_z, back_pool, back_brk = face(legend["back"] if legend else None)
 
     # The rim and side: the revolved profile, front then back.
     rows = np.c_[prof[:, 0], prof[:, 1] * params["thickness"]]
@@ -470,13 +624,16 @@ def build_logo(params=PARAMS, logo=LOGO):
     circle = np.c_[np.cos(phi), np.sin(phi)]
     strip = np.concatenate([circle[:, None, :] * rows[None, :, :1], np.broadcast_to(rows[None, :, 1:], (nu, nr, 1))], axis=2)
 
-    m = len(inner)
+    mf, mb = len(front_pts) - nu, len(back_pts) - nu
     verts = np.vstack([
         strip.reshape(-1, 3),
-        np.c_[inner, z_face[nu:]],
-        np.c_[-inner[:, 0], inner[:, 1], -z_face[nu:]],  # the back, mirrored so the logo reads from behind
+        np.c_[front_pts[nu:], front_z[nu:]],
+        # The back is designed as it is read, from behind, so in the model it
+        # is mirrored: its words and logo read the right way round when the
+        # coin is turned over.
+        np.c_[-back_pts[nu:, 0], back_pts[nu:, 1], -back_z[nu:]],
     ])
-    base_f, base_b = nu * nr, nu * nr + m
+    base_f, base_b = nu * nr, nu * nr + mf
 
     def front_index(i):
         return np.where(i < nu, i * nr, base_f + i - nu)
@@ -485,24 +642,23 @@ def build_logo(params=PARAMS, logo=LOGO):
         mirror = (nu // 2 - i) % nu  # the column at pi - phi
         return np.where(i < nu, mirror * nr + (nr - 1), base_b + i - nu)
 
-    faces_front = front_index(tris)
-    faces_back = back_index(tris)  # mirroring turns them round, so they face -z
+    faces_front = front_index(front_tris)
+    faces_back = back_index(back_tris)  # mirroring turns them round, so they face -z
 
     jj, rr = np.meshgrid(np.arange(nu), np.arange(nr - 1), indexing="ij")
     j1 = (jj + 1) % nu
     quads = np.stack([jj * nr + rr, jj * nr + rr + 1, j1 * nr + rr + 1, j1 * nr + rr], -1).reshape(-1, 4)
-    # Face the side wall outwards.
-    side = nr // 2 - 1
-    q = quads[side]
+    flip = False
+    q = quads[nr // 2 - 1]  # on the side wall: it should face outwards
     n = np.cross(verts[q[1]] - verts[q[0]], verts[q[2]] - verts[q[0]])
-    if n @ verts[q[0]] * np.array([1, 1, 0]).sum() < 0 or n[:2] @ verts[q[0], :2] < 0:
-        quads = quads[:, ::-1]
+    if n[:2] @ verts[q[0], :2] < 0:
+        quads, flip = quads[:, ::-1], True
 
     # uv: the front in the top-left square, the back in the top-right, the
     # rim and side along the bottom half.
     sc = 0.245 / r0
-    uv_front = np.c_[0.25 + pts2[:, 0] * sc, 0.75 + pts2[:, 1] * sc]
-    uv_back = np.c_[0.75 + pts2[:, 0] * sc, 0.75 + pts2[:, 1] * sc]
+    uv_front = np.c_[0.25 + front_pts[:, 0] * sc, 0.75 + front_pts[:, 1] * sc]
+    uv_back = np.c_[0.75 + back_pts[:, 0] * sc, 0.75 + back_pts[:, 1] * sc]
     seg = np.linalg.norm(np.diff(rows, axis=0), axis=1)
     vrow = 0.01 + 0.48 * np.r_[0, np.cumsum(seg)] / seg.sum()
     ucol = np.r_[np.arange(nu) / nu, 1.0]
@@ -512,21 +668,18 @@ def build_logo(params=PARAMS, logo=LOGO):
         np.c_[ucol[jj.ravel() + 1], vrow[rr.ravel() + 1]],
         np.c_[ucol[jj.ravel() + 1], vrow[rr.ravel()]],
     ], 1)
-    if quads is not None and (quads[0] != np.array([0, 1, nr + 1, nr])).any():
+    if flip:
         uv_quads = uv_quads[:, ::-1]
 
     loops = np.concatenate([faces_front.ravel(), faces_back.ravel(), quads.ravel()])
-    sizes = np.r_[np.full(len(tris) * 2, 3), np.full(len(quads), 4)]
-    uv = np.vstack([uv_front[tris].reshape(-1, 2), uv_back[tris].reshape(-1, 2), uv_quads.reshape(-1, 2)])
+    sizes = np.r_[np.full(len(front_tris) + len(back_tris), 3), np.full(len(quads), 4)]
+    uv = np.vstack([uv_front[front_tris].reshape(-1, 2), uv_back[back_tris].reshape(-1, 2), uv_quads.reshape(-1, 2)])
 
-    attr = np.zeros(len(verts))
-    pool = attr.copy()
-    pool[base_f:base_b] = pressed[nu:]
-    pool[base_b:] = pressed[nu:]
-    edge = attr.copy()
-    edge[base_f:base_b] = brk[nu:]
-    edge[base_b:] = brk[nu:]
-    return {"verts": verts, "loops": loops, "sizes": sizes, "uv": uv, "attrs": {"pool": pool, "brk": edge}}
+    pool = np.zeros(len(verts))
+    brk = np.zeros(len(verts))
+    pool[base_f:base_b], pool[base_b:] = front_pool[nu:], back_pool[nu:]
+    brk[base_f:base_b], brk[base_b:] = front_brk[nu:], back_brk[nu:]
+    return {"verts": verts, "loops": loops, "sizes": sizes, "uv": uv, "attrs": {"pool": pool, "brk": brk}}
 
 
 def as_mesh(verts, quads, uv):
@@ -556,8 +709,9 @@ if __name__ == "__main__":
     v, q, uv = build()
     print(f"with the hole: {len(v)} vertices, {len(q)} quads, {2 * len(q)} triangles")
     print("extent", v.min(0).round(4), v.max(0).round(4))
-    mesh = build_logo()
-    bad, vol = check(mesh)
-    tris = int((mesh["sizes"] - 2).sum())
-    print(f"with the logo: {len(mesh['verts'])} vertices, {tris} triangles; {bad} bad edges; volume {vol:.4f} R^3")
-    print("extent", mesh["verts"].min(0).round(4), mesh["verts"].max(0).round(4))
+    for label, legend in (("with the logo", None), ("with the logo and legend", LEGEND)):
+        mesh = build_logo(legend=legend)
+        bad, vol = check(mesh)
+        tris = int((mesh["sizes"] - 2).sum())
+        print(f"{label}: {len(mesh['verts'])} vertices, {tris} triangles; {bad} bad edges; volume {vol:.4f} R^3")
+        print("extent", mesh["verts"].min(0).round(4), mesh["verts"].max(0).round(4))

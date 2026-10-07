@@ -7,6 +7,8 @@ tools.
 
 ![Photo and model, from the front and from the side](previews/compare.png)
 
+![The model turning](previews/turntable.gif)
+
 ## What is here
 
 | File | What it is |
@@ -102,6 +104,7 @@ python measure_hole.py ../reference/front.png hole_outline.json   # the hole, fr
 python fit_thickness.py ../reference/angle.png                      # the thickness and the camera -> fit_camera.json
 python build_coin.py --turntable 72                                 # textures, GLB, previews
 python build_coin.py --look                                         # quick renders while tuning the glaze
+python build_coin.py --turntable-only --turntable 96                # just the spin, from the textures already baked
 ```
 
 `fit_thickness.py` reports the thickness; it goes into `PARAMS["thickness"]` in

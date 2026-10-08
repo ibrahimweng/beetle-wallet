@@ -131,6 +131,14 @@ export const HOME: Feature = {
       seed: { progress: {}, session: sessionFor(account(LAB_PHONE)) },
     },
     {
+      id: 'home-tour',
+      icon: 'home-filled',
+      title: 'The tour',
+      sub: 'A new account’s first home: the card, Send and Receive, Activities and the place to ask, Skip at the top',
+      href: '/home?tour=1',
+      seed: { progress: {}, session: sessionFor(account(LAB_PHONE)) },
+    },
+    {
       id: 'home-first-question',
       icon: 'chat',
       title: 'The first question',

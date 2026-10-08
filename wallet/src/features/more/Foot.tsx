@@ -27,6 +27,7 @@
    phone with the home line just over the line instead (see barLift). */
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Keyboard, Platform, StyleSheet, View, useWindowDimensions, type AccessibilityActionEvent } from 'react-native';
+import { spotRef } from '../home/spots';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tabs, useHoldPages, useTab, type Tab } from '../tabs';
@@ -589,6 +590,8 @@ function Glyphs() {
   };
   const item = (glyph: IconName, size: number, label: string, t: Tab) => (
     <Tap accessibilityRole="button" accessibilityLabel={label} aria-selected={tab === t} onPress={() => go(t)} scale={0.9} style={s.item} hitSlop={6} testID={`glyph-${t}`}>
+      {/* Activities' place, for home's tour (Round 28) */}
+      {t === 'activities' ? <View ref={spotRef('activities')} collapsable={false} pointerEvents="none" style={StyleSheet.absoluteFill} /> : null}
       <Icon name={glyph} size={size} colour={tab === t ? colour.ink : colour.textTertiary} />
     </Tap>
   );

@@ -3,7 +3,11 @@
    one of the app's pages, so what it opens stays in the app's one stack).
    It moves the way the phone does, as the app's own stack does (see
    app/(app)/_layout.tsx): a screen slides in from the right and back out.
-   Each page of the app carries its own foot.
+   Each page of the app carries its own foot. Two arrivals do not slide
+   (Round 28): the way in coming from the opening, whose logo is already
+   where the welcome has it, and the app itself, which home opens onto from
+   behind the way in's dark (see onboarding/arrival.ts, drawn here above
+   every screen).
 
    It also keeps what went wrong (services/problems.ts): an error that would
    stop the app is written down before it does, and a build with the lab says
@@ -17,7 +21,7 @@
    then Body goes on in Geist. */
 import React, { useEffect, useState } from 'react';
 import { Alert, Platform, View } from 'react-native';
-import { Stack, TransitionPresets } from 'expo-router/js-stack';
+import { CardStyleInterpolators, Stack, TransitionPresets } from 'expo-router/js-stack';
 import type { ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { loadAsync, useFonts } from 'expo-font';
@@ -33,8 +37,12 @@ import { copyText } from '../src/features/receive/clipboard';
 import { keepProblem, problemOf, takeLastProblem, watchProblems } from '../src/services/problems';
 import { FONT_FILES, REMOTE_FONTS, REMOTE_WAIT } from '../src/design/fonts';
 import { withoutProse } from '../src/design/tokens';
+import { ArrivalLayer } from '../src/features/onboarding/Arrival';
 
 watchProblems();
+
+/** A screen that is simply there, drawn in place of the one before rather than sliding over it. */
+const IN_PLACE = { animation: 'none', cardStyleInterpolator: CardStyleInterpolators.forNoAnimation } as const;
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 /* the web build is a picture of the phone: no browser focus ring on a field, which the phone never draws */
@@ -85,9 +93,14 @@ export default function Root() {
           <StatusBar style="dark" />
           <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right', ...TransitionPresets.SlideFromRightIOS, cardStyle: { backgroundColor: colour.surface } }}>
             {/* signed in, there is no swiping back into the way in */}
-            <Stack.Screen name="(app)" options={{ gestureEnabled: false }} />
+            <Stack.Screen name="(app)" options={{ gestureEnabled: false, ...IN_PLACE }} />
             <Stack.Screen name="index" options={{ gestureEnabled: false }} />
+            <Stack.Screen
+              name="way-in"
+              options={({ route }: { route: { params?: object } }) => ((route.params as { from?: string } | undefined)?.from === 'boot' ? { gestureEnabled: false, ...IN_PLACE } : {})}
+            />
           </Stack>
+          <ArrivalLayer />
           <LabTab />
           {/* over everything but the toasts: the app locked, on opening and after the wait */}
           <AppLock />

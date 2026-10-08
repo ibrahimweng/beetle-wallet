@@ -13,9 +13,9 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   owner's word). Where the frames have black, the app has the brand's ink
   `#2b2721`; the page is a neutral white `#fafaf9`, only just off pure, so
   the screens read clean and professional, never moody; the pale grey is
-  `#f1f0ed`, a step down. The dark card and the chat are the ink, with the
-  brand's paper `#fbefe3` for what was white on them and its clay `#bcaa97`
-  for the mark and the kobo. The words below still say white and black for
+  `#f1f0ed`, a step down. The dark card and the chat are the way in's very
+  dark brown `#1a130d` (Round 28), with the brand's paper `#fbefe3` for what
+  was white on them and its clay `#bcaa97` for the mark and the kobo. The words below still say white and black for
   the page and the card: read them as the neutral white and the ink.
 - **One loud colour**: the orange `#f04f22`, for what moves (a switch on, a
   bar filling, the caret, a dot that is new) and for what is a link, where
@@ -46,8 +46,16 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   ease in and out, the soft blur under it travelling round its rim with it;
   the coin with the logo and its words turns where money is confirmed, on a
   receipt in the tick's place and on the chat's receipt card in the
-  glyph's, a turn and a half landing face on. The opening is the holed coin
-  turning, then the logo and its name coming out where it was.
+  glyph's, a turn and a half landing face on.
+- **The coin walks you in** (Round 28): the way in has no washes of colour;
+  the holed coin is one coin from the welcome to home. Open an account and
+  it rises into the room at the top of the steps, moving up and growing
+  smaller as the finished steps stack under it; done, it comes to the
+  middle and breathes, and the dark takes an impact (it swells, blurs and
+  fades) while an oval opens fast onto home.
+- **The logo first** (Round 28): the opening is the logo and its name in the
+  middle, out of a blur that passes across them, then rising to the
+  welcome's place at the top.
 - **The drawings** (Round 26): a wing's veins across a top corner (the steps
   of the way in after the first, the lock, faint in the paper on the dark
   card). Light, behind everything, outside the layout, never over words: a

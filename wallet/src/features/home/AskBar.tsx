@@ -7,6 +7,7 @@
    trade places through a blur, the way everything here changes. */
 import React, { forwardRef, useEffect } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
+import { spotRef } from './spots';
 import { SvgXml } from 'react-native-svg';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Icon, Tap, blurred, colour, font, motion, standard, useStill } from '../../design';
@@ -43,7 +44,7 @@ export const AskBar = forwardRef<
   const barStyle = useAnimatedStyle(() => ({ marginRight: t.value * (DISC + GAP) }));
   const discStyle = useAnimatedStyle(() => ({ opacity: t.value, transform: [{ scale: 0.8 + t.value * 0.2 }], ...blurred((1 - t.value) * 4) }));
   return (
-    <View style={s.row} testID="ask-row">
+    <View ref={spotRef('ask')} collapsable={false} style={s.row} testID="ask-row">
       <Animated.View style={[s.bar, active ? s.barActive : s.barIdle, barStyle]} testID="ask-bar">
         <Animated.View pointerEvents="none" style={[s.ringView, ring]} />
         <SvgXml xml={PETALS} width={22} height={22} />

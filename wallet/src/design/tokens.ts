@@ -44,31 +44,33 @@ export const colour = {
   scrim: 'rgba(43, 39, 33, 0.32)',
 } as const;
 
-/* The dark card at the top of home, and the chat inside it: the brand's warm
-   ink behind everything, a step lighter for what you said and for a panel's
-   head, and cream text that is never quite paper except a figure. */
+/* The dark card at the top of home, and the chat inside it: the way in's
+   very dark brown behind everything (Round 28, the owner's word: the card on
+   the first page's dark; every step lighter moved down with it), a step
+   lighter for what you said and for a panel's head, and cream text that is
+   never quite paper except a figure. */
 export const dark = {
-  card: '#2b2721',
-  chip: '#4a433b',
+  card: '#1a130d',
+  chip: '#392f27',
   chipText: '#a89b8a',
   chipTextOpen: '#efe3cb',
   /* the brand's clay: the mark on the dark, and the kobo after the balance */
   kobo: '#bcaa97',
-  bubble: '#3d3630',
+  bubble: '#2c221c',
   text: '#ddd0ba',
   textSoft: '#b3a693',
   label: '#998c7b',
-  panel: '#36302a',
+  panel: '#251c16',
   /* the accent, lifted to read as a link on the dark (a receipt opened in the chat, Round 20) */
   link: '#ff9466',
   /* the chats drawer's ground: a step lighter than the chat's own dark, so
      it reads as a layer over it (Round 20, the owner's word) */
-  drawer: '#342e28',
-  edge: '#3d3630',
-  edgeStrong: '#4d463e',
+  drawer: '#231a14',
+  edge: '#2c221c',
+  edgeStrong: '#3c322a',
   pillText: '#efe3cb',
   grabber: '#bcaa97',
-  divider: '#3d3630',
+  divider: '#2c221c',
   /* the quiet card that stands in the card when there is nothing to offer
      (Round 15, the owner's frame): a ring rather than a ground, a clay tile */
   quietRing: 'rgba(239, 227, 203, 0.2)',

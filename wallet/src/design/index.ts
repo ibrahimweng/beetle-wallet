@@ -30,3 +30,4 @@ export * from './Coin';
 export * from './Drawn';
 export * from './scheme';
 export * from './Lockup';
+export * from './LogoReveal';

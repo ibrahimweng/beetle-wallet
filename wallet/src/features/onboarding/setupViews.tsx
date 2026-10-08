@@ -49,7 +49,6 @@ export function address(c: Ctx): StageView {
   return {
     icon: 'home-filled',
     tint: washes.finish.tone,
-    wash: washes.finish,
     title: 'Where you live',
     sub: 'Street, town and state. No utility bill, and nothing arrives in the post.',
     bodyKey: 'address',
@@ -105,7 +104,6 @@ export function idcard(c: Ctx): StageView {
   return {
     icon: 'camera-filled',
     tint: washes.idcard.tone,
-    wash: washes.idcard,
     title: 'A photo of an ID',
     sub: 'A driver’s licence, a passport or a voter’s card. Any of the three will do.',
     bodyKey: 'idcard',
@@ -138,7 +136,6 @@ export function income(c: Ctx): StageView {
   return {
     icon: 'receive-filled',
     tint: washes.income.tone,
-    wash: washes.income,
     title: 'Where your money comes from',
     sub: 'One tap. It is the last question, and every bank has to ask it.',
     bodyKey: 'income',
@@ -169,7 +166,8 @@ export function income(c: Ctx): StageView {
 export function full(c: Ctx): StageView {
   const finish = () => {
     c.setSetup({ done: true });
-    c.toHome(() => c.app.startOver());
+    /* from the ready screen, the account opened a moment ago, home has not been seen yet: the tour comes with it */
+    c.toHome(() => c.app.startOver(), { tour: !!c.app.progress.accountNumber });
   };
   return {
     icon: 'tick',

@@ -30,6 +30,7 @@ import { Stack, TransitionPresets, type StackNavigationOptions } from 'expo-rout
 import { colour } from '../../src/design';
 import { SheetScope, forModalPresentationIOS, isSheet } from '../../src/design/sheetStack';
 import { FootHost, FootScope } from '../../src/features/more/Foot';
+import { TourHost } from '../../src/features/home/Tour';
 
 /** A page: the phone's own slide. */
 export const PAGE: StackNavigationOptions = {
@@ -100,6 +101,8 @@ export default function AppLayout() {
       </Stack>
       {/* the foot, over every page, changing shape from one page's foot to the next */}
       <FootHost />
+      {/* home's tour for a new account, over the page and the foot alike (Round 28) */}
+      <TourHost />
     </View>
   );
 }

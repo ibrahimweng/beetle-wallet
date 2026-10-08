@@ -37,6 +37,8 @@ import Animated, {
 import { Caption, Drawing, Icon, Label, Swap, Tap, blurred, colour, dark, feel, font, keys, motion, settle as settleCurve, soft, swipes, useStill } from '../../design';
 import { useDeparture } from '../../design/journey';
 import { Frost } from './Frost';
+import { spotRef } from './spots';
+import { whenOpening } from '../onboarding/arrival';
 import { GATHER, PULSE, closingGlow, gathered, knocks, uniformsOf } from './glow';
 import { Light } from './Light';
 
@@ -254,11 +256,14 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
   const figureTopOpen = top + (HEADER_H - 20) / 2;
   const chipTopOpen = top + (HEADER_H - 24) / 2;
   const [opened, setOpened] = useState(false);
-  /* the figure comes into focus rather than counting up */
+  /* the figure comes into focus rather than counting up; coming in from the way in, as the dark opens onto home, so it
+     is seen (Round 28) */
   const focus = useSharedValue(still ? 1 : 0);
   useEffect(() => {
     if (still) return;
-    focus.value = withDelay(120, withTiming(1, { duration: motion.resolve, easing: settleCurve }));
+    return whenOpening(() => {
+      focus.value = withDelay(120, withTiming(1, { duration: motion.resolve, easing: settleCurve }));
+    });
   }, [still, focus]);
   const settle = (to: boolean) => {
     setOpened(to);
@@ -423,6 +428,8 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
 
   return (
     <Animated.View style={[s.card, card]} testID="card">
+      {/* the card's place, for the tour (Round 28) */}
+      <View ref={spotRef('card')} collapsable={false} pointerEvents="none" style={StyleSheet.absoluteFill} />
       {/* a wing's veins in the paper, faint, across the card's top corner, as the brand lays them on its dark cards (Round 26) */}
       <Drawing name="wing" width={210} opacity={0.1} tint={dark.paper} turn={-8} style={{ top: 18, right: -58 }} />
       {/* the open card: the conversation, running up under the header and down
@@ -478,12 +485,14 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
           <View style={s.actions}>
             <Tap ref={send.ref} accessibilityRole="button" accessibilityLabel="Send" onPress={send.onPress} style={s.pill} testID="send-pill">
               {send.wash}
+              <View ref={spotRef('send')} collapsable={false} pointerEvents="none" style={StyleSheet.absoluteFill} />
               <View style={s.pillGlyph} testID="send-disc">
                 <Icon name="send" size={16} colour={colour.ink} />
               </View>
               <Label>Send</Label>
             </Tap>
             <Tap accessibilityRole="button" accessibilityLabel="Receive" onPress={onReceive} style={s.pill} testID="receive-pill">
+              <View ref={spotRef('receive')} collapsable={false} pointerEvents="none" style={StyleSheet.absoluteFill} />
               <View style={s.pillGlyph} testID="receive-disc">
                 <Icon name="down" size={16} colour={colour.ink} />
               </View>

@@ -1650,6 +1650,61 @@ holed coin on the way in, the logo coin on receipts; the opening dark too.
 - [x] Tested: tsc, the unit tests, the walk (the opening found by its place,
       not the word Beetle it no longer writes) and the Figma check.
 
+## Round 28 · The coin that walks you in, the logo first, home's tour
+
+Asked by the owner: no washes of colour at the top of the way in; Open an
+account sends the coin up to where they were, and it moves up a little as
+the steps stack under it; done signing up, the coin comes to the middle and
+breathes, then the dark takes an impact (blur, and gone) while an oval opens
+fast onto home; the opening shows the real logo first, revealed with a
+progressive blur in the middle and rising to its place at the top of the
+welcome; the dark card on home on the way in's dark; and a first version of
+a skippable tour of home. Four answers: the logo reveals in the middle then
+rises; the finish is after Take me in; the coin breathes, then the impact
+and the fast oval; build the tour now.
+
+- [x] The washes are gone from every step (the glyphs keep their colours).
+- [x] One coin (onboarding/arrival.ts, drawn over every screen by
+      Arrival.tsx): the welcome's coin is the same coin all the way into
+      home, so its turn never starts again. The way in measures the room the
+      column leaves above itself and puts the coin in it: on the welcome the
+      frame's room under the logo; on a step from under the way back to 8
+      above the stack, no taller than the room and no wider than 210, gone
+      when there is less than 72. As rows stack up it rises and shrinks with
+      them, following the column as it moves.
+- [x] Done (Take me in, on the ready screen and on Everything is on, and the
+      way back in): the steps leave, the coin glides to the middle at 300
+      and breathes twice in two seconds; once the steps have gone the dark
+      covers everything, the account is opened and home is put together
+      under it; then the dark swells, blurs and fades while an oval opens
+      from the middle onto home, and the coin dips and goes out into the
+      blur. Skia draws the dark and its oval on the phone; the web masks it.
+      If opening the account fails, everything comes back as it was.
+- [x] What home does as it arrives waits for the dark to open: the balance
+      comes into focus as the oval opens, and the first-time dip after it,
+      so neither is spent unseen; the tour once the dark has gone.
+- [x] The opening (app/index.tsx): the logo and its name, 140 across, in the
+      middle; a blur passes across them left to right, each shape sharpening
+      a little after the one before (Skia on the phone, so an iPhone blurs it
+      too); then, on a new phone, it rises and shrinks to the welcome's logo
+      at 56, and the welcome takes over without sliding in. Going home or
+      back to a step, it fades instead. The phone's own splash is the dark.
+- [x] Home's card and the chat on `#1a130d`, every step lighter moved down
+      with it (the bubble, the chip, the panel, the drawer, the edges).
+- [x] The tour (home/Tour.tsx), first version: a new account's first home,
+      once the dark has opened onto it. Four steps, each lit in the way in's
+      dark with the rest under it: the card (it dips, so the pull is seen),
+      Send and Receive, Activities on the bar, and the place to ask (the
+      chat opens for it, and closes after). A card beside each with its
+      line, `n of 4`, the dots and Next, Done on the last; Skip at the top
+      the whole time, and the phone's back is Skip too. Home's own first-time
+      dip waits for it. It is not kept: an app closed before home was
+      reached does not bring it back. The lab has it as The tour.
+- [x] The welcome's title leaves at its own size, not the big serif's.
+- [x] Tested: tsc, the unit tests (the worklet audit included), the walk
+      (the way into home and every step of the tour, Skip on each) and the
+      Figma check.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

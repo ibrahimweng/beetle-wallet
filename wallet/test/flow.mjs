@@ -448,8 +448,30 @@ try {
   await shot('ready');
   await tap('Take me in');
 
+  /* done (Round 28): the steps leave, the coin comes to the middle and breathes for two seconds while the account
+     is opened and home is put together under the dark; then the dark opens onto home in an oval, and a new
+     account's tour begins */
+  await page.getByTestId('cover').first().waitFor();
+  await shot('home-arriving', 1200);
+  must((await page.getByTestId('tour').count()) === 0, 'the tour should wait for the dark to open onto home');
+  await page.getByTestId('tour-tip').first().waitFor({ timeout: 8000 });
+  must((await page.getByTestId('cover').count()) === 0, 'the dark should be gone once the tour begins');
   await see(NEW_HOME);
   await onPage('home');
+  await shot('tour-card');
+  for (const [step, name] of [
+    ['2 of 4', 'tour-send-receive'],
+    ['3 of 4', 'tour-activities'],
+    ['4 of 4', 'tour-ask'],
+  ]) {
+    must(await page.getByTestId('tour-skip').isVisible(), 'Skip should be at the top on every step of the tour');
+    await tap('Next');
+    await see(step);
+    await shot(name, name === 'tour-ask' ? 1500 : 800);
+  }
+  /* Skip, from the last step: the chat the tour opened closes, and home is as it was */
+  await tap('Skip');
+  await page.getByTestId('tour').waitFor({ state: 'detached' });
   await shot('home-new');
 
   console.log('Coming back');
@@ -542,6 +564,10 @@ try {
 
   await arrives(DEMO_HOME);
   at('/home');
+  /* signed in, the coin breathes in the middle and the dark opens onto home (Round 28); the balance comes into focus
+     as it opens, so it is seen */
+  await page.getByTestId('cover').first().waitFor();
+  await page.getByTestId('arrival-opening').waitFor({ timeout: 10000 });
   const balance = await trace('home-balance', 1100, [['balance', '595,320', true]], { picture: { at: 220, name: 'home-resolving' } });
   const blurry = firstAt(balance, 'balance', b => b.blur > 1);
   const clear = firstAt(balance, 'balance', b => b.blur < 0.05 && b.opacity > 0.98);

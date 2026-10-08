@@ -1,11 +1,11 @@
-/* What each stage of the way in shows: the glyph and its colour, the wash,
-   the title and the line under it, what sits beneath, what waits at the
+/* What each stage of the way in shows: the glyph and its colour, the
+   title and the line under it, what sits beneath, what waits at the
    bottom, and what a tap does. Every stage is a plain function of the
    screen's state, so the choreography in WayIn.tsx can move the pieces
    without knowing which step they belong to. The rules and the mock
    services are the same ones the separate screens used. */
 import React, { ReactNode, useEffect } from 'react';
-import { Platform, StyleProp, View, ViewStyle, useWindowDimensions } from 'react-native';
+import { Platform, StyleProp, View, ViewStyle } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import {
@@ -14,12 +14,10 @@ import {
   Body,
   Caption,
   Card,
-  CoinLoop,
   Display,
   Field,
   Icon,
   Label,
-  Lockup,
   Meta,
   More,
   Pips,
@@ -50,10 +48,10 @@ export type Note = { text: string; tone?: 'secondary' | 'bad' | 'accent' } | nul
 export type Bar = { label: string; onPress: () => void; disabled?: boolean; /** Back at the bottom left, beside the button, where a frame draws it there */ back?: () => void };
 
 export type StageView = {
-  /** the glyph above the title, and the colour it and the wash carry; the welcome has none (Round 27) */
+  /** the glyph above the title, and its colour; the welcome has none (Round 27). The washes of colour at the top are
+      gone (Round 28, the owner's word): the coin rises into their place */
   icon: IconName | 'tick' | 'none';
   tint?: string;
-  wash?: { tone: string; height?: number };
   title: string;
   /** the ready screen's title is the smaller one, as the frame draws it */
   small?: boolean;
@@ -121,8 +119,8 @@ export type Ctx = {
   /** out of setting up: back to the ready screen, or to the page that opened it */
   exit: () => void;
   go: (next: Stage, direction?: 1 | -1) => void;
-  /** leave the screen for home, after doing something */
-  toHome: (after?: () => Promise<void>) => void;
+  /** leave the screen for home, after doing something; `tour`: a new account, shown round home once it is there */
+  toHome: (after?: () => Promise<void>, opts?: { tour?: boolean }) => void;
 };
 
 const TRIES = 3;
@@ -196,24 +194,8 @@ const typing = (c: Ctx, max: number, full: (d: string) => void) => (key: string)
 /* The first screen, to the owner's frame (1463:14533, Round 27): on the
    dark, the logo and its name at the top, the punch-holed coin turning in
    the room under them, then the title, its line, and the two ways in. The
-   room for the coin is the frame's on a phone its height, less on a shorter
-   one, the coin shrinking with it. */
-const COIN_ROOM = 475.51;
-const COIN = 378;
-
-function WelcomeTop() {
-  const { height } = useWindowDimensions();
-  const room = Math.max(240, Math.min(COIN_ROOM, height - 852 + COIN_ROOM));
-  return (
-    <View style={{ alignItems: 'center', paddingBottom: 8 }} testID="welcome-top">
-      <Lockup />
-      <View style={{ height: room, alignSelf: 'stretch', marginTop: 20, alignItems: 'center', justifyContent: 'center' }}>
-        <CoinLoop size={Math.round((COIN * room) / COIN_ROOM)} />
-      </View>
-    </View>
-  );
-}
-
+   logo and the coin are the way in's own since Round 28 (WayIn.tsx), so the
+   coin can carry on into the steps; here is only what is under them. */
 function welcome(_c: Ctx): StageView {
   return {
     icon: 'none',
@@ -221,7 +203,6 @@ function welcome(_c: Ctx): StageView {
     subBody: true,
     title: 'Intelligent finance',
     sub: 'A bank that answers when you ask it something. Opening one takes about a minute, and all it needs is your number and your NIN.',
-    above: <WelcomeTop />,
     bodyKey: 'welcome',
     body: null,
     welcome: true,
@@ -253,7 +234,6 @@ function number(c: Ctx): StageView {
   return {
     icon: 'phone-filled',
     tint: washes.number.tone,
-    wash: washes.number,
     title: 'Your number',
     sub: 'I will text you six digits to check the number is yours.',
     bodyKey: 'number',
@@ -264,10 +244,7 @@ function number(c: Ctx): StageView {
 }
 
 /* Six digits from a text, on the way in and on the way back in. */
-function code(
-  c: Ctx,
-  o: { phone: string; icon: IconName; tint?: string; wash: { tone: string; height?: number }; title: string; sub: string; onVerified: (token: string) => Promise<void>; back: () => void },
-): StageView {
+function code(c: Ctx, o: { phone: string; icon: IconName; tint?: string; title: string; sub: string; onVerified: (token: string) => Promise<void>; back: () => void }): StageView {
   const resend = async (why?: string) => {
     c.setBusy(true);
     c.setNote({ text: why ?? 'Sending another…' });
@@ -312,7 +289,6 @@ function code(
   return {
     icon: o.icon,
     tint: o.tint,
-    wash: o.wash,
     title: o.title,
     sub: o.sub,
     bodyKey: `code:${o.phone}`,
@@ -343,7 +319,6 @@ function numberCode(c: Ctx): StageView {
     phone,
     icon: 'phone-filled',
     tint: washes.code.tone,
-    wash: washes.code,
     title: 'Your number',
     sub: `Six digits, sent to ${groupPhone(phone)} a moment ago.`,
     onVerified: async () => {
@@ -376,7 +351,6 @@ function who(c: Ctx): StageView {
   return {
     icon: 'id-filled',
     tint: washes.nin.tone,
-    wash: washes.nin,
     title: 'Who you are',
     sub: 'Eleven digits from your NIN or your BVN, whichever you know. Your name comes back with them.',
     bodyKey: 'identity',
@@ -392,7 +366,6 @@ function confirm(c: Ctx): StageView {
   return {
     icon: 'id-filled',
     tint: washes.who.tone,
-    wash: washes.who,
     title: 'Who you are',
     sub: 'This came back from the record against those digits. I did not type it.',
     bodyKey: 'confirm',
@@ -435,7 +408,6 @@ function nomatch(c: Ctx): StageView {
   return {
     icon: 'id-filled',
     tint: washes.nomatch.tone,
-    wash: washes.nomatch,
     title: 'Who you are',
     sub: 'Eleven digits from your NIN or your BVN. These ones did not match anything.',
     bodyKey: 'nomatch',
@@ -487,7 +459,6 @@ function face(c: Ctx): StageView {
   return {
     icon: 'faceid-filled',
     tint: washes.face.tone,
-    wash: washes.face,
     title: 'Your face',
     sub: 'One photo, checked against the same record, so that only you can open this again.',
     bodyKey: 'face',
@@ -545,7 +516,6 @@ function passcode(c: Ctx): StageView {
   return {
     icon: 'lock-filled',
     tint: washes.passcode.tone,
-    wash: washes.passcode,
     title: again ? 'Once more' : 'A passcode',
     sub: again ? 'The same six, to be sure.' : 'Six digits. These are what send your money, so pick something nobody watching could guess.',
     bodyKey: 'passcode',
@@ -619,7 +589,7 @@ function ready(c: Ctx): StageView {
         </Tap>
       </View>
     ),
-    bar: { label: 'Take me in', onPress: () => c.toHome(() => c.app.startOver()) },
+    bar: { label: 'Take me in', onPress: () => c.toHome(() => c.app.startOver(), { tour: true }) },
   };
 }
 
@@ -652,7 +622,6 @@ function signin(c: Ctx): StageView {
   };
   return {
     icon: 'mark',
-    wash: washes.signin,
     title: 'Welcome back',
     sub: 'Your number, and then six digits from a text. Nothing else, because the account is already yours.',
     bodyKey: 'signin',
@@ -670,7 +639,6 @@ function signcode(c: Ctx): StageView {
   return code(c, {
     phone,
     icon: 'mark',
-    wash: washes.signcode,
     title: 'Six digits',
     sub: `Sent to ${groupPhone(phone)} a moment ago. On a phone I already know, your passcode alone would have been enough.`,
     onVerified: async token => {

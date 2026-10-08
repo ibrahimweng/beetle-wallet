@@ -28,7 +28,9 @@ Since Round 25 it wears the Beetle brand: the warm ink in place of black,
 a neutral white for the page, one orange, Sentient for a page's main title
 and Geist for everything else, and the ladybird mark. Since Round 27 the
 way in is on the brand's very dark brown, with the owner's two clay coins
-turning where the way in opens and where money is confirmed. Geist is in
+turning where the way in opens and where money is confirmed. Since Round
+28 the opening is the logo first, the coin walks the steps of the way in
+and opens onto home, and a new account gets a short tour of home. Geist is in
 `assets/fonts` as Beetle Sans, the open-licence face with the naira sign
 added (its licence beside it); Sentient is fetched from Fontshare. Both
 load before the first screen is drawn.

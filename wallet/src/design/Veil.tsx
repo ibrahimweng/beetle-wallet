@@ -28,7 +28,7 @@ export type VeilTone = 'light' | 'paper' | 'dark' | 'frost' | 'page';
 const STOPS: Record<VeilTone, { colors: [string, string, string]; tint: 'light' | 'dark' }> = {
   light: { colors: ['rgba(250,250,249,0.76)', 'rgba(250,250,249,0.9)', 'rgba(250,250,249,1)'], tint: 'light' },
   paper: { colors: ['rgba(250,250,249,0.96)', 'rgba(250,250,249,0.99)', 'rgba(250,250,249,1)'], tint: 'light' },
-  dark: { colors: ['rgba(36,32,27,0.74)', 'rgba(36,32,27,0.9)', 'rgba(36,32,27,0.98)'], tint: 'dark' },
+  dark: { colors: ['rgba(19,12,7,0.74)', 'rgba(19,12,7,0.9)', 'rgba(19,12,7,0.98)'], tint: 'dark' },
   /* the same white all the way down, thin enough that the page shows through soft: what a line opens in place over (see Activities) */
   frost: { colors: ['rgba(243,242,239,0.8)', 'rgba(243,242,239,0.82)', 'rgba(243,242,239,0.86)'], tint: 'light' },
   /* the frost in the page's own white: laid round a line of Activities that opens in the list, so the line, on the
@@ -52,7 +52,7 @@ export function webFrost(k: number, intensity: number, tint: 'light' | 'dark'): 
   'worklet';
   const n = Math.min(intensity, 100);
   const f = `saturate(${(tint === 'dark' ? 1 + 0.8 * k : 1).toFixed(3)}) blur(${(k * n * 0.2).toFixed(2)}px)`;
-  const ground = tint === 'dark' ? `rgba(43,39,33,${((k * n) / 100) * 0.78})` : `rgba(250,250,249,${((k * n) / 100) * 0.78})`;
+  const ground = tint === 'dark' ? `rgba(26,19,13,${((k * n) / 100) * 0.78})` : `rgba(250,250,249,${((k * n) / 100) * 0.78})`;
   return { backdropFilter: f, WebkitBackdropFilter: f, backgroundColor: ground } as unknown as ViewStyle;
 }
 

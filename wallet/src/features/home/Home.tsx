@@ -76,6 +76,8 @@ import { useOnline } from '../offline';
 import { JourneyProvider, useRecession } from '../../design/journey';
 import type { ReceiptCard as Card } from '../agent/conversation';
 import { chatPointedOut, markChatPointedOut } from './first';
+import { lendHands, showTour, takeTour, touring, wantTour } from './tour';
+import { whenArrived, whenOpening } from '../onboarding/arrival';
 import { useSetup } from '../setup/store';
 import { tabs, useHoldPages, usePage, useTabAgain } from '../tabs';
 import { Grid } from './Grid';
@@ -123,6 +125,8 @@ function HomeScreen() {
     typing?: string;
     kb?: string;
     offers?: string;
+    /** the lab: home's tour, as a new account first sees it */
+    tour?: string;
   }>();
   const receding = useRecession();
 
@@ -701,19 +705,42 @@ function HomeScreen() {
     if (!ok || pointed.current) return;
     let cancelled = false;
     chatPointedOut().then(seen => {
-      if (cancelled || seen || pointed.current || openedRef.current) return;
+      /* the tour shows the pull itself (Round 28) */
+      if (cancelled || seen || pointed.current || openedRef.current || touring()) return;
       pointed.current = true;
-      const t = setTimeout(() => {
-        if (openedRef.current) return;
-        if (!still) open.value = withSequence(withTiming(0.14, { duration: 600, easing: settle }), withDelay(1100, withSpring(0, keys)));
-        void markChatPointedOut();
-      }, 1500);
-      return () => clearTimeout(t);
+      /* coming in from the way in, the wait starts as the dark opens onto home (Round 28) */
+      whenOpening(() =>
+        setTimeout(() => {
+          if (openedRef.current) return;
+          if (!still) open.value = withSequence(withTiming(0.14, { duration: 600, easing: settle }), withDelay(1100, withSpring(0, keys)));
+          void markChatPointedOut();
+        }, 1500),
+      );
     });
     return () => {
       cancelled = true;
     };
   }, [ok, still, open]);
+
+  /* the tour (Round 28): a new account's first home, once the way in's dark has opened onto it. Home lends it the
+     card's dip and the chat's opening and closing */
+  useEffect(() => {
+    lendHands({
+      dip: () => {
+        if (openedRef.current) return;
+        open.value = withSequence(withTiming(0.14, { duration: 600, easing: settle }), withDelay(900, withSpring(0, keys)));
+      },
+      open: () => show(true, { greet: false }),
+      close: () => show(false),
+    });
+    return () => lendHands(null);
+  }, [open, show]);
+  useEffect(() => {
+    if (!ok) return;
+    if (LAB && asked.tour === '1') wantTour();
+    /* once taken, it is shown whatever happens to this effect: the tour is drawn over the app, not inside home */
+    if (takeTour()) whenArrived(showTour);
+  }, [ok, asked.tour]);
 
   /* a photo the camera took comes straight into the chat, on Home */
   useFocusEffect(

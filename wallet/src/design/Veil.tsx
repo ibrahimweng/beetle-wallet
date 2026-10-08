@@ -56,6 +56,13 @@ export function webFrost(k: number, intensity: number, tint: 'light' | 'dark'): 
   return { backdropFilter: f, WebkitBackdropFilter: f, backgroundColor: ground } as unknown as ViewStyle;
 }
 
+/** A blur's strength at `k` of `intensity`, in steps of three. The phone builds a blur's effect again each time its
+    strength changes, so a blur that grows is told only every few points of it, not on every frame (Round 29). */
+export function blurAt(k: number, intensity: number) {
+  'worklet';
+  return Math.round((Math.max(0, Math.min(1, k)) * intensity) / 3) * 3;
+}
+
 /** `t`, where given, brings the veil in and out: the blur grows in strength
     and the wash in opacity, on the phone and on the web alike, since a blur
     under a fading parent is drawn badly on both (on the phone it pops; on the
@@ -64,7 +71,7 @@ export function Veil({ tone = 'light', intensity = VEIL_BLUR, testID, t }: { ton
   const s = STOPS[tone];
   const Blur = blur?.BlurView;
   const growing = !!t && Platform.OS !== 'web' && !!AnimatedBlur;
-  const strength = useAnimatedProps(() => ({ intensity: Math.max(0, Math.min(1, t ? t.value : 1)) * intensity }), [intensity]);
+  const strength = useAnimatedProps(() => ({ intensity: blurAt(t ? t.value : 1, intensity) }), [intensity]);
   const wash = useAnimatedStyle(() => ({ opacity: t ? Math.max(0, Math.min(1, t.value)) : 1 }));
   const frosting = useAnimatedStyle(() => webFrost(Math.max(0, Math.min(1, t ? t.value : 1)), intensity, s.tint), [intensity, s.tint]);
   const blurStyle = useMemo(() => StyleSheet.absoluteFill, []);
@@ -100,7 +107,7 @@ export function Veil({ tone = 'light', intensity = VEIL_BLUR, testID, t }: { ton
 export function GrowingBlur({ t, intensity, tint = 'light', wash }: { t: SharedValue<number>; intensity: number; tint?: 'light' | 'dark'; wash: string }) {
   const Blur = blur?.BlurView;
   const growing = Platform.OS !== 'web' && !!AnimatedBlur;
-  const strength = useAnimatedProps(() => ({ intensity: Math.max(0, Math.min(1, t.value)) * intensity }), [intensity]);
+  const strength = useAnimatedProps(() => ({ intensity: blurAt(t.value, intensity) }), [intensity]);
   const fade = useAnimatedStyle(() => ({ opacity: Math.max(0, Math.min(1, t.value)) }));
   const frosting = useAnimatedStyle(() => webFrost(Math.max(0, Math.min(1, t.value)), intensity, tint), [intensity, tint]);
   if (Platform.OS === 'web')

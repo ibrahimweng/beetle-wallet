@@ -10,7 +10,7 @@
    The steps are finer where the money is small: ₦100 up to ₦10,000, ₦500
    up to ₦100,000, ₦1,000 above. Under the ruler, chips of the amounts most
    likely, any one of them a tap. */
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState, useLayoutEffect } from 'react';
 import { StyleSheet, TextInput, View, type LayoutChangeEvent, type TextStyle } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { cancelAnimation, runOnJS, useAnimatedReaction, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
@@ -195,10 +195,12 @@ function Figure({
 }) {
   const before = useRef(value);
   const dir = useSharedValue(1);
-  if (value !== before.current) {
+  /* which way the figure went, told the animation thread before the frame is drawn, not while drawing (Round 29) */
+  useLayoutEffect(() => {
+    if (value === before.current) return;
     dir.value = value > before.current ? 1 : -1;
     before.current = value;
-  }
+  }, [value, dir]);
   const [text, setText] = useState('');
   /* the field is as wide as what is in it, measured off an unseen twin, so the figure stays centred as it is typed */
   const [w, setW] = useState(24);

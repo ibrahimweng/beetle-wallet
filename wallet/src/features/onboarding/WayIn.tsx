@@ -21,10 +21,10 @@
 
    What each stage shows is in views.tsx. This file is the choreography. */
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { KeyboardAvoidingView, LayoutChangeEvent, Platform, Pressable, StyleProp, View, ViewStyle, useWindowDimensions } from 'react-native';
+import { BackHandler, KeyboardAvoidingView, LayoutChangeEvent, Platform, Pressable, StyleProp, View, ViewStyle, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import Animated, { interpolateColor, runOnJS, useAnimatedReaction, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { interpolateColor, runOnJS, useAnimatedReaction, useAnimatedStyle, useFrameCallback, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import {
   Body,
   Button,
@@ -65,6 +65,8 @@ import { idPhoto } from '../setup/hand';
 import { buildView, type Bar, type Ctx, type Note } from './views';
 import { LAB } from '../../lab/enabled';
 import { MIDDLE, abandon, claimCoin, coin, coverUp, finish, homeIsUnder, releaseCoin } from './arrival';
+import { backTop, logoTop } from './tops';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { wantTour } from '../home/tour';
 
 /* The geometry the glide is written against: a 32 glyph, 8 under it, the
@@ -87,26 +89,27 @@ const ROW_DY = -(STACK_GAP + ROW_H + GLYPH + GLYPH_GAP);
    it and 8 above the title's band, the coin 378 across in a room 475.51 tall, smaller in a shorter one. On a step,
    from under the way back to 8 above the stack, the coin's picture no taller than the room and no wider than
    STEP_COIN; too small to read, it goes. */
-const LOGO_TOP = 56;
-const WELCOME_ROOM_TOP = LOGO_TOP + 20.49 + 20;
+const LOGO_H = 20.49;
 const WELCOME_ROOM = 475.51;
 const WELCOME_COIN = 378;
-const STEP_ROOM_TOP = 96;
-const STEP_ROOM_TOP_BARE = LOGO_TOP;
+/** the way back's row, under which a step's room starts */
+const BACK_H = 44;
 const STEP_COIN = 210;
 const LEAST_COIN = 72;
 const ROOM_GAP = 8;
 /** where the coin is wanted: nowhere, the welcome's room, a step's under the way back, a step's with nothing at the top, the middle */
 type CoinMode = -1 | 0 | 1 | 2 | 3;
 
-function coinPlace(room: number, mode: CoinMode, screen: number) {
+/** `logo` and `back` are where the logo and the way back sit on this phone (see tops.ts) */
+function coinPlace(room: number, mode: CoinMode, screen: number, logo: number, back: number) {
   'worklet';
   if (mode === 3) return { cy: screen / 2, size: MIDDLE, on: 1 };
   if (mode === 0) {
-    const h = room - ROOM_GAP - WELCOME_ROOM_TOP;
-    return { cy: WELCOME_ROOM_TOP + h / 2, size: Math.max(0, Math.min(WELCOME_COIN, (WELCOME_COIN * h) / WELCOME_ROOM)), on: 1 };
+    const roomTop = logo + LOGO_H + 20;
+    const h = room - ROOM_GAP - roomTop;
+    return { cy: roomTop + h / 2, size: Math.max(0, Math.min(WELCOME_COIN, (WELCOME_COIN * h) / WELCOME_ROOM)), on: 1 };
   }
-  const top = mode === 1 ? STEP_ROOM_TOP : STEP_ROOM_TOP_BARE;
+  const top = mode === 1 ? back + BACK_H : logo;
   const h = room - ROOM_GAP - top;
   const size = Math.max(0, Math.min(STEP_COIN, h));
   return { cy: top + h / 2, size, on: size >= LEAST_COIN ? 1 : 0 };
@@ -218,14 +221,20 @@ export function WayIn() {
      breath is over home opens out (arrival.ts). With motion reduced, home simply comes. A new account gets the
      tour of home once it is there. */
   const [finishing, setFinishing] = useState(false);
+  /* home: back down to the app the way in was opened over (finishing setting up from home, Settings or an offer), or in
+     the way in's place where it is the first screen. Replaced over the app, the app was put on twice, one whole copy
+     under the other (Round 29) */
+  const homeward = useCallback(() => (router.canDismiss() ? router.dismissTo('/home') : router.replace('/home')), [router]);
   const toHome = useCallback(
     (after?: () => Promise<void>, opts: { tour?: boolean } = {}) => {
+      /* once: a second tap while the steps leave does nothing */
+      if (gone.current) return;
       gone.current = true;
       if (still) {
         leave(async () => {
           await after?.();
           if (opts.tour) wantTour();
-          router.replace('/home');
+          homeward();
         });
         return;
       }
@@ -243,11 +252,11 @@ export function WayIn() {
           throw e;
         }
         if (opts.tour) wantTour();
-        router.replace('/home');
+        homeward();
         homeIsUnder();
       });
     },
-    [leave, stay, router, still],
+    [leave, stay, homeward, still],
   );
 
   /* the ID: the camera on a phone, which hands back what it read; a moment on the web */
@@ -277,6 +286,9 @@ export function WayIn() {
 
   /* the coin: shown while the way in is, measured into the room the column leaves above itself */
   const { height: screen } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const logo = logoTop(insets.top);
+  const back = backTop(insets.top);
   const room = useSharedValue(0);
   const mode = useSharedValue<CoinMode>(-1);
   useEffect(() => {
@@ -292,29 +304,68 @@ export function WayIn() {
   );
   /* with motion reduced the coin is simply where it should be */
   const snap = still ? 1 : 0;
+  /* where it is going, and how quickly it closes on it. The room moves smoothly as the column's pieces grow and
+     shrink, measured afresh on every frame of it; the coin follows on the animation thread, closing a share of the
+     distance each frame, rather than starting a new glide on every measure, which left it trailing and trembling on
+     the phone (Round 29) */
+  const target = useSharedValue({ cy: 0, size: 0, on: -1 });
+  /** how long the coin takes to close most of the way: a little over a third of it every tenth of a second */
+  const LAG = 0.11;
   useAnimatedReaction(
     () => ({ room: room.value, mode: mode.value }),
     now => {
       if (now.mode < 0) {
-        coin.on.value = withTiming(0, { duration: snap === 1 ? 0 : motion.leave });
+        if (target.value.on !== 0) coin.on.value = withTiming(0, { duration: snap === 1 ? 0 : motion.leave });
+        target.value = { ...target.value, on: 0 };
         return;
       }
       if (now.room <= 0) return;
-      const to = coinPlace(now.room, now.mode, screen);
+      const to = coinPlace(now.room, now.mode, screen, logo, back);
       if (coin.placed.value === 0 || snap === 1) {
         coin.cy.value = to.cy;
         coin.size.value = to.size;
         coin.on.value = snap === 1 ? to.on : withDelay(160, withTiming(to.on, { duration: motion.enter, easing: settle }));
         coin.placed.value = 1;
+        target.value = to;
         return;
       }
-      const glide = { duration: now.mode === 3 ? 640 : motion.enter, easing: settle };
-      coin.cy.value = withTiming(to.cy, glide);
-      coin.size.value = withTiming(to.size, glide);
-      coin.on.value = withTiming(to.on, { duration: motion.leave });
+      if (to.on !== target.value.on) coin.on.value = withTiming(to.on, { duration: motion.leave });
+      /* to the middle, done: a glide of its own, which carries on after the way in has gone from under it */
+      if (now.mode === 3 && (to.cy !== target.value.cy || to.size !== target.value.size)) {
+        const glide = { duration: 640, easing: settle };
+        coin.cy.value = withTiming(to.cy, glide);
+        coin.size.value = withTiming(to.size, glide);
+      }
+      target.value = to;
     },
-    [screen, snap],
+    [screen, snap, logo, back],
   );
+  useFrameCallback(frame => {
+    if (coin.placed.value === 0 || snap === 1 || mode.value === 3) return;
+    const k = 1 - Math.exp(-(frame.timeSincePreviousFrame ?? 16) / 1000 / LAG);
+    const to = target.value;
+    const dy = to.cy - coin.cy.value;
+    const ds = to.size - coin.size.value;
+    if (Math.abs(dy) > 0.05) coin.cy.value += dy * k;
+    else if (dy !== 0) coin.cy.value = to.cy;
+    if (Math.abs(ds) > 0.05) coin.size.value += ds * k;
+    else if (ds !== 0) coin.size.value = to.size;
+  });
+
+  /* the phone's own back is the step's way back, as the chevron is; with none, it leaves as it would; while going home,
+     it waits (Round 29: it closed the app from any step) */
+  const backRef = useRef<(() => void) | undefined>(undefined);
+  useEffect(() => {
+    if (!focused) return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (gone.current) return true;
+      const back = backRef.current;
+      if (!back) return false;
+      back();
+      return true;
+    });
+    return () => sub.remove();
+  }, [focused]);
 
   if (!stage)
     return (
@@ -366,6 +417,7 @@ export function WayIn() {
   };
   const view = buildView(ctx);
   keyRef.current = view.keypad;
+  backRef.current = view.back ?? view.bar?.back;
   const bottomKind = view.keypad ? 'keypad' : view.welcome ? 'welcome' : view.bar ? 'bar' : 'none';
 
   /* the way in is on the brand's very dark brown (Round 27): the first screen to the owner's frame, every step after
@@ -382,62 +434,64 @@ export function WayIn() {
           {/* the brand's wing, faint in the logo's tan, across the top corner of every step after the welcome, which is the
             owner's frame and has the coin (Round 26, 27); behind everything, outside the layout */}
           {stage === 'welcome' ? null : <Drawing name="wing" width={250} opacity={0.2} tint={night.lockup} turn={-8} style={{ top: -28, right: -64 }} />}
-          <BackChevron onPress={view.back} />
-          <Hint text={view.hint} />
-          {/* the column ends where the frames end it: on the dock's top, 12 above
+          <BackChevron onPress={view.back} top={back} />
+          <Hint text={view.hint} top={back} />
+          {/* the column and what waits at the bottom ride up together over the keyboard where a step types (the
+            address): the keyboard never covers the button. The avoiding view's own padding is the keyboard's alone:
+            on the phone it replaces any padding given to it (Round 29: every step sat 12 lower than the frames on
+            an iPhone, and the welcome's line ran into its button), so the column's own is on the column */}
+          <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} enabled={stage === 'address'}>
+            {/* the column ends where the frames end it: on the dock's top, 12 above
             the keypad's first row and the bar's block alike, and 36 above the
             welcome's two ways in. The 12 between the band and what sits under
             it belongs to the body, so a stage with nothing there adds nothing.
             What it leaves above itself is the coin's room */}
-          <KeyboardAvoidingView
-            style={{ flex: 1, paddingHorizontal: side, justifyContent: 'flex-end', paddingBottom: bottomKind === 'welcome' ? 24 : 12 }}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            enabled={stage === 'address'}
-          >
-            <View style={{ flex: 1 }} onLayout={roomFor} pointerEvents="none" testID="coin-room" />
-            <Stack rows={rows} above={view.above} aboveKey={view.above ? stage : 'none'} dir={dir} />
-            <HeadBand
-              icon={view.icon}
-              iconSize={view.iconSize}
-              tint={view.tint}
-              title={view.title}
-              small={!!view.small}
-              inline={!!view.inline}
-              subBody={!!view.subBody}
-              sub={view.sub}
-              stage={stage}
-              move={titleMove}
-              dir={dir}
-            />
-            <Slot id={view.bodyKey} from={dir * 24} to={dir * -24}>
-              {view.body ? <View style={{ paddingTop: STACK_GAP }}>{view.body}</View> : null}
+            <View style={{ flex: 1, paddingHorizontal: side, justifyContent: 'flex-end', paddingBottom: bottomKind === 'welcome' ? 24 : 12 }}>
+              <View style={{ flex: 1 }} onLayout={roomFor} pointerEvents="none" testID="coin-room" />
+              <Stack rows={rows} above={view.above} aboveKey={view.above ? stage : 'none'} dir={dir} />
+              <HeadBand
+                icon={view.icon}
+                iconSize={view.iconSize}
+                tint={view.tint}
+                title={view.title}
+                small={!!view.small}
+                inline={!!view.inline}
+                subBody={!!view.subBody}
+                sub={view.sub}
+                stage={stage}
+                move={titleMove}
+                dir={dir}
+              />
+              <Slot id={view.bodyKey} from={dir * 24} to={dir * -24}>
+                {view.body ? <View style={{ paddingTop: STACK_GAP }}>{view.body}</View> : null}
+              </Slot>
+            </View>
+            <Slot id={`bottom:${bottomKind}`} from={120} to={120} delay={120} spring>
+              {bottomKind === 'keypad' ? (
+                <View style={{ paddingHorizontal: SIDE, opacity: busy ? 0.5 : 1 }}>
+                  <Keypad onKey={k => keyRef.current?.(k)} />
+                  {/* the frames give the pad 16 below its last row; the row's own cell holds 4 of it */}
+                  <View style={{ height: 20 }} />
+                </View>
+              ) : bottomKind === 'bar' && view.bar ? (
+                <BarBlock bar={view.bar} />
+              ) : bottomKind === 'welcome' ? (
+                <View style={{ paddingHorizontal: WELCOME_SIDE, paddingBottom: 24 }}>
+                  <Button label="Open an account" onPress={() => go('number')} />
+                  {/* the frame's row: 44 tall, 8 under the button, the words 14 on 20, Sign in in white (Round 27) */}
+                  <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 8, height: 44 }}>
+                    <Meta tone="secondary">Already have one?</Meta>
+                    <Pressable onPress={() => go('signin')} accessibilityRole="button">
+                      <Label>Sign in</Label>
+                    </Pressable>
+                  </View>
+                </View>
+              ) : null}
             </Slot>
           </KeyboardAvoidingView>
-          <Slot id={`bottom:${bottomKind}`} from={120} to={120} delay={120} spring>
-            {bottomKind === 'keypad' ? (
-              <View style={{ paddingHorizontal: SIDE, opacity: busy ? 0.5 : 1 }}>
-                <Keypad onKey={k => keyRef.current?.(k)} />
-                {/* the frames give the pad 16 below its last row; the row's own cell holds 4 of it */}
-                <View style={{ height: 20 }} />
-              </View>
-            ) : bottomKind === 'bar' && view.bar ? (
-              <BarBlock bar={view.bar} />
-            ) : bottomKind === 'welcome' ? (
-              <View style={{ paddingHorizontal: WELCOME_SIDE, paddingBottom: 24 }}>
-                <Button label="Open an account" onPress={() => go('number')} />
-                {/* the frame's row: 44 tall, 8 under the button, the words 14 on 20, Sign in in white (Round 27) */}
-                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 8, height: 44 }}>
-                  <Meta tone="secondary">Already have one?</Meta>
-                  <Pressable onPress={() => go('signin')} accessibilityRole="button">
-                    <Label>Sign in</Label>
-                  </Pressable>
-                </View>
-              </View>
-            ) : null}
-          </Slot>
         </Pane>
         {/* the welcome's logo, where the opening left it: outside the pane, so it is there from the first frame */}
-        <WelcomeLogo on={stage === 'welcome'} />
+        <WelcomeLogo on={stage === 'welcome'} top={logo} />
       </View>
     </Scheme>
   );
@@ -453,7 +507,7 @@ function CoinWanted({ value, mode }: { value: CoinMode; mode: { value: CoinMode 
 
 /* The logo and its name at the top of the welcome (the owner's frame, 56 from the top). Leaving the welcome it
    goes up into a blur, and comes back the same way. */
-function WelcomeLogo({ on }: { on: boolean }) {
+function WelcomeLogo({ on, top }: { on: boolean; top: number }) {
   const still = useStill();
   const t = useSharedValue(on ? 1 : 0);
   useEffect(() => {
@@ -461,7 +515,7 @@ function WelcomeLogo({ on }: { on: boolean }) {
   }, [on, still, t]);
   const style = useAnimatedStyle(() => ({ opacity: t.value, transform: [{ translateY: (1 - t.value) * -16 }], ...blurred((1 - t.value) * motion.blur) }));
   return (
-    <Animated.View pointerEvents="none" style={[{ position: 'absolute', top: LOGO_TOP, left: 0, right: 0, alignItems: 'center' }, style]}>
+    <Animated.View pointerEvents="none" style={[{ position: 'absolute', top, left: 0, right: 0, alignItems: 'center' }, style]}>
       <Lockup />
     </Animated.View>
   );
@@ -469,7 +523,7 @@ function WelcomeLogo({ on }: { on: boolean }) {
 
 /* ---- the way back ---- */
 
-function BackChevron({ onPress }: { onPress?: () => void }) {
+function BackChevron({ onPress, top }: { onPress?: () => void; top: number }) {
   const still = useStill();
   const t = useSharedValue(onPress ? 1 : 0);
   useEffect(() => {
@@ -477,7 +531,7 @@ function BackChevron({ onPress }: { onPress?: () => void }) {
   }, [!!onPress]); // eslint-disable-line react-hooks/exhaustive-deps
   const fading = useAnimatedStyle(() => ({ opacity: t.value }));
   return (
-    <Animated.View pointerEvents={onPress ? 'auto' : 'none'} style={[{ position: 'absolute', top: 52, left: 8, zIndex: 2 }, fading]}>
+    <Animated.View pointerEvents={onPress ? 'auto' : 'none'} style={[{ position: 'absolute', top, left: 8, zIndex: 2 }, fading]}>
       <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={onPress} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
         <Icon name="back" size={22} />
       </Pressable>
@@ -487,9 +541,9 @@ function BackChevron({ onPress }: { onPress?: () => void }) {
 
 /* A line for the demo build, at the top where the frames keep nothing but
    the way back: which digits this build lets through. */
-function Hint({ text }: { text?: string }) {
+function Hint({ text, top }: { text?: string; top: number }) {
   return (
-    <View pointerEvents="none" style={{ position: 'absolute', top: 52, left: 60, right: 60, height: 44, justifyContent: 'center', zIndex: 2 }}>
+    <View pointerEvents="none" style={{ position: 'absolute', top, left: 60, right: 60, height: 44, justifyContent: 'center', zIndex: 2 }}>
       <Swap value={text ?? ''}>
         {shown =>
           shown ? (
@@ -616,7 +670,17 @@ function HeadBand({
   move: TitleMove;
   dir: Dir;
 }) {
-  const line = (shown: string) => (subBody ? <Body tone="secondary">{shown}</Body> : <Meta tone="secondary">{shown}</Meta>);
+  /* the welcome's line runs 6 past the column (Round 29): in the column's width its second line had less than a point
+     to spare, and on a phone it wrapped to four; at 351 it has seven, and the first line still breaks where the
+     frame breaks it, before "something." */
+  const line = (shown: string) =>
+    subBody ? (
+      <Body tone="secondary" style={{ marginRight: -6 }}>
+        {shown}
+      </Body>
+    ) : (
+      <Meta tone="secondary">{shown}</Meta>
+    );
   if (inline)
     return (
       <View style={{ gap: 4, marginTop: STACK_GAP }}>
@@ -750,25 +814,31 @@ function GhostTitle({ ghost, onDone }: { ghost: Ghost; onDone: () => void }) {
       /* p is how far along the row's place it is: 0 at the title, 1 in the stack */
       const last = ghost.kind === 'up' ? Math.max(0, Math.min(1, (p.value - 0.84) / 0.16)) : 0;
       const early = ghost.kind === 'down' ? Math.max(0, Math.min(1, (1 - p.value) / 0.16)) : 1;
+      /* drawn at the title's size and scaled from its top left toward the row's 16, rather than set at a new size on
+         every frame, which had the phone lay the words out afresh each frame (Round 29); the words are kept on the
+         middle of the line they are growing into, 24 tall at the end */
+      const k = (size + (16 - size) * p.value) / size;
+      const into = line + (24 - line) * p.value;
       return {
         opacity: ghost.kind === 'up' ? 1 - last : early,
-        fontSize: size + (16 - size) * p.value,
-        lineHeight: line + (24 - line) * p.value,
         color: interpolateColor(p.value, [0, 1], [night.ink, night.tertiary]),
-        transform: [{ translateX: ROW_INSET * p.value }, { translateY: ROW_DY * p.value }],
+        transform: [{ translateX: ROW_INSET * p.value }, { translateY: ROW_DY * p.value + (into - line * k) / 2 }, { scale: k }],
       };
     }
     return {
       opacity: 1 - p.value,
-      fontSize: size,
-      lineHeight: line,
       color: night.ink,
       transform: [{ translateY: ghost.kind === 'plain' ? -16 * ghost.dir * p.value : 0 }],
       ...blurred(p.value * motion.blur),
     };
   });
   return (
-    <Animated.Text pointerEvents="none" numberOfLines={1} style={[{ position: 'absolute', top: 0, left: 0, ...(ghost.small ? font('600') : font('400', 'prose')) }, moving]} testID="ghost">
+    <Animated.Text
+      pointerEvents="none"
+      numberOfLines={1}
+      style={[{ position: 'absolute', top: 0, left: 0, fontSize: size, lineHeight: line, transformOrigin: 'left top', ...(ghost.small ? font('600') : font('400', 'prose')) }, moving]}
+      testID="ghost"
+    >
       {ghost.text}
     </Animated.Text>
   );

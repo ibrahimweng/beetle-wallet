@@ -11,9 +11,9 @@
    here, under the darkening. A build without expo-blur gets the darkening
    alone, no blur, rather than a crash. */
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { SHEETS, Sheet, along, blurModule, type Side } from '../../design/Glass';
+import { PHONE_SHEETS, SHEETS, Sheet, along, blurModule, type Side } from '../../design/Glass';
 
 export const hasBlur = blurModule !== null;
 
@@ -49,7 +49,7 @@ export function Frost({
   return (
     <View pointerEvents="none" style={[{ position: 'absolute', left: 0, right: 0, height }, edge]} testID={`haze-${side}`}>
       {Blur
-        ? SHEETS.map(([share, intensity], i) => (
+        ? (Platform.OS === 'web' ? SHEETS : PHONE_SHEETS).map(([share, intensity], i) => (
             <Sheet key={i} side={side} height={Math.round(height * share)}>
               <Blur intensity={intensity} tint="dark" style={StyleSheet.absoluteFill} />
             </Sheet>

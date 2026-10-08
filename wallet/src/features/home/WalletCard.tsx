@@ -21,25 +21,13 @@ import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { LayoutChangeEvent, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, type PanGesture } from 'react-native-gesture-handler';
-import Animated, {
-  Easing,
-  SharedValue,
-  interpolate,
-  runOnJS,
-  useAnimatedReaction,
-  useAnimatedStyle,
-  useDerivedValue,
-  useSharedValue,
-  withDelay,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { Easing, SharedValue, interpolate, runOnJS, useAnimatedReaction, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import { Caption, Drawing, Icon, Label, Swap, Tap, blurred, colour, dark, feel, font, keys, motion, settle as settleCurve, soft, swipes, useStill } from '../../design';
 import { useDeparture } from '../../design/journey';
 import { Frost } from './Frost';
 import { spotRef } from './spots';
 import { whenOpening } from '../onboarding/arrival';
-import { GATHER, PULSE, closingGlow, gathered, knocks, uniformsOf } from './glow';
+import { GATHER, PULSE, closingGlow, gathered, knocks, lit, uniformsOf } from './glow';
 import { Light } from './Light';
 
 /** The card's height when closed, as the frame draws it, the offers in it (Round 15: the owner's frame, 392). */
@@ -321,17 +309,26 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
       }
     },
   );
-  const uniforms = useDerivedValue(() => {
-    const p = open.value;
-    const t = pulseT.value;
-    return uniformsOf({
-      width: W,
-      edge: closedH + (openH.value - closedH) * p,
-      a: t >= 0 ? pulseHeld.value : pulling.value ? gathered(p) : 0,
-      t,
-      g: wasOpen.value && t < 0 ? closingGlow(p) : 0,
-    });
-  });
+  /* what the light is handed: only while it is lit, and the one frame it goes out, so the full-screen shader is not
+     drawn again on every frame of every drag, dip and keyboard move while there is nothing to see (Round 29) */
+  const uniforms = useSharedValue(uniformsOf({ width: W, edge: closedH, a: 0, t: -1, g: 0 }));
+  useAnimatedReaction(
+    () => {
+      const p = open.value;
+      const t = pulseT.value;
+      return uniformsOf({
+        width: W,
+        edge: closedH + (openH.value - closedH) * p,
+        a: t >= 0 ? pulseHeld.value : pulling.value ? gathered(p) : 0,
+        t,
+        g: wasOpen.value && t < 0 ? closingGlow(p) : 0,
+      });
+    },
+    (now, before) => {
+      if (lit(now) || (before !== null && lit(before))) uniforms.value = now;
+    },
+    [W, closedH],
+  );
 
   /* ---- the drag ---- */
   const settleRef = React.useRef(settle);
@@ -344,14 +341,19 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
   const chatPan = useCardDrag({ open, openH, closedH, settle: settled, gate: atEnd });
   const gestures = useMemo(() => ({ pan: chatPan, atEnd }), [chatPan, atEnd]);
 
-  /* keep the React side in step with a spring that was started elsewhere */
-  const seen = useDerivedValue(() => open.value > 0.5);
-  useEffect(() => {
-    const id = setInterval(() => {
-      if (seen.value !== opened) settle(seen.value);
-    }, 120);
-    return () => clearInterval(id);
-  }, [opened]); // eslint-disable-line react-hooks/exhaustive-deps
+  /* keep the React side in step with a spring that was started elsewhere: told when the card crosses halfway, rather
+     than asking the animation thread every 120ms for as long as home is there (Round 29) */
+  const openedRef = React.useRef(opened);
+  openedRef.current = opened;
+  const sync = React.useCallback((now: boolean) => {
+    if (openedRef.current !== now) settleRef.current(now);
+  }, []);
+  useAnimatedReaction(
+    () => open.value > 0.5,
+    (now, before) => {
+      if (now !== before) runOnJS(sync)(now);
+    },
+  );
 
   /* ---- what moves ---- */
   const card = useAnimatedStyle(() => ({ height: closedH + (openH.value - closedH) * open.value }));

@@ -18,7 +18,7 @@
    the black card keeps its shape (Round 16, the owner's word): a ring, a
    grey tile, No promos, and a next step that is true for the account (the
    owner's words, fitted). With nothing to offer at all it is there too. */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SvgXml } from 'react-native-svg';
@@ -82,7 +82,9 @@ const CLOSE = `<svg viewBox="0 0 12 12" fill="none"><path d="M2.4 2.4L9.6 9.6M9.
 let away = false;
 export const offersAway = () => away;
 
-export function Promos({ width, promos, quiet }: { width: number; promos: Promo[]; quiet: Quiet }) {
+/** Drawn again only when what it is given changes (Round 29). */
+export const Promos = memo(PromosView);
+function PromosView({ width, promos, quiet }: { width: number; promos: Promo[]; quiet: Quiet }) {
   const router = useRouter();
   const still = useStill();
   const swipe = usePagerSwipe();

@@ -14,11 +14,11 @@ import { LOCKUP_H, LOCKUP_W, LogoReveal, Scheme, away, blurred, night, settle, u
 import { revealBox } from '../src/design/revealPieces';
 import { useApp } from '../src/features/onboarding/store';
 import { initialStage } from '../src/features/onboarding/stages';
+import { logoTop } from '../src/features/onboarding/tops';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /** the logo's width in the middle, and at the top of the welcome */
 const WIDE = 140;
-/** where the welcome has it: the owner's frame, 56 from the top */
-const TOP = 56;
 /** a beat of the dark, the blur passing across, a breath on the logo; then it rises, or fades */
 const WAIT = 200;
 const REVEAL = 1100;
@@ -31,6 +31,8 @@ export default function Boot() {
   const router = useRouter();
   const still = useStill();
   const { width, height } = useWindowDimensions();
+  /* where the welcome has it: the owner's frame, 56 from the top, lower on a phone whose top reaches further */
+  const top = logoTop(useSafeAreaInsets().top);
   const [shown, setShown] = useState(false);
   const went = useRef(false);
   const t = useSharedValue(still ? 1 : 0);
@@ -55,7 +57,7 @@ export default function Boot() {
   }, [ready, shown, session, progress, router, still, rise, out]);
   const box = revealBox(WIDE);
   /* the middle of the logo, from the middle of the screen to the middle of where the welcome has it, and its width from WIDE to the welcome's */
-  const toY = TOP + LOCKUP_H / 2 - height / 2;
+  const toY = top + LOCKUP_H / 2 - height / 2;
   const toScale = LOCKUP_W / WIDE;
   const moving = useAnimatedStyle(() => ({
     opacity: 1 - out.value,

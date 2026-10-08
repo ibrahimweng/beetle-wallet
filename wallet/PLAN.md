@@ -1705,6 +1705,53 @@ and the fast oval; build the tour now.
       (the way into home and every step of the tour, Skip on each) and the
       Figma check.
 
+## Round 29 · Steadier on the phone
+
+Asked by the owner: bugs, lag, the app closing in Expo Go (swiping from
+home to Activities, the + at the bottom right, home and the chat), spacing
+on the phone, the first screen most, and no lines in the tour. Read through
+by four separate audits (crashes, lag, spacing on an iPhone, flows).
+
+- [x] The closing: no JavaScript error was found on those paths; what they
+      share is the native drawing the phone is asked for (seventeen masked
+      blurs up at once with the three pages, the foot and the chat, their
+      strength rebuilt on every frame, and a full-screen shader redrawn on
+      every move of the card), the likeliest reason iOS stops Expo Go. Now:
+      half as many blur sheets on the phone (the soft edges, the foot, the
+      chat's haze), a stack at nothing not drawn at all, a blur's strength
+      changed in steps of three rather than every frame, nothing animated
+      on the blur's own native view (the bar's pill clips its blur instead),
+      the light handed new numbers only while it is lit, and no 120ms poll
+      of the card while home is up. A shared value written while drawing
+      (the amount on Send) is written before the frame instead.
+- [x] Lag: the three pages are drawn again only when what they are told
+      changes (not at a swipe's start, end and halfway); the status bar's
+      change halfway is its own; the Grid and the offers are not drawn again
+      with every word the chat streams; the drawer's swipe is not made again
+      on every word; the way in's coin follows its room on the animation
+      thread instead of starting a new glide on every frame of it; a title
+      going up into the stack is scaled, not set at a new size each frame.
+- [x] Spacing on the phone: the way in's column kept its bottom padding on
+      the web only (iOS's keyboard-avoiding view replaces it): every step
+      sat 12 lower than the frames on an iPhone and the welcome's line ran
+      into its button. The column has its own padding now, and the column
+      and the button ride up together over the keyboard on the address. The
+      welcome's line runs to 351 so it is three lines on a phone as in the
+      frame. The logo and the way back come down with a phone whose top
+      reaches further than 59 (the opening's logo rises to the same place).
+- [x] The tour has no lines: no outline round what it lights, no edge on
+      Skip, round dots. Its card keeps clear of the home indicator.
+- [x] Flows: finishing setting up from home, Settings or an offer no longer
+      puts a second copy of the app under the first (it goes back down to
+      it); the dark takes touches until the tour has begun; a tour left up
+      is put away with the app's screens; the phone's back skips the tour
+      on its last step too, and steps back through the way in instead of
+      closing the app; Open an account with it carries the number over and
+      sends the code; a full field takes no more digits (one pressed to
+      correct a number sent it again); Take me in twice is once.
+- [x] Tested: tsc, the unit tests (the worklet audit included), the walk
+      and the Figma check.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

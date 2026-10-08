@@ -1,7 +1,7 @@
 /* What arrival.ts keeps, drawn above every screen: the way in's coin, and
    the dark that covers the way into home and opens onto it. Nothing here
-   takes a touch except the dark while it is whole, so home cannot be
-   pressed before it is shown. */
+   takes a touch except the dark while it is up, so home cannot be pressed
+   before it is shown. */
 import React, { useSyncExternalStore } from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
@@ -20,7 +20,9 @@ export function ArrivalLayer() {
   const { width, height } = useWindowDimensions();
   if (!s.coin && !s.cover) return null;
   return (
-    <View pointerEvents={s.cover && !s.revealing ? 'auto' : 'none'} style={StyleSheet.absoluteFill} testID={s.revealing ? 'arrival-opening' : 'arrival'}>
+    /* the dark takes every touch until it has gone, the oval's opening included: home is not pressed, swiped or pulled
+       before it is shown and the tour has begun (Round 29) */
+    <View pointerEvents={s.cover ? 'auto' : 'none'} style={StyleSheet.absoluteFill} testID={s.revealing ? 'arrival-opening' : 'arrival'}>
       {s.cover ? <Cover width={width} height={height} /> : null}
       {s.coin ? <TravellingCoin width={width} /> : null}
     </View>

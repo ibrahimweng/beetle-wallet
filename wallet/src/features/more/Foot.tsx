@@ -34,7 +34,7 @@ import { tabs, useHoldPages, useTab, type Tab } from '../tabs';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { SharedValue, runOnJS, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import { ActionButton, Body, Button, Icon, Row, Tap, colour, frame, keys, motion, settle, useStill, type ButtonSize, type ButtonTone } from '../../design';
-import { AnimatedBlur, FROSTED, SoftBlur } from '../../design/Glass';
+import { AnimatedBlur, FROSTED, SoftBlur, blurModule } from '../../design/Glass';
 import { useSheet } from '../../design/sheetStack';
 import type { IconName } from '../../icons';
 import { More, moreTo, type MoreItem } from './More';
@@ -513,6 +513,7 @@ function Drawn({ spec, who }: { spec: FootSpec; who: number }) {
       <Slide label={p.label} amount={p.amount} disabled={!!p.disabled} onSlide={p.onSlide} ghost={ghost} />
     );
   const Blur = AnimatedBlur;
+  const PlainBlur = blurModule?.BlurView;
   if (!shown) return null;
 
   return (
@@ -524,7 +525,16 @@ function Drawn({ spec, who }: { spec: FootSpec; who: number }) {
         <Animated.View style={[s.surface, whole]} pointerEvents={live && spec.kind !== 'none' ? 'box-none' : 'none'} testID={bar ? 'bar' : 'foot'}>
           {/* the one frosted shape, pill or circle */}
           <Animated.View style={[s.shape, shape]} pointerEvents="none" testID={bar ? 'bar-pill' : 'back-glass'}>
-            {Blur ? <Blur intensity={40} tint="light" style={[StyleSheet.absoluteFill, corner]} /> : null}
+            {/* on the phone the shape's own rounded clip holds the blur, which stays a plain one: nothing is animated on
+                the blur's native view itself (Round 29); on the web a blur is not clipped by its box, so it takes the
+                corners too */}
+            {Platform.OS === 'web' ? (
+              Blur ? (
+                <Blur intensity={40} tint="light" style={[StyleSheet.absoluteFill, corner]} />
+              ) : null
+            ) : PlainBlur ? (
+              <PlainBlur intensity={40} tint="light" style={StyleSheet.absoluteFill} />
+            ) : null}
             <Animated.View style={[StyleSheet.absoluteFill, corner, { backgroundColor: Blur ? FROSTED : 'rgba(250, 250, 249, 0.92)' }]} />
           </Animated.View>
           {/* the three glyphs, where the pill is */}

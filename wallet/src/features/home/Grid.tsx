@@ -17,7 +17,7 @@
    anywhere on it opens that one, and a tap on the word Services opens All
    services. A swipe that starts on it is the card's, not the pages'. Each
    card leads to its page, which comes up over home as a sheet. */
-import React, { useMemo, useState } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -40,7 +40,9 @@ const PAD = 16;
 /** The glyph at a card's top left, and the ring that stands in for it on Savings. */
 const GLYPH = 32;
 
-export function Grid({ width, accountNumber, demo, moves, borrowing }: { width: number; accountNumber: string; demo: boolean; moves: LedgerRow[]; borrowing: boolean }) {
+/** Drawn again only when what it is given changes, not with every word the chat above it streams in (Round 29). */
+export const Grid = memo(GridView);
+function GridView({ width, accountNumber, demo, moves, borrowing }: { width: number; accountNumber: string; demo: boolean; moves: LedgerRow[]; borrowing: boolean }) {
   const { prefs } = usePrefs(accountNumber);
   const w = Math.floor((width - 2 * GRID_SIDE - GRID_GAP) / 2);
   const { goals } = useGoals(accountNumber, { demo, started: prefs.goal });

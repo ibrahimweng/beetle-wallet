@@ -14,7 +14,8 @@
 
    On the web a page off to the side is taken out of the page while the
    pages rest, so what is read off the screen is the page showing. */
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import type { SharedValue } from 'react-native-reanimated';
 import { Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useIsFocused, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -57,7 +58,12 @@ export function Pager() {
   const x = useSharedValue(index * W);
   const w = useSharedValue(W);
   const aimed = useRef(index);
-  const [moving, setMoving] = useState(false);
+  /* whether the pages are moving matters only on the web, which takes the pages to the side out while they rest; on
+     the phone it is not kept, so a swipe does not draw all three pages again at its start and its end (Round 29) */
+  const [moving, setMovingState] = useState(false);
+  const setMoving = (to: boolean) => {
+    if (web) setMovingState(to);
+  };
   const rest = () => setMoving(false);
 
   /* a glyph tapped, or a link from somewhere: the pages glide to the one asked for */
@@ -79,15 +85,6 @@ export function Pager() {
     x.value = aimed.current * W;
   }, [W, w, x]);
 
-  /* the clock and the battery: light over home's black card, dark over the white pages, changing halfway */
-  const [light, setLight] = useState(tab === 'home');
-  useAnimatedReaction(
-    () => x.value < w.value / 2,
-    (now, before) => {
-      if (now !== before) runOnJS(setLight)(now);
-    },
-  );
-
   /* the swipe */
   const from = useSharedValue(0);
   const landed = (to: number) => {
@@ -103,7 +100,7 @@ export function Pager() {
         .onStart(() => {
           cancelAnimation(x);
           from.value = x.value;
-          runOnJS(setMoving)(true);
+          if (web) runOnJS(setMoving)(true);
           runOnJS(swipes.start)();
         })
         .onUpdate(e => {
@@ -115,7 +112,7 @@ export function Pager() {
           const start = Math.max(0, Math.min(TABS.length - 1, Math.round(from.value / w.value)));
           const to = settleOn(start, e.translationX, e.velocityX, w.value);
           x.value = withSpring(to * w.value, { ...PAGE, velocity: -e.velocityX }, done => {
-            if (done) runOnJS(rest)();
+            if (done && web) runOnJS(rest)();
           });
           runOnJS(landed)(to);
           runOnJS(swipes.end)();
@@ -128,7 +125,7 @@ export function Pager() {
   return (
     <View style={s.root}>
       {/* only while these pages are the screen showing: a page pushed over them sets its own */}
-      {focused ? <StatusBar style={light ? 'light' : 'dark'} /> : null}
+      {focused ? <Clock x={x} w={w} home={tab === 'home'} /> : null}
       <SwipeContext.Provider value={pan}>
         <GestureDetector gesture={pan}>
           <View style={s.window} testID="pager">
@@ -144,10 +141,24 @@ export function Pager() {
   );
 }
 
+/* The clock and the battery: light over home's black card, dark over the white pages, changing halfway. Its own
+   piece, so the change halfway through a swipe draws only this, not the pages. */
+function Clock({ x, w, home }: { x: SharedValue<number>; w: SharedValue<number>; home: boolean }) {
+  const [light, setLight] = useState(home);
+  useAnimatedReaction(
+    () => x.value < w.value / 2,
+    (now, before) => {
+      if (now !== before) runOnJS(setLight)(now);
+    },
+  );
+  return <StatusBar style={light ? 'light' : 'dark'} />;
+}
+
 /* One of the three, told whether it is the one showing. A page off to the
    side is hidden from the screen reader, and on the web from the page
-   while the pages rest. */
-function Page({ tab, left, width, active, shown }: { tab: Tab; left: number; width: number; active: boolean; shown: boolean }) {
+   while the pages rest. Drawn again only when what it is told changes. */
+const Page = memo(PageView);
+function PageView({ tab, left, width, active, shown }: { tab: Tab; left: number; width: number; active: boolean; shown: boolean }) {
   const info = useMemo(() => ({ tab, active }), [tab, active]);
   return (
     <View

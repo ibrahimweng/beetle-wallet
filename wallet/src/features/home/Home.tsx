@@ -76,7 +76,7 @@ import { useOnline } from '../offline';
 import { JourneyProvider, useRecession } from '../../design/journey';
 import type { ReceiptCard as Card } from '../agent/conversation';
 import { chatPointedOut, markChatPointedOut } from './first';
-import { lendHands, showTour, takeTour, touring, wantTour } from './tour';
+import { lendHands, showTour, takeTour, tourState, touring, wantTour } from './tour';
 import { whenArrived, whenOpening } from '../onboarding/arrival';
 import { useSetup } from '../setup/store';
 import { tabs, useHoldPages, usePage, useTabAgain } from '../tabs';
@@ -402,6 +402,9 @@ function HomeScreen() {
     [file, talk],
   );
 
+  /* the drawer, let go of from within itself: one function for good, so its swipe is not made again on every word the
+     chat streams in (Round 29) */
+  const letDrawerGo = useCallback(() => setDrawer(false), []);
   /* the drawer goes with the chat, and on a pick */
   const closeDrawer = useCallback(() => {
     setDrawer(false);
@@ -687,6 +690,8 @@ function HomeScreen() {
   useEffect(() => {
     if (!opened || !active) return;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      /* the tour is up, over the chat it opened: back is its Skip, not this (Round 29) */
+      if (tourState() === 'on') return false;
       if (guard) setGuard(null);
       else if (peekSharing) setPeekSharing(false);
       else if (chatPeek) peekClose();
@@ -1129,18 +1134,7 @@ function HomeScreen() {
         {/* the chats: the soft edge down the open chat, and the drawer it brings in */}
         {opened ? <ChatsEdge d={drawerIn} style={edgeStyle} onOpen={openDrawer} /> : null}
         {opened ? (
-          <ChatsDrawer
-            d={drawerIn}
-            open={drawer}
-            width={DW}
-            top={drawerTop}
-            height={drawerH}
-            chats={chats}
-            currentId={chatId.current}
-            onNew={startNew}
-            onPick={switchTo}
-            onClose={() => setDrawer(false)}
-          />
+          <ChatsDrawer d={drawerIn} open={drawer} width={DW} top={drawerTop} height={drawerH} chats={chats} currentId={chatId.current} onNew={startNew} onPick={switchTo} onClose={letDrawerGo} />
         ) : null}
         {/* the passcode, on its sheet over everything, before money moves */}
         {guard ? (

@@ -24,7 +24,7 @@ import React, { useLayoutEffect, useRef, type ReactNode } from 'react';
 import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, { useAnimatedProps, useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { webFrost } from './Veil';
+import { blurAt, webFrost } from './Veil';
 
 type BlurModule = typeof import('expo-blur');
 export const blurModule: BlurModule | null = (() => {
@@ -72,6 +72,18 @@ export const STRONG_SHEETS: [number, number][] = [
   [0.8, 30],
   [0.6, 40],
   [0.42, 50],
+];
+
+/** The phone's stacks, half as many sheets (Round 29): each sheet is a blur in a mask of its own, the most costly thing
+    the phone draws, and with the three pages, the foot and the chat there were seventeen of them up at once. Two
+    sheets each, reaching as far and as strong at the edge. */
+export const PHONE_SHEETS: [number, number][] = [
+  [1, 12],
+  [0.5, 22],
+];
+export const PHONE_STRONG_SHEETS: [number, number][] = [
+  [1, 28],
+  [0.5, 48],
 ];
 
 /** Where a sheet's own fade begins, as a share of its reach. */
@@ -131,10 +143,13 @@ function WebMasked({ style, side, solid, children }: { style: object; side: Side
 export function SoftBlur({ side, height, k, strong = false, hold, testID }: { side: Side; height: number; k?: SharedValue<number>; strong?: boolean; hold?: number; testID?: string }) {
   const Blur = blurModule?.BlurView;
   const native = Platform.OS !== 'web' && !!AnimatedBlur && !!k;
-  const whole = useAnimatedStyle(() => ({ opacity: native || !k ? 1 : k.value }));
+  /* on the phone the sheets' blur grows rather than the whole fading; once it has gone to nothing the stack is not
+     drawn at all, since a blur at its least is still a blur being drawn (Round 29) */
+  const whole = useAnimatedStyle(() => ({ opacity: !k ? 1 : native ? (k.value > 0.01 ? 1 : 0) : k.value }));
   const edge = side === 'top' ? { top: 0 } : { bottom: 0 };
   /* each sheet's reach, and how much of it is whole: half, or as far as `hold` */
-  const sheets = (strong ? STRONG_SHEETS : SHEETS).map(([share, intensity]) => {
+  const table = Platform.OS === 'web' ? (strong ? STRONG_SHEETS : SHEETS) : strong ? PHONE_STRONG_SHEETS : PHONE_SHEETS;
+  const sheets = table.map(([share, intensity]) => {
     const reach = hold == null ? Math.round(height * share) : Math.round(hold + (height - hold) * share);
     return { reach, intensity, solid: hold == null ? SHEET_SOLID : Math.min(0.96, hold / reach) };
   });
@@ -176,7 +191,7 @@ function WebSheet({ side, height, solid, intensity, k }: { side: Side; height: n
 }
 
 export function GrowingBlur({ k, intensity, tint = 'light' }: { k: SharedValue<number>; intensity: number; tint?: 'light' | 'dark' }) {
-  const strength = useAnimatedProps(() => ({ intensity: Math.max(0, Math.min(1, k.value)) * intensity }), [intensity]);
+  const strength = useAnimatedProps(() => ({ intensity: blurAt(k.value, intensity) }), [intensity]);
   if (!AnimatedBlur) return null;
   return <AnimatedBlur animatedProps={strength} tint={tint} style={StyleSheet.absoluteFill} />;
 }

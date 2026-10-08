@@ -17,6 +17,7 @@ import { endTour, subscribeTour, tourHands, tourState } from './tour';
 import { around, measureSpot, type Rect, type SpotId } from './spots';
 import { Spotlight } from './Spotlight';
 import { markChatPointedOut } from './first';
+import { tabs } from '../tabs';
 
 type Step = {
   spots: SpotId[];
@@ -46,6 +47,14 @@ const SIDE = 24;
 
 export function TourHost() {
   const state = useSyncExternalStore(subscribeTour, tourState, tourState);
+  /* the app's screens going (signing out from the lock, the lab) put a tour that was up or waiting away with them, so
+     the next home does not open with it (Round 29) */
+  useEffect(
+    () => () => {
+      if (tourState() !== 'idle') endTour();
+    },
+    [],
+  );
   return state === 'on' ? <Tour /> : null;
 }
 
@@ -62,6 +71,8 @@ function Tour() {
   const hole = { x: useSharedValue(width / 2), y: useSharedValue(height / 2), w: useSharedValue(0), h: useSharedValue(0), r: useSharedValue(0) };
 
   useEffect(() => {
+    /* the tour is home's: if a swipe got another page up first, home comes back for it */
+    if (tabs.get() !== 'home') tabs.go('home');
     shown.value = withTiming(1, { duration: still ? 0 : motion.enter, easing: settle });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -122,15 +133,14 @@ function Tour() {
   }, [end]);
 
   const fading = useAnimatedStyle(() => ({ opacity: shown.value }));
-  const ring = useAnimatedStyle(() => ({ left: hole.x.value, top: hole.y.value, width: hole.w.value, height: hole.h.value, borderRadius: hole.r.value }));
   const step = TOUR[at]!;
   /* the card goes under what it is about, or over it when that is low on the screen */
   const below = !place || place.y + place.h / 2 < height * 0.55;
-  const tipAt = place ? (below ? { top: Math.min(place.y + place.h + GAP, height - 220) } : { bottom: Math.max(height - place.y + GAP, insets.bottom + 16) }) : { top: height / 2 };
+  const tipAt = place ? (below ? { top: Math.min(place.y + place.h + GAP, height - 220 - insets.bottom) } : { bottom: Math.max(height - place.y + GAP, insets.bottom + 16) }) : { top: height / 2 };
   return (
     <Animated.View style={[StyleSheet.absoluteFill, fading]} onStartShouldSetResponder={() => true} accessibilityViewIsModal testID="tour">
       <Spotlight hole={hole} width={width} height={height} />
-      <Animated.View pointerEvents="none" style={[s.ring, ring]} />
+      {/* no lines anywhere (Round 29, the owner's word): the lit place is told by the dark round it alone */}
       {place ? (
         <View style={[s.tipRow, tipAt]} pointerEvents="box-none">
           <Tip key={at} step={step} at={at} onNext={next} />
@@ -169,13 +179,12 @@ function Tip({ step, at, onNext }: { step: Step; at: number; onNext: () => void 
 }
 
 const s = StyleSheet.create({
-  ring: { position: 'absolute', borderWidth: 1.5, borderColor: 'rgba(251, 239, 227, 0.55)' },
   tipRow: { position: 'absolute', left: SIDE, right: SIDE },
   tip: { backgroundColor: colour.surface, borderRadius: 24, padding: 20, gap: 6 },
   tipFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 },
   dots: { flexDirection: 'row', gap: 6 },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colour.rule },
-  dotOn: { width: 18, backgroundColor: colour.ink },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colour.surface3 },
+  dotOn: { backgroundColor: colour.ink },
   skip: {
     position: 'absolute',
     right: 16,
@@ -184,7 +193,5 @@ const s = StyleSheet.create({
     borderRadius: 18,
     justifyContent: 'center',
     backgroundColor: 'rgba(26, 19, 13, 0.72)',
-    borderWidth: 1,
-    borderColor: 'rgba(251, 239, 227, 0.22)',
   },
 });

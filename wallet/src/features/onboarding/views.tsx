@@ -183,6 +183,9 @@ function DigitBody({ c, groups, secret = false, max = 11, footer }: { c: Ctx; gr
    one lands the stage takes it from there. */
 const typing = (c: Ctx, max: number, full: (d: string) => void) => (key: string) => {
   if (c.busy) return;
+  /* a field already full takes no more digits: a digit pressed to correct it would otherwise send what is there again
+     (Round 29: back on the number from the six digits, any key sent the old number off once more) */
+  if (key !== 'del' && c.digits.length >= max) return;
   const d = key === 'del' ? c.digits.slice(0, -1) : (c.digits + key).slice(0, max);
   c.setDigits(d);
   c.setNote(null);
@@ -210,27 +213,7 @@ function welcome(_c: Ctx): StageView {
 }
 
 function number(c: Ctx): StageView {
-  const full = async (d: string) => {
-    const check = checkPhone(d);
-    if (!check.ok) {
-      c.setNote({ text: 'That is not a Nigerian mobile number. They start 070, 080, 081, 090 or 091.', tone: 'bad' });
-      c.bump();
-      return;
-    }
-    c.setBusy(true);
-    c.setNote({ text: 'Sending the six digits…' });
-    try {
-      await c.app.setPhone(check.phone);
-      const r = await auth.requestCode(check.phone);
-      c.setWait(r.resendAfterSeconds);
-      c.setWrong(0);
-      c.go('code');
-    } catch {
-      c.setNote({ text: 'The text could not be sent. Check the network and try again.', tone: 'bad' });
-    } finally {
-      c.setBusy(false);
-    }
-  };
+  const full = (d: string) => sendNumber(c, d);
   return {
     icon: 'phone-filled',
     tint: washes.number.tone,
@@ -241,6 +224,30 @@ function number(c: Ctx): StageView {
     keypad: typing(c, 11, full),
     back: () => c.go('welcome', -1),
   };
+}
+
+/* The number typed, checked, and the six digits sent to it: on the number step, and from signing in with a number
+   that has no account yet ("Open an account with it", which carries the number over rather than asking again). */
+async function sendNumber(c: Ctx, d: string) {
+  const check = checkPhone(d);
+  if (!check.ok) {
+    c.setNote({ text: 'That is not a Nigerian mobile number. They start 070, 080, 081, 090 or 091.', tone: 'bad' });
+    c.bump();
+    return;
+  }
+  c.setBusy(true);
+  c.setNote({ text: 'Sending the six digits…' });
+  try {
+    await c.app.setPhone(check.phone);
+    const r = await auth.requestCode(check.phone);
+    c.setWait(r.resendAfterSeconds);
+    c.setWrong(0);
+    c.go('code');
+  } catch {
+    c.setNote({ text: 'The text could not be sent. Check the network and try again.', tone: 'bad' });
+  } finally {
+    c.setBusy(false);
+  }
 }
 
 /* Six digits from a text, on the way in and on the way back in. */
@@ -625,7 +632,25 @@ function signin(c: Ctx): StageView {
     title: 'Welcome back',
     sub: 'Your number, and then six digits from a text. Nothing else, because the account is already yours.',
     bodyKey: 'signin',
-    body: <DigitBody c={c} groups={[4, 3, 4]} footer={c.unknown ? <More label="Open an account with it" onPress={() => c.go('number')} /> : undefined} />,
+    body: (
+      <DigitBody
+        c={c}
+        groups={[4, 3, 4]}
+        footer={
+          c.unknown ? (
+            <More
+              label="Open an account with it"
+              onPress={() => {
+                const d = c.digits;
+                c.go('number');
+                c.setDigits(d);
+                void sendNumber(c, d);
+              }}
+            />
+          ) : undefined
+        }
+      />
+    ),
     keypad: (key: string) => {
       c.setUnknown(false);
       typing(c, 11, full)(key);

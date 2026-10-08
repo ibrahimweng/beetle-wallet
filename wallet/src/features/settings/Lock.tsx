@@ -1,7 +1,11 @@
 /* Lock and privacy, from its frame: what it takes to open the app, and what
    shows once it is open, each on a grey card of 64 rows; the switches are
-   kept on this phone. Password leads to a new one; Ask again after cycles
-   through the four waits. */
+   kept on this phone. The face or the finger is named for what the phone
+   has (Face ID, Touch ID, fingerprint); Passcode leads to a new one, the six
+   digits that open the app and send money; Password, the one that logs in
+   on a new phone, to Change password (Round 32), and is not there for an
+   account that logs in with Google or Apple, which has none; Ask again
+   after cycles through the four waits. */
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -11,6 +15,7 @@ import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { askHome } from '../more/More';
 import { ASK_AGAIN, usePrefs } from './prefs';
+import { capital, useBiometricName } from '../passcode/biometric';
 
 export function Lock() {
   const app = useApp();
@@ -18,6 +23,7 @@ export function Lock() {
   const ok = useSessionGuard();
   const account = app.session?.account;
   const { prefs, ready, set } = usePrefs(account?.accountNumber);
+  const bio = useBiometricName();
   /* the foot: Back */
   useFoot({ kind: 'back' });
   if (!ok || !account) return null;
@@ -27,12 +33,15 @@ export function Lock() {
         <View />
       </Screen>
     );
+  /* Google and Apple log in for an account opened with them: there is no password to change */
+  const password = account.signInWith !== 'google' && account.signInWith !== 'apple';
   const nextWait = () => set({ askAfter: ASK_AGAIN[(ASK_AGAIN.indexOf(prefs.askAfter) + 1) % ASK_AGAIN.length] ?? ASK_AGAIN[0]! });
   return (
     <Screen head={<PageHead lead title="Lock and privacy" sub="What it takes to open this, and what shows once it is open" />}>
       <Card style={s.group} testID="open-with">
-        <ToggleRow glyph="faceid-filled" ink={colour.accent} title="Face ID" value={prefs.faceId} onChange={v => set({ faceId: v })} />
-        <SettingRow glyph="key-filled" title="Password" to="/newcode" />
+        <ToggleRow glyph="faceid-filled" ink={colour.accent} title={capital(bio)} value={prefs.faceId} onChange={v => set({ faceId: v })} />
+        <SettingRow glyph="key-filled" title="Passcode" value="6 digits" to="/newcode" />
+        {password ? <SettingRow glyph="lock-filled" title="Password" to="/password" /> : null}
         <SettingRow glyph="clock-filled" title="Ask again after" value={prefs.askAfter} onPress={nextWait} />
       </Card>
       {/* the frame puts 16 under the first card, not the column's 20 */}
@@ -48,7 +57,7 @@ export function Lock() {
       {/* the frame sets the note 10 under the line, not a column gap */}
       <FootNote
         style={{ marginTop: -8 }}
-        title="Your password is not on our servers"
+        title="Your passcode is not on our servers"
         sub="It opens this phone and nothing else. If you lose it, recovery gives you a new one. Nobody, here or anywhere, can read the old one."
       />
     </Screen>

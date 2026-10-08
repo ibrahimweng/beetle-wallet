@@ -37,21 +37,21 @@ const RECORD: IdentityRecord = {
   birthYear: 1996,
 };
 const LAB_NUMBER = '12345678900';
-/** what a NIN slip gives besides: the address and the email on the record */
-const RECORD_NIN: IdentityRecord = { ...RECORD, address: '12 Bode Thomas Street, Surulere, Lagos', email: 'ibrahim.musa@example.com' };
 /** a password as the way in keeps it, stretched; the lab's own two open everything all the same */
 const KEPT = { v: 2 as const, salt: 'lab', rounds: 1000, hash: 'lab' };
 
 const done = {
   begun: { via: 'phone', phone: LAB_PHONE } satisfies Progress,
   number: { via: 'phone', phone: LAB_PHONE, phoneVerified: true } satisfies Progress,
-  identified: { via: 'phone', phone: LAB_PHONE, phoneVerified: true, identity: { number: LAB_NUMBER, record: RECORD_NIN, from: 'nin' }, email: RECORD_NIN.email } satisfies Progress,
+  /* the details typed, as the design's own record has them */
+  typed: { via: 'phone', phone: LAB_PHONE, phoneVerified: true, name: 'Ibrahim Musa', dob: '1996-06-14' } satisfies Progress,
   who: {
     via: 'phone',
     phone: LAB_PHONE,
     phoneVerified: true,
+    name: 'Ibrahim Musa',
+    dob: '1996-06-14',
     identity: { number: LAB_NUMBER, record: RECORD, from: 'bvn' },
-    identityConfirmed: true,
   } satisfies Progress,
 };
 
@@ -86,12 +86,16 @@ export const WAY_IN: Feature = {
     stage('email', 'mail-filled', 'Enter email', 'The email instead of the number'),
     stage('provider', 'mail-filled', 'Continue with Google', 'The stand-in for Google’s own sheet: a name and a checked email', none, '&provider=google'),
     stage('code', 'phone-filled', 'OTP verification', 'The code from the text, and the half minute before another', { progress: done.begun, session: null }),
-    stage('bvn', 'id-filled', 'BVN number', 'Eleven digits, or the NIN slip or voter’s card instead', { progress: done.number, session: null }),
-    stage('document', 'camera-filled', 'NIN slip or voter’s card', 'A photo of either fills in the rest', { progress: done.number, session: null }),
-    stage('details', 'id-filled', 'Confirm your details', 'What a NIN slip brought back: name, birthday, address and email', { progress: done.identified, session: null }),
-    stage('nomatch', 'warn-filled', 'Nothing came back', 'When the register has no record', { progress: done.number, session: null }),
+    stage('details', 'person-filled', 'Your details', 'The full name and the date of birth, typed as they are on the BVN or NIN', { progress: done.number, session: null }),
+    stage('bvn', 'id-filled', 'BVN number', 'BVN or NIN, picked, held to the details typed', { progress: done.typed, session: null }),
+    stage('document', 'camera-filled', 'NIN slip or voter’s card', 'A photo of either, held to the details typed', { progress: done.typed, session: null }),
+    stage('nomatch', 'warn-filled', 'Nothing matched', 'The details and the number do not belong together, said without saying why', { progress: done.typed, session: null }),
     stage('password', 'lock-filled', 'Password', 'Letters and a number, eight or more, the rules ticking', { progress: done.who, session: null }),
-    stage('finish', 'faceid-filled', 'Face scan and username', 'The face, the $tag and the passkey on one screen', { progress: { ...done.who, password: KEPT }, session: null }),
+    stage('passcode', 'lock-filled', 'Create passcode', 'Six digits, twice, with the weak ones refused', { progress: { ...done.who, password: KEPT }, session: null }),
+    stage('finish', 'faceid-filled', 'Face scan and username', 'The yes to the scan, the face, the $tag and the passkey on one screen', {
+      progress: { ...done.who, password: KEPT, passcode: KEPT },
+      session: null,
+    }),
     stage('ready', 'check', 'Ready', 'The account open, the ticks landing', READY),
     /* logging in */
     stage('signin', 'mark', 'Log in', 'The number, the email instead, a passkey, Google and Apple'),
@@ -99,6 +103,8 @@ export const WAY_IN: Feature = {
     stage('signcode', 'mark', 'OTP verification, logging in', 'The code on the way back in, for the demo account', none, DEMO),
     stage('signpass', 'lock-filled', 'Enter password', 'The password for the demo account', none, DEMO),
     stage('signface', 'faceid-filled', 'Face scan, a new phone', 'Once, the first time on a phone', none, DEMO),
+    stage('signpasscode', 'lock-filled', 'Enter your passcode, logging in', 'A phone that knows the account, the face not to hand', none, DEMO),
+    stage('newpasscode', 'lock-filled', 'Create passcode, logging in', 'On a phone without the account’s passcode, after logging in', none, DEMO),
     /* getting an account back */
     stage('recover', 'shield-filled', 'Recover your account', 'The mobile number on the account'),
     stage('recovercode', 'phone-filled', 'OTP verification, recovering', 'The code to the account’s number', none, DEMO),
@@ -278,7 +284,7 @@ export const SEND: Feature = {
   id: 'send',
   title: 'Sending money',
   folder: 'src/features/send',
-  sub: 'The Send money page in four taps — who, how much, slide, the password — and what can stand in the way.',
+  sub: 'The Send money page in four taps — who, how much, slide, the passcode — and what can stand in the way.',
   places: [
     {
       id: 'send-empty',
@@ -356,7 +362,7 @@ export const RECEIPTS: Feature = {
       id: 'receipt-chat',
       icon: 'receipt',
       title: 'A receipt in the chat',
-      sub: 'A transfer just through the password: the panel done, the card, a tap and it opens where it is, a little larger',
+      sub: 'A transfer just through the passcode: the panel done, the card, a tap and it opens where it is, a little larger',
       href: '/home?chat=sent',
       seed: demo,
     },
@@ -493,14 +499,17 @@ export const SETTINGS: Feature = {
       href: '/settings?details=1',
       seed: demo,
     },
-    settingsPage('settings-lock', 'faceid-filled', 'Lock and privacy', 'Face ID, the password, the wait, and what other people can see', '/lock'),
+    settingsPage('settings-lock', 'faceid-filled', 'Lock and privacy', 'Face ID, the passcode, the password, the wait, and what other people can see', '/lock'),
     settingsPage('settings-limits', 'shield-filled', 'Spending limits', 'Where today stands, the three caps, what happens at the line', '/limits'),
-    settingsPage('settings-limitstop', 'warn-filled', 'Past your own limit', 'The password done and the three words half typed, as the frame draws it', '/limitstop?typed=1'),
+    settingsPage('settings-limitstop', 'warn-filled', 'Past your own limit', 'The passcode done and the three words half typed, as the frame draws it', '/limitstop?typed=1'),
     settingsPage('settings-rules', 'list-filled', 'Standing instructions', 'Money is tight, the three instructions with their switches and logs', '/rules'),
     settingsPage('settings-rule', 'plus', 'Set this up?', 'A standing instruction offered, from a receipt or the list', '/rule'),
     settingsPage('settings-devices', 'laptop-filled', 'Devices', 'Three signed in, one that does not belong, and the button', '/devices'),
     settingsPage('settings-lostphone', 'lock-filled', 'Not your phone', 'A device the account has never seen: freeze, then prove it is you', '/lostphone'),
-    settingsPage('settings-newcode', 'key-filled', 'Change password', 'The current one and a new one, after the freeze and the proof', '/newcode?from=frozen&proved=1'),
+    settingsPage('settings-newcode', 'key-filled', 'A new passcode', 'Six digits on the keypad, after the freeze and the proof', '/newcode?from=frozen&proved=1'),
+    settingsPage('settings-password', 'key-filled', 'Change password', 'The current one and a new one, for logging in on a new phone', '/password'),
+    settingsPage('settings-privacy', 'shield-filled', 'Privacy and your data', 'Offers off until switched on, a copy of your data, closing the account, who to write to', '/privacy'),
+    settingsPage('settings-legal', 'list-filled', 'Privacy notice', 'The draft for the lawyers, in plain words, every [bracket] theirs', '/legal?doc=privacy'),
     settingsPage('settings-card', 'card-filled', 'Virtual card', 'The face, Reveal, Freeze, Fund, Rules, and how much of its ceiling has gone', '/card'),
   ],
 };
@@ -534,13 +543,13 @@ export const GUARD: Feature = {
   id: 'guard',
   title: 'Before money moves',
   folder: 'src/features/passcode',
-  sub: 'The password on its sheet over the chat, and the face where the phone has one enrolled.',
+  sub: 'The passcode on its sheet over the chat, the face asked first where the phone has one enrolled.',
   places: [
     {
       id: 'guard-passcode',
       icon: 'lock-filled',
-      title: 'The password',
-      sub: 'A transfer ready and the password box up: beetle321 lets it through, three wrong shut the gate',
+      title: 'The passcode',
+      sub: 'A transfer ready and the pad up, the face asked first where there is one: 654321 lets it through, three wrong shut the gate',
       href: '/home?chat=confirm',
       seed: demo,
     },
@@ -679,7 +688,7 @@ export const BILLS: Feature = {
       id: 'bills-confirm',
       icon: 'lock',
       title: 'Confirm the bill',
-      sub: 'The password over What I found, ₦8,000 to Ikeja Electric, from the frame',
+      sub: 'The passcode over What I found, ₦8,000 to Ikeja Electric, from the frame',
       href: '/meter?demo=1&guard=1',
       seed: demo,
     },
@@ -753,7 +762,7 @@ export const DATA: Feature = {
       id: 'data-confirm',
       icon: 'lock',
       title: 'Confirm the top-up',
-      sub: 'The password over the chat, ₦2,500 of MTN for Mum, from the frame',
+      sub: 'The passcode over the chat, ₦2,500 of MTN for Mum, from the frame',
       href: '/topup?demo=1&guard=1',
       seed: demo,
     },
@@ -809,7 +818,7 @@ export const SAVING: Feature = {
     { id: 'goal-two', icon: 'pot-tone', title: 'Two goals', sub: 'Holiday and Rent as pills, a tap switching between them', href: '/goal?two=1', seed: demo },
     { id: 'goal-new', icon: 'plus', title: 'A new goal', sub: 'The sheet + New goal puts up, filled with Rent, its figure and a date', href: '/goal?new=1', seed: demo },
     { id: 'goal-edit', icon: 'gear', title: 'Edit a goal', sub: 'The same sheet with Holiday’s own name, figure and date', href: '/goal?open=edit', seed: demo },
-    { id: 'goal-take', icon: 'up', title: 'Take money out', sub: 'The picker, stopping at what Holiday holds, then the password', href: '/goal?open=take', seed: demo },
+    { id: 'goal-take', icon: 'up', title: 'Take money out', sub: 'The picker, stopping at what Holiday holds, then the passcode', href: '/goal?open=take', seed: demo },
     { id: 'goal-feed', icon: 'pot-tone', title: 'Feed the goal', sub: 'The sheet the row of what feeds it puts up: four ways, three switches', href: '/goal?feed=1', seed: demo },
     { id: 'goal-paused', icon: 'clock', title: 'Paused', sub: 'Money is tight, so the feeds wait, the date moves, and Start again is on the line', href: '/goal?paused=1', seed: demo },
     { id: 'goal-chat', icon: 'chat', title: 'Save in the chat', sub: 'The Save chip’s card: the goal, the dark picker, and Put away', href: '/home?chat=save', seed: demo },

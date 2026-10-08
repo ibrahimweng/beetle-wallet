@@ -7,15 +7,16 @@
    logging in, and getting back an account whose email or password is lost. */
 import type { Session } from '../../services';
 import type { TrailStep } from '../../design';
-import { nextStep, type Progress, type Step } from './machine';
-import { EMAIL, FACE_MATCHED, FINISHED, MOBILE, PASSWORD, contactRow, idRow } from './steps';
+import { nextStep, withProvider, type Progress, type Step } from './machine';
+import { EMAIL, FACE_MATCHED, FINISHED, MOBILE, PASSCODE, PASSWORD, PASSWORD_AND_PASSCODE, contactRow, idRow } from './steps';
 import { IDCARD, INCOME, LIVE } from '../setup/setup';
 
 /** Opening an account, in order; the ones off the main path (the email instead of the number, Google or Apple, a
     paper instead of the BVN, nothing came back) branch from the one before them. */
-export const SIGN_UP = ['welcome', 'number', 'email', 'provider', 'code', 'bvn', 'document', 'details', 'nomatch', 'password', 'finish', 'ready'] as const;
-/** Logging in: the number or the email, the code, the password, and on a phone it has not seen, the face. */
-export const LOG_IN = ['signin', 'signemail', 'signcode', 'signpass', 'signface'] as const;
+export const SIGN_UP = ['welcome', 'number', 'email', 'provider', 'code', 'details', 'bvn', 'document', 'nomatch', 'password', 'passcode', 'finish', 'ready'] as const;
+/** Logging in: the number or the email, the code, the password (or Google or Apple in their place), on a phone it has
+    not seen the face, and on a phone without the account's passcode, the passcode. */
+export const LOG_IN = ['signin', 'signpasscode', 'signemail', 'signcode', 'signpass', 'signface', 'newpasscode'] as const;
 /** Getting an account back: the code to its mobile number, its BVN, a live face matched to the BVN's photo, and only then
     a new email (checked with a code of its own) or a new password. */
 export const RECOVER = ['recover', 'recovercode', 'recoverbvn', 'recoverface', 'recoverwhat', 'newemail', 'newemailcode', 'newpassword', 'recovered'] as const;
@@ -39,24 +40,30 @@ export function rowsFor(stage: Stage, p: Progress = {}): Row[] {
   const id = idRow(p);
   /* once the mobile number is in after an email, the two share a row, so the ready screen keeps four */
   const both = first && p.via && p.via !== 'phone' && p.phoneVerified ? { ...first, label: `${first.label} and mobile number` } : first;
+  /* the secrets: a password and the passcode, or the passcode alone for Google and Apple, one row once both are in */
+  const secrets = withProvider(p) ? PASSCODE : PASSWORD_AND_PASSCODE;
   switch (stage) {
     case 'number':
     case 'code':
-      return p.identityConfirmed && first ? [first, id] : [];
+      return p.identity && first ? [first, id] : [];
+    case 'details':
     case 'bvn':
     case 'document':
-    case 'details':
     case 'nomatch':
       return first ? [first] : [];
     case 'password':
       return both ? [both, id] : [];
+    case 'passcode':
+      return both ? (withProvider(p) ? [both, id] : [both, id, PASSWORD]) : [];
     case 'finish':
-      return both ? [both, id, PASSWORD] : [];
+      return both ? [both, id, secrets] : [];
     case 'ready':
-      return [both ?? MOBILE, id, PASSWORD, FINISHED];
+      return [both ?? MOBILE, id, secrets, FINISHED];
     case 'signcode':
     case 'signpass':
     case 'signface':
+    case 'newpasscode':
+    case 'signpasscode':
       return [BACK_IN];
     /* getting an account back: each proof, as it is given */
     case 'recoverbvn':
@@ -84,11 +91,12 @@ export function rowsFor(stage: Stage, p: Progress = {}): Row[] {
 const STAGE_OF: Record<Step, Stage> = {
   welcome: 'welcome',
   code: 'code',
-  bvn: 'bvn',
   details: 'details',
+  bvn: 'bvn',
   phone: 'number',
   phonecode: 'code',
   password: 'password',
+  passcode: 'passcode',
   finish: 'finish',
   ready: 'ready',
   home: 'ready',

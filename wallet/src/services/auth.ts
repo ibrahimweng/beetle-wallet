@@ -21,6 +21,8 @@ export type Account = {
   username?: string;
   /** the BVN or NIN the account was opened with: recovery asks for it again */
   idNumber?: string;
+  /** how it logs in on a new phone: its password, or Google or Apple (Round 32: no password for those) */
+  signInWith?: 'password' | 'google' | 'apple';
   firstName: string;
   lastName: string;
   createdAt: string;
@@ -30,7 +32,17 @@ export type Account = {
 
 export type Session = { token: string; account: Account };
 
-export type NewAccount = { phone: string; email?: string; username?: string; idNumber?: string; record: IdentityRecord; passcodeHash: string; salt: string; faceEnrolled: boolean };
+export type NewAccount = {
+  phone: string;
+  email?: string;
+  username?: string;
+  idNumber?: string;
+  record: IdentityRecord;
+  passcodeHash: string;
+  salt: string;
+  faceEnrolled: boolean;
+  signInWith?: Account['signInWith'];
+};
 
 export interface AuthService {
   /** A code to a mobile number or an email. */
@@ -47,6 +59,9 @@ export interface AuthService {
   signIn(contact: string, token: string): Promise<Session | null>;
   /** A new email on the account, once the owner has proven it is theirs and the new one has had its code. */
   changeEmail(accountNumber: string, email: string): Promise<Account>;
+  /** The account closed at its owner's asking (Round 32: the right to erasure). What the law makes a bank keep is kept
+      for as long as it says, on the server; the rest goes. */
+  closeAccount(accountNumber: string): Promise<void>;
 }
 
 /** The demo account's number, made up for it: signing in with it opens the
@@ -108,6 +123,7 @@ export class MockAuthService implements AuthService {
 
   async findAccount(contact: string): Promise<Account | null> {
     const c = contact.trim().replace(/^\$/, '').toLowerCase();
+    if (!c) return null;
     const matches = (a: Account) => a.phone === c || a.email?.toLowerCase() === c || a.username === c;
     const list = (await storage.get<Account[]>(ACCOUNTS_KEY)) ?? [];
     const own = list.find(matches);
@@ -134,6 +150,7 @@ export class MockAuthService implements AuthService {
       email: input.email,
       username: input.username,
       idNumber: input.idNumber,
+      signInWith: input.signInWith ?? 'password',
       firstName: input.record.firstName,
       lastName: input.record.lastName,
       createdAt: new Date().toISOString(),
@@ -159,6 +176,16 @@ export class MockAuthService implements AuthService {
     const changed = next.find(a => a.accountNumber === accountNumber);
     if (!changed) throw new Error('No such account.');
     return changed;
+  }
+
+  async closeAccount(accountNumber: string): Promise<void> {
+    await wait(this.delay);
+    if (accountNumber === DEMO_ACCOUNT.accountNumber) throw new Error('The demo account stays open.');
+    const list = (await storage.get<Account[]>(ACCOUNTS_KEY)) ?? [];
+    await storage.set(
+      ACCOUNTS_KEY,
+      list.filter(a => a.accountNumber !== accountNumber),
+    );
   }
 }
 

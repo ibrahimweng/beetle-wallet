@@ -41,6 +41,8 @@ export type Prefs = {
   /** what has been loaded onto the virtual card from Everyday, on top of what its month allows */
   cardLoaded: number;
   othersSignedOut: boolean;
+  /** offers and news (Round 32): off until it is switched on, as the Nigeria Data Protection Act asks of marketing */
+  marketing: boolean;
   /** the money frozen from Not your phone, until a new passcode is set */
   frozen: boolean;
   /** sending waits until then: twelve hours after a new passcode set from Not your phone */
@@ -64,6 +66,7 @@ export const DEFAULT_PREFS: Prefs = {
   cardFrozen: false,
   cardLoaded: 0,
   othersSignedOut: false,
+  marketing: false,
   frozen: false,
 };
 

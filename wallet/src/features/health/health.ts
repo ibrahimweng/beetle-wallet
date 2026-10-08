@@ -22,7 +22,7 @@ export function healthRows(prefs: Prefs, transfers: number): HealthRow[] {
     { id: 'check', glyph: 'check', title: HEALTH_ROWS.check, sub: 'Every transfer read before it left', value: `${read} of ${read}` },
     { id: 'save', glyph: 'pot', title: HEALTH_ROWS.save, sub: 'Before it can go anywhere else', value: prefs.rules.payday && !prefs.tight ? '3 months' : 'Paused' },
     { id: 'cover', glyph: 'eye', title: HEALTH_ROWS.cover, sub: 'Dots in public, figures at home', value: prefs.hideBalance ? 'On' : 'Off' },
-    { id: 'open', glyph: 'faceid', title: HEALTH_ROWS.open, sub: 'Face ID, a password, and a limit', value: prefs.faceId ? 'On' : 'Password' },
+    { id: 'open', glyph: 'faceid', title: HEALTH_ROWS.open, sub: 'Face ID, a passcode, and a limit', value: prefs.faceId ? 'On' : 'Passcode' },
     { id: 'watch', glyph: 'chart', title: HEALTH_ROWS.watch, sub: 'Against what you planned to spend', value: '18% over', tone: 'warn' },
   ];
 }

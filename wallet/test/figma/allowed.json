@@ -84,10 +84,6 @@
     "Sheet"
    ],
    "why": "Since Round 11 the passcode sheet shows the whole of it at its top while the six digits go in — who, their bank and number, what they receive, the fee and what leaves which account — so the sheet reaches up to 69 and everything under its head comes down to make room, the pad a step smaller to fit; and Cancel sits plainly under the pad where the frame's line about the sixth digit was (the owner's word: a clear Cancel, since the sixth digit sends it)"
-  },
-  {
-   "text": "Enter your passcode",
-   "why": "Round 30, the owner’s word: a password in place of the six digits: Enter your password"
   }
  ],
  "share": [
@@ -123,6 +119,14 @@
     "Ask bar"
    ],
    "why": "Activities and Settings are two of the three pages under the one bar now, which the owner asked to stay put across all three, so the foot is the bar rather than Back and the ask bar; a line opened on Activities opens where it is, the bar stepping out of the way"
+  },
+  {
+   "band": [
+    905,
+    2400
+   ],
+   "dy": 64,
+   "why": "Round 32, the owner’s word: Privacy and your data is a row of its own under Your account (the Nigeria Data Protection Act's rights in one place), so everything under it sits one row, 64, lower"
   }
  ],
  "actions": [
@@ -287,12 +291,16 @@
    "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
   },
   {
-   "text": "Passcode",
-   "why": "Round 30, the owner’s word: the row is Password"
+   "piece": "Card",
+   "why": "Round 32, the owner’s word: the first card holds Password under Passcode (what logs in on a new phone), so it is one row, 64, taller"
   },
   {
-   "text": "6 digits",
-   "why": "Round 30, the owner’s word: a password has no fixed length to show"
+   "band": [
+    270,
+    2400
+   ],
+   "dy": 64,
+   "why": "Round 32, the owner’s word: everything under the first card sits one row lower, for the Password row in it"
   }
  ],
  "limits": [
@@ -327,20 +335,12 @@
   {
    "piece": "Ask bar",
    "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
-  },
-  {
-   "text": "Your passcode. Not your face",
-   "why": "Round 30, the owner’s word: Your password. Not your face"
   }
  ],
  "limitstop": [
   {
    "piece": "Button · Send ₦120,000",
    "why": "Back sits on the page's 20 (see Back), so the button beside it starts 4 further right; it keeps its width and ends on the page's 20"
-  },
-  {
-   "text": "Your passcode",
-   "why": "Round 30, the owner’s word: the step done is Your password"
   }
  ],
  "rules": [
@@ -905,10 +905,6 @@
     "Sarah Adeyemi"
    ],
    "why": "Since Round 11 the passcode sheet shows the whole of it at its top while the six digits go in — who, their bank and number, what they receive, the fee and what leaves which account — so the sheet reaches up to 69 and everything under its head comes down to make room, the pad a step smaller to fit; and Cancel sits plainly under the pad where the frame's line about the sixth digit was (the owner's word: a clear Cancel, since the sixth digit sends it)"
-  },
-  {
-   "text": "Enter your passcode",
-   "why": "Round 30, the owner’s word: a password in place of the six digits: Enter your password"
   }
  ],
  "request": [
@@ -1095,10 +1091,6 @@
     "Sheet"
    ],
    "why": "Since Round 11 the passcode sheet shows the whole of it at its top while the six digits go in — who, their bank and number, what they receive, the fee and what leaves which account — so the sheet reaches up to 69 and everything under its head comes down to make room, the pad a step smaller to fit; and Cancel sits plainly under the pad where the frame's line about the sixth digit was (the owner's word: a clear Cancel, since the sixth digit sends it)"
-  },
-  {
-   "text": "Enter your passcode",
-   "why": "Round 30, the owner’s word: a password in place of the six digits: Enter your password"
   }
  ],
  "services": [
@@ -1240,10 +1232,6 @@
     "Sheet"
    ],
    "why": "Since Round 11 the passcode sheet shows the whole of it at its top while the six digits go in — who, their bank and number, what they receive, the fee and what leaves which account — so the sheet reaches up to 69 and everything under its head comes down to make room, the pad a step smaller to fit; and Cancel sits plainly under the pad where the frame's line about the sixth digit was (the owner's word: a clear Cancel, since the sixth digit sends it)"
-  },
-  {
-   "text": "Enter your passcode",
-   "why": "Round 30, the owner’s word: a password in place of the six digits: Enter your password"
   }
  ],
  "loan": [
@@ -1789,55 +1777,28 @@
   },
   {
    "pieces": [
-    [
-     "Row",
-     0
-    ],
-    [
-     "Mark · 32",
-     0
-    ],
-    [
-     "Card",
-     1
-    ],
-    [
-     "Row",
-     1
-    ],
-    [
-     "Mark · 32",
-     1
-    ],
-    [
-     "Card",
-     4
-    ]
+    ["Row", 0],
+    ["Mark · 32", 0],
+    ["Card", 1],
+    ["Row", 1],
+    ["Mark · 32", 1],
+    ["Card", 4]
    ],
    "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
   },
   {
    "pieces": [
-    [
-     "Card",
-     3
-    ]
+    ["Card", 3]
    ],
    "why": "the offer's card holds a plain line over its button since Round 11, with no mark and no bubble (DESIGN.md, Pages), so it is shorter than the frame's"
   },
   {
-   "band": [
-    569,
-    934
-   ],
+   "band": [569, 934],
    "dy": -57.4,
    "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
   },
   {
-   "band": [
-    1110,
-    1191
-   ],
+   "band": [1110, 1191],
    "dy": -100.3,
    "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
   },
@@ -1853,10 +1814,6 @@
   {
    "piece": "Ask bar",
    "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
-  },
-  {
-   "text": "Face ID, a passcode, and a l",
-   "why": "Round 30, the owner’s word: Face ID, a password, and a limit"
   }
  ],
  "draft": [
@@ -2521,6 +2478,28 @@
   {
    "piece": "Row · 0803 214 4471",
    "why": "rides up with the title over Use email instead and Google and Apple (Round 30)"
+  }
+ ],
+ "passcode": [
+  {
+   "text": "Your number",
+   "why": "Round 32, the owner’s word: the steps done are named for what was given: Mobile number"
+  },
+  {
+   "text": "Who you are",
+   "why": "Round 32, the owner’s word: the step done is BVN number (or NIN number)"
+  },
+  {
+   "text": "Your face",
+   "why": "Round 32, the owner’s word: the step before the passcode is the password; the face comes last, with the username"
+  },
+  {
+   "text": "A passcode",
+   "why": "Round 32, the owner’s word: the step is named Create passcode"
+  },
+  {
+   "text": "Six digits. These are what s",
+   "why": "Round 32, the owner’s word: the line says the six digits open Beetle and send money when the face or the fingerprint cannot"
   }
  ]
 }

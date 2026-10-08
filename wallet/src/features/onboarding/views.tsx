@@ -46,18 +46,34 @@ import {
 } from '../../design';
 import { TextBox } from '../../design/TextBox';
 import type { IconName } from '../../icons';
-import { auth, identity, DEMO_ACCOUNT, DEMO_PASSWORDS, MOCK, MOCK_CODE, type Account } from '../../services';
+import { auth, identity, DEMO_ACCOUNT, DEMO_PASSCODES, DEMO_PASSWORDS, MOCK, MOCK_CODE, type Account } from '../../services';
 import type { DocumentKind } from '../../services/identity';
 import { LAB } from '../../lab/enabled';
 import { groupAccount, groupDigits, groupPhone, initialsOf, longDate } from '../../lib/format';
-import { checkPhone, isEmail, passwordProblem, PASSWORD_RULES, PASSWORD_WORDS, usernameProblem } from './validation';
+import {
+  ADULT,
+  ageOn,
+  checkPhone,
+  dateFrom,
+  fullNameProblem,
+  isEmail,
+  passcodeProblem,
+  PASSCODE_WORDS,
+  passwordProblem,
+  PASSWORD_RULES,
+  PASSWORD_WORDS,
+  typingDate,
+  usernameProblem,
+} from './validation';
+import { withProvider, type IdKind, type Progress } from './machine';
+import { clearIdMisses, idChecksPaused, noteIdMiss } from './recovery';
 import type { useApp } from './store';
 import type { Stage } from './stages';
 import type { Known } from './devices';
 import type { Income, Setup } from '../setup/setup';
 import { address, full, idcard, income } from './setupViews';
 import { putSetup } from '../setup/store';
-import { signViews } from './signViews';
+import { afterProof, signViews } from './signViews';
 
 export type Note = { text: string; tone?: 'secondary' | 'bad' | 'accent' } | null;
 export type Bar = { label: string; onPress: () => void; disabled?: boolean; /** Back at the bottom left, beside the button, where a frame draws it there */ back?: () => void };
@@ -105,9 +121,22 @@ export type Ctx = {
   still: boolean;
   digits: string;
   setDigits: (d: string) => void;
-  /** what is typed into the stage's box: an email, a password, a username */
+  /** what is typed into the stage's box: an email, a password, a username, a full name */
   text: string;
   setText: (s: string) => void;
+  /** a second box: the date of birth beside the name */
+  text2: string;
+  setText2: (s: string) => void;
+  /** the passcode typed once, waiting for the second time */
+  first: string | null;
+  setFirst: (s: string | null) => void;
+  /** the yes to the face scan (a face is sensitive personal data) */
+  consent: boolean;
+  setConsent: (b: boolean) => void;
+  /** the terms or the privacy notice, opened as a page to read */
+  openLegal: (doc: 'terms' | 'privacy') => void;
+  /** what the phone checks, as the person knows it: Face ID, Touch ID, fingerprint */
+  bioName: string;
   note: Note;
   setNote: (n: Note) => void;
   busy: boolean;
@@ -436,7 +465,7 @@ function welcome(_c: Ctx): StageView {
 }
 
 /** Is this number stage the mobile number added after an email, rather than the first thing asked? */
-const adding = (c: Ctx) => !!c.app.progress.identityConfirmed && !c.app.progress.phoneVerified && c.app.progress.via !== undefined && c.app.progress.via !== 'phone';
+const adding = (c: Ctx) => !!c.app.progress.identity && !c.app.progress.phoneVerified && c.app.progress.via !== undefined && c.app.progress.via !== 'phone';
 
 function number(c: Ctx): StageView {
   const add = adding(c);
@@ -459,6 +488,7 @@ function number(c: Ctx): StageView {
             <View style={{ gap: 12 }}>
               <More label="Use email instead" onPress={() => c.go('email')} />
               <Providers c={c} purpose="signup" />
+              <Legal c={c} />
             </View>
           )
         }
@@ -560,6 +590,7 @@ function email(c: Ctx): StageView {
             ) : null}
             <More label="Use mobile number instead" onPress={() => c.go('number', -1)} />
             {c.unknown ? null : <Providers c={c} purpose="signup" />}
+            <Legal c={c} />
           </View>
         }
       >
@@ -607,18 +638,18 @@ function provider(c: Ctx): StageView {
           c.setNote({ text: `No Beetle account has this ${name} email. Open one, or log in with your number.`, tone: 'bad' });
           return;
         }
-        /* Google or Apple stands in for the code; the password is still asked, and the face on a phone it has not seen */
+        /* Google or Apple is the proof (Round 32, the owner's word): no password, and the face once on a phone it has not seen */
         c.setContact(account.phone);
         c.setWho(account);
-        c.go('signpass');
+        await afterProof(c, account);
         return;
       }
       if (await auth.findAccount(handed)) {
         c.setNote({ text: `This ${name} email already has a Beetle account. Log in instead.`, tone: 'bad' });
         return;
       }
-      await c.app.beginWith(c.provider, handed);
-      c.go('bvn');
+      await c.app.beginWith(c.provider, handed, 'Ibrahim Musa');
+      c.go('details');
     } finally {
       c.setBusy(false);
     }
@@ -627,7 +658,9 @@ function provider(c: Ctx): StageView {
     icon: 'mail-filled',
     tint: washes.number.tone,
     title: `Continue with ${name}`,
-    sub: `${name} has already checked the email, so there is no code for it. Beetle gets your name and email, nothing else.`,
+    sub: login
+      ? `${name} proves it is you, so there is no password. On a phone new to your account, a face scan once.`
+      : `${name} has already checked the email, so there is no code for it and no password. Beetle gets your name and email, nothing else.`,
     bodyKey: `provider:${c.provider}:${c.providerFor}`,
     body: (
       <View style={{ gap: 16 }}>
@@ -640,6 +673,7 @@ function provider(c: Ctx): StageView {
         </Card>
         {c.note ? <NoteLine note={c.note} /> : null}
         <Aside glyph="eye">{`A stand-in for ${name}’s own sheet. The real one comes with the app’s own build and Beetle’s keys with ${name}.`}</Aside>
+        {login ? null : <Legal c={c} />}
       </View>
     ),
     bar: { label: c.busy ? 'Just a moment…' : 'Continue as Ibrahim', onPress: go, disabled: c.busy },
@@ -650,7 +684,7 @@ function provider(c: Ctx): StageView {
 /* The code to the number or the email the way in began with, or to the number added after an email. */
 function signupCode(c: Ctx): StageView {
   const p = c.app.progress;
-  const phone = !!p.phone && !p.phoneVerified && (p.via === 'phone' || !!p.identityConfirmed);
+  const phone = !!p.phone && !p.phoneVerified && (p.via === 'phone' || !!p.identity);
   const to = phone ? (p.phone ?? '') : (p.email ?? '');
   return code(c, {
     to,
@@ -658,57 +692,216 @@ function signupCode(c: Ctx): StageView {
     tint: washes.code.tone,
     onVerified: async () => {
       await c.app.markVerified(phone ? 'phone' : 'email');
-      c.go(phone && p.identityConfirmed ? 'password' : 'bvn');
+      c.go(phone && p.identity ? afterPhone(p) : 'details');
     },
     back: () => c.go(phone ? 'number' : 'email', -1),
   });
 }
 
+/** Where the way in goes once the mobile number is checked after the details: the password, or for Google and Apple the passcode. */
+const afterPhone = (p: Progress): Stage => (withProvider(p) ? 'passcode' : 'password');
+/** Where it goes once the details have matched a BVN or NIN (or a paper): the mobile number if it has none yet, then on. */
+const afterIdentity = (p: Progress): Stage => (!p.phone ? 'number' : afterPhone(p));
+
+/* The terms and the privacy notice, before anything is kept (Round 32: the Nigeria Data Protection Act asks for notice
+   before personal data is collected). Both open as pages to read. */
+export function Legal({ c }: { c: Ctx }) {
+  return (
+    <Caption tone="tertiary" testID="legal">
+      By continuing you agree to the{' '}
+      <Caption style={{ color: night.ink }} onPress={() => c.openLegal('terms')} accessibilityRole="link">
+        Terms
+      </Caption>{' '}
+      and confirm you have read the{' '}
+      <Caption style={{ color: night.ink }} onPress={() => c.openLegal('privacy')} accessibilityRole="link">
+        Privacy notice
+      </Caption>
+      .
+    </Caption>
+  );
+}
+
+/* Your details (Round 32, the owner's word): the full name and the date of birth, typed as they are on the BVN or NIN,
+   to be held to the record. Nothing on the record is shown to whoever types a number, so the number of somebody
+   else's gives away neither their name nor their birthday. Google and Apple give the name. */
+function details(c: Ctx): StageView {
+  const p = c.app.progress;
+  const nameWrong = c.text ? fullNameProblem(c.text) : 'short';
+  const iso = dateFrom(c.text2);
+  const ok = !nameWrong && !!iso;
+  const save = async () => {
+    if (c.busy) return;
+    if (nameWrong) {
+      c.setNote({ text: nameWrong === 'chars' ? 'Letters only, as it is on your BVN or NIN.' : 'Your first name and your surname, at least.', tone: 'bad' });
+      c.bump();
+      return;
+    }
+    if (!iso) {
+      c.setNote({ text: 'A real date, as day, month and year: 14/06/1996.', tone: 'bad' });
+      c.bump();
+      return;
+    }
+    if (ageOn(iso) < ADULT) {
+      c.setNote({ text: `You have to be ${ADULT} or older to open an account. A parent can open one for you at a branch.`, tone: 'bad' });
+      c.bump();
+      return;
+    }
+    await c.app.setDetails(c.text, iso);
+    c.go(p.identity ? afterIdentity(p) : 'bvn');
+  };
+  return {
+    icon: 'person-filled',
+    tint: washes.who.tone,
+    title: 'Your details',
+    sub: 'Your full name and date of birth, exactly as they are on your BVN or NIN. I check them; I do not show you what is on the record.',
+    bodyKey: 'details',
+    words: true,
+    body: (
+      <WordsBody c={c}>
+        <View style={{ gap: 12 }}>
+          <TextBox
+            label="Full name"
+            value={c.text}
+            onChangeText={t => {
+              c.setText(t);
+              c.setNote(null);
+            }}
+            autoCapitalize="words"
+            autoComplete="name"
+            textContentType="name"
+            returnKeyType="next"
+            placeholder="Ibrahim Musa"
+            testID="full-name"
+          />
+          <TextBox
+            label="Date of birth"
+            value={c.text2}
+            onChangeText={t => {
+              c.setText2(typingDate(t));
+              c.setNote(null);
+            }}
+            keyboardType="number-pad"
+            autoComplete="birthdate-full"
+            returnKeyType="done"
+            onSubmitEditing={save}
+            placeholder="DD/MM/YYYY"
+            maxLength={10}
+            testID="dob"
+          />
+        </View>
+      </WordsBody>
+    ),
+    bar: { label: 'Continue', onPress: save, disabled: !ok || c.busy },
+    back: () => c.go(p.via === 'email' ? 'email' : 'number', -1),
+  };
+}
+
+const ID_WORDS = {
+  bvn: { title: 'BVN number', sub: 'Eleven digits. Dial *565*0# from the number your bank has to see it.', checker: 'NIBSS, the banks’ register' },
+  nin: { title: 'NIN number', sub: 'Eleven digits. Dial *346# to see it, or read it off your NIN slip.', checker: 'NIMC, the identity commission' },
+} as const;
+
+/* The BVN or the NIN, as the person picks (the owner's word), held to the details just typed. Three that do not match
+   and this phone checks no more for a day (recovery.ts). */
 function bvn(c: Ctx): StageView {
+  const p = c.app.progress;
+  const kind: IdKind = p.idKind ?? 'bvn';
+  const words = ID_WORDS[kind];
   const full = async (d: string) => {
     c.setBusy(true);
-    c.setNote({ text: 'Asking the register…' });
+    c.setNote({ text: 'Checking…' });
+    let shut = false;
     try {
-      const r = await identity.lookup(d);
-      if (r.found) {
-        await c.app.setIdentity(d, r.record, 'bvn');
-        c.go('details');
-      } else {
-        c.setLastNumber(d);
-        c.go('nomatch');
+      const paused = await idChecksPaused();
+      if (paused) {
+        c.setNote({ text: `For your safety, checks from this phone wait until ${paused}.`, tone: 'bad' });
+        shut = true;
+        return;
       }
+      const r = await identity.verify(kind, d, { name: p.name ?? '', dob: p.dob ?? '' });
+      if (r.ok) {
+        await clearIdMisses();
+        await c.app.setIdentity(d, r.record, kind);
+        c.go(afterIdentity(p));
+        return;
+      }
+      const miss = await noteIdMiss();
+      c.setLastNumber(d);
+      if (miss.until) {
+        c.setDigits('');
+        c.bump();
+        c.setNote({ text: `Three that did not match. For your safety, checks from this phone wait until ${miss.until}.`, tone: 'bad' });
+        shut = true;
+        return;
+      }
+      c.setWrong(miss.misses);
+      c.go('nomatch');
     } catch {
       c.setNote({ text: 'The register did not answer. Try again in a moment.', tone: 'bad' });
     } finally {
-      c.setBusy(false);
+      if (!shut) c.setBusy(false);
     }
+  };
+  const pick = (k: IdKind) => {
+    if (k === kind || c.busy) return;
+    void c.app.setIdKind(k);
+    c.setDigits('');
+    c.setNote(null);
   };
   return {
     icon: 'id-filled',
     tint: washes.nin.tone,
-    title: 'BVN number',
-    sub: 'Eleven digits. Dial *565*0# from the number your bank has to see it. Your name and date of birth come back with it.',
+    title: words.title,
+    sub: words.sub,
     bodyKey: 'bvn',
-    body: <DigitBody c={c} groups={[4, 4, 3]} footer={<More label="Use my NIN slip or voter’s card instead" onPress={() => c.go('document')} />} />,
+    body: (
+      <View style={{ gap: 12 }}>
+        <View style={{ flexDirection: 'row', gap: 8 }} testID="id-kinds">
+          {(['bvn', 'nin'] as const).map(k => (
+            <Tap
+              key={k}
+              accessibilityRole="radio"
+              accessibilityState={{ checked: kind === k }}
+              accessibilityLabel={k === 'bvn' ? 'BVN' : 'NIN'}
+              onPress={() => pick(k)}
+              style={{ height: 36, paddingHorizontal: 16, borderRadius: 18, justifyContent: 'center', backgroundColor: kind === k ? night.ink : night.panel2 }}
+            >
+              <Label style={{ color: kind === k ? night.ground : night.ink }}>{k === 'bvn' ? 'BVN' : 'NIN'}</Label>
+            </Tap>
+          ))}
+        </View>
+        <DigitBody
+          c={c}
+          groups={[4, 4, 3]}
+          footer={
+            <View style={{ gap: 12 }}>
+              <Caption tone="tertiary">{`I check your name and date of birth with ${words.checker}. Nothing else is taken from it.`}</Caption>
+              <More label="Use a photo of my NIN slip or voter’s card" onPress={() => c.go('document')} />
+            </View>
+          }
+        />
+      </View>
+    ),
     keypad: typing(c, 11, full),
-    /* back to the number or the email the way in began with, to change it */
-    back: () => c.go(c.app.progress.via === 'email' ? 'email' : 'number', -1),
+    hint: MOCK ? 'Demo: 1234 5678 900 is Ibrahim Musa, 14/06/1996' : undefined,
+    back: () => c.go('details', -1),
   };
 }
 
-/* The shortcut (the owner's word): a photo of a NIN slip or a voter's card stands in for the BVN and gives the rest of
-   the record with it, the address and the email too, so finishing setting up is already done. */
+/* The shortcut (the owner's word): a photo of a NIN slip or a voter's card stands in for the typed number. What it
+   reads is held to the details typed, the same as a number is, and it gives the address and the email besides, so
+   finishing setting up is already done. */
 function documentStage(c: Ctx): StageView {
   const reading = c.docState === 'checking';
   const kinds: { id: DocumentKind; label: string }[] = [
-    { id: 'nin', label: 'NIN slip' },
+    { id: 'slip', label: 'NIN slip' },
     { id: 'voters', label: 'Voter’s card' },
   ];
   return {
     icon: 'camera-filled',
     tint: washes.idcard.tone,
     title: 'NIN slip or voter’s card',
-    sub: 'A photo of either fills in your name, date of birth, address and email, and skips finishing setting up later.',
+    sub: 'A photo of either is checked against your details, and fills in your address and email so finishing setting up is done.',
     bodyKey: 'document',
     body: (
       <View style={{ gap: 12 }}>
@@ -739,79 +932,28 @@ function documentStage(c: Ctx): StageView {
   };
 }
 
-const FROM_WORDS = { bvn: 'BVN', nin: 'NIN slip', voters: 'voter’s card' } as const;
-
-function details(c: Ctx): StageView {
-  const id = c.app.progress.identity;
-  const record = id?.record;
-  const name = record ? `${record.firstName} ${record.lastName}` : '';
-  const line = (label: string, value: string) => (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: space.s4 }}>
-      <Body tone="secondary" style={{ flexShrink: 0 }}>
-        {label}
-      </Body>
-      <RowText style={{ flex: 1, textAlign: 'right' }}>{value}</RowText>
-    </View>
-  );
-  return {
-    icon: 'id-filled',
-    tint: washes.who.tone,
-    title: 'Confirm your details',
-    sub: `This came back from the register against your ${FROM_WORDS[id?.from ?? 'bvn']}. I did not type it.`,
-    bodyKey: 'details',
-    body: record ? (
-      <View style={{ gap: 20 }}>
-        <Card style={{ gap: space.s4 }} testID="details">
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }}>
-            <Avatar initials={initialsOf(name)} />
-            <View style={{ gap: 2 }}>
-              <RowText>{name}</RowText>
-              <Meta tone="secondary">Born {longDate(record.born)}</Meta>
-            </View>
-          </View>
-          {line('On the record as', record.recordName)}
-          {record.address ? line('Lives at', record.address) : null}
-          {record.email && id?.from !== 'bvn' ? line('Email', record.email) : null}
-        </Card>
-        <More
-          label="Something here is wrong"
-          onPress={() => {
-            c.setLastNumber(id?.number ?? '');
-            c.go('nomatch');
-          }}
-        />
-      </View>
-    ) : null,
-    bar: {
-      label: 'Yes, that is me',
-      onPress: async () => {
-        await c.app.confirmIdentity();
-        c.go(c.app.progress.phone ? 'password' : 'number');
-      },
-    },
-    back: () => c.go(id?.from && id.from !== 'bvn' ? 'document' : 'bvn', -1),
-  };
-}
-
+/* When the details and the number do not match: said once, the same way whatever the reason, so it tells nobody
+   whether the number has a record or whose it is. */
 function nomatch(c: Ctx): StageView {
-  const shown = c.lastNumber ? groupDigits(c.lastNumber, [4, 4, 3]) : 'those digits';
+  const kind: IdKind = c.app.progress.idKind ?? 'bvn';
+  const left = TRIES - c.wrong;
   return {
     icon: 'id-filled',
     tint: washes.nomatch.tone,
-    title: 'BVN number',
-    sub: 'Eleven digits from your bank. These ones did not match anything.',
+    title: ID_WORDS[kind].title,
+    sub: `These did not match. ${left === 1 ? 'One more try' : `${left} more tries`} before checks from this phone wait a day.`,
     bodyKey: 'nomatch',
     body: (
       <View style={{ gap: 20 }}>
         <Card style={{ gap: space.s4 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s4 }}>
             <Icon name="warn-filled" size={28} colour={colour.warn} />
-            <RowText>Nothing came back</RowText>
+            <RowText>Nothing matched</RowText>
           </View>
-          <Meta tone="secondary">No record matches {shown}. One wrong digit is the usual reason, so it is worth reading them again.</Meta>
+          <Meta tone="secondary">{`The name, the date of birth and the eleven digits have to belong together, as they are on your ${kind === 'nin' ? 'NIN' : 'BVN'}. A name spelled another way, or one wrong digit, is the usual reason.`}</Meta>
         </Card>
-        <Say>If the digits are right and it still says this, a photo of your NIN slip or voter’s card will do instead.</Say>
-        <More label="Use my NIN slip or voter’s card instead" onPress={() => c.go('document')} />
+        <More label="Check my details" onPress={() => c.go('details', -1)} />
+        <More label="Use a photo of my NIN slip or voter’s card" onPress={() => c.go('document')} />
       </View>
     ),
     bar: { label: 'Try again', onPress: () => c.go('bvn') },
@@ -820,7 +962,8 @@ function nomatch(c: Ctx): StageView {
 }
 
 function password(c: Ctx): StageView {
-  const record = c.app.progress.identity?.record;
+  const p = c.app.progress;
+  const record = p.identity?.record;
   const save = async () => {
     if (!meetsRules(c.text) || c.busy) return;
     const refused = refusePassword(c, record);
@@ -832,7 +975,7 @@ function password(c: Ctx): StageView {
     c.setBusy(true);
     try {
       await c.app.setPassword(c.text);
-      c.go('finish');
+      c.go('passcode');
     } finally {
       c.setBusy(false);
     }
@@ -841,18 +984,99 @@ function password(c: Ctx): StageView {
     icon: 'lock-filled',
     tint: washes.passcode.tone,
     title: 'Password',
-    sub: 'At least eight letters and numbers. It opens Beetle and sends your money, so not your name or your birthday.',
+    sub: 'At least eight letters and numbers, for logging in on a new phone. Not your name or your birthday.',
     bodyKey: 'password',
     words: true,
     body: passwordBody(c),
     bar: { label: 'Continue', onPress: save, disabled: !meetsRules(c.text) || c.busy },
     hint: MOCK && LAB ? `The lab takes ${DEMO_PASSWORDS[1]} as well.` : undefined,
-    back: () => c.go('details', -1),
+    back: () => c.go(p.via === 'phone' ? 'bvn' : 'number', -1),
   };
 }
 
+/* Six digits, twice (Round 32, the owner's word): what opens the app and sends money when the face or the fingerprint
+   cannot. The weak ones are refused, the year of birth among them. Asked on the way in right before the face scan, and
+   on logging in on a phone that does not have it (signViews). */
+export function passcodeView(c: Ctx, o: { save: (code: string) => Promise<void>; back: () => void; title?: string }): StageView {
+  const birthYear = c.app.progress.identity?.record.birthYear;
+  const again = c.first !== null;
+  const full = async (d: string) => {
+    if (c.first === null) {
+      /* the build's keys pass the rules only in the lab: a real account never gets 123456 as its passcode */
+      const problem = MOCK && LAB && DEMO_PASSCODES.includes(d) ? null : passcodeProblem(d, { birthYear });
+      if (problem) {
+        c.setNote({ text: PASSCODE_WORDS[problem], tone: 'bad' });
+        c.bump();
+        c.setDigits('');
+        return;
+      }
+      c.setFirst(d);
+      c.setDigits('');
+      return;
+    }
+    if (d !== c.first) {
+      c.setNote({ text: 'They did not match. Start again.', tone: 'bad' });
+      c.bump();
+      c.setFirst(null);
+      c.setDigits('');
+      return;
+    }
+    c.setBusy(true);
+    try {
+      await o.save(d);
+    } catch {
+      c.setNote({ text: 'It could not be kept. Try again.', tone: 'bad' });
+      c.setFirst(null);
+      c.setDigits('');
+    } finally {
+      c.setBusy(false);
+    }
+  };
+  return {
+    icon: 'lock-filled',
+    tint: washes.passcode.tone,
+    title: again ? 'Confirm passcode' : (o.title ?? 'Create passcode'),
+    sub: again ? 'The same six again, to be sure.' : 'Six digits. They open Beetle and send your money when your face or fingerprint cannot.',
+    bodyKey: `passcode:${again ? 'again' : 'first'}`,
+    body: (
+      <DigitBody
+        c={c}
+        groups={[6]}
+        max={6}
+        secret
+        footer={
+          <View style={{ paddingTop: 8 }}>
+            <Aside>Not your year of birth, and not 123456.</Aside>
+          </View>
+        }
+      />
+    ),
+    keypad: typing(c, 6, full),
+    hint: MOCK && LAB ? `The lab lets ${DEMO_PASSCODES.join(' and ')} through all the same.` : undefined,
+    back: again
+      ? () => {
+          c.setFirst(null);
+          c.setDigits('');
+        }
+      : o.back,
+  };
+}
+
+function passcode(c: Ctx): StageView {
+  const p = c.app.progress;
+  return passcodeView(c, {
+    save: async code => {
+      await c.app.choosePasscode(code);
+      c.go('finish');
+    },
+    back: () => c.go(withProvider(p) ? 'bvn' : 'password', -1),
+  });
+}
+
 /* The last step (the owner's word): the face and the username on one screen. The face is scanned live and matched to
-   the BVN's photo, so only its owner can get the account back later; the username is the $tag people pay. */
+   the BVN's photo, so only its owner can get the account back later; the username is the $tag people pay. A face is
+   sensitive personal data under the Nigeria Data Protection Act 2023, so it is asked for by name first, and the scan
+   waits for the yes. */
 function UsernameCheck({ c }: { c: Ctx }) {
   const name = c.text;
   useEffect(() => {
@@ -876,10 +1100,37 @@ function UsernameCheck({ c }: { c: Ctx }) {
 
 const USERNAME_WORDS = { short: 'At least three letters.', long: 'Twenty at most.', chars: 'Small letters, numbers and underscores, starting with a letter.' } as const;
 
+/* A box to tick: a consent, said in full beside it. */
+export function Consent({ on, onChange, children, testID }: { on: boolean; onChange: (v: boolean) => void; children: ReactNode; testID?: string }) {
+  return (
+    <Tap accessibilityRole="checkbox" accessibilityState={{ checked: on }} onPress={() => onChange(!on)} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }} testID={testID}>
+      <View
+        style={{
+          width: 22,
+          height: 22,
+          borderRadius: 6,
+          marginTop: 1,
+          borderWidth: on ? 0 : 1.5,
+          borderColor: night.ruleStrong,
+          backgroundColor: on ? colour.accent : 'transparent',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {on ? <Icon name="check-small" size={16} colour={night.ink} /> : null}
+      </View>
+      <Caption tone="secondary" style={{ flex: 1 }}>
+        {children}
+      </Caption>
+    </Tap>
+  );
+}
+
 function finish(c: Ctx): StageView {
   const p = c.app.progress;
   const face = c.faceState;
   const problem = usernameProblem(c.text);
+  const kind = p.identity?.from === 'nin' ? 'NIN' : 'BVN';
   const note =
     c.free === 'checking'
       ? 'Checking…'
@@ -891,6 +1142,11 @@ function finish(c: Ctx): StageView {
             ? USERNAME_WORDS[problem]
             : 'What people type to pay you.';
   const scan = async () => {
+    if (!c.consent) {
+      c.setNote({ text: 'Tick the box first: the scan needs your yes.', tone: 'bad' });
+      return;
+    }
+    c.setNote(null);
     c.setFaceState('checking');
     c.setFaceState((await scanFace('Look at the phone')) ? 'done' : 'failed');
   };
@@ -902,7 +1158,7 @@ function finish(c: Ctx): StageView {
       const s = await c.app.finish({ username: c.text, passkey: c.passkey });
       /* a NIN slip or a voter's card gave the address and the ID: finishing setting up is done already */
       const id = p.identity;
-      if (id && id.from && id.from !== 'bvn') {
+      if (id && (id.from === 'slip' || id.from === 'voters')) {
         const [street, ...rest] = (id.record.address ?? '').split(', ');
         putSetup(s.account.accountNumber, { address: { street: street ?? '', area: rest.join(', ') }, id: { name: id.record.recordName, number: groupDigits(id.number, [4, 4, 3]) }, done: true });
       }
@@ -917,18 +1173,27 @@ function finish(c: Ctx): StageView {
     icon: 'faceid-filled',
     tint: washes.face.tone,
     title: 'Face scan and username',
-    sub: 'The last step. Your face, matched to your BVN photo so only you can get back in, and the name people pay.',
+    sub: `The last step. Your face, matched to your ${kind} photo so only you can get back in, and the name people pay.`,
     bodyKey: 'finish',
     words: true,
     body: (
       <View style={{ gap: 12 }}>
         <UsernameCheck c={c} />
-        <Tap accessibilityRole="button" accessibilityLabel={face === 'done' ? 'Face scanned' : 'Scan my face'} onPress={face === 'done' || face === 'checking' ? undefined : scan} testID="scan-face">
-          <Card style={{ flexDirection: 'row', alignItems: 'center', gap: space.s4, paddingVertical: space.s3 }}>
+        <Consent on={c.consent} onChange={c.setConsent} testID="face-consent">
+          {`I agree to a face scan to prove this ${kind} is mine. It is checked against the ${kind} photo and not kept as a picture.`}
+        </Consent>
+        <Tap
+          accessibilityRole="button"
+          accessibilityLabel={face === 'done' ? 'Face scanned' : 'Scan my face'}
+          accessibilityState={{ disabled: !c.consent }}
+          onPress={face === 'done' || face === 'checking' ? undefined : scan}
+          testID="scan-face"
+        >
+          <Card style={{ flexDirection: 'row', alignItems: 'center', gap: space.s4, paddingVertical: space.s3, opacity: c.consent || face === 'done' ? 1 : 0.5 }}>
             {face === 'done' ? <Tick on size={28} /> : <Icon name={face === 'failed' ? 'alert' : 'faceid-filled'} size={28} colour={face === 'failed' ? colour.bad : night.ink} />}
             <View style={{ flex: 1 }}>
               <Label>{face === 'done' ? 'Face scanned' : face === 'checking' ? 'Hold still…' : face === 'failed' ? 'That did not take' : 'Scan my face'}</Label>
-              <Caption tone="tertiary">{face === 'done' ? 'Matched to your BVN photo' : 'Look at the phone in good light'}</Caption>
+              <Caption tone="tertiary">{face === 'done' ? `Matched to your ${kind} photo` : 'Look at the phone in good light'}</Caption>
             </View>
             {face === 'done' ? null : <Icon name="chevron" size={16} colour={night.tertiary} />}
           </Card>
@@ -949,7 +1214,7 @@ function finish(c: Ctx): StageView {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }} testID="passkey-row">
           <View style={{ flex: 1 }}>
             <Label>Save a passkey on this phone</Label>
-            <Caption tone="tertiary">Log in with Face ID next time, no password</Caption>
+            <Caption tone="tertiary">Log in here with your face or fingerprint next time</Caption>
           </View>
           <Toggle value={c.passkey} onChange={c.setPasskey} label="Save a passkey on this phone" testID="passkey" />
         </View>
@@ -957,7 +1222,7 @@ function finish(c: Ctx): StageView {
       </View>
     ),
     bar: { label: c.busy ? 'Opening…' : 'Open my account', onPress: open, disabled: face !== 'done' || c.free !== 'free' || c.busy },
-    back: () => c.go('password', -1),
+    back: () => c.go('passcode', -1),
   };
 }
 
@@ -1070,6 +1335,8 @@ export function buildView(c: Ctx): StageView {
       return nomatch(c);
     case 'password':
       return password(c);
+    case 'passcode':
+      return passcode(c);
     case 'finish':
       return finish(c);
     case 'ready':

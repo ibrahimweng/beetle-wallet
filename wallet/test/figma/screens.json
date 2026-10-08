@@ -170,6 +170,78 @@
    }
   ]
  },
+ "passcode": {
+  "frame": "passcode",
+  "place": "Create passcode",
+  "wait": "Not your year of birth",
+  "pieces": [
+   {
+    "name": "Your number",
+    "find": {
+     "text": "Mobile number"
+    }
+   },
+   {
+    "name": "Who you are",
+    "find": {
+     "text": "BVN number"
+    }
+   },
+   {
+    "name": "Your face",
+    "find": {
+     "text": "Password",
+     "exact": true
+    }
+   },
+   {
+    "name": "A passcode",
+    "find": {
+     "text": "Create passcode"
+    }
+   },
+   {
+    "name": "Six digits. These are what s",
+    "find": {
+     "text": "Six digits. They open"
+    }
+   },
+   {
+    "name": "Row",
+    "nth": 0,
+    "find": {
+     "testid": "pips"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Not your year of birth, and ",
+    "find": {
+     "text": "Not your year of birth"
+    }
+   },
+   {
+    "name": "Key",
+    "nth": 0,
+    "find": {
+     "button": "1",
+     "child": 0
+    }
+   },
+   {
+    "name": "Key",
+    "nth": 9,
+    "find": {
+     "button": "0",
+     "child": 0
+    }
+   }
+  ]
+ },
  "ready": {
   "frame": "ready",
   "place": "Ready",
@@ -743,8 +815,8 @@
  },
  "confirm": {
   "frame": "confirm",
-  "place": "The password",
-  "wait": "Enter your password",
+  "place": "The passcode",
+  "wait": "Enter your passcode",
   "settle": 1800,
   "pieces": [
    {
@@ -2606,28 +2678,38 @@
    {
     "name": "Row · Passcode",
     "find": {
-     "button": "Password"
+     "button": "Passcode"
     }
    },
    {
     "name": "Glyph · waste",
     "find": {
-     "button": "Password",
+     "button": "Passcode",
      "child": 0
     }
    },
    {
     "name": "Passcode",
     "find": {
-     "text": "Password",
+     "text": "Passcode",
      "exact": true
     }
    },
    {
+    "name": "6 digits",
+    "find": {
+     "text": "6 digits"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
     "name": "Glyph · check",
     "find": {
-     "button": "Password",
-     "child": 2
+     "button": "Passcode",
+     "child": 3
     }
    },
    {
@@ -3073,7 +3155,7 @@
    {
     "name": "Row · Your passcode. Not y",
     "find": {
-     "text": "Your password. Not your face",
+     "text": "Your passcode. Not your face",
      "up": 1
     },
     "only": [
@@ -3085,7 +3167,7 @@
    {
     "name": "Icon",
     "find": {
-     "text": "Your password. Not your face",
+     "text": "Your passcode. Not your face",
      "up": 1,
      "child": 0
     }
@@ -3093,7 +3175,7 @@
    {
     "name": "Glyph · shield",
     "find": {
-     "text": "Your password. Not your face",
+     "text": "Your passcode. Not your face",
      "up": 1,
      "child": [
       0,
@@ -3104,7 +3186,7 @@
    {
     "name": "Your passcode. Not your face",
     "find": {
-     "text": "Your password. Not your face"
+     "text": "Your passcode. Not your face"
     }
    },
    {
@@ -3269,7 +3351,7 @@
    {
     "name": "Row · Your passcode",
     "find": {
-     "text": "Your password",
+     "text": "Your passcode",
      "up": 1,
      "exact": true
     }
@@ -3277,7 +3359,7 @@
    {
     "name": "Icon",
     "find": {
-     "text": "Your password",
+     "text": "Your passcode",
      "up": 1,
      "exact": true,
      "child": 0
@@ -3286,7 +3368,7 @@
    {
     "name": "Glyph · check",
     "find": {
-     "text": "Your password",
+     "text": "Your passcode",
      "up": 1,
      "exact": true,
      "child": [
@@ -3298,7 +3380,7 @@
    {
     "name": "Your passcode",
     "find": {
-     "text": "Your password",
+     "text": "Your passcode",
      "exact": true
     }
    },
@@ -4395,6 +4477,408 @@
     "name": "Ask bar",
     "find": {
      "testid": "dock-bar"
+    }
+   }
+  ]
+ },
+ "newcode": {
+  "frame": "newcode",
+  "place": "A new passcode",
+  "wait": "Not your year of birth",
+  "settle": 1400,
+  "pieces": [
+   {
+    "name": "Row · Your number",
+    "find": {
+     "text": "Frozen",
+     "up": 1,
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Glyph · phone-filled",
+    "find": {
+     "text": "Frozen",
+     "up": 1,
+     "exact": true,
+     "child": 0
+    }
+   },
+   {
+    "name": "Frozen",
+    "find": {
+     "text": "Frozen",
+     "exact": true
+    }
+   },
+   {
+    "name": "Row · Who you are",
+    "find": {
+     "text": "Your number",
+     "up": 1,
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Glyph · id-filled",
+    "find": {
+     "text": "Your number",
+     "up": 1,
+     "exact": true,
+     "child": 0
+    }
+   },
+   {
+    "name": "Your number",
+    "find": {
+     "text": "Your number",
+     "exact": true
+    }
+   },
+   {
+    "name": "Row · Your face",
+    "find": {
+     "text": "Your face",
+     "up": 1,
+     "exact": true
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Glyph · faceid-filled",
+    "find": {
+     "text": "Your face",
+     "up": 1,
+     "exact": true,
+     "child": 0
+    }
+   },
+   {
+    "name": "Your face",
+    "find": {
+     "text": "Your face",
+     "exact": true
+    }
+   },
+   {
+    "name": "Glyph · lock-filled",
+    "find": {
+     "text": "A new passcode",
+     "up": 2,
+     "child": 0
+    }
+   },
+   {
+    "name": "A new passcode",
+    "find": {
+     "text": "A new passcode"
+    }
+   },
+   {
+    "name": "Six digits. These are what s",
+    "find": {
+     "text": "Six digits. These are what"
+    }
+   },
+   {
+    "name": "Row",
+    "find": {
+     "testid": "pips"
+    },
+    "nth": 0
+   },
+   {
+    "name": "Dot",
+    "find": {
+     "testid": "pips",
+     "child": 0
+    },
+    "nth": 0
+   },
+   {
+    "name": "Dot",
+    "find": {
+     "testid": "pips",
+     "child": 1
+    },
+    "nth": 1
+   },
+   {
+    "name": "Dot",
+    "find": {
+     "testid": "pips",
+     "child": 2
+    },
+    "nth": 2
+   },
+   {
+    "name": "Dot",
+    "find": {
+     "testid": "pips",
+     "child": 3
+    },
+    "nth": 3
+   },
+   {
+    "name": "Dot",
+    "find": {
+     "testid": "pips",
+     "child": 4
+    },
+    "nth": 4
+   },
+   {
+    "name": "Dot",
+    "find": {
+     "testid": "pips",
+     "child": 5
+    },
+    "nth": 5
+   },
+   {
+    "name": "Row · Not your year of bir",
+    "find": {
+     "text": "Not your year of birth",
+     "up": 2
+    }
+   },
+   {
+    "name": "Glyph · lock",
+    "find": {
+     "text": "Not your year of birth",
+     "up": 2,
+     "child": [
+      0,
+      0
+     ]
+    }
+   },
+   {
+    "name": "Not your year of birth, and ",
+    "find": {
+     "text": "Not your year of birth"
+    }
+   },
+   {
+    "name": "Key",
+    "find": {
+     "button": "1",
+     "child": 0
+    },
+    "nth": 0
+   },
+   {
+    "name": "Key",
+    "find": {
+     "button": "2",
+     "child": 0
+    },
+    "nth": 1
+   },
+   {
+    "name": "Key",
+    "find": {
+     "button": "3",
+     "child": 0
+    },
+    "nth": 2
+   },
+   {
+    "name": "Key",
+    "find": {
+     "button": "4",
+     "child": 0
+    },
+    "nth": 3
+   },
+   {
+    "name": "Key",
+    "find": {
+     "button": "5",
+     "child": 0
+    },
+    "nth": 4
+   },
+   {
+    "name": "Key",
+    "find": {
+     "button": "6",
+     "child": 0
+    },
+    "nth": 5
+   },
+   {
+    "name": "Key",
+    "find": {
+     "button": "7",
+     "child": 0
+    },
+    "nth": 6
+   },
+   {
+    "name": "Key",
+    "find": {
+     "button": "8",
+     "child": 0
+    },
+    "nth": 7
+   },
+   {
+    "name": "Key",
+    "find": {
+     "button": "9",
+     "child": 0
+    },
+    "nth": 8
+   },
+   {
+    "name": "Key",
+    "find": {
+     "button": "0",
+     "child": 0
+    },
+    "nth": 9
+   },
+   {
+    "name": "Key",
+    "find": {
+     "button": "Delete",
+     "child": 0
+    },
+    "nth": 10
+   },
+   {
+    "name": "1",
+    "find": {
+     "text": "1",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "2",
+    "find": {
+     "text": "2",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "3",
+    "find": {
+     "text": "3",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "4",
+    "find": {
+     "text": "4",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "5",
+    "find": {
+     "text": "5",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "6",
+    "find": {
+     "text": "6",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "7",
+    "find": {
+     "text": "7",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "8",
+    "find": {
+     "text": "8",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "9",
+    "find": {
+     "text": "9",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "0",
+    "find": {
+     "text": "0",
+     "exact": true
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Glyph · del",
+    "find": {
+     "button": "Delete",
+     "child": [
+      0,
+      0
+     ]
     }
    }
   ]
@@ -10881,7 +11365,7 @@
  "confirmmeter": {
   "frame": "confirmmeter",
   "place": "Confirm the bill",
-  "wait": "Enter your password",
+  "wait": "Enter your passcode",
   "settle": 1800,
   "pieces": [
    {
@@ -13161,7 +13645,7 @@
  "confirmbuy": {
   "frame": "confirmbuy",
   "place": "Confirm the top-up",
-  "wait": "Enter your password",
+  "wait": "Enter your passcode",
   "settle": 1800,
   "pieces": [
    {
@@ -17895,7 +18379,7 @@
    {
     "name": "Face ID, a passcode, and a l",
     "find": {
-     "text": "Face ID, a password, and a l"
+     "text": "Face ID, a passcode, and a l"
     },
     "only": [
      "x",

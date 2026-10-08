@@ -47,7 +47,7 @@ export function stoppedBy(p: { frozen: boolean; sendAfter?: number; hold?: { unt
     return `The account was recovered today, so until ${clock(new Date(p.hold.until), now)} no more than ${naira(HOLD_CAP)} can leave${left > 0 ? `, and ${naira(left)} of it is left` : ''}. Money still comes in.`;
   }
   if (p.sendAfter && p.sendAfter > now) {
-    return `Your password is new, so sending waits until ${clock(new Date(p.sendAfter), now)}. Money still comes in.`;
+    return `Your passcode is new, so sending waits until ${clock(new Date(p.sendAfter), now)}. Money still comes in.`;
   }
   return null;
 }

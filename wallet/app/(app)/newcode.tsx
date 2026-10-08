@@ -1,4 +1,4 @@
-/* A new password. See src/features/settings. */
+/* A new passcode. See src/features/settings. */
 import React from 'react';
 import { NewCode } from '../../src/features/settings/NewCode';
 

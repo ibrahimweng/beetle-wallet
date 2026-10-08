@@ -1,11 +1,13 @@
-/* The keyboard, for the sheet that asks for the password. A sheet sits 10
-   off the bottom of the screen (design/Sheet.tsx), and the phone's keyboard
-   comes up over that bottom: on iOS, where the window does not shrink for
-   it, the sheet is lifted by as much as the keyboard covers, on the
-   keyboard's own curve; on Android the window makes the room itself. Either
-   way the room left over the keyboard is known, so the sheet can give way
-   above the box rather than run up under the status bar (the owner's rule:
-   whatever is typed into stays in view). */
+/* The keyboard, for the sheet before money moves where the three words are
+   typed past a limit (Round 30 made it for the password; the six digits
+   have their own pad again since Round 32). A sheet sits 10 off the bottom
+   of the screen (design/Sheet.tsx), and the phone's keyboard comes up over
+   that bottom: on iOS, where the window does not shrink for it, the sheet
+   is lifted by as much as the keyboard covers, on the keyboard's own curve;
+   on Android the window makes the room itself. Either way the room left
+   over the keyboard is known, so the sheet can give way above the box
+   rather than run up under the status bar (the owner's rule: whatever is
+   typed into stays in view). */
 import { useEffect, useState, type RefObject } from 'react';
 import { Keyboard, Platform, type KeyboardEvent, type View } from 'react-native';
 

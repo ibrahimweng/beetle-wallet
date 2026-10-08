@@ -95,3 +95,44 @@ export const PASSWORD_WORDS: Record<PasswordProblem, string> = {
 
 /** A username, the $tag people pay: 3 to 20 small letters, numbers and underscores, starting with a letter. */
 export const usernameProblem = (u: string): 'short' | 'long' | 'chars' | null => (u.length < 3 ? 'short' : u.length > 20 ? 'long' : !/^[a-z][a-z0-9_]*$/.test(u) ? 'chars' : null);
+
+/* ---- your details (Round 32: typed, then held to the BVN or NIN) ---- */
+
+/** A full name as the record would have it: two names at least, letters with a hyphen or an apostrophe. */
+export function fullNameProblem(name: string): 'short' | 'chars' | null {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length < 2 || words.some(w => w.length < 2)) return 'short';
+  if (!words.every(w => /^[\p{L}][\p{L}'’-]*$/u.test(w))) return 'chars';
+  return null;
+}
+
+/** DD/MM/YYYY as it is typed: the slashes put in as the digits arrive. */
+export function typingDate(text: string): string {
+  const d = text.replace(/\D/g, '').slice(0, 8);
+  return d.length > 4 ? `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}` : d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d;
+}
+
+/** DD/MM/YYYY as an ISO date, when it is a real day in the past, or null. */
+export function dateFrom(text: string, now = new Date()): string | null {
+  const m = text.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!m) return null;
+  const [day, month, year] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const at = new Date(Date.UTC(year, month - 1, day));
+  if (at.getUTCFullYear() !== year || at.getUTCMonth() !== month - 1 || at.getUTCDate() !== day) return null;
+  if (year < 1900 || at.getTime() > now.getTime()) return null;
+  return `${m[3]}-${m[2]}-${m[1]}`;
+}
+
+/** An ISO date as DD/MM/YYYY. */
+export const shownDate = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
+
+/** Whole years from a birthday to a day. */
+export function ageOn(iso: string, now = new Date()): number {
+  const [y, m, d] = iso.split('-').map(Number) as [number, number, number];
+  let age = now.getFullYear() - y;
+  if (now.getMonth() + 1 < m || (now.getMonth() + 1 === m && now.getDate() < d)) age -= 1;
+  return age;
+}
+
+/** An account is for a grown-up: a child's is opened with a parent, at a branch. */
+export const ADULT = 18;

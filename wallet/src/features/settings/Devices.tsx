@@ -43,17 +43,17 @@ export function Devices() {
           </Card>
           <Say testID="line">
             {only
-              ? 'Only this phone is signed in now. The other two have to ask for your password before they see anything.'
-              : 'The Windows one signed in from Abuja on 12 August and has not been back. If that was not you, sign it out and change your password. I will not do either without you.'}
+              ? 'Only this phone is signed in now. The other two have to ask for your passcode before they see anything.'
+              : 'The Windows one signed in from Abuja on 12 August and has not been back. If that was not you, sign it out and change your passcode. I will not do either without you.'}
           </Say>
           {only ? null : <Button label="Sign out everywhere else" full={false} style={{ alignSelf: 'center' }} onPress={() => setAsking(true)} />}
-          <Aside>Signing a device out never touches your money. It only means that device has to ask for your password again.</Aside>
+          <Aside>Signing a device out never touches your money. It only means that device has to ask for your passcode again.</Aside>
         </View>
       </Screen>
       {asking ? (
         <ConfirmSheet
           title="Sign out every other device?"
-          body="The Tecno and the Windows computer are signed out at once and have to ask for your password again. This phone stays in, and your money is not touched."
+          body="The Tecno and the Windows computer are signed out at once and have to ask for your passcode again. This phone stays in, and your money is not touched."
           action="Sign them out"
           onConfirm={() => {
             setAsking(false);

@@ -10,7 +10,10 @@ export const APPLE: TrailStep = { icon: 'mail-filled', label: 'Apple account' };
 export const BVN: TrailStep = { icon: 'id-filled', label: 'BVN number' };
 export const NIN_SLIP: TrailStep = { icon: 'id-filled', label: 'NIN slip' };
 export const VOTERS: TrailStep = { icon: 'id-filled', label: 'Voter’s card' };
+export const NIN: TrailStep = { icon: 'id-filled', label: 'NIN number' };
 export const PASSWORD: TrailStep = { icon: 'lock-filled', label: 'Password' };
+export const PASSCODE: TrailStep = { icon: 'lock-filled', label: 'Passcode' };
+export const PASSWORD_AND_PASSCODE: TrailStep = { icon: 'lock-filled', label: 'Password and passcode' };
 export const FINISHED: TrailStep = { icon: 'faceid-filled', label: 'Face scan and username' };
 export const FACE_MATCHED: TrailStep = { icon: 'faceid-filled', label: 'Face scan' };
 
@@ -23,4 +26,4 @@ export function contactRow(p: Progress): TrailStep | null {
 }
 
 /** The row for who you are: the BVN, or the paper that stood in for it. */
-export const idRow = (p: Progress): TrailStep => (p.identity?.from === 'nin' ? NIN_SLIP : p.identity?.from === 'voters' ? VOTERS : BVN);
+export const idRow = (p: Progress): TrailStep => (p.identity?.from === 'nin' ? NIN : p.identity?.from === 'slip' ? NIN_SLIP : p.identity?.from === 'voters' ? VOTERS : BVN);

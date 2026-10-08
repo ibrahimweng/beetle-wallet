@@ -262,6 +262,14 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 - **Ask for the least, and never twice**: a number or an email that has an
   account is offered Log in, not a second account; a paper that gives the
   address and the email means they are not asked for again.
+- **Nobody's data for the asking** (Round 32): a number typed shows nothing
+  that is on its record; the details typed are held to it and the answer is
+  only yes or Nothing matched. Personal data is asked for where it is
+  needed, after saying why, and a face only after a yes of its own. Offers
+  are off until switched on.
+- **The face or the fingerprint first, then the six digits** (Round 32, the
+  owner's word), to come back in and to send money; the password only for a
+  new phone, and none at all for Google and Apple.
 - **Safety is in what it takes, not in what it says**: a new phone needs the
   code, the password and the face once; getting an account back needs the
   number's code, the BVN and a live face before anything is shown; after

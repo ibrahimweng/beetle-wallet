@@ -16,12 +16,28 @@ export type IdentityRecord = {
 };
 
 /** The government papers that stand in for the BVN step (Round 30). */
-export type DocumentKind = 'nin' | 'voters';
+export type DocumentKind = 'slip' | 'voters';
 
 export type IdentityLookup = { found: true; record: IdentityRecord } | { found: false };
 
+/** What checking typed details against a BVN or NIN says (Round 32): that they match, and the record; or only that they
+    do not, never what the record holds, so a number typed by anybody gives away nobody's name or birthday. */
+export type IdentityCheck = { ok: true; record: IdentityRecord } | { ok: false; reason: 'no-record' | 'mismatch' };
+
+/** Do a full name as typed and a record's name belong to the same person? The record's first and last names both
+    there, in any order, with a middle name or two besides, case and spacing aside. */
+export function namesMatch(typed: string, record: Pick<IdentityRecord, 'firstName' | 'lastName'>): boolean {
+  const words = typed
+    .toLowerCase()
+    .split(/[\s,.-]+/)
+    .filter(Boolean);
+  return words.includes(record.firstName.toLowerCase()) && words.includes(record.lastName.toLowerCase());
+}
+
 export interface IdentityService {
   lookup(number: string): Promise<IdentityLookup>;
+  /** The full name and date of birth as typed, held to the record behind a BVN (NIBSS) or a NIN (NIMC). */
+  verify(kind: 'bvn' | 'nin', number: string, typed: { name: string; dob: string }): Promise<IdentityCheck>;
   /** What a photo of a NIN slip or a voter's card gives: the number read off it, and the record behind it, address and email included. */
   readDocument(kind: DocumentKind, read?: { number?: string; name?: string }): Promise<IdentityLookup & { number?: string }>;
 }
@@ -52,6 +68,20 @@ export class MockIdentityService implements IdentityService {
       found: true,
       record: { firstName, lastName, recordName: `${lastName} ${firstName}`.toUpperCase(), born, birthYear: Number(born.slice(0, 4)) },
     };
+  }
+
+  /** The mock holds the design's own number, 1234 5678 900, to Ibrahim Musa born 14 June 1996; any other number with
+      a record takes the name and the birthday typed, so trying the app never means knowing a stranger's. */
+  async verify(_kind: 'bvn' | 'nin', number: string, typed: { name: string; dob: string }): Promise<IdentityCheck> {
+    const found = await this.lookup(number);
+    if (!found.found) return { ok: false, reason: 'no-record' };
+    if (number === '12345678900') {
+      return namesMatch(typed.name, found.record) && typed.dob === found.record.born ? { ok: true, record: found.record } : { ok: false, reason: 'mismatch' };
+    }
+    const words = typed.name.trim().split(/\s+/);
+    const firstName = words[0] ?? '';
+    const lastName = words[words.length - 1] ?? '';
+    return { ok: true, record: { firstName, lastName, recordName: `${lastName} ${firstName}`.toUpperCase(), born: typed.dob, birthYear: Number(typed.dob.slice(0, 4)) } };
   }
 
   /** The mock reads the design's own papers, Ibrahim Musa's, unless the camera read another number off them. */

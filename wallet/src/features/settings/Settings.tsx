@@ -16,6 +16,7 @@ import { askHome } from '../more/More';
 import { useHoldPages, usePage } from '../tabs';
 import { Details } from './Details';
 import { rulesRunning, usePrefs } from './prefs';
+import { capital, useBiometricName } from '../passcode/biometric';
 import { LAB } from '../../lab/enabled';
 
 export function Settings() {
@@ -30,6 +31,8 @@ export function Settings() {
   }, [asked.details]);
   const account = app.session?.account;
   const { prefs, set } = usePrefs(account?.accountNumber);
+  /* what the phone checks, by its own name: Lock and privacy says it */
+  const bio = useBiometricName();
   /** Sign out, asked about first */
   const [leaving, setLeaving] = useState(false);
   /* the foot: the bar, going out of the way under Your details or the question */
@@ -64,7 +67,7 @@ export function Settings() {
               accessibilityLabel="This wasn’t me"
               onPress={() => {
                 set({ frozen: true, hold: undefined });
-                toast('Frozen. Nothing leaves until you prove it is you with a new password.');
+                toast('Frozen. Nothing leaves until you prove it is you with a new passcode.');
                 router.push('/newcode?from=frozen');
               }}
             >
@@ -91,7 +94,7 @@ export function Settings() {
           {section(
             'What keeps the money yours',
             <>
-              <SettingRow glyph="faceid-filled" ink={colour.accent} title="Lock and privacy" value={prefs.faceId ? 'Face ID' : 'Password'} to="/lock" />
+              <SettingRow glyph="faceid-filled" ink={colour.accent} title="Lock and privacy" value={prefs.faceId ? capital(bio) : 'Passcode'} to="/lock" />
               <SettingRow glyph="shield-filled" ink={colour.good} title="Spending limits" value="₦100,000 a day" to="/limits" />
               <SettingRow glyph="list-filled" ink={colour.violet} title="Standing instructions" value={`${rulesRunning(prefs)} running`} to="/rules" />
               <SettingRow glyph="laptop-filled" title="Devices" value={prefs.othersSignedOut ? '1 signed in' : '3 signed in'} to="/devices" />
@@ -105,6 +108,7 @@ export function Settings() {
               <SettingRow glyph="bell-filled" ink={colour.warn} title="Notifications" onPress={() => toast('What notifications show is set under Lock and privacy.')} />
               <SettingRow glyph="gift-filled" title="Saved people" onPress={() => toast('Saved people are on Send money, behind the person card.')} />
               <SettingRow glyph="card-filled" title="Cards" value="1 virtual" to="/card" />
+              <SettingRow glyph="shield-filled" ink={colour.good} title="Privacy and your data" to="/privacy" />
             </>,
           )}
           {section(

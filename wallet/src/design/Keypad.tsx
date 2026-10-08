@@ -40,10 +40,12 @@ const AMOUNT_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '000', '0', 'd
 /* The face key sits in the bottom left where the frame leaves a gap, and is
    only drawn when the screen has something for it to do; on the amount pad
    the 000 key sits there instead. On the way in that corner is Back (Round
-   30, the owner's word: every Back is at the bottom left). */
+   30, the owner's word: every Back is at the bottom left). The face key is
+   named for what the phone checks (Round 32): Use Touch ID, Use fingerprint. */
 export function Keypad({
   onKey,
   onFace,
+  faceLabel = 'Use Face ID',
   onBack,
   big = false,
   zeros = false,
@@ -52,6 +54,8 @@ export function Keypad({
 }: {
   onKey: (k: string) => void;
   onFace?: () => void;
+  /** what the face key is called to a screen reader */
+  faceLabel?: string;
   /** Back, in the bottom left, where there is no face key */
   onBack?: () => void;
   big?: boolean;
@@ -75,7 +79,7 @@ export function Keypad({
           <Tap
             key={i}
             accessibilityRole={live ? 'button' : undefined}
-            accessibilityLabel={!live ? undefined : k === 'del' ? 'Delete' : back ? 'Back' : k === 'face' ? 'Use Face ID' : k}
+            accessibilityLabel={!live ? undefined : k === 'del' ? 'Delete' : back ? 'Back' : k === 'face' ? faceLabel : k}
             disabled={!live}
             onPress={() => {
               if (back) onBack?.();

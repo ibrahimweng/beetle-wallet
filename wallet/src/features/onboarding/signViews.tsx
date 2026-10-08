@@ -23,6 +23,7 @@ import { TextBox } from '../../design/TextBox';
 import { auth, DEMO_PASSWORDS, MOCK, randomToken, type Account } from '../../services';
 import { groupAccount, initialsOf, naira } from '../../lib/format';
 import { checkCode } from '../passcode/check';
+import { askBiometric } from '../passcode/biometric';
 import { HOLD_CAP } from '../settings/gate';
 import { holdAfterRecovery } from '../settings/prefs';
 import { checkPhone, isEmail } from './validation';
@@ -37,6 +38,7 @@ import {
   maskPhone,
   meetsRules,
   openWith,
+  passcodeView,
   passwordBody,
   refusePassword,
   scanFace,
@@ -47,8 +49,14 @@ import {
   type StageView,
 } from './views';
 
-/* In: the session for the account, this phone known for it from now on, and home. */
+/* In: the session for the account, this phone known for it from now on, and home. A phone that does not have the
+   account's passcode (Round 32: it opens the app and sends money when the face cannot) sets it first. */
 async function letIn(c: Ctx, account: Account) {
+  if (!(await c.app.hasPasscodeFor(account))) {
+    c.setWho(account);
+    c.go('newpasscode');
+    return;
+  }
   const s = await auth.signIn(account.phone, await randomToken());
   if (!s) {
     c.setNote({ text: 'The account could not be opened. Try again in a moment.', tone: 'bad' });
@@ -58,12 +66,29 @@ async function letIn(c: Ctx, account: Account) {
   c.toHome(() => c.app.signIn(s));
 }
 
+/** Proven (the code and the password, or Google or Apple): in on a phone that knows the account, or the face once on
+    one that does not. */
+export async function afterProof(c: Ctx, account: Account) {
+  if (await isKnownHere(account.accountNumber)) await letIn(c, account);
+  else c.go('signface');
+}
+
 /* ---- log in ---- */
 
 function signin(c: Ctx): StageView {
   const known = c.known && !c.another ? c.known : null;
-  /* a phone that knows the account: Face ID, and in */
+  /* a phone that knows the account: the face or the fingerprint, and in; where the phone cannot ask, or it does not
+     take, the account's six digits (Round 32: nothing ever lets anybody in in its place) */
   if (known) {
+    const usePasscode = async () => {
+      const account = await auth.findAccount(known.phone);
+      if (!account) {
+        c.setAnother(true);
+        return;
+      }
+      c.setWho(account);
+      c.go('signpasscode');
+    };
     const faceIn = async () => {
       c.setBusy(true);
       c.setNote(null);
@@ -73,11 +98,17 @@ function signin(c: Ctx): StageView {
           c.setAnother(true);
           return;
         }
-        if (!(await scanFace(`Log in as ${known.firstName}`))) {
-          c.setNote({ text: 'That did not take. Try again, or log in with your number.', tone: 'bad' });
+        const answer = await askBiometric(`Log in as ${known.firstName}`);
+        if (answer === 'ok') {
+          await letIn(c, account);
           return;
         }
-        await letIn(c, account);
+        c.setWho(account);
+        if (answer === 'unavailable') {
+          c.go('signpasscode');
+          return;
+        }
+        c.setNote({ text: `${c.bioName} did not take. Try again, or use your passcode.`, tone: 'bad' });
       } finally {
         c.setBusy(false);
       }
@@ -85,7 +116,7 @@ function signin(c: Ctx): StageView {
     return {
       icon: 'mark',
       title: 'Log in',
-      sub: `Welcome back, ${known.firstName}. This phone knows your account, so Face ID is enough.`,
+      sub: `Welcome back, ${known.firstName}. This phone knows your account: ${c.bioName}, or your passcode.`,
       bodyKey: `signin:known:${known.accountNumber}`,
       body: (
         <View style={{ gap: 16 }}>
@@ -98,10 +129,11 @@ function signin(c: Ctx): StageView {
             {known.passkey ? <Caption tone="tertiary">Passkey</Caption> : null}
           </Card>
           {c.note ? <NoteLine note={c.note} /> : null}
+          <More label="Use my passcode" onPress={() => void usePasscode()} />
           <More label="Use another account" onPress={() => c.setAnother(true)} />
         </View>
       ),
-      bar: { label: c.busy ? 'Just a moment…' : known.passkey ? 'Log in with your passkey' : 'Log in with Face ID', onPress: faceIn, disabled: c.busy },
+      bar: { label: c.busy ? 'Just a moment…' : known.passkey ? 'Log in with your passkey' : `Log in with ${c.bioName}`, onPress: faceIn, disabled: c.busy },
       back: () => c.go('welcome', -1),
     };
   }
@@ -217,6 +249,13 @@ function signcode(c: Ctx): StageView {
         return;
       }
       c.setWho(account);
+      /* an account opened with Google or Apple has no password (Round 32): it is that again, not a password */
+      if (account.signInWith === 'google' || account.signInWith === 'apple') {
+        c.setProvider(account.signInWith);
+        c.setProviderFor('login');
+        c.go('provider');
+        return;
+      }
       c.go('signpass');
     },
     back: () => c.go(/^\d+$/.test(to) ? 'signin' : 'signemail', -1),
@@ -233,8 +272,7 @@ function signpass(c: Ctx): StageView {
       /* the same gate as the payments: three wrong and it shuts, for longer each time */
       const v = await checkCode(c.text, pw => c.app.passwordOpens(account, pw));
       if (v.ok) {
-        if (await isKnownHere(account.accountNumber)) await letIn(c, account);
-        else c.go('signface');
+        await afterProof(c, account);
         return;
       }
       c.bump();
@@ -649,8 +687,76 @@ function recovered(c: Ctx): StageView {
   };
 }
 
+/* A phone that knows the account, the face not to hand: its six digits, through the same gate as payments (three wrong
+   and it waits, for longer each time). */
+function signpasscode(c: Ctx): StageView {
+  const account = c.who;
+  const full = async (d: string) => {
+    if (!account) return;
+    c.setBusy(true);
+    c.setNote({ text: 'Checking…' });
+    try {
+      const v = await checkCode(d, code => c.app.passcodeOpensFor(account, code));
+      if (v.ok) {
+        await letIn(c, account);
+        return;
+      }
+      c.bump();
+      c.setDigits('');
+      if ('lockedFor' in v) c.setNote({ text: `Too many wrong. Try again in ${v.lockedFor < 90 ? `${v.lockedFor} seconds` : `${Math.ceil(v.lockedFor / 60)} minutes`}.`, tone: 'bad' });
+      else c.setNote({ text: `Not it. ${v.triesLeft === 1 ? 'One more try' : `${v.triesLeft} more tries`}.`, tone: 'bad' });
+    } finally {
+      c.setBusy(false);
+    }
+  };
+  return {
+    icon: 'lock-filled',
+    tint: washes.passcode.tone,
+    title: 'Enter your passcode',
+    sub: account ? `The six digits for ${account.firstName}’s account on this phone.` : 'The six digits for your account on this phone.',
+    bodyKey: 'signpasscode',
+    body: (
+      <DigitBody
+        c={c}
+        groups={[6]}
+        max={6}
+        secret
+        footer={
+          <More
+            label="Forgot passcode? Log in with your number"
+            onPress={() => {
+              c.go('signin', -1);
+              c.setAnother(true);
+            }}
+          />
+        }
+      />
+    ),
+    keypad: typing(c, 6, full),
+    hint: MOCK && account?.demo ? 'The demo account opens with 654321.' : undefined,
+    back: () => c.go('signin', -1),
+  };
+}
+
+/* A phone without the account's passcode, after logging in: the six digits, twice, and in. */
+function newpasscode(c: Ctx): StageView {
+  const account = c.who;
+  return passcodeView(c, {
+    save: async code => {
+      if (!account) return;
+      await c.app.setPasscodeFor(account, code);
+      await letIn(c, account);
+    },
+    back: () => c.go('signin', -1),
+  });
+}
+
 export function signViews(c: Ctx): StageView {
   switch (c.stage) {
+    case 'newpasscode':
+      return newpasscode(c);
+    case 'signpasscode':
+      return signpasscode(c);
     case 'signin':
       return signin(c);
     case 'signemail':

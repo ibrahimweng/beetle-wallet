@@ -63,7 +63,9 @@ import { nextSetup, type Income } from '../setup/setup';
 import { useSetup } from '../setup/store';
 import { idPhoto } from '../setup/hand';
 import { buildView, type Bar, type Ctx, type FaceState, type Free, type Note } from './views';
-import { auth, identity, type Account } from '../../services';
+import { auth, identity, namesMatch, type Account } from '../../services';
+import { shownDate } from './validation';
+import { useBiometricName } from '../passcode/biometric';
 import type { DocumentKind } from '../../services/identity';
 import { lastHere, type Known } from './devices';
 import type { Progress } from './machine';
@@ -143,6 +145,9 @@ export function WayIn() {
   const [titleMove, setTitleMove] = useState<TitleMove>('plain');
   const [digits, setDigits] = useState('');
   const [text, setText] = useState('');
+  const [text2, setText2] = useState('');
+  const [first, setFirst] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
   const [note, setNote] = useState<Note>(null);
   const [busy, setBusy] = useState(false);
   const [shake, setShake] = useState(0);
@@ -158,7 +163,7 @@ export function WayIn() {
   const [lastNumber, setLastNumber] = useState('');
   const [provider, setProvider] = useState<'google' | 'apple'>(() => (LAB && asked.provider === 'apple' ? 'apple' : 'google'));
   const [providerFor, setProviderFor] = useState<'signup' | 'login'>('signup');
-  const [docKind, setDocKind] = useState<DocumentKind>('nin');
+  const [docKind, setDocKind] = useState<DocumentKind>('slip');
   const [docState, setDocState] = useState<'idle' | 'checking'>('idle');
   const [free, setFree] = useState<Free>(null);
   const [passkey, setPasskey] = useState(true);
@@ -228,11 +233,17 @@ export function WayIn() {
       try {
         const r = await identity.readDocument(docKind, { number });
         if (!r.found) {
-          setNote({ text: 'Nothing came back for that one. Try the photo again in good light, or use your BVN.', tone: 'bad' });
+          setNote({ text: 'Nothing came back for that one. Try the photo again in good light, or type the number.', tone: 'bad' });
+          return;
+        }
+        /* the paper is held to the details typed, as a number is: somebody else's card opens nothing */
+        const p = app.progress;
+        if (!namesMatch(p.name ?? '', r.record) || p.dob !== r.record.born) {
+          setNote({ text: 'The name or the date of birth on it is not the one you typed. Check your details, or try the other paper.', tone: 'bad' });
           return;
         }
         await app.setIdentity(r.number ?? '', r.record, docKind);
-        go('details');
+        go(!p.phone ? 'number' : p.via === 'google' || p.via === 'apple' ? 'passcode' : 'password');
       } catch {
         setNote({ text: 'The register did not answer. Try again in a moment.', tone: 'bad' });
       } finally {
@@ -277,13 +288,16 @@ export function WayIn() {
       setStage(next);
       setDir(direction);
       setDigits(next === 'number' && p.via === 'phone' ? (p.phone ?? '') : '');
-      setText(next === 'email' && p.via === 'email' ? (p.email ?? '') : next === 'finish' ? usernameFor(p) : '');
+      setText(next === 'email' && p.via === 'email' ? (p.email ?? '') : next === 'finish' ? usernameFor(p) : next === 'details' ? (p.name ?? '') : '');
+      setText2(next === 'details' && p.dob ? shownDate(p.dob) : '');
+      setFirst(null);
       setNote(null);
       setShake(0);
       setBusy(false);
       setUnknown(false);
       setFree(null);
       if (next === 'finish' || next === 'signface' || next === 'recoverface') setFaceState('idle');
+      if (next === 'finish') setConsent(false);
     },
     [app.progress],
   );
@@ -357,6 +371,7 @@ export function WayIn() {
   const rows = useMemo(() => (stage ? rowsFor(stage, app.progress) : []), [stage, app.progress]);
   /* while the phone's keyboard is up, the steps done and the glyph fold away, so the box and the button stay in view */
   const keyboardUp = useKeyboardUp();
+  const bioName = useBiometricName();
 
   /* the coin: shown while the way in is, measured into the room the column leaves above itself */
   const { height: screen } = useWindowDimensions();
@@ -457,6 +472,14 @@ export function WayIn() {
     setDigits,
     text,
     setText,
+    text2,
+    setText2,
+    first,
+    setFirst,
+    consent,
+    setConsent,
+    openLegal: doc => router.push(`/legal?doc=${doc}`),
+    bioName,
     note,
     setNote,
     busy,

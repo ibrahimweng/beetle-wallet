@@ -24,3 +24,25 @@ export async function pauseRecovery(account: string, now = Date.now()): Promise<
   await storage.set(KEY, { ...kept, [account]: now + DAY });
   return clock(now + DAY);
 }
+
+/* The same pause for the details held to a BVN or NIN on the way in (Round 32): three that do not match, and this
+   phone checks no more for a day, so it cannot be used to try names and birthdays against other people's numbers. */
+const ID_CHECKS = 'way-in:id-checks';
+export const idChecksPaused = (now = Date.now()) => recoveryPaused(ID_CHECKS, now);
+export const pauseIdChecks = (now = Date.now()) => pauseRecovery(ID_CHECKS, now);
+
+/* The misses are counted on the phone, not in the screen, so closing the app and opening it again does not give three
+   more; a match clears them, and the third pauses checks and starts the count again. */
+const MISSES = 'beetle.id-misses.v1';
+/** One more miss: how many there have been, and when checks open again if this was the third. */
+export async function noteIdMiss(now = Date.now()): Promise<{ misses: number; until: string | null }> {
+  const misses = ((await storage.get<number>(MISSES)) ?? 0) + 1;
+  if (misses >= 3) {
+    await storage.set(MISSES, 0);
+    return { misses, until: await pauseIdChecks(now) };
+  }
+  await storage.set(MISSES, misses);
+  return { misses, until: null };
+}
+export const idMisses = async () => (await storage.get<number>(MISSES)) ?? 0;
+export const clearIdMisses = () => storage.set(MISSES, 0);

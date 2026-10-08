@@ -14,7 +14,7 @@ vi.mock('expo-crypto', () => ({
 }));
 vi.mock('expo-updates', () => ({ channel: 'production' }));
 
-import { LOCKS_MS, LOCK_MS, checkCode, demoPasscodeOpens, lockedFor, refusal, resetGate, waitWords } from '@/features/passcode/check';
+import { LOCKS_MS, LOCK_MS, checkCode, demoHint, demoPasscodeOpens, lockedFor, refusal, resetGate, waitWords } from '@/features/passcode/check';
 import { PASSCODE_ROUNDS, keepPasscode, keptWeakly, matchesPasscode } from '@/services/crypto';
 
 const own = async (code: string) => code === '482915';
@@ -25,14 +25,25 @@ describe('the gate before money moves', () => {
     expect(await checkCode('482915', own)).toEqual({ ok: true });
     expect(await checkCode('654321', own)).toEqual({ ok: false, triesLeft: 2 });
   });
-  it("lets the build's passwords open only the lab and the demo account", () => {
+  it("lets the build's six digits and its passwords open only the lab and the demo account", () => {
+    /* the six digits, for the lock and the sheet before money moves (Round 32: they are back) */
+    expect(demoPasscodeOpens('654321', { demo: true }, false)).toBe(true);
+    expect(demoPasscodeOpens('123456', undefined, true)).toBe(true);
+    expect(demoPasscodeOpens('654321', { demo: false }, false)).toBe(false);
+    expect(demoPasscodeOpens('654321', undefined, false)).toBe(false);
+    expect(demoPasscodeOpens('111111', { demo: true }, true)).toBe(false);
+    /* the password, for logging in on a new phone */
     expect(demoPasscodeOpens('beetle321', { demo: true }, false)).toBe(true);
     expect(demoPasscodeOpens('beetle123', undefined, true)).toBe(true);
     expect(demoPasscodeOpens('beetle321', { demo: false }, false)).toBe(false);
     expect(demoPasscodeOpens('beetle321', undefined, false)).toBe(false);
     expect(demoPasscodeOpens('ladybird1', { demo: true }, true)).toBe(false);
-    /* the six digits are gone (Round 30): the old keys open nothing */
-    expect(demoPasscodeOpens('654321', { demo: true }, true)).toBe(false);
+  });
+  it("says the build's keys only where they open it", () => {
+    expect(demoHint({ demo: true }, 'passcode', false)).toBe('This build takes 654321 as well.');
+    expect(demoHint(undefined, 'password', true)).toBe('This build takes beetle321 as well.');
+    expect(demoHint({ demo: true }, undefined, false)).toContain('654321');
+    expect(demoHint({ demo: false }, 'passcode', false)).toBeUndefined();
   });
   it('shuts for longer each time it shuts again, until a right one lands', async () => {
     resetGate();

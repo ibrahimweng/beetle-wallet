@@ -1832,6 +1832,56 @@ and there was no way back from it; and every Back is at the bottom left.
       (Back at the bottom left, one Back only, Back from the face scan and on
       again) and the Figma check.
 
+## Round 32 · Face or fingerprint, then the passcode; your details; your data
+
+Asked by the owner: coming back into the app is the face or the
+fingerprint on its own, and the 6-digit passcode when those do not work;
+the same for payments. Google and Apple log in without a password. Sign up
+asks for the full name, the date of birth and the BVN or NIN picked, and
+the passcode comes at the end, before the face scan. Everything to the
+standard the best apps keep, and within the Nigeria Data Protection Act
+and the CBN's rules. Every choice below is the owner's answer to a
+question asked first.
+
+- [x] Coming back in: the face or the fingerprint is asked for at once
+      (named for what the phone has: Face ID, Touch ID, face unlock,
+      fingerprint); if it does not match, or the phone cannot ask (Expo Go
+      on an iPhone is not allowed Face ID), the six digits. The sheet before
+      money moves does the same, with the same passcode. Forgot passcode?
+      logs out to log in again and set a new one.
+- [x] Sign up: a mobile number, an email, or Google or Apple; the code;
+      Your details (the full name and the date of birth, typed; 18 or over);
+      the BVN or the NIN, picked, held to those details at NIBSS or NIMC, or
+      a photo of a NIN slip or a voter's card held to them the same way; the
+      mobile number for those who began otherwise; a password, except for
+      Google and Apple; Create passcode; Face scan and username.
+- [x] What the register holds is never shown to whoever types a number: a
+      miss says Nothing matched, the same whatever the reason, and three
+      misses stop checks from that phone for a day. (Before, typing any BVN
+      showed its owner's name and birthday.)
+- [x] Log in on a new phone: Google or Apple and the face once; or the code,
+      the password and the face once. An account opened with Google or Apple
+      is sent back to them after the code, since it has no password. A phone
+      without the account's passcode asks for it at the end.
+- [x] The data protection pieces, with the legal words left for Beetle's
+      lawyers in [brackets]: the terms and the privacy notice, readable from
+      the first step before anything is kept; a yes asked for on its own
+      before the face scan (a face is sensitive personal data); a line under
+      the BVN or NIN saying who checks it and that nothing else is taken;
+      offers and news off until switched on; Settings, Privacy and your
+      data: a copy of your data, close my account, the face or fingerprint
+      switched off, the data protection officer and the regulator
+      (ndpc.gov.ng); who holds the account and NDIC cover.
+- [ ] For Beetle's lawyers before launch: every [bracket] in
+      src/features/legal/legal.ts (company and partner bank, DPO, the
+      record-keeping years, where data is kept, fees, the complaints route,
+      the CBN tier limits), a Data Protection Impact Assessment for the face
+      scan, the NDPC registration, and contracts with NIBSS or NIMC access,
+      the face check provider and the cloud host.
+- [ ] For real, not in Expo Go: Google and Apple sign-in need the app's own
+      build and Beetle's keys; the BVN/NIN check, the face match and the
+      account closing belong on the server.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

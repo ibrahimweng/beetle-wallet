@@ -60,7 +60,7 @@ export function Limits() {
       <Card outline style={{ paddingVertical: 15, paddingHorizontal: 15, gap: 12 }} testID="at-the-line">
         <Label>What happens at the line</Label>
         <View style={{ gap: 8 }}>
-          <NoteRow glyph="shield">Your password. Not your face, because a face can be held up to a phone.</NoteRow>
+          <NoteRow glyph="shield">Your passcode. Not your face, because a face can be held up to a phone.</NoteRow>
           <NoteRow glyph="list">
             Then you type <Label>Confirm this transaction</Label> in full. Three words, spelled out.
           </NoteRow>

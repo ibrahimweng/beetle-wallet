@@ -20,6 +20,10 @@ export const CAPS = { transfer: 50000, day: 100000, month: 900000 } as const;
 /** How long sending waits after a new passcode set from Not your phone. */
 export const COOL_MS = 12 * 60 * 60 * 1000;
 
+/** What can leave in the day after a recovery (Round 30, the owner's word): enough for a fare and a meal, not enough
+    for somebody who took the account over to empty it before the owner sees the alert and says This wasn't me. */
+export const HOLD_CAP = 20000;
+
 /** What has left today: settled money out, not what went into your own goals. */
 export const spentToday = (rows: Pick<LedgerRow, 'day' | 'status' | 'amount' | 'kind'>[]) =>
   rows.filter(r => r.day === 'today' && r.status === 'done' && r.amount < 0 && r.kind !== 'saving').reduce((a, r) => a - r.amount, 0);
@@ -31,13 +35,19 @@ export function pastCap(amount: number, spent: number): string | null {
   return null;
 }
 
-/** Why nothing can leave now, or null. */
-export function stoppedBy(p: { frozen: boolean; sendAfter?: number }, now = Date.now()): string | null {
+const clock = (at: Date, now: number) =>
+  `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}${at.toDateString() === new Date(now).toDateString() ? '' : ' tomorrow'}`;
+
+/** Why this payment cannot leave now, or null: the freeze, the wait after a new passcode, and the day's hold after a
+    recovery, which lets HOLD_CAP out and no more (`amount` and `spent` are what it is held against). */
+export function stoppedBy(p: { frozen: boolean; sendAfter?: number; hold?: { until: number } }, now = Date.now(), amount = 0, spent = 0): string | null {
   if (p.frozen) return 'The money is frozen, so nothing leaves until you prove it is you, from Keys and recovery in Settings.';
+  if (p.hold && p.hold.until > now && spent + amount > HOLD_CAP) {
+    const left = Math.max(0, HOLD_CAP - spent);
+    return `The account was recovered today, so until ${clock(new Date(p.hold.until), now)} no more than ${naira(HOLD_CAP)} can leave${left > 0 ? `, and ${naira(left)} of it is left` : ''}. Money still comes in.`;
+  }
   if (p.sendAfter && p.sendAfter > now) {
-    const at = new Date(p.sendAfter);
-    const when = `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`;
-    return `Your passcode is new, so sending waits until ${when}${at.toDateString() === new Date(now).toDateString() ? '' : ' tomorrow'}. Money still comes in.`;
+    return `Your password is new, so sending waits until ${clock(new Date(p.sendAfter), now)}. Money still comes in.`;
   }
   return null;
 }

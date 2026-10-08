@@ -45,6 +45,9 @@ export type Prefs = {
   frozen: boolean;
   /** sending waits until then: twelve hours after a new passcode set from Not your phone */
   sendAfter?: number;
+  /** the day after a recovery (Round 30): until then sending is capped at HOLD_CAP and nothing new is added, and the old
+      email and the phone have been told, with This wasn't me on what they were sent */
+  hold?: { until: number; why: 'email' | 'password' };
 };
 
 export const DEFAULT_PREFS: Prefs = {
@@ -76,6 +79,12 @@ export const askAfterMs = (wait: string) => (wait === 'Straight away' ? 0 : (Num
 export async function readPrefs(account: string): Promise<Prefs> {
   const kept = await storage.get<Partial<Prefs>>(prefsKey(account));
   return { ...DEFAULT_PREFS, ...(kept ?? {}), rules: { ...DEFAULT_PREFS.rules, ...(kept?.rules ?? {}) }, feeds: { ...DEFAULT_PREFS.feeds, ...(kept?.feeds ?? {}) } };
+}
+
+/** The day's hold after a recovery, put on the account's prefs before anybody is signed in on this phone with it. */
+export async function holdAfterRecovery(account: string, why: 'email' | 'password', now = Date.now()) {
+  const kept = (await storage.get<Partial<Prefs>>(prefsKey(account))) ?? {};
+  await storage.set(prefsKey(account), { ...kept, hold: { until: now + 24 * 60 * 60 * 1000, why } });
 }
 
 /** How many standing instructions are running. */

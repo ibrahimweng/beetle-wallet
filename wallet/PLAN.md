@@ -1752,6 +1752,60 @@ by four separate audits (crashes, lag, spacing on an iPhone, flows).
 - [x] Tested: tsc, the unit tests (the worklet audit included), the walk
       and the Figma check.
 
+## Round 30 · A way in that asks for no more than it must
+
+Asked by the owner: a first page with Sign up and Log in; every step named
+for what it asks (OTP verification, Enter mobile number, BVN number,
+Password); to start, only a number or an email, its code and the BVN; last,
+the face scan and the username; a NIN slip or a voter's card in place of
+the long way; Google, Apple and a passkey; the box being typed into always
+in view; and getting back an account whose email is lost, safely, with no
+way in for anybody else. Every choice below is the owner's answer to a
+question asked first.
+
+- [x] The welcome keeps the dark, the logo and the coin; under the line,
+      Sign up in white and Log in under it.
+- [x] Opening an account: Enter mobile number (or Use email instead, or
+      Google or Apple), OTP verification, BVN number, Confirm your details,
+      Password, and Face scan and username on one screen. Somebody who
+      began with an email is asked for the mobile number after the BVN,
+      since a BVN is tied to one. A number or an email that already has an
+      account is offered Log in instead, never a second account.
+- [x] The shortcut: Use my NIN slip or voter's card instead, on the BVN
+      step. A photo of either fills in the name, the date of birth, the
+      address and the email, and finishing setting up is done with it.
+- [x] Password everywhere in place of the six digits: eight or more, a
+      letter and a number, not the person's name or year of birth, not one
+      of the commonest; the rules tick as they are met. The lock and the
+      sheet before money moves ask Face ID first, then the password; a
+      wrong one counts against the same gate as before.
+- [x] The username is the $tag people pay: suggested from the name,
+      checked as it is typed, shown on Receive.
+- [x] Logging in: on a phone that knows the account, Face ID alone (or its
+      passkey). Anywhere else, the code to the number or the email, then
+      the password (Google or Apple stand in for the code, never for the
+      password), and on that phone the first time, a face scan.
+- [x] Getting an account back (the email lost, or the password): the code
+      to the account's mobile number, its BVN, and a live face scan matched
+      to the BVN's photo, all three, before the email the account has is
+      shown or anything changes; a new email has its own code. Then for a
+      day no more than ₦20,000 can leave, nobody new is paid, and the old
+      email and the phone are told, with This wasn't me, which freezes the
+      account (Settings carries it for that day too). Three wrong BVNs pause
+      getting it back for a day. Without the phone, it is a person's job.
+- [x] Typing words: the screen rides up over the keyboard, and the steps
+      done and the glyph fold away while it is up, so the box and the
+      button stay in view.
+- [ ] For real, not in Expo Go: Google and Apple need the app's own build
+      and Beetle's keys with each; a passkey needs a domain the app is tied
+      to and a server to hold the key; the codes, the BVN register, the
+      live face match against the BVN photo, the alerts and the day's hold
+      belong on the server, where a new phone cannot get round them. This
+      build shows each of them as it will work.
+- [x] Tested: tsc, the unit tests (the worklet audit included), the walk
+      (sign up through the NIN slip and the BVN, log in on a new phone,
+      getting the account back) and the Figma check.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the
@@ -1786,6 +1840,12 @@ by four separate audits (crashes, lag, spacing on an iPhone, flows).
 - Three ways to be paid (222:199) and Your code (221:2), with the QR, and
   paying in from a card: the owner took them off after Round 11, so being
   paid is the Receive sheet's own details. Their fixtures left the check.
+- A passcode (the way in's six digits, typed twice) and A new passcode
+  (Settings): since Round 30 a password stands where the six digits were,
+  by the owner's word, so neither frame is what the app draws and both left
+  the check. The way in's other frames are still held to it under their
+  new names (Enter mobile number, OTP verification, Log in), and the sheet
+  before money moves to everything above its password box.
 - Fixed savings (money locked for a set time): Take out works on every goal
   whenever it is wanted, and All services says Fixed savings are not in
   Beetle yet.

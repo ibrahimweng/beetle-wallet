@@ -16,15 +16,31 @@ import { initialStage, isSetupStage, isStage, STAGES, type Stage } from '@/featu
 const STILL_TO_DO: Record<Stage, Step> = {
   welcome: 'welcome',
   number: 'welcome',
+  email: 'welcome',
+  provider: 'welcome',
   code: 'code',
-  identity: 'identity',
-  confirm: 'confirm',
-  nomatch: 'identity',
-  face: 'face',
-  passcode: 'passcode',
+  bvn: 'bvn',
+  document: 'bvn',
+  details: 'details',
+  nomatch: 'bvn',
+  password: 'password',
+  finish: 'finish',
   ready: 'ready',
+  /* logging in and getting an account back start from nothing on the phone */
   signin: 'welcome',
+  signemail: 'welcome',
   signcode: 'welcome',
+  signpass: 'welcome',
+  signface: 'welcome',
+  recover: 'welcome',
+  recovercode: 'welcome',
+  recoverbvn: 'welcome',
+  recoverface: 'welcome',
+  recoverwhat: 'welcome',
+  newemail: 'welcome',
+  newemailcode: 'welcome',
+  newpassword: 'welcome',
+  recovered: 'welcome',
   /* finishing setting up comes after the account is ready, so the ready screen's way there */
   address: 'ready',
   idcard: 'ready',
@@ -46,7 +62,7 @@ describe('the lab', () => {
       expect(isStage(asked.get('stage'))).toBe(true);
       if (stage === 'ready' || isSetupStage(stage)) expect(initialStage(p.seed.progress, p.seed.session)).toBe('ready');
       else expect(p.seed.session, `${stage} should open without a session`).toBeNull();
-      if (stage === 'signcode') expect(asked.get('phone')).toMatch(/^0\d{10}$/);
+      if (stage.startsWith('sign') && stage !== 'signin' && stage !== 'signemail') expect(asked.get('phone')).toMatch(/^0\d{10}$/);
     }
   });
 

@@ -52,7 +52,7 @@ describe('money health', () => {
   it('reads the switches and the transfers', () => {
     const rows = healthRows(DEFAULT_PREFS, 0);
     expect(rows.map(r => r.value)).toEqual(['9 of 9', '3 months', 'On', 'On', '18% over']);
-    expect(healthRows({ ...DEFAULT_PREFS, hideBalance: false, faceId: false, tight: true }, 2).map(r => r.value)).toEqual(['11 of 11', 'Paused', 'Off', 'Passcode', '18% over']);
+    expect(healthRows({ ...DEFAULT_PREFS, hideBalance: false, faceId: false, tight: true }, 2).map(r => r.value)).toEqual(['11 of 11', 'Paused', 'Off', 'Password', '18% over']);
     expect(rows[4]?.tone).toBe('warn');
     expect(healthLine(72)).toContain('18%');
     expect(healthLine(null)).toContain('Nothing to score yet');

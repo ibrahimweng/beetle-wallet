@@ -56,3 +56,42 @@ export const PASSCODE_WORDS: Record<PasscodeProblem, string> = {
   'birth-year': 'Not your year of birth.',
   common: 'That one is too easy to guess.',
 };
+
+/* ---- the password (Round 30, the owner's word: a text password in place of the six digits, everywhere) ---- */
+
+export type PasswordProblem = 'short' | 'letters' | 'digits' | 'name' | 'common';
+
+/** What a password has to be, in the order the rules are shown. */
+export const PASSWORD_RULES: { problem: Exclude<PasswordProblem, 'common' | 'name'>; words: string }[] = [
+  { problem: 'short', words: 'At least 8 characters' },
+  { problem: 'letters', words: 'A letter' },
+  { problem: 'digits', words: 'A number' },
+];
+
+const COMMON_PASSWORDS = new Set(['password', 'password1', 'password123', 'passw0rd', 'qwerty123', '12345678', 'abc12345', 'iloveyou1', 'beetle123', 'letmein1', 'welcome1', 'admin123']);
+
+/** An email, as far as the app can tell before a code is sent to it. */
+export const isEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s.trim());
+
+/** Why a password is not good enough, or null when it is: eight characters at least, with a letter and a number,
+    not one of the commonest, and not the person's own name or year of birth. */
+export function passwordProblem(pw: string, opts: { names?: string[]; birthYear?: number } = {}): PasswordProblem | null {
+  if (pw.length < 8) return 'short';
+  if (!/[A-Za-z]/.test(pw)) return 'letters';
+  if (!/\d/.test(pw)) return 'digits';
+  const low = pw.toLowerCase();
+  if (COMMON_PASSWORDS.has(low)) return 'common';
+  if ((opts.names ?? []).some(n => n.length >= 3 && low.includes(n.toLowerCase())) || (opts.birthYear && low.includes(String(opts.birthYear)))) return 'name';
+  return null;
+}
+
+export const PASSWORD_WORDS: Record<PasswordProblem, string> = {
+  short: 'At least 8 characters.',
+  letters: 'Put a letter in it.',
+  digits: 'Put a number in it.',
+  name: 'Not your name or your year of birth.',
+  common: 'That one is too easy to guess.',
+};
+
+/** A username, the $tag people pay: 3 to 20 small letters, numbers and underscores, starting with a letter. */
+export const usernameProblem = (u: string): 'short' | 'long' | 'chars' | null => (u.length < 3 ? 'short' : u.length > 20 ? 'long' : !/^[a-z][a-z0-9_]*$/.test(u) ? 'chars' : null);

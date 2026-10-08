@@ -83,7 +83,7 @@ export function PayBill() {
   const slide = () => {
     if (!amount) return;
     /* frozen, or the twelve hours after a new passcode: nothing leaves (see settings/gate) */
-    const stopped = sendGate.stopped();
+    const stopped = sendGate.stopped(amount);
     if (stopped) {
       toast(stopped);
       return;

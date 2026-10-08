@@ -6,8 +6,10 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { auth, sealed, secure, type Session } from '../../services';
 import { keepPasscode, keptWeakly, matchesPasscode, type KeptPasscode } from '../../services/crypto';
 import { demoPasscodeOpens } from '../passcode/check';
-import type { IdentityRecord } from '../../services/identity';
+import type { Account } from '../../services';
+import type { DocumentKind, IdentityRecord } from '../../services/identity';
 import { EMPTY, type Progress } from './machine';
+import { rememberHere } from './devices';
 
 const PROGRESS_KEY = 'beetle.progress.v1';
 const SESSION_KEY = 'beetle.session.v1';
@@ -35,13 +37,23 @@ async function keptFor(account: string | undefined): Promise<{ kept: KeptPasscod
 }
 
 type Actions = {
-  setPhone(phone: string): Promise<void>;
-  markVerified(): Promise<void>;
-  setIdentity(number: string, record: IdentityRecord): Promise<void>;
+  /** The way in begins again from the top, with a mobile number or an email. */
+  begin(via: 'phone' | 'email', contact: string): Promise<void>;
+  /** Google or Apple handed over an email they have already checked: no code for it. */
+  beginWith(provider: 'google' | 'apple', email: string): Promise<void>;
+  /** The mobile number, after the way in began with an email: a BVN is tied to one. */
+  addPhone(phone: string): Promise<void>;
+  markVerified(kind: 'phone' | 'email'): Promise<void>;
+  setIdentity(number: string, record: IdentityRecord, from?: 'bvn' | DocumentKind): Promise<void>;
   confirmIdentity(): Promise<void>;
-  setFace(v: 'enrolled' | 'later'): Promise<void>;
-  /** Hash and keep the passcode, open the account, start the session. */
-  finish(passcode: string): Promise<Session>;
+  /** Stretch and keep the password; it is never kept as typed. */
+  setPassword(password: string): Promise<void>;
+  /** Open the account with the username, the face scanned and the password kept, start the session, and know this phone. */
+  finish(o: { username: string; passkey: boolean }): Promise<Session>;
+  /** Does this password open the account? On Log in, before anybody is signed in. */
+  passwordOpens(account: Account, password: string): Promise<boolean>;
+  /** A new password for an account, after it has been got back. */
+  resetPassword(account: Account, password: string): Promise<void>;
   startOver(): Promise<void>;
   signIn(session: Session): Promise<void>;
   signOut(): Promise<void>;
@@ -110,27 +122,46 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const actions = useMemo<Actions>(
     () => ({
-      /* a new number starts the way in again from the top */
-      setPhone: phone => replaceProgress({ phone }),
-      markVerified: () => patch({ phoneVerified: true }),
-      setIdentity: (number, record) => patch({ identity: { number, record }, identityConfirmed: false }),
-      confirmIdentity: () => patch({ identityConfirmed: true }),
-      setFace: v => patch({ face: v }),
-      async finish(passcode) {
+      /* a new number or email starts the way in again from the top */
+      begin: (via, contact) => replaceProgress(via === 'phone' ? { via, phone: contact } : { via, email: contact }),
+      beginWith: (provider, email) => replaceProgress({ via: provider, email, emailVerified: true }),
+      addPhone: phone => patch({ phone, phoneVerified: false }),
+      markVerified: kind => patch(kind === 'phone' ? { phoneVerified: true } : { emailVerified: true }),
+      setIdentity: (number, record, from = 'bvn') => {
         const p = progressRef.current;
-        if (!p.phone || !p.identity) throw new Error('The way in is not complete.');
-        const kept = await keepPasscode(passcode);
+        /* a NIN slip or a voter's card carries the email on the record: kept, unchecked, for somebody who began with the number */
+        return patch({ identity: { number, record, from }, identityConfirmed: false, ...(!p.email && record.email ? { email: record.email } : {}) });
+      },
+      confirmIdentity: () => patch({ identityConfirmed: true }),
+      setPassword: async password => patch({ password: await keepPasscode(password) }),
+      async finish({ username, passkey }) {
+        const p = progressRef.current;
+        if (!p.phone || !p.identity || !p.password || !('rounds' in p.password)) throw new Error('The way in is not complete.');
+        const kept = p.password;
         const s = await auth.createAccount({
           phone: p.phone,
+          email: p.email,
+          username,
+          idNumber: p.identity.number,
           record: p.identity.record,
           passcodeHash: kept.hash,
           salt: kept.salt,
-          faceEnrolled: p.face === 'enrolled',
+          faceEnrolled: true,
         });
         await secure.set(passcodeKey(s.account.accountNumber), JSON.stringify(kept));
-        await patch({ passcodeSet: true, accountNumber: s.account.accountNumber });
+        await rememberHere(s.account, passkey);
+        /* the password is with the account now; the way in keeps only that it is done */
+        await patch({ accountNumber: s.account.accountNumber });
         await keepSession(s);
         return s;
+      },
+      async passwordOpens(account, password) {
+        if (demoPasscodeOpens(password, account)) return true;
+        const found = await keptFor(account.accountNumber);
+        return !!found && !found.legacy && (await matchesPasscode(password, found.kept));
+      },
+      async resetPassword(account, password) {
+        await secure.set(passcodeKey(account.accountNumber), JSON.stringify(await keepPasscode(password)));
       },
       startOver: () => replaceProgress(EMPTY),
       async signIn(s) {

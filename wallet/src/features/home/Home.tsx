@@ -473,7 +473,7 @@ function HomeScreen() {
         talk.open(overLine(moneyExact(out), moneyExact(balance)));
         return;
       }
-      const stopped = out > 0 ? sendGate.stopped() : null;
+      const stopped = out > 0 ? sendGate.stopped(out) : null;
       if (stopped) {
         talk.open(stopped);
         return;
@@ -516,7 +516,7 @@ function HomeScreen() {
         talk.open(overLine(moneyExact(out), moneyExact(balance)));
         return;
       }
-      const stopped = sendGate.stopped();
+      const stopped = sendGate.stopped(out);
       if (stopped) {
         talk.open(stopped);
         return;
@@ -1064,7 +1064,7 @@ function HomeScreen() {
                     saved={saved}
                     balance={balance}
                     account={account}
-                    tag={ownTag(account.firstName)}
+                    tag={account.username ?? ownTag(account.firstName)}
                     canBorrow={setup.done}
                     loanLeft={loanLeft}
                     onConfirmAsk={confirmAsk}

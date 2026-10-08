@@ -68,6 +68,12 @@ describe('the gate beyond the passcode', () => {
     expect(stoppedBy({ frozen: false, sendAfter: now + COOL_MS }, now)).toContain('09:36 tomorrow');
     expect(stoppedBy({ frozen: false, sendAfter: now - 1 }, now)).toBeNull();
     expect(stoppedBy({ frozen: false }, now)).toBeNull();
+    /* the day after a recovery: ₦20,000 can leave and no more, then the hold is over */
+    const hold = { frozen: false, hold: { until: now + 24 * 60 * 60 * 1000 } };
+    expect(stoppedBy(hold, now, 15000, 0)).toBeNull();
+    expect(stoppedBy(hold, now, 15000, 10000)).toContain('₦10,000 of it is left');
+    expect(stoppedBy(hold, now, 25000, 0)).toContain('no more than ₦20,000');
+    expect(stoppedBy({ ...hold, hold: { until: now - 1 } }, now, 25000, 0)).toBeNull();
   });
 });
 

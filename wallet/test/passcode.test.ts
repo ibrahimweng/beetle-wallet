@@ -25,12 +25,14 @@ describe('the gate before money moves', () => {
     expect(await checkCode('482915', own)).toEqual({ ok: true });
     expect(await checkCode('654321', own)).toEqual({ ok: false, triesLeft: 2 });
   });
-  it("lets the build's keys open only the lab and the demo account", () => {
-    expect(demoPasscodeOpens('654321', { demo: true }, false)).toBe(true);
-    expect(demoPasscodeOpens('123456', undefined, true)).toBe(true);
-    expect(demoPasscodeOpens('654321', { demo: false }, false)).toBe(false);
-    expect(demoPasscodeOpens('654321', undefined, false)).toBe(false);
-    expect(demoPasscodeOpens('111111', { demo: true }, true)).toBe(false);
+  it("lets the build's passwords open only the lab and the demo account", () => {
+    expect(demoPasscodeOpens('beetle321', { demo: true }, false)).toBe(true);
+    expect(demoPasscodeOpens('beetle123', undefined, true)).toBe(true);
+    expect(demoPasscodeOpens('beetle321', { demo: false }, false)).toBe(false);
+    expect(demoPasscodeOpens('beetle321', undefined, false)).toBe(false);
+    expect(demoPasscodeOpens('ladybird1', { demo: true }, true)).toBe(false);
+    /* the six digits are gone (Round 30): the old keys open nothing */
+    expect(demoPasscodeOpens('654321', { demo: true }, true)).toBe(false);
   });
   it('shuts for longer each time it shuts again, until a right one lands', async () => {
     resetGate();

@@ -29,7 +29,7 @@ export function Settings() {
     if (asked.details === '1') setDetails(true);
   }, [asked.details]);
   const account = app.session?.account;
-  const { prefs } = usePrefs(account?.accountNumber);
+  const { prefs, set } = usePrefs(account?.accountNumber);
   /** Sign out, asked about first */
   const [leaving, setLeaving] = useState(false);
   /* the foot: the bar, going out of the way under Your details or the question */
@@ -50,6 +50,28 @@ export function Settings() {
   return (
     <>
       <Screen head={<HeadTitle style={{ marginBottom: 4 }}>Settings</HeadTitle>}>
+        {/* the day after a recovery (Round 30): what is held, and This wasn't me, the same as on the alerts sent to the
+            old email and the phone, which freezes everything */}
+        {prefs.hold && prefs.hold.until > Date.now() ? (
+          <Card outline style={s.hold} testID="hold-notice">
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <Icon name="shield-filled" size={24} colour={colour.warn} />
+              <Row style={{ flex: 1 }}>{prefs.hold.why === 'email' ? 'Your email was changed today' : 'Your password was changed today'}</Row>
+            </View>
+            <Meta tone="secondary">{`Until ${holdEnds(prefs.hold.until)}, no more than ₦20,000 can leave and nobody new is paid.`}</Meta>
+            <Tap
+              accessibilityRole="button"
+              accessibilityLabel="This wasn’t me"
+              onPress={() => {
+                set({ frozen: true, hold: undefined });
+                toast('Frozen. Nothing leaves until you prove it is you with a new password.');
+                router.push('/newcode?from=frozen');
+              }}
+            >
+              <Row style={{ color: colour.bad }}>This wasn’t me</Row>
+            </Tap>
+          </Card>
+        ) : null}
         <Tap accessibilityRole="button" accessibilityLabel="Get Beetle Plus" onPress={ask('What does Beetle Plus give me?')} testID="plus">
           <Card outline style={s.plus}>
             <View style={s.plusMark}>
@@ -69,7 +91,7 @@ export function Settings() {
           {section(
             'What keeps the money yours',
             <>
-              <SettingRow glyph="faceid-filled" ink={colour.accent} title="Lock and privacy" value={prefs.faceId ? 'Face ID' : 'Passcode'} to="/lock" />
+              <SettingRow glyph="faceid-filled" ink={colour.accent} title="Lock and privacy" value={prefs.faceId ? 'Face ID' : 'Password'} to="/lock" />
               <SettingRow glyph="shield-filled" ink={colour.good} title="Spending limits" value="₦100,000 a day" to="/limits" />
               <SettingRow glyph="list-filled" ink={colour.violet} title="Standing instructions" value={`${rulesRunning(prefs)} running`} to="/rules" />
               <SettingRow glyph="laptop-filled" title="Devices" value={prefs.othersSignedOut ? '1 signed in' : '3 signed in'} to="/devices" />
@@ -111,7 +133,7 @@ export function Settings() {
       {leaving ? (
         <ConfirmSheet
           title="Sign out of Beetle?"
-          body="You come back in with your phone number and your passcode. Nothing in your account changes, and nothing moves while you are out."
+          body="You come back in with your phone number and your password. Nothing in your account changes, and nothing moves while you are out."
           action="Sign out"
           onConfirm={signOut}
           onCancel={() => setLeaving(false)}
@@ -122,7 +144,14 @@ export function Settings() {
   );
 }
 
+/** When the day's hold ends, as the clock says it. */
+const holdEnds = (until: number) => {
+  const d = new Date(until);
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}${d.toDateString() === new Date().toDateString() ? '' : ' tomorrow'}`;
+};
+
 const s = StyleSheet.create({
+  hold: { gap: 10, padding: 16, borderRadius: 16 },
   /* the frame's card is 88 tall with the words 13 in and the mark centred; 12
      above the words and 6 under them puts each where the frame has it */
   plus: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: 12, paddingBottom: 6, paddingHorizontal: 16 },

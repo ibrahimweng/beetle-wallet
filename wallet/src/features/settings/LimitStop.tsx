@@ -1,5 +1,5 @@
 /* Past your own limit, from its frame: what the line looks like when a
-   transfer crosses it. The passcode is done; the three words are typed in
+   transfer crosses it. The password is done; the three words are typed in
    full, letter by letter, and the button waits for the last one. Reached
    from Spending limits to be looked at, so nothing here sends anything. */
 import React, { useRef, useState } from 'react';
@@ -35,7 +35,7 @@ export function LimitStop() {
       <Banner glyph="warn-filled" ink={colour.good} text="This is your limit, not the bank’s. Two things and it goes." testID="banner" />
       <Card style={s.steps} testID="steps">
         <Step n={1} done right={<Caption style={{ ...font('600') }}>Done</Caption>}>
-          Your passcode
+          Your password
         </Step>
         <View style={{ gap: 12, paddingVertical: 16 }}>
           <Step n={2}>Now type the words in full</Step>

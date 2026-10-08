@@ -1,23 +1,28 @@
-/* The gate money goes through. Six digits, checked against the passcode
-   kept on this device for the account — stretched, never as typed — or,
-   where the build lets them (the lab, and the demo account), its two keys,
-   so that trying the app never means remembering one; the device's own
-   check says which (onboarding/store). Three wrong in a row and the gate
-   shuts: half a minute the first time, then five minutes, then half an hour,
-   then two hours each time after. A right one opens it and forgets the
-   wrong ones. The gate is kept on the phone, so closing the app does not
-   open it again (the analysis after Round 21: it was kept in memory only,
-   and shut for half a minute at most). The face, where the phone has one
-   and it is enrolled and switched on, is the way past the digits. */
+/* The gate money goes through. The password, checked against the one kept
+   on this device for the account — stretched, never as typed — or, where
+   the build lets them (the lab, and the demo account), its two keys, so
+   that trying the app never means remembering one; the device's own check
+   says which (onboarding/store). Three wrong in a row and the gate shuts:
+   half a minute the first time, then five minutes, then half an hour, then
+   two hours each time after. A right one opens it and forgets the wrong
+   ones. The gate is kept on the phone, so closing the app does not open it
+   again (the analysis after Round 21: it was kept in memory only, and shut
+   for half a minute at most). The face, where the phone has one and it is
+   enrolled and switched on, is the way past the password, which took the
+   six digits' place in Round 30 (the owner's word: a text password
+   everywhere). */
 import { Platform } from 'react-native';
-import { DEMO_PASSCODES, MOCK, storage } from '../../services';
+import { DEMO_PASSWORDS, MOCK, storage } from '../../services';
 import { LAB } from '../../lab/enabled';
 
-/** The build's own keys (123456 and 654321) let anyone through only where
-    trying the app is the point: the lab, and the demo account. Every other
-    account needs its own passcode, in every build (the analysis after Round
-    21: they opened every account in every build). */
-export const demoPasscodeOpens = (code: string, account: { demo?: boolean } | undefined, lab = LAB) => MOCK && (lab || !!account?.demo) && DEMO_PASSCODES.includes(code);
+/** The build's own keys (beetle123 and beetle321) let anyone through only
+    where trying the app is the point: the lab, and the demo account. Every
+    other account needs its own password, in every build (the analysis after
+    Round 21: they opened every account in every build). */
+export const demoPasscodeOpens = (code: string, account: { demo?: boolean } | undefined, lab = LAB) => MOCK && (lab || !!account?.demo) && DEMO_PASSWORDS.includes(code);
+
+/** The line under the box where the build's keys open it, so trying the app never means guessing; nothing anywhere else. */
+export const demoHint = (account: { demo?: boolean } | undefined, lab = LAB) => (MOCK && (lab || !!account?.demo) ? `This build takes ${DEMO_PASSWORDS.join(' or ')} as well.` : undefined);
 
 export const TRIES = 3;
 /** How long the gate stays shut each time it shuts, one after another; the last holds after that. */
@@ -124,7 +129,7 @@ export async function checkFace(): Promise<boolean> {
   try {
     const r = await faceModule.authenticateAsync({
       promptMessage: 'Confirm with your face',
-      cancelLabel: 'Use the passcode',
+      cancelLabel: 'Use the password',
       disableDeviceFallback: true,
     });
     return r.success;

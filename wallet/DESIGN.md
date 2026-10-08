@@ -248,6 +248,19 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   boxed field and not another row of chips beside the amount's chips.
 - **What is tapped is what is set**: a chip or a tick sets the figure at
   once; the ruler only glides to it, and the steps it passes are not picks.
+- **A step is named for what it asks** (Round 30, the owner's word): Enter
+  mobile number, OTP verification, BVN number, Password, Face scan and
+  username. The line under the title says why, in one sentence.
+- **The box being typed into stays in view**: a screen with one rides up
+  over the keyboard, and what is above the title folds away while the
+  keyboard is up, so the box and the button are never under it.
+- **Ask for the least, and never twice**: a number or an email that has an
+  account is offered Log in, not a second account; a paper that gives the
+  address and the email means they are not asked for again.
+- **Safety is in what it takes, not in what it says**: a new phone needs the
+  code, the password and the face once; getting an account back needs the
+  number's code, the BVN and a live face before anything is shown; after
+  it, a day's hold and This wasn't me.
 
 ## Sending money
 

@@ -10,12 +10,20 @@ export type IdentityRecord = {
   /** ISO date. */
   born: string;
   birthYear: number;
+  /** what a NIN slip or a voter's card gives besides (Round 30): where the person lives, and the email on the record */
+  address?: string;
+  email?: string;
 };
+
+/** The government papers that stand in for the BVN step (Round 30). */
+export type DocumentKind = 'nin' | 'voters';
 
 export type IdentityLookup = { found: true; record: IdentityRecord } | { found: false };
 
 export interface IdentityService {
   lookup(number: string): Promise<IdentityLookup>;
+  /** What a photo of a NIN slip or a voter's card gives: the number read off it, and the record behind it, address and email included. */
+  readDocument(kind: DocumentKind, read?: { number?: string; name?: string }): Promise<IdentityLookup & { number?: string }>;
 }
 
 const NAMES: [string, string, string][] = [
@@ -45,6 +53,21 @@ export class MockIdentityService implements IdentityService {
       record: { firstName, lastName, recordName: `${lastName} ${firstName}`.toUpperCase(), born, birthYear: Number(born.slice(0, 4)) },
     };
   }
+
+  /** The mock reads the design's own papers, Ibrahim Musa's, unless the camera read another number off them. */
+  async readDocument(kind: DocumentKind, read: { number?: string; name?: string } = {}): Promise<IdentityLookup & { number?: string }> {
+    const number = read.number && /^\d{11}$/.test(read.number.replace(/\s/g, '')) ? read.number.replace(/\s/g, '') : '12345678900';
+    const found = await this.lookup(number);
+    if (!found.found) return found;
+    const { firstName, lastName } = found.record;
+    return {
+      found: true,
+      number,
+      record: {
+        ...found.record,
+        address: kind === 'voters' ? '4 Adeola Odeku Street, Victoria Island, Lagos' : '12 Bode Thomas Street, Surulere, Lagos',
+        email: `${firstName}.${lastName}@example.com`.toLowerCase(),
+      },
+    };
+  }
 }
-
-

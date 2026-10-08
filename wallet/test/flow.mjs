@@ -60,8 +60,8 @@ const CODE = '123456';
 const NIN = '12345678900';
 const DEMO_PHONE = '08030000001';
 const NEW_PHONE = '08123456789';
-/* the owner's passcode: the code backwards, which this build lets through */
-const PASSCODE = '654321';
+/* the owner's password since Round 30: the lab's own, which the demo account opens with too */
+const PASSWORD = 'beetle321';
 
 const b = await launch();
 const ctx = await b.newContext({ viewport: { width: 393, height: 852 }, deviceScaleFactor: 2 });
@@ -127,8 +127,14 @@ const receiptSheet = () => page.getByTestId('receipt-sheet').filter({ visible: t
 /* the passcode before money leaves, and where the payment goes past the day's line (the demo's day, as its frames
    draw it, has ₦84,000 out already; Round 23 keeps the caps), the three words typed in full after it, as What
    happens at the line shows */
+/* the password on the sheet, typed and confirmed (Round 30: the six digits are gone) */
+const password = async (pw = PASSWORD) => {
+  const sheet = page.getByTestId('passcode').filter({ visible: true }).first();
+  await sheet.getByTestId('password-field').fill(pw);
+  await sheet.getByRole('button', { name: 'Confirm', exact: true }).click();
+};
 const pay = async () => {
-  for (const d of PASSCODE) await tap(d);
+  await password();
   const words = page.getByTestId('past-limit').filter({ visible: true }).first();
   const gone = page
     .getByTestId('passcode')
@@ -331,14 +337,15 @@ try {
   await shot('boot', 250);
 
   console.log('Opening an account');
-  await see('Open an account');
+  await see('Sign up');
+  await see('Log in');
   at('/way-in');
   await shot('welcome');
 
   /* the whole change traced from the tap, with a frame mid-way: the welcome
      softens out in 280ms, the number step sharpens in over 520ms */
   const tapped = Date.now();
-  await tap('Open an account');
+  await tap('Sign up');
   /* the welcome's buttons leave (the first thing on its way out), and the
      new title arrives out of a blur */
   const change = await trace(
@@ -368,8 +375,29 @@ try {
   const sharp = firstAt(change, 'number', n => n.opacity > 0.98 && n.blur < 0.05, soft.t);
   must(sharp && sharp.t <= 1400, 'the number step should be sharp and whole within 1.4s');
   console.log(`  welcome gone at ${gone.t}ms, number step first seen ${soft.number.blur.toFixed(1)}px soft at ${soft.t}ms, sharp at ${sharp.t}ms`);
-  await see('I will text you six digits');
+  /* every step is named for what it asks (Round 30) */
+  await seeExactly('Enter mobile number');
+  await see('I will text it a code');
   await shot('phone');
+  /* the email instead, and back */
+  await tap('Use email instead');
+  await seeExactly('Enter email');
+  await page.getByTestId('email').first().fill('not an email');
+  must(await button('Send the code').isDisabled(), 'Send the code should wait for an email');
+  await page.getByTestId('email').first().fill('ibrahim.musa@example.com');
+  await tap('Send the code');
+  await see('This email already has a Beetle account');
+  await button('Log in with this email').waitFor();
+  await shot('email-taken');
+  await tap('Use mobile number instead');
+  await seeExactly('Enter mobile number');
+  /* Google, as a stand-in for its own sheet: a name and a checked email, and back */
+  await tap('Google');
+  await seeExactly('Continue with Google');
+  await see('Continue as Ibrahim');
+  await shot('provider-google');
+  await tap('Back');
+  await seeExactly('Enter mobile number');
   await type('01234567890');
   await see('That is not a Nigerian mobile number');
   await shot('phone-not-nigerian');
@@ -378,7 +406,8 @@ try {
   await shot('phone-typed', 300);
   await type(NEW_PHONE.slice(10));
 
-  await see('a moment ago');
+  await seeExactly('OTP verification');
+  await see('Enter the six digits sent to 0812 345 6789');
   at('/way-in');
   await shot('code');
   await type('111111');
@@ -386,50 +415,66 @@ try {
   await shot('code-wrong');
   await type(CODE);
 
-  await see('whichever you know');
+  await seeExactly('BVN number');
   at('/way-in');
-  await shot('identity');
+  await shot('bvn');
   await type('12340000123');
   await see('Nothing came back');
   await shot('no-match');
   await tap('Try again');
-  await see('whichever you know');
+  await seeExactly('BVN number');
+  /* the shortcut: a NIN slip or a voter's card instead, which brings the address and the email with it */
+  await tap('Use my NIN slip or voter’s card instead');
+  await seeExactly('NIN slip or voter’s card');
+  await shot('document');
+  await page.getByRole('radio', { name: 'Voter’s card' }).first().click();
+  await tap('Take a photo');
+  await seeExactly('Confirm your details');
+  await see('4 Adeola Odeku Street');
+  await see('ibrahim.musa@example.com');
   at('/way-in');
+  await shot('details-document');
+  /* and back to the BVN, the way most come */
+  await tap('Something here is wrong');
+  await see('Nothing came back');
+  await tap('Try again');
+  await seeExactly('BVN number');
   await type(NIN);
 
+  await seeExactly('Confirm your details');
   await see('Ibrahim Musa');
   at('/way-in');
   await shot('confirm');
   await tap('Yes, that is me');
   await shot('confirm-leaving', 120);
 
-  await see('Hold still and look at the camera');
+  /* a password: the rules tick as they are met, a weak one is refused, a good one goes on */
+  await seeExactly('Password');
   at('/way-in');
-  await shot('face');
-  await tap('Take it');
-  await button('Hold still…').waitFor();
-  await shot('face-checking', 100);
+  await shot('password');
+  must(await button('Continue').isDisabled(), 'Continue should wait for a password that meets the rules');
+  await page.getByTestId('password').first().fill('ibrahim1996');
+  await shot('password-typing', 300);
+  await tap('Continue');
+  await see('Not your name');
+  await shot('password-weak');
+  await page.getByTestId('password').first().fill(PASSWORD);
+  await tap('Continue');
 
-  await see('pick something nobody watching could guess');
+  /* the last step: the face and the username on one screen */
+  await seeExactly('Face scan and username');
   at('/way-in');
-  await shot('passcode');
-  await type('111');
-  await shot('passcode-typing', 300);
-  await type('111');
-  await page
-    .getByText(/too easy to guess|Not the same digit six times/)
-    .first()
-    .waitFor();
-  await shot('passcode-weak');
-  await type(PASSCODE);
-  await see('The same six, to be sure');
-  await shot('passcode-again');
-  await type('654322');
-  await see('They did not match');
-  await shot('passcode-mismatch');
-  await type(PASSCODE);
-  await see('The same six, to be sure');
-  await type(PASSCODE);
+  await see('$ibrahimmusa is yours to take');
+  await shot('finish');
+  must(await button('Open my account').isDisabled(), 'Open my account should wait for the face');
+  await page.getByTestId('username').first().fill('tobi');
+  await see('$tobi is taken');
+  await page.getByTestId('username').first().fill('ibrahimmusa');
+  await see('$ibrahimmusa is yours to take');
+  await tap('Scan my face');
+  await see('Face scanned');
+  await shot('finish-ready', 300);
+  await tap('Open my account');
 
   await arrives('Your account is ready');
   at('/way-in');
@@ -534,33 +579,52 @@ try {
   await onPage('settings');
   await tap('Sign out');
   await page.getByTestId('confirm-sign-out').getByRole('button', { name: 'Sign out', exact: true }).click();
-  await see('Open an account');
+  await see('Sign up');
   at('/way-in');
   /* and home, or a later step, is not for somebody who is not */
   await page.goto(`${base}/home`, { waitUntil: 'load' });
-  await see('Open an account');
+  await see('Sign up');
   at('/way-in');
   /* and an address that is not a screen goes back to the start: the boot, and the way in */
   await page.goto(`${base}/passcode`, { waitUntil: 'load' });
-  await see('Open an account');
+  await see('Sign up');
   at('/way-in');
 
-  console.log('Signing in');
+  console.log('Logging in');
   await page.goto(`${base}/way-in`, { waitUntil: 'load' });
-  await see('Open an account');
-  await tap('Sign in');
-  await see('Welcome back');
+  await see('Sign up');
+  await tap('Log in');
+  /* this phone knows the account opened on it a moment ago: Face ID alone, or another account */
+  await see('Welcome back, Ibrahim');
+  await button('Log in with your passkey').waitFor();
   at('/way-in');
+  await shot('log-in-known');
+  await tap('Use another account');
+  await seeExactly('Log in');
+  await see('A code comes next, then your password');
   await shot('sign-in');
   await type('09020000000');
-  await see('I do not know this number yet');
+  await see('There is no account on this number yet');
   await shot('sign-in-unknown');
   await wipe(11);
   await type(DEMO_PHONE);
-  await see('On a phone I already know');
+  await seeExactly('OTP verification');
   at('/way-in');
   await shot('sign-in-code');
   await type(CODE);
+  /* the password, and on a phone the account has not been on, the face once */
+  await seeExactly('Enter password');
+  await shot('sign-in-password');
+  await page.getByTestId('password').first().fill('wrongpass1');
+  await tap('Log in');
+  await see('That is not the password');
+  await shot('sign-in-password-wrong');
+  await page.getByTestId('password').first().fill(PASSWORD);
+  await tap('Log in');
+  await seeExactly('Face scan');
+  await see('This phone is new to your account');
+  await shot('sign-in-face');
+  await tap('Scan my face');
 
   await arrives(DEMO_HOME);
   at('/home');
@@ -844,9 +908,9 @@ try {
      shakes the dots and counts the tries, the right one lands a tick and the
      money goes */
   await tap('Confirm ₦20,000');
-  await see('Enter your passcode');
+  await see('Enter your password');
   await shot('chat-passcode', 500);
-  await type('111111');
+  await password('wrong1234');
   await see('Not it. 2 more tries.');
   await shot('chat-passcode-wrong', 200);
   await pay();
@@ -1150,12 +1214,13 @@ try {
   await page.goto(`${base}/lab`, { waitUntil: 'load' });
   await see('Beetle Lab');
   at('/lab');
-  await tap('Your face');
-  await see('Hold still and look at the camera');
+  await tap('Face scan and username');
+  await seeExactly('Face scan and username');
   at('/way-in');
-  await see('Your number');
-  await see('Who you are');
-  await shot('lab-face');
+  await see('Mobile number');
+  await see('BVN number');
+  await see('Password');
+  await shot('lab-finish');
   await tap('Back to the lab');
   await see('Beetle Lab');
   at('/lab');
@@ -1188,8 +1253,8 @@ try {
   await shot('lab-transfer', 1600);
   await tap('Back to the lab');
   await see('Beetle Lab');
-  await tap('The passcode');
-  await see('Enter your passcode');
+  await tap('The password');
+  await see('Enter your password');
   at('/home');
   await shot('lab-passcode', 700);
   /* the screen behind the sheet, tapped above it, puts it away (the sheet, with the whole of it at its top, now reaches up to 69) */
@@ -1385,17 +1450,15 @@ try {
   await tap('Lock and privacy');
   await see('What other people can see');
   await switched('Hide my balance', false);
-  await tap('Passcode');
-  /* the passcode it is now first: a phone left open cannot have its passcode changed under it */
-  await see('Your passcode now');
+  await tap('Password');
+  /* the password it is now first: a phone left open cannot have its password changed under it */
+  await see('Change password');
   at('/newcode');
-  await type(PASSCODE);
-  await see('A new passcode');
+  await page.getByTestId('current-password').first().fill(PASSWORD);
+  await page.getByTestId('new-password').first().fill('ladybird2468');
   await shot('settings-newcode', 500);
-  await type('246810');
-  await see('Once more');
-  await type('246810');
-  await see('Your passcode is new');
+  await tap('Change password');
+  await see('Your password is new');
   await see('What other people can see');
   await tap('Back');
   /* Spending limits, and what the line looks like */
@@ -1456,13 +1519,11 @@ try {
   await shot('settings-lostphone', 500);
   await tap('Freeze it, then prove it is me');
   await see('Frozen');
-  /* proving it is you is the passcode it is now, or the face */
-  await see('Your passcode now');
-  await type(PASSCODE);
-  await see('A new passcode');
-  await type('357913');
-  await see('Once more');
-  await type('357913');
+  /* proving it is you is the password it is now, or the face */
+  await see('Change password');
+  await page.getByTestId('current-password').first().fill(PASSWORD);
+  await page.getByTestId('new-password').first().fill('ladybird1357');
+  await tap('Change password');
   /* the word about it is a toast, gone in a couple of seconds, which a slow machine can
      miss; what has to hold is where it leads — home, the freeze lifted */
   await shot('settings-newcode-done', 0);
@@ -1485,9 +1546,9 @@ try {
   await shot('settings-card', 500);
   /* the whole number only after the passcode */
   await tap('Reveal');
-  await see('Enter your passcode');
-  must((await page.getByText('5399 8123 4567 4471').count()) === 0, 'the whole number should wait for the passcode');
-  await type(PASSCODE);
+  await see('Enter your password');
+  must((await page.getByText('5399 8123 4567 4471').count()) === 0, 'the whole number should wait for the password');
+  await password();
   await see('5399 8123 4567 4471');
   await tap('Freeze');
   await see('This card is frozen');
@@ -1510,7 +1571,7 @@ try {
   await see('What keeps the money yours');
   await tap('Sign out');
   await page.getByTestId('confirm-sign-out').getByRole('button', { name: 'Sign out', exact: true }).click();
-  await see('Open an account');
+  await see('Sign up');
   at('/way-in');
   await tap('Back to the lab');
   await see('Beetle Lab');
@@ -1787,7 +1848,7 @@ try {
   await shot('ask-send-filled', 300);
   /* the card's own button goes to the passcode: no second card to confirm the first */
   await inAsk('Confirm ₦2,500');
-  await see('Enter your passcode');
+  await see('Enter your password');
   await pay();
   await see('is with John Doe');
   await page.getByTestId('receipt-card').last().waitFor();
@@ -1848,7 +1909,7 @@ try {
   await askPanel.getByTestId('ask-recent-list').waitFor({ state: 'detached' });
   await see('Ibrahim Musa');
   await inAsk('Pay ₦8,000');
-  await see('Enter your passcode');
+  await see('Enter your password');
   await pay();
   await see('The token is');
   await page.getByTestId('receipt-card').last().waitFor();
@@ -1924,7 +1985,7 @@ try {
   must((await slideFill()) === 'rgb(43, 39, 33)', 'the slide should be the ink once there is someone and an amount');
   await shot('send-filled', 500);
   await slideToSend();
-  await see('Enter your passcode');
+  await see('Enter your password');
   /* the passcode says the whole of it while the digits go in, and Cancel is plain under the pad */
   await see('They receive');
   await see('Leaves Everyday');
@@ -1950,7 +2011,7 @@ try {
   await see('send Sarah 50k for the flat deposit');
   await shot('send-message', 900);
   await slideToSend();
-  await see('Enter your passcode');
+  await see('Enter your password');
   await pay();
   await receiptSheet();
   await see('Flat deposit');
@@ -2036,7 +2097,7 @@ try {
   await see('Eko Electricity, on the meter you picked');
   await shot('pay-bill-picked', 600);
   await slideToSend();
-  await see('Enter your passcode');
+  await see('Enter your password');
   await pay();
   await receiptSheet();
   await see('Eko Electricity');
@@ -2059,7 +2120,7 @@ try {
   await see('0805 331 0921');
   await shot('buy-data-dad', 600);
   await slideToSend();
-  await see('Enter your passcode');
+  await see('Enter your password');
   await pay();
   await receiptSheet();
   must(page.url().includes('/receipt/'), 'buying data should open its receipt');
@@ -2079,7 +2140,7 @@ try {
   await see('2GB at ₦2,000 ran out early');
   await shot('topup', 600);
   await tap('Confirm ₦2,500');
-  await see('Enter your passcode');
+  await see('Enter your password');
   await pay();
   await receiptSheet();
   await see('5GB for 30 days');
@@ -2103,7 +2164,7 @@ try {
   await see('₦100,000');
   await shot('loan', 600);
   await slideToSend();
-  await see('Enter your passcode');
+  await see('Enter your password');
   await pay();
   await receiptSheet();
   await see('Beetle Loans');
@@ -2135,7 +2196,7 @@ try {
   await tap('Yes, that is mine');
   await see('Yours, at 14 Bode Thomas');
   await tap('Continue');
-  await see('Enter your passcode');
+  await see('Enter your password');
   await pay();
   await receiptSheet();
   /* the prepaid token, always shown in place with its copy button */
@@ -2159,7 +2220,7 @@ try {
   await see('You get about $100.00');
   await shot('convert', 600);
   await slideToSend();
-  await see('Enter your passcode');
+  await see('Enter your password');
   await pay();
   /* its receipt comes up as the sheet every payment ends on (Round 19); Done goes back past Convert to Dollars */
   await receiptSheet();
@@ -2187,7 +2248,7 @@ try {
   await page.waitForTimeout(500);
   await shot('send-dollars', 600);
   await slideToSend();
-  await see('Enter your passcode');
+  await see('Enter your password');
   await pay();
   await receiptSheet();
   await shot('send-dollars-receipt', 900);
@@ -2227,8 +2288,8 @@ try {
   await page.getByTestId('goal-amount').waitFor();
   await see('Into Holiday');
   await counted(() => tap('Put ₦10,000 away'));
-  await see('Enter your passcode');
-  await counted(() => type(PASSCODE));
+  await see('Enter your password');
+  await counted(() => password());
   await receiptSheet();
   must(page.url().includes('/receipt/'), 'adding money should open its receipt');
   must(taps === 4, `saving should take four taps from home, not ${taps}`);
@@ -2257,7 +2318,7 @@ try {
   await shot('goal-take', 700);
   await tap('₦5,000');
   await tap('Take ₦5,000 out');
-  await see('Enter your passcode');
+  await see('Enter your password');
   await pay();
   await receiptSheet();
   must(page.url().includes('/receipt/'), 'taking money out should open its receipt');
@@ -2337,8 +2398,8 @@ try {
   must((await page.getByTestId('save-goal').count()) === 2, 'the Save card should offer both goals as pills');
   await shot('chat-save', 900);
   await counted(() => tap('Put ₦10,000 into Holiday'));
-  await see('Enter your passcode');
-  await counted(() => type(PASSCODE));
+  await see('Enter your password');
+  await counted(() => password());
   await see('is in Holiday');
   must(taps === 3, `saving from the chat should take three taps, not ${taps}`);
   await shot('chat-saved', 900);
@@ -2529,8 +2590,8 @@ try {
   await see('short of the ₦20,000 you asked for');
   await tap('Move it from Holiday');
   /* money out of a goal goes through the passcode too (Round 23) */
-  await see('Enter your passcode');
-  await type(PASSCODE);
+  await see('Enter your password');
+  await password();
   await see('came back from Holiday');
   at('/send');
   await page.goto(`${base}/short?asked=20000&have=12480`, { waitUntil: 'load' });
@@ -2719,9 +2780,11 @@ try {
   await page.getByTestId('app-lock').waitFor();
   await see('Welcome back, Ibrahim');
   await shot('app-lock', 500);
-  await type('000000');
+  await page.getByTestId('app-lock').getByTestId('password-field').fill('wrong1234');
+  await tap('Unlock');
   await see('Not it. 2 more tries.');
-  await type(PASSCODE);
+  await page.getByTestId('app-lock').getByTestId('password-field').fill(PASSWORD);
+  await tap('Unlock');
   await page.getByTestId('app-lock').waitFor({ state: 'detached' });
   await see(DEMO_HOME);
   await page.evaluate(() => sessionStorage.removeItem('beetle.walk.lock'));
@@ -2730,6 +2793,52 @@ try {
   await see(DEMO_HOME);
   await page.waitForTimeout(1500);
   must((await page.getByText('Send 50k to Sarah', { exact: true }).count()) === 0, 'words from a link outside the app should not be asked');
+
+  /* ---- Getting an account back ---- */
+  console.log('Getting an account back');
+  /* the email lost: the code to the account's number, its BVN, and a live face, before anything changes; then a day's hold */
+  await page.goto(`${base}/lab`, { waitUntil: 'load' });
+  await see('Beetle Lab');
+  await tap('Recover your account');
+  await seeExactly('Recover your account');
+  at('/way-in');
+  await shot('recover');
+  await type(DEMO_PHONE);
+  await seeExactly('OTP verification');
+  await type(CODE);
+  await seeExactly('BVN number');
+  await type('11111111111');
+  await see('That is not the BVN on this account');
+  await shot('recover-bvn-wrong');
+  await type(NIN);
+  await seeExactly('Face scan');
+  await shot('recover-face');
+  await tap('Scan my face');
+  await seeExactly('Your email');
+  await see('ibrahim.musa@example.com');
+  await shot('recover-found');
+  await tap('Change the email');
+  await seeExactly('Enter new email');
+  await page.getByTestId('email').first().fill('ibrahim.new@example.com');
+  await tap('Send the code');
+  await seeExactly('OTP verification');
+  await see('ibrahim.new@example.com');
+  await type(CODE);
+  await see('Your email is changed');
+  await see('no more than ₦20,000 can leave');
+  await shot('recovered', 600);
+  await tap('Take me in');
+  await arrives(DEMO_HOME);
+  at('/home');
+  /* the day's hold is in Settings too, with This wasn't me */
+  await page
+    .getByTestId('cover')
+    .first()
+    .waitFor({ state: 'detached', timeout: 10000 })
+    .catch(() => {});
+  await tap('Settings');
+  await see('Your email was changed today');
+  await shot('hold-notice', 500);
 } catch (e) {
   await page.screenshot({ path: join(SHOTS, '00-failed.png') }).catch(() => {});
   const text = await page.evaluate(() => document.body.innerText || '').catch(() => '');

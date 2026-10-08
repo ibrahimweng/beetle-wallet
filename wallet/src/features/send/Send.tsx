@@ -129,7 +129,7 @@ export function Send() {
   const slide = () => {
     if (!who || !amount) return;
     /* frozen, or the twelve hours after a new passcode: nothing leaves (see settings/gate) */
-    const stopped = sendGate.stopped();
+    const stopped = sendGate.stopped(amount);
     if (stopped) {
       toast(stopped);
       return;
@@ -141,6 +141,11 @@ export function Send() {
     }
     /* the whole balance to somebody never paid before: Beetle stops and says why — all the dollars too, where it is paid from them */
     const paidBefore = saved.people.some(p => p.number === who.number);
+    /* the day after a recovery nobody new is paid (Round 30): whoever took an account over pays themselves first */
+    if (sendGate.holding && !paidBefore) {
+      toast('The account was recovered today, so for a day money goes only to people you have paid before.');
+      return;
+    }
     if (fromDollars ? !paidBefore && usd > 0 && dollars - usd < 0.01 : refuses(amount, balance, paidBefore, who.bank)) {
       router.push(`/refused?amount=${amount}&name=${encodeURIComponent(who.name)}&number=${who.number}`);
       return;

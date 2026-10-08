@@ -1,6 +1,6 @@
 /* Lock and privacy, from its frame: what it takes to open the app, and what
    shows once it is open, each on a grey card of 64 rows; the switches are
-   kept on this phone. Passcode leads to a new one; Ask again after cycles
+   kept on this phone. Password leads to a new one; Ask again after cycles
    through the four waits. */
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -32,7 +32,7 @@ export function Lock() {
     <Screen head={<PageHead lead title="Lock and privacy" sub="What it takes to open this, and what shows once it is open" />}>
       <Card style={s.group} testID="open-with">
         <ToggleRow glyph="faceid-filled" ink={colour.accent} title="Face ID" value={prefs.faceId} onChange={v => set({ faceId: v })} />
-        <SettingRow glyph="key-filled" title="Passcode" value="6 digits" to="/newcode" />
+        <SettingRow glyph="key-filled" title="Password" to="/newcode" />
         <SettingRow glyph="clock-filled" title="Ask again after" value={prefs.askAfter} onPress={nextWait} />
       </Card>
       {/* the frame puts 16 under the first card, not the column's 20 */}
@@ -48,7 +48,7 @@ export function Lock() {
       {/* the frame sets the note 10 under the line, not a column gap */}
       <FootNote
         style={{ marginTop: -8 }}
-        title="Your passcode is not on our servers"
+        title="Your password is not on our servers"
         sub="It opens this phone and nothing else. If you lose it, recovery gives you a new one. Nobody, here or anywhere, can read the old one."
       />
     </Screen>

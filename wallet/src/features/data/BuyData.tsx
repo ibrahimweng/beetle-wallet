@@ -166,7 +166,7 @@ export function BuyData() {
   const slide = () => {
     if (!line || !price) return;
     /* frozen, or the twelve hours after a new passcode: nothing leaves (see settings/gate) */
-    const stopped = sendGate.stopped();
+    const stopped = sendGate.stopped(price);
     if (stopped) {
       toast(stopped);
       return;

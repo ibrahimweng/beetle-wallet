@@ -21,7 +21,7 @@
 
    What each stage shows is in views.tsx. This file is the choreography. */
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, KeyboardAvoidingView, LayoutChangeEvent, Platform, Pressable, StyleProp, View, ViewStyle, useWindowDimensions } from 'react-native';
+import { BackHandler, Keyboard, KeyboardAvoidingView, LayoutChangeEvent, Platform, Pressable, StyleProp, View, ViewStyle, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Animated, { interpolateColor, runOnJS, useAnimatedReaction, useAnimatedStyle, useFrameCallback, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
@@ -62,7 +62,11 @@ import { initialStage, isSetupStage, isStage, rowsFor, type Row, type Stage } fr
 import { nextSetup, type Income } from '../setup/setup';
 import { useSetup } from '../setup/store';
 import { idPhoto } from '../setup/hand';
-import { buildView, type Bar, type Ctx, type Note } from './views';
+import { buildView, type Bar, type Ctx, type FaceState, type Free, type Note } from './views';
+import { auth, identity, type Account } from '../../services';
+import type { DocumentKind } from '../../services/identity';
+import { lastHere, type Known } from './devices';
+import type { Progress } from './machine';
 import { LAB } from '../../lab/enabled';
 import { MIDDLE, abandon, claimCoin, coin, coverUp, finish, homeIsUnder, releaseCoin } from './arrival';
 import { backTop, logoTop } from './tops';
@@ -127,7 +131,7 @@ export function WayIn() {
   /* the lab opens the screen at a stage of its choosing; nothing else can.
      Settings and the pages that want the last limits open it at finishing
      setting up, at the first step still to answer */
-  const asked = useLocalSearchParams<{ stage?: string; phone?: string; setup?: string; income?: string; street?: string; area?: string }>();
+  const asked = useLocalSearchParams<{ stage?: string; phone?: string; email?: string; provider?: string; setup?: string; income?: string; street?: string; area?: string }>();
   const forSetup = asked.setup === '1';
   const account = app.session?.account;
   const { setup, ready: setupReady, set: setSetup } = useSetup(account?.accountNumber, !!account?.demo);
@@ -138,16 +142,27 @@ export function WayIn() {
   const [dir, setDir] = useState<Dir>(1);
   const [titleMove, setTitleMove] = useState<TitleMove>('plain');
   const [digits, setDigits] = useState('');
+  const [text, setText] = useState('');
   const [note, setNote] = useState<Note>(null);
   const [busy, setBusy] = useState(false);
   const [shake, setShake] = useState(0);
   const [wrong, setWrong] = useState(0);
   const [wait, setWait] = useState(0);
-  const [first, setFirst] = useState<string | null>(null);
-  const [faceState, setFaceState] = useState<'idle' | 'checking' | 'failed'>('idle');
+  const [faceState, setFaceState] = useState<FaceState>('idle');
   const [unknown, setUnknown] = useState(false);
-  const [phoneIn, setPhoneIn] = useState('');
+  /* logging in: the number or email the code went to, the account it is, and the account this phone last knew */
+  const [contact, setContact] = useState('');
+  const [who, setWho] = useState<Account | null>(null);
+  const [known, setKnown] = useState<Known | null>(null);
+  const [another, setAnother] = useState(false);
   const [lastNumber, setLastNumber] = useState('');
+  const [provider, setProvider] = useState<'google' | 'apple'>(() => (LAB && asked.provider === 'apple' ? 'apple' : 'google'));
+  const [providerFor, setProviderFor] = useState<'signup' | 'login'>('signup');
+  const [docKind, setDocKind] = useState<DocumentKind>('nin');
+  const [docState, setDocState] = useState<'idle' | 'checking'>('idle');
+  const [free, setFree] = useState<Free>(null);
+  const [passkey, setPasskey] = useState(true);
+  const [rec, setRec] = useState<Ctx['rec']>({});
   /* finishing setting up: what is typed and picked on its stages */
   const [street, setStreet] = useState(() => (LAB && asked.street) || '');
   const [area, setArea] = useState(() => (LAB && asked.area) || '');
@@ -163,7 +178,15 @@ export function WayIn() {
   useEffect(() => {
     if (!app.ready || stage !== null) return;
     if (LAB && isStage(asked.stage)) {
-      if (asked.stage === 'signcode' && asked.phone) setPhoneIn(asked.phone);
+      /* the lab opens a stage of logging in or getting an account back with the account it is for */
+      if (asked.phone) {
+        setContact(asked.phone);
+        void auth.findAccount(asked.phone).then(a => {
+          setWho(a);
+          setRec({ account: a ?? undefined, email: asked.email, changed: asked.stage === 'recovered' ? 'email' : undefined });
+        });
+      }
+      if (asked.stage === 'finish') setText(usernameFor(app.progress));
       setStage(asked.stage);
     } else if (forSetup) {
       if (!app.session || !setupReady) return;
@@ -188,9 +211,54 @@ export function WayIn() {
     go('income');
   }, [focused, stage]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* the account this phone knows, for Log in's Face ID */
+  useEffect(() => {
+    let live = true;
+    void lastHere().then(k => live && setKnown(k));
+    return () => {
+      live = false;
+    };
+  }, [stage === 'signin']); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* a NIN slip or a voter's card, read: the record behind it, and the details to confirm */
+  const readDoc = useCallback(
+    async (number?: string) => {
+      setDocState('checking');
+      setNote(null);
+      try {
+        const r = await identity.readDocument(docKind, { number });
+        if (!r.found) {
+          setNote({ text: 'Nothing came back for that one. Try the photo again in good light, or use your BVN.', tone: 'bad' });
+          return;
+        }
+        await app.setIdentity(r.number ?? '', r.record, docKind);
+        go('details');
+      } catch {
+        setNote({ text: 'The register did not answer. Try again in a moment.', tone: 'bad' });
+      } finally {
+        setDocState('idle');
+      }
+    },
+    [docKind, app], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  const takeDoc = useCallback(() => {
+    if (Platform.OS === 'web') {
+      setDocState('checking');
+      setTimeout(() => void readDoc(), 900);
+      return;
+    }
+    router.push('/scan?for=id');
+  }, [readDoc, router]);
+  /* the photo of the paper, back from the camera */
+  useEffect(() => {
+    if (!focused || stage !== 'document') return;
+    const read = idPhoto.take();
+    if (read) void readDoc(read.number.replace(/\s/g, ''));
+  }, [focused, stage]); // eslint-disable-line react-hooks/exhaustive-deps
+
   /* the half minute a code is given before another can be asked for */
   useEffect(() => {
-    if (!(stage === 'code' || stage === 'signcode') || wait <= 0) return;
+    if (!(stage === 'code' || stage === 'signcode' || stage === 'recovercode' || stage === 'newemailcode') || wait <= 0) return;
     const t = setTimeout(() => setWait(w => w - 1), 1000);
     return () => clearTimeout(t);
   }, [stage, wait]);
@@ -198,22 +266,26 @@ export function WayIn() {
   const go = useCallback(
     (next: Stage, direction: Dir = 1) => {
       const cur = stageRef.current;
+      const p = app.progress;
       if (cur) {
-        const before = rowsFor(cur).length;
-        const after = rowsFor(next).length;
+        const before = rowsFor(cur, p).length;
+        const after = rowsFor(next, p).length;
         setTitleMove(after > before ? 'up' : after < before ? 'down' : 'plain');
       }
+      /* the keyboard goes with the box it was for; a stage that types words brings it back */
+      Keyboard.dismiss();
       setStage(next);
       setDir(direction);
-      setDigits(next === 'number' ? (app.progress.phone ?? '') : '');
+      setDigits(next === 'number' && p.via === 'phone' ? (p.phone ?? '') : '');
+      setText(next === 'email' && p.via === 'email' ? (p.email ?? '') : next === 'finish' ? usernameFor(p) : '');
       setNote(null);
       setShake(0);
       setBusy(false);
-      if (next === 'passcode') setFirst(null);
-      if (next === 'face') setFaceState('idle');
-      if (next === 'signin') setUnknown(false);
+      setUnknown(false);
+      setFree(null);
+      if (next === 'finish' || next === 'signface' || next === 'recoverface') setFaceState('idle');
     },
-    [app.progress.phone],
+    [app.progress],
   );
 
   /* Done (Round 28): the steps leave and the coin comes to the middle and breathes; once the steps have gone, the
@@ -282,7 +354,9 @@ export function WayIn() {
   }, [forSetup, go, router]);
 
   const keyRef = useRef<((k: string) => void) | undefined>(undefined);
-  const rows = useMemo(() => (stage ? rowsFor(stage) : []), [stage]);
+  const rows = useMemo(() => (stage ? rowsFor(stage, app.progress) : []), [stage, app.progress]);
+  /* while the phone's keyboard is up, the steps done and the glyph fold away, so the box and the button stay in view */
+  const keyboardUp = useKeyboardUp();
 
   /* the coin: shown while the way in is, measured into the room the column leaves above itself */
   const { height: screen } = useWindowDimensions();
@@ -381,6 +455,8 @@ export function WayIn() {
     still,
     digits,
     setDigits,
+    text,
+    setText,
     note,
     setNote,
     busy,
@@ -391,16 +467,33 @@ export function WayIn() {
     setWrong,
     wait,
     setWait,
-    first,
-    setFirst,
     faceState,
     setFaceState,
     unknown,
     setUnknown,
-    phoneIn,
-    setPhoneIn,
+    contact,
+    setContact,
+    who,
+    setWho,
+    known,
+    another,
+    setAnother,
     lastNumber,
     setLastNumber,
+    provider,
+    setProvider,
+    providerFor,
+    setProviderFor,
+    docKind,
+    setDocKind,
+    docState,
+    takeDoc,
+    free,
+    setFree,
+    passkey,
+    setPasskey,
+    rec,
+    setRec,
     setup,
     setSetup,
     street,
@@ -440,7 +533,7 @@ export function WayIn() {
             address): the keyboard never covers the button. The avoiding view's own padding is the keyboard's alone:
             on the phone it replaces any padding given to it (Round 29: every step sat 12 lower than the frames on
             an iPhone, and the welcome's line ran into its button), so the column's own is on the column */}
-          <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} enabled={stage === 'address'}>
+          <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} enabled={!!view.words || stage === 'address'}>
             {/* the column ends where the frames end it: on the dock's top, 12 above
             the keypad's first row and the bar's block alike, and 36 above the
             welcome's two ways in. The 12 between the band and what sits under
@@ -448,8 +541,11 @@ export function WayIn() {
             What it leaves above itself is the coin's room */}
             <View style={{ flex: 1, paddingHorizontal: side, justifyContent: 'flex-end', paddingBottom: bottomKind === 'welcome' ? 24 : 12 }}>
               <View style={{ flex: 1 }} onLayout={roomFor} pointerEvents="none" testID="coin-room" />
-              <Stack rows={rows} above={view.above} aboveKey={view.above ? stage : 'none'} dir={dir} />
+              <Fold open={!(keyboardUp && (view.words || stage === 'address'))}>
+                <Stack rows={rows} above={view.above} aboveKey={view.above ? stage : 'none'} dir={dir} />
+              </Fold>
               <HeadBand
+                folded={keyboardUp && (!!view.words || stage === 'address')}
                 icon={view.icon}
                 iconSize={view.iconSize}
                 tint={view.tint}
@@ -476,15 +572,11 @@ export function WayIn() {
               ) : bottomKind === 'bar' && view.bar ? (
                 <BarBlock bar={view.bar} />
               ) : bottomKind === 'welcome' ? (
-                <View style={{ paddingHorizontal: WELCOME_SIDE, paddingBottom: 24 }}>
-                  <Button label="Open an account" onPress={() => go('number')} />
-                  {/* the frame's row: 44 tall, 8 under the button, the words 14 on 20, Sign in in white (Round 27) */}
-                  <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 8, height: 44 }}>
-                    <Meta tone="secondary">Already have one?</Meta>
-                    <Pressable onPress={() => go('signin')} accessibilityRole="button">
-                      <Label>Sign in</Label>
-                    </Pressable>
-                  </View>
+                /* the two ways in as two buttons (Round 30, the owner's word): Sign up in white, Log in under it on the
+                   dark's own panel, 8 between, the frame's 24 below */
+                <View style={{ paddingHorizontal: WELCOME_SIDE, paddingBottom: 24, gap: 8 }}>
+                  <Button label="Sign up" tone="white" onPress={() => go('number')} />
+                  <Button label="Log in" tone="grey" onPress={() => go('signin')} />
                 </View>
               ) : null}
             </Slot>
@@ -494,6 +586,56 @@ export function WayIn() {
         <WelcomeLogo on={stage === 'welcome'} top={logo} />
       </View>
     </Scheme>
+  );
+}
+
+/** A username to start from: the name off the record, as one word. */
+function usernameFor(p: Progress): string {
+  const r = p.identity?.record;
+  return r
+    ? `${r.firstName}${r.lastName}`
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '')
+        .slice(0, 20)
+    : '';
+}
+
+/* Whether the phone's keyboard is up. Asked of the phone itself: the web's keyboard is the computer's. */
+function useKeyboardUp(): boolean {
+  const [up, setUp] = useState(false);
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    const show = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setUp(true));
+    const hide = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => setUp(false));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+  return up;
+}
+
+/* What folds away while the keyboard is up: drawn at its own height, and squeezed to none, fading, with the keyboard
+   (Round 30: on a phone the steps done and the glyph pushed the box being typed into up off the screen). */
+function Fold({ open, children }: { open: boolean; children: ReactNode }) {
+  const still = useStill();
+  const t = useSharedValue(open ? 1 : 0);
+  const h = useSharedValue(-1);
+  useEffect(() => {
+    t.value = still ? (open ? 1 : 0) : withTiming(open ? 1 : 0, { duration: motion.enter, easing: settle });
+  }, [open, still, t]);
+  /* open, it is its own height again ('auto', said outright: a height left off is kept on the phone, not undone) */
+  const folding = useAnimatedStyle(() => (t.value >= 1 || h.value < 0 ? { opacity: 1, height: 'auto', overflow: 'visible' } : { height: h.value * t.value, opacity: t.value, overflow: 'hidden' }));
+  return (
+    <Animated.View style={folding}>
+      <View
+        onLayout={e => {
+          h.value = e.nativeEvent.layout.height;
+        }}
+      >
+        {children}
+      </View>
+    </Animated.View>
   );
 }
 
@@ -643,6 +785,7 @@ function StackRow({ row, mode, onGone }: { row: Row; mode: Shown['mode']; onGone
 /* ---- the head band: glyph, title, line ---- */
 
 function HeadBand({
+  folded = false,
   icon,
   iconSize = GLYPH,
   tint,
@@ -655,6 +798,8 @@ function HeadBand({
   move,
   dir,
 }: {
+  /** the keyboard is up: the glyph folds away */
+  folded?: boolean;
   icon: IconName | 'tick' | 'none';
   /** the welcome's mark is 40 where every other glyph is 32 */
   iconSize?: number;
@@ -697,7 +842,11 @@ function HeadBand({
     );
   return (
     <View style={{ gap: GLYPH_GAP, marginTop: STACK_GAP }}>
-      {icon === 'none' ? null : <Glyph icon={icon} tint={tint} size={iconSize} />}
+      {icon === 'none' ? null : (
+        <Fold open={!folded}>
+          <Glyph icon={icon} tint={tint} size={iconSize} />
+        </Fold>
+      )}
       <TitleTrack title={title} small={small} stage={stage} move={move} dir={dir} />
       <Swap value={sub}>{line}</Swap>
     </View>

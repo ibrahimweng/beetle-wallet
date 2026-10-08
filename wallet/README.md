@@ -3,16 +3,18 @@
 The product itself, built one feature at a time in React Native with Expo.
 `mobile/` is the prototype of every screen in the Figma file; this folder is
 the app people will use, so everything in it is real: validation that says
-no, progress that survives closing the app, a session, a passcode that is
+no, progress that survives closing the app, a session, a password that is
 hashed before it is kept, and services behind interfaces so that the mock
 this build runs on can be swapped for the bank's own without touching a
 screen.
 
-What is here so far is the way in: the first loading screen, the welcome,
-opening an account (number, six digits by text, NIN or BVN, the record that
-comes back, a face, a passcode typed twice, the account being ready, and
+What is here so far is the way in: the first loading screen, the welcome
+with Sign up and Log in, opening an account (a mobile number or an email,
+its code, the BVN or a NIN slip or voter's card, the record that comes back,
+a password, the face and the $username, the account being ready, and
 finishing setting up: where you live, a photo of an ID, where the money comes
-from, and everything being on), signing in, and three pages side by side
+from, and everything being on), logging in, getting back an account whose
+email or password is lost, and three pages side by side
 under one bar — home, with the black card and Savings, Loan, Card and
 Services under it; Activities, the record; and Settings — swiped between
 like pages on an iPhone, and the chat the card turns into when it is
@@ -97,18 +99,20 @@ mocks in and says so on the code screen; a real `AuthService` and
 
 | Where | What works | What says no |
 |---|---|---|
-| Your number | any Nigerian mobile number: 070, 080, 081, 090 or 091 and eleven digits | anything else, with the reason under the field |
-| Six digits | `123456` | `000000` has expired; any other six do not match, three of those and a fresh code is sent on its own |
-| Who you are | `1234 5678 900` comes back as Ibrahim Musa, born 14 June 1996 | eleven digits with `0000` in them match nothing; the rest come back as a name made from the digits |
-| Your face | on a phone, the device's own face check; on the web, a moment's wait | a face check that does not take, with try again; or do it later |
-| A passcode | six digits typed twice, kept stretched for that account alone; in the lab `654321` and `123456` pass too, so trying it never means thinking one up | the same digit six times, a run, a repeated pair, your year of birth, and the handful everybody picks |
+| Enter mobile number | any Nigerian mobile number: 070, 080, 081, 090 or 091 and eleven digits; or Use email instead; or Google or Apple (a stand-in in this build, handing over a checked email) | anything else, with the reason under the field; a number or an email that already has an account, with Log in offered |
+| OTP verification | `123456`, to the number or the email | `000000` has expired; any other six do not match, three of those and a fresh code is sent on its own |
+| BVN number | `1234 5678 900` comes back as Ibrahim Musa, born 14 June 1996; or Use my NIN slip or voter's card instead, which reads the name, birthday, address and email off a photo (a moment on the web) and finishes setting up with it | eleven digits with `0000` in them match nothing; the rest come back as a name made from the digits |
+| Password | eight or more, a letter and a number, the rules ticking as they are met; in the lab `beetle321` passes too | under eight, no letter, no number, your name or year of birth, and the handful everybody picks |
+| Face scan and username | the face (the device's own check on a phone, a moment on the web) and a $username, suggested from the name; a passkey saved on the phone unless it is switched off | a username taken, too short, or with anything but small letters, numbers and underscores; Open my account waits for both |
+| Log in | on a phone that knows the account, Face ID; anywhere else the number or the email, `123456`, the password (`beetle123` on the demo account), and the face once on that phone | three wrong passwords shut the gate as before money moves |
+| Recover your account | the account's number, `123456`, its BVN (`1234 5678 900` for the demo account), the face; then the email shown, kept or changed (with its own code), or a new password; for a day after, ₦20,000 at most can leave and nobody new is paid | three wrong BVNs pause getting it back for a day |
 | Finishing setting up | Finish setting up on the ready screen, or wherever a limit it lifts is in the way (Spending limits, Dollars, Borrow, the New account chip on the card): a street and an area typed into one card, Take it for the ID (the camera on a phone, a moment on the web), one tap on where the money comes from, and Take me in; the day's cap can then be raised to ₦1,000,000, and dollars and borrowing open | a street or an area under three letters; Continue waits for a source to be picked; Back on every step, to the ready screen or to the page that opened it |
 | Welcome back | `0803 000 0001`, the demo account's made-up number, opens the demo account, history and all; any number that opened an account on this device opens that one | a number nobody has opened an account with, with a way to open one |
 | The chat | "Send 20k to Sarah", "top up my light", "buy data", "what about dollars", "how much do I have"; the people it knows are Sarah Adeyemi, Chidi Okafor, Musa Danjuma and John Doe, by name or account number | more than the balance; a name it does not know; anything else, with what it can do |
 | Send money | Send on the card, or Send money in More: someone paid before, a ten-digit number typed, or one read off a photo; any amount up to what Everyday holds; a reference; Slide to send, then the passcode | more than the balance: Not enough, with three ways to close it; a digit the reader was not sure of: Check this number, with both readings |
 | The fee | nothing under ₦10,000; ₦26.88 up to ₦50,000 and ₦53.75 above, the banks' own with the tax on it, on the page, in the chat's panel and on the receipt alike | |
-| Before money moves | the account's own passcode, or `654321` and `123456` in the lab and on the demo account; the face, on a phone with one enrolled and Face ID on in Lock and privacy; past one transfer's cap or the day's, the three words typed in full after the passcode (the demo's day has ₦84,000 out already) | three wrong tries shut the gate for half a minute, then five minutes, half an hour, two hours, kept on the phone; a face that does not take says so in red, and the face key tries again |
-| Opening the app | with an account signed in, and back after the wait Ask again after sets: the face or the passcode, as before money moves; Not you? signs out | the same gate: three wrong tries shut it |
+| Before money moves | the account's own password, or `beetle123` and `beetle321` in the lab and on the demo account; the face, on a phone with one enrolled and Face ID on in Lock and privacy; past one transfer's cap or the day's, the three words typed in full after the passcode (the demo's day has ₦84,000 out already) | three wrong tries shut the gate for half a minute, then five minutes, half an hour, two hours, kept on the phone; a face that does not take says so in red, and the face key tries again |
+| Opening the app | with an account signed in, and back after the wait Ask again after sets: the face or the password, as before money moves; Not you? signs out | the same gate: three wrong tries shut it |
 | Being paid | Receive on the card, the Receive shortcut or Receive in More: the sheet with the account number and the $tag, Copy on each and Share details, then Ask someone and In dollars; "how do I get paid" typed at home puts the chat's Receive card up; the lab can have ₦50,000 arrive from Sarah | a build that cannot reach the clipboard says to read it off the sheet; nothing here can take money out |
 | Asking for money | "ask musa for 20k for the rent balance" typed at home, a photo of a message asking for the account (the sample message in this build), or Ask someone on the Receive sheet; the people it can ask are Musa Danjuma, Sarah Adeyemi and Chidi Okafor, or a name with a phone number typed in the reply bar; the amount on the keypad; Send the request once it has a date | a reply with no name or figure in it says so; asking cannot move money, so there is no passcode |
 | Saving | Savings on home, Add money, Put away, the passcode: four taps; + New goal, filled with the next idea (Rent, Emergency fund, School fees…), and Start saving: three; Take out, Edit goal, Pause goal and End goal from the page and its ···; the Save chip in the open chat, or "save 10k for rent" typed there | more than Everyday holds, or than the goal holds when taking out, stops the picker hard; a goal with nothing in it ends after the sheet that asks first, one with money in it through the passcode |

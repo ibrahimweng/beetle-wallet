@@ -186,14 +186,23 @@ export function Swap({ value, children, style }: { value: string; children: (sho
   const still = useStill();
   const [shown, setShown] = useState(value);
   const t = useSharedValue(1);
+  /* what lands is what is asked for when the old words have gone, not when they began to go: a label that changes and
+     changes back before then (Log in, Checking…, Log in) was left on the one in between (Round 30) */
+  const latest = useRef(value);
+  latest.current = value;
+  const land = () => setShown(latest.current);
   useEffect(() => {
-    if (value === shown) return;
+    if (value === shown) {
+      /* back to what is showing before it had gone: it comes back, and the fade in flight is called off */
+      if (!still && t.value < 1) t.value = withTiming(1, { duration: motion.swap, easing: settle });
+      return;
+    }
     if (still) {
       setShown(value);
       return;
     }
     t.value = withTiming(0, { duration: motion.swap, easing: away }, finished => {
-      if (finished) runOnJS(setShown)(value);
+      if (finished) runOnJS(land)();
     });
   }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {

@@ -17,7 +17,10 @@ export function useSendGate(account: Account | undefined) {
   const spent = useMemo(() => spentToday([...moves, ...(account ? holdingsFor(account).ledger : [])]), [moves, account]);
   return {
     spent,
-    stopped: () => stoppedBy(prefs),
+    /** the day after a recovery: nobody new is paid until it is over */
+    holding: !!prefs.hold && prefs.hold.until > Date.now(),
+    /** why a payment of this much cannot leave now (nothing, for one that only checks the freeze) */
+    stopped: (amount = 0) => stoppedBy(prefs, Date.now(), amount, spent),
     past: (amount: number) => pastCap(amount, spent),
   };
 }

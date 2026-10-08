@@ -17,6 +17,14 @@ export function forgetSetup(account: string) {
   kept.delete(account);
 }
 
+/** Answers kept for an account outside any screen: a NIN slip or a voter's card gave them when the account was opened. */
+export function putSetup(account: string, patch: Partial<Setup>) {
+  const next = { ...(kept.get(account) ?? EMPTY_SETUP), ...patch };
+  kept.set(account, next);
+  void sealed.set(key(account), next);
+  listeners.forEach(l => l(account));
+}
+
 export function useSetup(account: string | undefined, demo: boolean) {
   const [setup, setSetup] = useState<Setup>(() => (account && kept.get(account)) || (demo ? DEMO_SETUP : EMPTY_SETUP));
   const [ready, setReady] = useState(() => !!account && kept.has(account));

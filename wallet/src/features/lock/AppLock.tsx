@@ -2,24 +2,29 @@
    app asked again after a while, and nothing ever asked). Opened with an
    account already signed in, and back from the background after the wait
    Ask again after sets ("Straight away" is the moment it comes back), the
-   app is covered by this: the mark, whose account it is, the six dots and
-   the pad, and the face key where Face ID is switched on and the phone has
-   one, which is asked for at once. The same gate as before money moves
-   counts the wrong tries and shuts after three (passcode/check). Not you?
-   signs out, and the way in starts again.
+   app is covered by this: the mark, whose account it is, the password box
+   with Unlock under it, and the face where Face ID is switched on and the
+   phone has one, which is asked for at once; where it is not, the box takes
+   the keyboard at once (Round 30, the owner's word: Face ID first, then the
+   password, and the six digits gone). The same gate as before money moves
+   counts the wrong tries and shuts after three (passcode/check). Whatever
+   is typed into stays in view: the page rides up over the keyboard, and
+   scrolls where a small phone has no room for it all. Not you? signs out,
+   and the way in starts again.
 
    Nothing is covered while nobody is signed in, or for an account with no
-   passcode kept on this phone (there is nothing to check it against). The
+   password kept on this phone (there is nothing to check it against). The
    lab can leave it off for the checks that walk the app (`__BEETLE_NO_LOCK__`
    set before the page loads); no other build can. */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, BackHandler, StyleSheet, View } from 'react-native';
+import { AppState, BackHandler, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Drawing, Icon, Keypad, Meta, More, Pips, Title, colour } from '../../design';
+import { Button, Drawing, Icon, Meta, More, Tap, Title, colour } from '../../design';
+import { TextBox } from '../../design/TextBox';
 import { useApp } from '../onboarding/store';
 import { askAfterMs, readPrefs } from '../settings/prefs';
-import { checkCode, checkFace, faceAvailable, loadGate, lockedFor, refusal, waitWords } from '../passcode/check';
+import { checkCode, checkFace, demoHint, faceAvailable, loadGate, lockedFor, refusal, waitWords } from '../passcode/check';
 import { LAB } from '../../lab/enabled';
 
 /** The checks that walk the app in the lab leave the lock off. */
@@ -34,7 +39,7 @@ export function AppLock() {
   const appRef = useRef(app);
   appRef.current = app;
 
-  /* lock, if there is something to lock and a passcode to open it with */
+  /* lock, if there is something to lock and a password to open it with */
   const lock = useCallback(async () => {
     const a = appRef.current;
     if (!a.session || leftOff()) return;
@@ -42,7 +47,7 @@ export function AppLock() {
     setLocked(true);
   }, []);
 
-  /* the gate as the phone kept it, read before the first digit */
+  /* the gate as the phone kept it, read before the first try */
   useEffect(() => {
     void loadGate();
   }, []);
@@ -83,6 +88,7 @@ export function AppLock() {
     <LockScreen
       name={account.firstName}
       account={account.accountNumber}
+      demo={!!account.demo}
       verify={app.checkPasscode}
       onOpen={() => setLocked(false)}
       onSignOut={() => {
@@ -93,21 +99,47 @@ export function AppLock() {
   );
 }
 
-function LockScreen({ name, account, verify, onOpen, onSignOut }: { name: string; account: string; verify: (code: string) => Promise<boolean>; onOpen: () => void; onSignOut: () => void }) {
-  const [digits, setDigits] = useState('');
+function LockScreen({
+  name,
+  account,
+  demo,
+  verify,
+  onOpen,
+  onSignOut,
+}: {
+  name: string;
+  account: string;
+  demo: boolean;
+  verify: (code: string) => Promise<boolean>;
+  onOpen: () => void;
+  onSignOut: () => void;
+}) {
+  const box = useRef<TextInput>(null);
+  const [password, setPassword] = useState('');
+  /* what the face is doing, on the line under the welcome */
   const [note, setNote] = useState<{ text: string; bad?: boolean } | null>(null);
+  /* what was wrong with the password, in red under the box */
+  const [wrong, setWrong] = useState<string | null>(null);
   const [face, setFace] = useState(false);
   const [busy, setBusy] = useState(false);
   const tryFace = useCallback(async () => {
     setNote({ text: 'Looking…' });
     if (await checkFace()) onOpen();
-    else setNote({ text: 'Face ID did not catch you. The six digits work as well.', bad: true });
+    else {
+      setNote({ text: 'Face ID did not catch you. Your password works as well.', bad: true });
+      box.current?.focus();
+    }
   }, [onOpen]);
-  /* the face, where it is switched on and the phone has one, asked for at once */
+  /* the face, where it is switched on and the phone has one, asked for at once; the box, where it is not */
   useEffect(() => {
     let live = true;
     void readPrefs(account).then(async p => {
-      if (!p.faceId || !(await faceAvailable()) || !live) return;
+      const can = p.faceId && (await faceAvailable());
+      if (!live) return;
+      if (!can) {
+        box.current?.focus();
+        return;
+      }
       setFace(true);
       setTimeout(() => {
         if (live) void tryFace();
@@ -122,46 +154,78 @@ function LockScreen({ name, account, verify, onOpen, onSignOut }: { name: string
     const sub = BackHandler.addEventListener('hardwareBackPress', () => true);
     return () => sub.remove();
   }, []);
-  const key = (k: string) => {
+  const type = (t: string) => {
     if (busy) return;
+    setPassword(t);
+    if (wrong) setWrong(null);
+    if (note?.bad) setNote(null);
+  };
+  const unlock = () => {
+    if (busy || !password) return;
     const shut = lockedFor();
     if (shut) {
-      setNote({ text: `The gate is shut for ${waitWords(shut)} more.`, bad: true });
+      setWrong(`The gate is shut for ${waitWords(shut)} more.`);
       return;
     }
-    const d = k === 'del' ? digits.slice(0, -1) : (digits + k).slice(0, 6);
-    setDigits(d);
-    if (note?.bad) setNote(null);
-    if (d.length < 6) return;
     setBusy(true);
-    void checkCode(d, verify).then(verdict => {
+    void checkCode(password, verify).then(verdict => {
       setBusy(false);
-      setDigits('');
+      setPassword('');
       if (verdict.ok) onOpen();
-      else setNote({ text: refusal(verdict), bad: true });
+      else {
+        setWrong(refusal(verdict));
+        /* Done on the keyboard put it away; it comes back for the next try */
+        box.current?.focus();
+      }
     });
   };
   return (
     <View style={s.cover} accessibilityViewIsModal testID="app-lock">
       {/* a wing's veins across the top corner, the brand's touch, behind it all (Round 26) */}
       <Drawing name="wing" width={230} opacity={0.36} turn={-8} style={{ top: -20, right: -60 }} />
-      <SafeAreaView style={s.column}>
-        <View style={s.top}>
-          <Icon name="mark" size={40} colour={colour.ink} />
-          <Title accessibilityRole="header" style={{ textAlign: 'center' }}>{`Welcome back, ${name}`}</Title>
-          <Meta tone={note?.bad ? 'bad' : 'secondary'} style={{ textAlign: 'center' }} accessibilityLiveRegion="polite" testID="app-lock-note">
-            {note?.text ?? (face ? 'Your face or your passcode opens Beetle.' : 'Your passcode opens Beetle.')}
-          </Meta>
-          <View style={{ height: 14, marginTop: 16, justifyContent: 'center' }}>
-            <Pips filled={digits.length} />
-          </View>
-        </View>
-        <View style={{ alignItems: 'center', gap: 12 }}>
-          <Keypad big onKey={key} onFace={face ? () => void tryFace() : undefined} />
-          <View style={{ alignSelf: 'center' }}>
-            <More label="Not you? Sign out" onPress={onSignOut} />
-          </View>
-        </View>
+      <SafeAreaView style={{ flex: 1 }}>
+        {/* the page rides up over the keyboard where the window does not make room for it */}
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <ScrollView contentContainerStyle={s.column} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} bounces={false}>
+            <View>
+              <View style={s.top}>
+                <Icon name="mark" size={40} colour={colour.ink} />
+                <Title accessibilityRole="header" style={{ textAlign: 'center' }}>{`Welcome back, ${name}`}</Title>
+                <Meta tone={note?.bad ? 'bad' : 'secondary'} style={{ textAlign: 'center' }} accessibilityLiveRegion="polite" testID="app-lock-note">
+                  {note?.text ?? (face ? 'Your face or your password opens Beetle.' : 'Your password opens Beetle.')}
+                </Meta>
+              </View>
+              {/* the box and Unlock together, so both stay in view over the keyboard */}
+              <View style={s.form}>
+                <TextBox
+                  ref={box}
+                  label="Password"
+                  value={password}
+                  onChangeText={type}
+                  secret
+                  note={wrong ?? demoHint({ demo })}
+                  bad={!!wrong}
+                  returnKeyType="done"
+                  onSubmitEditing={unlock}
+                  textContentType="password"
+                  autoComplete="current-password"
+                  testID="password-field"
+                  right={
+                    face ? (
+                      <Tap accessibilityRole="button" accessibilityLabel="Use Face ID" hitSlop={10} disabled={busy} onPress={() => void tryFace()}>
+                        <Icon name="faceid" size={20} colour={colour.ink} />
+                      </Tap>
+                    ) : null
+                  }
+                />
+                <Button label="Unlock" disabled={busy || !password} onPress={unlock} />
+              </View>
+            </View>
+            <View style={{ alignSelf: 'center', marginTop: 24 }}>
+              <More label="Not you? Sign out" onPress={onSignOut} />
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </View>
   );
@@ -169,6 +233,7 @@ function LockScreen({ name, account, verify, onOpen, onSignOut }: { name: string
 
 const s = StyleSheet.create({
   cover: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: colour.surface, zIndex: 1000 },
-  column: { flex: 1, justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 12 },
+  column: { flexGrow: 1, justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 12 },
   top: { alignItems: 'center', gap: 12, paddingTop: 72 },
+  form: { gap: 12, marginTop: 28 },
 });

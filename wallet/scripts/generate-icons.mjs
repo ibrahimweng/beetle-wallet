@@ -35,7 +35,14 @@ function solidGear(svg) {
   return `<path d="${cog}${hole}" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"/><path d="${cog}" stroke="currentColor" fill="none"/>`;
 }
 const DERIVED = { 'gear-filled': solidGear(ICONS.gear) };
-const ALL = { ...ICONS, ...DERIVED };
+
+/* The brand's mark (Round 25): the ladybird in flight that is also a B, out
+   of the brand file's own vector, set in the 24 box with 1 clear round it.
+   It replaces the file's blue shutter wherever the mark is drawn. */
+const BRAND = {
+  mark: '<path d="M 19.27 1.22 C 19.5 1 19.86 1.01 20.07 1.25 C 22.27 3.87 22.13 7.79 19.67 10.25 C 17.27 12.65 13.49 12.83 10.87 10.79 L 10.8 10.87 C 12.83 13.49 12.65 17.27 10.25 19.67 C 7.79 22.13 3.88 22.27 1.26 20.07 C 1.02 19.86 1 19.49 1.22 19.27Z M 19.27 1.22" fill="currentColor"/><path d="M 12.75 4.68 C 12.97 4.9 12.97 5.24 12.76 5.45 L 5.45 12.75 C 5.24 12.96 4.9 12.96 4.69 12.75 C 4.61 12.68 4.57 12.59 4.55 12.5 C 4.54 12.5 4.54 12.5 4.54 12.49 C 4.54 12.48 4.53 12.46 4.53 12.44 C 4.53 12.44 4.53 12.43 4.53 12.43 C 4.08 10.02 4.6 7.72 6.16 6.16 C 7.73 4.59 10.04 4.08 12.47 4.53 C 12.48 4.54 12.49 4.54 12.49 4.54 C 12.59 4.56 12.68 4.61 12.75 4.68" fill="currentColor"/><path d="M 21.35 11.61 C 21.4 11.67 21.44 11.73 21.47 11.79 C 23 15.07 22.82 18.56 20.69 20.69 C 18.57 22.81 15.08 23 11.79 21.46 C 11.77 21.46 11.76 21.45 11.75 21.44 C 11.69 21.42 11.65 21.39 11.61 21.35 C 11.41 21.14 11.4 20.81 11.6 20.6 C 11.6 20.59 11.61 20.59 11.61 20.58 L 11.63 20.57 C 13.2 18.86 13.94 16.63 13.8 14.43 C 13.79 14.43 13.79 14.43 13.8 14.43 C 13.8 14.39 13.79 14.34 13.79 14.3 C 13.8 14.17 13.85 14.04 13.95 13.94 C 14.06 13.83 14.2 13.78 14.34 13.79 C 14.37 13.79 14.4 13.79 14.42 13.79 C 14.43 13.79 14.43 13.8 14.44 13.8 C 16.64 13.93 18.88 13.2 20.59 11.61 C 20.72 11.48 20.9 11.43 21.06 11.46 C 21.07 11.47 21.08 11.47 21.09 11.47 C 21.19 11.49 21.28 11.54 21.35 11.61" fill="currentColor"/>',
+};
+const ALL = { ...ICONS, ...DERIVED, ...BRAND };
 
 /* A solid glyph's details — the face in Face ID, the stripe on the card, the
    tick in the shield, the hands on the clock, the house's door — are drawn

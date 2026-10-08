@@ -1,10 +1,37 @@
 # Beetle · how it is designed
 
 The rules every screen keeps. They come from the owner's words over the
-rounds (PLAN.md has the history) and from the Figma file, which stays the
-source for sizes and colours (`src/design/tokens.ts`). When a rule and a
+rounds (PLAN.md has the history), from the Figma file, which stays the
+source for sizes, and from the brand (Round 25), which is the source for
+colours, faces and the mark (`src/design/tokens.ts`). When a rule and a
 frame disagree, the rule is the newer word; the Figma check's allowances
 (`test/figma/allowed.json`) say where and why.
+
+## The brand
+
+- **Clean, with warmth in the ink** (Round 25, from the brand file and the
+  owner's word). Where the frames have black, the app has the brand's ink
+  `#2b2721`; the page is a neutral white `#fafaf9`, only just off pure, so
+  the screens read clean and professional, never moody; the pale grey is
+  `#f1f0ed`, a step down. The dark card and the chat are the ink, with the
+  brand's paper `#fbefe3` for what was white on them and its clay `#bcaa97`
+  for the mark and the kobo. The words below still say white and black for
+  the page and the card: read them as the neutral white and the ink.
+- **One loud colour**: the orange `#f04f22`, for what moves (a switch on, a
+  bar filling, the caret, a dot that is new) and for what is a link, where
+  words take the deeper `#b8390f` so they read on the paper. Red is a
+  crimson `#b42318`, kept apart from it. The greens, the gold and the
+  networks' own colours stay what they say.
+- **Two faces**: Lora for the headlines and the big figures (a page's title,
+  the balance, an amount being picked), Geist for everything read at a
+  glance. They ship as Beetle Serif and Beetle Sans, the same open faces
+  with the naira sign added, which neither has; a weight is asked for by
+  name (`font('600')`), never with fontWeight.
+- **The mark** is the ladybird in flight that is also a B, out of the brand
+  file's own vector: in ink on the paper, in clay on the dark, cream on the
+  ink for the app's icon. Beetle thinking says **Beetling…** beside it.
+- **Light, not paint**: the brand's oil-slick colours are light (the card's
+  border as it is pulled), never a flat fill.
 
 ## Depth without shadows
 
@@ -34,7 +61,7 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 
 ## Type, space and the grid
 
-- Sizes are the file's: Display 32/40, Head 20/24, Row 16/24 semibold,
+- Sizes are the file's: Display 32/40 and Title 32/40 in the serif, Head 20/24, Row 16/24 semibold,
   Body 16/24, Label 14/20 semibold, Meta 14/20, Caption 12/16. Where the
   owner's home frame sets smaller words, Small 11/16 (the quiet card's
   line) and Fine 10/16 (the foot line of home's four cards); nowhere else.

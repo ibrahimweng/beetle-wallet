@@ -9,7 +9,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Body, Caption, Icon, Meta, PageHead, Row, Say, Screen, Tap, colour, toast, useDeparture } from '../../design';
+import { Body, Caption, Icon, Meta, PageHead, Row, Say, Screen, Tap, colour, font, toast, useDeparture } from '../../design';
 import type { IconName } from '../../icons';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -53,7 +53,7 @@ export function Bills() {
             ))}
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Caption tone="accent" style={{ fontWeight: '600' }}>{`${m.covered} of ${m.count} covered`}</Caption>
+            <Caption tone="accent" style={{ ...font('600') }}>{`${m.covered} of ${m.count} covered`}</Caption>
             <Caption tone="secondary">{m.open ? `${m.open} still to sort` : 'All sorted'}</Caption>
           </View>
         </View>
@@ -87,11 +87,11 @@ function BillRow({ bill, onPress }: { bill: MonthBill; onPress: () => void }) {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
           <Meta tone="secondary">{bill.when}</Meta>
           {bill.covered === 'rule' ? (
-            <Caption tone="accent" style={{ fontWeight: '600' }}>
+            <Caption tone="accent" style={{ ...font('600') }}>
               · I pay it
             </Caption>
           ) : bill.covered === 'none' ? (
-            <Caption tone="bad" style={{ fontWeight: '600' }}>
+            <Caption tone="bad" style={{ ...font('600') }}>
               · Not covered
             </Caption>
           ) : null}

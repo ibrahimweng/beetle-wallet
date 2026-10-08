@@ -70,6 +70,11 @@ const ctx = await b.newContext({ viewport: { width: 393, height: 852 }, deviceSc
 await ctx.addInitScript(() => {
   if (!sessionStorage.getItem('beetle.walk.lock')) window.__BEETLE_NO_LOCK__ = true;
 });
+/* Sentient comes from Fontshare on a phone (src/design/fonts.ts); the checks stay off the network, so Beetle Sans
+   stands in under its name, which is what a phone that cannot reach Fontshare draws anyway */
+await ctx.route('https://cdn.fontshare.com/**', r =>
+  r.fulfill({ path: join(here, '..', 'assets', 'fonts', 'BeetleSans-Regular.ttf'), contentType: 'font/ttf', headers: { 'access-control-allow-origin': '*' } }),
+);
 /* the details pane copies the account number; a browser has to be told that is allowed */
 await ctx.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {});
 const page = await ctx.newPage();
@@ -594,7 +599,7 @@ try {
     return a && b && c ? { across: Math.round(b.x - a.right), down: Math.round(c.y - a.bottom) } : null;
   });
   must(apart && apart.across === 24 && apart.down === 24, `the four cards should be 24 apart both ways (${JSON.stringify(apart)})`);
-  /* on the black: the title white and the line under it in a soft shade of the offer's own colour, both 12 on 16 */
+  /* on the dark card: the title in the paper and the line under it in a soft shade of the offer's own colour, both 12 on 16 */
   const offerWords = await page.evaluate(() =>
     [...document.querySelectorAll('[data-testid="promo-save"] *')]
       .filter(e => e.childElementCount === 0 && e.textContent.trim())
@@ -603,7 +608,7 @@ try {
         return `${c.fontSize}/${c.lineHeight} ${c.color}`;
       }),
   );
-  must(offerWords[0] === '12px/16px rgb(255, 255, 255)' && offerWords[1] === '12px/16px rgb(90, 153, 96)', `the offer's words should be white over its soft green (${offerWords})`);
+  must(offerWords[0] === '12px/16px rgb(251, 239, 227)' && offerWords[1] === '12px/16px rgb(90, 153, 96)', `the offer's words should be the paper over its soft green (${offerWords})`);
   /* its dots inside it at its bottom right, and its × at its top right (Round 14) */
   const promoDots = await page.getByTestId('promo-dots').boundingBox();
   must(
@@ -1856,7 +1861,7 @@ try {
   await see('Nothing moves until you slide');
   at('/send');
   const slideFill = () => page.getByTestId('slide').evaluate(el => getComputedStyle(el).backgroundColor);
-  must((await slideFill()) === 'rgb(245, 245, 247)', `the slide should wait, in the pale grey, for someone and an amount (${await slideFill()})`);
+  must((await slideFill()) === 'rgb(241, 240, 237)', `the slide should wait, in the pale tone, for someone and an amount (${await slideFill()})`);
   await shot('send-empty', 900);
   /* a $tag is a Beetle account, looked up in Beetle's own directory: free, and there at once */
   await page.getByTestId('to-input').fill('$tobi');
@@ -1890,7 +1895,7 @@ try {
   at('/send');
   await page.getByLabel('Reference', { exact: true }).fill('Lunch');
   await see('John sees it on their statement');
-  must((await slideFill()) === 'rgb(0, 0, 0)', 'the slide should be black once there is someone and an amount');
+  must((await slideFill()) === 'rgb(43, 39, 33)', 'the slide should be the ink once there is someone and an amount');
   await shot('send-filled', 500);
   await slideToSend();
   await see('Enter your passcode');

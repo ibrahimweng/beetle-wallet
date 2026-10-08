@@ -75,8 +75,8 @@ export function SavedPeek({
     left: at.x + (left - at.x) * t.value,
     width: at.w + (width - at.w) * t.value,
     height: at.h + (cardH - at.h) * t.value,
-    backgroundColor: `rgba(255, 255, 255, ${Math.min(1, t.value * 2)})`,
-    borderColor: `rgba(222, 222, 227, ${Math.min(1, t.value * 2)})`,
+    backgroundColor: `rgba(250, 250, 249, ${Math.min(1, t.value * 2)})`,
+    borderColor: `rgba(229, 227, 222, ${Math.min(1, t.value * 2)})`,
   }));
   const inner = useAnimatedStyle(() => ({ opacity: Math.max(0, (t.value - 0.35) / 0.65) }));
   const Blur = blur?.BlurView;
@@ -156,7 +156,7 @@ function SavedRow({ b, onPress }: { b: Beneficiary; onPress: () => void }) {
 }
 
 const s = StyleSheet.create({
-  wash: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255,255,255,0.28)' },
+  wash: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(250,250,249,0.28)' },
   card: { position: 'absolute', borderRadius: 24, borderWidth: 1, padding: 16, paddingBottom: 8, overflow: 'hidden' },
   head: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 32 },
   disc: { width: 32, height: 32, borderRadius: 12, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },

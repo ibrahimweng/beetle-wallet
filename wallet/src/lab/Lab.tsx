@@ -95,7 +95,7 @@ export function Lab() {
   return (
     <Screen>
       <View style={{ gap: space.s3 }}>
-        <Icon name="mark" size={32} colour={colour.accent} />
+        <Icon name="mark" size={32} colour={colour.ink} />
         <Display>Beetle Lab</Display>
         <Meta tone="secondary">
           Every feature on its own. Pick a place and the app opens there, with everything before it already done. The small tab on the right edge brings you back here; Leave the lab, below, puts it

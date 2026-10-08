@@ -8,7 +8,7 @@
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Body, Icon, Label, Meta, PageHead, Row, Screen, Tap, colour, toast, useDeparture } from '../../design';
+import { Body, Icon, Label, Meta, PageHead, Row, Screen, Tap, colour, font, toast, useDeparture } from '../../design';
 import type { IconName } from '../../icons';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -144,7 +144,7 @@ function ServiceRow({ item, onPress }: { item: Service; onPress: () => void }) {
 const s = StyleSheet.create({
   grid: { flexDirection: 'row', gap: 8 },
   search: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 48, borderRadius: 24, backgroundColor: colour.surface2, paddingHorizontal: 16, marginTop: -4 },
-  searchInput: { flex: 1, minWidth: 0, fontSize: 16, color: colour.ink, padding: 0, outlineWidth: 0 },
+  searchInput: { flex: 1, minWidth: 0, fontSize: 16, ...font('400'), color: colour.ink, padding: 0, outlineWidth: 0 },
   none: { gap: 8, paddingVertical: 12 },
   tile: { flex: 1, height: 88, alignItems: 'center', gap: 8 },
   square: { width: 48, height: 48, borderRadius: 14, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },

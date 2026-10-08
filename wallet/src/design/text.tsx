@@ -10,7 +10,7 @@ const tones = {
   ink: colour.text,
   secondary: colour.textSecondary,
   tertiary: colour.textTertiary,
-  accent: colour.accent,
+  accent: colour.accentDeep,
   good: colour.goodText,
   bad: colour.bad,
   inverse: colour.textInverse,

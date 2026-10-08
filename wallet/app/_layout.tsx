@@ -8,12 +8,20 @@
    It also keeps what went wrong (services/problems.ts): an error that would
    stop the app is written down before it does, and a build with the lab says
    what it was the next time it opens. An error inside the screens stops
-   nothing: the screen says something went wrong, with Try again. */
-import React, { useEffect } from 'react';
+   nothing: the screen says something went wrong, with Try again.
+
+   Nothing is drawn until the brand's faces are in (Round 25): the splash
+   stays up the moment that takes, so no screen is ever seen in the phone's
+   own face first. A face that fails to load leaves the phone's, rather than
+   no app; Sentient, fetched rather than bundled, is given a few seconds and
+   then Body goes on in Geist. */
+import React, { useEffect, useState } from 'react';
 import { Alert, Platform, View } from 'react-native';
 import { Stack, TransitionPresets } from 'expo-router/js-stack';
 import type { ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { loadAsync, useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProvider } from '../src/features/onboarding/store';
@@ -23,8 +31,11 @@ import { AppLock } from '../src/features/lock/AppLock';
 import { LAB } from '../src/lab/enabled';
 import { copyText } from '../src/features/receive/clipboard';
 import { keepProblem, problemOf, takeLastProblem, watchProblems } from '../src/services/problems';
+import { FONT_FILES, REMOTE_FONTS, REMOTE_WAIT } from '../src/design/fonts';
+import { withoutProse } from '../src/design/tokens';
 
 watchProblems();
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 /* the web build is a picture of the phone: no browser focus ring on a field, which the phone never draws */
 if (Platform.OS === 'web' && typeof document !== 'undefined') {
@@ -34,6 +45,27 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
 }
 
 export default function Root() {
+  const [faces, facesFailed] = useFonts(FONT_FILES);
+  const [prose, setProse] = useState(false);
+  useEffect(() => {
+    let settled = false;
+    const settle = (ok: boolean) => {
+      if (settled) return;
+      settled = true;
+      if (!ok) withoutProse();
+      setProse(true);
+    };
+    const wait = setTimeout(() => settle(false), REMOTE_WAIT);
+    loadAsync(REMOTE_FONTS).then(
+      () => settle(true),
+      () => settle(false),
+    );
+    return () => clearTimeout(wait);
+  }, []);
+  const drawn = (faces || !!facesFailed) && prose;
+  useEffect(() => {
+    if (drawn) SplashScreen.hideAsync().catch(() => {});
+  }, [drawn]);
   /* what stopped the app last time, said once in a build with the lab, to be copied and sent on */
   useEffect(() => {
     if (!LAB) return;
@@ -45,6 +77,7 @@ export default function Root() {
       { text: 'OK', style: 'cancel' },
     ]);
   }, []);
+  if (!drawn) return null;
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>

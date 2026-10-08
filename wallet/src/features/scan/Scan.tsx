@@ -261,7 +261,7 @@ export function Scan() {
         {/* the frame's head: close at the left, the light at the right, 40 discs on a 44 row 56 down */}
         <View style={s.top} testID="scan-top">
           <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={back} style={s.disc40}>
-            <Icon name="close" size={20} colour="#ffffff" />
+            <Icon name="close" size={20} colour={dark.paper} />
           </Pressable>
           <Pressable
             accessibilityRole="button"
@@ -270,11 +270,11 @@ export function Scan() {
             onPress={() => setTorch(t => !t)}
             style={[s.disc40, { marginRight: 4 }, torch ? s.disc40On : null]}
           >
-            <Icon name="power" size={20} colour="#ffffff" />
+            <Icon name="power" size={20} colour={dark.paper} />
           </Pressable>
         </View>
         <View style={s.words} testID="scan-words">
-          <Head style={{ color: '#ffffff', textAlign: 'center' }}>{title}</Head>
+          <Head style={{ color: dark.paper, textAlign: 'center' }}>{title}</Head>
           <Meta style={{ color: dark.textSoft, textAlign: 'center', marginTop: 8 }}>{sub}</Meta>
         </View>
         {/* the bill frame lets its line run past its box, so the middle starts 5 higher there */}
@@ -290,7 +290,7 @@ export function Scan() {
               {read.chip ? (
                 <Pressable accessibilityRole="button" accessibilityLabel={read.chip} onPress={() => onward.current?.()} style={s.chip} testID="read-chip">
                   <Icon name="step-done" size={18} colour={colour.good} />
-                  <Label style={{ color: '#ffffff' }}>{read.chip}</Label>
+                  <Label style={{ color: dark.paper }}>{read.chip}</Label>
                 </Pressable>
               ) : null}
             </View>
@@ -316,7 +316,7 @@ export function Scan() {
             />
           ) : state === 'none' ? (
             <View style={s.card}>
-              <Head style={{ color: '#ffffff' }}>No camera here</Head>
+              <Head style={{ color: dark.paper }}>No camera here</Head>
               <Body style={{ color: dark.text }}>This device has no camera Beetle can use, so a sample stands in: the gallery below holds a slip, a bill, and two messages.</Body>
             </View>
           ) : null}
@@ -341,10 +341,10 @@ export function Scan() {
             style={[s.shutter, state !== 'ready' ? { opacity: 0.5 } : null]}
             scale={0.9}
           >
-            {state === 'taking' ? <ActivityIndicator color="#ffffff" /> : <View style={s.shutterInner} />}
+            {state === 'taking' ? <ActivityIndicator color={dark.paper} /> : <View style={s.shutterInner} />}
           </Tap>
           <Pressable accessibilityRole="button" accessibilityLabel="Read a code" onPress={() => toast('Beetle does not read codes yet. Point at the account number written by it.')} style={s.disc52}>
-            <Icon name="qr" size={22} colour="#ffffff" />
+            <Icon name="qr" size={22} colour={dark.paper} />
           </Pressable>
         </View>
         <Caption style={{ color: dark.textSoft, marginTop: 20, textAlign: forBill ? 'left' : 'center' }} testID="scan-caption">
@@ -379,7 +379,7 @@ export function Scan() {
 function Card({ title, body, action, onAction }: { title: string; body: string; action: string; onAction: () => void }) {
   return (
     <View style={s.card}>
-      <Head style={{ color: '#ffffff' }}>{title}</Head>
+      <Head style={{ color: dark.paper }}>{title}</Head>
       <Body style={{ color: dark.text }}>{body}</Body>
       <Tap accessibilityRole="button" onPress={onAction} style={s.button}>
         <Row style={{ color: colour.ink }}>{action}</Row>
@@ -389,27 +389,27 @@ function Card({ title, body, action, onAction }: { title: string; body: string; 
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#000000' },
+  screen: { flex: 1, backgroundColor: dark.card },
   column: { flex: 1, paddingTop: 56, paddingHorizontal: 20, paddingBottom: 31 },
   top: { height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  disc40: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.14)', alignItems: 'center', justifyContent: 'center' },
-  disc40On: { backgroundColor: 'rgba(255,255,255,0.4)' },
+  disc40: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(251,239,227,0.14)', alignItems: 'center', justifyContent: 'center' },
+  disc40On: { backgroundColor: 'rgba(251,239,227,0.4)' },
   words: { marginTop: 20 },
-  readCard: { marginTop: 8, width: '100%', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)', padding: 14 },
-  photo: { height: 200, borderRadius: 16, backgroundColor: '#ffffff', overflow: 'hidden' },
-  chip: { marginTop: 16, height: 36, borderRadius: 18, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.14)' },
+  readCard: { marginTop: 8, width: '100%', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(251,239,227,0.22)', padding: 14 },
+  photo: { height: 200, borderRadius: 16, backgroundColor: dark.paper, overflow: 'hidden' },
+  chip: { marginTop: 16, height: 36, borderRadius: 18, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(251,239,227,0.14)' },
   bottom: { height: 72, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  gallery: { width: 52, height: 52, borderRadius: 12, backgroundColor: '#ffffff', padding: 8, gap: 4, justifyContent: 'center' },
+  gallery: { width: 52, height: 52, borderRadius: 12, backgroundColor: dark.paper, padding: 8, gap: 4, justifyContent: 'center' },
   galleryRow: { flexDirection: 'row', gap: 4, alignItems: 'flex-start', height: 10 },
   galleryDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colour.good },
   galleryLine: { width: 36, height: 4, borderRadius: 2, backgroundColor: colour.rule },
-  shutter: { width: 72, height: 72, borderRadius: 36, borderWidth: 3, borderColor: '#ffffff', alignItems: 'center', justifyContent: 'center' },
-  shutterInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#ffffff' },
-  disc52: { width: 52, height: 52, borderRadius: 26, backgroundColor: 'rgba(255,255,255,0.14)', alignItems: 'center', justifyContent: 'center' },
+  shutter: { width: 72, height: 72, borderRadius: 36, borderWidth: 3, borderColor: dark.paper, alignItems: 'center', justifyContent: 'center' },
+  shutterInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: dark.paper },
+  disc52: { width: 52, height: 52, borderRadius: 26, backgroundColor: 'rgba(251,239,227,0.14)', alignItems: 'center', justifyContent: 'center' },
   card: { backgroundColor: dark.panel, borderWidth: 1, borderColor: dark.edge, borderRadius: 24, padding: 20, gap: 16 },
   sampleRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 64 },
   hairTop: { borderTopWidth: 1, borderTopColor: colour.rule },
-  button: { height: 52, borderRadius: 26, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center' },
+  button: { height: 52, borderRadius: 26, backgroundColor: dark.paper, alignItems: 'center', justifyContent: 'center' },
 });
 
 export const readerIsReal = () => reader.real;

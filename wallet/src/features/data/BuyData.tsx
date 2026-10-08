@@ -11,7 +11,7 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { AmountPicker, Avatar, Body, Caption, Icon, Label, Meta, PageHead, Picks, Screen, Tap, YouTyped, colour, measure, toast, type Rect } from '../../design';
+import { AmountPicker, Avatar, Body, Caption, Icon, Label, Meta, PageHead, Picks, Screen, Tap, YouTyped, type Rect, colour, font, measure, toast } from '../../design';
 import {
   AIRTIME,
   DEMO_SAVED,
@@ -414,7 +414,7 @@ const s = StyleSheet.create({
   lineRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, height: 38, overflow: 'visible' },
   typingRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 38 },
   disc: { width: 38, height: 38, borderRadius: 19, backgroundColor: colour.surface3, alignItems: 'center', justifyContent: 'center' },
-  input: { flex: 1, minWidth: 0, fontSize: 20, lineHeight: 24, fontWeight: '600', color: colour.ink, padding: 0, letterSpacing: 1, outlineWidth: 0 },
+  input: { flex: 1, minWidth: 0, fontSize: 20, lineHeight: 24, ...font('600'), color: colour.ink, padding: 0, letterSpacing: 1, outlineWidth: 0 },
   /* the bundle's row is 35: the glyph 6 down on it, the price 5 */
   bundle: { paddingTop: 12, paddingBottom: 9, gap: 8 },
   bundleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, height: 35, overflow: 'visible' },

@@ -1,34 +1,36 @@
 <title>Beetle onboarding flow</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&family=Geist:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
   /* Layout: a phone on the left running the real app, and beside it the
      keys that get you through the way in. On a narrow screen the phone
      takes the whole width and the keys come up as a sheet over it. */
   :root {
-    --bg: #f5f5f8;
-    --fg: #111114;
-    --muted: #66666f;
-    --rule: #dedee3;
-    --card: #ffffff;
-    --accent: #213aca;
-    --accent-ink: #ffffff;
-    --bezel: #141418;
-    --well: #ecedf3;
-    --display: 'Bricolage Grotesque', 'Helvetica Neue', Arial, sans-serif;
-    --body: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+    /* the Beetle brand (the app's Round 25): a neutral white, the ink, one orange */
+    --bg: #f1f0ed;
+    --fg: #2b2721;
+    --muted: #77726b;
+    --rule: #e0ddd7;
+    --card: #fafaf9;
+    --accent: #f04f22;
+    --accent-ink: #fbefe3;
+    --link: #b8390f;
+    --bezel: #2b2721;
+    --well: #e8e6e2;
+    --display: 'Lora', Georgia, serif;
+    --body: 'Geist', 'Helvetica Neue', Arial, sans-serif;
     --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #0f0f13; --fg: #f1f1f4; --muted: #9b9ba4; --rule: #2b2b33; --card: #17171c;
-      --accent: #8c9bf4; --accent-ink: #0f0f13; --bezel: #34343d; --well: #202028;
+      --bg: #1f1b17; --fg: #efe3cb; --muted: #a89b8a; --rule: #3d3630; --card: #2b2721;
+      --accent: #f04f22; --accent-ink: #fbefe3; --link: #ff9466; --bezel: #4a433b; --well: #36302a;
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #0f0f13; --fg: #f1f1f4; --muted: #9b9ba4; --rule: #2b2b33; --card: #17171c;
-    --accent: #8c9bf4; --accent-ink: #0f0f13; --bezel: #34343d; --well: #202028;
+    --bg: #1f1b17; --fg: #efe3cb; --muted: #a89b8a; --rule: #3d3630; --card: #2b2721;
+    --accent: #f04f22; --accent-ink: #fbefe3; --link: #ff9466; --bezel: #4a433b; --well: #36302a;
     color-scheme: dark;
   }
   html, body { height: 100%; }
@@ -61,7 +63,7 @@
   }
   .phone iframe {
     width: 393px; height: 852px; border: 0; display: block; border-radius: 42px;
-    background: #ffffff; overflow: hidden;
+    background: #fafaf9; overflow: hidden;
   }
   .keys { max-width: 34rem; min-width: 0; }
   .keys h1 { font: 700 30px/1.1 var(--display); letter-spacing: -0.02em; margin: 0 0 8px; text-wrap: balance; }
@@ -76,7 +78,7 @@
     border-radius: 6px; padding: 3px 7px; white-space: nowrap;
   }
   .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; align-items: center; }
-  .actions a { color: var(--accent); font-weight: 600; text-decoration: none; padding: 9px 4px; }
+  .actions a { color: var(--link); font-weight: 600; text-decoration: none; padding: 9px 4px; }
   .actions a:hover { text-decoration: underline; }
   .fine { color: var(--muted); font-size: 13px; margin-top: 18px; }
   .blocked { display: none; color: var(--muted); font-size: 14px; margin-top: 12px; }
@@ -90,7 +92,7 @@
     main { padding: 0 0 24px; gap: 0; }
     .stage { display: block; }
     .phone-wrap { width: 100%; height: calc(100dvh - 53px - env(safe-area-inset-top, 0px)); }
-    .phone { width: 100%; height: 100%; transform: none; border-radius: 0; padding: 0; box-shadow: none; background: #ffffff; }
+    .phone { width: 100%; height: 100%; transform: none; border-radius: 0; padding: 0; box-shadow: none; background: #fafaf9; }
     .phone iframe { width: 100%; height: 100%; border-radius: 0; }
     .keys {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 4; max-width: none;

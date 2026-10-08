@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "scheme": "beetle",
     "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.beetle.wallet",
@@ -16,6 +17,10 @@
     },
     "android": {
       "package": "com.beetle.wallet",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#2b2721"
+      },
       "allowBackup": false,
       "permissions": [
         "android.permission.USE_BIOMETRIC",
@@ -25,7 +30,8 @@
     },
     "web": {
       "bundler": "metro",
-      "output": "single"
+      "output": "single",
+      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-router",
@@ -55,11 +61,14 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#ffffff",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 96,
+          "backgroundColor": "#fafaf9",
           "resizeMode": "contain"
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      "expo-font"
     ],
     "owner": "ibrahimweng",
     "extra": {

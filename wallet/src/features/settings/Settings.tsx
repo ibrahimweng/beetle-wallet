@@ -53,14 +53,14 @@ export function Settings() {
         <Tap accessibilityRole="button" accessibilityLabel="Get Beetle Plus" onPress={ask('What does Beetle Plus give me?')} testID="plus">
           <Card outline style={s.plus}>
             <View style={s.plusMark}>
-              <Icon name="star-filled" size={20} colour="#ffffff" />
+              <Icon name="star-filled" size={20} colour={colour.textInverse} />
             </View>
             <View style={{ flex: 1, gap: 4 }}>
               <Row>Get Beetle Plus</Row>
               <Meta tone="secondary">Higher daily limits and a human when you need one</Meta>
             </View>
             <View style={s.go}>
-              <Icon name="chevron" size={16} colour="#ffffff" />
+              <Icon name="chevron" size={16} colour={colour.textInverse} />
             </View>
           </Card>
         </Tap>

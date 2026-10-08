@@ -34,7 +34,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { Caption, Icon, Label, Swap, Tap, blurred, colour, dark, feel, keys, motion, settle as settleCurve, soft, swipes, useStill } from '../../design';
+import { Caption, Icon, Label, Swap, Tap, blurred, colour, dark, feel, font, keys, motion, settle as settleCurve, soft, swipes, useStill } from '../../design';
 import { useDeparture } from '../../design/journey';
 import { Frost } from './Frost';
 import { GATHER, PULSE, closingGlow, gathered, knocks, uniformsOf } from './glow';
@@ -402,7 +402,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
   const figureText = useAnimatedStyle(() => ({
     fontSize: interpolate(open.value, [0, 1], [32, 20]),
     lineHeight: interpolate(open.value, [0, 1], [40, 20]),
-    letterSpacing: interpolate(open.value, [0, 1], [-1.06, -0.66]),
+    letterSpacing: interpolate(open.value, [0, 1], [-0.5, -0.3]),
   }));
   const koboText = useAnimatedStyle(() => ({
     fontSize: interpolate(open.value, [0, 1], [20, 14]),
@@ -452,8 +452,8 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
             {onNew ? (
               <Animated.View style={coming} pointerEvents={opened ? 'auto' : 'none'}>
                 <Tap accessibilityRole="button" accessibilityLabel="New chat" onPress={onNew} style={s.newChat} testID="new">
-                  <Icon name="plus" size={16} colour="#ffffff" />
-                  <Label style={{ color: '#ffffff' }}>New</Label>
+                  <Icon name="plus" size={16} colour={dark.paper} />
+                  <Label style={{ color: dark.paper }}>New</Label>
                 </Tap>
               </Animated.View>
             ) : null}
@@ -533,11 +533,11 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
       {/* the twins the glide is measured off, never seen */}
       <View style={s.twins} pointerEvents="none">
         <View style={s.twin} onLayout={measure(w32)}>
-          <Animated.Text style={[s.figureText, { fontSize: 32, lineHeight: 40, letterSpacing: -1.06 }]}>{whole}</Animated.Text>
+          <Animated.Text style={[s.figureText, { fontSize: 32, lineHeight: 40, letterSpacing: -0.5 }]}>{whole}</Animated.Text>
           <Animated.Text style={[s.koboText, { fontSize: 20, lineHeight: 24, marginTop: 8 }]}>{kobo}</Animated.Text>
         </View>
         <View style={s.twin} onLayout={measure(w20)}>
-          <Animated.Text style={[s.figureText, { fontSize: 20, lineHeight: 20, letterSpacing: -0.66 }]}>{whole}</Animated.Text>
+          <Animated.Text style={[s.figureText, { fontSize: 20, lineHeight: 20, letterSpacing: -0.3 }]}>{whole}</Animated.Text>
           <Animated.Text style={[s.koboText, { fontSize: 14, lineHeight: 12, marginTop: 4 }]}>{kobo}</Animated.Text>
         </View>
       </View>
@@ -560,7 +560,7 @@ const s = StyleSheet.create({
   offers: { alignSelf: 'stretch', marginTop: 36 - 24 },
   actions: { flexDirection: 'row', justifyContent: 'center', gap: 24, alignSelf: 'stretch' },
   /* 100 wide whatever the word, so the two are one size; 12 clear after the word */
-  pill: { width: 100, height: 36, borderRadius: 18, backgroundColor: '#ffffff', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingRight: 12 },
+  pill: { width: 100, height: 36, borderRadius: 18, backgroundColor: dark.paper, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingRight: 12 },
   pillGlyph: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
   /* the grabber alone, 16 above the card's edge */
   grab: { position: 'absolute', top: CLOSED_H - GRAB_FOOT - 4, left: 0, right: 0, alignItems: 'center', zIndex: 2 },
@@ -571,11 +571,11 @@ const s = StyleSheet.create({
   foot: { position: 'absolute', left: 0, right: 0, bottom: 0, height: FOOT_BAND },
   bar: { position: 'absolute', left: SIDE, right: SIDE, bottom: 20 },
   figure: { position: 'absolute', top: 0, left: 0, flexDirection: 'row', alignItems: 'flex-start', zIndex: 4 },
-  figureText: { color: '#ffffff', fontWeight: '700', fontSize: 32, lineHeight: 40, letterSpacing: -1.06 },
-  koboText: { color: dark.kobo, fontWeight: '600', fontSize: 20, lineHeight: 24, marginTop: 8, marginLeft: 1 },
+  figureText: { color: dark.paper, ...font('400', 'serif'), fontSize: 32, lineHeight: 40, letterSpacing: -0.5 },
+  koboText: { color: dark.kobo, ...font('400', 'serif'), fontSize: 20, lineHeight: 24, marginTop: 8, marginLeft: 1 },
   chipWrap: { position: 'absolute', top: 0, left: 0, zIndex: 4 },
   chip: { height: 24, borderRadius: 12, backgroundColor: dark.chip, paddingHorizontal: 8, justifyContent: 'center' },
-  chipText: { fontSize: 14, lineHeight: 20, fontWeight: '600', letterSpacing: -0.15 },
+  chipText: { fontSize: 14, lineHeight: 20, ...font('600'), letterSpacing: -0.15 },
   twins: { position: 'absolute', top: -400, left: 0, opacity: 0, alignItems: 'flex-start' },
   /* each twin hugs its own words, or the narrow one reports the wide one's width */
   twin: { flexDirection: 'row', alignItems: 'flex-start', alignSelf: 'flex-start' },

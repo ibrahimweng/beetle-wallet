@@ -10,7 +10,7 @@
    without the screen saying so. Light on a page, dark on the chat's card. */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { Avatar, Caption, Chevron, Icon, Label, Meta, Tap, colour, dark } from '../../design';
+import { Avatar, Caption, Chevron, Icon, Label, Meta, Tap, colour, dark, font } from '../../design';
 import { BEETLE, allBanks, checkName, closest, isBeetle, likelyBanks, tagWords, toKind, type Match } from '../../services/recipients';
 import type { Person, PersonPaid } from '../../services';
 import { groupAccount, initialsOf } from '../../lib/format';
@@ -35,19 +35,19 @@ const LOOK = {
     disc: colour.surface3,
   },
   dark: {
-    ink: '#ffffff',
+    ink: dark.paper,
     soft: dark.textSoft,
     faint: dark.label,
     good: '#7fd99a',
     warn: '#ffd48a',
-    link: '#9fb0ff',
+    link: dark.link,
     box: dark.edge,
     edge: dark.edgeStrong,
     row: dark.edge,
     chip: dark.edge,
-    chipOn: '#ffffff',
-    chipText: '#ffffff',
-    chipOnText: '#000000',
+    chipOn: dark.paper,
+    chipText: dark.paper,
+    chipOnText: colour.ink,
     disc: dark.edgeStrong,
   },
 } as const;
@@ -153,7 +153,7 @@ export function ToField({
       hitSlop={10}
       testID={`${testID}-change`}
     >
-      <Caption style={{ color: look.link, fontWeight: '600' }}>Change</Caption>
+      <Caption style={{ color: look.link, ...font('600') }}>Change</Caption>
     </Tap>
   );
   const head = label ? (
@@ -374,13 +374,13 @@ const s = StyleSheet.create({
   noteRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   box: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 48, borderRadius: 14, paddingLeft: 14, paddingRight: 8 },
   /* outlineWidth 0: the browser's own focus ring has no place on the card */
-  input: { flex: 1, minWidth: 0, fontSize: 16, lineHeight: 22, fontWeight: '500', padding: 0, outlineWidth: 0 },
+  input: { flex: 1, minWidth: 0, fontSize: 16, lineHeight: 22, ...font('500'), padding: 0, outlineWidth: 0 },
   icon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   choice: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 48, borderRadius: 12, paddingHorizontal: 4 },
   checking: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 36, paddingHorizontal: 4 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 36, borderRadius: 18, paddingHorizontal: 14 },
   list: { borderRadius: 14, overflow: 'hidden' },
-  find: { height: 44, paddingHorizontal: 14, fontSize: 15, borderBottomWidth: 1, outlineWidth: 0 },
+  find: { height: 44, paddingHorizontal: 14, fontSize: 15, ...font('400'), borderBottomWidth: 1, outlineWidth: 0 },
   bankRow: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 44, paddingHorizontal: 14, borderRadius: 10 },
 });

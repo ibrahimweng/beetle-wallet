@@ -53,6 +53,11 @@ const ctx = await b.newContext({ viewport: { width: 393, height: 852 }, deviceSc
 await ctx.addInitScript(() => {
   window.__BEETLE_NO_LOCK__ = true;
 });
+/* Sentient comes from Fontshare on a phone (src/design/fonts.ts); the checks stay off the network, so Beetle Sans
+   stands in under its name, which is what a phone that cannot reach Fontshare draws anyway */
+await ctx.route('https://cdn.fontshare.com/**', r =>
+  r.fulfill({ path: join(here, '..', 'assets', 'fonts', 'BeetleSans-Regular.ttf'), contentType: 'font/ttf', headers: { 'access-control-allow-origin': '*' } }),
+);
 await ctx.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {});
 const page = await ctx.newPage();
 page.setDefaultTimeout(15000);

@@ -93,7 +93,7 @@ function Pop({ at, items, onClose }: { at: Rect; items: MenuItem[]; onClose: () 
 const s = StyleSheet.create({
   dots: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: colour.surface2 },
   /* light enough that the page stays readable under it */
-  wash: { backgroundColor: 'rgba(255,255,255,0.55)' },
+  wash: { backgroundColor: 'rgba(250,250,249,0.55)' },
   card: {
     position: 'absolute',
     width: CARD_W,

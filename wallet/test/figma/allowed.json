@@ -311,6 +311,10 @@
  ],
  "rule": [
   {
+   "piece": "Button · Set it up",
+   "why": "Round 25: the brand's Geist runs wider than the SF Pro the frame is drawn in, so the button that hugs its words is a few wider"
+  },
+  {
    "pieces": [
     ["Row", 0],
     ["Mark · 32", 0],
@@ -356,6 +360,15 @@
   }
  ],
  "lostphone": [
+  {
+   "pieces": [
+    "Button · Sign out everywhere else",
+    "Row · Signing a device out",
+    "Glyph · lock",
+    "Signing a device out never t"
+   ],
+   "why": "Round 25: in the brand's faces, Beetle's plain line above runs to one more line than in the frame's SF Pro, so what is under it sits 24 lower"
+  },
   {
    "pieces": [
     ["Row", 3],
@@ -1680,6 +1693,13 @@
   }
  ],
  "health": [
+  {
+   "pieces": [
+    "Button · Set it up",
+    "Card"
+   ],
+   "why": "Round 25: in the brand's faces, Beetle's plain line above runs to one more line than in the frame's SF Pro, so what is under it sits 24 lower"
+  },
   {
    "pieces": [
     ["Row", 0],

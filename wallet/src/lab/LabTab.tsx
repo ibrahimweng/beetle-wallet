@@ -25,7 +25,7 @@ export function LabTab() {
         accessibilityLabel="Back to the lab"
         onPress={back}
         hitSlop={{ top: 12, bottom: 12, left: 12, right: 0 }}
-        style={{ width: 20, height: 48, borderTopLeftRadius: 10, borderBottomLeftRadius: 10, backgroundColor: 'rgba(0,0,0,0.82)', alignItems: 'center', justifyContent: 'center' }}
+        style={{ width: 20, height: 48, borderTopLeftRadius: 10, borderBottomLeftRadius: 10, backgroundColor: 'rgba(43,39,33,0.82)', alignItems: 'center', justifyContent: 'center' }}
       >
         <Icon name="grid" size={12} colour={colour.textInverse} />
       </Tap>

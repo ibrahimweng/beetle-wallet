@@ -20,7 +20,7 @@ export const hasBlur = blurModule !== null;
 /** The darkening, from the edge in: near solid, then an eased fall to
     nothing. `solid` is how far in it stays near solid; `rgb` is the dark
     itself, the card's unless said (the chats drawer's is a step lighter). */
-export function tint(height: number, solid: number, glass: boolean, rgb = '20, 20, 20'): { colours: string[]; locations: number[] } {
+export function tint(height: number, solid: number, glass: boolean, rgb = '43, 39, 33'): { colours: string[]; locations: number[] } {
   const s = Math.min(0.92, Math.max(0, solid / height));
   const ramp = (k: number) => s + (1 - s) * k;
   const top = glass ? 0.94 : 0.97;

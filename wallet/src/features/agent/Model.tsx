@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from 'react';
 import { TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button, Caption, Card, Display, Divider, Ghost, Head, Icon, Label, Meta, Screen, colour, radius, space } from '../../design';
+import { Button, Caption, Card, Display, Divider, Ghost, Head, Icon, Label, Meta, Screen, colour, font, radius, space } from '../../design';
 import { DEMO_ACCOUNT, MODEL, agent, modelKey, type ModelConfig } from '../../services';
 import { useApp } from '../onboarding/store';
 
@@ -94,6 +94,7 @@ export function Model() {
               backgroundColor: colour.surface2,
               paddingHorizontal: 16,
               fontSize: 16,
+              ...font('400'),
               color: colour.ink,
             }}
           />

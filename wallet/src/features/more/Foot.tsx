@@ -524,7 +524,7 @@ function Drawn({ spec, who }: { spec: FootSpec; who: number }) {
           {/* the one frosted shape, pill or circle */}
           <Animated.View style={[s.shape, shape]} pointerEvents="none" testID={bar ? 'bar-pill' : 'back-glass'}>
             {Blur ? <Blur intensity={40} tint="light" style={[StyleSheet.absoluteFill, corner]} /> : null}
-            <Animated.View style={[StyleSheet.absoluteFill, corner, { backgroundColor: Blur ? FROSTED : 'rgba(255, 255, 255, 0.92)' }]} />
+            <Animated.View style={[StyleSheet.absoluteFill, corner, { backgroundColor: Blur ? FROSTED : 'rgba(250, 250, 249, 0.92)' }]} />
           </Animated.View>
           {/* the three glyphs, where the pill is */}
           <Animated.View style={[s.glyphs, { top: barTop }, glyphs]} pointerEvents={bar && live ? 'box-none' : 'none'}>

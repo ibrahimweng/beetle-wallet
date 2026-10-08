@@ -14,7 +14,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { AmountPicker, Avatar, Button, Head, Icon, Label, LightPanel, Meta, PageHead, Row, Screen, Sheet, Tap, YouTyped, colour } from '../../design';
+import { AmountPicker, Avatar, Button, Head, Icon, Label, LightPanel, Meta, PageHead, Row, Screen, Sheet, Tap, YouTyped, colour, font } from '../../design';
 import { phoneIn } from '../../services/nigeria';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -306,7 +306,7 @@ export function Request() {
 const s = StyleSheet.create({
   plusDisc: { width: 40, height: 40, borderRadius: 20, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },
   fresh: { gap: 12, paddingTop: 16 },
-  input: { height: 48, borderRadius: 16, backgroundColor: colour.surface2, paddingHorizontal: 16, fontSize: 16, color: colour.ink, outlineWidth: 0 },
+  input: { height: 48, borderRadius: 16, backgroundColor: colour.surface2, paddingHorizontal: 16, fontSize: 16, ...font('400'), color: colour.ink, outlineWidth: 0 },
   notes: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
   note: { height: 36, borderRadius: 18, paddingHorizontal: 14, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },
   noteOn: { backgroundColor: colour.ink },

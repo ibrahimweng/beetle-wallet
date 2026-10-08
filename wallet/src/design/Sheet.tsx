@@ -103,7 +103,7 @@ export function Sheet({
     <View style={StyleSheet.absoluteFill} pointerEvents={out ? 'none' : 'auto'}>
       <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={dismiss} style={StyleSheet.absoluteFill}>
         {/* the screen behind goes out of focus by its blur growing, not by a blur fading in */}
-        <GrowingBlur t={t} intensity={52} wash="rgba(0,0,0,0.25)" />
+        <GrowingBlur t={t} intensity={52} wash="rgba(43,39,33,0.25)" />
       </Pressable>
       <Animated.View style={[s.panel, { paddingBottom: foot, maxHeight: most }, rising]} testID={testID}>
         <GestureDetector gesture={pan}>

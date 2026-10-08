@@ -145,7 +145,7 @@ function LockScreen({ name, account, verify, onOpen, onSignOut }: { name: string
     <View style={s.cover} accessibilityViewIsModal testID="app-lock">
       <SafeAreaView style={s.column}>
         <View style={s.top}>
-          <Icon name="mark" size={40} colour={colour.accent} />
+          <Icon name="mark" size={40} colour={colour.ink} />
           <Title accessibilityRole="header" style={{ textAlign: 'center' }}>{`Welcome back, ${name}`}</Title>
           <Meta tone={note?.bad ? 'bad' : 'secondary'} style={{ textAlign: 'center' }} accessibilityLiveRegion="polite" testID="app-lock-note">
             {note?.text ?? (face ? 'Your face or your passcode opens Beetle.' : 'Your passcode opens Beetle.')}

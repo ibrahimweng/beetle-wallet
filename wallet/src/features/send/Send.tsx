@@ -14,7 +14,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { AmountPicker, Body, Caption, Icon, Label, Meta, PageHead, Screen, Tap, YouTyped, colour, toast } from '../../design';
+import { AmountPicker, Body, Caption, Icon, Label, Meta, PageHead, Screen, Tap, YouTyped, colour, font, toast } from '../../design';
 import { DEMO_SAVED, PEOPLE, arrivesAt, beneficiariesOf, feeLabel, feeTo, isBeetle, ownLine, reader, whose, type Move, type Person, type Photo } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSendGate } from '../settings/sendGate';
@@ -355,7 +355,7 @@ const s = StyleSheet.create({
   ref: { paddingTop: 11, paddingBottom: 8, gap: 8 },
   refRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 22, overflow: 'visible' },
   /* outlineWidth 0: the browser's own focus ring has no place on the card */
-  refInput: { flex: 1, minWidth: 0, textAlign: 'right', fontSize: 16, lineHeight: 24, color: colour.ink, padding: 0, outlineWidth: 0 },
+  refInput: { flex: 1, minWidth: 0, textAlign: 'right', fontSize: 16, lineHeight: 24, ...font('400'), color: colour.ink, padding: 0, outlineWidth: 0 },
   rows: { paddingHorizontal: 16, paddingVertical: 0 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 52 },
   value: { fontSize: 16, lineHeight: 24 },

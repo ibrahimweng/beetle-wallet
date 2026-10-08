@@ -1552,6 +1552,43 @@ and Insights.
       its fade); the walk checks Money health sits under the filters, is gone
       on In and the row does not move.
 
+## Round 25 · The brand
+
+Asked by the owner: the Beetle brand presentation, read and understood,
+then the full re-skin in code, all at once: the warm ink, the orange, the
+brand's faces and the new mark; part way, the pages a neutral white rather
+than the cream, and Sentient in for now, for the look and feel, until the
+owner's own face (made from an open one) is ready. And the camera at the top
+of Receive (Round 22, still waiting on the word) is to be called Snap &
+Send, as the brand file calls it.
+
+- [x] Colours: every token moved to the brand's (DESIGN.md, The brand): the
+      ink for black, the orange for the blue, and for the page a neutral
+      white rather than the brand's cream (the owner's word, part way: clean
+      and professional, not warm and moody), its tiles a step down. The dark card and
+      the chat in the warm ink, its greys turned warm; every white and black
+      written into a screen moved to its token. The way in's washes are the
+      brand's: orange, teal, lime, gold and sand. The virtual card is the
+      ink with a warm light in it.
+- [x] Faces: Lora for the titles and the big figures, Geist for the rest,
+      bundled with the naira sign added, loaded before the first screen is
+      drawn (the splash stays up that moment). Every weight is asked for by
+      its face's name. Sentient, the brand's face for long text, is left
+      out: its licence forbids keeping the files anywhere public, and this
+      repository is public; Geist carries the long text.
+- [x] The mark: the ladybird in place of the blue shutter, everywhere the
+      mark is drawn (the opening screen, the welcome, the lock, the lab, the
+      chat), out of the icon generator so it stays. The app's icon (cream
+      on the ink), the splash (ink on the paper) and the web's icon are
+      drawn from it; those three come with the next build, not an update.
+- [x] Beetle thinking: its mark on a disc and "Beetling…", the dots after
+      the word taking turns, as the brand file draws the chat.
+- [x] The web's frost no longer lifts the colour under it: on a white page
+      nothing showed it, on the paper it turned the foot yellow.
+- [x] Tested: tsc, the unit tests, the walk (its colour checks moved to the
+      brand's), and the Figma check (sizes and words; the frames keep their
+      old colours, which the check does not hold the app to).
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

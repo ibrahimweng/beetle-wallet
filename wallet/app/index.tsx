@@ -42,7 +42,7 @@ export default function Boot() {
       accessibilityLabel="Beetle is opening"
     >
       <Pane style={{ alignItems: 'center', gap: 16 }}>
-        <Icon name="mark" size={56} colour={colour.accent} />
+        <Icon name="mark" size={56} colour={colour.ink} />
         <Display>Beetle</Display>
         <View
           style={{

@@ -151,10 +151,10 @@ export function Promos({ width, promos, quiet }: { width: number; promos: Promo[
                 {promos.map(p => (
                   <View key={p.id} style={[s.card, { width: w, backgroundColor: wash(p.tone) }]} testID={`promo-${p.id}`}>
                     <View style={[s.glyph, { backgroundColor: p.tone }]}>
-                      <Icon name={p.glyph} size={20} colour="#ffffff" />
+                      <Icon name={p.glyph} size={20} colour={dark.paper} />
                     </View>
                     <View style={s.words}>
-                      <Caption numberOfLines={1} style={{ color: '#ffffff' }}>
+                      <Caption numberOfLines={1} style={{ color: dark.paper }}>
                         {p.title}
                       </Caption>
                       <Caption numberOfLines={2} style={{ color: shadeOf(p.tone).soft }}>
@@ -206,8 +206,8 @@ function Dot({ i, x, step, deeps }: { i: number; x: SharedValue<number>; step: n
   const style = useAnimatedStyle(() => {
     const at = x.value / step;
     const near = Math.max(0, 1 - Math.abs(at - i));
-    const deep = deeps.length > 1 ? interpolateColor(at, places, deeps) : (deeps[0] ?? '#ffffff');
-    return { width: interpolate(near, [0, 1], [5, 12]), backgroundColor: interpolateColor(near, [0, 1], [deep, '#ffffff']) };
+    const deep = deeps.length > 1 ? interpolateColor(at, places, deeps) : (deeps[0] ?? dark.paper);
+    return { width: interpolate(near, [0, 1], [5, 12]), backgroundColor: interpolateColor(near, [0, 1], [deep, dark.paper]) };
   });
   return <Animated.View style={[s.dot, style]} />;
 }

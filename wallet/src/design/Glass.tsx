@@ -184,7 +184,7 @@ export function GrowingBlur({ k, intensity, tint = 'light' }: { k: SharedValue<n
 /** How white frosted white is: enough to read as glass over a card, little
     enough that over the white page it is all but invisible (the owner's
     choice for the bar's pill). */
-export const FROSTED = 'rgba(255, 255, 255, 0.55)';
+export const FROSTED = 'rgba(250, 250, 249, 0.55)';
 
 /** A shape of frosted white glass: the bar's pill, a page's Back. Its
     corners are the caller's; it clips what it holds to them, and the blur
@@ -198,7 +198,7 @@ export function Glass({ style, children, testID }: { style?: StyleProp<ViewStyle
   return (
     <View style={[s.glass, style]} testID={testID}>
       {Blur ? <Blur intensity={40} tint="light" style={[StyleSheet.absoluteFill, corners]} /> : null}
-      <View style={[StyleSheet.absoluteFill, corners, { backgroundColor: Blur ? FROSTED : 'rgba(255, 255, 255, 0.92)' }]} pointerEvents="none" />
+      <View style={[StyleSheet.absoluteFill, corners, { backgroundColor: Blur ? FROSTED : 'rgba(250, 250, 249, 0.92)' }]} pointerEvents="none" />
       {children}
     </View>
   );

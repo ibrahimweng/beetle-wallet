@@ -73,8 +73,8 @@ const PALETTE: Record<PickerTone, Palette> = {
     faint: colour.textTertiary,
     minor: colour.ruleStrong,
     major: colour.textSecondary,
-    bg: '#ffffff',
-    bg0: 'rgba(255,255,255,0)',
+    bg: colour.surface,
+    bg0: 'rgba(250,250,249,0)',
     chip: colour.surface2,
     chipText: colour.ink,
     chipOn: colour.ink,
@@ -84,18 +84,18 @@ const PALETTE: Record<PickerTone, Palette> = {
     bad: colour.bad,
   },
   dark: {
-    ink: '#ffffff',
+    ink: dark.paper,
     faint: dark.label,
     minor: dark.edgeStrong,
     major: dark.label,
     bg: dark.panel,
-    bg0: 'rgba(28,28,30,0)',
+    bg0: 'rgba(54,48,42,0)',
     chip: dark.edge,
-    chipText: '#ffffff',
-    chipOn: '#ffffff',
-    chipOnText: '#000000',
+    chipText: dark.paper,
+    chipOn: dark.paper,
+    chipOnText: colour.ink,
     note: dark.textSoft,
-    cap: '#9fb0ff',
+    cap: dark.link,
     bad: '#ffd48a',
   },
 };
@@ -172,7 +172,7 @@ export function AmountPicker({ value, onChange, max, note, chips = [], all, unit
 /* ---- the figure ---- */
 
 const FIG: TextStyle = { ...face.display, fontSize: 40, lineHeight: 48, letterSpacing: -1.2, fontVariant: ['tabular-nums'] };
-const KOBO: TextStyle = { ...face.head, fontSize: 22, lineHeight: 28, color: colour.textTertiary, fontVariant: ['tabular-nums'] };
+const KOBO: TextStyle = { ...face.display, fontSize: 22, lineHeight: 28, color: colour.textTertiary, fontVariant: ['tabular-nums'] };
 
 /* The figure, each character rolling on its own as it changes — up as the
    amount grows, down as it shrinks — or, tapped, the field it is typed in. */

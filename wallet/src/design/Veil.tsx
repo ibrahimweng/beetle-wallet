@@ -26,14 +26,14 @@ export type VeilTone = 'light' | 'paper' | 'dark' | 'frost' | 'page';
     Paper is the white a receipt opens over: the same way down, but near solid from the top, so the
     page under it is a hint behind the receipt's own words rather than a smudge. */
 const STOPS: Record<VeilTone, { colors: [string, string, string]; tint: 'light' | 'dark' }> = {
-  light: { colors: ['rgba(255,255,255,0.76)', 'rgba(255,255,255,0.9)', 'rgba(255,255,255,1)'], tint: 'light' },
-  paper: { colors: ['rgba(255,255,255,0.96)', 'rgba(255,255,255,0.99)', 'rgba(255,255,255,1)'], tint: 'light' },
-  dark: { colors: ['rgba(14,14,16,0.74)', 'rgba(14,14,16,0.9)', 'rgba(14,14,16,0.98)'], tint: 'dark' },
+  light: { colors: ['rgba(250,250,249,0.76)', 'rgba(250,250,249,0.9)', 'rgba(250,250,249,1)'], tint: 'light' },
+  paper: { colors: ['rgba(250,250,249,0.96)', 'rgba(250,250,249,0.99)', 'rgba(250,250,249,1)'], tint: 'light' },
+  dark: { colors: ['rgba(36,32,27,0.74)', 'rgba(36,32,27,0.9)', 'rgba(36,32,27,0.98)'], tint: 'dark' },
   /* the same white all the way down, thin enough that the page shows through soft: what a line opens in place over (see Activities) */
-  frost: { colors: ['rgba(247,247,249,0.8)', 'rgba(247,247,249,0.82)', 'rgba(247,247,249,0.86)'], tint: 'light' },
+  frost: { colors: ['rgba(243,242,239,0.8)', 'rgba(243,242,239,0.82)', 'rgba(243,242,239,0.86)'], tint: 'light' },
   /* the frost in the page's own white: laid round a line of Activities that opens in the list, so the line, on the
      page's white, sits on the same ground as the frost round it, with no edge between them (Round 17) */
-  page: { colors: ['rgba(255,255,255,0.8)', 'rgba(255,255,255,0.82)', 'rgba(255,255,255,0.86)'], tint: 'light' },
+  page: { colors: ['rgba(250,250,249,0.8)', 'rgba(250,250,249,0.82)', 'rgba(250,250,249,0.86)'], tint: 'light' },
 };
 const LOCATIONS: [number, number, number] = [0, 0.55, 1];
 
@@ -45,12 +45,14 @@ const AnimatedBlur = blur ? Animated.createAnimatedComponent(blur.BlurView) : nu
 
 /** The web's blur at strength `k` of `intensity`, drawn the way expo-blur draws it there: a browser only blurs
     what is behind an element while nothing over it is see-through, so a fading blur has to thin itself
-    rather than fade (Round 16: faded, it vanished at once and left the page sharp under the white). */
+    rather than fade (Round 16: faded, it vanished at once and left the page sharp under the white). The light
+    one leaves the colour as it is: expo-blur's lift of it, which nothing showed on a white page, turned the
+    brand's paper yellow (Round 25). */
 export function webFrost(k: number, intensity: number, tint: 'light' | 'dark'): ViewStyle {
   'worklet';
   const n = Math.min(intensity, 100);
-  const f = `saturate(${(1 + 0.8 * k).toFixed(3)}) blur(${(k * n * 0.2).toFixed(2)}px)`;
-  const ground = tint === 'dark' ? `rgba(25,25,25,${((k * n) / 100) * 0.78})` : `rgba(249,249,249,${((k * n) / 100) * 0.78})`;
+  const f = `saturate(${(tint === 'dark' ? 1 + 0.8 * k : 1).toFixed(3)}) blur(${(k * n * 0.2).toFixed(2)}px)`;
+  const ground = tint === 'dark' ? `rgba(43,39,33,${((k * n) / 100) * 0.78})` : `rgba(250,250,249,${((k * n) / 100) * 0.78})`;
   return { backdropFilter: f, WebkitBackdropFilter: f, backgroundColor: ground } as unknown as ViewStyle;
 }
 

@@ -34,6 +34,7 @@ import {
   away,
   blurred,
   colour,
+  font,
   keys,
   motion,
   settle,
@@ -672,7 +673,7 @@ function GhostTitle({ ghost, onDone }: { ghost: Ghost; onDone: () => void }) {
     };
   });
   return (
-    <Animated.Text pointerEvents="none" numberOfLines={1} style={[{ position: 'absolute', top: 0, left: 0, fontWeight: '700', letterSpacing: -0.5 }, moving]} testID="ghost">
+    <Animated.Text pointerEvents="none" numberOfLines={1} style={[{ position: 'absolute', top: 0, left: 0, ...font('400', 'serif') }, moving]} testID="ghost">
       {ghost.text}
     </Animated.Text>
   );

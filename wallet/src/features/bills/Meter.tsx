@@ -10,7 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { unitsFor } from '../../services/nigeria';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Body, Button, Caption, Head, Icon, Label, Meta, PageHead, Screen, Tap, colour, toast } from '../../design';
+import { Body, Button, Caption, Head, Icon, Label, Meta, PageHead, Screen, Tap, colour, font, toast } from '../../design';
 import { BILL_READING, billPanelFor, discoById, groupMeter, meters, type BillReading, type MeterRecord } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSendGate } from '../settings/sendGate';
@@ -122,9 +122,9 @@ export function Meter() {
         <View style={s.photoCard} testID="photo-card">
           <View style={s.photoHead}>
             <View style={s.chip24}>
-              <Caption style={{ color: colour.textInverse, fontWeight: '700' }}>{initialsOf(name)}</Caption>
+              <Caption style={{ color: colour.textInverse, ...font('700') }}>{initialsOf(name)}</Caption>
             </View>
-            <Caption style={{ flex: 1, fontWeight: '600' }}>Bill photo</Caption>
+            <Caption style={{ flex: 1, ...font('600') }}>Bill photo</Caption>
             <Caption tone="secondary">{clock12(time)}</Caption>
           </View>
           <View style={s.slip} testID="slip">
@@ -147,7 +147,7 @@ export function Meter() {
                 ) : null}
                 {reading.address ? (
                   <View style={s.tag}>
-                    <Caption style={{ fontWeight: '600' }}>{reading.address}</Caption>
+                    <Caption style={{ ...font('600') }}>{reading.address}</Caption>
                   </View>
                 ) : null}
                 <Caption tone="tertiary">Keep this slip for your records</Caption>

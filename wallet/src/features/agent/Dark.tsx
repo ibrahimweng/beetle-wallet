@@ -1,11 +1,11 @@
 /* What the chat is made of, on the dark card: what Beetle says, with or
    without a title; what you said, black on black with the camera where a
    photo went with it; a panel of what it checked and found, with the one
-   thing to do; and the three dots while it thinks. Read off the home frame. */
+   thing to do; and Beetling… while it thinks. Read off the home frame. */
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
-import { Body, Caption, Icon, Label, Meta, Pop, Row, Swap, Tap, dark, motion, standard, useStill } from '../../design';
+import { Body, Caption, Icon, Label, Meta, Pop, Row, Swap, Tap, dark, font, motion, standard, useStill } from '../../design';
 import type { IconName } from '../../icons';
 import type { Panel, PanelRow } from '../../services';
 
@@ -48,14 +48,23 @@ export function Yours({ photo = false, children }: { photo?: boolean; children: 
   );
 }
 
-/* Three dots, taking turns, while the answer is on its way and Beetle has
-   not yet said what it is doing. */
+/* While the answer is on its way and Beetle has not yet said what it is
+   doing: its mark on a disc and the brand's own word for it, the three dots
+   after it taking turns (Round 25, as the brand file draws the chat). */
 export function Thinking() {
   return (
-    <View style={{ flexDirection: 'row', gap: 5, paddingVertical: 16, paddingHorizontal: 16, alignItems: 'center' }}>
-      {[0, 1, 2].map(i => (
-        <Dot key={i} delay={i * 160} />
-      ))}
+    <View style={{ flexDirection: 'row', gap: 10, paddingVertical: 12, paddingHorizontal: 16, alignItems: 'center' }} accessibilityLabel="Beetling…" testID="beetling">
+      <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: dark.bubble, alignItems: 'center', justifyContent: 'center' }}>
+        <Icon name="mark" size={16} colour={dark.kobo} />
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 3 }}>
+        <Meta style={{ color: dark.text }}>Beetling</Meta>
+        <View style={{ flexDirection: 'row', gap: 3, paddingBottom: 6 }}>
+          {[0, 1, 2].map(i => (
+            <Dot key={i} delay={i * 160} />
+          ))}
+        </View>
+      </View>
     </View>
   );
 }
@@ -96,7 +105,7 @@ function Dot({ delay }: { delay: number }) {
     t.value = withDelay(delay, withRepeat(withSequence(withTiming(1, { duration: 360 }), withTiming(0.3, { duration: 520 })), -1, false));
   }, [delay, still, t]);
   const fading = useAnimatedStyle(() => ({ opacity: t.value }));
-  return <Animated.View style={[{ width: 6, height: 6, borderRadius: 3, backgroundColor: dark.text }, fading]} />;
+  return <Animated.View style={[{ width: 3, height: 3, borderRadius: 1.5, backgroundColor: dark.text }, fading]} />;
 }
 
 /* ---- a panel ---- */
@@ -149,15 +158,15 @@ export function ToolPanel({
     <View style={{ backgroundColor: dark.panel, borderWidth: 1, borderColor: dark.edge, borderRadius: 24, overflow: 'hidden', paddingBottom: 12 }} testID="panel">
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, height: 48, paddingHorizontal: 12, backgroundColor: dark.edge, borderBottomWidth: 1, borderBottomColor: dark.edgeStrong }}>
         <View style={{ width: 32, height: 32, borderRadius: 12, backgroundColor: dark.edgeStrong, alignItems: 'center', justifyContent: 'center' }} testID="panel-icon">
-          <Icon name={panel.icon} size={16} colour="#ffffff" />
+          <Icon name={panel.icon} size={16} colour={dark.paper} />
         </View>
-        <Label style={{ flex: 1, color: '#ffffff' }}>{panel.title}</Label>
+        <Label style={{ flex: 1, color: dark.paper }}>{panel.title}</Label>
         <View
           style={{ flexDirection: 'row', alignItems: 'center', gap: 8, height: 24, paddingHorizontal: 8, borderRadius: 12, backgroundColor: dark.edge, borderWidth: 1, borderColor: dark.edgeStrong }}
           testID="pill"
         >
           <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#34c759' }} />
-          <Swap value={statusWord(panel, state)}>{w => <Caption style={{ color: dark.pillText, fontWeight: '600' }}>{w}</Caption>}</Swap>
+          <Swap value={statusWord(panel, state)}>{w => <Caption style={{ color: dark.pillText, ...font('600') }}>{w}</Caption>}</Swap>
         </View>
       </View>
       <View style={{ paddingHorizontal: 12, paddingTop: 4, paddingBottom: panel.action ? 12 : 0 }}>
@@ -191,7 +200,7 @@ export function ToolPanel({
                 opacity: state === 'done' ? 0.7 : 1,
               }}
             >
-              <Swap value={state === 'done' ? statusWord(panel, state) : panel.action.label}>{label => <Row style={{ color: '#ffffff' }}>{label}</Row>}</Swap>
+              <Swap value={state === 'done' ? statusWord(panel, state) : panel.action.label}>{label => <Row style={{ color: dark.paper }}>{label}</Row>}</Swap>
             </Tap>
           </Arriving>
         </View>
@@ -219,7 +228,7 @@ function PanelRowView({ row, at, popped, lined, onEdit }: { row: PanelRow; at: '
       <Meta style={{ color: dark.label }}>{row.label}</Meta>
       <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 4 }}>
         <Arriving on={at === 'done'} delay={60}>
-          <Label style={{ color: '#ffffff', textAlign: 'right' }}>{row.value}</Label>
+          <Label style={{ color: dark.paper, textAlign: 'right' }}>{row.value}</Label>
         </Arriving>
         {onEdit ? <Icon name="chevron" size={12} colour={dark.label} /> : null}
       </View>

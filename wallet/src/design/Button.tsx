@@ -7,7 +7,7 @@ import React from 'react';
 import { StyleSheet, Text, View, ViewStyle, StyleProp } from 'react-native';
 import { Icon } from './Icon';
 import { IconName } from '../icons';
-import { colour } from './tokens';
+import { colour, font } from './tokens';
 import { AnimatedPressable, Swap, useTap } from './motion';
 import { useDeparture } from './journey';
 
@@ -113,7 +113,7 @@ export function Button({
             style={{
               fontSize: s.text,
               lineHeight: 24,
-              fontWeight: '600',
+              ...font('600'),
               color: t.ink,
             }}
           >

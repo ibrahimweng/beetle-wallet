@@ -4,7 +4,7 @@
    the stages before it, so the same choreography carries the pieces. */
 import React from 'react';
 import { Platform, TextInput, View } from 'react-native';
-import { Aside, Body, Card, Head, Icon, Meta, Tap, Tick, colour, motion, washes } from '../../design';
+import { Aside, Body, Card, Head, Icon, Meta, Tap, Tick, colour, font, motion, washes } from '../../design';
 import type { IconName } from '../../icons';
 import { FULL_LINE, IDCARD, INCOME, INCOMES, OPENS, addressOk, type Income } from '../setup/setup';
 import type { Ctx, StageView } from './views';
@@ -67,7 +67,7 @@ export function address(c: Ctx): StageView {
             returnKeyType="next"
             accessibilityLabel="Street"
             testID="street"
-            style={{ fontSize: 16, lineHeight: 24, fontWeight: '600', color: colour.ink, padding: 0, height: 24, fontFamily: 'Inter' }}
+            style={{ fontSize: 16, lineHeight: 24, ...font('600'), color: colour.ink, padding: 0, height: 24 }}
           />
           <TextInput
             value={c.area}
@@ -79,7 +79,7 @@ export function address(c: Ctx): StageView {
             onSubmitEditing={save}
             accessibilityLabel="Area, town and state"
             testID="area"
-            style={{ fontSize: 12, lineHeight: 16, color: colour.textSecondary, padding: 0, height: 16, fontFamily: 'Inter' }}
+            style={{ fontSize: 12, lineHeight: 16, ...font('400'), color: colour.textSecondary, padding: 0, height: 16 }}
           />
         </Card>
         <Later icon={IDCARD.icon} label={IDCARD.label} />

@@ -1,8 +1,9 @@
 /* The colour at the top of a screen.
 
    Most of the way-in frames open with a soft blob of colour bleeding down from
-   the top edge — cyan behind the number, purple behind the name, orange behind
-   the address, blue behind the mark. It is a blurred ellipse in the file. Here
+   the top edge. It is a blurred ellipse in the file; the colours are the
+   brand's since Round 25 — orange behind the mark, teal behind the number,
+   lime behind the name, gold behind the face, sand behind the passcode. Here
    it is two gradients: one down the screen carrying the colour away, and one
    across it lightening the corners, which is what the blur does to an ellipse
    narrower than the phone.
@@ -36,7 +37,7 @@ export function Wash({ tone, height = 220 }: { tone: string; height?: number }) 
       />
       {/* the ellipse is narrower than the phone, so the corners keep less colour */}
       <LinearGradient
-        colors={['rgba(255,255,255,0.34)', 'rgba(255,255,255,0)', 'rgba(255,255,255,0)', 'rgba(255,255,255,0.34)']}
+        colors={['rgba(250,250,249,0.34)', 'rgba(250,250,249,0)', 'rgba(250,250,249,0)', 'rgba(250,250,249,0.34)']}
         locations={[0, 0.3, 0.7, 1]}
         start={{ x: 0, y: 0.5 }}
         end={{ x: 1, y: 0.5 }}
@@ -46,20 +47,20 @@ export function Wash({ tone, height = 220 }: { tone: string; height?: number }) 
   );
 }
 
-/** Which colour opens which screen, and how far down it reaches. Read off the frames. */
+/** Which colour opens which screen, and how far down it reaches: the reach read off the frames, the colour the brand's. */
 export const washes = {
-  start: { tone: '#243dcb', height: 253 },
-  signin: { tone: '#243dcb', height: 223 },
-  signcode: { tone: '#243dcb', height: 200 },
-  number: { tone: '#25b9e8', height: 236 },
-  code: { tone: '#25b9e8', height: 232 },
-  nin: { tone: '#8d5ef6', height: 189 },
-  who: { tone: '#8d5ef6', height: 234 },
-  nomatch: { tone: '#8d5ef6', height: 175 },
-  income: { tone: '#8d5ef6', height: 157 },
-  face: { tone: '#ff3e90', height: 148 },
-  idcard: { tone: '#ff3e90', height: 162 },
-  finish: { tone: '#ff8c4e', height: 109 },
-  passcode: { tone: '#f5a627', height: 132 },
-  newcode: { tone: '#f5a627', height: 132 },
+  start: { tone: '#f04f22', height: 253 },
+  signin: { tone: '#f04f22', height: 223 },
+  signcode: { tone: '#f04f22', height: 200 },
+  number: { tone: '#1fb5a3', height: 236 },
+  code: { tone: '#1fb5a3', height: 232 },
+  nin: { tone: '#afc437', height: 189 },
+  who: { tone: '#afc437', height: 234 },
+  nomatch: { tone: '#afc437', height: 175 },
+  income: { tone: '#afc437', height: 157 },
+  face: { tone: '#f6c445', height: 148 },
+  idcard: { tone: '#f6c445', height: 162 },
+  finish: { tone: '#f04f22', height: 109 },
+  passcode: { tone: '#ccb8a4', height: 132 },
+  newcode: { tone: '#ccb8a4', height: 132 },
 } satisfies Record<string, { tone: string; height: number }>;

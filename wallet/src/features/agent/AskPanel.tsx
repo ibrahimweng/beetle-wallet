@@ -18,7 +18,7 @@
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { AmountPicker, Avatar, Caption, Chevron, Icon, LOOSE, Label, Meta, Row, Swap, Tap, dark, settle, useStill } from '../../design';
+import { AmountPicker, Avatar, Caption, Chevron, Icon, LOOSE, Label, Meta, Row, Swap, Tap, colour, dark, font, settle, useStill } from '../../design';
 import {
   AIRTIME,
   BILL_AMOUNTS,
@@ -141,9 +141,9 @@ export function AskPanelView({
     <View style={s.panel} testID="ask">
       <View style={s.head}>
         <View style={s.icon} testID="ask-icon">
-          <Icon name={ask.icon} size={16} colour="#ffffff" />
+          <Icon name={ask.icon} size={16} colour={dark.paper} />
         </View>
-        <Label style={{ flex: 1, color: '#ffffff' }}>{ask.title}</Label>
+        <Label style={{ flex: 1, color: dark.paper }}>{ask.title}</Label>
         {/* Recent: the card grows into the list of what was paid before */}
         {list.length && open ? (
           <Tap
@@ -155,13 +155,13 @@ export function AskPanelView({
             style={[s.recent, recent && s.recentOn]}
             testID="ask-recent"
           >
-            <Caption style={{ color: recent ? '#000000' : dark.pillText, fontWeight: '600' }}>Recent</Caption>
-            <Chevron dir={recent ? 'up' : 'down'} size={12} colour={recent ? '#000000' : dark.label} />
+            <Caption style={{ color: recent ? colour.ink : dark.pillText, ...font('600') }}>Recent</Caption>
+            <Chevron dir={recent ? 'up' : 'down'} size={12} colour={recent ? colour.ink : dark.label} />
           </Tap>
         ) : (
           <View style={s.pill} testID="ask-pill">
             <View style={[s.dot, { backgroundColor: missing.length && open ? '#f5a524' : '#34c759' }]} />
-            <Swap value={askWord(state, missing.length, ask.tool)}>{w => <Caption style={{ color: dark.pillText, fontWeight: '600' }}>{w}</Caption>}</Swap>
+            <Swap value={askWord(state, missing.length, ask.tool)}>{w => <Caption style={{ color: dark.pillText, ...font('600') }}>{w}</Caption>}</Swap>
           </View>
         )}
       </View>
@@ -254,7 +254,7 @@ export function AskPanelView({
             testID="ask-action"
           >
             <Swap value={state === 'done' ? askWord(state, 0, ask.tool) : state === 'busy' ? 'Checking…' : ready ? actionWord(ask) : stillWord(ask, missing[0])}>
-              {label => <Row style={{ color: ready ? '#000000' : '#ffffff' }}>{label}</Row>}
+              {label => <Row style={{ color: ready ? colour.ink : dark.paper }}>{label}</Row>}
             </Swap>
           </Tap>
         </View>
@@ -310,14 +310,14 @@ function WhoField({
     return (
       <View style={s.person} testID="ask-who">
         {confirm ? (
-          <Caption style={{ color: dark.pillText, fontWeight: '600' }} testID="ask-is-this">
+          <Caption style={{ color: dark.pillText, ...font('600') }} testID="ask-is-this">
             Is this the person?
           </Caption>
         ) : null}
         <View style={s.personRow}>
           <Avatar initials={initialsOf(person.name)} size={38} />
           <View style={{ flex: 1, gap: 2 }}>
-            <Label style={{ color: '#ffffff' }} numberOfLines={1}>
+            <Label style={{ color: dark.paper }} numberOfLines={1}>
               {person.name}
             </Label>
             <Meta style={{ color: dark.textSoft }} numberOfLines={1} testID="ask-who-where">
@@ -325,7 +325,7 @@ function WhoField({
             </Meta>
           </View>
           <Tap accessibilityRole="button" accessibilityLabel={confirm ? 'Not them' : 'Change who it is for'} onPress={onNotThem} hitSlop={8} style={s.tertiary} testID="ask-not-them">
-            <Caption style={{ color: '#9fb0ff', fontWeight: '600' }}>{confirm ? 'Not them' : 'Change'}</Caption>
+            <Caption style={{ color: dark.link, ...font('600') }}>{confirm ? 'Not them' : 'Change'}</Caption>
           </Tap>
         </View>
         {isBeetle(person) ? <Caption style={{ color: '#7fd99a' }}>A Beetle account · free, and there at once</Caption> : null}
@@ -382,11 +382,11 @@ function RecentList({ title, list, onPick }: { title: string; list: Beneficiary[
                 </View>
               ) : (
                 <View style={[s.mark, { backgroundColor: dark.edgeStrong }]}>
-                  <Icon name="power" size={16} colour="#ffffff" />
+                  <Icon name="power" size={16} colour={dark.paper} />
                 </View>
               )}
               <View style={{ flex: 1, gap: 2 }}>
-                <Label style={{ color: '#ffffff' }} numberOfLines={1}>
+                <Label style={{ color: dark.paper }} numberOfLines={1}>
                   {name}
                 </Label>
                 <Caption style={{ color: dark.textSoft }} numberOfLines={1}>
@@ -428,13 +428,13 @@ function Box({ children, right }: { children: ReactNode; right?: ReactNode }) {
   );
 }
 
-const inputStyle = { flex: 1, color: '#ffffff', fontSize: 16, fontWeight: '600' as const, paddingVertical: 0, height: 46 };
+const inputStyle = { flex: 1, color: dark.paper, fontSize: 16, ...font('600'), paddingVertical: 0, height: 46 };
 
 export function NetworkBadge({ network }: { network: Network }) {
   const info = networkInfo(network);
   return (
     <View style={[s.badge, { backgroundColor: info.colour }]} testID="network">
-      <Caption style={{ color: info.ink, fontWeight: '600' }}>{network}</Caption>
+      <Caption style={{ color: info.ink, ...font('600') }}>{network}</Caption>
     </View>
   );
 }
@@ -473,12 +473,12 @@ function NumberField({
       <Field label="Line" testID="ask-number">
         <View style={s.compact}>
           <View style={{ flex: 1, gap: 2 }}>
-            <Row style={{ color: '#ffffff' }}>{groupPhoneNumber(value)}</Row>
+            <Row style={{ color: dark.paper }}>{groupPhoneNumber(value)}</Row>
             {whoseLine ? <Caption style={{ color: dark.textSoft }}>{whoseLine}</Caption> : null}
           </View>
           {network ? <NetworkBadge network={network} /> : null}
           <Tap accessibilityRole="button" accessibilityLabel="Change the number" onPress={() => setEditing(true)} style={s.tertiary} hitSlop={6}>
-            <Caption style={{ color: '#9fb0ff', fontWeight: '600' }}>Change</Caption>
+            <Caption style={{ color: dark.link, ...font('600') }}>Change</Caption>
           </Tap>
         </View>
       </Field>
@@ -565,8 +565,8 @@ function PlanField({ network, value, usual, onChange, onFocus }: { network: Netw
             </View>
           ) : (
             <Tap accessibilityRole="button" accessibilityLabel={`All ${network} plans`} onPress={() => setAll(true)} style={s.link}>
-              <Caption style={{ color: '#9fb0ff' }}>All {network} plans</Caption>
-              <Icon name="chevron" size={12} colour="#9fb0ff" />
+              <Caption style={{ color: dark.link }}>All {network} plans</Caption>
+              <Icon name="chevron" size={12} colour={dark.link} />
             </Tap>
           )}
         </>
@@ -599,7 +599,7 @@ function KindField({ value, onChange }: { value?: MeterKind; onChange: (kind: Me
               scale={0.97}
               style={[s.segment, on && s.segmentOn]}
             >
-              <Label style={{ color: on ? '#000000' : dark.text }}>{k === 'prepaid' ? 'Prepaid' : 'Postpaid'}</Label>
+              <Label style={{ color: on ? colour.ink : dark.text }}>{k === 'prepaid' ? 'Prepaid' : 'Postpaid'}</Label>
             </Tap>
           );
         })}
@@ -715,8 +715,8 @@ function Chip({ on, label, sub, small, onPress }: { on: boolean; label: string; 
       scale={0.96}
       style={[s.chip, small && s.chipSmall, on && s.chipOn]}
     >
-      <Label style={{ color: on ? '#000000' : '#ffffff' }}>{label}</Label>
-      {sub ? <Caption style={{ color: on ? '#3a3a3c' : dark.textSoft }}>{sub}</Caption> : null}
+      <Label style={{ color: on ? colour.ink : dark.paper }}>{label}</Label>
+      {sub ? <Caption style={{ color: on ? dark.edgeStrong : dark.textSoft }}>{sub}</Caption> : null}
     </Tap>
   );
 }
@@ -759,12 +759,12 @@ const s = StyleSheet.create({
     borderColor: dark.edgeStrong,
   },
   chipSmall: { flexGrow: 0, flexShrink: 0, flexBasis: 'auto', minHeight: 40, paddingVertical: 8, paddingHorizontal: 14 },
-  chipOn: { backgroundColor: '#ffffff', borderColor: '#ffffff' },
+  chipOn: { backgroundColor: dark.paper, borderColor: dark.paper },
   segments: { flexDirection: 'row', padding: 4, gap: 4, borderRadius: 24, backgroundColor: dark.edge, borderWidth: 1, borderColor: dark.edgeStrong },
   segment: { flex: 1, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  segmentOn: { backgroundColor: '#ffffff' },
+  segmentOn: { backgroundColor: dark.paper },
   track: { height: 4, borderRadius: 2, backgroundColor: dark.edgeStrong },
-  trackOn: { position: 'absolute', left: 0, height: 4, borderRadius: 2, backgroundColor: '#ffffff' },
+  trackOn: { position: 'absolute', left: 0, height: 4, borderRadius: 2, backgroundColor: dark.paper },
   tick: { position: 'absolute', width: 2, height: 8, marginLeft: -1, borderRadius: 1, backgroundColor: dark.label },
   knob: {
     position: 'absolute',
@@ -772,12 +772,12 @@ const s = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#ffffff',
+    backgroundColor: dark.paper,
   },
   link: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 24, alignSelf: 'flex-start' },
   /* the small tertiary Recent at the head's right: a pill that lights white while the list is out */
   recent: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 26, paddingHorizontal: 10, borderRadius: 13, backgroundColor: dark.edge, borderWidth: 1, borderColor: dark.edgeStrong },
-  recentOn: { backgroundColor: '#ffffff', borderColor: '#ffffff' },
+  recentOn: { backgroundColor: dark.paper, borderColor: dark.paper },
   recentList: { paddingHorizontal: 8, paddingTop: 12, paddingBottom: 8 },
   recentRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 54, paddingHorizontal: 4, borderRadius: 12 },
   mark: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
@@ -786,7 +786,7 @@ const s = StyleSheet.create({
   person: { gap: 8 },
   personRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 40 },
   /* ready: the button lights white, the one thing to press */
-  actionReady: { backgroundColor: '#ffffff', borderColor: '#ffffff' },
+  actionReady: { backgroundColor: dark.paper, borderColor: dark.paper },
   action: {
     height: 52,
     borderRadius: 26,

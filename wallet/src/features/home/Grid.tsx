@@ -22,7 +22,7 @@ import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { cancelAnimation, interpolate, interpolateColor, runOnJS, useAnimatedStyle, useSharedValue, withSpring, type SharedValue } from 'react-native-reanimated';
-import { Fine, Icon, Meta, Progress, Row, Tap, colour, swipes, useDeparture, useTap } from '../../design';
+import { Fine, Icon, Meta, Progress, Row, Tap, colour, font, swipes, useDeparture, useTap } from '../../design';
 import type { IconName } from '../../icons';
 import { naira } from '../../lib/format';
 import { standingOf, together, useGoals, type Standing } from '../goal';
@@ -80,7 +80,7 @@ export function Grid({ width, accountNumber, demo, moves, borrowing }: { width: 
 function Glyph({ glyph, tone }: { glyph: IconName; tone: string }) {
   return (
     <View style={[s.glyph, { backgroundColor: tone }]}>
-      <Icon name={glyph} size={18} colour="#ffffff" />
+      <Icon name={glyph} size={18} colour={colour.textInverse} />
     </View>
   );
 }
@@ -304,7 +304,7 @@ const s = StyleSheet.create({
   lit: { borderRadius: 20 },
   glyph: { width: GLYPH, height: GLYPH, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   foot: { position: 'absolute', left: PAD, right: PAD, bottom: PAD - 2 },
-  figure: { fontSize: 18, lineHeight: 24, fontWeight: '700', letterSpacing: -0.3 },
+  figure: { fontSize: 18, lineHeight: 24, ...font('700'), letterSpacing: -0.3 },
   servicesHead: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start' },
   window: { overflow: 'hidden' },
   strip: { flexDirection: 'row' },

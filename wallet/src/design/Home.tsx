@@ -5,12 +5,12 @@
    amount 14 semibold on the right; and an insight is the agent's mark with a
    14 semibold kicker, a 16 regular body and one thing to do. */
 import React, { ReactNode } from 'react';
-import { Image, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { Icon } from './Icon';
 import { Body, Caption, Display, Head, Label, Meta, Row } from './text';
 import { IconName } from '../icons';
-import { colour, frame, radius, space } from './tokens';
+import { colour, dark, font, frame, radius, space } from './tokens';
 import { Tap, Resolve } from './motion';
 import { measure, useDeparture, type Rect } from './journey';
 
@@ -18,9 +18,15 @@ import { measure, useDeparture, type Rect } from './journey';
    way: the wallet bar sits under the status bar rather than at the top of the
    column the rest of the screen keeps to, twenty above where everything else
    begins, with the bell on the pale disc and the mark not. */
-/* The mark the home frame sets by the wallet name is a picture, not a glyph,
-   so it ships as one: the frame's own 36 disc, taken out of the file at 3x. */
-const MARK = require('../../assets/wallet-mark.png');
+/* The mark the home frame sets by the wallet name: the frame's own 36 disc,
+   with the brand's ladybird on the ink since Round 25. */
+function MarkDisc() {
+  return (
+    <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' }} accessibilityLabel="Beetle">
+      <Icon name="mark" size={20} colour={dark.cream} />
+    </View>
+  );
+}
 
 export function WalletHeader({ onSettings, onAlerts }: { onSettings?: () => void; onAlerts?: () => void }) {
   return (
@@ -33,7 +39,7 @@ export function WalletHeader({ onSettings, onAlerts }: { onSettings?: () => void
       }}
     >
       <Pressable accessibilityRole="button" accessibilityLabel="Settings" onPress={onSettings}>
-        <Image source={MARK} style={{ width: 36, height: 36, borderRadius: 18 }} accessibilityLabel="Beetle" />
+        <MarkDisc />
       </Pressable>
       <View style={{ flex: 1, alignItems: 'center' }}>
         <Label>Wallet</Label>
@@ -138,7 +144,7 @@ export function HomeCard({
       }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <Image source={MARK} style={{ width: 36, height: 36, borderRadius: 18 }} accessibilityLabel="Beetle" />
+        <MarkDisc />
         <Label>Wallet</Label>
       </View>
       <View style={{ alignItems: 'center', gap: 32 }}>
@@ -236,7 +242,7 @@ export function HomeCard({
               width: 27,
               height: 4,
               borderRadius: 2,
-              backgroundColor: '#cdcdcd',
+              backgroundColor: dark.grabber,
             }}
           />
         </View>
@@ -366,7 +372,7 @@ export function Dial({ score, size = 36, tone = colour.accent, strong = false }:
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </Svg>
-      {strong ? <Row>{String(score)}</Row> : <Caption style={{ fontWeight: '600' }}>{String(score)}</Caption>}
+      {strong ? <Row>{String(score)}</Row> : <Caption style={{ ...font('600') }}>{String(score)}</Caption>}
     </View>
   );
 }
@@ -519,7 +525,7 @@ export function Insight({
       testID="insight"
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.s2 }}>
-        <Icon name="mark" size={32} colour={colour.accent} />
+        <Icon name="mark" size={32} colour={colour.ink} />
         <Label style={{ flex: 1 }}>{kicker}</Label>
       </View>
       {body ? <Body>{body}</Body> : null}

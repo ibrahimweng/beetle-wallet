@@ -44,7 +44,7 @@ export function ReadSheet({
     <Sheet onDismiss={onDismiss} testID={testID}>
       <View style={{ marginTop: -8 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }} testID="read-row">
-          <Icon name="mark" size={24} colour={colour.accent} />
+          <Icon name="mark" size={24} colour={colour.ink} />
           <Row tone="accent">Read from your photo</Row>
         </View>
         <Display style={{ marginTop: 14 }} accessibilityRole="header">

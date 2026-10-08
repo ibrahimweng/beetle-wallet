@@ -17,7 +17,7 @@
    its button starts one on the goal page. */
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { AmountPicker, Caption, Chevron, Icon, Label, Meta, Row, Swap, Tap, dark } from '../../design';
+import { AmountPicker, Caption, Chevron, Icon, Label, Meta, Row, Swap, Tap, colour, dark, font } from '../../design';
 import type { Account } from '../../services';
 import { naira } from '../../lib/format';
 import { detailsOf } from '../receive/details';
@@ -46,7 +46,7 @@ export function ReceiveCard({ account, tag }: { account: Account; tag: string })
       </View>
       <View style={{ paddingHorizontal: 12 }}>
         <Tap accessibilityRole="button" accessibilityLabel="Share details" onPress={() => void share()} style={[s.action, s.actionReady]} testID="receive-share">
-          <Row style={{ color: '#000000' }}>Share details</Row>
+          <Row style={{ color: colour.ink }}>Share details</Row>
         </Tap>
       </View>
     </View>
@@ -106,7 +106,7 @@ export function LoanCard({
         >
           <Meta style={{ color: dark.label }}>Pay back over</Meta>
           <View style={s.days}>
-            <Label style={{ color: '#ffffff' }}>{`${days} days`}</Label>
+            <Label style={{ color: dark.paper }}>{`${days} days`}</Label>
             <Chevron dir={choosing ? 'up' : 'down'} size={14} colour={dark.textSoft} />
           </View>
         </Tap>
@@ -124,9 +124,9 @@ export function LoanCard({
                 }}
                 style={s.choice}
               >
-                <Label style={{ color: '#ffffff', flex: 1 }}>{`${t} days`}</Label>
+                <Label style={{ color: dark.paper, flex: 1 }}>{`${t} days`}</Label>
                 <Caption style={{ color: dark.textSoft }}>{`${countWord(t / 30).toLowerCase()} payment${t === 30 ? '' : 's'}`}</Caption>
-                {t === days ? <Icon name="check" size={14} colour="#ffffff" /> : <View style={{ width: 14 }} />}
+                {t === days ? <Icon name="check" size={14} colour={dark.paper} /> : <View style={{ width: 14 }} />}
               </Tap>
             ))}
           </View>
@@ -159,12 +159,12 @@ export function LoanCard({
             testID="loan-borrow"
           >
             <Swap value={open ? `Borrow ${naira(amount)}` : `Borrowed ${naira(taken?.amount ?? amount)}`}>
-              {label => <Row style={{ color: open && amount >= LOAN.least ? '#000000' : '#ffffff' }}>{label}</Row>}
+              {label => <Row style={{ color: open && amount >= LOAN.least ? colour.ink : dark.paper }}>{label}</Row>}
             </Swap>
           </Tap>
         ) : (
           <Tap accessibilityRole="button" accessibilityLabel="Finish setting up to borrow" onPress={onSetUp} style={s.action} testID="loan-setup">
-            <Row style={{ color: '#ffffff' }}>Finish setting up to borrow</Row>
+            <Row style={{ color: dark.paper }}>Finish setting up to borrow</Row>
           </Tap>
         )}
       </View>
@@ -209,7 +209,7 @@ export function SaveCard({
         </View>
         <View style={{ paddingHorizontal: 12 }}>
           <Tap accessibilityRole="button" accessibilityLabel="Start a goal" onPress={onStart} style={[s.action, s.actionReady]} testID="save-start">
-            <Row style={{ color: '#000000' }}>Start a goal</Row>
+            <Row style={{ color: colour.ink }}>Start a goal</Row>
           </Tap>
         </View>
       </View>
@@ -235,7 +235,7 @@ export function SaveCard({
                   style={[s.goal, on && s.goalOn]}
                   testID="save-goal"
                 >
-                  <Label style={{ color: on ? '#000000' : '#ffffff' }}>{g.goal.name}</Label>
+                  <Label style={{ color: on ? colour.ink : dark.paper }}>{g.goal.name}</Label>
                 </Tap>
               );
             })}
@@ -256,7 +256,7 @@ export function SaveCard({
           testID="save-put"
         >
           <Swap value={open ? (amount ? `Put ${naira(amount)} into ${name}` : 'Pick how much') : `Put ${naira(saved?.amount ?? amount)} into ${name}`}>
-            {label => <Row style={{ color: ready ? '#000000' : '#ffffff' }}>{label}</Row>}
+            {label => <Row style={{ color: ready ? colour.ink : dark.paper }}>{label}</Row>}
           </Swap>
         </Tap>
       </View>
@@ -270,12 +270,12 @@ function Head({ glyph, title, pill }: { glyph: import('../../icons').IconName; t
   return (
     <View style={s.head}>
       <View style={s.icon}>
-        <Icon name={glyph} size={16} colour="#ffffff" />
+        <Icon name={glyph} size={16} colour={dark.paper} />
       </View>
-      <Label style={{ flex: 1, color: '#ffffff' }}>{title}</Label>
+      <Label style={{ flex: 1, color: dark.paper }}>{title}</Label>
       <View style={s.pill}>
         <View style={[s.dot, { backgroundColor: '#34c759' }]} />
-        <Swap value={pill}>{w => <Caption style={{ color: dark.pillText, fontWeight: '600' }}>{w}</Caption>}</Swap>
+        <Swap value={pill}>{w => <Caption style={{ color: dark.pillText, ...font('600') }}>{w}</Caption>}</Swap>
       </View>
     </View>
   );
@@ -287,7 +287,7 @@ function Line({ label, value, strong = false, onCopy, testID }: { label: string;
     <View style={s.line} testID={testID}>
       <Meta style={{ color: dark.label }}>{label}</Meta>
       <View style={s.value}>
-        {strong ? <Row style={{ color: '#ffffff' }}>{value}</Row> : <Label style={{ color: '#ffffff' }}>{value}</Label>}
+        {strong ? <Row style={{ color: dark.paper }}>{value}</Row> : <Label style={{ color: dark.paper }}>{value}</Label>}
         {onCopy ? (
           <Tap accessibilityRole="button" accessibilityLabel={`Copy ${label.toLowerCase()}`} onPress={onCopy} hitSlop={8} style={s.copy}>
             <Icon name="copy" size={14} colour={dark.textSoft} />
@@ -313,7 +313,7 @@ const s = StyleSheet.create({
   choice: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 42, borderRadius: 10 },
   noteRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, paddingTop: 8 },
   action: { height: 52, borderRadius: 26, backgroundColor: dark.edge, borderWidth: 1, borderColor: dark.edgeStrong, alignItems: 'center', justifyContent: 'center' },
-  actionReady: { backgroundColor: '#ffffff', borderColor: '#ffffff' },
+  actionReady: { backgroundColor: dark.paper, borderColor: dark.paper },
   goal: { height: 32, borderRadius: 16, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: dark.edge, borderWidth: 1, borderColor: dark.edgeStrong },
-  goalOn: { backgroundColor: '#ffffff', borderColor: '#ffffff' },
+  goalOn: { backgroundColor: dark.paper, borderColor: dark.paper },
 });

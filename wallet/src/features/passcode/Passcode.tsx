@@ -20,7 +20,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
-import { Avatar, Button, Display, Head, Icon, Keypad, Label, Meta, PAD_CELLS, Pips, Pop, Row, Sheet, Swap, colour, padHeight, useStill } from '../../design';
+import { Avatar, Button, Display, Head, Icon, Keypad, Label, Meta, PAD_CELLS, Pips, Pop, Row, Sheet, Swap, colour, font, padHeight, useStill } from '../../design';
 import type { IconName } from '../../icons';
 import { initialsOf } from '../../lib/format';
 import { checkCode, checkFace, faceAvailable, lockedFor, refusal, waitWords } from './check';
@@ -184,7 +184,7 @@ export function PasscodeSheet({
             <View style={s.rule} />
             {rows.map(r => (
               <View key={r.label} style={s.line} testID="passcode-line">
-                <Meta tone={r.strong ? undefined : 'secondary'} style={r.strong ? { fontWeight: '600' } : null}>
+                <Meta tone={r.strong ? undefined : 'secondary'} style={r.strong ? { ...font('600') } : null}>
                   {r.label}
                 </Meta>
                 {r.strong ? <Label>{r.value}</Label> : <Meta>{r.value}</Meta>}
@@ -275,7 +275,7 @@ const s = StyleSheet.create({
   rule: { height: 1, backgroundColor: colour.rule, marginTop: 12, marginBottom: 8 },
   line: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, height: 26 },
   square: { width: 40, height: 40, borderRadius: 12, backgroundColor: colour.surface, alignItems: 'center', justifyContent: 'center' },
-  words: { height: 52, borderRadius: 16, paddingHorizontal: 16, backgroundColor: colour.surface2, color: colour.ink, fontSize: 17 },
+  words: { height: 52, borderRadius: 16, paddingHorizontal: 16, backgroundColor: colour.surface2, color: colour.ink, fontSize: 17, ...font('400') },
   tick: {
     width: 28,
     height: 28,

@@ -46,9 +46,9 @@ export function ReceiptCard({
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, s.outline, outline]} testID="receipt-card-outline" />
       <View style={s.head}>
         <View style={s.disc}>
-          <Icon name={card.kind === 'request' ? 'request' : 'receipt'} size={16} colour="#ffffff" />
+          <Icon name={card.kind === 'request' ? 'request' : 'receipt'} size={16} colour={dark.paper} />
         </View>
-        <Label style={{ color: '#ffffff', flex: 1 }}>{card.kind === 'request' ? 'Request' : 'Receipt'}</Label>
+        <Label style={{ color: dark.paper, flex: 1 }}>{card.kind === 'request' ? 'Request' : 'Receipt'}</Label>
         <View style={s.pill}>
           <View style={s.dot} />
           <Caption style={{ color: colour.good }}>{card.status}</Caption>
@@ -56,7 +56,7 @@ export function ReceiptCard({
       </View>
       <View style={s.body}>
         <View ref={amount} style={{ flex: 1, gap: 2 }}>
-          <Head style={{ color: '#ffffff' }}>{card.amount}</Head>
+          <Head style={{ color: dark.paper }}>{card.amount}</Head>
           <Meta style={{ color: dark.text }}>{card.line}</Meta>
         </View>
         <Meta style={{ color: dark.label }}>{card.time}</Meta>

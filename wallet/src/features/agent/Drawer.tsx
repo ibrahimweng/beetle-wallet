@@ -22,7 +22,7 @@ import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, withSpring, type AnimatedStyle, type SharedValue } from 'react-native-reanimated';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { Caption, Icon, Meta, Tap, blurred, colour, dark, swipes } from '../../design';
+import { Caption, Icon, Meta, Tap, blurred, colour, dark, font, swipes } from '../../design';
 import { Frost } from '../home/Frost';
 import type { Chat } from './chats';
 import { dayName } from '../../lib/days';
@@ -153,9 +153,9 @@ function Glow() {
     <Svg width="100%" height="100%" style={StyleSheet.absoluteFill} pointerEvents="none">
       <Defs>
         <RadialGradient id={id} cx="0%" cy="50%" rx="100%" ry="50%" fx="0%" fy="50%">
-          <Stop offset="0" stopColor="#ffffff" stopOpacity={0.24} />
-          <Stop offset="0.55" stopColor="#ffffff" stopOpacity={0.08} />
-          <Stop offset="1" stopColor="#ffffff" stopOpacity={0} />
+          <Stop offset="0" stopColor={dark.paper} stopOpacity={0.24} />
+          <Stop offset="0.55" stopColor={dark.paper} stopOpacity={0.08} />
+          <Stop offset="1" stopColor={dark.paper} stopOpacity={0} />
         </RadialGradient>
       </Defs>
       <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${id})`} />
@@ -358,12 +358,12 @@ const s = StyleSheet.create({
   area: { position: 'absolute', left: 0, right: 0, overflow: 'hidden' },
   panel: { position: 'absolute', left: 0, top: 0, bottom: 0, borderTopRightRadius: 24, overflow: 'hidden', paddingTop: 8 },
   new: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 48, marginHorizontal: 8, paddingHorizontal: 12, borderRadius: 14 },
-  newWords: { color: '#ffffff', fontWeight: '500' },
+  newWords: { color: dark.paper, ...font('500') },
   hair: { height: 1, backgroundColor: dark.divider, marginHorizontal: 20, marginTop: 8, marginBottom: 12 },
   list: { gap: 20, paddingHorizontal: 8, paddingBottom: 96 },
   group: { color: dark.label, paddingHorizontal: 12, marginBottom: 4 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 44, paddingHorizontal: 12, borderRadius: 14 },
-  rowOn: { backgroundColor: 'rgba(255,255,255,0.07)' },
+  rowOn: { backgroundColor: 'rgba(251,239,227,0.07)' },
   title: { flex: 1, color: dark.pillText },
   unread: { width: 6, height: 6, borderRadius: 3, backgroundColor: colour.accent },
 });

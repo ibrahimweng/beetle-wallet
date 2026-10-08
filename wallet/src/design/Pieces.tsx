@@ -16,7 +16,7 @@ import { Icon } from './Icon';
 import { Button } from './Button';
 import { Body, Caption, Display, Head, Label, Meta, Row, Title } from './text';
 import type { IconName } from '../icons';
-import { colour, frame, radius } from './tokens';
+import { colour, dark, font, frame, radius } from './tokens';
 import { ORIGIN, useFade, useShrink } from './PageHead';
 import { SMALL_TOP } from './collapse';
 import { Tap, keys, useStill } from './motion';
@@ -362,7 +362,7 @@ export function LightPanel({
         <Label style={{ flex: 1, textAlign: centre ? 'center' : 'left' }}>{title}</Label>
         <View style={s.status} testID="panel-status">
           <View style={s.dot} />
-          <Caption style={{ fontWeight: '600' }}>{status}</Caption>
+          <Caption style={{ ...font('600') }}>{status}</Caption>
         </View>
       </View>
       <View style={{ paddingTop: 4, paddingBottom: foot ? 0 : 12, paddingHorizontal: 12 }}>
@@ -421,7 +421,7 @@ export function DeviceRow({ glyph, title, where, tag, odd = false }: { glyph: Ic
       </View>
       {tag ? (
         <View style={[s.tag, { backgroundColor: odd ? colour.warn : colour.rule }]}>
-          <Caption style={{ fontWeight: '600' }}>{tag}</Caption>
+          <Caption style={{ ...font('600') }}>{tag}</Caption>
         </View>
       ) : null}
     </View>
@@ -601,12 +601,12 @@ export function NoteRow({ glyph, children, centre = false }: { glyph: IconName; 
    the foot. */
 export function CardFace({ only, number, name, expiry, frozen = false }: { only: string; number: string; name: string; expiry: string; frozen?: boolean }) {
   return (
-    <LinearGradient colors={frozen ? ['#3a3f4d', '#141722'] : ['#1e3a8a', '#0a0f24']} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={s.face} testID="card-face">
+    <LinearGradient colors={frozen ? ['#5b554d', '#2b2721'] : ['#5a3524', '#1f1a15']} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={s.face} testID="card-face">
       <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
         <View style={s.faceMark}>
-          <Icon name="mark" size={18} colour={colour.accent} />
+          <Icon name="mark" size={18} colour={dark.kobo} />
         </View>
-        <Caption tone="inverse" style={{ flex: 1, textAlign: 'right', fontWeight: '600', letterSpacing: 1.4 }}>
+        <Caption tone="inverse" style={{ flex: 1, textAlign: 'right', ...font('600'), letterSpacing: 1.4 }}>
           {only}
         </Caption>
       </View>
@@ -614,7 +614,7 @@ export function CardFace({ only, number, name, expiry, frozen = false }: { only:
         <View style={s.chipLine} />
         <View style={s.chipLine} />
       </View>
-      <Head tone="inverse" style={{ fontWeight: '500', letterSpacing: 3 }}>
+      <Head tone="inverse" style={{ ...font('500'), letterSpacing: 3 }}>
         {number}
       </Head>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
@@ -622,7 +622,7 @@ export function CardFace({ only, number, name, expiry, frozen = false }: { only:
           <Caption tone="inverse" style={{ opacity: 0.7, letterSpacing: 1 }}>
             CARD HOLDER
           </Caption>
-          <Caption tone="inverse" style={{ fontWeight: '600', letterSpacing: 1 }}>
+          <Caption tone="inverse" style={{ ...font('600'), letterSpacing: 1 }}>
             {name}
           </Caption>
         </View>
@@ -684,8 +684,8 @@ const s = StyleSheet.create({
   pill: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, height: 48, borderRadius: radius.pill, backgroundColor: colour.surface2 },
   face: { borderRadius: radius.card, padding: 20, gap: 16, height: 194 },
   faceMark: { width: 24, height: 24, borderRadius: 7, backgroundColor: colour.surface, alignItems: 'center', justifyContent: 'center' },
-  chip: { width: 34, height: 25, borderRadius: 5, backgroundColor: 'rgba(255,255,255,0.22)', paddingTop: 9, gap: 3, paddingHorizontal: 4 },
-  chipLine: { height: 2, borderRadius: 1, backgroundColor: 'rgba(255,255,255,0.45)' },
+  chip: { width: 34, height: 25, borderRadius: 5, backgroundColor: 'rgba(251,239,227,0.22)', paddingTop: 9, gap: 3, paddingHorizontal: 4 },
+  chipLine: { height: 2, borderRadius: 1, backgroundColor: 'rgba(251,239,227,0.45)' },
   tools: { flexDirection: 'row', gap: 4, backgroundColor: colour.surface2, borderRadius: radius.card, paddingVertical: 12, paddingHorizontal: 8 },
   tool: { flex: 1, alignItems: 'center', gap: 8, paddingTop: 4 },
 });

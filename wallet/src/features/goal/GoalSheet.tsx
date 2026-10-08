@@ -9,7 +9,7 @@
    with the goal's own name, figure and date, and Save changes. */
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { AmountPicker, Button, Caption, Chevron, Head, Icon, Label, Meta, Sheet, Tap, colour } from '../../design';
+import { AmountPicker, Button, Caption, Chevron, Head, Icon, Label, Meta, Sheet, Tap, colour, font } from '../../design';
 import { naira } from '../../lib/format';
 import { IDEAS, SPANS, dayWords, dueIn, nextIdea, spanWords, type Goal, type Idea, type Span } from './goals';
 
@@ -145,7 +145,7 @@ export function GoalSheet({
 const s = StyleSheet.create({
   idea: { height: 36, borderRadius: 18, paddingHorizontal: 14, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },
   ideaOn: { backgroundColor: colour.ink },
-  input: { height: 48, borderRadius: 16, backgroundColor: colour.surface2, paddingHorizontal: 16, fontSize: 16, color: colour.ink, outlineWidth: 0 },
+  input: { height: 48, borderRadius: 16, backgroundColor: colour.surface2, paddingHorizontal: 16, fontSize: 16, ...font('400'), color: colour.ink, outlineWidth: 0 },
   when: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 44, marginTop: 8 },
   whenValue: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   spans: { borderRadius: 16, backgroundColor: colour.surface2, paddingHorizontal: 12 },

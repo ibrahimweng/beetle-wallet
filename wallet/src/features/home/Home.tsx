@@ -26,7 +26,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
-import { Meta, Tap, away, colour, dark, keys, settle, standard, useStill } from '../../design';
+import { Meta, Tap, away, colour, dark, font, keys, settle, standard, useStill } from '../../design';
 import type { IconName } from '../../icons';
 import {
   DEMO_SAVED,
@@ -1161,9 +1161,9 @@ function ChatFoot({ chips, typing, children }: { chips: { glyph: IconName; label
               accessibilityLabel={c.label}
               onPress={c.onPress}
               scale={0.94}
-              style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', height: CHIPS_H, borderRadius: CHIPS_H / 2, paddingHorizontal: 10, backgroundColor: 'rgba(255,255,255,0.08)' }}
+              style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', height: CHIPS_H, borderRadius: CHIPS_H / 2, paddingHorizontal: 10, backgroundColor: 'rgba(251,239,227,0.08)' }}
             >
-              <Meta style={{ color: dark.pillText, fontWeight: '500' }}>{c.label}</Meta>
+              <Meta style={{ color: dark.pillText, ...font('500') }}>{c.label}</Meta>
             </Tap>
           ))}
         </ScrollView>

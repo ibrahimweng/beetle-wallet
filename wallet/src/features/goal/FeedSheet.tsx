@@ -7,7 +7,7 @@
    away, and Done. */
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Body, Button, Caption, Head, Icon, Meta, NoteCard, Row, Sheet, Tap, Toggle, colour } from '../../design';
+import { Body, Button, Caption, Head, Icon, Meta, NoteCard, Row, Sheet, Tap, Toggle, colour, font } from '../../design';
 import { FEEDS, GOAL, type FeedId } from './goal';
 
 export function FeedSheet({
@@ -60,7 +60,7 @@ export function FeedSheet({
             <Meta tone="secondary">You choose</Meta>
           </View>
           <Tap accessibilityRole="button" accessibilityLabel="Set it" onPress={onFixed} style={s.chip} testID="set-it">
-            <Caption style={{ fontWeight: '600' }}>Set it</Caption>
+            <Caption style={{ ...font('600') }}>Set it</Caption>
           </Tap>
         </View>
       </View>

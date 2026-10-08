@@ -119,7 +119,7 @@ export function Details({
         <Arrive t={t} shown={shown} i={i++}>
           <View style={s.state} testID="in-place-state">
             <View style={[s.stateDisc, { backgroundColor: state.tone }]}>
-              <Icon name={state.glyph} size={14} colour="#ffffff" />
+              <Icon name={state.glyph} size={14} colour={night.paper} />
             </View>
             <View style={{ flex: 1, gap: 2 }}>
               <Label style={d?.value}>{state.title}</Label>
@@ -328,11 +328,11 @@ function Dashed({ dark = false }: { dark?: boolean }) {
     Show it in the accent lifted for the dark, the dashes and the buttons in its raised grey with no hairline. */
 const DARK = {
   label: { color: night.label },
-  value: { color: '#ffffff' },
+  value: { color: night.paper },
   link: { color: night.link },
   dash: { backgroundColor: night.edgeStrong },
   action: { backgroundColor: night.edgeStrong, borderWidth: 0 },
-  ink: '#ffffff',
+  ink: night.paper,
   soft: night.label,
 };
 

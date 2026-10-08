@@ -5,7 +5,7 @@
 import React, { useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Banner, BigStatus, Caption, Card, ChoiceRow, PageHead, Row, Screen, Step, colour, radius, toast } from '../../design';
+import { Banner, BigStatus, Caption, Card, ChoiceRow, PageHead, Row, Screen, Step, colour, font, radius, toast } from '../../design';
 import { useFoot } from '../more/Foot';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { LAB } from '../../lab/enabled';
@@ -34,7 +34,7 @@ export function LimitStop() {
       </View>
       <Banner glyph="warn-filled" ink={colour.good} text="This is your limit, not the bank’s. Two things and it goes." testID="banner" />
       <Card style={s.steps} testID="steps">
-        <Step n={1} done right={<Caption style={{ fontWeight: '600' }}>Done</Caption>}>
+        <Step n={1} done right={<Caption style={{ ...font('600') }}>Done</Caption>}>
           Your passcode
         </Step>
         <View style={{ gap: 12, paddingVertical: 16 }}>

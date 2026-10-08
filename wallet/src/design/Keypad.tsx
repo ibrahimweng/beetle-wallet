@@ -57,7 +57,7 @@ export function Keypad({
 }) {
   const cell = size ?? (zeros ? { w: 94, h: 74, key: 74, gap: 16 } : big ? PAD_CELLS.big : { w: 84, h: 76, key: 68, gap: 0 });
   const keys: readonly string[] = zeros ? AMOUNT_KEYS : KEYS;
-  const ink = tone === 'dark' ? '#ffffff' : colour.ink;
+  const ink = tone === 'dark' ? dark.paper : colour.ink;
   const disc = tone === 'dark' ? dark.edge : colour.surface2;
   return (
     <View style={{ width: cell.w * 3, alignSelf: 'center', flexDirection: 'row', flexWrap: 'wrap', rowGap: cell.gap }} testID="keypad">
@@ -112,7 +112,7 @@ export function Keypad({
    frames draw them. The sheets centre them; the passcode step on the way in
    starts them at the left edge with everything else. */
 export function Pips({ of = 6, filled, align = 'center', tone = 'light' }: { of?: number; filled: number; align?: 'center' | 'left'; tone?: PadTone }) {
-  const full = tone === 'dark' ? '#ffffff' : colour.ink;
+  const full = tone === 'dark' ? dark.paper : colour.ink;
   const ring = tone === 'dark' ? dark.edgeStrong : colour.ruleStrong;
   return (
     <View style={{ flexDirection: 'row', gap: 20, alignSelf: align === 'center' ? 'center' : 'flex-start' }} testID="pips">

@@ -24,6 +24,13 @@ shadows, forms that speak under their fields, the amount picker, the bank
 always said, asking before what cannot be undone, and the rest. A screen
 keeps those rules; where a Figma frame disagrees, the rule is the newer word.
 
+Since Round 25 it wears the Beetle brand: the warm ink in place of black,
+a neutral white for the page, one orange, Lora for the headlines and the
+big figures, Sentient for what Beetle says at length, Geist for the rest,
+and the ladybird mark. The faces are in `assets/fonts` as Beetle Serif and Beetle Sans, the
+open-licence faces with the naira sign added (their licences beside them);
+they load before the first screen is drawn.
+
 Each feature is a folder under `src/features/`. The app opens as itself in
 every build; every build but the production one also carries the **lab**, a
 screen behind a long press on the version line in Settings that lists the

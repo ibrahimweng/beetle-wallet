@@ -18,17 +18,34 @@ var GAP = 16;
 var CHUNK = 50;
 
 /* ---------- plugin data ---------- */
+/* what this run made, by layer id: a copy with no plugin ID yet may not be
+   allowed to keep plugin data, so the plugin also remembers while it is open */
+var local = {};
 function readData(node) {
   if (!node || typeof node.getPluginData !== 'function') return null;
-  try { var s = node.getPluginData(DATA); return s ? JSON.parse(s) : null; } catch (e) { return null; }
+  try { var s = node.getPluginData(DATA); if (s) return JSON.parse(s); } catch (e) { /* no plugin ID yet */ }
+  return local[node.id] ? JSON.parse(local[node.id]) : null;
 }
 function writeData(node, data) {
-  node.setPluginData(DATA, JSON.stringify(data));
-  node.setRelaunchData({ open: 'Swap it or change its settings', sync: 'Redraw it at the plugin’s current settings' });
+  /* a copy with no plugin ID yet may not be allowed to label layers: the
+     icon still arrives, it just cannot be swapped or updated later */
+  local[node.id] = JSON.stringify(data);
+  try { node.setPluginData(DATA, JSON.stringify(data)); } catch (e) { unlabelled(); }
+  try { node.setRelaunchData({ open: 'Swap it or change its settings', sync: 'Redraw it at the plugin’s current settings' }); } catch (e) { /* no buttons in the right panel */ }
 }
 /* what is stored: the icon, the kind of layer, and how it was drawn */
 function dataOf(item, kind) {
   return { v: 1, key: item.key, name: item.name, kind: kind, P: item.P, color: item.color };
+}
+var told = false;
+function unlabelled() {
+  if (told) return; told = true;
+  figma.notify('Until the plugin is published, Swap and Update work only on icons inserted since it was opened.');
+}
+/* every layer of ours in a node, or none when Figma will not search plugin data */
+function ours(n, types) {
+  try { return n.findAllWithCriteria({ types: types, pluginData: { keys: [DATA] } }); }
+  catch (e) { return n.findAll(function (k) { return !!local[k.id] && types.indexOf(k.type) >= 0; }); }
 }
 function isOurs(node) { var d = readData(node); return !!(d && d.key); }
 /* the icon a node is, or sits inside of: never put a new icon into one */
@@ -185,7 +202,7 @@ function redraw(node, svg) {
 function sameDraw(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
 /* a component for this icon at these settings that the page already has */
 function findComponent(item, kind) {
-  var found = figma.currentPage.findAllWithCriteria({ types: kind === 'set' ? ['COMPONENT_SET'] : ['COMPONENT'], pluginData: { keys: [DATA] } });
+  var found = ours(figma.currentPage, kind === 'set' ? ['COMPONENT_SET'] : ['COMPONENT']);
   for (var i = 0; i < found.length; i++) {
     var d = readData(found[i]);
     if (d && d.key === item.key && d.kind === kind && sameDraw(d.P, item.P) && d.color === item.color) return found[i];
@@ -283,7 +300,7 @@ async function targets(scope) {
   var found = [], seen = {};
   var add = function (n) { if (n && !seen[n.id] && !n.remote && (n.type === 'FRAME' || n.type === 'COMPONENT') && isOurs(n) && !insideInstance(n)) { seen[n.id] = 1; found.push(n); } };
   var within = function (n) {
-    if ('findAllWithCriteria' in n) { var all = n.findAllWithCriteria({ types: ['FRAME', 'COMPONENT'], pluginData: { keys: [DATA] } }); for (var i = 0; i < all.length; i++) add(all[i]); }
+    if ('findAllWithCriteria' in n) { var all = ours(n, ['FRAME', 'COMPONENT']); for (var i = 0; i < all.length; i++) add(all[i]); }
   };
   if (scope === 'page') within(figma.currentPage);
   else {
@@ -344,6 +361,19 @@ async function sendSelection() {
   figma.ui.postMessage({ type: 'selection', selection: await describeSelection() });
 }
 
+/* ---------- settings, kept by Figma on this computer ---------- */
+/* Figma keeps a plugin's storage only once the plugin has an ID, which it
+   gets when it is first published. Until then, or if storage fails for any
+   other reason, the panel opens with the defaults and nothing is saved. */
+var memory = null;
+async function loadSettings() {
+  try { return await figma.clientStorage.getAsync(SETTINGS); } catch (e) { return memory; }
+}
+async function saveSettings(settings) {
+  memory = settings;
+  try { await figma.clientStorage.setAsync(SETTINGS, settings); } catch (e) { /* kept for this run only */ }
+}
+
 /* ---------- messages from the panel ---------- */
 var command = figma.command || 'open';
 var resolveReady;
@@ -352,11 +382,11 @@ async function onMessage(msg) {
   if (!msg || !msg.type) return;
   try {
     if (msg.type === 'ready') {
-      var saved = await figma.clientStorage.getAsync(SETTINGS);
+      var saved = await loadSettings();
       figma.ui.postMessage({ type: 'init', command: command, saved: saved || null, selection: await describeSelection() });
       resolveReady();
     } else if (msg.type === 'save') {
-      await figma.clientStorage.setAsync(SETTINGS, msg.settings);
+      await saveSettings(msg.settings);
     } else if (msg.type === 'insert') {
       var n = insert(msg);
       figma.ui.postMessage({ type: 'inserted', id: msg.id, count: n, last: !!msg.last });

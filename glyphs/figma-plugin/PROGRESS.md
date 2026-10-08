@@ -11,6 +11,11 @@
 - `a8ce4e6`: the stored fills in `data/fills.json`, badges kept apart in an outline's gap, bet, power and send without solids of their own, the toolbar that stays in view, a ZIP download on each category, and the two mask fixes. The plugin carries all of it. `fills.json` is bundled like the other data, the ZIP saves from the panel with both licence notices, and the plugin now works out the site's own masks instead of rebuilding the layers, so it draws the new fills exactly.
 - `1279952`: a part narrower than its stroke draws whole, as the plugin and the font already drew it. The worst difference between the site and the plugin is now 1.3% of an icon's ink, so the test's limit is 2%.
 
+## Found in Figma by the owner
+
+- Before its first publish, the plugin has no ID, and Figma will not keep settings for a plugin without one. The panel used to stop at that error. It now opens with the default settings and saves nothing until the plugin has an ID. The tests now run the plugin both with and without an ID.
+- Figma may also refuse plugin data and relaunch buttons to a plugin with no ID. Icons still arrive in that case, and the plugin remembers what it made while it is open, so a new icon never lands inside the last one, and Swap and Update work on that session's icons. Once published, everything is kept in the file as before.
+
 ## Milestones
 
 Milestones 1 to 6 follow PLAN.md. Where a milestone needs the Figma app, the part that runs without it is done and the rest waits for the owner.

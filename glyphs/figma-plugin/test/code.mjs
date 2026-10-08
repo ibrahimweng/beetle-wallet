@@ -140,6 +140,27 @@ export async function run(codePath = resolve(here, '../dist/code.js')) {
   await figma.message({ type: 'sync-apply', job: 'relaunch', items: [], last: true });
   ok(figma.closed, 'and closes when it is done');
 
+  /* a copy with no plugin ID yet, as Figma gives one only at first publish */
+  figma = boot(code, { noId: true });
+  await figma.message({ type: 'ready' });
+  ok(last(figma, 'init') && last(figma, 'init').saved === null && !figma.calls.some(c => c.name === 'notify' && c.error), 'with no plugin ID yet, the panel still opens, with the defaults and no error');
+  await figma.message({ type: 'save', settings: { P: P('solid') } });
+  ok(!figma.calls.some(c => c.name === 'notify' && c.error) && !last(figma, 'error'), 'and saving settings fails quietly instead of stopping the plugin');
+  await figma.message({ type: 'insert', id: 'n', as: 'frame', size: 24, total: 1, items: [item('core:x')], last: true });
+  ok(figma.currentPage.children.some(n => n.type === 'FRAME' && n.name === 'x') && !last(figma, 'error'), 'and icons still insert, even if Figma will not let it label them');
+  await figma.message({ type: 'insert', id: 'n2', as: 'set', size: 24, total: 1, items: [{ ...item('four:star'), svg: undefined }], last: true });
+  ok(figma.currentPage.children.some(n => n.type === 'COMPONENT_SET') && !last(figma, 'error'), 'component sets too');
+  ok(figma.calls.filter(c => c.name === 'notify' && /Until the plugin is published/.test(c.text)).length === 1, 'and it says once that Swap and Update reach only this session\'s icons');
+  const xs = figma.currentPage.children.find(n => n.type === 'FRAME' && n.name === 'x');
+  figma.select([xs]);
+  await figma.message({ type: 'insert', id: 'n3', as: 'frame', size: 24, total: 1, items: [item('core:check')], last: true });
+  ok(!xs.children.some(n => n.name === 'check') && figma.currentPage.children.some(n => n.name === 'check'), 'it still never puts a new icon inside the selected one');
+  figma.select([xs]);
+  await figma.message({ type: 'swap', item: item('core:heart') });
+  ok(xs.name === 'heart' && figma.byId.get(xs.id) === xs, 'and Swap works on this session\'s icons');
+  await figma.message({ type: 'sync', scope: 'page', job: 'z' });
+  ok(last(figma, 'sync-need') && last(figma, 'sync-need').targets.length >= 10 && !last(figma, 'error'), 'and so does Update page');
+
   /* an error reaches the user and the panel */
   figma = boot(code);
   await figma.message({ type: 'insert', id: 'z', as: 'frame', size: 24, total: 1, items: [{ ...item('core:x'), svg: 'not svg' }], last: true });

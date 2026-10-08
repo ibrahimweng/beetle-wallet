@@ -1,15 +1,27 @@
 {
   "name": "Beetle Glyphs",
+  "id": "1690094481100893184",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
-  "editorType": ["figma"],
+  "editorType": [
+    "figma"
+  ],
   "documentAccess": "dynamic-page",
   "networkAccess": {
-    "allowedDomains": ["none"]
+    "allowedDomains": [
+      "none"
+    ]
   },
   "relaunchButtons": [
-    { "command": "open", "name": "Edit in Beetle Glyphs" },
-    { "command": "sync", "name": "Update to current settings", "multipleSelection": true }
+    {
+      "command": "open",
+      "name": "Edit in Beetle Glyphs"
+    },
+    {
+      "command": "sync",
+      "name": "Update to current settings",
+      "multipleSelection": true
+    }
   ]
 }

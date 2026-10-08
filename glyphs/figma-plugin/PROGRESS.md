@@ -16,6 +16,8 @@
 - Before its first publish, the plugin has no ID, and Figma will not keep settings for a plugin without one. The panel used to stop at that error. It now opens with the default settings and saves nothing until the plugin has an ID. The tests now run the plugin both with and without an ID.
 - Figma may also refuse plugin data and relaunch buttons to a plugin with no ID. Icons still arrive in that case, and the plugin remembers what it made while it is open, so a new icon never lands inside the last one, and Swap and Update work on that session's icons. Once published, everything is kept in the file as before.
 
+- Figma gave the plugin its ID, `1690094481100893184`. It is in `manifest.json` and `dist/manifest.json`, so settings and plugin data are kept from now on.
+
 ## Milestones
 
 Milestones 1 to 6 follow PLAN.md. Where a milestone needs the Figma app, the part that runs without it is done and the rest waits for the owner.

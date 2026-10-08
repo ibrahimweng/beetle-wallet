@@ -9,7 +9,7 @@
 import React, { useRef, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
-import { Caption, Head, Icon, Label, Meta, Tap, colour, dark, measure, useDeparture, type Rect } from '../../design';
+import { Caption, Coin, Head, Icon, Label, Meta, Tap, colour, dark, measure, useDeparture, type Rect } from '../../design';
 import type { ReceiptCard as Card } from './conversation';
 
 export function ReceiptCard({
@@ -45,9 +45,14 @@ export function ReceiptCard({
     >
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, s.outline, outline]} testID="receipt-card-outline" />
       <View style={s.head}>
-        <View style={s.disc}>
-          <Icon name={card.kind === 'request' ? 'request' : 'receipt'} size={16} colour={dark.paper} />
-        </View>
+        {card.kind === 'request' ? (
+          <View style={s.disc}>
+            <Icon name="request" size={16} colour={dark.paper} />
+          </View>
+        ) : (
+          /* money that went: the brand's coin in the disc's place, turning once as the card lands (Round 26) */
+          <Coin size={32} reach={46} delay={160} />
+        )}
         <Label style={{ color: dark.paper, flex: 1 }}>{card.kind === 'request' ? 'Request' : 'Receipt'}</Label>
         <View style={s.pill}>
           <View style={s.dot} />

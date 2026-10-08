@@ -31,6 +31,7 @@ import {
   Swap,
   Tick,
   Wash,
+  Drawing,
   away,
   blurred,
   colour,
@@ -260,6 +261,10 @@ export function WayIn() {
   return (
     <Pane leaving={leaving} style={{ flex: 1, backgroundColor: colour.surface }}>
       <WashFade wash={view.wash} receded={!!view.keypad && digits.length > 0} />
+      {/* the brand's drawings (Round 26): a wing's veins across the top corner, over the wash, on every step of the way
+          in, and the ladybird drawn in line at the welcome's empty right edge; behind everything, outside the layout */}
+      <Drawing name="wing" width={250} opacity={0.42} turn={-8} style={{ top: -28, right: -64 }} />
+      {stage === 'welcome' ? <Drawing name="beetle" width={170} opacity={0.3} turn={14} style={{ top: 296, right: -46 }} /> : null}
       <BackChevron onPress={view.back} />
       <Hint text={view.hint} />
       {/* the column ends where the frames end it: on the dock's top, 12 above

@@ -32,6 +32,15 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   ink for the app's icon. Beetle thinking says **Beetling…** beside it.
 - **Light, not paint**: the brand's oil-slick colours are light (the card's
   border as it is pulled), never a flat fill.
+- **The clay coin** (Round 26), the brand's punch-holed coin, turns where
+  money is confirmed: on a receipt in the tick's place, and on the chat's
+  receipt card in the glyph's. It turns once, a turn and a half slowing to
+  face on, its edge showing as it goes. The opening screen is the coin
+  turning, then the mark and the name coming out where it was.
+- **The drawings** (Round 26): a wing's veins across a top corner (the way
+  in, the lock, faint in the paper on the dark card) and the ladybird drawn
+  in line at the welcome's empty edge. Light, behind everything, outside the
+  layout, never over words: a screen with one keeps every size it had.
 
 ## Depth without shadows
 

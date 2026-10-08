@@ -16,7 +16,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, BackHandler, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Icon, Keypad, Meta, More, Pips, Title, colour } from '../../design';
+import { Drawing, Icon, Keypad, Meta, More, Pips, Title, colour } from '../../design';
 import { useApp } from '../onboarding/store';
 import { askAfterMs, readPrefs } from '../settings/prefs';
 import { checkCode, checkFace, faceAvailable, loadGate, lockedFor, refusal, waitWords } from '../passcode/check';
@@ -143,6 +143,8 @@ function LockScreen({ name, account, verify, onOpen, onSignOut }: { name: string
   };
   return (
     <View style={s.cover} accessibilityViewIsModal testID="app-lock">
+      {/* a wing's veins across the top corner, the brand's touch, behind it all (Round 26) */}
+      <Drawing name="wing" width={230} opacity={0.36} turn={-8} style={{ top: -20, right: -60 }} />
       <SafeAreaView style={s.column}>
         <View style={s.top}>
           <Icon name="mark" size={40} colour={colour.ink} />

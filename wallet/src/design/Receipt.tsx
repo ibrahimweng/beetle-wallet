@@ -1,4 +1,5 @@
-/* A receipt, as the frames draw one: the tick on its green disc, the amount
+/* A receipt, as the frames draw one: the tick on its green disc (the brand's
+   clay coin, turning once, since Round 26: a transaction confirmed), the amount
    and a line under it, the status chip; then the slip, a white card with a
    hairline, in two columns of label over value, a line across for what was
    written, a dashed rule before the money and before the reference, and the
@@ -9,6 +10,7 @@
 import React, { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Icon } from './Icon';
+import { Coin } from './Coin';
 import { Caption, Display, Label, Meta, Row } from './text';
 import { Arrive } from './journey';
 import { Card } from './Screen';
@@ -145,9 +147,16 @@ export function Receipt({
     <>
       {/* the frame's row: the words at its top, the tick 8 down, the chip centred */}
       <View style={s.top} testID="receipt-top">
-        <View style={[s.disc, mark ? { backgroundColor: mark.tone } : null]} testID="receipt-icon">
-          <Icon name={mark?.glyph ?? 'check'} size={24} colour={colour.textInverse} />
-        </View>
+        {mark ? (
+          <View style={[s.disc, { backgroundColor: mark.tone }]} testID="receipt-icon">
+            <Icon name={mark.glyph} size={24} colour={colour.textInverse} />
+          </View>
+        ) : (
+          /* settled: the coin in the disc's place and at its size (larger, the sheet's edge cut it), turning once as the receipt arrives */
+          <View style={s.coin} testID="receipt-icon">
+            <Coin size={52} delay={220} />
+          </View>
+        )}
         <View style={{ flex: 1 }}>
           <Arrive testID="amount">
             <Display tone={good ? 'good' : 'ink'}>{amount}</Display>
@@ -184,6 +193,7 @@ export function Receipt({
 const s = StyleSheet.create({
   top: { flexDirection: 'row', alignItems: 'flex-start', gap: space.s4, minHeight: 67 },
   disc: { width: 52, height: 52, borderRadius: 26, backgroundColor: colour.good, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
+  coin: { width: 52, height: 52, marginTop: 8 },
   pill: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 30, marginTop: 18, paddingLeft: 12, paddingRight: 12, borderRadius: 15, backgroundColor: colour.goodTint },
   dot: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: colour.good },
   slip: { gap: 0, paddingTop: 20, paddingHorizontal: 21 },

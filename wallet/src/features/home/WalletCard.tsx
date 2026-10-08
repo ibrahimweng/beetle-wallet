@@ -34,7 +34,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { Caption, Icon, Label, Swap, Tap, blurred, colour, dark, feel, font, keys, motion, settle as settleCurve, soft, swipes, useStill } from '../../design';
+import { Caption, Drawing, Icon, Label, Swap, Tap, blurred, colour, dark, feel, font, keys, motion, settle as settleCurve, soft, swipes, useStill } from '../../design';
 import { useDeparture } from '../../design/journey';
 import { Frost } from './Frost';
 import { GATHER, PULSE, closingGlow, gathered, knocks, uniformsOf } from './glow';
@@ -423,6 +423,8 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
 
   return (
     <Animated.View style={[s.card, card]} testID="card">
+      {/* a wing's veins in the paper, faint, across the card's top corner, as the brand lays them on its dark cards (Round 26) */}
+      <Drawing name="wing" width={210} opacity={0.1} tint={dark.paper} turn={-8} style={{ top: 18, right: -58 }} />
       {/* the open card: the conversation, running up under the header and down
           under the bar, and the bar at its foot on its own haze */}
       {/* closed, the chat and its foot are not there for a finger or a screen reader: the card's own Send and Receive are */}

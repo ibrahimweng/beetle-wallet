@@ -1589,7 +1589,31 @@ Send, as the brand file calls it.
       brand's), and the Figma check (sizes and words; the frames keep their
       old colours, which the check does not hold the app to).
 
-## Since the rounds
+## Round 26 · The coin and the drawings
+
+Asked by the owner with the brand, after the re-skin: the 3D clay coin on
+the opening screen, turning, and the mark and the name revealed after it;
+the punch-holed coin turning on the prompt after a transaction, to show it
+confirmed; the flying ladybird's outline and the wing's rough see-through
+lines as touches of the brand. Nothing moved, no flow changed: only colour,
+faces and drawings. The pictures are cut from the brand file for now; the
+owner's originals, at full size, come later.
+
+- [x] The coin (design/Coin.tsx): the brand file's coin, face on, swung round
+      its upright with its edge drawn behind it, widening as the face turns
+      away. Its box is the size asked for; it is drawn larger round it, so
+      it takes a glyph's place without moving anything.
+- [x] Opening: the coin turns once (1.1 s), then fades as the mark grows into
+      its place and the name rises under it; the line fills under them. With
+      motion reduced, the mark and the name are there at once. The phone's
+      own splash is the plain white now, so the reveal is the opening.
+- [x] Confirmed: a settled receipt has the coin in the tick's place, turning
+      once as the sheet arrives; the chat's receipt card has it in the
+      glyph's. A line that has not settled keeps its own glyph and colour.
+- [x] Drawings (design/Drawn.tsx): a wing across the top corner of every step
+      of the way in and of the lock, faint in the paper on the dark card, and
+      the ladybird in line at the welcome's right edge.
+
 
 - [x] The mark leaves the card's header (the owner's word, testing on the
       phone): Settings is the gear on the bar, so the header's mark was a

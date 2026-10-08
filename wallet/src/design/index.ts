@@ -26,3 +26,5 @@ export * from './Amount';
 export * from './haptics';
 export * from './Menu';
 export * from './AmountSheet';
+export * from './Coin';
+export * from './Drawn';

@@ -692,6 +692,21 @@
  "wrong": [
   {
    "pieces": [
+    "Card",
+    "The payment",
+    "Row · Amount",
+    "Amount",
+    "₦20,000",
+    "Row · To",
+    "To",
+    "Sarah Adeyemi · GTBank",
+    "Row · Sent",
+    "Sent"
+   ],
+   "why": "Round 25: in the brand's faces, Beetle's plain line above runs to one more line than in the frame's SF Pro (on some machines, and on a phone in Sentient), so what is under it sits 24 lower"
+  },
+  {
+   "pieces": [
     ["Mark · 32", 0],
     ["Card", 1]
    ],

@@ -6,10 +6,13 @@ import { View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { ICONS, IconName } from '../icons';
 import { colour as palette } from './tokens';
+import { usePalette } from './scheme';
 
 export type IconProps = { name: IconName; size?: number; colour?: string };
 
-export function Icon({ name, size = 24, colour = palette.ink }: IconProps) {
+export function Icon({ name, size = 24, colour }: IconProps) {
+  /* the scheme's ink where no colour is asked for (Round 27: the way in is dark) */
+  const ink = usePalette().ink;
   /* a solid glyph's details are cut out through a mask; each glyph drawn has
      its own, since a page to the side is taken out of the web's page and a
      mask shared by id would go with it */
@@ -26,7 +29,7 @@ export function Icon({ name, size = 24, colour = palette.ink }: IconProps) {
      either side of the bar — squeezes the mark down to a dot. */
   return (
     <View style={{ width: size, height: size, flexShrink: 0 }}>
-      <SvgXml xml={xml} width={size} height={size} color={colour} />
+      <SvgXml xml={xml} width={size} height={size} color={colour ?? ink} />
     </View>
   );
 }
@@ -35,13 +38,14 @@ export function Icon({ name, size = 24, colour = palette.ink }: IconProps) {
    a row, 63 with a 32 mark where a sheet opens on one. */
 export function Mark({ glyph, big = false }: { glyph: IconName; big?: boolean }) {
   const box = big ? 63 : 40;
+  const field = usePalette().field;
   return (
     <View
       style={{
         width: box,
         height: box,
         borderRadius: big ? 20 : 13,
-        backgroundColor: palette.surface2,
+        backgroundColor: field,
         alignItems: 'center',
         justifyContent: 'center',
       }}

@@ -3,15 +3,13 @@
    the licences are beside them in assets/fonts. */
 import type { FACES, Weight } from './tokens';
 
-type Name = (typeof FACES)['sans' | 'serif'][Weight];
+type Name = (typeof FACES)['sans'][Weight];
 
 export const FONT_FILES: Record<Name, number> = {
   'BeetleSans-Regular': require('../../assets/fonts/BeetleSans-Regular.ttf'),
   'BeetleSans-Medium': require('../../assets/fonts/BeetleSans-Medium.ttf'),
   'BeetleSans-SemiBold': require('../../assets/fonts/BeetleSans-SemiBold.ttf'),
   'BeetleSans-Bold': require('../../assets/fonts/BeetleSans-Bold.ttf'),
-  'BeetleSerif-Regular': require('../../assets/fonts/BeetleSerif-Regular.ttf'),
-  'BeetleSerif-Medium': require('../../assets/fonts/BeetleSerif-Medium.ttf'),
 };
 
 /* Sentient, for the look and feel until the owner's own face is ready: its

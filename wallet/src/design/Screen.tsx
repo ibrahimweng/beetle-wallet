@@ -7,6 +7,7 @@ import { Icon } from './Icon';
 import { Meta, Row } from './text';
 import { IconName } from '../icons';
 import { colour, frame, radius, space } from './tokens';
+import { usePalette, useScheme } from './scheme';
 import { Tap } from './motion';
 import { Wash } from './Wash';
 import { JourneyProvider } from './journey';
@@ -118,8 +119,11 @@ function Body({ children, head, dock, wash, sink = false, bare = false, scrollEn
 }
 
 export function Card({ children, style, outline = false, testID }: { children: ReactNode; style?: StyleProp<ViewStyle>; outline?: boolean; testID?: string }) {
+  /* on the way in's dark, a card is a step up from the ground, its hairline the dark's own (Round 27) */
+  const p = usePalette();
+  const dark = useScheme() === 'dark';
   return (
-    <View style={[s.card, outline ? s.outline : null, style]} testID={testID}>
+    <View style={[s.card, outline ? s.outline : null, dark ? { backgroundColor: outline ? p.card : p.field, borderColor: p.rule } : null, style]} testID={testID}>
       {children}
     </View>
   );
@@ -130,6 +134,7 @@ export function Divider() {
 }
 
 export function ListRow({ icon, title, sub, right, onPress }: { icon?: IconName; title: string; sub?: string; right?: ReactNode; onPress?: () => void }) {
+  const palette = usePalette();
   return (
     <Tap accessibilityRole={onPress ? 'button' : undefined} onPress={onPress} style={s.row}>
       {icon ? <Icon name={icon} size={20} /> : null}
@@ -137,7 +142,7 @@ export function ListRow({ icon, title, sub, right, onPress }: { icon?: IconName;
         <Row>{title}</Row>
         {sub ? <Meta tone="secondary">{sub}</Meta> : null}
       </View>
-      {right ?? (onPress ? <Icon name="chevron" size={18} colour={colour.textTertiary} /> : null)}
+      {right ?? (onPress ? <Icon name="chevron" size={18} colour={palette.tertiary} /> : null)}
     </Tap>
   );
 }
@@ -152,9 +157,10 @@ export function ActionRow(p: Parameters<typeof ListRow>[0]) {
 
 /* A line of small print beside a lock, the way the frames reassure. */
 export function Aside({ glyph = 'lock', children }: { glyph?: IconName; children: ReactNode }) {
+  const p = usePalette();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.s2 }}>
-      <Icon name={glyph} size={16} colour={colour.textTertiary} />
+      <Icon name={glyph} size={16} colour={p.tertiary} />
       <Meta tone="secondary" style={{ flex: 1 }}>
         {children}
       </Meta>

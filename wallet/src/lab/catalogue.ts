@@ -70,7 +70,7 @@ export const WAY_IN: Feature = {
   folder: 'src/features/onboarding',
   sub: 'One screen from the welcome to the account being ready, and the way back in.',
   places: [
-    stage('welcome', 'mark', 'Welcome', 'The four words, and the two ways in'),
+    stage('welcome', 'mark', 'Welcome', 'The coin turning on the dark, and the two ways in'),
     stage('number', 'phone-filled', 'Your number', 'Eleven digits on the keypad'),
     stage('code', 'phone-filled', 'Six digits', 'The code from the text, and the half minute before another', { progress: { phone: LAB_PHONE }, session: null }),
     stage('identity', 'id-filled', 'Who you are', 'NIN or BVN', { progress: done.number, session: null }),

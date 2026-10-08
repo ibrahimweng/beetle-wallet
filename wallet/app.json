@@ -61,12 +61,13 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#fafaf9",
+          "backgroundColor": "#1a130d",
           "resizeMode": "contain"
         }
       ],
       "expo-sharing",
-      "expo-font"
+      "expo-font",
+      "expo-image"
     ],
     "owner": "ibrahimweng",
     "extra": {

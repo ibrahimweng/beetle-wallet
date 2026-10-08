@@ -8,11 +8,13 @@ import { Body, Caption, Head, Meta, Row } from './text';
 import { Card, Divider } from './Screen';
 import { IconName } from '../icons';
 import { colour, radius, space } from './tokens';
+import { usePalette } from './scheme';
 import { Pop, Tap } from './motion';
 
 /* The round tick beside a thing that is on; a dashed ring when it is not yet.
    Given a `delay`, it lands then, so a list of them can cascade. */
 export function Tick({ on, size = 22, delay }: { on: boolean; size?: number; delay?: number }) {
+  const ring = usePalette().ruleStrong;
   const disc = (
     <View
       style={{
@@ -24,7 +26,7 @@ export function Tick({ on, size = 22, delay }: { on: boolean; size?: number; del
         backgroundColor: on ? colour.good : 'transparent',
         borderWidth: on ? 0 : 1.5,
         borderStyle: on ? 'solid' : 'dashed',
-        borderColor: colour.ruleStrong,
+        borderColor: ring,
       }}
     >
       {on ? <Icon name="check" size={Math.round(size * 0.5)} colour={colour.textInverse} /> : null}
@@ -52,7 +54,9 @@ export function Badge({ glyph, size = 44, tone = colour.surface3, ink = colour.i
 }
 
 /* Initials in a circle, the way the file draws a person. */
-export function Avatar({ initials, size = 44, tone = colour.surface3, ink }: { initials: string; size?: number; /** the disc's colour, and the letters' */ tone?: string; ink?: string }) {
+export function Avatar({ initials, size = 44, tone, ink }: { initials: string; size?: number; /** the disc's colour, and the letters' */ tone?: string; ink?: string }) {
+  const p = usePalette();
+  tone = tone ?? (p.ground === colour.surface ? colour.surface3 : p.field);
   return (
     <View
       style={{
@@ -93,7 +97,7 @@ export function More({ label, onPress }: { label: string; onPress: () => void })
       }}
     >
       <Row style={{ fontSize: 14, lineHeight: 20 }}>{label}</Row>
-      <Icon name="chevron" size={12} colour={colour.ink} />
+      <Icon name="chevron" size={12} />
     </Tap>
   );
 }

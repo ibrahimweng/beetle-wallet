@@ -22,25 +22,36 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   words take the deeper `#b8390f` so they read on the paper. Red is a
   crimson `#b42318`, kept apart from it. The greens, the gold and the
   networks' own colours stay what they say.
-- **Two faces**: Lora for the headlines and the big figures (a page's title,
-  the balance, an amount being picked), Geist for everything read at a
-  glance. They ship as Beetle Serif and Beetle Sans, the same open faces
-  with the naira sign added, which neither has; a weight is asked for by
-  name (`font('600')`), never with fontWeight.
+- **Two faces, and only two** (Round 27, the owner's word): Geist, and
+  Sentient for a page's main title and nowhere else; body, subtitles and
+  the figures (the balance, an amount) are Geist. Geist ships as Beetle
+  Sans, the open face with the naira sign added; Sentient comes from
+  Fontshare as the app opens, its licence keeping it out of the repository,
+  until the owner's own face takes its place. A weight is asked for by name
+  (`font('600')`), never with fontWeight.
 - **The mark** is the ladybird in flight that is also a B, out of the brand
   file's own vector: in ink on the paper, in clay on the dark, cream on the
   ink for the app's icon. Beetle thinking says **Beetling…** beside it.
 - **Light, not paint**: the brand's oil-slick colours are light (the card's
   border as it is pulled), never a flat fill.
-- **The clay coin** (Round 26), the brand's punch-holed coin, turns where
-  money is confirmed: on a receipt in the tick's place, and on the chat's
-  receipt card in the glyph's. It turns once, a turn and a half slowing to
-  face on, its edge showing as it goes. The opening screen is the coin
-  turning, then the mark and the name coming out where it was.
-- **The drawings** (Round 26): a wing's veins across a top corner (the way
-  in, the lock, faint in the paper on the dark card) and the ladybird drawn
-  in line at the welcome's empty edge. Light, behind everything, outside the
-  layout, never over words: a screen with one keeps every size it had.
+- **The way in is dark** (Round 27, the owner's frame): the opening and
+  every step of the way in are on the very dark brown `#1a130d`, the words
+  white over the tan `#99826e`, the button white with the brown on it, the
+  keys and cards a step up from the ground, the logo and its name in the
+  frame's tan `#c9b9a6`. A screen asks for it with `<Scheme value="dark">`
+  and the pieces take their colours from it. The app after sign-in stays on
+  the white.
+- **Two coins**, rendered from the owner's own models: the punch-holed coin
+  turns on the way in, all the way round every three seconds with a slow
+  ease in and out, the soft blur under it travelling round its rim with it;
+  the coin with the logo and its words turns where money is confirmed, on a
+  receipt in the tick's place and on the chat's receipt card in the
+  glyph's, a turn and a half landing face on. The opening is the holed coin
+  turning, then the logo and its name coming out where it was.
+- **The drawings** (Round 26): a wing's veins across a top corner (the steps
+  of the way in after the first, the lock, faint in the paper on the dark
+  card). Light, behind everything, outside the layout, never over words: a
+  screen with one keeps every size it had.
 
 ## Depth without shadows
 

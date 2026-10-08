@@ -1615,6 +1615,43 @@ owner's originals, at full size, come later.
       the ladybird in line at the welcome's right edge.
 
 
+## Round 27 · The way in on the dark, the two coins, two faces
+
+Asked by the owner with a frame (1463:14533) and two models: the first
+screen on the very dark brown, the rest of the way in following the dark;
+the coin turning all the way round every three seconds with a slow ease in
+and out, the progressive blur under it travelling round its rim; the two
+coins (coin-hole.glb, coin-logo-text.glb) as the brand's graphic elements;
+and only Geist and Sentient, the serif only for a page's main title. Four
+answers: the coin turns round its upright with the blur circling it; the
+holed coin on the way in, the logo coin on receipts; the opening dark too.
+
+- [x] Faces: Lora is gone. Sentient is a page's main title (Title, and the
+      way in's step titles); body, subtitles and the figures are Geist, the
+      balance and the amounts back at the weights they had before the brand.
+- [x] The dark (design/scheme.tsx): `<Scheme value="dark">` and the words,
+      glyphs, buttons, cards, ticks, keys and pips take the dark's colours.
+      The opening and every step of the way in are on `#1a130d`; the colour
+      at the top of a step is a glow on it.
+- [x] The first screen to the frame: the logo and its name at 56, the coin
+      in the room under them, "Intelligent finance" and its line, the white
+      button and Already have one? Sign in, on the frame's 24 sides. The four
+      words are gone with the old frame; the Figma check holds the screen to
+      the new one, every piece on it.
+- [x] The coins, from the owner's models (design/Coin.tsx): rendered turning
+      in the browser with three.js and the models' own clay, and played as
+      animated pictures, so every phone shows the same light and the same
+      ease. The holed coin: 72 frames over three seconds, eased in and out,
+      the blur baked in going round with the turn, on the dark. The logo
+      coin: a turn and a half landing face on, once, cut out for the light
+      sheet and the chat's dark. The opening is the holed coin, then the
+      logo and its name, the line under them coming with them; the phone's
+      own splash is the dark.
+- [x] Tested: tsc, the unit tests, the walk (the opening found by its place,
+      not the word Beetle it no longer writes) and the Figma check.
+
+## Since the rounds
+
 - [x] The mark leaves the card's header (the owner's word, testing on the
       phone): Settings is the gear on the bar, so the header's mark was a
       second way to the same place. The header keeps the word Wallet at its

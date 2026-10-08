@@ -3,6 +3,7 @@
 import React from 'react';
 import { Text, TextProps } from 'react-native';
 import { type as t, colour } from './tokens';
+import { night, useScheme } from './scheme';
 
 type Props = TextProps & { tone?: 'ink' | 'secondary' | 'tertiary' | 'accent' | 'good' | 'bad' | 'inverse' };
 
@@ -16,8 +17,22 @@ const tones = {
   inverse: colour.textInverse,
 } as const;
 
+/* the same tones on the way in's dark (Round 27) */
+const darkTones: Record<keyof typeof tones, string> = {
+  ink: night.ink,
+  secondary: night.secondary,
+  tertiary: night.tertiary,
+  accent: night.accent,
+  good: night.good,
+  bad: night.bad,
+  inverse: night.ground,
+};
+
 const make = (name: string, base: object) => {
-  const Face = ({ tone = 'ink', style, ...rest }: Props) => <Text {...rest} style={[base, { color: tones[tone] }, style]} />;
+  const Face = ({ tone = 'ink', style, ...rest }: Props) => {
+    const dark = useScheme() === 'dark';
+    return <Text {...rest} style={[base, { color: (dark ? darkTones : tones)[tone] }, style]} />;
+  };
   Face.displayName = name;
   return Face;
 };

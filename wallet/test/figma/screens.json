@@ -1,37 +1,19 @@
 {
  "welcome": {
-  "frame": "welcome",
+  "frame": "start",
   "place": "Welcome",
   "wait": "Already have one?",
   "pieces": [
    {
-    "name": "Save",
+    "name": "Layer_1",
     "find": {
-     "text": "Save"
+     "testid": "lockup"
     }
    },
    {
-    "name": "Send",
+    "name": "Intelligent finance",
     "find": {
-     "text": "Send"
-    }
-   },
-   {
-    "name": "Spend",
-    "find": {
-     "text": "Spend"
-    }
-   },
-   {
-    "name": "Ask",
-    "find": {
-     "text": "Ask"
-    }
-   },
-   {
-    "name": "Beetle",
-    "find": {
-     "text": "Beetle"
+     "text": "Intelligent finance"
     }
    },
    {

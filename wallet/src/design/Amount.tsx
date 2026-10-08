@@ -172,7 +172,7 @@ export function AmountPicker({ value, onChange, max, note, chips = [], all, unit
 /* ---- the figure ---- */
 
 const FIG: TextStyle = { ...face.display, fontSize: 40, lineHeight: 48, letterSpacing: -1.2, fontVariant: ['tabular-nums'] };
-const KOBO: TextStyle = { ...face.display, fontSize: 22, lineHeight: 28, color: colour.textTertiary, fontVariant: ['tabular-nums'] };
+const KOBO: TextStyle = { ...face.head, fontSize: 22, lineHeight: 28, color: colour.textTertiary, fontVariant: ['tabular-nums'] };
 
 /* The figure, each character rolling on its own as it changes — up as the
    amount grows, down as it shrinks — or, tapped, the field it is typed in. */

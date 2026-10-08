@@ -14,12 +14,13 @@
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { KeyboardAvoidingView, LayoutChangeEvent, Platform, Pressable, StyleProp, View, ViewStyle } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import Animated, { interpolateColor, runOnJS, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import {
   Body,
   Button,
   Caption,
-  Display,
+  Title,
   Head,
   Icon,
   Keypad,
@@ -32,6 +33,8 @@ import {
   Tick,
   Wash,
   Drawing,
+  Scheme,
+  night,
   away,
   blurred,
   colour,
@@ -58,6 +61,8 @@ import { LAB } from '../../lab/enabled';
    title 40 tall; the stack 20 above the band, its rows 24 tall with 16
    between, a row's label 36 in. */
 const SIDE = 20;
+/** the first screen's sides, the owner's frame's (Round 27) */
+const WELCOME_SIDE = 24;
 const GLYPH = 32;
 const GLYPH_GAP = 8;
 const ROW_H = 24;
@@ -99,7 +104,6 @@ export function WayIn() {
   const [unknown, setUnknown] = useState(false);
   const [phoneIn, setPhoneIn] = useState('');
   const [lastNumber, setLastNumber] = useState('');
-  const [words, setWords] = useState(1);
   /* finishing setting up: what is typed and picked on its stages */
   const [street, setStreet] = useState(() => (LAB && asked.street) || '');
   const [area, setArea] = useState(() => (LAB && asked.area) || '');
@@ -146,13 +150,6 @@ export function WayIn() {
     const t = setTimeout(() => setWait(w => w - 1), 1000);
     return () => clearTimeout(t);
   }, [stage, wait]);
-
-  /* the welcome's four words, taking turns */
-  useEffect(() => {
-    if (stage !== 'welcome' || still) return;
-    const t = setInterval(() => setWords(i => (i + 1) % 4), 1600);
-    return () => clearInterval(t);
-  }, [stage, still]);
 
   const go = useCallback(
     (next: Stage, direction: Dir = 1) => {
@@ -239,7 +236,6 @@ export function WayIn() {
     setPhoneIn,
     lastNumber,
     setLastNumber,
-    words,
     setup,
     setSetup,
     street,
@@ -258,65 +254,70 @@ export function WayIn() {
   keyRef.current = view.keypad;
   const bottomKind = view.keypad ? 'keypad' : view.welcome ? 'welcome' : view.bar ? 'bar' : 'none';
 
+  /* the way in is on the brand's very dark brown (Round 27): the first screen to the owner's frame, every step after
+     it the same dark, its words, glyphs, buttons and keys taking the dark's colours from the scheme */
+  const side = bottomKind === 'welcome' ? WELCOME_SIDE : SIDE;
   return (
-    <Pane leaving={leaving} style={{ flex: 1, backgroundColor: colour.surface }}>
-      <WashFade wash={view.wash} receded={!!view.keypad && digits.length > 0} />
-      {/* the brand's drawings (Round 26): a wing's veins across the top corner, over the wash, on every step of the way
-          in, and the ladybird drawn in line at the welcome's empty right edge; behind everything, outside the layout */}
-      <Drawing name="wing" width={250} opacity={0.42} turn={-8} style={{ top: -28, right: -64 }} />
-      {stage === 'welcome' ? <Drawing name="beetle" width={170} opacity={0.3} turn={14} style={{ top: 296, right: -46 }} /> : null}
-      <BackChevron onPress={view.back} />
-      <Hint text={view.hint} />
-      {/* the column ends where the frames end it: on the dock's top, 12 above
+    <Scheme value="dark">
+      <StatusBar style="light" />
+      <Pane leaving={leaving} style={{ flex: 1, backgroundColor: night.ground }}>
+        <WashFade wash={view.wash} receded={!!view.keypad && digits.length > 0} />
+        {/* the brand's wing, faint in the logo's tan, across the top corner of every step after the welcome, which is the
+          owner's frame and has the coin (Round 26, 27); behind everything, outside the layout */}
+        {stage === 'welcome' ? null : <Drawing name="wing" width={250} opacity={0.2} tint={night.lockup} turn={-8} style={{ top: -28, right: -64 }} />}
+        <BackChevron onPress={view.back} />
+        <Hint text={view.hint} />
+        {/* the column ends where the frames end it: on the dock's top, 12 above
           the keypad's first row and the bar's block alike, and 36 above the
           welcome's two ways in. The 12 between the band and what sits under
           it belongs to the body, so a stage with nothing there adds nothing */}
-      <KeyboardAvoidingView
-        style={{ flex: 1, paddingHorizontal: SIDE, justifyContent: 'flex-end', paddingBottom: bottomKind === 'welcome' ? 36 : 12 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        enabled={stage === 'address'}
-      >
-        <Stack rows={rows} above={view.above} aboveKey={view.above ? stage : 'none'} dir={dir} />
-        <HeadBand
-          icon={view.icon}
-          iconSize={view.iconSize}
-          tint={view.tint}
-          title={view.title}
-          small={!!view.small}
-          inline={!!view.inline}
-          subBody={!!view.subBody}
-          sub={view.sub}
-          stage={stage}
-          move={titleMove}
-          dir={dir}
-        />
-        <Slot id={view.bodyKey} from={dir * 24} to={dir * -24}>
-          {view.body ? <View style={{ paddingTop: STACK_GAP }}>{view.body}</View> : null}
-        </Slot>
-      </KeyboardAvoidingView>
-      <Slot id={`bottom:${bottomKind}`} from={120} to={120} delay={120} spring>
-        {bottomKind === 'keypad' ? (
-          <View style={{ paddingHorizontal: SIDE, opacity: busy ? 0.5 : 1 }}>
-            <Keypad onKey={k => keyRef.current?.(k)} />
-            {/* the frames give the pad 16 below its last row; the row's own cell holds 4 of it */}
-            <View style={{ height: 20 }} />
-          </View>
-        ) : bottomKind === 'bar' && view.bar ? (
-          <BarBlock bar={view.bar} />
-        ) : bottomKind === 'welcome' ? (
-          <View style={{ paddingHorizontal: SIDE, paddingBottom: 20 }}>
-            <Button label="Open an account" onPress={() => go('number')} />
-            {/* the frame's row: 44 tall, 8 under the button, the words 14 on 20 */}
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 8, height: 44 }}>
-              <Meta tone="tertiary">Already have one?</Meta>
-              <Pressable onPress={() => go('signin')} accessibilityRole="button">
-                <Label tone="accent">Sign in</Label>
-              </Pressable>
+        <KeyboardAvoidingView
+          style={{ flex: 1, paddingHorizontal: side, justifyContent: 'flex-end', paddingBottom: bottomKind === 'welcome' ? 24 : 12 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          enabled={stage === 'address'}
+        >
+          <Stack rows={rows} above={view.above} aboveKey={view.above ? stage : 'none'} dir={dir} />
+          <HeadBand
+            icon={view.icon}
+            iconSize={view.iconSize}
+            tint={view.tint}
+            title={view.title}
+            small={!!view.small}
+            inline={!!view.inline}
+            subBody={!!view.subBody}
+            sub={view.sub}
+            stage={stage}
+            move={titleMove}
+            dir={dir}
+          />
+          <Slot id={view.bodyKey} from={dir * 24} to={dir * -24}>
+            {view.body ? <View style={{ paddingTop: STACK_GAP }}>{view.body}</View> : null}
+          </Slot>
+        </KeyboardAvoidingView>
+        <Slot id={`bottom:${bottomKind}`} from={120} to={120} delay={120} spring>
+          {bottomKind === 'keypad' ? (
+            <View style={{ paddingHorizontal: SIDE, opacity: busy ? 0.5 : 1 }}>
+              <Keypad onKey={k => keyRef.current?.(k)} />
+              {/* the frames give the pad 16 below its last row; the row's own cell holds 4 of it */}
+              <View style={{ height: 20 }} />
             </View>
-          </View>
-        ) : null}
-      </Slot>
-    </Pane>
+          ) : bottomKind === 'bar' && view.bar ? (
+            <BarBlock bar={view.bar} />
+          ) : bottomKind === 'welcome' ? (
+            <View style={{ paddingHorizontal: WELCOME_SIDE, paddingBottom: 24 }}>
+              <Button label="Open an account" onPress={() => go('number')} />
+              {/* the frame's row: 44 tall, 8 under the button, the words 14 on 20, Sign in in white (Round 27) */}
+              <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 8, height: 44 }}>
+                <Meta tone="secondary">Already have one?</Meta>
+                <Pressable onPress={() => go('signin')} accessibilityRole="button">
+                  <Label>Sign in</Label>
+                </Pressable>
+              </View>
+            </View>
+          ) : null}
+        </Slot>
+      </Pane>
+    </Scheme>
   );
 }
 
@@ -421,8 +422,8 @@ function Hint({ text }: { text?: string }) {
 
 type Shown = { row: Row; mode: 'still' | 'in' | 'out' };
 
-/* The steps done so far, one row each, and on the welcome the four words
-   instead. A row arrives as its title glides up into it and leaves as the
+/* The steps done so far, one row each, and on the welcome the logo and the
+   coin instead. A row arrives as its title glides up into it and leaves as the
    title glides back down. */
 function Stack({ rows, above, aboveKey, dir }: { rows: Row[]; above: ReactNode; aboveKey: string; dir: Dir }) {
   const [shown, setShown] = useState<Shown[]>(() => rows.map(row => ({ row, mode: 'still' })));
@@ -515,7 +516,7 @@ function HeadBand({
   move,
   dir,
 }: {
-  icon: IconName | 'tick';
+  icon: IconName | 'tick' | 'none';
   /** the welcome's mark is 40 where every other glyph is 32 */
   iconSize?: number;
   tint?: string;
@@ -547,7 +548,7 @@ function HeadBand({
     );
   return (
     <View style={{ gap: GLYPH_GAP, marginTop: STACK_GAP }}>
-      <Glyph icon={icon} tint={tint} size={iconSize} />
+      {icon === 'none' ? null : <Glyph icon={icon} tint={tint} size={iconSize} />}
       <TitleTrack title={title} small={small} stage={stage} move={move} dir={dir} />
       <Swap value={sub}>{line}</Swap>
     </View>
@@ -635,7 +636,8 @@ function TitleText({ text, small, dir, hidden }: { text: string; small: boolean;
     transform: [{ translateY: (1 - t.value) * 12 * dir }],
     ...blurred((1 - t.value) * motion.blur),
   }));
-  const T = small ? Head : Display;
+  /* a step's main title is the serif (Round 27); the small ones stay Geist */
+  const T = small ? Head : Title;
   return (
     <Animated.View style={arriving} testID="title">
       <T>{text}</T>
@@ -664,7 +666,7 @@ function GhostTitle({ ghost, onDone }: { ghost: Ghost; onDone: () => void }) {
         opacity: ghost.kind === 'up' ? 1 - last : early,
         fontSize: 32 + (16 - 32) * p.value,
         lineHeight: 40 + (24 - 40) * p.value,
-        color: interpolateColor(p.value, [0, 1], [colour.ink, colour.textTertiary]),
+        color: interpolateColor(p.value, [0, 1], [night.ink, night.tertiary]),
         transform: [{ translateX: ROW_INSET * p.value }, { translateY: ROW_DY * p.value }],
       };
     }
@@ -672,13 +674,13 @@ function GhostTitle({ ghost, onDone }: { ghost: Ghost; onDone: () => void }) {
       opacity: 1 - p.value,
       fontSize: 32,
       lineHeight: 40,
-      color: colour.ink,
+      color: night.ink,
       transform: [{ translateY: ghost.kind === 'plain' ? -16 * ghost.dir * p.value : 0 }],
       ...blurred(p.value * motion.blur),
     };
   });
   return (
-    <Animated.Text pointerEvents="none" numberOfLines={1} style={[{ position: 'absolute', top: 0, left: 0, ...font('400', 'serif') }, moving]} testID="ghost">
+    <Animated.Text pointerEvents="none" numberOfLines={1} style={[{ position: 'absolute', top: 0, left: 0, ...font('400', 'prose') }, moving]} testID="ghost">
       {ghost.text}
     </Animated.Text>
   );

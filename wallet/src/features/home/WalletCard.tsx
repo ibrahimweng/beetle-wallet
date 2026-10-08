@@ -402,7 +402,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
   const figureText = useAnimatedStyle(() => ({
     fontSize: interpolate(open.value, [0, 1], [32, 20]),
     lineHeight: interpolate(open.value, [0, 1], [40, 20]),
-    letterSpacing: interpolate(open.value, [0, 1], [-0.5, -0.3]),
+    letterSpacing: interpolate(open.value, [0, 1], [-1.06, -0.66]),
   }));
   const koboText = useAnimatedStyle(() => ({
     fontSize: interpolate(open.value, [0, 1], [20, 14]),
@@ -535,11 +535,11 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
       {/* the twins the glide is measured off, never seen */}
       <View style={s.twins} pointerEvents="none">
         <View style={s.twin} onLayout={measure(w32)}>
-          <Animated.Text style={[s.figureText, { fontSize: 32, lineHeight: 40, letterSpacing: -0.5 }]}>{whole}</Animated.Text>
+          <Animated.Text style={[s.figureText, { fontSize: 32, lineHeight: 40, letterSpacing: -1.06 }]}>{whole}</Animated.Text>
           <Animated.Text style={[s.koboText, { fontSize: 20, lineHeight: 24, marginTop: 8 }]}>{kobo}</Animated.Text>
         </View>
         <View style={s.twin} onLayout={measure(w20)}>
-          <Animated.Text style={[s.figureText, { fontSize: 20, lineHeight: 20, letterSpacing: -0.3 }]}>{whole}</Animated.Text>
+          <Animated.Text style={[s.figureText, { fontSize: 20, lineHeight: 20, letterSpacing: -0.66 }]}>{whole}</Animated.Text>
           <Animated.Text style={[s.koboText, { fontSize: 14, lineHeight: 12, marginTop: 4 }]}>{kobo}</Animated.Text>
         </View>
       </View>
@@ -573,8 +573,8 @@ const s = StyleSheet.create({
   foot: { position: 'absolute', left: 0, right: 0, bottom: 0, height: FOOT_BAND },
   bar: { position: 'absolute', left: SIDE, right: SIDE, bottom: 20 },
   figure: { position: 'absolute', top: 0, left: 0, flexDirection: 'row', alignItems: 'flex-start', zIndex: 4 },
-  figureText: { color: dark.paper, ...font('400', 'serif'), fontSize: 32, lineHeight: 40, letterSpacing: -0.5 },
-  koboText: { color: dark.kobo, ...font('400', 'serif'), fontSize: 20, lineHeight: 24, marginTop: 8, marginLeft: 1 },
+  figureText: { color: dark.paper, ...font('700'), fontSize: 32, lineHeight: 40, letterSpacing: -1.06 },
+  koboText: { color: dark.kobo, ...font('600'), fontSize: 20, lineHeight: 24, marginTop: 8, marginLeft: 1 },
   chipWrap: { position: 'absolute', top: 0, left: 0, zIndex: 4 },
   chip: { height: 24, borderRadius: 12, backgroundColor: dark.chip, paddingHorizontal: 8, justifyContent: 'center' },
   chipText: { fontSize: 14, lineHeight: 20, ...font('600'), letterSpacing: -0.15 },

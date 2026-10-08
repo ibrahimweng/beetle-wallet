@@ -5,10 +5,37 @@
    without knowing which step they belong to. The rules and the mock
    services are the same ones the separate screens used. */
 import React, { ReactNode, useEffect } from 'react';
-import { Platform, StyleProp, View, ViewStyle } from 'react-native';
+import { Platform, StyleProp, View, ViewStyle, useWindowDimensions } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
-import { Aside, Avatar, Body, Caption, Card, Display, Field, Icon, Label, Meta, More, Pips, Row as RowText, Say, Swap, Tap, Tick, colour, motion, space, toast, useStill, washes } from '../../design';
+import {
+  Aside,
+  Avatar,
+  Body,
+  Caption,
+  Card,
+  CoinLoop,
+  Display,
+  Field,
+  Icon,
+  Label,
+  Lockup,
+  Meta,
+  More,
+  Pips,
+  Row as RowText,
+  Say,
+  Swap,
+  Tap,
+  Tick,
+  colour,
+  motion,
+  night,
+  space,
+  toast,
+  useStill,
+  washes,
+} from '../../design';
 import type { IconName } from '../../icons';
 import { auth, identity, DEMO_PASSCODES, MOCK, MOCK_CODE } from '../../services';
 import { LAB } from '../../lab/enabled';
@@ -23,8 +50,8 @@ export type Note = { text: string; tone?: 'secondary' | 'bad' | 'accent' } | nul
 export type Bar = { label: string; onPress: () => void; disabled?: boolean; /** Back at the bottom left, beside the button, where a frame draws it there */ back?: () => void };
 
 export type StageView = {
-  /** the glyph above the title, and the colour it and the wash carry */
-  icon: IconName | 'tick';
+  /** the glyph above the title, and the colour it and the wash carry; the welcome has none (Round 27) */
+  icon: IconName | 'tick' | 'none';
   tint?: string;
   wash?: { tone: string; height?: number };
   title: string;
@@ -79,7 +106,6 @@ export type Ctx = {
   setPhoneIn: (p: string) => void;
   lastNumber: string;
   setLastNumber: (n: string) => void;
-  words: number;
   /* finishing setting up: what is typed and picked on its stages, and what is kept */
   setup: Setup;
   setSetup: (patch: Partial<Setup>) => void;
@@ -98,13 +124,6 @@ export type Ctx = {
   /** leave the screen for home, after doing something */
   toHome: (after?: () => Promise<void>) => void;
 };
-
-const WORDS = [
-  { word: 'Save', icon: 'pot' },
-  { word: 'Send', icon: 'send' },
-  { word: 'Spend', icon: 'card' },
-  { word: 'Ask', icon: 'mark' },
-] as const;
 
 const TRIES = 3;
 
@@ -174,28 +193,35 @@ const typing = (c: Ctx, max: number, full: (d: string) => void) => (key: string)
 
 /* ---- the stages ---- */
 
-function welcome(c: Ctx): StageView {
+/* The first screen, to the owner's frame (1463:14533, Round 27): on the
+   dark, the logo and its name at the top, the punch-holed coin turning in
+   the room under them, then the title, its line, and the two ways in. The
+   room for the coin is the frame's on a phone its height, less on a shorter
+   one, the coin shrinking with it. */
+const COIN_ROOM = 475.51;
+const COIN = 378;
+
+function WelcomeTop() {
+  const { height } = useWindowDimensions();
+  const room = Math.max(240, Math.min(COIN_ROOM, height - 852 + COIN_ROOM));
+  return (
+    <View style={{ alignItems: 'center', paddingBottom: 8 }} testID="welcome-top">
+      <Lockup />
+      <View style={{ height: room, alignSelf: 'stretch', marginTop: 20, alignItems: 'center', justifyContent: 'center' }}>
+        <CoinLoop size={Math.round((COIN * room) / COIN_ROOM)} />
+      </View>
+    </View>
+  );
+}
+
+function welcome(_c: Ctx): StageView {
   return {
-    icon: 'mark',
-    iconSize: 40,
+    icon: 'none',
     small: true,
     subBody: true,
-    wash: washes.start,
-    title: 'Beetle',
+    title: 'Intelligent finance',
     sub: 'A bank that answers when you ask it something. Opening one takes about a minute, and all it needs is your number and your NIN.',
-    /* the frame's rows: 42 tall, the glyph 28 with 7 above and below, and 20
-       under the last to the mark; on the grid that is 44, and 8 here with
-       the band's own 12 */
-    above: (
-      <View style={{ paddingBottom: 8 }}>
-        {WORDS.map((w, i) => (
-          <View key={w.word} style={{ flexDirection: 'row', alignItems: 'center', height: 44 }}>
-            <View style={{ width: 36 }}>{i === c.words ? <Icon name={w.icon} size={28} colour={colour.accent} /> : null}</View>
-            <Display tone={i === c.words ? 'ink' : 'tertiary'}>{w.word}</Display>
-          </View>
-        ))}
-      </View>
-    ),
+    above: <WelcomeTop />,
     bodyKey: 'welcome',
     body: null,
     welcome: true,
@@ -468,7 +494,7 @@ function face(c: Ctx): StageView {
     body: (
       <View style={{ gap: 20 }}>
         <View style={{ alignItems: 'center', gap: space.s5, paddingVertical: space.s6 }}>
-          <Icon name={failed ? 'alert' : 'person'} size={56} colour={failed ? colour.bad : colour.textTertiary} />
+          <Icon name={failed ? 'alert' : 'person'} size={56} colour={failed ? colour.bad : night.tertiary} />
           <Meta tone={failed ? 'bad' : 'secondary'}>{failed ? 'That did not take. Hold still and look at the camera.' : 'Hold still and look at the camera'}</Meta>
         </View>
         <Aside glyph="eye">The photo is kept on this phone. It is not a profile picture and nobody else sees it.</Aside>
@@ -573,7 +599,7 @@ function ready(c: Ctx): StageView {
             drawn inside each but the last, nothing below */}
         <Card style={{ paddingTop: 4, paddingBottom: 0, paddingHorizontal: 16, gap: 0 }}>
           {CAN.map((can, i) => (
-            <View key={can.text} style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3, height: 50, borderBottomWidth: i < CAN.length - 1 ? 1 : 0, borderBottomColor: colour.rule }}>
+            <View key={can.text} style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3, height: 50, borderBottomWidth: i < CAN.length - 1 ? 1 : 0, borderBottomColor: night.rule }}>
               <Tick on={can.on} size={20} delay={motion.markWait + 90 * (i + 1)} />
               <Meta tone={can.on ? 'ink' : 'tertiary'} style={{ flex: 1 }}>
                 {can.text}
@@ -583,12 +609,12 @@ function ready(c: Ctx): StageView {
         </Card>
         <Tap accessibilityRole="button" accessibilityLabel={c.setup.done ? 'Everything is on' : 'Finish setting up'} onPress={() => (c.setup.done ? c.go('full') : c.go('address'))}>
           <Card outline style={{ flexDirection: 'row', alignItems: 'center', gap: space.s4, paddingVertical: space.s3, paddingHorizontal: space.s4, borderRadius: 16 }}>
-            <Icon name="shield-filled" size={24} colour={colour.ink} />
+            <Icon name="shield-filled" size={24} colour={night.ink} />
             <View style={{ flex: 1 }}>
               <Label>{c.setup.done ? 'Everything is on' : 'Finish setting up'}</Label>
               <Caption tone="tertiary">{c.setup.done ? 'A million a day, dollars and borrowing' : 'Two minutes, and the last two come on'}</Caption>
             </View>
-            <Icon name="chevron" size={16} colour={colour.textTertiary} />
+            <Icon name="chevron" size={16} colour={night.tertiary} />
           </Card>
         </Tap>
       </View>

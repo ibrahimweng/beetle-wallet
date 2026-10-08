@@ -19,6 +19,7 @@ import { View } from 'react-native';
 import { Icon } from './Icon';
 import { Head } from './text';
 import { colour, dark } from './tokens';
+import { night, useScheme } from './scheme';
 import { Tap } from './motion';
 
 /** The pad on the page, or on the dark card before money moves. */
@@ -44,7 +45,7 @@ export function Keypad({
   onFace,
   big = false,
   zeros = false,
-  tone = 'light',
+  tone,
   size,
 }: {
   onKey: (k: string) => void;
@@ -57,8 +58,10 @@ export function Keypad({
 }) {
   const cell = size ?? (zeros ? { w: 94, h: 74, key: 74, gap: 16 } : big ? PAD_CELLS.big : { w: 84, h: 76, key: 68, gap: 0 });
   const keys: readonly string[] = zeros ? AMOUNT_KEYS : KEYS;
-  const ink = tone === 'dark' ? dark.paper : colour.ink;
-  const disc = tone === 'dark' ? dark.edge : colour.surface2;
+  /* no tone asked for: the scheme's, the way in's dark keys a step up from its ground (Round 27) */
+  const onNight = useScheme() === 'dark' && !tone;
+  const ink = onNight ? night.ink : tone === 'dark' ? dark.paper : colour.ink;
+  const disc = onNight ? night.panel2 : tone === 'dark' ? dark.edge : colour.surface2;
   return (
     <View style={{ width: cell.w * 3, alignSelf: 'center', flexDirection: 'row', flexWrap: 'wrap', rowGap: cell.gap }} testID="keypad">
       {keys.map((k, i) => {
@@ -111,9 +114,10 @@ export function Keypad({
 /* The dots above a passcode as it is typed — 14 across, 20 apart, as the sheet
    frames draw them. The sheets centre them; the passcode step on the way in
    starts them at the left edge with everything else. */
-export function Pips({ of = 6, filled, align = 'center', tone = 'light' }: { of?: number; filled: number; align?: 'center' | 'left'; tone?: PadTone }) {
-  const full = tone === 'dark' ? dark.paper : colour.ink;
-  const ring = tone === 'dark' ? dark.edgeStrong : colour.ruleStrong;
+export function Pips({ of = 6, filled, align = 'center', tone }: { of?: number; filled: number; align?: 'center' | 'left'; tone?: PadTone }) {
+  const onNight = useScheme() === 'dark' && !tone;
+  const full = onNight ? night.ink : tone === 'dark' ? dark.paper : colour.ink;
+  const ring = onNight ? night.ruleStrong : tone === 'dark' ? dark.edgeStrong : colour.ruleStrong;
   return (
     <View style={{ flexDirection: 'row', gap: 20, alignSelf: align === 'center' ? 'center' : 'flex-start' }} testID="pips">
       {Array.from({ length: of }).map((_, i) => (

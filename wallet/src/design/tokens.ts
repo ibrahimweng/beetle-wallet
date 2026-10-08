@@ -91,24 +91,21 @@ export const offerShade: Record<string, { soft: string; deep: string }> = {
   [colour.warn]: { soft: '#a1875f', deep: '#a66700' },
 };
 
-/* The brand's faces (Round 25): Geist for everything a person reads at a
-   glance, Lora for the headlines and the big figures, and Sentient for what
-   Beetle says at length (Body), for now, until the owner's own face is in.
-   Geist and Lora are bundled as
-   "Beetle Sans" and "Beetle Serif", the open-licence faces with one glyph
-   added, the naira sign, which neither carries; Lora's licence keeps its
-   own name for an unchanged copy, so the changed one goes by another, as
-   the brand file's own copy does. Sentient's licence forbids keeping it
-   anywhere public, as this repository is, so it is fetched from Fontshare
-   when the app opens (src/design/fonts.ts); where it cannot be, Body falls
-   back to Geist (withoutProse). A face is a file per weight, so a weight
+/* The brand's faces: Geist and Sentient, and nothing else (Round 27, the
+   owner's word). Sentient, the serif, is only ever a page's main title;
+   everything else, body, subtitles and the figures, is Geist. Geist is
+   bundled as "Beetle Sans", the open-licence face with one glyph added, the
+   naira sign, which it does not carry. Sentient's licence forbids keeping
+   it anywhere public, as this repository is, so it is fetched from
+   Fontshare when the app opens (src/design/fonts.ts), until the owner's own
+   face takes its place; where it cannot be, the titles fall back to Geist
+   (withoutProse). A face is a file per weight, so a weight
    is asked for by name: a custom family given a fontWeight is drawn in the
    system face on Android and thickened by hand on the web. The web keeps
    the old stack behind the name for the moment before the files land. */
 export type Weight = '400' | '500' | '600' | '700';
 export const FACES = {
   sans: { '400': 'BeetleSans-Regular', '500': 'BeetleSans-Medium', '600': 'BeetleSans-SemiBold', '700': 'BeetleSans-Bold' },
-  serif: { '400': 'BeetleSerif-Regular', '500': 'BeetleSerif-Medium', '600': 'BeetleSerif-Medium', '700': 'BeetleSerif-Medium' },
   prose: { '400': 'Sentient-Regular', '500': 'Sentient-Medium', '600': 'Sentient-Medium', '700': 'Sentient-Medium' },
 } as const;
 const STACK = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
@@ -128,12 +125,13 @@ const face = (size: number, height: number, weight: Weight, kind: keyof typeof F
 });
 
 export const type = {
-  /* the big figures and the headlines, in the serif */
-  display: face(32, 40, '400', 'serif'),
-  title: face(32, 40, '400', 'serif'),
+  /* the big figures, in Geist */
+  display: face(32, 40, '700'),
+  /* a page's main title: the one place for the serif */
+  title: face(32, 40, '400', 'prose'),
   head: face(20, 24, '600'),
   row: face(16, 24, '600'),
-  body: face(16, 24, '400', 'prose'),
+  body: face(16, 24, '400'),
   label: face(14, 20, '600'),
   meta: face(14, 20, '400'),
   caption: face(12, 16, '400'),
@@ -143,10 +141,10 @@ export const type = {
   key: face(22, 28, '400'),
 } as const;
 
-/** Sentient could not be fetched: Body is drawn in Geist instead. Called
-    before the first screen is drawn, so nothing is ever seen changing. */
+/** Sentient could not be fetched: the titles are drawn in Geist instead, at the weight they had before the brand.
+    Called before the first screen is drawn, so nothing is ever seen changing. */
 export function withoutProse() {
-  Object.assign(type.body, font('400'));
+  Object.assign(type.title, font('600'));
 }
 
 export const radius = { xs: 6, sm: 12, md: 16, lg: 20, card: 24, pill: 999 } as const;

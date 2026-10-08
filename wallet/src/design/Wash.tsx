@@ -15,6 +15,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useScheme } from './scheme';
 
 /** How much of the colour is left, at each fraction of the way down. */
 const DOWN = [1, 0.87, 0.39, 0.11, 0] as const;
@@ -26,10 +27,14 @@ const mix = (hex: string, a: number) => {
 };
 
 export function Wash({ tone, height = 220 }: { tone: string; height?: number }) {
+  /* on the way in's dark (Round 27) the colour is a glow, a little less of it, and the corners keep the dark */
+  const dark = useScheme() === 'dark';
+  const k = dark ? 0.72 : 1;
+  const corner = dark ? '26,19,13' : '250,250,249';
   return (
     <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, height }}>
       <LinearGradient
-        colors={DOWN.map(a => mix(tone, a)) as unknown as readonly [string, string, ...string[]]}
+        colors={DOWN.map(a => mix(tone, a * k)) as unknown as readonly [string, string, ...string[]]}
         locations={AT as unknown as readonly [number, number, ...number[]]}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
@@ -37,7 +42,7 @@ export function Wash({ tone, height = 220 }: { tone: string; height?: number }) 
       />
       {/* the ellipse is narrower than the phone, so the corners keep less colour */}
       <LinearGradient
-        colors={['rgba(250,250,249,0.34)', 'rgba(250,250,249,0)', 'rgba(250,250,249,0)', 'rgba(250,250,249,0.34)']}
+        colors={[`rgba(${corner},0.34)`, `rgba(${corner},0)`, `rgba(${corner},0)`, `rgba(${corner},0.34)`]}
         locations={[0, 0.3, 0.7, 1]}
         start={{ x: 0, y: 0.5 }}
         end={{ x: 1, y: 0.5 }}

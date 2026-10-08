@@ -8,6 +8,7 @@ import { StyleSheet, Text, View, ViewStyle, StyleProp } from 'react-native';
 import { Icon } from './Icon';
 import { IconName } from '../icons';
 import { colour, font } from './tokens';
+import { night, useScheme } from './scheme';
 import { AnimatedPressable, Swap, useTap } from './motion';
 import { useDeparture } from './journey';
 
@@ -31,6 +32,15 @@ const TONES = {
   /* what takes something away: signing out, signing other phones out */
   red: { fill: colour.bad, ink: colour.textInverse },
 } as const;
+
+/* the same tones on the way in's dark (Round 27): the frame's button is white with the dark's own brown on it */
+const DARK_TONES: Record<ButtonTone, { fill: string; ink: string }> = {
+  black: { fill: night.ink, ink: night.ground },
+  grey: { fill: night.panel2, ink: night.ink },
+  white: { fill: night.ink, ink: night.ground },
+  blue: { fill: colour.accent, ink: night.ink },
+  red: { fill: colour.bad, ink: night.ink },
+};
 
 export function Button({
   label,
@@ -63,7 +73,8 @@ export function Button({
   /* A button that cannot be pressed is not the same button faded. The frames
      draw it in the pale grey with grey letters, so it reads as a shape waiting
      to be filled rather than as something half there. */
-  const t = disabled ? { fill: colour.surface2, ink: colour.textTertiary } : TONES[tone];
+  const dark = useScheme() === 'dark';
+  const t = disabled ? (dark ? { fill: night.panel2, ink: night.tertiary } : { fill: colour.surface2, ink: colour.textTertiary }) : (dark ? DARK_TONES : TONES)[tone];
   /* It gives a little under the finger and springs back, so the press is
      answered before the screen it asks for arrives. */
   const tap = useTap();
@@ -86,7 +97,7 @@ export function Button({
           backgroundColor: t.fill,
           alignSelf: full ? 'stretch' : 'flex-start',
         },
-        tone === 'white' && styles.hairline,
+        tone === 'white' && !dark && styles.hairline,
         disabled ? null : tap.style,
         style,
       ]}

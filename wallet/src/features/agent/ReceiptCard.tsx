@@ -9,7 +9,7 @@
 import React, { useRef, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
-import { Caption, Coin, Head, Icon, Label, Meta, Tap, colour, dark, measure, useDeparture, type Rect } from '../../design';
+import { Caption, CoinTurn, Head, Icon, Label, Meta, Tap, colour, dark, measure, useDeparture, type Rect } from '../../design';
 import type { ReceiptCard as Card } from './conversation';
 
 export function ReceiptCard({
@@ -51,7 +51,7 @@ export function ReceiptCard({
           </View>
         ) : (
           /* money that went: the brand's coin in the disc's place, turning once as the card lands (Round 26) */
-          <Coin size={32} reach={46} delay={160} />
+          <CoinTurn size={32} />
         )}
         <Label style={{ color: dark.paper, flex: 1 }}>{card.kind === 'request' ? 'Request' : 'Receipt'}</Label>
         <View style={s.pill}>

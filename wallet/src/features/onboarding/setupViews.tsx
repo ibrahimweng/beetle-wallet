@@ -4,7 +4,7 @@
    the stages before it, so the same choreography carries the pieces. */
 import React from 'react';
 import { Platform, TextInput, View } from 'react-native';
-import { Aside, Body, Card, Head, Icon, Meta, Tap, Tick, colour, font, motion, washes } from '../../design';
+import { Aside, Body, Card, Head, Icon, Meta, Tap, Tick, colour, font, motion, night, washes } from '../../design';
 import type { IconName } from '../../icons';
 import { FULL_LINE, IDCARD, INCOME, INCOMES, OPENS, addressOk, type Income } from '../setup/setup';
 import type { Ctx, StageView } from './views';
@@ -13,7 +13,7 @@ import type { Ctx, StageView } from './views';
 function Later({ icon, label }: { icon: IconName; label: string }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, height: 40 }} testID="later">
-      <Icon name={icon} size={24} colour={colour.ink} />
+      <Icon name={icon} size={24} colour={night.ink} />
       <Body tone="tertiary">{label}</Body>
     </View>
   );
@@ -26,7 +26,7 @@ function Opens({ on, cascade = false }: { on: boolean; cascade?: boolean }) {
   return (
     <Card style={{ paddingTop: 4, paddingBottom: 0, paddingHorizontal: 16, gap: 0 }} testID="opens">
       {rows.map((text, i) => (
-        <View key={text} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, height: 50, borderBottomWidth: i < rows.length - 1 ? 1 : 0, borderBottomColor: colour.rule }}>
+        <View key={text} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, height: 50, borderBottomWidth: i < rows.length - 1 ? 1 : 0, borderBottomColor: night.rule }}>
           <Tick on={on} size={20} delay={cascade ? motion.markWait + 90 * (i + 1) : undefined} />
           <Meta tone={on ? 'ink' : 'tertiary'} style={{ flex: 1 }}>
             {text}
@@ -61,25 +61,25 @@ export function address(c: Ctx): StageView {
             value={c.street}
             onChangeText={c.setStreet}
             placeholder="12 Bode Thomas Street"
-            placeholderTextColor={colour.textTertiary}
+            placeholderTextColor={night.tertiary}
             autoFocus={Platform.OS !== 'web' ? false : true}
             autoCapitalize="words"
             returnKeyType="next"
             accessibilityLabel="Street"
             testID="street"
-            style={{ fontSize: 16, lineHeight: 24, ...font('600'), color: colour.ink, padding: 0, height: 24 }}
+            style={{ fontSize: 16, lineHeight: 24, ...font('600'), color: night.ink, padding: 0, height: 24 }}
           />
           <TextInput
             value={c.area}
             onChangeText={c.setArea}
             placeholder="Area, town and state"
-            placeholderTextColor={colour.textTertiary}
+            placeholderTextColor={night.tertiary}
             autoCapitalize="words"
             returnKeyType="done"
             onSubmitEditing={save}
             accessibilityLabel="Area, town and state"
             testID="area"
-            style={{ fontSize: 12, lineHeight: 16, ...font('400'), color: colour.textSecondary, padding: 0, height: 16 }}
+            style={{ fontSize: 12, lineHeight: 16, ...font('400'), color: night.secondary, padding: 0, height: 16 }}
           />
         </Card>
         <Later icon={IDCARD.icon} label={IDCARD.label} />
@@ -152,10 +152,10 @@ export function income(c: Ctx): StageView {
             accessibilityState={{ checked: c.income === it.id }}
             accessibilityLabel={it.label}
             onPress={() => pick(it.id)}
-            style={{ flexDirection: 'row', alignItems: 'center', height: 56, borderBottomWidth: i < INCOMES.length - 1 ? 1 : 0, borderBottomColor: colour.rule }}
+            style={{ flexDirection: 'row', alignItems: 'center', height: 56, borderBottomWidth: i < INCOMES.length - 1 ? 1 : 0, borderBottomColor: night.rule }}
           >
             <Body style={{ flex: 1 }}>{it.label}</Body>
-            {c.income === it.id ? <Tick on size={22} /> : <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: 1, borderColor: colour.ruleStrong }} />}
+            {c.income === it.id ? <Tick on size={22} /> : <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: 1, borderColor: night.ruleStrong }} />}
           </Tap>
         ))}
       </View>

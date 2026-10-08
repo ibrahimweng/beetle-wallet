@@ -1,0 +1,21 @@
+<frame id="1463:14533" name="Start" x="-861" y="21366" width="393" height="852">
+  <frame id="1463:14534" name="Page" x="0" y="0" width="393" height="696">
+    <frame id="1463:14536" name="Content" x="24" y="0" width="345" height="696">
+      <frame id="1465:14564" name="Layer_1" x="122.11500549316406" y="56" width="100.7699966430664" height="20.489999771118164" />
+      <frame id="1465:14563" name="Frame 26" x="0" y="96.48999786376953" width="345" height="475.510009765625">
+        <rounded-rectangle id="1449:14764" name="image 67" x="43.584991455078125" y="66.38294982910156" width="257.83001708984375" height="342.7441101074219" />
+      </frame>
+      <frame id="1463:14544" name="Column" x="0" y="592" width="345" height="104">
+        <text id="1463:14546" name="Intelligent finance" x="0" y="0" width="168" height="24" />
+        <text id="1463:14547" name="A bank that answers when you a" x="0" y="32" width="357" height="72" />
+      </frame>
+    </frame>
+  </frame>
+  <frame id="1463:14548" name="Dock" x="0" y="696" width="393" height="156">
+    <instance id="1463:14549" name="Button · Open an account" x="24" y="24" width="345" height="56" />
+    <frame id="1463:14550" name="Row · Already have one?" x="24" y="88" width="345" height="44">
+      <text id="1463:14551" name="Already have one?" x="86" y="12" width="119" height="20" />
+      <text id="1463:14552" name="Sign in" x="213" y="12" width="46" height="20" />
+    </frame>
+  </frame>
+</frame>

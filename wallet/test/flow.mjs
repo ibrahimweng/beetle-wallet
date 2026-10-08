@@ -327,7 +327,7 @@ try {
   console.log('The front door');
   /* the app opens as itself: the boot, and on a new phone the welcome */
   await page.goto(`${base}/`, { waitUntil: 'load' });
-  await page.getByText('Beetle', { exact: true }).first().waitFor();
+  await page.getByTestId('boot').first().waitFor();
   await shot('boot', 250);
 
   console.log('Opening an account');
@@ -457,7 +457,7 @@ try {
      kept, so it goes home, and the way in is not for somebody who is already
      in: it sends them home too */
   await page.goto(`${base}/`, { waitUntil: 'load' });
-  await page.getByText('Beetle', { exact: true }).first().waitFor();
+  await page.getByTestId('boot').first().waitFor();
   await shot('boot-again', 250);
   await see(NEW_HOME);
   await onPage('home');

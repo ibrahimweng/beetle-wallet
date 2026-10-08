@@ -1,5 +1,5 @@
 /* A receipt, as the frames draw one: the tick on its green disc (the brand's
-   clay coin, turning once, since Round 26: a transaction confirmed), the amount
+   logo coin, turning once, since Round 26: a transaction confirmed), the amount
    and a line under it, the status chip; then the slip, a white card with a
    hairline, in two columns of label over value, a line across for what was
    written, a dashed rule before the money and before the reference, and the
@@ -10,7 +10,7 @@
 import React, { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Icon } from './Icon';
-import { Coin } from './Coin';
+import { CoinTurn } from './Coin';
 import { Caption, Display, Label, Meta, Row } from './text';
 import { Arrive } from './journey';
 import { Card } from './Screen';
@@ -152,9 +152,9 @@ export function Receipt({
             <Icon name={mark.glyph} size={24} colour={colour.textInverse} />
           </View>
         ) : (
-          /* settled: the coin in the disc's place and at its size (larger, the sheet's edge cut it), turning once as the receipt arrives */
+          /* settled: the brand's logo coin in the disc's place and at its size, turning once as the receipt arrives */
           <View style={s.coin} testID="receipt-icon">
-            <Coin size={52} delay={220} />
+            <CoinTurn size={52} />
           </View>
         )}
         <View style={{ flex: 1 }}>

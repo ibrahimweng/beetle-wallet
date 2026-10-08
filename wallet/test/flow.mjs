@@ -378,6 +378,10 @@ try {
   /* every step is named for what it asks (Round 30) */
   await seeExactly('Enter mobile number');
   await see('I will text it a code');
+  /* every Back is at the bottom left (Round 31, the owner's word): on a step that types digits it is the pad's own corner */
+  const backAt = await page.getByTestId('back').filter({ visible: true }).first().boundingBox();
+  must(backAt && backAt.x < 120 && backAt.y > 600, `Back should be at the bottom left (${JSON.stringify(backAt)})`);
+  must((await page.getByRole('button', { name: 'Back', exact: true }).filter({ visible: true }).count()) === 1, 'there should be one Back, not one at the top as well');
   await shot('phone');
   /* the email instead, and back */
   await tap('Use email instead');
@@ -466,6 +470,13 @@ try {
   at('/way-in');
   await see('$ibrahimmusa is yours to take');
   await shot('finish');
+  /* and back from it, to the password and on again (Round 31: there was no way back from here) */
+  await tap('Back');
+  await seeExactly('Password');
+  await page.getByTestId('password').first().fill(PASSWORD);
+  await tap('Continue');
+  await seeExactly('Face scan and username');
+  await see('$ibrahimmusa is yours to take');
   must(await button('Open my account').isDisabled(), 'Open my account should wait for the face');
   await page.getByTestId('username').first().fill('tobi');
   await see('$tobi is taken');

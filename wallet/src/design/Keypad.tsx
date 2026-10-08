@@ -39,10 +39,12 @@ const AMOUNT_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '000', '0', 'd
 
 /* The face key sits in the bottom left where the frame leaves a gap, and is
    only drawn when the screen has something for it to do; on the amount pad
-   the 000 key sits there instead. */
+   the 000 key sits there instead. On the way in that corner is Back (Round
+   30, the owner's word: every Back is at the bottom left). */
 export function Keypad({
   onKey,
   onFace,
+  onBack,
   big = false,
   zeros = false,
   tone,
@@ -50,6 +52,8 @@ export function Keypad({
 }: {
   onKey: (k: string) => void;
   onFace?: () => void;
+  /** Back, in the bottom left, where there is no face key */
+  onBack?: () => void;
   big?: boolean;
   /** the amount pad, with 000 */ zeros?: boolean;
   tone?: PadTone;
@@ -65,17 +69,20 @@ export function Keypad({
   return (
     <View style={{ width: cell.w * 3, alignSelf: 'center', flexDirection: 'row', flexWrap: 'wrap', rowGap: cell.gap }} testID="keypad">
       {keys.map((k, i) => {
-        const live = k === 'face' ? !!onFace : !!k;
+        const back = k === 'face' && !onFace && !!onBack;
+        const live = k === 'face' ? !!onFace || back : !!k;
         return (
           <Tap
             key={i}
             accessibilityRole={live ? 'button' : undefined}
-            accessibilityLabel={!live ? undefined : k === 'del' ? 'Delete' : k === 'face' ? 'Use Face ID' : k}
+            accessibilityLabel={!live ? undefined : k === 'del' ? 'Delete' : back ? 'Back' : k === 'face' ? 'Use Face ID' : k}
             disabled={!live}
             onPress={() => {
-              if (k === 'face') onFace?.();
+              if (back) onBack?.();
+              else if (k === 'face') onFace?.();
               else if (k) onKey(k);
             }}
+            testID={back ? 'back' : undefined}
             style={{
               width: cell.w,
               height: cell.h,
@@ -99,6 +106,8 @@ export function Keypad({
               ) : k === 'face' ? (
                 onFace ? (
                   <Icon name="faceid" size={28} colour={tone === 'dark' ? ink : colour.accent} />
+                ) : back ? (
+                  <Icon name="back" size={24} colour={ink} />
                 ) : null
               ) : (
                 <Head style={{ color: ink }}>{k}</Head>

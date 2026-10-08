@@ -493,6 +493,8 @@ function recoverwhat(c: Ctx): StageView {
       </View>
     ) : null,
     bar: { label: c.busy ? 'Just a moment…' : 'Keep it and log in', onPress: keep, disabled: c.busy },
+    /* out of getting it back, to Log in: going back to the face scan would only ask for it again */
+    back: () => c.go('signin', -1),
   };
 }
 

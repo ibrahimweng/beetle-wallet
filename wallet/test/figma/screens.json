@@ -10247,14 +10247,14 @@
    {
     "name": "Icon",
     "find": {
-     "button": "Back"
+     "button": "Read a code"
     },
     "nth": 0
    },
    {
     "name": "Glyph · close",
     "find": {
-     "button": "Back",
+     "button": "Read a code",
      "child": 0
     }
    },
@@ -10361,7 +10361,7 @@
    {
     "name": "Column",
     "find": {
-     "button": "Use a sample photo"
+     "button": "Back"
     },
     "nth": 3
    },
@@ -10383,14 +10383,14 @@
    {
     "name": "Icon",
     "find": {
-     "button": "Read a code"
+     "button": "Use a sample photo"
     },
     "nth": 2
    },
    {
     "name": "Glyph · qr",
     "find": {
-     "button": "Read a code",
+     "button": "Back",
      "child": 0
     }
    },

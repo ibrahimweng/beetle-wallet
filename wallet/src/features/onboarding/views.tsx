@@ -15,6 +15,7 @@
 import React, { ReactNode, useEffect } from 'react';
 import { Platform, StyleProp, View, ViewStyle } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import {
   Aside,
@@ -256,21 +257,24 @@ export const shownContact = (to: string) => (/^\d{11}$/.test(to) ? groupPhone(to
 /** A mobile number with its middle hidden, for a screen anybody holding the phone can see. */
 export const maskPhone = (p: string) => `${p.slice(0, 4)} ••• ${p.slice(-4)}`;
 
-/* The face: the phone's own check where it has one and it is set up, a moment where it has none (the web, a phone
-   without Face ID). The live scan matched to the BVN's photo is the real service's; this build stands in for it. */
+/* The face: the phone's own check where the app may use it, a moment where it may not. The live scan matched to the
+   BVN's photo is the real service's; this build stands in for it. Expo Go on an iPhone is not allowed Face ID at all, so
+   asking it there failed every time and nobody got past the step (Round 31, the owner on the phone): there, and on a
+   phone that has no face set up or will not let the app ask, the stand-in answers. Only a face that was asked for and
+   did not match, or a scan called off, is a no. */
+const IN_EXPO_GO = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+const CANNOT_ASK = ['not_available', 'not_enrolled', 'passcode_not_set', 'missing_usage_description', 'unknown'];
+const standIn = () => new Promise<boolean>(r => setTimeout(() => r(true), 900));
 export async function scanFace(prompt: string): Promise<boolean> {
   try {
-    if (Platform.OS !== 'web') {
-      const can = (await LocalAuthentication.hasHardwareAsync()) && (await LocalAuthentication.isEnrolledAsync());
-      if (can) {
-        const r = await LocalAuthentication.authenticateAsync({ promptMessage: prompt, cancelLabel: 'Not now', disableDeviceFallback: true });
-        return r.success;
-      }
-    }
-    await new Promise(r => setTimeout(r, 900));
-    return true;
+    if (Platform.OS === 'web' || IN_EXPO_GO) return await standIn();
+    const can = (await LocalAuthentication.hasHardwareAsync()) && (await LocalAuthentication.isEnrolledAsync());
+    if (!can) return await standIn();
+    const r = await LocalAuthentication.authenticateAsync({ promptMessage: prompt, cancelLabel: 'Not now', disableDeviceFallback: true });
+    if (r.success) return true;
+    return CANNOT_ASK.includes(r.error) ? await standIn() : false;
   } catch {
-    return false;
+    return await standIn();
   }
 }
 
@@ -687,6 +691,8 @@ function bvn(c: Ctx): StageView {
     bodyKey: 'bvn',
     body: <DigitBody c={c} groups={[4, 4, 3]} footer={<More label="Use my NIN slip or voter’s card instead" onPress={() => c.go('document')} />} />,
     keypad: typing(c, 11, full),
+    /* back to the number or the email the way in began with, to change it */
+    back: () => c.go(c.app.progress.via === 'email' ? 'email' : 'number', -1),
   };
 }
 
@@ -783,6 +789,7 @@ function details(c: Ctx): StageView {
         c.go(c.app.progress.phone ? 'password' : 'number');
       },
     },
+    back: () => c.go(id?.from && id.from !== 'bvn' ? 'document' : 'bvn', -1),
   };
 }
 
@@ -808,6 +815,7 @@ function nomatch(c: Ctx): StageView {
       </View>
     ),
     bar: { label: 'Try again', onPress: () => c.go('bvn') },
+    back: () => c.go('bvn', -1),
   };
 }
 
@@ -839,6 +847,7 @@ function password(c: Ctx): StageView {
     body: passwordBody(c),
     bar: { label: 'Continue', onPress: save, disabled: !meetsRules(c.text) || c.busy },
     hint: MOCK && LAB ? `The lab takes ${DEMO_PASSWORDS[1]} as well.` : undefined,
+    back: () => c.go('details', -1),
   };
 }
 
@@ -948,6 +957,7 @@ function finish(c: Ctx): StageView {
       </View>
     ),
     bar: { label: c.busy ? 'Opening…' : 'Open my account', onPress: open, disabled: face !== 'done' || c.free !== 'free' || c.busy },
+    back: () => c.go('password', -1),
   };
 }
 

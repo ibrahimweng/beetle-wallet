@@ -517,7 +517,8 @@ export function WayIn() {
      it the same dark, its words, glyphs, buttons and keys taking the dark's colours from the scheme. The dark is the
      screen's own, under the pane, so the pane fades to it and never to the page behind */
   const side = bottomKind === 'welcome' ? WELCOME_SIDE : SIDE;
-  const coinMode: CoinMode = !focused ? -1 : finishing ? 3 : stage === 'welcome' ? 0 : view.back || view.hint ? 1 : 2;
+  /* the way back is at the bottom left since Round 30 (the owner's word), so only the demo's hint keeps a row at the top */
+  const coinMode: CoinMode = !focused ? -1 : finishing ? 3 : stage === 'welcome' ? 0 : view.hint ? 1 : 2;
   return (
     <Scheme value="dark">
       <StatusBar style="light" />
@@ -527,7 +528,6 @@ export function WayIn() {
           {/* the brand's wing, faint in the logo's tan, across the top corner of every step after the welcome, which is the
             owner's frame and has the coin (Round 26, 27); behind everything, outside the layout */}
           {stage === 'welcome' ? null : <Drawing name="wing" width={250} opacity={0.2} tint={night.lockup} turn={-8} style={{ top: -28, right: -64 }} />}
-          <BackChevron onPress={view.back} top={back} />
           <Hint text={view.hint} top={back} />
           {/* the column and what waits at the bottom ride up together over the keyboard where a step types (the
             address): the keyboard never covers the button. The avoiding view's own padding is the keyboard's alone:
@@ -565,12 +565,13 @@ export function WayIn() {
             <Slot id={`bottom:${bottomKind}`} from={120} to={120} delay={120} spring>
               {bottomKind === 'keypad' ? (
                 <View style={{ paddingHorizontal: SIDE, opacity: busy ? 0.5 : 1 }}>
-                  <Keypad onKey={k => keyRef.current?.(k)} />
+                  {/* Back is the pad's own bottom left key (Round 30: every Back at the bottom left) */}
+                  <Keypad onKey={k => keyRef.current?.(k)} onBack={view.back} />
                   {/* the frames give the pad 16 below its last row; the row's own cell holds 4 of it */}
                   <View style={{ height: 20 }} />
                 </View>
               ) : bottomKind === 'bar' && view.bar ? (
-                <BarBlock bar={view.bar} />
+                <BarBlock bar={view.bar.back || !view.back ? view.bar : { ...view.bar, back: view.back }} />
               ) : bottomKind === 'welcome' ? (
                 /* the two ways in as two buttons (Round 30, the owner's word): Sign up in white, Log in under it on the
                    dark's own panel, 8 between, the frame's 24 below */
@@ -659,24 +660,6 @@ function WelcomeLogo({ on, top }: { on: boolean; top: number }) {
   return (
     <Animated.View pointerEvents="none" style={[{ position: 'absolute', top, left: 0, right: 0, alignItems: 'center' }, style]}>
       <Lockup />
-    </Animated.View>
-  );
-}
-
-/* ---- the way back ---- */
-
-function BackChevron({ onPress, top }: { onPress?: () => void; top: number }) {
-  const still = useStill();
-  const t = useSharedValue(onPress ? 1 : 0);
-  useEffect(() => {
-    t.value = withTiming(onPress ? 1 : 0, { duration: still ? 0 : motion.swap, easing: settle });
-  }, [!!onPress]); // eslint-disable-line react-hooks/exhaustive-deps
-  const fading = useAnimatedStyle(() => ({ opacity: t.value }));
-  return (
-    <Animated.View pointerEvents={onPress ? 'auto' : 'none'} style={[{ position: 'absolute', top, left: 8, zIndex: 2 }, fading]}>
-      <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={onPress} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
-        <Icon name="back" size={22} />
-      </Pressable>
     </Animated.View>
   );
 }

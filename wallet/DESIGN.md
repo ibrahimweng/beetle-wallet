@@ -248,6 +248,11 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   boxed field and not another row of chips beside the amount's chips.
 - **What is tapped is what is set**: a chip or a tick sets the figure at
   once; the ruler only glides to it, and the steps it passes are not picks.
+- **Back is always at the bottom left** (Round 31, the owner's word), on
+  every page, step and sheet that has one: the foot's Back, the circle
+  beside a step's button, the keypad's own bottom left key, the camera's
+  foot. Never at the top. Every step of the way in has one, except the
+  welcome and the screens after the account is opened.
 - **A step is named for what it asks** (Round 30, the owner's word): Enter
   mobile number, OTP verification, BVN number, Password, Face scan and
   username. The line under the title says why, in one sentence.

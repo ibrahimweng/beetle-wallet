@@ -258,10 +258,11 @@ export function Scan() {
         />
       ) : null}
       <View style={s.column}>
-        {/* the frame's head: close at the left, the light at the right, 40 discs on a 44 row 56 down */}
+        {/* the frame's head: 40 discs on a 44 row 56 down, Read a code at the left where the frame's close was (Back is
+            at the bottom left since Round 31, the owner's word: every Back is), the light at the right */}
         <View style={s.top} testID="scan-top">
-          <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={back} style={s.disc40}>
-            <Icon name="close" size={20} colour={dark.paper} />
+          <Pressable accessibilityRole="button" accessibilityLabel="Read a code" onPress={() => toast('Beetle does not read codes yet. Point at the account number written by it.')} style={s.disc40}>
+            <Icon name="qr" size={20} colour={dark.paper} />
           </Pressable>
           <Pressable
             accessibilityRole="button"
@@ -323,14 +324,9 @@ export function Scan() {
         </View>
         {/* the frame's foot: the gallery, the shutter, the code reader, on a 72 row; the line under it */}
         <View style={s.bottom} testID="scan-bottom">
-          <Pressable accessibilityRole="button" accessibilityLabel="Use a sample photo" onPress={() => setChoosing(true)} style={s.gallery}>
-            <View style={s.galleryRow}>
-              <View style={s.galleryDot} />
-              <View style={[s.galleryLine, { width: 22, marginTop: 3 }]} />
-            </View>
-            <View style={s.galleryLine} />
-            <View style={s.galleryLine} />
-            <View style={[s.galleryLine, { width: 22 }]} />
+          {/* Back at the bottom left, as everywhere (Round 31) */}
+          <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={back} style={s.disc52} testID="scan-back">
+            <Icon name="back" size={22} colour={dark.paper} />
           </Pressable>
           <Tap
             accessibilityRole="button"
@@ -343,8 +339,15 @@ export function Scan() {
           >
             {state === 'taking' ? <ActivityIndicator color={dark.paper} /> : <View style={s.shutterInner} />}
           </Tap>
-          <Pressable accessibilityRole="button" accessibilityLabel="Read a code" onPress={() => toast('Beetle does not read codes yet. Point at the account number written by it.')} style={s.disc52}>
-            <Icon name="qr" size={22} colour={dark.paper} />
+          {/* the sample photos, at the right where the frame's Read a code was */}
+          <Pressable accessibilityRole="button" accessibilityLabel="Use a sample photo" onPress={() => setChoosing(true)} style={s.gallery}>
+            <View style={s.galleryRow}>
+              <View style={s.galleryDot} />
+              <View style={[s.galleryLine, { width: 22, marginTop: 3 }]} />
+            </View>
+            <View style={s.galleryLine} />
+            <View style={s.galleryLine} />
+            <View style={[s.galleryLine, { width: 22 }]} />
           </Pressable>
         </View>
         <Caption style={{ color: dark.textSoft, marginTop: 20, textAlign: forBill ? 'left' : 'center' }} testID="scan-caption">

@@ -1806,6 +1806,32 @@ question asked first.
       (sign up through the NIN slip and the BVN, log in on a new phone,
       getting the account back) and the Figma check.
 
+## Round 31 · Past the face scan, and Back at the bottom left
+
+Asked by the owner, on the phone: the face scan step could not be passed
+and there was no way back from it; and every Back is at the bottom left.
+
+- [x] The face scan asked the phone for Face ID, which Expo Go on an iPhone
+      is not allowed at all, so it failed every time. Now Expo Go, the web
+      and a phone that has no face set up (or will not let the app ask) get
+      the stand-in; only a face that was asked for and did not match, or a
+      scan called off, is a no. The same goes for the face on a new phone
+      and when getting an account back.
+- [x] Going back is good: every step of the way in has Back, except the
+      welcome and the screens after the account is opened. Face scan and
+      username goes back to Password, Password to Confirm your details, the
+      details to the BVN (or the paper), the BVN to the number or the
+      email it began with, and Your email out to Log in.
+- [x] Every Back is at the bottom left: on a step that types digits it is
+      the keypad's own bottom left key, on a step with a button it is the
+      circle beside it, on a page it is the foot's, and the camera's moves
+      from its top left to its foot (Read a code takes the top left, the
+      sample photos the bottom right). The coin keeps the room at the top
+      the old Back had.
+- [x] Tested: tsc, the unit tests (the worklet audit included), the walk
+      (Back at the bottom left, one Back only, Back from the face scan and on
+      again) and the Figma check.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

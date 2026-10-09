@@ -68,8 +68,10 @@ const account = (phone: string) => ({
 });
 const sessionFor = (a: Session['account']): Session => ({ token: 'lab', account: a });
 
-/** Somebody's USDC address on Base, for the pages that send coins out: EIP-55's own example, so its capitals check. */
+/** An address on Base, for the wrong-network page: EIP-55's own example, so its capitals check, and Send dollars names it as not Solana's. */
 const COIN_ADDRESS = '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed';
+/** somebody's Solana wallet, for sending dollars out to (Round 36) */
+const SOL_ADDRESS = '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM';
 
 const none: Seed = { progress: {}, session: null };
 /** The account just opened, on the ready screen: where finishing setting up starts from. */
@@ -418,7 +420,7 @@ export const MORE: Feature = {
   id: 'more',
   title: 'The bar and More',
   folder: 'src/features/more',
-  sub: 'The bar at the foot of home — Home, Activities, Settings, and the plus — and the three actions that rise out of it.',
+  sub: 'The bar at the foot of home — Home, Activities, Settings, and the plus — the three actions that rise out of it, and which account they are for.',
   places: [
     {
       id: 'more-bar',
@@ -432,10 +434,13 @@ export const MORE: Feature = {
       id: 'more-sheet',
       icon: 'plus',
       title: 'More',
-      sub: 'Camera, Send money and Receive up out of the plus, the screen soft behind them, from the frame',
+      sub: 'Convert, Send and Receive up out of the plus, the screen soft behind them, from the frame',
       href: '/home?more=1',
       seed: demo,
     },
+    /* Round 36: Send and Receive on the plus ask which account first */
+    { id: 'pick-send', icon: 'send', title: 'Send from which account?', sub: 'The Naira account or the Dollar account, with what each holds', href: '/pick?for=send', seed: demo },
+    { id: 'pick-receive', icon: 'down', title: 'Receive into which account?', sub: 'The two, and how money comes into each', href: '/pick?for=receive', seed: demo },
   ],
 };
 
@@ -803,30 +808,31 @@ export const DOLLARS: Feature = {
   id: 'dollars',
   title: 'Dollars',
   folder: 'src/features/dollars',
-  sub: 'What is held and what it is worth today, converting either way, and paying from the dollars.',
+  sub: 'The Dollar account: stablecoins on Solana, what is held and what it is worth today, converting either way, sending and receiving, and paying from the dollars.',
   places: [
-    { id: 'dollars-page', icon: 'dollar', title: 'Dollars', sub: '$412.60 and where each dollar came from, from the frame', href: '/dollars', seed: demo },
+    { id: 'dollars-page', icon: 'dollar', title: 'Dollars', sub: 'The Dollar account: $412.60, Convert, Send and Receive, and where each dollar came from', href: '/dollars', seed: demo },
     { id: 'dollars-convert', icon: 'swap', title: 'Convert', sub: '₦155,200 into dollars, with the rate, the fee and what you get', href: '/convert?demo=1', seed: demo },
     { id: 'dollars-converted', icon: 'check', title: 'Converted', sub: 'The tick, the rate you got, and the offer to move some every payday', href: '/converted/demo', seed: demo },
     { id: 'dollars-payfrom', icon: 'up', title: 'Pay from', sub: 'The sheet the From row on Send money puts up', href: '/send?demo=1&from=pick', seed: demo },
     { id: 'dollars-send', icon: 'send', title: 'Send from dollars', sub: 'Sarah paid from the dollars, at the rate on the page', href: '/send?demo=1&from=dollars', seed: demo },
-    /* Round 33: USDC and USDT, on test networks */
-    { id: 'coins-in', icon: 'down', title: 'Add with USDC or USDT', sub: 'The coin, the network, the address as a QR, and test coins sent to it', href: '/coins', seed: demo },
-    { id: 'coins-in-usdt', icon: 'down', title: 'USDT on Tron', sub: 'The same page for Tether on Tron, its T… address', href: '/coins?coin=USDT&network=tron', seed: demo },
+    /* Round 36: the Dollar account's stablecoins on Solana, received and sent as part of it */
+    { id: 'coins-in', icon: 'down', title: 'Receive dollars', sub: 'How receiving works the first time, then the Solana address as a QR, and test coins sent to it', href: '/coins', seed: demo },
+    { id: 'coins-in-how', icon: 'down', title: 'How receiving works', sub: 'The address with the four steps open under it', href: '/coins?how=1', seed: demo },
+    { id: 'coins-out', icon: 'send', title: 'Send dollars', sub: 'To a Beetle $tag, free and at once', href: '/coins/send', seed: demo },
     {
-      id: 'coins-out',
+      id: 'coins-out-wallet',
       icon: 'up',
-      title: 'Send to a wallet',
-      sub: 'A Base address pasted and checked, the amount, the network’s fee and what they get',
-      href: `/coins/send?to=${COIN_ADDRESS}`,
+      title: 'Send to a Solana wallet',
+      sub: 'An address pasted and checked, the amount, and what they get',
+      href: `/coins/send?to=${SOL_ADDRESS}`,
       seed: demo,
     },
     {
       id: 'coins-out-wrong',
       icon: 'alert',
       title: 'The wrong network',
-      sub: 'A Base address on Tron: named as such, and nothing can go',
-      href: `/coins/send?coin=USDT&network=tron&to=${COIN_ADDRESS}`,
+      sub: 'A Base address: named as such, with what to ask for instead, and nothing can go',
+      href: `/coins/send?to=${COIN_ADDRESS}`,
       seed: demo,
     },
   ],

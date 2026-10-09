@@ -1562,10 +1562,900 @@
    "Ask me to change something"
   ]
  },
+ "home-open": {
+  "frame": "home",
+  "root": "1201:17925",
+  "place": "A transfer, mid-way",
+  "wait": "Send money",
+  "waitExact": true,
+  "settle": 2600,
+  "pieces": [
+   {
+    "name": "Frame 2",
+    "find": {
+     "testid": "mark"
+    }
+   },
+   {
+    "name": "₦595,320",
+    "find": {
+     "testid": "balance"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Chip · +9% this month",
+    "find": {
+     "testid": "chip-open"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Tool panel",
+    "find": {
+     "testid": "panel"
+    },
+    "only": [
+     "x",
+     "w"
+    ]
+   },
+   {
+    "name": "Icon",
+    "nth": 0,
+    "within": "Tool panel",
+    "withinFind": {
+     "testid": "panel"
+    },
+    "find": {
+     "testid": "panel-icon"
+    }
+   },
+   {
+    "name": "Beetle Transfers",
+    "within": "Tool panel",
+    "withinFind": {
+     "testid": "panel"
+    },
+    "find": {
+     "text": "Send money",
+     "exact": true,
+     "inside": "panel"
+    }
+   },
+   {
+    "name": "Status pill",
+    "within": "Tool panel",
+    "withinFind": {
+     "testid": "panel"
+    },
+    "find": {
+     "testid": "pill"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · Recipient",
+    "within": "Tool panel",
+    "withinFind": {
+     "testid": "panel"
+    },
+    "find": {
+     "text": "Recipient",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · Arrives",
+    "within": "Tool panel",
+    "withinFind": {
+     "testid": "panel"
+    },
+    "find": {
+     "text": "Arrives",
+     "up": 1
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Button",
+    "within": "Tool panel",
+    "withinFind": {
+     "testid": "panel"
+    },
+    "find": {
+     "button": "Confirm ₦20,000"
+    }
+   },
+   {
+    "name": "Component 1",
+    "find": {
+     "testid": "ask-bar"
+    },
+    "only": [
+     "x",
+     "w",
+     "h"
+    ]
+   }
+  ],
+  "skipWords": [
+   "~ 340 USD"
+  ],
+  "picture": "home-open"
+ },
+ "confirm": {
+  "frame": "confirm",
+  "place": "The passcode",
+  "wait": "Enter your passcode",
+  "settle": 1800,
+  "pieces": [
+   {
+    "name": "Sheet",
+    "find": {
+     "testid": "passcode"
+    }
+   },
+   {
+    "name": "Box",
+    "find": {
+     "testid": "passcode-grabber"
+    }
+   },
+   {
+    "name": "₦20,000",
+    "within": "Content",
+    "withinNth": 1,
+    "withinFind": {
+     "testid": "passcode-content"
+    },
+    "find": {
+     "text": "₦20,000"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Chip · SA",
+    "within": "Content",
+    "withinNth": 1,
+    "withinFind": {
+     "testid": "passcode-content"
+    },
+    "find": {
+     "text": "SA",
+     "up": 1
+    },
+    "only": [
+     "y",
+     "w",
+     "h"
+    ]
+   },
+   {
+    "name": "Sarah Adeyemi",
+    "within": "Content",
+    "withinNth": 1,
+    "withinFind": {
+     "testid": "passcode-content"
+    },
+    "find": {
+     "text": "Sarah Adeyemi"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "GTBank · 0234 5678 90",
+    "within": "Content",
+    "withinNth": 1,
+    "withinFind": {
+     "testid": "passcode-content"
+    },
+    "find": {
+     "text": "GTBank ·"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Enter your passcode",
+    "within": "Content",
+    "withinNth": 1,
+    "withinFind": {
+     "testid": "passcode-content"
+    },
+    "find": {
+     "text": "Enter your passcode"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Or tap the face to use Face ID.",
+    "within": "Content",
+    "withinNth": 1,
+    "withinFind": {
+     "testid": "passcode-content"
+    },
+    "find": {
+     "testid": "note"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row",
+    "nth": 1,
+    "within": "Content",
+    "withinNth": 1,
+    "withinFind": {
+     "testid": "passcode-content"
+    },
+    "find": {
+     "testid": "pips"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Passcode keypad",
+    "within": "Content",
+    "withinNth": 1,
+    "withinFind": {
+     "testid": "passcode-content"
+    },
+    "find": {
+     "testid": "keypad"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Nothing moves until the four",
+    "within": "Content",
+    "withinNth": 1,
+    "withinFind": {
+     "testid": "passcode-content"
+    },
+    "find": {
+     "text": "Nothing moves"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ]
+   }
+  ],
+  "skipWords": [
+   "Face ID first",
+   "Reply, or just keep typing"
+  ]
+ },
+ "share": {
+  "frame": "share",
+  "place": "Share receipt",
+  "wait": "Share this receipt",
+  "settle": 1600,
+  "pieces": [
+   {
+    "name": "Sheet",
+    "find": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "Box",
+    "find": {
+     "testid": "share-grabber"
+    },
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "share-mark"
+    },
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "Share this receipt",
+    "find": {
+     "text": "Share this receipt"
+    },
+    "only": [
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "₦20,000 to Sarah Adeyemi, 7:55",
+    "find": {
+     "text": "₦20,000 to Sarah Adeyemi, 7:55"
+    },
+    "only": [
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "button": "WhatsApp",
+     "child": 0
+    },
+    "nth": 1,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "WhatsApp",
+    "find": {
+     "text": "WhatsApp"
+    },
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "The picture, ready to send",
+    "find": {
+     "text": "The picture, ready to send"
+    },
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "button": "Save to photos",
+     "child": 0
+    },
+    "nth": 2,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "Save to photos",
+    "find": {
+     "text": "Save to photos"
+    },
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "It stays on this phone",
+    "find": {
+     "text": "It stays on this phone"
+    },
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "button": "Save as PDF",
+     "child": 0
+    },
+    "nth": 3,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "Save as PDF",
+    "find": {
+     "text": "Save as PDF"
+    },
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "The full record, for an offi",
+    "find": {
+     "text": "The full record, for an office"
+    },
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "button": "Somewhere else",
+     "child": 0
+    },
+    "nth": 4,
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "Somewhere else",
+    "find": {
+     "text": "Somewhere else"
+    },
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "Messages, mail, anywhere you",
+    "find": {
+     "text": "Messages, mail, anywhere you share"
+    },
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "Your balance is left off eve",
+    "find": {
+     "text": "Your balance and the full"
+    },
+    "only": [
+     "x",
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   },
+   {
+    "name": "Button · Done",
+    "find": {
+     "button": "Done"
+    },
+    "only": [
+     "y",
+     "h"
+    ],
+    "within": "Sheet",
+    "withinFind": {
+     "testid": "share"
+    }
+   }
+  ]
+ },
+ "settings": {
+  "frame": "settings",
+  "place": "Settings",
+  "wait": "Get Beetle Plus",
+  "settle": 1400,
+  "pieces": [
+   {
+    "name": "Settings",
+    "find": {
+     "text": "Settings",
+     "exact": true
+    },
+    "nth": 1
+   },
+   {
+    "name": "Card",
+    "find": {
+     "testid": "plus"
+    },
+    "only": [
+     "x",
+     "y",
+     "w"
+    ]
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "plus",
+     "child": [
+      0,
+      0
+     ]
+    },
+    "nth": 0
+   },
+   {
+    "name": "Get Beetle Plus",
+    "find": {
+     "text": "Get Beetle Plus"
+    }
+   },
+   {
+    "name": "Icon",
+    "find": {
+     "testid": "plus",
+     "child": [
+      0,
+      2
+     ]
+    },
+    "nth": 1
+   },
+   {
+    "name": "What keeps the money yours",
+    "find": {
+     "text": "What keeps the money yours"
+    }
+   },
+   {
+    "name": "Row · Lock and privacy",
+    "find": {
+     "button": "Lock and privacy"
+    }
+   },
+   {
+    "name": "Glyph · faceid",
+    "find": {
+     "button": "Lock and privacy",
+     "child": 0
+    }
+   },
+   {
+    "name": "Lock and privacy",
+    "find": {
+     "text": "Lock and privacy"
+    }
+   },
+   {
+    "name": "Face ID",
+    "find": {
+     "text": "Face ID"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · Spending limits",
+    "find": {
+     "button": "Spending limits"
+    }
+   },
+   {
+    "name": "Glyph · dollar",
+    "find": {
+     "button": "Spending limits",
+     "child": 0
+    }
+   },
+   {
+    "name": "Spending limits",
+    "find": {
+     "text": "Spending limits"
+    }
+   },
+   {
+    "name": "₦100,000 a day",
+    "find": {
+     "text": "₦100,000 a day"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · Standing instruction",
+    "find": {
+     "button": "Standing instructions"
+    }
+   },
+   {
+    "name": "Standing instructions",
+    "find": {
+     "text": "Standing instructions"
+    }
+   },
+   {
+    "name": "3 running",
+    "find": {
+     "text": "3 running"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · Devices",
+    "find": {
+     "button": "Devices"
+    }
+   },
+   {
+    "name": "Glyph · ring",
+    "find": {
+     "button": "Devices",
+     "child": 0
+    }
+   },
+   {
+    "name": "Devices",
+    "find": {
+     "text": "Devices"
+    }
+   },
+   {
+    "name": "3 signed in",
+    "find": {
+     "text": "3 signed in"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Row · Keys and recovery",
+    "find": {
+     "button": "Keys and recovery"
+    }
+   },
+   {
+    "name": "Glyph · waste",
+    "find": {
+     "button": "Keys and recovery",
+     "child": 0
+    }
+   },
+   {
+    "name": "Keys and recovery",
+    "find": {
+     "text": "Keys and recovery"
+    }
+   },
+   {
+    "name": "Set up",
+    "find": {
+     "text": "Set up"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Your account",
+    "find": {
+     "text": "Your account"
+    }
+   },
+   {
+    "name": "Row · Your details",
+    "find": {
+     "button": "Your details"
+    }
+   },
+   {
+    "name": "Your details",
+    "find": {
+     "text": "Your details"
+    }
+   },
+   {
+    "name": "Row · Notifications",
+    "find": {
+     "button": "Notifications"
+    }
+   },
+   {
+    "name": "Notifications",
+    "find": {
+     "text": "Notifications"
+    }
+   },
+   {
+    "name": "Row · Saved people",
+    "find": {
+     "button": "Saved people"
+    }
+   },
+   {
+    "name": "Glyph · gift",
+    "find": {
+     "button": "Saved people",
+     "child": 0
+    }
+   },
+   {
+    "name": "Saved people",
+    "find": {
+     "text": "Saved people"
+    }
+   },
+   {
+    "name": "Row · Cards",
+    "find": {
+     "button": "Cards"
+    }
+   },
+   {
+    "name": "Glyph · star",
+    "find": {
+     "button": "Cards",
+     "child": 0
+    }
+   },
+   {
+    "name": "Cards",
+    "find": {
+     "text": "Cards",
+     "exact": true
+    }
+   },
+   {
+    "name": "1 virtual",
+    "find": {
+     "text": "1 virtual"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "About",
+    "find": {
+     "text": "About",
+     "exact": true
+    }
+   },
+   {
+    "name": "Row · Contact support",
+    "find": {
+     "button": "Contact support"
+    }
+   },
+   {
+    "name": "Glyph · qr",
+    "find": {
+     "button": "Contact support",
+     "child": 0
+    }
+   },
+   {
+    "name": "Contact support",
+    "find": {
+     "text": "Contact support"
+    }
+   },
+   {
+    "name": "Row · Give feedback",
+    "find": {
+     "button": "Give feedback"
+    }
+   },
+   {
+    "name": "Glyph · laptop",
+    "find": {
+     "button": "Give feedback",
+     "child": 0
+    }
+   },
+   {
+    "name": "Give feedback",
+    "find": {
+     "text": "Give feedback"
+    }
+   },
+   {
+    "name": "Row · Sign out",
+    "find": {
+     "button": "Sign out"
+    }
+   },
+   {
+    "name": "Glyph · home",
+    "find": {
+     "button": "Sign out",
+     "child": 0
+    }
+   },
+   {
+    "name": "Sign out",
+    "find": {
+     "text": "Sign out"
+    }
+   },
+   {
+    "name": "Version 1.0.4",
+    "find": {
+     "text": "Version"
+    },
+    "only": [
+     "y",
+     "h"
+    ]
+   },
+   {
+    "name": "Back",
+    "find": {
+     "button": "Back"
+    }
+   },
+   {
+    "name": "Ask bar",
+    "find": {
+     "testid": "dock-bar"
+    }
+   }
+  ],
+  "skipWords": [
+   "Ask me to change something"
+  ]
+ },
  "actions": {
   "frame": "actions",
   "place": "More",
-  "wait": "Send money",
+  "wait": "Convert",
   "settle": 1600,
   "pieces": [
    {

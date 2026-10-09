@@ -26,7 +26,8 @@ type Way = { glyph: IconName; title: string; sub: string; to: string };
 
 const WAYS: Way[] = [
   { glyph: 'request', title: 'Ask someone', sub: 'Send a request they can pay', to: '/request' },
-  { glyph: 'dollar', title: 'In dollars', sub: 'Hold it steady, or turn naira across', to: '/dollars' },
+  /* Round 36: stablecoins into the Dollar account, its address and how receiving works */
+  { glyph: 'dollar', title: 'In dollars', sub: 'USDC, USDT or PYUSD on Solana', to: '/coins' },
 ];
 
 export function ReceiveSheet({ account, onDismiss }: { account: Account; onDismiss: () => void }) {

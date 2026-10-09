@@ -2,7 +2,22 @@
    address for one network named as such on another, and the test addresses
    this build gives an account. Real addresses from each network's docs. */
 import { describe, expect, it } from 'vitest';
-import { base58, checkAddress, checksummed, codeTarget, familyOf, networksFor, sendOut, shortAddress, testAddressFor, unbase58 } from '../src/features/dollars/chains';
+import {
+  LISTED,
+  base58,
+  checkAddress,
+  checkSolana,
+  checksummed,
+  codeTarget,
+  familyOf,
+  isListed,
+  listedWords,
+  networksFor,
+  sendOut,
+  shortAddress,
+  testAddressFor,
+  unbase58,
+} from '../src/features/dollars/chains';
 
 /* EIP-55's own examples, Tether's contract on Tron, and Circle's USDC mint on Solana */
 const EVM = '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed';
@@ -53,9 +68,10 @@ describe('stablecoin addresses', () => {
     }
     expect(testAddressFor('0123456789', 'base')).toBe(testAddressFor('0123456789', 'ethereum'));
   });
-  it('lists the networks a coin runs on, and takes the network’s fee from what is sent', () => {
-    expect(networksFor('USDC').map(n => n.id)).toEqual(['base', 'solana', 'ethereum']);
+  it('lists the networks a coin runs on, Solana first and its fee paid by Beetle, and takes a network’s fee from what is sent', () => {
+    expect(networksFor('USDC').map(n => n.id)).toEqual(['solana', 'base', 'ethereum']);
     expect(networksFor('USDT').map(n => n.id)).toEqual(['solana', 'tron', 'ethereum']);
+    expect(sendOut(100, 'solana')).toEqual({ fee: 0, arrives: 100 });
     expect(sendOut(100, 'tron')).toEqual({ fee: 1, arrives: 99 });
     expect(sendOut(0.5, 'ethereum')).toEqual({ fee: 2.5, arrives: 0 });
     expect(shortAddress(EVM)).toBe('0x5aAe…eAed');
@@ -79,5 +95,21 @@ describe('the coin a payment link names (the analysis after Round 34)', () => {
     expect(codeTarget(`ethereum:0xdAC17F958D2ee523a2206206994597C13D831ec7@1/transfer?address=${EVM}&uint256=5e6`)).toEqual({ network: 'ethereum', coin: 'USDT', address: EVM });
     expect(codeTarget(`solana:${SOL}?amount=5&spl-token=Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB`)).toEqual({ network: 'solana', coin: 'USDT', address: SOL });
     expect(codeTarget(`solana:${SOL}?spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`)).toEqual({ network: 'solana', coin: 'USDC', address: SOL });
+  });
+});
+
+describe('the Dollar account on Solana (Round 36)', () => {
+  it('lists the stablecoins that land, and says them', () => {
+    expect(LISTED.map(c => c.id)).toEqual(['USDC', 'USDT', 'PYUSD']);
+    expect(listedWords()).toBe('USDC, USDT or PYUSD');
+    expect([isListed('PYUSD'), isListed('SOL'), isListed('USD')]).toEqual([true, false, false]);
+  });
+  it('sends to Solana addresses alone, and names the rest', () => {
+    expect(checkSolana(SOL)).toMatchObject({ ok: false, why: expect.stringContaining('USDC’s own address') });
+    expect(checkSolana(EVM)).toEqual({ ok: false, why: 'That is a Base or Ethereum address. Beetle sends dollars on Solana only: ask them for their Solana address.' });
+    expect(checkSolana(TRON)).toMatchObject({ ok: false, why: expect.stringContaining('a Tron address') });
+    const wallet = testAddressFor('0123456789', 'solana');
+    expect(checkSolana(wallet)).toEqual({ ok: true, address: wallet });
+    expect(checkSolana(wallet, wallet)).toMatchObject({ ok: false, why: expect.stringContaining('your own') });
   });
 });

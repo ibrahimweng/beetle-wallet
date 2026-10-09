@@ -50,6 +50,8 @@ export type Prefs = {
   /** the day after a recovery (Round 30): until then sending is capped at HOLD_CAP and nothing new is added, and the old
       email and the phone have been told, with This wasn't me on what they were sent */
   hold?: { until: number; why: 'email' | 'password' };
+  /** how receiving stablecoins works, read and said yes to once, before the Dollar account's address is shown (Round 36) */
+  coinsUnderstood: boolean;
 };
 
 export const DEFAULT_PREFS: Prefs = {
@@ -68,6 +70,7 @@ export const DEFAULT_PREFS: Prefs = {
   othersSignedOut: false,
   marketing: false,
   frozen: false,
+  coinsUnderstood: false,
 };
 
 export const prefsKey = (account: string) => `beetle.prefs.${account}.v1`;

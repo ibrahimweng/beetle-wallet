@@ -146,6 +146,14 @@
    "why": "the frame draws five actions; the bar at the foot of home carries Activities and Settings, so the sheet keeps these three, sitting nearest the button in the frame's lower three rows"
   },
   {
+   "text": "Camera",
+   "why": "Round 36, the owner's word: the plus carries Convert, Send and Receive, for the naira and the dollars alike; the camera is inside Send, on Send money's To row, so Convert takes its row"
+  },
+  {
+   "text": "Send money",
+   "why": "Round 36: Send, for either account, asked on Which account? next"
+  },
+  {
    "text": "History",
    "why": "the bar at the foot of home carries the record, as Activities"
   },
@@ -1100,7 +1108,7 @@
   },
   {
    "text": "Pounds, dollars and euros",
-   "why": "Round 33: Send abroad's line is Dollars out as USDC or USDT"
+   "why": "Round 33: Send abroad's line is Dollars out as stablecoins, on Solana since Round 36"
   },
   {
    "pieces": [
@@ -1376,6 +1384,10 @@
   }
  ],
  "dollars": [
+  {
+   "pieces": ["Button · Convert", "Button · Send"],
+   "why": "Round 36, the owner's word: the Dollar account has Convert, Send and Receive, so Receive joins the two on the card and the three share the row"
+  },
   {
    "pieces": [
     ["Row", 1],
@@ -2427,6 +2439,18 @@
    "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
   }
  ],
+ "home-card": [
+  {
+   "text": "~ 384 USD",
+   "why": "Round 36, the owner's word: the chip on the card is the Dollar account's own balance (Dollars · $412.60), and opens it; the frame's reads the naira balance in dollars"
+  }
+ ],
+ "home-quiet": [
+  {
+   "text": "~ 384 USD",
+   "why": "Round 36, the owner's word: the chip on the card is the Dollar account's own balance (Dollars · $412.60), and opens it; the frame's reads the naira balance in dollars"
+  }
+ ],
  "receive": [
   {
    "pieces": [
@@ -2462,6 +2486,14 @@
    "within": "Sheet",
    "dy": 109,
    "why": "Ask someone, In dollars and Done come down under the details card and Share details, which take the place of the two rows"
+  },
+  {
+   "piece": "Hold it steady, or turn nair",
+   "why": "Round 36, the owner's word: In dollars opens Receive dollars, stablecoins into the Dollar account, so its line says which coins and where (USDC, USDT or PYUSD on Solana)"
+  },
+  {
+   "text": "Hold it steady, or turn nair",
+   "why": "Round 36: In dollars' line is USDC, USDT or PYUSD on Solana"
   }
  ],
  "welcome": [

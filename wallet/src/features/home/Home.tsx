@@ -83,6 +83,7 @@ import { tabs, useHoldPages, usePage, useTabAgain } from '../tabs';
 import { Grid } from './Grid';
 import { Promos, promosFor, quietFor } from './Promos';
 import { kobo, moneyExact, naira } from '../../lib/format';
+import { dollarsOf, usdFull } from '../dollars/dollars';
 
 /** What stays showing under the open card: the bar's row of glyphs, 16
     under the card's edge, and what the bar keeps under the row (barLift).
@@ -973,15 +974,9 @@ function HomeScreen() {
     if (LAB && ok && asked.more === '1') setTimeout(() => foot.openMore(), 400);
   }, [ok, asked.more]);
 
-  /* what More's three do from home: the camera and Send money on their own
-     screens, receiving in the card */
-  const pickMore = useCallback(
-    (item: MoreItem) => {
-      if (item === 'receive') openReceive();
-      else moreTo(router, item);
-    },
-    [openReceive, router],
-  );
+  /* what More's three do from home (Round 36): Convert on its page, Send and Receive by way of Which account?, whose
+     Naira account comes back here with the Receive sheet up */
+  const pickMore = useCallback((item: MoreItem) => moreTo(router, item), [router]);
   /* the foot is the bar, while this page is the one showing, and it stays
      under the open chat; More comes up out of its plus. A sheet or a peek
      over home sends it down out of the way. */
@@ -1062,7 +1057,7 @@ function HomeScreen() {
                 offers={<Promos width={W} promos={promos} quiet={quiet} />}
                 whole={(balance < 0 ? '−' : '') + naira(balance)}
                 kobo={kobo(balance)}
-                dollars={setup.done ? `~ ${Math.round(balance / rate).toLocaleString('en-NG')} USD` : 'New account'}
+                dollars={setup.done ? `Dollars · ${usdFull(dollarsOf(h?.dollars ?? 0, moves))}` : 'New account'}
                 onReceive={openReceive}
                 flash={flash}
                 onDollars={() => router.push(setup.done ? '/dollars' : '/way-in?setup=1')}

@@ -1,8 +1,11 @@
-/* Dollars, from its frame: what is held and what it is worth today, Convert
-   and Send, the rate and how it moved, Beetle's word on holding them,
-   where each dollar came from, the note on whose hands they are in, and
-   the line that nothing is locked. The dollars chip on the card opens it,
-   as does Dollars on All services and "what about dollars" typed at home. */
+/* The Dollar account, from the Dollars frame: what is held and what it is
+   worth today, Convert, Send and Receive, the rate and how it moved, Beetle's
+   word on holding them, where each dollar came from, the note on what they
+   are, and the line that nothing is locked. Round 36, the owner's word: the
+   dollars are stablecoins on Solana, one coin to the dollar, sent and
+   received from here as the naira are from Everyday; no corner of their own.
+   The dollar chip on home's card opens it, as does Dollars on All services
+   and "what about dollars" typed at home. */
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -17,6 +20,7 @@ import { useSetup } from '../setup';
 import { SetupOffer } from '../setup/Offer';
 import { naira } from '../../lib/format';
 import { TEST_MONEY, hasTestMoney } from '../home/account';
+import { listedWords } from './chains';
 import { DEMO_SOURCES, RATE_MOVE, dollarsOf, heldLine, nairaOf, sourcesOf, usdFull, type DollarSource } from './dollars';
 
 export function Dollars() {
@@ -43,7 +47,7 @@ export function Dollars() {
   useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   return (
-    <Screen head={<PageHead lead title="Dollars" sub="Steady when the naira is not, and yours to turn back" />}>
+    <Screen head={<PageHead lead title="Dollar account" sub="Stablecoins, one to the dollar, steady when the naira is not" />}>
       {/* holding dollars is one of the things finishing setting up turns on */}
       {setup.done ? null : <SetupOffer sub="Two minutes, and you can hold dollars" />}
       <View style={s.card} testID="dollars-card">
@@ -63,12 +67,20 @@ export function Dollars() {
             label="Send"
             size={48}
             tone="white"
-            to={setup.done && dollars > 0 ? '/send?from=dollars' : undefined}
+            to={setup.done && dollars > 0 ? '/coins/send' : undefined}
             onPress={
               setup.done && dollars > 0
                 ? undefined
-                : () => toast(setup.done ? 'Nothing to send from yet. Convert some naira first.' : 'Finish setting up first, and you can send from your dollars. It takes two minutes.')
+                : () => toast(setup.done ? 'Nothing to send yet. Convert some naira, or receive stablecoins.' : 'Finish setting up first, and you can send dollars. It takes two minutes.')
             }
+            style={[{ flex: 1 }, s.outlined]}
+          />
+          <Button
+            label="Receive"
+            size={48}
+            tone="white"
+            to={setup.done ? '/coins' : undefined}
+            onPress={setup.done ? undefined : () => toast('Finish setting up first, and you can receive dollars. It takes two minutes.')}
             style={[{ flex: 1 }, s.outlined]}
           />
         </View>
@@ -107,8 +119,8 @@ export function Dollars() {
       ) : null}
       <NoteCard
         height={112}
-        title="Nobody here holds a key"
-        body="Your dollars sit in a domiciliary account at our partner bank, under CBN rules. Beetle moves them when you say so and cannot move them when you do not."
+        title="One coin to each dollar"
+        body="Each dollar here is a stablecoin Beetle holds for you on Solana. Beetle moves them when you say so and cannot move them when you do not."
       />
       <View style={s.lock} testID="lock-line">
         <Icon name="lock" size={16} colour={colour.textTertiary} />
@@ -116,14 +128,15 @@ export function Dollars() {
           Turn any of it back to naira the same day. There is no notice and no lock.
         </Meta>
       </View>
-      {/* Round 33: the dollars in and out as USDC or USDT, on test networks in this build */}
-      <View style={{ gap: 12 }} testID="coins-block">
-        <Head>USDC and USDT</Head>
-        <View>
-          <ChoiceRow glyph="down" title="Add with USDC or USDT" sub="From any wallet or exchange, one coin to the dollar" to="/coins" testID="coins-in" />
-          <ChoiceRow glyph="up" title="Send to a wallet" sub="Your dollars out as coins, to their address" to="/coins/send" testID="coins-out" />
-        </View>
-      </View>
+      {/* Round 36: how stablecoins come in, for anyone who wants it before they press Receive */}
+      <ChoiceRow
+        glyph="down"
+        title="How receiving stablecoins works"
+        sub={`${listedWords()}, sent on Solana`}
+        to={setup.done ? '/coins?how=1' : undefined}
+        onPress={setup.done ? undefined : () => toast('Finish setting up first, and you can receive dollars. It takes two minutes.')}
+        testID="coins-how-row"
+      />
     </Screen>
   );
 }

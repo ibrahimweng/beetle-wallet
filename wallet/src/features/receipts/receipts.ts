@@ -9,7 +9,7 @@ import { localIsoDay, sessionWhen } from '../../lib/days';
 import type { LedgerRow } from '../home/account';
 import { fromEveryday } from '../home/everyday';
 import { usdFull } from '../dollars/dollars';
-import { networkOf, shortAddress } from '../dollars/chains';
+import { networkName, shortAddress } from '../dollars/chains';
 
 /** Where a transfer went, as its receipt says it: the bank and the number
     the line carries; otherwise what the line's own words begin with, for a
@@ -295,52 +295,58 @@ export function receiptFor(row: LedgerRow, ctx: { account: Account; balanceNow: 
     };
   }
   if (row.kind === 'coin' && row.coin) {
-    /* a stablecoin in or out (Round 33): in dollars, one coin to the dollar, the network's fee out of what is sent */
+    /* the Dollar account's lines (Rounds 33 and 36): in dollars, a listed stablecoin to the dollar on Solana, or dollars
+       between two Beetle Dollar accounts by $tag */
     const c = row.coin;
-    const on = `${c.coin} on ${networkOf(c.network).name}`;
+    const tag = c.network === 'beetle';
+    const on = tag ? 'Beetle to Beetle' : `${c.coin} on ${networkName(c.network)}`;
     const moved = Math.abs(row.usd ?? 0);
     const settled = row.status === 'done';
+    const test = c.network === 'solana' ? 'On Solana’s test network: no real coin moved' : tag ? 'Free and at once between Beetle accounts' : 'On a test network: no real coin moved';
     if ((row.usd ?? 0) > 0) {
       return {
         ...base,
         figure: usdFull(moved),
-        head: settled ? 'Coins in' : 'On its way',
-        line: `${usdFull(moved)} ${on}`,
+        head: settled ? (tag ? 'Dollars in' : 'Coins in') : 'On its way',
+        line: tag ? `${usdFull(moved)} from ${c.address}` : `${usdFull(moved)} ${on}`,
         status: settled ? 'Arrived' : 'On its way',
         fields: [
-          ['From', shortAddress(c.address), row.detail.split(' · ')[0] ?? on],
-          ['Coin', on, 'On a test network: no real coin moved'],
-          ['To', 'Dollars', 'One coin, one dollar'],
+          ['From', tag ? c.address : shortAddress(c.address), row.detail.split(' · ')[0] ?? on],
+          tag ? ['Way', on, test] : ['Coin', on, test],
+          ['To', 'Dollar account', tag ? 'Dollars, as they were sent' : 'One coin, one dollar'],
           ['Amount', usdFull(moved)],
-          ['Fee', 'None on coins in'],
+          ['Fee', tag ? 'None' : 'None on coins in'],
           ['Total credited', usdFull(moved)],
         ],
         session: c.hash,
-        sessionLabel: 'Transaction',
+        sessionLabel: tag ? 'Beetle reference' : 'Transaction',
         nudge: { text: 'Add more the same way?', action: 'Show the address' },
         wrong: 'Expecting more than this?',
-        ask: 'Ask about these coins',
+        ask: 'Ask about these dollars',
       };
     }
+    const arrives = Math.max(0, moved - c.fee);
     return {
       ...base,
       figure: usdFull(moved),
       head: settled ? 'Sent' : row.status === 'pending' ? 'On its way' : row.status === 'failed' ? 'It did not go' : 'It came back',
-      line: `${usdFull(Math.max(0, moved - c.fee))} ${c.coin} to ${shortAddress(c.address)}`,
+      line: tag ? `${usdFull(arrives)} to ${c.address}` : `${usdFull(arrives)} ${c.coin} to ${shortAddress(c.address)}`,
       status: settled ? 'Successful' : row.status === 'pending' ? 'On its way' : row.status === 'failed' ? 'Did not go' : 'Came back',
       fields: [
-        ['To', shortAddress(c.address), on],
-        ['From', 'Dollars', 'One dollar, one coin'],
+        ['To', tag ? c.address : shortAddress(c.address), tag ? `${row.name} · Dollar account` : on],
+        ['From', 'Dollar account', tag ? 'Dollars, as they are' : 'One dollar, one coin'],
         ['Amount', usdFull(moved)],
-        ['Network fee', usdFull(c.fee), 'The network’s own, out of what is sent'],
-        ['They get', usdFull(Math.max(0, moved - c.fee))],
+        c.fee
+          ? ['Network fee', usdFull(c.fee), 'The network’s own, out of what is sent']
+          : ['Fee', tag ? 'Free' : 'None', tag ? 'Free and at once between Beetle accounts' : 'Beetle pays Solana’s fee'],
+        ['They get', usdFull(arrives)],
         ['Total charged', usdFull(moved)],
       ],
       session: c.hash,
-      sessionLabel: 'Transaction',
-      nudge: { text: 'Send to this address again?', action: 'Send again' },
+      sessionLabel: tag ? 'Beetle reference' : 'Transaction',
+      nudge: { text: tag ? `Send ${row.name.split(' ')[0]} dollars again?` : 'Send to this address again?', action: 'Send again' },
       wrong: 'Something wrong with this?',
-      ask: 'Ask about these coins',
+      ask: 'Ask about these dollars',
     };
   }
   if (row.kind === 'in') {

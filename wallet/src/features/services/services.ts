@@ -40,7 +40,7 @@ export const LISTS: { title: string; items: Service[] }[] = [
     items: [
       { glyph: 'dollar', label: 'Dollars', sub: 'holding steady', to: '/dollars' },
       { glyph: 'up', label: 'Request money', sub: 'Ask someone to pay you', to: '/request' },
-      { glyph: 'globe', label: 'Send abroad', sub: 'Dollars out as USDC or USDT', to: '/coins/send' },
+      { glyph: 'globe', label: 'Send abroad', sub: 'Dollars out as stablecoins, on Solana', to: '/coins/send' },
     ],
   },
 ];

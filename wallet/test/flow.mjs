@@ -1667,12 +1667,12 @@ try {
   await button('More').waitFor();
   await shot('home-bar', 900);
   await tap('More');
-  await see('Send money');
+  await button('Convert').waitFor();
   await shot('home-more', 900);
   must((await page.getByRole('button', { name: 'History', exact: true }).count()) === 0, 'More should carry three, not the two the bar has');
   must((await page.getByTestId('more-veil').count()) === 1, 'More should open over the page under its white veil');
   await button('Close').last().click();
-  /* More folds away and then goes (another Send money, on a page to the side, is not More's) */
+  /* More folds away and then goes (another Convert, on a page to the side, is not More's) */
   await page.getByTestId('more').waitFor({ state: 'detached' });
   must((await page.getByTestId('more-veil').count()) === 0, 'the veil should go with More');
   await tap('Settings');
@@ -1855,9 +1855,30 @@ try {
   await seeExactly('Do not send it again. This one is still live.');
   await tap('Back');
   await see('Everything that moved');
+  /* Round 36: More's Send and Receive ask which account first, with what each holds and how money moves in each */
   await tap('More');
-  await see('Send money');
-  await tap('Send money');
+  await button('Convert').waitFor();
+  await page.getByTestId('more').getByRole('button', { name: 'Receive', exact: true }).click();
+  await see('Receive into your naira or your dollars');
+  at('/pick');
+  await see('sent on Solana to your Dollar account’s own address');
+  await shot('pick-receive', 700);
+  await tap('Dollar account');
+  await see('Receive dollars');
+  at('/coins');
+  await tap('Back');
+  await see('Which account?');
+  await tap('Back');
+  await see('Everything that moved');
+  await tap('More');
+  await button('Convert').waitFor();
+  await page.getByTestId('more').getByRole('button', { name: 'Send', exact: true }).click();
+  await see('Send from your naira or your dollars');
+  at('/pick');
+  await see('Naira account');
+  await see('Stablecoins · $');
+  await shot('pick-send', 700);
+  await tap('Naira account');
   await see('Nothing moves until you slide');
   at('/send');
   await tap('Back to the lab');
@@ -2313,10 +2334,13 @@ try {
   /* the dollars chip on the card opens Dollars; Convert takes a figure, the passcode, and lands on Converted */
   await page.goto(`${base}/home`, { waitUntil: 'load' });
   await see(DEMO_HOME);
+  must((await button('The Dollar account, $412.60. Opens it').count()) === 1, 'the chip on the card should carry the Dollar account’s own balance');
   await page.getByTestId('chip').click();
   await see('Steady when the naira is not');
   at('/dollars');
+  await seeExactly('Dollar account');
   await see('$412.60');
+  must((await button('Receive').count()) === 1 && (await button('Send').count()) === 1, 'the Dollar account should carry Convert, Send and Receive');
   await shot('dollars', 900);
   await tap('Convert');
   await see('Naira into dollars');
@@ -2335,8 +2359,9 @@ try {
   await receiptDone();
   await see('Steady when the naira is not');
   await see('$512.60');
-  /* Send from the dollars: the From row's sheet, the figure in dollars under the amount, no fee, and the receipt saying From Dollars */
-  await tap('Send');
+  /* Send on the Dollar account sends dollars (Round 36), below; paying a bank account from the dollars stays on Send
+     money: the From row's sheet, the figure in dollars under the amount, no fee, and the receipt saying From Dollars */
+  await page.goto(`${base}/send?from=dollars`, { waitUntil: 'load' });
   await see('The rate is held for sixty seconds');
   at('/send');
   await page.getByTestId('to-choice').filter({ hasText: 'Sarah Adeyemi' }).first().click();
@@ -2357,49 +2382,81 @@ try {
   await pay();
   await receiptSheet();
   await shot('send-dollars-receipt', 900);
-  /* USDC and USDT (Round 33), on test networks: the address for the coin and network picked, as a QR and words; test coins
-     sent to it arrive as dollars with a receipt; and dollars go out to somebody's address, checked before anything moves */
+  /* the Dollar account's stablecoins (Round 36, the owner's word), on Solana's test network: Receive says how receiving
+     works and asks for a yes before it shows the address; test coins land as dollars with a line in Activities, a word
+     from Beetle and the receipt; Send goes to a Beetle $tag, free, or a Solana wallet, checked before anything moves */
   await page.goto(`${base}/dollars`, { waitUntil: 'load' });
-  await see('USDC and USDT');
-  await tap('Add with USDC or USDT');
-  await see('Only USDC, and only on Base.');
+  await see('Steady when the naira is not');
+  await tap('Receive');
+  await see('Pick Solana where you send from');
   at('/coins');
-  const baseAddress = await page.getByTestId('coin-address-text').innerText();
-  must(/^0x[0-9a-fA-F]{40}$/.test(baseAddress), `the Base address should be 0x and forty hex, not ${baseAddress}`);
+  await see('Beetle never asks you to send coins');
+  must((await page.getByTestId('coin-address-text').count()) === 0, 'the address should wait for a yes to how receiving works');
+  await shot('coins-how', 900);
+  must(await button('Show my address').isDisabled(), 'Show my address should wait for the yes');
+  await page.getByTestId('coins-agree').click();
+  await tap('Show my address');
   await page.getByTestId('coin-qr').waitFor();
+  const solAddress = await page.getByTestId('coin-address-text').innerText();
+  must(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(solAddress), `the Dollar account's address should be a Solana one, not ${solAddress}`);
+  await see('Solana only');
+  await see('USDC · USDT · PYUSD');
+  await see(`Starts ${solAddress.slice(0, 4)} and ends ${solAddress.slice(-4)}`);
   await shot('coins-in', 900);
-  /* Tether is not on Base: the page moves to its cheapest network, and Tron gives a T… address */
-  await tap('USDT');
-  await see('Only USDT, and only on Solana.');
-  await page.getByRole('radio', { name: /Tron/ }).click();
-  await see('Only USDT, and only on Tron (TRC-20).');
-  must(/^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(await page.getByTestId('coin-address-text').innerText()), 'the Tron address should be T and 33 more');
   await tap('Send $100 of test USDT');
   await receiptSheet();
   await see('Coins in');
-  await see('$100.00 USDT on Tron (TRC-20)');
+  await see('$100.00 USDT on Solana');
   await shot('coins-arrived', 900);
   await receiptDone();
-  /* out: an address for another network is named, one with a letter wrong is caught, the right one is checked */
+  /* the yes is kept: the address straight away next time, how it works a tap under it */
+  await page.goto(`${base}/coins`, { waitUntil: 'load' });
+  await page.getByTestId('coin-qr').waitFor();
+  await tap('How receiving works');
+  await see('Pick Solana where you send from');
+  /* the coins are a line in Activities, in dollars */
+  await page.goto(`${base}/activities`, { waitUntil: 'load' });
+  await see('Everything that moved');
+  await see('USDT in');
+  /* out to a Beetle $tag: free and at once */
+  await page.goto(`${base}/dollars`, { waitUntil: 'load' });
+  await see('Steady when the naira is not');
+  await tap('Send');
+  await see('to a Beetle $tag or any Solana wallet');
+  at('/coins/send');
+  await page.getByTestId('dollar-tag').fill('amaka');
+  await see('Amaka Eze · Dollar account');
+  await typeAmount(20);
+  await see('They get $20.00');
+  await shot('coins-tag', 700);
+  await slideToSend();
+  await see('Enter your passcode');
+  await pay();
+  await receiptSheet();
+  await see('$20.00 to $amaka');
+  await shot('coins-tag-sent', 900);
+  await receiptDone();
+  /* out to a wallet: another network's address is named, a coin's own address refused, our own refused, a new one warned */
   await page.goto(`${base}/coins/send`, { waitUntil: 'load' });
-  await see('Send to a wallet');
+  await tap('Solana wallet');
   const to = page.getByTestId('coin-to');
-  await to.fill('TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t');
-  await see('That is a Tron address. Pick its network, or check the address.');
-  await to.fill('0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAee');
-  await see('One letter in that address is wrong');
-  await to.fill(baseAddress);
-  await see('That is your own Beetle address');
   await to.fill('0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed');
-  await see('Checked: a Base address');
+  await see('Beetle sends dollars on Solana only');
+  await to.fill('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v');
+  await see('Coins sent to it are lost');
+  await to.fill(solAddress);
+  await see('That is your own Beetle address');
+  await to.fill('9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM');
+  await see('starting 9WzD and ending AWWM');
+  await see('A new address');
   await typeAmount(50);
-  await see('They get $49.99');
+  await see('They get $50.00');
   await shot('coins-out', 700);
   await slideToSend();
   await see('Enter your passcode');
   await pay();
   await receiptSheet();
-  await see('$49.99 USDC to 0x5aAe…eAed');
+  await see('$50.00 USDC to 9WzDXw…AWWM');
   await shot('coins-sent', 900);
   await receiptDone();
   /* the goal: Savings pot on the drawer opens Holiday, as Savings on home does */

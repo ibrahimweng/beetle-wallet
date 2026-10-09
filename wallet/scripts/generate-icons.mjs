@@ -46,6 +46,8 @@ const BRAND = {
    manner, the box filled with its corners rounded as the card's are, and the flap a white line cut out of it. */
 const EXTRA = {
   'mail-filled': '<rect x="2" y="4.5" width="20" height="15" rx="3.2" fill="currentColor"/><path d="M6 9 L12 13.2 L18 9" stroke="white" fill="none"/>',
+  /* Convert on the plus's sheet (Round 36), beside the solid send and receive: a filled disc, the swap's two arrows cut out of it */
+  'swap-filled': '<circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M7 9.4H16.6M13.9 6.7L16.6 9.4L13.9 12.1M17 14.6H7.4M10.1 11.9L7.4 14.6L10.1 17.3" stroke="white" fill="none"/>',
 };
 const ALL = { ...ICONS, ...DERIVED, ...BRAND, ...EXTRA };
 

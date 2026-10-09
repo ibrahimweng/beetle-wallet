@@ -1999,6 +1999,51 @@ holding them.
       stay in plain storage, standing in for Beetle's server (the keychain
       takes no more than 2KB a value, and the list outgrows it).
 
+## Round 36 · Two accounts: naira, and dollars as stablecoins
+
+Asked by the owner: stablecoins are not a corner of their own but part of
+sending and receiving, with their lines in Activities; they are on Solana,
+and any stablecoin Beetle lists sent to the address arrives. There are two
+accounts, the Naira account and the Dollar account (stablecoins), and the
+Dollar account has Convert, Send and Receive, as the plus on home does. All
+of it safe, with clear words on how receiving works. The owner picked: the
+plus carries Convert · Send · Receive, each asking which account where it
+matters, with the camera inside Send; any listed stablecoin; dollars go to
+a Solana address or a Beetle $tag; home keeps the naira card, with the
+Dollar account on its chip.
+
+- [x] Solana only. The Dollar account has one address, its own and the
+      same every time, and USDC, USDT and PayPal USD sent to it land as
+      dollars, one coin to the dollar. Base, Tron and Ethereum are gone from
+      every page; lines kept from Round 33 still read.
+- [x] Receive dollars: the first time, how receiving works in four steps
+      (copy the address; pick Solana where you send from; send a listed
+      coin from $1, checking the first and last four characters; it lands
+      in about a minute, with a line in Activities and a word from Beetle),
+      the three ways coins are lost (another network, another coin, a
+      stranger asking for coins), and a yes to them before the address.
+      Then the address as a QR and as words, Copy and Share, what lands,
+      the least, how long, and how it works a tap away. Test coins land
+      with Beetle's word in the day and the receipt.
+- [x] Send dollars: to a Beetle $tag, free and at once, or to a Solana
+      wallet. An address for another network is named, with what to ask
+      for instead; a coin's own address is refused, as is this account's
+      own; a new address is said to be new, and its first and last four
+      are shown to check, here and on the passcode sheet.
+- [x] The Dollar account page: Convert, Send and Receive; what it holds is
+      stablecoins Beetle holds on Solana, one to the dollar; how receiving
+      works a row away. Paying a bank account from the dollars stays on
+      Send money's From row.
+- [x] The plus: Convert, Send and Receive. Send and Receive ask which
+      account (Which account?), with what each holds and how money moves
+      in each; the naira go on to Send money, whose camera reads a code or
+      written details, or home's Receive sheet, the dollars to Send dollars
+      or Receive dollars. The Receive sheet's In dollars row opens Receive
+      dollars.
+- [x] Home's chip is the Dollar account's balance, and opens it. Asked
+      about dollars, Beetle says what the Dollar account is and how coins
+      come in.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

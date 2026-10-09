@@ -78,7 +78,7 @@ function Body({ children, head, dock, wash, sink = false, bare = false, scrollEn
   /* on iOS the keyboard comes up over the column, the window staying as it is, and a page's foot rides up on it
      (more/Foot.tsx): the column makes room for the keyboard and brings the box being typed in up to it, and then on
      past the foot, as clear of the keyboard as the column's end is of the bottom (the analysis after Round 34: the
-     address and the amount on Send to a wallet were under the keyboard) */
+     address and the amount on Send dollars were under the keyboard) */
   useEffect(() => {
     if (Platform.OS !== 'ios') return undefined;
     const sub = Keyboard.addListener('keyboardDidShow', e => {

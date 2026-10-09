@@ -1,6 +1,6 @@
 /* The black card at the top of home, and what it becomes.
 
-   Closed, it holds the balance with its reading in dollars, Send and
+   Closed, it holds the naira balance with the Dollar account's on a chip (Round 36), Send and
    Receive as two white pills, what Beetle has to offer, and a grabber
    (Round 14, the owner's frame: no word Wallet over it and no words under
    the grabber; Round 15: the offers moved in from the page, 36 under the
@@ -479,7 +479,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
             <Swap value={line ?? 'Total balance'}>{w => <Caption style={{ color: line ? colour.good : dark.chipText }}>{w}</Caption>}</Swap>
             {/* the figure is drawn once, below, and travels; the chip has its place here */}
             <View style={{ height: 40 }} />
-            <Tap accessibilityRole="button" accessibilityLabel={chipLabel ?? `The balance in dollars, ${dollars}. Opens Dollars`} onPress={onDollars} style={s.chip} testID="chip">
+            <Tap accessibilityRole="button" accessibilityLabel={chipLabel ?? `The Dollar account, ${dollars.replace(/^Dollars · /, '')}. Opens it`} onPress={onDollars} style={s.chip} testID="chip">
               <Caption style={[s.chipText, { color: dark.chipText }]}>{dollars}</Caption>
             </Tap>
           </View>

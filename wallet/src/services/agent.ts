@@ -104,9 +104,11 @@ export type Move = {
   coin?: CoinLine;
 };
 
-/** A stablecoin line (Round 33): USDC or USDT on its network, the address on the other side, the network's own record of
-    it, and the network's fee in dollars (none on coins in). */
-export type CoinLine = { coin: 'USDC' | 'USDT'; network: 'base' | 'solana' | 'tron' | 'ethereum'; address: string; hash: string; fee: number };
+/** A Dollar account line (Rounds 33 and 36): a listed stablecoin in or out on Solana (the networks of Round 33 are still
+    read, for lines kept from then), or dollars between two Beetle Dollar accounts by $tag ('beetle', the coin 'USD'); the
+    address on the other side, the network's own record of it (Beetle's reference between two Beetle accounts), and the
+    fee in dollars. */
+export type CoinLine = { coin: 'USDC' | 'USDT' | 'PYUSD' | 'USD'; network: 'solana' | 'beetle' | 'base' | 'tron' | 'ethereum'; address: string; hash: string; fee: number };
 
 /* ---- what Beetle asks for ---- */
 
@@ -961,9 +963,14 @@ export class ScriptedAgent implements AgentService {
     if (/\b(dollar|dollars|usd|\$)/.test(lower)) {
       return {
         blocks: [
-          { kind: 'note', title: 'Holding dollars', body: 'Your naira buys dollars at the rate you see, and the dollars sit in their own place, in a domiciliary account at our partner bank.' },
+          /* Round 36: the Dollar account is stablecoins on Solana, and how they come in is said wherever dollars are asked about */
+          {
+            kind: 'note',
+            title: 'Your Dollar account',
+            body: 'It holds stablecoins on Solana, one coin to the dollar. Convert naira in, or have USDC, USDT or PYUSD sent on Solana to its own address. Any other network or coin is lost.',
+          },
           say(
-            `Right now ₦${ctx.rate.toLocaleString('en-NG')} buys a dollar, so ${naira(ctx.balance)} would be about ${Math.round(ctx.balance / ctx.rate).toLocaleString('en-NG')} USD. Your dollars are on the card: tap the chip to see them, or say "convert" to move some across.`,
+            `Right now ₦${ctx.rate.toLocaleString('en-NG')} buys a dollar, so ${naira(ctx.balance)} would be about ${Math.round(ctx.balance / ctx.rate).toLocaleString('en-NG')} USD. Your Dollar account is on the card: tap the chip to open it, or say "convert" to move some across.`,
           ),
         ],
         pending: keep,

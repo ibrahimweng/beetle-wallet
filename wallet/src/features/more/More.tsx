@@ -4,8 +4,10 @@
    has it; the actions stand right aligned above the button, each with
    its own coloured glyph, rows 68 apart, glyphs 40 with their right edge 28
    in from the side. The frame draws five; the bar at the foot of home
-   carries Activities and Settings, so the sheet keeps the other three —
-   Camera, Send money, Receive — sitting nearest the button. The black
+   carries Activities and Settings, so the sheet keeps three, sitting nearest
+   the button. Round 36, the owner's word: they are Convert, Send and
+   Receive, for both accounts; Send and Receive ask which account first
+   (Which account?), and the camera is inside Send, on the Send page. The black
    button stays where it is, so the one you pressed is the one that closes
    this; anywhere that is not an action closes it too.
 
@@ -25,11 +27,11 @@ import { arrive, bouncy, motion, settle, useStill } from '../../design/motion';
 import type { IconName } from '../../icons';
 import { openTab } from '../tabs/tabs';
 
-export type MoreItem = 'camera' | 'send' | 'receive';
+export type MoreItem = 'convert' | 'send' | 'receive';
 
 const ITEMS: { id: MoreItem; icon: IconName; label: string; colour: string }[] = [
-  { id: 'camera', icon: 'camera-filled', label: 'Camera', colour: colour.warn },
-  { id: 'send', icon: 'send-filled', label: 'Send money', colour: colour.accent },
+  { id: 'convert', icon: 'swap-filled', label: 'Convert', colour: colour.warn },
+  { id: 'send', icon: 'send-filled', label: 'Send', colour: colour.accent },
   { id: 'receive', icon: 'receive-filled', label: 'Receive', colour: colour.good },
 ];
 
@@ -38,13 +40,11 @@ const AWAY = 190;
 
 type Router = ReturnType<typeof useRouter>;
 
-/** Where each action goes from a page that is not home: the camera and
-    Send money on their own screens; receiving back on home, turned to Home
-    with the Receive sheet up. */
+/** Where each action goes, from home or any page: Convert to its page; Send and Receive to Which account?, which then
+    goes on to the naira's or the dollars' own. */
 export function moreTo(router: Router, item: MoreItem) {
-  if (item === 'camera') router.push('/scan');
-  else if (item === 'send') router.push('/send');
-  else openTab(router, 'home', { receive: `pick-${Date.now()}` });
+  if (item === 'convert') router.push('/convert');
+  else router.push(`/pick?for=${item}`);
 }
 
 export function More({

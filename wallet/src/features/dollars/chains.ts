@@ -1,7 +1,11 @@
-/* Stablecoins (Round 33, the owner's word: start testing them). The dollars
-   held in Beetle come in and go out as USDC or USDT, a digital dollar worth
-   one dollar, on the network the other side uses. This build runs on test
-   networks: every address here is a test address, and no real coin moves.
+/* Stablecoins (Round 33, the owner's word: start testing them; Round 36:
+   built into the product). Beetle has two accounts, the Naira account and
+   the Dollar account, and the Dollar account is stablecoins: dollars that
+   come in and go out on Solana. One Solana address per Dollar account takes
+   any stablecoin Beetle lists (USDC, USDT, PayPal USD), and each lands as
+   dollars, one for one. This build runs on Solana's test network: every
+   address here is a test address, and no real coin moves. The networks
+   Round 33 tried are kept only so the lines from then still read.
 
    What is checked here is what keeps money from being lost: an address is
    the right shape for the network picked, its own check letters add up
@@ -14,7 +18,9 @@ import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils';
 import type { CoinLine } from '../../services/agent';
 
 export type Coin = CoinLine['coin'];
-export type NetworkId = CoinLine['network'];
+/** The coins Beetle lists, as against 'USD', dollars between two Beetle accounts. */
+export type Stablecoin = Exclude<Coin, 'USD'>;
+export type NetworkId = Exclude<CoinLine['network'], 'beetle'>;
 type Family = 'evm' | 'solana' | 'tron';
 
 export type Network = {
@@ -28,24 +34,41 @@ export type Network = {
   coins: Coin[];
 };
 
-export const COINS: { id: Coin; name: string }[] = [
-  { id: 'USDC', name: 'USD Coin, by Circle' },
-  { id: 'USDT', name: 'Tether' },
+/** The stablecoins Beetle lists on Solana (the owner's word, Round 36: any dollar stablecoin Beetle lists): any of them
+    sent to a Dollar account's address lands as dollars, one for one. The list can grow; what is not on it does not
+    land. Each by its mint, the coin's own address on Solana. */
+export const LISTED: { id: Stablecoin; name: string; by: string; mint: string }[] = [
+  { id: 'USDC', name: 'USD Coin', by: 'Circle', mint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' },
+  { id: 'USDT', name: 'Tether USD', by: 'Tether', mint: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB' },
+  { id: 'PYUSD', name: 'PayPal USD', by: 'Paxos, for PayPal', mint: '2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo' },
 ];
+export const isListed = (s: unknown): s is Stablecoin => LISTED.some(c => c.id === s);
+/** "USDC, USDT or PYUSD" */
+export const listedWords = (joint = 'or') =>
+  `${LISTED.slice(0, -1)
+    .map(c => c.id)
+    .join(', ')} ${joint} ${LISTED.at(-1)?.id ?? ''}`;
+export const COINS = LISTED;
 
-/** The networks, cheapest first. */
+/** The network the Dollar account runs on. */
+export const DOLLAR_NETWORK: NetworkId = 'solana';
+
+/** The networks: Solana, Beetle's own, whose fee Beetle pays; and those Round 33 tried, cheapest first, for the lines
+    kept from then. */
 export const NETWORKS: Network[] = [
+  { id: 'solana', name: 'Solana', family: 'solana', fee: 0, minutes: 1, coins: ['USDC', 'USDT', 'PYUSD'] },
   { id: 'base', name: 'Base', family: 'evm', fee: 0.01, minutes: 1, coins: ['USDC'] },
-  { id: 'solana', name: 'Solana', family: 'solana', fee: 0.01, minutes: 1, coins: ['USDC', 'USDT'] },
   { id: 'tron', name: 'Tron (TRC-20)', family: 'tron', fee: 1, minutes: 3, coins: ['USDT'] },
   { id: 'ethereum', name: 'Ethereum (ERC-20)', family: 'evm', fee: 2.5, minutes: 5, coins: ['USDC', 'USDT'] },
 ];
 
 const BY_ID = Object.fromEntries(NETWORKS.map(n => [n.id, n])) as Record<NetworkId, Network>;
-export const networkOf = (id: NetworkId): Network => BY_ID[id];
+export const networkOf = (id: NetworkId): Network => BY_ID[id] ?? BY_ID.solana;
+/** What a line's network is called: Beetle, between two Beetle accounts; else the chain's own name. */
+export const networkName = (id: CoinLine['network']) => (id === 'beetle' ? 'Beetle' : networkOf(id).name);
 export const networksFor = (coin: Coin) => NETWORKS.filter(n => n.coins.includes(coin));
 export const isNetwork = (s: unknown): s is NetworkId => typeof s === 'string' && NETWORKS.some(n => n.id === s);
-export const isCoin = (s: unknown): s is Coin => s === 'USDC' || s === 'USDT';
+export const isCoin = (s: unknown): s is Stablecoin => isListed(s);
 
 /** The least that can be sent out, and the least worth sending in. */
 export const LEAST_OUT = 5;
@@ -53,8 +76,8 @@ export const LEAST_IN = 1;
 
 /** "about a minute", "about 5 minutes" */
 export const arrivesIn = (n: Network) => (n.minutes <= 1 ? 'about a minute' : `about ${n.minutes} minutes`);
-/** "$0.01", "$2.50": the network's fee the way the pages print dollars. */
-export const feeLine = (n: Network) => `$${n.fee.toFixed(2)}`;
+/** "$0.01", "$2.50": the network's fee the way the pages print dollars; "Paid by Beetle" where Beetle pays it. */
+export const feeLine = (n: Network) => (n.fee ? `$${n.fee.toFixed(2)}` : 'Paid by Beetle');
 
 /* ---- Base58, the alphabet Solana and Tron write addresses in ---- */
 
@@ -165,6 +188,19 @@ export function checkAddress(network: NetworkId, typed: string, own?: string): A
   if (family === 'tron' && !tronOk(text)) return { ok: false, why: 'One letter in that address is wrong. Copy it again from where it came from.' };
   if (own && text.toLowerCase() === own.toLowerCase()) return { ok: false, why: 'That is your own Beetle address. Send to somebody else’s.' };
   return { ok: true, address: family === 'evm' ? checksummed(text) : text };
+}
+
+/** Whether dollars can go to an address (Round 36): Solana's alone, as Beetle sends on no other network. An address for
+    another network is named, with what to ask for instead; a listed coin's own mint, which is no wallet and loses what
+    is sent to it, is refused. */
+export function checkSolana(typed: string, own?: string): AddressCheck {
+  const text = typed.trim();
+  if (!text) return { ok: false, why: '' };
+  const family = familyOf(text);
+  if (family && family !== 'solana') return { ok: false, why: `That is ${FAMILY_NAME[family]} address. Beetle sends dollars on Solana only: ask them for their Solana address.` };
+  const mint = LISTED.find(c => c.mint === text);
+  if (mint) return { ok: false, why: `That is ${mint.id}’s own address on Solana, not a wallet. Coins sent to it are lost.` };
+  return checkAddress('solana', text, own);
 }
 
 /** This account's test address on a network: the same every time for the same account, and nobody else's. */

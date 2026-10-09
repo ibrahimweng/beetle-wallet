@@ -1,18 +1,22 @@
-/* Send dollars out as USDC or USDT (Round 33). The coin, the network the
-   other side receives on, their address (pasted, or read off a QR by Scan),
-   checked before anything moves: the shape of the network picked, its own
-   check letters, and never this account's own address. Then the amount in
-   dollars, stopping hard at what is held, with the network's fee taken out
-   of it and what they get said plainly; the slide leads to the passcode,
-   the line goes into the day, and its receipt comes up. The day's spending
-   cap counts it like any other money leaving. This build is on test
-   networks: nothing reaches a real wallet. */
-import React, { useMemo, useState } from 'react';
+/* Send dollars, from the Dollar account (Round 36, the owner's word:
+   stablecoins are part of sending; to a Solana address or a Beetle $tag).
+   Two ways: to another Beetle account by its $tag, dollars as they are,
+   free and at once; or to any Solana wallet, as the stablecoin they pick
+   (USDC, USDT or PayPal USD), the address pasted or read off a QR by Scan,
+   and checked before anything moves: Solana's shape alone, its own check
+   letters, never a coin's own address nor this account's. The first and the
+   last four characters are said, to check against where it came from, and
+   an address never sent to before carries the word to try a little first.
+   Then the amount in dollars, stopping hard at what is held, what they get,
+   the slide to the passcode, the line in Activities and its receipt. The
+   day's cap, a freeze and the day after a recovery all hold it. This build
+   is on Solana's test network: nothing reaches a real wallet. */
+import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { AmountPicker, Aside, Caption, Facts, Head, Meta, PageHead, Picker, Row, Screen, Segments, Tap, colour, toast } from '../../design';
+import { AmountPicker, Aside, Caption, Facts, Head, Meta, PageHead, Row, Screen, Segments, Tap, colour, toast } from '../../design';
 import { TextBox } from '../../design/TextBox';
-import type { Move } from '../../services';
+import { auth, tagged, type Move } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
@@ -24,14 +28,20 @@ import { useSendGate } from '../settings/sendGate';
 import { PasscodeSheet, lockedFor, waitWords } from '../passcode';
 import { pasteText } from '../receive/clipboard';
 import { clock } from '../../lib/clock';
+import { sessionId } from '../home/moves';
 import { dollarsOf, nairaOf, usdFull } from './dollars';
-import { LEAST_OUT, arrivesIn, checkAddress, feeLine, isCoin, isNetwork, networkOf, networksFor, sendOut, shortAddress, testAddressFor, testHash, type Coin, type NetworkId } from './chains';
+import { DOLLAR_NETWORK, LEAST_OUT, LISTED, arrivesIn, checkSolana, feeLine, isListed, networkOf, sendOut, shortAddress, testAddressFor, testHash, type Stablecoin } from './chains';
+
+type Way = 'tag' | 'wallet';
+const WAYS: Record<Way, string> = { tag: 'Beetle $tag', wallet: 'Solana wallet' };
+/** The least a $tag is sent: a cent; out to a wallet, LEAST_OUT. */
+const LEAST_TAG = 0.01;
 
 export function CoinsOut() {
   const app = useApp();
   const router = useRouter();
   const ok = useSessionGuard();
-  const asked = useLocalSearchParams<{ coin?: string; network?: string; to?: string }>();
+  const asked = useLocalSearchParams<{ coin?: string; to?: string; tag?: string }>();
   const account = app.session?.account;
   const { moves, add } = useMoves(account?.accountNumber);
   const { setup } = useSetup(account?.accountNumber, !!account?.demo);
@@ -39,34 +49,55 @@ export function CoinsOut() {
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
   const rate = h?.rate ?? 1_552;
   const dollars = dollarsOf(h?.dollars ?? 0, moves);
-  const [coin, setCoin] = useState<Coin>(isCoin(asked.coin) ? asked.coin : 'USDC');
-  const nets = networksFor(coin);
-  const [picked, setPicked] = useState<NetworkId>(isNetwork(asked.network) ? asked.network : 'base');
-  const network = nets.some(n => n.id === picked) ? picked : (nets[0]?.id ?? 'base');
-  const net = networkOf(network);
+  const [way, setWay] = useState<Way>(typeof asked.to === 'string' ? 'wallet' : 'tag');
+  const [coin, setCoin] = useState<Stablecoin>(isListed(asked.coin) ? asked.coin : 'USDC');
   const [to, setTo] = useState(typeof asked.to === 'string' ? asked.to : '');
+  const [tag, setTag] = useState(typeof asked.tag === 'string' ? asked.tag.replace(/^\$/, '') : '');
+  /** who the tag is: Beetle's directory, or an account opened on this phone */
+  const [who, setWho] = useState<{ name: string; tag: string } | null>(null);
   const [usd, setUsd] = useState(0);
   const [guard, setGuard] = useState(false);
-  const own = account ? testAddressFor(account.accountNumber, network) : undefined;
-  const check = checkAddress(network, to, own);
-  const { fee, arrives } = sendOut(usd, network);
+  const net = networkOf(DOLLAR_NETWORK);
+  const own = account ? testAddressFor(account.accountNumber, DOLLAR_NETWORK) : undefined;
+  const check = checkSolana(to, own);
+  const { fee, arrives } = way === 'wallet' ? sendOut(usd, DOLLAR_NETWORK) : { fee: 0, arrives: usd };
   const nairaEq = nairaOf(usd, rate);
+  /* an address this account has sent to before needs no word of warning; a new one does */
+  const sentBefore = check.ok && moves.some(m => m.kind === 'coin' && m.coin?.address === check.address && (m.usd ?? 0) < 0);
+  const ownTag = (account?.username ?? '').toLowerCase();
+
+  /* the tag, looked up as it is typed: the directory at once, an account on this phone a moment later */
+  useEffect(() => {
+    const t = tag.trim().replace(/^\$/, '').toLowerCase();
+    let live = true;
+    const known = t.length >= 2 ? tagged(t) : null;
+    setWho(known && known.tag ? { name: known.name, tag: known.tag } : null);
+    if (t.length >= 2 && !known && t !== ownTag)
+      void auth.findAccount(t).then(a => {
+        if (live && a?.username === t) setWho({ name: `${a.firstName} ${a.lastName}`, tag: t });
+      });
+    return () => {
+      live = false;
+    };
+  }, [tag, ownTag]);
+  const tagWhy = !tag.trim() ? '' : tag.trim().replace(/^\$/, '').toLowerCase() === ownTag ? 'That is your own tag.' : who ? '' : 'No Beetle account has this tag yet.';
+  const ready = way === 'tag' ? !!who : check.ok;
 
   const slide = () => {
     if (!setup.done) {
-      toast('Finish setting up first, and you can send dollars out. It takes two minutes.');
+      toast('Finish setting up first, and you can send dollars. It takes two minutes.');
       return;
     }
-    if (!check.ok) {
-      toast(check.why || `Paste their ${coin} address on ${net.name} first.`);
+    if (!ready) {
+      toast(way === 'tag' ? tagWhy || 'Type their Beetle tag first.' : check.ok ? '' : check.why || 'Paste their Solana address first.');
       return;
     }
-    if (usd < LEAST_OUT) {
-      toast(`The least that can go out is ${usdFull(LEAST_OUT)}.`);
+    if (usd < (way === 'tag' ? LEAST_TAG : LEAST_OUT)) {
+      toast(`The least that can go to a wallet is ${usdFull(LEAST_OUT)}.`);
       return;
     }
     if (usd > dollars) {
-      toast(`That is more than the ${usdFull(dollars)} you hold.`);
+      toast(`That is more than the ${usdFull(dollars)} in your Dollar account.`);
       return;
     }
     const stopped = sendGate.stopped(nairaEq);
@@ -74,9 +105,9 @@ export function CoinsOut() {
       toast(stopped);
       return;
     }
-    /* the day after a recovery nobody new is paid, and an address is nobody paid before (the analysis after Round 34) */
+    /* the day after a recovery nobody new is paid, and a wallet is nobody paid before (the analysis after Round 34) */
     if (sendGate.holding) {
-      toast('The account was recovered today, so for a day no coins go out. Money still comes in.');
+      toast('The account was recovered today, so for a day no dollars go out. Money still comes in.');
       return;
     }
     const shut = lockedFor();
@@ -86,18 +117,30 @@ export function CoinsOut() {
     }
     setGuard(true);
   };
-  /* the passcode landed: the coins go, the line goes into the day, and the receipt comes up */
+  /* the passcode landed: the dollars go, the line goes into the day, and the receipt comes up */
   const done = () => {
-    if (!account || !check.ok) return;
-    const move: Move = {
-      name: shortAddress(check.address),
-      detail: `${coin} on ${net.name} · ${clock()}`,
-      amount: -nairaEq,
-      icon: 'up',
-      kind: 'coin',
-      usd: -usd,
-      coin: { coin, network, address: check.address, hash: testHash(network), fee },
-    };
+    if (!account) return;
+    const at = clock();
+    const move: Move =
+      way === 'tag' && who
+        ? {
+            name: who.name,
+            detail: `$${who.tag} · Dollar account · ${at}`,
+            amount: -nairaEq,
+            icon: 'send',
+            kind: 'coin',
+            usd: -usd,
+            coin: { coin: 'USD', network: 'beetle', address: `$${who.tag}`, hash: sessionId(new Date(), 17 + moves.length), fee: 0 },
+          }
+        : {
+            name: check.ok ? shortAddress(check.address) : 'A Solana wallet',
+            detail: `${coin} on ${net.name} · ${at}`,
+            amount: -nairaEq,
+            icon: 'up',
+            kind: 'coin',
+            usd: -usd,
+            coin: { coin, network: DOLLAR_NETWORK, address: check.ok ? check.address : to, hash: testHash(DOLLAR_NETWORK), fee },
+          };
     const row = rowFrom(move, (h?.everyday ?? 0) + balanceOf(moves), 17 + moves.length);
     add(row);
     setGuard(false);
@@ -109,47 +152,63 @@ export function CoinsOut() {
     else toast('Nothing to paste, or this build cannot read the clipboard. Type it in, or scan their code.');
   };
 
-  useFoot({ kind: 'slide', label: 'Slide to send', amount: usd ? usdFull(usd) : '', disabled: !usd || !check.ok, onSlide: slide, veil: guard ? 'away' : undefined });
+  useFoot({ kind: 'slide', label: 'Slide to send', amount: usd ? usdFull(usd) : '', disabled: !usd || !ready, onSlide: slide, veil: guard ? 'away' : undefined });
   if (!ok || !account) return null;
   return (
     <>
-      <Screen head={<PageHead lead title="Send to a wallet" sub="Your dollars out as USDC or USDT, to an address on the network they use" />}>
-        <Aside glyph="globe">This build is on test networks. Nothing reaches a real wallet.</Aside>
-        {setup.done ? null : <SetupOffer sub="Two minutes, and you can send dollars out as USDC or USDT" />}
-        <View style={{ gap: 12 }}>
-          <Head>The coin</Head>
-          <Segments options={['USDC', 'USDT']} value={coin} onChange={v => isCoin(v) && setCoin(v)} />
-        </View>
-        <View style={{ gap: 12 }}>
-          <Head>The network they receive on</Head>
-          <Picker
-            options={nets.map(n => ({ id: n.id, label: n.name, sub: `Network fee ${feeLine(n)} · arrives in ${arrivesIn(n)}` }))}
-            value={network}
-            onChange={id => isNetwork(id) && setPicked(id)}
-          />
-        </View>
-        <View style={{ gap: 8 }} testID="coin-to-block">
-          <TextBox
-            label={`Their ${coin} address on ${net.name}`}
-            value={to}
-            onChangeText={setTo}
-            placeholder={net.family === 'evm' ? '0x…' : net.family === 'tron' ? 'T…' : 'Their Solana address'}
-            autoCapitalize="none"
-            autoCorrect={false}
-            note={!check.ok && check.why ? check.why : check.ok ? `Checked: a ${net.name} address` : undefined}
-            bad={!check.ok && !!check.why}
-            right={
-              <Tap accessibilityRole="button" accessibilityLabel="Paste" onPress={() => void paste()} hitSlop={10} testID="coin-paste">
-                <Caption style={{ color: colour.accent }}>Paste</Caption>
-              </Tap>
-            }
-            testID="coin-to"
-          />
-          <Meta tone="tertiary">Copy it from their wallet or exchange. Coins sent to a wrong address cannot be got back.</Meta>
-        </View>
+      <Screen head={<PageHead lead title="Send dollars" sub="From your Dollar account, to a Beetle $tag or any Solana wallet" />}>
+        {setup.done ? null : <SetupOffer sub="Two minutes, and you can send dollars" />}
+        <Segments options={[WAYS.tag, WAYS.wallet]} value={WAYS[way]} onChange={v => setWay(v === WAYS.wallet ? 'wallet' : 'tag')} />
+        {way === 'tag' ? (
+          <View style={{ gap: 8 }} testID="dollar-tag-block">
+            <TextBox
+              label="Their Beetle tag"
+              prefix="$"
+              value={tag}
+              onChangeText={t => setTag(t.replace(/^\$/, '').replace(/\s/g, ''))}
+              placeholder="amaka"
+              autoCapitalize="none"
+              autoCorrect={false}
+              note={tagWhy || (who ? `${who.name} · Dollar account` : undefined)}
+              bad={!!tagWhy}
+              testID="dollar-tag"
+            />
+            <Meta tone="tertiary">Dollars as they are, into their Dollar account. Free, and there at once.</Meta>
+          </View>
+        ) : (
+          <>
+            <View style={{ gap: 12 }}>
+              <Head>The coin they get</Head>
+              <Segments options={LISTED.map(c => c.id)} value={coin} onChange={v => isListed(v) && setCoin(v)} />
+            </View>
+            <View style={{ gap: 8 }} testID="coin-to-block">
+              <TextBox
+                label={`Their ${coin} address on Solana`}
+                value={to}
+                onChangeText={setTo}
+                placeholder="Their Solana address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                note={!check.ok && check.why ? check.why : check.ok ? `A Solana address, starting ${check.address.slice(0, 4)} and ending ${check.address.slice(-4)}: check both` : undefined}
+                bad={!check.ok && !!check.why}
+                right={
+                  <Tap accessibilityRole="button" accessibilityLabel="Paste" onPress={() => void paste()} hitSlop={10} testID="coin-paste">
+                    <Caption style={{ color: colour.accent }}>Paste</Caption>
+                  </Tap>
+                }
+                testID="coin-to"
+              />
+              {check.ok && !sentBefore ? (
+                <Aside glyph="alert">A new address. Send a little first, and the rest once they have it: coins sent to a wrong address cannot be got back.</Aside>
+              ) : (
+                <Meta tone="tertiary">Copy it from their wallet or exchange, on Solana. Coins sent to a wrong address cannot be got back.</Meta>
+              )}
+            </View>
+          </>
+        )}
         <View style={s.figure} testID="coin-amount">
           <View style={s.from}>
-            <Row>From Dollars</Row>
+            <Row>From your Dollar account</Row>
             <Meta tone="secondary">{`${usdFull(dollars)} there`}</Meta>
           </View>
           <View style={s.picker}>
@@ -158,7 +217,7 @@ export function CoinsOut() {
               value={usd}
               onChange={v => setUsd(v)}
               max={dollars}
-              note={usd ? `They get ${usdFull(arrives)}` : `At least ${usdFull(LEAST_OUT)}`}
+              note={usd ? `They get ${usdFull(arrives)}` : way === 'wallet' ? `At least ${usdFull(LEAST_OUT)}` : 'Any amount'}
               chips={[20, 100]}
               all="All of it"
             />
@@ -169,25 +228,43 @@ export function CoinsOut() {
             inset={10}
             row={44}
             testID="coin-facts"
-            rows={[
-              { label: 'Network fee', value: feeLine(net) },
-              { label: 'They get', value: usdFull(arrives) },
-              { label: 'Arrives in', value: arrivesIn(net) },
-            ]}
+            rows={
+              way === 'tag'
+                ? [
+                    { label: 'Fee', value: 'Free' },
+                    { label: 'They get', value: usdFull(arrives) },
+                    { label: 'Arrives', value: 'At once' },
+                  ]
+                : [
+                    { label: 'Network fee', value: feeLine(net) },
+                    { label: 'They get', value: `${usdFull(arrives)} ${coin}` },
+                    { label: 'Arrives in', value: arrivesIn(net) },
+                  ]
+            }
           />
         </View>
+        <Aside glyph="globe">This build is on Solana’s test network. Nothing reaches a real wallet.</Aside>
       </Screen>
-      {guard && check.ok ? (
+      {guard && ready ? (
         <PasscodeSheet
           amount={usdFull(usd)}
-          name={shortAddress(check.address)}
-          detail={`${coin} on ${net.name}`}
-          glyph="up"
-          rows={[
-            { label: 'Network fee', value: feeLine(net) },
-            { label: 'They get', value: usdFull(arrives) },
-            { label: 'Leaves Dollars', value: usdFull(usd), strong: true },
-          ]}
+          name={way === 'tag' && who ? who.name : check.ok ? shortAddress(check.address) : ''}
+          detail={way === 'tag' && who ? `$${who.tag} · Dollar account` : `${coin} on Solana`}
+          glyph={way === 'tag' ? 'send' : 'up'}
+          rows={
+            way === 'tag'
+              ? [
+                  { label: 'Fee', value: 'Free' },
+                  { label: 'They get', value: usdFull(arrives) },
+                  { label: 'Leaves Dollar account', value: usdFull(usd), strong: true },
+                ]
+              : [
+                  { label: 'To', value: check.ok ? `${check.address.slice(0, 4)}…${check.address.slice(-4)}` : '' },
+                  { label: 'Network fee', value: feeLine(net) },
+                  { label: 'They get', value: `${usdFull(arrives)} ${coin}` },
+                  { label: 'Leaves Dollar account', value: usdFull(usd), strong: true },
+                ]
+          }
           verify={app.checkPasscode}
           onDone={done}
           onCancel={() => setGuard(false)}

@@ -30,7 +30,7 @@ import { groupAccount, groupDigits } from '../../lib/format';
 import { handoff } from './handoff';
 import { idPhoto } from '../setup/hand';
 import { SAMPLES, sampleOfKind } from './sample';
-import { codeTarget } from '../dollars/chains';
+import { codeTarget, listedWords } from '../dollars/chains';
 
 type CameraModule = typeof import('expo-camera');
 type CameraViewRef = InstanceType<CameraModule['CameraView']>;
@@ -70,7 +70,7 @@ export function Scan() {
   const [granted, setGranted] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const [torch, setTorch] = useState(false);
-  /** reading codes (Round 33): a QR with a USDC or USDT address opens Send to a wallet with it in */
+  /** reading codes (Rounds 33 and 36): a QR with a wallet address opens Send dollars with it in, where anything not Solana's is named and refused */
   const [codes, setCodes] = useState(false);
   const coded = useRef(false);
   const badCode = useRef<string | null>(null);
@@ -240,13 +240,13 @@ export function Scan() {
   const CameraView = cam?.CameraView;
   const live = state === 'ready' || state === 'taking';
   const title = codes ? 'Point at a QR code' : forBill ? 'Point at a bill or a meter' : forData ? 'Point at a message asking for data' : forId ? 'Point at your ID' : 'Point at an account number';
-  /* a code read: a coin address goes to Send to a wallet with it in; anything else is said, and the camera keeps looking */
+  /* a code read: a wallet address goes to Send dollars with it in; anything else is said, and the camera keeps looking */
   const onCode = ({ data }: { data: string }) => {
     if (coded.current) return;
     const target = codeTarget(data);
     if (!target) {
       /* said once a code, not at every frame the camera sees it */
-      if (badCode.current !== data) toast('That code is not a USDC or USDT address. Beetle reads those off codes for now.');
+      if (badCode.current !== data) toast('That code is not a wallet address. Beetle reads Solana addresses off codes for now.');
       badCode.current = data;
       return;
     }
@@ -255,7 +255,7 @@ export function Scan() {
   };
   const readCodes = () => {
     if (!(CameraView && live)) {
-      toast('No camera here to read a code with. Paste the address on Send to a wallet instead.');
+      toast('No camera here to read a code with. Paste the address on Send dollars instead.');
       return;
     }
     coded.current = false;
@@ -264,7 +264,7 @@ export function Scan() {
   const sub =
     note ??
     (codes
-      ? 'A USDC or USDT address, from a wallet or an exchange.'
+      ? `A Solana address for ${listedWords()}, from a wallet or an exchange.`
       : forBill
         ? 'The number on the card works too.'
         : forData

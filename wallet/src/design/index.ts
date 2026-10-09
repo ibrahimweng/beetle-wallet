@@ -31,3 +31,4 @@ export * from './Drawn';
 export * from './scheme';
 export * from './Lockup';
 export * from './LogoReveal';
+export * from './Qr';

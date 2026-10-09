@@ -9,14 +9,15 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Body, Caption, Icon, Meta, PageHead, Row, Say, Screen, Tap, colour, font, toast, useDeparture } from '../../design';
+import { Body, Caption, Icon, Meta, PageHead, Row, Say, Screen, Tap, colour, font, useDeparture } from '../../design';
 import type { IconName } from '../../icons';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
 import { usePrefs } from '../settings/prefs';
 import { naira } from '../../lib/format';
-import { DEMO_MONTH, monthOf, type MonthBill } from './billers';
+import { DEMO_MONTH, monthOf, paidBills, type MonthBill } from './billers';
+import { useMoves } from '../home/moves';
 
 const WORDS = ['none', 'one', 'two', 'three', 'four', 'five', 'six'];
 
@@ -26,17 +27,20 @@ export function Bills() {
   const ok = useSessionGuard();
   const account = app.session?.account;
   const { prefs } = usePrefs(account?.accountNumber);
+  const { moves } = useMoves(account?.accountNumber);
+  /* Add a bill: every biller Beetle pays, on All services (Round 33: it only said to point the camera at one) */
   useFoot({
     kind: 'button',
     label: 'Add a bill',
     tone: 'grey',
     leading: 'plus',
     size: 48,
-    onPress: () => toast('Point the camera at a bill, and I pay it from What I found.'),
+    onPress: () => router.push('/services'),
   });
   if (!ok || !account) return null;
-  /* the light is covered while its standing instruction is on */
-  const bills: MonthBill[] = account.demo ? DEMO_MONTH.map(b => (b.biller === 'ikeja' ? { ...b, covered: prefs.rules.ikeja ? 'rule' : 'none' } : b)) : [];
+  /* the light is covered while its standing instruction is on; a bill paid on this phone is kept after the frame's */
+  const month: MonthBill[] = account.demo ? DEMO_MONTH.map(b => (b.biller === 'ikeja' ? { ...b, covered: prefs.rules.ikeja ? 'rule' : 'none' } : b)) : [];
+  const bills = [...month, ...paidBills(moves, month)];
   const m = monthOf(bills);
   return (
     <Screen head={<PageHead lead title="Bills" sub="Everything that repeats each month" />}>

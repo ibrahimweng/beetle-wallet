@@ -5,8 +5,9 @@
    or nothing yet. A real account service will fill this from what came
    through; the billers themselves are a table this build keeps. */
 import type { IconName } from '../../icons';
+import { shortDay } from '../../lib/days';
 
-export type BillerKind = 'power' | 'tv' | 'internet' | 'waste' | 'data' | 'water' | 'school';
+export type BillerKind = 'power' | 'tv' | 'internet' | 'waste' | 'data' | 'water' | 'school' | 'betting';
 
 export type Biller = {
   id: string;
@@ -28,8 +29,8 @@ export type Biller = {
   sub: string;
   /** the lock line at the foot: what lands, and where */
   lock: string;
-  /** what a pick of a figure buys: kWh, months, gigabytes */
-  buys: 'kwh' | 'months' | 'gb';
+  /** what a pick of a figure buys: kWh, months, gigabytes, result PINs, or money in a wallet */
+  buys: 'kwh' | 'months' | 'gb' | 'pins' | 'wallet';
 };
 
 export const BILLERS: Biller[] = [
@@ -93,6 +94,52 @@ export const BILLERS: Biller[] = [
     lock: 'The month settles the moment it goes through.',
     buys: 'months',
   },
+  /* Round 33: the three All services said were not in Beetle yet (the audit after Round 32) */
+  {
+    id: 'lwc',
+    name: 'Lagos Water',
+    kind: 'water',
+    glyph: 'water',
+    accountLabel: 'Account',
+    account: '0381 2275',
+    plan: 'Household',
+    lands: ['Settles', 'The month, at once'],
+    usual: 3_500,
+    picks: [3_500, 7_000, 10_500],
+    sub: 'for the flat',
+    lock: 'The month settles the moment it goes through.',
+    buys: 'months',
+  },
+  {
+    id: 'waec',
+    name: 'WAEC result checker',
+    kind: 'school',
+    glyph: 'school',
+    accountLabel: 'Candidate',
+    account: '4250 1187 0021',
+    plan: 'Result PIN',
+    lands: ['PIN arrives', 'In a few seconds'],
+    usual: 5_000,
+    picks: [5_000, 10_000, 15_000],
+    sub: 'for the candidate you saved',
+    lock: 'The PIN appears here and in your messages.',
+    buys: 'pins',
+  },
+  {
+    id: 'bet9ja',
+    name: 'Bet9ja',
+    kind: 'betting',
+    glyph: 'bet',
+    accountLabel: 'User ID',
+    account: '4521 0098',
+    plan: 'Wallet',
+    lands: ['Wallet', 'Funded at once'],
+    usual: 5_000,
+    picks: [1_000, 5_000, 10_000],
+    sub: 'on your saved user ID',
+    lock: 'The wallet is funded the moment it goes through.',
+    buys: 'wallet',
+  },
 ];
 
 export const billerById = (id: string): Biller | null => BILLERS.find(b => b.id === id) ?? null;
@@ -101,6 +148,11 @@ export const billerById = (id: string): Biller | null => BILLERS.find(b => b.id 
 export function buysWords(b: Biller, amount: number): string {
   if (b.buys === 'kwh') return `About ${unitsFor(amount)} kWh`;
   if (b.buys === 'gb') return `${Math.round((amount / b.usual) * 100)}GB`;
+  if (b.buys === 'wallet') return 'Into the wallet';
+  if (b.buys === 'pins') {
+    const pins = Math.round(amount / b.usual);
+    return `${['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six'][pins] ?? pins} PIN${pins === 1 ? '' : 's'}`;
+  }
   const months = Math.round(amount / b.usual);
   return `${['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six'][months] ?? months} month${months === 1 ? '' : 's'}`;
 }
@@ -128,6 +180,20 @@ export const DEMO_MONTH: MonthBill[] = [
   { id: 'b-lawma', biller: 'lawma', name: 'LAWMA waste', glyph: 'waste', amount: 2_000, when: 'Paid 2 August', covered: 'paid', to: '/pay?biller=lawma' },
   { id: 'b-mtn', biller: 'mtn', name: 'MTN 5GB', glyph: 'data', amount: 2_500, when: 'Paid 4 August', covered: 'paid', to: '/buy' },
 ];
+
+/** The bills paid on this phone, one row a biller, the latest of each, leaving out those already in the month: what
+    Bills keeps once the first is paid (Round 33, the audit after Round 32: a new account's Bills said it would keep
+    the first bill paid, and kept nothing). */
+export function paidBills(rows: { kind: string; name: string; amount: number; status: string; at?: number; target?: { kind: string } }[], have: MonthBill[] = []): MonthBill[] {
+  const out: MonthBill[] = [];
+  for (const r of [...rows].sort((a, b) => (b.at ?? 0) - (a.at ?? 0))) {
+    if (r.kind !== 'bill' || r.status !== 'done') continue;
+    const b = BILLERS.find(x => x.name === r.name) ?? (r.target?.kind === 'meter' ? BILLERS.find(x => x.kind === 'power') : undefined);
+    if (!b || have.some(h => h.biller === b.id) || out.some(o => o.biller === b.id)) continue;
+    out.push({ id: `b-${b.id}`, biller: b.id, name: b.name, glyph: b.glyph, amount: Math.abs(r.amount), when: r.at ? `Paid ${shortDay(r.at)}` : 'Paid', covered: 'paid', to: `/pay?biller=${b.id}` });
+  }
+  return out;
+}
 
 /** What the month comes to, and how much of it is spoken for. */
 export function monthOf(bills: MonthBill[]) {

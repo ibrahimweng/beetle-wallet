@@ -42,13 +42,40 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 /** 19 September, the way the frame says a day. */
 export const dayOf = (d: Date) => `${d.getDate()} ${MONTHS[d.getMonth()]}`;
 
-/** What is borrowed and not yet paid back, from the lines in the day: paying back is not in this build, so every loan
-    taken is still out. */
-export const borrowedIn = (rows: { kind: string; name: string; amount: number }[]) => rows.filter(r => r.kind === 'in' && r.name === 'Beetle Loans').reduce((a, r) => a + r.amount, 0);
+type LoanRow = { kind: string; name: string; amount: number; detail?: string };
+
+const isTaken = (r: LoanRow) => r.kind === 'in' && r.name === 'Beetle Loans';
+/** a payment back: a bill to Beetle Loans (Round 33, the audit after Round 32: there was no way to pay one back) */
+const isPaidBack = (r: LoanRow) => r.kind === 'bill' && r.name === 'Beetle Loans' && r.amount < 0;
+/** what a loan line comes to in all: its cost for the days in its words, or the amount where they are not there */
+const totalOf = (r: LoanRow) => {
+  const days = Number(r.detail?.match(/(30|60|90) days/)?.[1]);
+  return days ? costOf(r.amount, days as Term).total : r.amount;
+};
+
+/** What is still owed in all, interest and fee with it: every loan's total, less what has been paid back. */
+export const owedIn = (rows: LoanRow[]) => Math.max(0, rows.filter(isTaken).reduce((a, r) => a + totalOf(r), 0) - rows.filter(isPaidBack).reduce((a, r) => a - r.amount, 0));
+
+/** What is borrowed and not yet paid back, from the lines in the day: the amounts taken, less their share of what has
+    been paid back, so the limit frees up as it is. */
+export function borrowedIn(rows: LoanRow[]): number {
+  const taken = rows.filter(isTaken).reduce((a, r) => a + r.amount, 0);
+  const total = rows.filter(isTaken).reduce((a, r) => a + totalOf(r), 0);
+  return total ? Math.round((taken * owedIn(rows)) / total) : 0;
+}
+
+/** The next payment: the latest loan's monthly one, or what is left where that is less. */
+export function nextPayment(rows: LoanRow[]): number {
+  const owed = owedIn(rows);
+  const last = rows.filter(isTaken).at(-1);
+  const days = Number(last?.detail?.match(/(30|60|90) days/)?.[1]);
+  const each = last && days ? costOf(last.amount, days as Term).each : owed;
+  return Math.min(owed, each);
+}
 
 /** How much more can be borrowed: the limit, less what is out (the analysis after Round 21: the limit was only the
     most one loan could be, so it could be taken again and again). */
-export const leftToBorrow = (rows: { kind: string; name: string; amount: number }[]) => Math.max(0, LOAN.most - borrowedIn(rows));
+export const leftToBorrow = (rows: LoanRow[]) => Math.max(0, LOAN.most - borrowedIn(rows));
 
 /** The line under the amount: what is left of the limit, or that it is all out. */
 export const limitNote = (left: number, naira: (n: number) => string) =>

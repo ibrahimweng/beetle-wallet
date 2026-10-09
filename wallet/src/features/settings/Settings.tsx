@@ -105,8 +105,8 @@ export function Settings() {
             'Your account',
             <>
               <SettingRow glyph="person-filled" ink={colour.accent} title="Your details" onPress={() => setDetails(true)} />
-              <SettingRow glyph="bell-filled" ink={colour.warn} title="Notifications" onPress={() => toast('What notifications show is set under Lock and privacy.')} />
-              <SettingRow glyph="gift-filled" title="Saved people" onPress={() => toast('Saved people are on Send money, behind the person card.')} />
+              <SettingRow glyph="bell-filled" ink={colour.warn} title="Notifications" to="/lock" />
+              <SettingRow glyph="gift-filled" title="Saved people" to="/send" />
               <SettingRow glyph="card-filled" title="Cards" value="1 virtual" to="/card" />
               <SettingRow glyph="shield-filled" ink={colour.good} title="Privacy and your data" to="/privacy" />
             </>,

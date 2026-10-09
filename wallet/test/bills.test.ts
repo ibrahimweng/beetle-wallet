@@ -6,7 +6,7 @@ vi.mock('react-native', () => ({ Platform: { OS: 'web', select: (o: Record<strin
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: async () => null, setItem: async () => undefined, removeItem: async () => undefined } }));
 vi.mock('expo-crypto', () => ({ getRandomBytes: (n: number) => new Uint8Array(n), CryptoDigestAlgorithm: { SHA256: 'SHA-256' }, digestStringAsync: async () => 'h' }));
 import { BILL_TEXT, MockReader, TOPUP_TEXT, billIn, topupIn } from '../src/services/reader';
-import { DEMO_MONTH, buysWords, billerById, monthOf } from '../src/features/bills/billers';
+import { DEMO_MONTH, buysWords, billerById, monthOf, paidBills } from '../src/features/bills/billers';
 import { LOAN, TERMS, costOf, countWord, dayOf, held } from '../src/features/loan/loan';
 import { isBills, isLoan, isServices, pageFor } from '../src/features/request/intent';
 import { serviceFor } from '../src/features/services/services';
@@ -79,5 +79,25 @@ describe('the words that open the new pages', () => {
     expect(serviceFor('light')?.to).toBe('/pay?biller=ikeja');
     expect(serviceFor('dstv')?.label).toBe('Cable TV');
     expect(serviceFor('the weather')).toBeNull();
+  });
+});
+
+describe('the bills a new account pays, kept (Round 33)', () => {
+  it('keeps one row a biller, the latest, after the month the frame draws', () => {
+    const rows = [
+      { kind: 'bill', name: 'Bet9ja', amount: -1_000, status: 'done', at: 1 },
+      { kind: 'bill', name: 'Bet9ja', amount: -5_000, status: 'done', at: 2 },
+      { kind: 'bill', name: 'Lagos Water', amount: -3_500, status: 'failed', at: 3 },
+      { kind: 'bill', name: 'LAWMA waste', amount: -2_000, status: 'done', at: 4 },
+      { kind: 'transfer', name: 'Sarah', amount: -20_000, status: 'done', at: 5 },
+    ];
+    const kept = paidBills(rows, DEMO_MONTH);
+    expect(kept.map(b => [b.biller, b.amount, b.covered, b.to])).toEqual([['bet9ja', 5_000, 'paid', '/pay?biller=bet9ja']]);
+    expect(paidBills(rows).map(b => b.biller)).toEqual(['lawma', 'bet9ja']);
+  });
+  it('says what a figure buys at the new billers', () => {
+    expect(buysWords(billerById('bet9ja')!, 5_000)).toBe('Into the wallet');
+    expect(buysWords(billerById('waec')!, 10_000)).toBe('Two PINs');
+    expect(buysWords(billerById('lwc')!, 7_000)).toBe('Two months');
   });
 });

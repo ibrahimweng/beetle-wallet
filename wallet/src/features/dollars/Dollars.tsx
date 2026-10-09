@@ -6,7 +6,7 @@
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Body, Button, Display, Head, Icon, Label, Meta, NoteCard, PageHead, Row, Say, Screen, Tap, colour, toast } from '../../design';
+import { Body, Button, ChoiceRow, Display, Head, Icon, Label, Meta, NoteCard, PageHead, Row, Say, Screen, Tap, colour, toast } from '../../design';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
@@ -111,6 +111,14 @@ export function Dollars() {
         <Meta tone="secondary" style={{ flex: 1 }}>
           Turn any of it back to naira the same day. There is no notice and no lock.
         </Meta>
+      </View>
+      {/* Round 33: the dollars in and out as USDC or USDT, on test networks in this build */}
+      <View style={{ gap: 12 }} testID="coins-block">
+        <Head>USDC and USDT</Head>
+        <View>
+          <ChoiceRow glyph="down" title="Add with USDC or USDT" sub="From any wallet or exchange, one coin to the dollar" to="/coins" testID="coins-in" />
+          <ChoiceRow glyph="up" title="Send to a wallet" sub="Your dollars out as coins, to their address" to="/coins/send" testID="coins-out" />
+        </View>
       </View>
     </Screen>
   );

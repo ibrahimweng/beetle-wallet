@@ -68,6 +68,9 @@ const account = (phone: string) => ({
 });
 const sessionFor = (a: Session['account']): Session => ({ token: 'lab', account: a });
 
+/** Somebody's USDC address on Base, for the pages that send coins out: EIP-55's own example, so its capitals check. */
+const COIN_ADDRESS = '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed';
+
 const none: Seed = { progress: {}, session: null };
 /** The account just opened, on the ready screen: where finishing setting up starts from. */
 const READY: Seed = { progress: { ...done.who, accountNumber: accountNumberFor(LAB_PHONE) }, session: sessionFor(account(LAB_PHONE)) };
@@ -807,6 +810,25 @@ export const DOLLARS: Feature = {
     { id: 'dollars-converted', icon: 'check', title: 'Converted', sub: 'The tick, the rate you got, and the offer to move some every payday', href: '/converted/demo', seed: demo },
     { id: 'dollars-payfrom', icon: 'up', title: 'Pay from', sub: 'The sheet the From row on Send money puts up', href: '/send?demo=1&from=pick', seed: demo },
     { id: 'dollars-send', icon: 'send', title: 'Send from dollars', sub: 'Sarah paid from the dollars, at the rate on the page', href: '/send?demo=1&from=dollars', seed: demo },
+    /* Round 33: USDC and USDT, on test networks */
+    { id: 'coins-in', icon: 'down', title: 'Add with USDC or USDT', sub: 'The coin, the network, the address as a QR, and test coins sent to it', href: '/coins', seed: demo },
+    { id: 'coins-in-usdt', icon: 'down', title: 'USDT on Tron', sub: 'The same page for Tether on Tron, its T… address', href: '/coins?coin=USDT&network=tron', seed: demo },
+    {
+      id: 'coins-out',
+      icon: 'up',
+      title: 'Send to a wallet',
+      sub: 'A Base address pasted and checked, the amount, the network’s fee and what they get',
+      href: `/coins/send?to=${COIN_ADDRESS}`,
+      seed: demo,
+    },
+    {
+      id: 'coins-out-wrong',
+      icon: 'alert',
+      title: 'The wrong network',
+      sub: 'A Base address on Tron: named as such, and nothing can go',
+      href: `/coins/send?coin=USDT&network=tron&to=${COIN_ADDRESS}`,
+      seed: demo,
+    },
   ],
 };
 

@@ -30,6 +30,7 @@ import { groupAccount, groupDigits } from '../../lib/format';
 import { handoff } from './handoff';
 import { idPhoto } from '../setup/hand';
 import { SAMPLES, sampleOfKind } from './sample';
+import { codeTarget } from '../dollars/chains';
 
 type CameraModule = typeof import('expo-camera');
 type CameraViewRef = InstanceType<CameraModule['CameraView']>;
@@ -66,6 +67,10 @@ export function Scan() {
   const [state, setState] = useState<State>('asking');
   const [note, setNote] = useState<string | null>(null);
   const [torch, setTorch] = useState(false);
+  /** reading codes (Round 33): a QR with a USDC or USDT address opens Send to a wallet with it in */
+  const [codes, setCodes] = useState(false);
+  const coded = useRef(false);
+  const badCode = useRef<string | null>(null);
   const [read, setRead] = useState<Read | null>(null);
   /** a message asking to be paid, read off the photo: the sheet over the camera */
   const [found, setFound] = useState<RequestReading | null>(null);
@@ -227,16 +232,39 @@ export function Scan() {
   };
   const CameraView = cam?.CameraView;
   const live = state === 'ready' || state === 'taking';
-  const title = forBill ? 'Point at a bill or a meter' : forData ? 'Point at a message asking for data' : forId ? 'Point at your ID' : 'Point at an account number';
+  const title = codes ? 'Point at a QR code' : forBill ? 'Point at a bill or a meter' : forData ? 'Point at a message asking for data' : forId ? 'Point at your ID' : 'Point at an account number';
+  /* a code read: a coin address goes to Send to a wallet with it in; anything else is said, and the camera keeps looking */
+  const onCode = ({ data }: { data: string }) => {
+    if (coded.current) return;
+    const target = codeTarget(data);
+    if (!target) {
+      /* said once a code, not at every frame the camera sees it */
+      if (badCode.current !== data) toast('That code is not a USDC or USDT address. Beetle reads those off codes for now.');
+      badCode.current = data;
+      return;
+    }
+    coded.current = true;
+    router.replace(`/coins/send?coin=${target.coin}&network=${target.network}&to=${encodeURIComponent(target.address)}` as never);
+  };
+  const readCodes = () => {
+    if (!(CameraView && live)) {
+      toast('No camera here to read a code with. Paste the address on Send to a wallet instead.');
+      return;
+    }
+    coded.current = false;
+    setCodes(c => !c);
+  };
   const sub =
     note ??
-    (forBill
-      ? 'The number on the card works too.'
-      : forData
-        ? 'Or for airtime, on paper or on a screen.'
-        : forId
-          ? 'A NIN slip, a voter’s card, a driver’s licence or a passport, flat and filling the frame.'
-          : 'On a slip, a screen or a card. A message asking to be paid works too, and so does a bill.');
+    (codes
+      ? 'A USDC or USDT address, from a wallet or an exchange.'
+      : forBill
+        ? 'The number on the card works too.'
+        : forData
+          ? 'Or for airtime, on paper or on a screen.'
+          : forId
+            ? 'A NIN slip, a voter’s card, a driver’s licence or a passport, flat and filling the frame.'
+            : 'On a slip, a screen or a card. A message asking to be paid works too, and so does a bill.');
   const caption =
     standIn && live
       ? forId
@@ -259,6 +287,8 @@ export function Scan() {
           style={StyleSheet.absoluteFill}
           facing="back"
           enableTorch={torch}
+          barcodeScannerSettings={codes ? { barcodeTypes: ['qr'] } : undefined}
+          onBarcodeScanned={codes ? onCode : undefined}
           onMountError={() => {
             failed.current = true;
             setState('none');
@@ -269,7 +299,7 @@ export function Scan() {
         {/* the frame's head: 40 discs on a 44 row 56 down, Read a code at the left where the frame's close was (Back is
             at the bottom left since Round 31, the owner's word: every Back is), the light at the right */}
         <View style={s.top} testID="scan-top">
-          <Pressable accessibilityRole="button" accessibilityLabel="Read a code" onPress={() => toast('Beetle does not read codes yet. Point at the account number written by it.')} style={s.disc40}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Read a code" accessibilityState={{ selected: codes }} onPress={readCodes} style={[s.disc40, codes ? s.disc40On : null]}>
             <Icon name="qr" size={20} colour={dark.paper} />
           </Pressable>
           <Pressable

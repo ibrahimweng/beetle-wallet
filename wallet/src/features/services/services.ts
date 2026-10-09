@@ -12,7 +12,7 @@ export const MOST: Service[] = [
   { glyph: 'power', label: 'Power', to: '/pay?biller=ikeja' },
   { glyph: 'send', label: 'Send', to: '/send' },
   { glyph: 'tv', label: 'Cable TV', to: '/pay?biller=dstv' },
-  { glyph: 'bet', label: 'Betting', later: 'Betting is not in Beetle yet.' },
+  { glyph: 'bet', label: 'Betting', to: '/pay?biller=bet9ja' },
   { glyph: 'loan', label: 'Loan', to: '/loan' },
   { glyph: 'card', label: 'Cards', to: '/card' },
 ];
@@ -23,9 +23,9 @@ export const LISTS: { title: string; items: Service[] }[] = [
     title: 'Bills',
     items: [
       { glyph: 'globe', label: 'Internet', sub: 'Spectranet, Smile, Starlink', to: '/pay?biller=spectranet' },
-      { glyph: 'water', label: 'Water', sub: 'State water boards', later: 'Water bills are not in Beetle yet.' },
+      { glyph: 'water', label: 'Water', sub: 'State water boards', to: '/pay?biller=lwc' },
       { glyph: 'waste', label: 'Waste', sub: 'LAWMA and others', to: '/pay?biller=lawma' },
-      { glyph: 'school', label: 'School fees', sub: 'WAEC, JAMB, tuition', later: 'School fees are not in Beetle yet.' },
+      { glyph: 'school', label: 'School fees', sub: 'WAEC, JAMB, tuition', to: '/pay?biller=waec' },
     ],
   },
   {
@@ -40,7 +40,7 @@ export const LISTS: { title: string; items: Service[] }[] = [
     items: [
       { glyph: 'dollar', label: 'Dollars', sub: 'holding steady', to: '/dollars' },
       { glyph: 'up', label: 'Request money', sub: 'Ask someone to pay you', to: '/request' },
-      { glyph: 'globe', label: 'Send abroad', sub: 'Pounds, dollars and euros', later: 'Sending abroad is not in Beetle yet.' },
+      { glyph: 'globe', label: 'Send abroad', sub: 'Dollars out as USDC or USDT', to: '/coins/send' },
     ],
   },
 ];
@@ -64,6 +64,14 @@ export function serviceFor(text: string): Service | null {
     bin: 'Waste',
     lawma: 'Waste',
     school: 'School fees',
+    waec: 'School fees',
+    jamb: 'School fees',
+    bet: 'Betting',
+    bet9ja: 'Betting',
+    water: 'Water',
+    usdc: 'Send abroad',
+    usdt: 'Send abroad',
+    crypto: 'Send abroad',
     save: 'Savings pot',
     savings: 'Savings pot',
     request: 'Request money',

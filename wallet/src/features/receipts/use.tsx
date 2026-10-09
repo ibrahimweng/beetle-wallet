@@ -36,7 +36,7 @@ export function useReceipt(id: string) {
 }
 
 /** What a question about the receipt carries to the chat: the money, who, and when. */
-export const aboutOf = (r: ReceiptModel) => `${naira(r.amount)} ${r.line.replace(/^Sent to /, 'to ')}, ${r.when}`;
+export const aboutOf = (r: ReceiptModel) => `${r.figure ?? naira(r.amount)} ${r.line.replace(/^Sent to /, 'to ')}, ${r.when}`;
 
 /** The ··· for a receipt: Ask Beetle about this — a fresh chat on home, about this one transaction — and Report a problem. */
 export function useReceiptMenu(receipt: ReceiptModel, id: string) {
@@ -46,7 +46,7 @@ export function useReceiptMenu(receipt: ReceiptModel, id: string) {
     {
       glyph: 'alert' as const,
       label: 'Report a problem',
-      onPress: () => (receipt.kind === 'transfer' ? router.push(`/wrong/${id}` as never) : askHome(router, receipt.wrong, `${naira(receipt.amount)} ${receipt.line.toLowerCase()}`)),
+      onPress: () => (receipt.kind === 'transfer' ? router.push(`/wrong/${id}` as never) : askHome(router, receipt.wrong, `${receipt.figure ?? naira(receipt.amount)} ${receipt.line.toLowerCase()}`)),
     },
   ];
 }

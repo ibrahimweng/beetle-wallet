@@ -15,7 +15,7 @@
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AmountPicker, Caption, Chevron, Icon, Label, Meta, PageHead, Row, Screen, Tap, colour, toast } from '../../design';
+import { AmountPicker, Button, Caption, Chevron, Icon, Label, Meta, PageHead, Row, Screen, Tap, colour, toast } from '../../design';
 import type { Move } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -28,7 +28,7 @@ import { clock, useChats } from '../agent/chats';
 import { turn } from '../agent/turns';
 import { PasscodeSheet, lockedFor, waitWords } from '../passcode';
 import { naira } from '../../lib/format';
-import { COLLECTED, LOAN, MISSED, TERMS, costOf, countWord, dayOf, eachWords, leftToBorrow, limitNote, type Term } from './loan';
+import { COLLECTED, LOAN, MISSED, TERMS, costOf, countWord, dayOf, eachWords, leftToBorrow, limitNote, nextPayment, owedIn, type Term } from './loan';
 
 export function Loan() {
   const app = useApp();
@@ -42,8 +42,13 @@ export function Loan() {
   /* the frame opens on ₦150,000 for 90 days */
   const [picked, setAmount] = useState(150_000);
   const [days, setDays] = useState<Term>(90);
-  /* what is left of the limit once what is already borrowed is counted */
-  const left = leftToBorrow([...moves, ...(account ? holdingsFor(account).ledger : [])]);
+  /* what is left of the limit once what is already borrowed is counted, and what is owed on it */
+  const lines = [...moves, ...(account ? holdingsFor(account).ledger : [])];
+  const left = leftToBorrow(lines);
+  const owed = owedIn(lines);
+  const next = nextPayment(lines);
+  /** paying back (Round 33): the next payment or all of it, behind the same passcode */
+  const [paying, setPaying] = useState<number | null>(null);
   const amount = Math.min(picked, left);
   /** what is open in place: the days, what happens if a payment is missed, the cost line by line */
   const [open, setOpen] = useState<null | 'days' | 'missed' | 'cost'>(null);
@@ -88,12 +93,47 @@ export function Loan() {
     router.push(`/receipt/${row.id}?paid=1`);
   };
 
-  useFoot({ kind: 'slide', label: 'Slide to take', amount: naira(amount), disabled: amount < LOAN.least || !setup.done, onSlide: slide, veil: guard ? 'away' : undefined });
+  /* paying back: from Everyday, checked against what it holds, a line in the day and its receipt; the limit frees up */
+  const payBack = (figure: number) => {
+    if (figure > balance) {
+      toast(`That is ${naira(figure - balance)} more than Everyday holds.`);
+      return;
+    }
+    const shut = lockedFor();
+    if (shut) {
+      toast(`That was three wrong tries. Give it ${waitWords(shut)} and try again.`);
+      return;
+    }
+    setPaying(figure);
+  };
+  const paidBack = () => {
+    if (!account || paying === null) return;
+    const move: Move = { name: 'Beetle Loans', detail: `Paid back · ${clock()}`, amount: -paying, icon: 'loan', kind: 'bill' };
+    const row = rowFrom(move, balance, 17 + moves.length);
+    addMove(row);
+    setPaying(null);
+    router.push(`/receipt/${row.id}?paid=1`);
+  };
+
+  useFoot({ kind: 'slide', label: 'Slide to take', amount: naira(amount), disabled: amount < LOAN.least || !setup.done, onSlide: slide, veil: guard || paying !== null ? 'away' : undefined });
   if (!ok || !account) return null;
   const payments = `${countWord(cost.payments)} payment${cost.payments === 1 ? '' : 's'} of`;
   return (
     <>
       <Screen head={<PageHead lead title="Borrow" sub={`Up to ${naira(LOAN.most)}, paid back monthly`} />}>
+        {owed > 0 ? (
+          <View style={s.owed} testID="loan-owed">
+            <View style={s.line}>
+              <Meta tone="secondary">You owe Beetle Loans</Meta>
+              <Row testID="loan-owed-figure">{naira(owed)}</Row>
+            </View>
+            <Caption tone="secondary">{`${COLLECTED}. Paying early costs nothing extra, and frees your limit as you go.`}</Caption>
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+              {next < owed ? <Button label={`Pay ${naira(next)}`} size={48} tone="white" onPress={() => payBack(next)} style={[{ flex: 1 }, s.outlined]} /> : null}
+              <Button label={next < owed ? 'Pay it all' : `Pay ${naira(owed)}`} size={48} onPress={() => payBack(owed)} style={{ flex: 1 }} />
+            </View>
+          </View>
+        ) : null}
         <View style={s.card} testID="loan-card">
           {/* how much: the first thing, picked where it is */}
           <View style={s.picker} testID="loan-amount">
@@ -202,6 +242,21 @@ export function Loan() {
           onCancel={() => setGuard(false)}
         />
       ) : null}
+      {paying !== null ? (
+        <PasscodeSheet
+          amount={naira(paying)}
+          name="Beetle Loans"
+          detail={paying >= owed ? 'The loan, all of it' : 'A payment on the loan'}
+          glyph="loan"
+          rows={[
+            { label: 'Still owed after', value: naira(Math.max(0, owed - paying)) },
+            { label: 'Leaves Everyday', value: naira(paying), strong: true },
+          ]}
+          verify={app.checkPasscode}
+          onDone={paidBack}
+          onCancel={() => setPaying(null)}
+        />
+      ) : null}
     </>
   );
 }
@@ -230,6 +285,8 @@ function Small({ label, value }: { label: string; value: string }) {
 
 const s = StyleSheet.create({
   card: { backgroundColor: colour.surface2, borderRadius: 24, padding: 12, gap: 8 },
+  owed: { backgroundColor: colour.surface2, borderRadius: 24, padding: 16, gap: 6 },
+  outlined: { borderWidth: 1, borderColor: colour.rule },
   /* the picker on its own white, as the amounts on the paying pages sit */
   picker: { backgroundColor: colour.surface, borderRadius: 20, paddingTop: 20, paddingBottom: 16 },
   /* the breakdown: one white card, rows 36 tall, nothing boxed */

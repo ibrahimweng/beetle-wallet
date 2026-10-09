@@ -10,7 +10,7 @@ vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem
 vi.mock('expo-crypto', () => ({ getRandomBytes: (n: number) => new Uint8Array(n), CryptoDigestAlgorithm: { SHA256: 'SHA-256' }, digestStringAsync: async () => 'h' }));
 import { dayName, daysAgo, localIsoDay, sessionWhen } from '../src/lib/days';
 import { CAPS, COOL_MS, pastCap, spentToday, stoppedBy } from '../src/features/settings/gate';
-import { LOAN, costOf, eachWords, leftToBorrow, limitNote } from '../src/features/loan/loan';
+import { LOAN, costOf, eachWords, leftToBorrow, limitNote, nextPayment, owedIn } from '../src/features/loan/loan';
 import { usdCost } from '../src/features/dollars/dollars';
 import { overLine, takesOut } from '../src/services/rules';
 import { PEOPLE, billPanelFor, transferPanel, withAmount } from '../src/services/agent';
@@ -125,5 +125,21 @@ describe('a panel whose amount changes', () => {
     expect(q.rows.find(r => r.label === 'Units')?.value).toBe(billPanelFor(meter, 20_000).rows.find(r => r.label === 'Units')?.value);
     expect(q.move?.reference).toBe(billPanelFor(meter, 20_000).move?.reference);
     expect(q.move?.reference).not.toBe(p.move?.reference);
+  });
+});
+
+describe('a loan paid back (Round 33)', () => {
+  const taken = { kind: 'in', name: 'Beetle Loans', amount: 150_000, detail: 'Loan · 90 days · 09:41' };
+  it('owes the loan’s total, interest and fee with it, and frees the limit as it is paid', () => {
+    expect(owedIn([taken])).toBe(169_500);
+    expect(nextPayment([taken])).toBe(56_500);
+    expect(leftToBorrow([taken])).toBe(100_000);
+    const one = { kind: 'bill', name: 'Beetle Loans', amount: -56_500, detail: 'Paid back · 10:00' };
+    expect(owedIn([taken, one])).toBe(113_000);
+    expect(leftToBorrow([taken, one])).toBe(150_000);
+    const rest = { kind: 'bill', name: 'Beetle Loans', amount: -113_000, detail: 'Paid back · 10:05' };
+    expect(owedIn([taken, one, rest])).toBe(0);
+    expect(nextPayment([taken, one, rest])).toBe(0);
+    expect(leftToBorrow([taken, one, rest])).toBe(LOAN.most);
   });
 });

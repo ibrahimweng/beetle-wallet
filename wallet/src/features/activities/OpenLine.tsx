@@ -132,9 +132,15 @@ export function LineDetails({
             state={line.state && ledger ? stateOf(line.state, ledger, router, line.id, onLeave) : null}
             onRepeat={() => {
               const to =
-                receipt.kind === 'transfer'
-                  ? `/rule?offer=again&row=${line.id}`
-                  : `/rule?offer=${receipt.kind === 'in' ? 'salary' : receipt.kind === 'convert' ? 'dollars' : receipt.kind === 'saving' ? 'salary' : 'ikeja'}`;
+                receipt.line === 'Beetle Loans'
+                  ? '/loan'
+                  : receipt.kind === 'coin'
+                    ? receipt.amount < 0
+                      ? '/coins/send'
+                      : '/coins'
+                    : receipt.kind === 'transfer'
+                      ? `/rule?offer=again&row=${line.id}`
+                      : `/rule?offer=${receipt.kind === 'in' ? 'salary' : receipt.kind === 'convert' ? 'dollars' : receipt.kind === 'saving' ? 'salary' : 'ikeja'}`;
               onLeave(() => router.push(to as never));
             }}
           />

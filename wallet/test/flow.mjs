@@ -2255,6 +2255,21 @@ try {
   await receiptSheet();
   await see('Beetle Loans');
   await shot('loan-receipt', 900);
+  /* paying it back (Round 33): Borrow says what is owed, ₦100,000 for 60 days being ₦109,000; the next payment, behind
+     the passcode, comes off it, and the limit frees up as it does */
+  await receiptDone();
+  await see('You owe Beetle Loans');
+  await see('₦109,000');
+  await see('₦150,000 is left of your limit');
+  await shot('loan-owed', 600);
+  await tap('Pay ₦54,500');
+  await see('Enter your passcode');
+  await pay();
+  await receiptSheet();
+  await see('Paid back');
+  await receiptDone();
+  await see('You owe Beetle Loans');
+  await see('₦200,000 is left of your limit');
   await page.goto(`${base}/home`, { waitUntil: 'load' });
   await see(DEMO_HOME);
   await pull('card-for-the-loan-chat', false);
@@ -2338,6 +2353,51 @@ try {
   await pay();
   await receiptSheet();
   await shot('send-dollars-receipt', 900);
+  /* USDC and USDT (Round 33), on test networks: the address for the coin and network picked, as a QR and words; test coins
+     sent to it arrive as dollars with a receipt; and dollars go out to somebody's address, checked before anything moves */
+  await page.goto(`${base}/dollars`, { waitUntil: 'load' });
+  await see('USDC and USDT');
+  await tap('Add with USDC or USDT');
+  await see('Only USDC, and only on Base.');
+  at('/coins');
+  const baseAddress = await page.getByTestId('coin-address-text').innerText();
+  must(/^0x[0-9a-fA-F]{40}$/.test(baseAddress), `the Base address should be 0x and forty hex, not ${baseAddress}`);
+  await page.getByTestId('coin-qr').waitFor();
+  await shot('coins-in', 900);
+  /* Tether is not on Base: the page moves to its cheapest network, and Tron gives a T… address */
+  await tap('USDT');
+  await see('Only USDT, and only on Solana.');
+  await page.getByRole('radio', { name: /Tron/ }).click();
+  await see('Only USDT, and only on Tron (TRC-20).');
+  must(/^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(await page.getByTestId('coin-address-text').innerText()), 'the Tron address should be T and 33 more');
+  await tap('$100');
+  await receiptSheet();
+  await see('Coins in');
+  await see('$100.00 USDT on Tron (TRC-20)');
+  await shot('coins-arrived', 900);
+  await receiptDone();
+  /* out: an address for another network is named, one with a letter wrong is caught, the right one is checked */
+  await page.goto(`${base}/coins/send`, { waitUntil: 'load' });
+  await see('Send to a wallet');
+  const to = page.getByTestId('coin-to');
+  await to.fill('TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t');
+  await see('That is a Tron address. Pick its network, or check the address.');
+  await to.fill('0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAee');
+  await see('One letter in that address is wrong');
+  await to.fill(baseAddress);
+  await see('That is your own Beetle address');
+  await to.fill('0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed');
+  await see('Checked: a Base address');
+  await typeAmount(50);
+  await see('They get $49.99');
+  await shot('coins-out', 700);
+  await slideToSend();
+  await see('Enter your passcode');
+  await pay();
+  await receiptSheet();
+  await see('$49.99 USDC to 0x5aAe…eAed');
+  await shot('coins-sent', 900);
+  await receiptDone();
   /* the goal: Savings pot on the drawer opens Holiday, as Savings on home does */
   await page.goto(`${base}/services`, { waitUntil: 'load' });
   await see('Everything you can pay for from here');

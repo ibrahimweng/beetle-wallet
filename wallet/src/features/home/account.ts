@@ -4,6 +4,7 @@
    frames show. This is the shape the real account service will
    fill; until then it is derived here. */
 import type { Account } from '../../services/auth';
+import type { CoinLine } from '../../services/agent';
 import type { Target } from '../../services/nigeria';
 import type { IconName } from '../../icons';
 
@@ -17,7 +18,7 @@ export type LedgerRow = {
   detail: string;
   amount: number;
   status: 'done' | 'pending' | 'failed' | 'reversed';
-  kind: 'transfer' | 'service' | 'airtime' | 'saving' | 'in' | 'bill' | 'card' | 'convert';
+  kind: 'transfer' | 'service' | 'airtime' | 'saving' | 'in' | 'bill' | 'card' | 'convert' | 'coin';
   /** what its receipt needs beyond the line, where the line was added on this phone */
   fee?: number;
   reference?: string;
@@ -37,6 +38,8 @@ export type LedgerRow = {
   at?: number;
   /** the line a cover from Beetle paid back, so it is paid once */
   covers?: string;
+  /** a stablecoin in or out (Round 33) */
+  coin?: CoinLine;
 };
 
 export type Insight = { id: string; kicker: string; body: string; action: string };

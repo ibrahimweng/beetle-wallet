@@ -112,13 +112,13 @@ function Drawn({ receipt, id, onDone, onRecord, share = false, testID = 'receipt
           {/* what the share sheet pictures: the receipt on its white */}
           <View ref={slip} collapsable={false} style={s.slip}>
             <Receipt
-              amount={naira(receipt.amount)}
+              amount={receipt.figure ?? naira(receipt.amount)}
               line={receipt.line}
               status={receipt.status}
               fields={receipt.fields}
               session={receipt.session}
               sessionLabel={receipt.sessionLabel}
-              good={receipt.kind === 'in'}
+              good={receipt.kind === 'in' || (receipt.kind === 'coin' && receipt.amount > 0)}
               onCopy={() => void copy(receipt.session, `The ${receipt.sessionLabel.toLowerCase()}`)}
               head={token}
               tail={receipt.tail}

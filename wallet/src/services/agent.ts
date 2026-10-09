@@ -85,7 +85,7 @@ export type Move = {
   detail: string;
   amount: number;
   icon: IconName;
-  kind: 'transfer' | 'bill' | 'airtime' | 'service' | 'in' | 'saving' | 'convert' | 'card';
+  kind: 'transfer' | 'bill' | 'airtime' | 'service' | 'in' | 'saving' | 'convert' | 'card' | 'coin';
   /** what its receipt needs beyond the line: the fee, who, what was written */
   fee?: number;
   person?: Person;
@@ -100,7 +100,13 @@ export type Move = {
   goal?: string;
   /** the line a cover from Beetle paid back */
   covers?: string;
+  /** a stablecoin in or out: its coin, network, the address on the other side and the network's record of it */
+  coin?: CoinLine;
 };
+
+/** A stablecoin line (Round 33): USDC or USDT on its network, the address on the other side, the network's own record of
+    it, and the network's fee in dollars (none on coins in). */
+export type CoinLine = { coin: 'USDC' | 'USDT'; network: 'base' | 'solana' | 'tron' | 'ethereum'; address: string; hash: string; fee: number };
 
 /* ---- what Beetle asks for ---- */
 

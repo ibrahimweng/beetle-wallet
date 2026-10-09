@@ -1095,6 +1095,14 @@
  ],
  "services": [
   {
+   "piece": "Pounds, dollars and euros",
+   "why": "Round 33, the owner's word (start testing the stablecoins): Send abroad sends dollars out as USDC or USDT, so its line says that"
+  },
+  {
+   "text": "Pounds, dollars and euros",
+   "why": "Round 33: Send abroad's line is Dollars out as USDC or USDT"
+  },
+  {
    "pieces": [
     "Column",
     "You use these most",

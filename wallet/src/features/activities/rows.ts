@@ -4,6 +4,7 @@
    still yours. */
 import type { LedgerRow } from '../home/account';
 import { shortDay } from '../../lib/days';
+import { usdFull } from '../dollars/dollars';
 
 export type Segment = 'All' | 'Insights' | 'In' | 'Out';
 export const SEGMENTS: Segment[] = ['All', 'Insights', 'In', 'Out'];
@@ -23,8 +24,12 @@ export function activityRows(ledger: LedgerRow[], day: LedgerRow['day'], segment
   return [...open, ...settled];
 }
 
-/** The figure on a line: signed once it settled or is on its way, bare where it did not go or came back. */
-export const activityAmount = (r: LedgerRow, signed: (n: number) => string, naira: (n: number) => string) => (r.status === 'failed' || r.status === 'reversed' ? naira(r.amount) : signed(r.amount));
+/** The figure on a line: signed once it settled or is on its way, bare where it did not go or came back. A stablecoin
+    line is in the dollars it moved (Round 33), its naira only what sorts it into In or Out. */
+export const activityAmount = (r: LedgerRow, signed: (n: number) => string, naira: (n: number) => string) => {
+  if (r.kind === 'coin' && r.usd !== undefined) return r.status === 'failed' || r.status === 'reversed' ? usdFull(r.usd) : `${r.usd < 0 ? '−' : '+'}${usdFull(r.usd)}`;
+  return r.status === 'failed' || r.status === 'reversed' ? naira(r.amount) : signed(r.amount);
+};
 
 /** What a line says under its name: its own words with the time, where they do not carry one already; a line from
     before yesterday says its date too. */

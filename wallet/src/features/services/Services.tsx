@@ -16,6 +16,8 @@ import { useFoot } from '../more/Foot';
 import { askHome } from '../more/More';
 import { pageFor } from '../request/intent';
 import { holdingsFor } from '../home/account';
+import { useMoves } from '../home/moves';
+import { dollarsOf } from '../dollars/dollars';
 import { LISTS, MOST, serviceFor, type Service } from './services';
 
 export function Services() {
@@ -23,7 +25,9 @@ export function Services() {
   const router = useRouter();
   const ok = useSessionGuard();
   const account = app.session?.account;
-  const dollars = useMemo(() => (account ? holdingsFor(account).dollars : 0), [account]);
+  /* what is held now: the account's own and every move since (the audit after Round 32: a conversion left it stale) */
+  const { moves } = useMoves(account?.accountNumber);
+  const dollars = useMemo(() => dollarsOf(account ? holdingsFor(account).dollars : 0, moves), [account, moves]);
   const go = (s: Service) => {
     if (s.to) router.push(s.to as never);
     else toast(s.later ?? `${s.label} is not in Beetle yet.`);

@@ -9,6 +9,7 @@ import { localIsoDay, sessionWhen } from '../../lib/days';
 import type { LedgerRow } from '../home/account';
 import { fromEveryday } from '../home/everyday';
 import { usdFull } from '../dollars/dollars';
+import { networkOf, shortAddress } from '../dollars/chains';
 
 /** Where a transfer went, as its receipt says it: the bank and the number
     the line carries; otherwise what the line's own words begin with, for a
@@ -30,6 +31,8 @@ export type Receipt = {
   /** under the title: the day and the time */
   when: string;
   amount: number;
+  /** the amount as the slip prints it, where it is not naira: a stablecoin line's dollars */
+  figure?: string;
   /** under the amount: who it went to, or came from */
   line: string;
   status: string;
@@ -291,6 +294,55 @@ export function receiptFor(row: LedgerRow, ctx: { account: Account; balanceNow: 
       ask: 'Ask about this',
     };
   }
+  if (row.kind === 'coin' && row.coin) {
+    /* a stablecoin in or out (Round 33): in dollars, one coin to the dollar, the network's fee out of what is sent */
+    const c = row.coin;
+    const on = `${c.coin} on ${networkOf(c.network).name}`;
+    const moved = Math.abs(row.usd ?? 0);
+    const settled = row.status === 'done';
+    if ((row.usd ?? 0) > 0) {
+      return {
+        ...base,
+        figure: usdFull(moved),
+        head: settled ? 'Coins in' : 'On its way',
+        line: `${usdFull(moved)} ${on}`,
+        status: settled ? 'Arrived' : 'On its way',
+        fields: [
+          ['From', shortAddress(c.address), row.detail.split(' · ')[0] ?? on],
+          ['Coin', on, 'On a test network: no real coin moved'],
+          ['To', 'Dollars', 'One coin, one dollar'],
+          ['Amount', usdFull(moved)],
+          ['Fee', 'None on coins in'],
+          ['Total credited', usdFull(moved)],
+        ],
+        session: c.hash,
+        sessionLabel: 'Transaction',
+        nudge: { text: 'Add more the same way?', action: 'Show the address' },
+        wrong: 'Expecting more than this?',
+        ask: 'Ask about these coins',
+      };
+    }
+    return {
+      ...base,
+      figure: usdFull(moved),
+      head: settled ? 'Sent' : row.status === 'pending' ? 'On its way' : row.status === 'failed' ? 'It did not go' : 'It came back',
+      line: `${usdFull(Math.max(0, moved - c.fee))} ${c.coin} to ${shortAddress(c.address)}`,
+      status: settled ? 'Successful' : row.status === 'pending' ? 'On its way' : row.status === 'failed' ? 'Did not go' : 'Came back',
+      fields: [
+        ['To', shortAddress(c.address), on],
+        ['From', 'Dollars', 'One dollar, one coin'],
+        ['Amount', usdFull(moved)],
+        ['Network fee', usdFull(c.fee), 'The network’s own, out of what is sent'],
+        ['They get', usdFull(Math.max(0, moved - c.fee))],
+        ['Total charged', usdFull(moved)],
+      ],
+      session: c.hash,
+      sessionLabel: 'Transaction',
+      nudge: { text: 'Send to this address again?', action: 'Send again' },
+      wrong: 'Something wrong with this?',
+      ask: 'Ask about these coins',
+    };
+  }
   if (row.kind === 'in') {
     return {
       ...base,
@@ -336,6 +388,21 @@ export function receiptFor(row: LedgerRow, ctx: { account: Account; balanceNow: 
       nudge: { text: `${first} has it. The same next month?`, action: 'Set it up' },
       wrong: 'Something wrong with this?',
       ask: 'Ask about this transfer',
+    };
+  }
+  if (row.kind === 'bill' && row.name === 'Beetle Loans') {
+    /* a loan paid back (Round 33): no token, and what is still owed is on Borrow */
+    return {
+      ...base,
+      head: 'Paid back',
+      line: 'Beetle Loans',
+      status: 'Successful',
+      fields: [['To', 'Beetle Loans', 'Your loan'], from, ['Amount', nairaFull(amount)], ['Fee', 'None for paying early'], ['Total charged', nairaFull(amount)], ['Balance after', after]],
+      session,
+      sessionLabel: 'Session ID',
+      nudge: { text: 'See what is still owed?', action: 'Open Borrow' },
+      wrong: 'Something wrong with this?',
+      ask: 'Ask about this payment',
     };
   }
   if (row.kind === 'bill') {

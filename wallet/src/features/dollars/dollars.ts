@@ -41,11 +41,15 @@ export const DEMO_SOURCES: DollarSource[] = [
 /** What the dollars come to: the account's own, plus every conversion and every payment from them on this phone. */
 export const dollarsOf = (base: number, rows: { usd?: number }[]) => round2(base + rows.reduce((a, r) => a + (r.usd ?? 0), 0));
 
-/** The dollars that came in on this phone, as sources, newest first. */
-export function sourcesOf(rows: { id: string; usd?: number; time: string; kind: string }[], rate: number): DollarSource[] {
+/** The dollars that came in on this phone, as sources, newest first: converted from naira, or arrived as USDC or USDT. */
+export function sourcesOf(rows: { id: string; usd?: number; time: string; kind: string; name?: string }[], rate: number): DollarSource[] {
   return rows
-    .filter(r => (r.usd ?? 0) > 0 && r.kind === 'convert')
-    .map(r => ({ id: r.id, glyph: 'swap', title: 'Converted from naira', sub: `Today ${r.time} · at ₦${rate.toLocaleString('en-NG')}`, usd: r.usd ?? 0 }));
+    .filter(r => (r.usd ?? 0) > 0 && (r.kind === 'convert' || r.kind === 'coin'))
+    .map(r =>
+      r.kind === 'coin'
+        ? { id: r.id, glyph: 'down', title: r.name ?? 'Coins in', sub: `Today ${r.time} · one coin to the dollar`, usd: r.usd ?? 0 }
+        : { id: r.id, glyph: 'swap', title: 'Converted from naira', sub: `Today ${r.time} · at ₦${rate.toLocaleString('en-NG')}`, usd: r.usd ?? 0 },
+    );
 }
 
 /** Beetle's word on holding dollars: what the same money would be worth in naira. Only the demo's were put away in March;

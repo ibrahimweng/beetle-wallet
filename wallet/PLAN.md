@@ -1905,6 +1905,34 @@ screens still missing found and finished.
       borrowed against like any other money. The demo keeps its own day,
       and the lab's first day still starts at nothing. A real build starts
       at nothing.
+- [x] USDC and USDT, on test networks: Dollars has Add with USDC or USDT
+      and Send to a wallet. Adding: the coin, the network (Base, Solana,
+      Tron, Ethereum, as each coin runs on them), this account's own address
+      as a QR and as words to copy or share, the one rule (only that coin,
+      only on that network), and test coins sent to it from a test wallet,
+      arriving as dollars with a receipt. Sending: the coin, the network
+      with its fee and time, their address pasted and checked before
+      anything moves (each network's own check letters, an address for
+      another network named as such, never the account's own), the amount
+      in dollars with the fee taken out of it, the passcode, the receipt.
+      A coin is a dollar here, one for one, held as the dollars always were.
+- [x] Scan reads QR codes: Read a code at the top left looks for one; a
+      USDC or USDT address, or a payment link to one, opens Send to a
+      wallet with it in.
+- [x] The dead ends the audit after Round 32 found, finished: a loan can be
+      paid back (the next payment or all of it), and the limit frees up as
+      it is; Bills keeps every bill paid, and Add a bill opens All services;
+      Betting (Bet9ja), Water (Lagos Water) and School fees (WAEC) are paid
+      like any bill; Send abroad sends dollars out as USDC or USDT; the
+      Dollars row on All services counts every move; Notifications and
+      Saved people in Settings open their pages.
+- [ ] For real: a custodian or partner bank that holds the coins and turns
+      them into dollars, live networks and their fees, travel-rule details
+      for coins out, and the CBN's word on it. Frames from the owner for
+      the coin pages (built without frames, on the dollars pages' pattern).
+- [ ] Still not in this build: Send it another way (a Zenith account linked),
+      Save as PDF on a receipt, the rate's history, a second card, and
+      I lost the phone too on getting an account back.
 
 ## Since the rounds
 

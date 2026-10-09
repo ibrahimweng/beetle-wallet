@@ -30,3 +30,16 @@ export async function copyText(text: string): Promise<boolean> {
     return false;
   }
 }
+
+/** What is on the clipboard, or null where this build cannot read it (Round 33: an address is pasted, never typed). */
+export async function pasteText(): Promise<string | null> {
+  try {
+    if (Platform.OS === 'web') {
+      const nav = (globalThis as { navigator?: { clipboard?: { readText(): Promise<string> } } }).navigator;
+      return nav?.clipboard ? await nav.clipboard.readText() : null;
+    }
+    return clip ? await clip.getStringAsync() : null;
+  } catch {
+    return null;
+  }
+}

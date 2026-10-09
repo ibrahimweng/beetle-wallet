@@ -48,9 +48,11 @@ export function sourcesOf(rows: { id: string; usd?: number; time: string; kind: 
     .map(r => ({ id: r.id, glyph: 'swap', title: 'Converted from naira', sub: `Today ${r.time} · at ₦${rate.toLocaleString('en-NG')}`, usd: r.usd ?? 0 }));
 }
 
-/** Beetle's word on holding dollars: what the same money would be worth in naira. */
-export function heldLine(usd: number, rate: number): string {
+/** Beetle's word on holding dollars: what the same money would be worth in naira. Only the demo's were put away in March;
+    any other account's word is what they are worth today (Round 33: the test dollars were told they came in March). */
+export function heldLine(usd: number, rate: number, demo = true): string {
   if (usd <= 0) return 'Nothing here yet. Convert some naira and it stays in dollars until you turn it back, at the rate on the day.';
+  if (!demo) return `Worth ₦${nairaOf(usd, rate).toLocaleString('en-NG')} at today’s rate. They stay in dollars until you turn them back, at the rate on the day.`;
   const less = Math.round((usd * (rate - MARCH_RATE)) / 100) * 100;
   return `You put these away in March at ₦${MARCH_RATE.toLocaleString('en-NG')}. Held in naira that same money would be worth ₦${less.toLocaleString('en-NG')} less than it is now.`;
 }

@@ -2,9 +2,10 @@
    where you live, a photo of an ID, where your money comes from, and
    everything is on. Each is a plain function of the screen's state, like
    the stages before it, so the same choreography carries the pieces. */
-import React from 'react';
-import { Platform, TextInput, View } from 'react-native';
-import { Aside, Body, Card, Head, Icon, Meta, Tap, Tick, colour, font, motion, night, washes } from '../../design';
+import React, { useRef } from 'react';
+import { Keyboard, TextInput, View } from 'react-native';
+import { Aside, Body, Card, Head, Icon, Meta, Tap, Tick, colour, motion, night, washes } from '../../design';
+import { TextBox } from '../../design/TextBox';
 import type { IconName } from '../../icons';
 import { FULL_LINE, IDCARD, INCOME, INCOMES, OPENS, addressOk, type Income } from '../setup/setup';
 import type { Ctx, StageView } from './views';
@@ -37,12 +38,70 @@ function Opens({ on, cascade = false }: { on: boolean; cascade?: boolean }) {
   );
 }
 
-/* Where you live: the street on one line and the area under it, typed into
-   the same card, with what is still to come and what it opens below. */
+/* Where you live: the street and number in one box, the area, town and state in the one under it, with what is still
+   to come and what it opens below. Round 33, the owner on the phone ("Where you live is not working"): the area was a
+   line 16 tall that a thumb could not find, Next on the keyboard went nowhere, and with the keyboard up the rows under
+   the card pushed the card itself off the top of the screen. Now two boxes as tall as every other box on the way in,
+   Next goes to the area and Done to Continue, and while the keyboard is up everything under the boxes folds away. */
+function AddressBody({ c, save }: { c: Ctx; save: () => void }) {
+  const area = useRef<TextInput>(null);
+  const streetWrong = c.street.length > 0 && c.street.trim().length < 3;
+  const areaWrong = c.area.length > 0 && c.area.trim().length < 3;
+  return (
+    /* the frame: 9 from the line to the boxes; the band's own 12 is above */
+    <View style={{ marginTop: -3, gap: 12 }}>
+      <View style={{ gap: 10 }} testID="address">
+        <TextBox
+          label="House number and street"
+          value={c.street}
+          onChangeText={c.setStreet}
+          placeholder="12 Bode Thomas Street"
+          autoCapitalize="words"
+          autoComplete="street-address"
+          textContentType="streetAddressLine1"
+          returnKeyType="next"
+          onSubmitEditing={() => area.current?.focus()}
+          note={streetWrong ? 'The number and the street, please.' : undefined}
+          bad={streetWrong}
+          testID="street"
+        />
+        <TextBox
+          ref={area}
+          label="Area, town and state"
+          value={c.area}
+          onChangeText={c.setArea}
+          placeholder="Surulere, Lagos State"
+          autoCapitalize="words"
+          textContentType="addressCity"
+          returnKeyType="done"
+          onSubmitEditing={save}
+          note={areaWrong ? 'The area, the town and the state.' : undefined}
+          bad={areaWrong}
+          testID="area"
+        />
+      </View>
+      {c.keyboardUp ? null : (
+        <View>
+          <Later icon={IDCARD.icon} label={IDCARD.label} />
+          <Later icon={INCOME.icon} label={INCOME.label} />
+          <View style={{ paddingTop: 20, gap: 8 }}>
+            <Head>What it opens</Head>
+            <Opens on={false} />
+          </View>
+          <View style={{ paddingTop: 18, paddingBottom: 2 }}>
+            <Aside>This is the same check every Nigerian bank runs. We ask once, and we do not sell it.</Aside>
+          </View>
+        </View>
+      )}
+    </View>
+  );
+}
+
 export function address(c: Ctx): StageView {
   const ok = addressOk(c.street, c.area);
   const save = () => {
     if (!ok) return;
+    Keyboard.dismiss();
     c.setSetup({ address: { street: c.street.trim(), area: c.area.trim() } });
     c.go('idcard');
   };
@@ -52,47 +111,8 @@ export function address(c: Ctx): StageView {
     title: 'Where you live',
     sub: 'Street, town and state. No utility bill, and nothing arrives in the post.',
     bodyKey: 'address',
-    body: (
-      /* the frame: 9 from the line to the card; the band's own 12 is above */
-      <View style={{ marginTop: -3 }}>
-        <Card style={{ paddingTop: 12, paddingBottom: 11, paddingHorizontal: 16, gap: 4 }} testID="address">
-          <TextInput
-            value={c.street}
-            onChangeText={c.setStreet}
-            placeholder="12 Bode Thomas Street"
-            placeholderTextColor={night.tertiary}
-            autoFocus={Platform.OS !== 'web' ? false : true}
-            autoCapitalize="words"
-            returnKeyType="next"
-            accessibilityLabel="Street"
-            testID="street"
-            style={{ fontSize: 16, lineHeight: 24, ...font('600'), color: night.ink, padding: 0, height: 24 }}
-          />
-          <TextInput
-            value={c.area}
-            onChangeText={c.setArea}
-            placeholder="Area, town and state"
-            placeholderTextColor={night.tertiary}
-            autoCapitalize="words"
-            returnKeyType="done"
-            onSubmitEditing={save}
-            accessibilityLabel="Area, town and state"
-            testID="area"
-            style={{ fontSize: 12, lineHeight: 16, ...font('400'), color: night.secondary, padding: 0, height: 16 }}
-          />
-        </Card>
-        <Later icon={IDCARD.icon} label={IDCARD.label} />
-        <Later icon={INCOME.icon} label={INCOME.label} />
-        <View style={{ paddingTop: 20, gap: 8 }}>
-          <Head>What it opens</Head>
-          <Opens on={false} />
-        </View>
-        {/* the frame's row: the words 20 under the card, and the row's foot on the column's */}
-        <View style={{ paddingTop: 18, paddingBottom: 2 }}>
-          <Aside>This is the same check every Nigerian bank runs. We ask once, and we do not sell it.</Aside>
-        </View>
-      </View>
-    ),
+    words: true,
+    body: <AddressBody c={c} save={save} />,
     bar: { label: 'Continue', onPress: save, disabled: !ok, back: c.exit },
   };
 }

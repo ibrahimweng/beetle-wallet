@@ -156,7 +156,9 @@ export function Scan() {
       later.current = undefined;
       if (forId) {
         /* the ID: the number read off it goes back to setting up; the name is the account's own */
-        idPhoto.put({ name: '', number: reading?.numbers[0] ? groupDigits(reading.numbers[0], [4, 4, 3]) : 'not read' });
+        /* the stand-in reads the design's own ID number; a real reader, the eleven digits it found */
+        const eleven = reading?.numbers.find(n => n.length === 11);
+        idPhoto.put({ name: '', number: groupDigits(standIn || !eleven ? '12345678900' : eleven, [4, 4, 3]) });
         leave();
       } else if (reading?.bill) {
         billDraft.put({ reading: reading.bill, read: 'photo' });
@@ -225,22 +227,28 @@ export function Scan() {
   };
   const CameraView = cam?.CameraView;
   const live = state === 'ready' || state === 'taking';
-  const title = forBill ? 'Point at a bill or a meter' : forData ? 'Point at a message asking for data' : 'Point at an account number';
+  const title = forBill ? 'Point at a bill or a meter' : forData ? 'Point at a message asking for data' : forId ? 'Point at your ID' : 'Point at an account number';
   const sub =
     note ??
     (forBill
       ? 'The number on the card works too.'
       : forData
         ? 'Or for airtime, on paper or on a screen.'
-        : 'On a slip, a screen or a card. A message asking to be paid works too, and so does a bill.');
+        : forId
+          ? 'A NIN slip, a voter’s card, a driver’s licence or a passport, flat and filling the frame.'
+          : 'On a slip, a screen or a card. A message asking to be paid works too, and so does a bill.');
   const caption =
     standIn && live
-      ? `This build cannot read photos yet, so whatever you take reads as the sample ${forBill ? 'bill' : forData ? 'message' : 'slip'}.`
-      : forBill
-        ? 'Or the meter number, typed, if the light is bad.'
-        : forData
-          ? 'Or the number, typed, if the light is bad.'
-          : 'Or the number, typed in Send, if the light is bad.';
+      ? forId
+        ? 'This build cannot read photos yet, so whatever you take reads as the design’s own ID.'
+        : `This build cannot read photos yet, so whatever you take reads as the sample ${forBill ? 'bill' : forData ? 'message' : 'slip'}.`
+      : forId
+        ? 'Nothing but the name and the number is read off it, and the photo is not kept.'
+        : forBill
+          ? 'Or the meter number, typed, if the light is bad.'
+          : forData
+            ? 'Or the number, typed, if the light is bad.'
+            : 'Or the number, typed in Send, if the light is bad.';
 
   return (
     <View style={s.screen}>

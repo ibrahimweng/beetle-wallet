@@ -258,7 +258,7 @@ export function WayIn() {
       setTimeout(() => void readDoc(), 900);
       return;
     }
-    router.push('/scan?for=id');
+    router.push('/id-photo?for=id');
   }, [readDoc, router]);
   /* the photo of the paper, back from the camera */
   useEffect(() => {
@@ -358,7 +358,7 @@ export function WayIn() {
       }, 900);
       return;
     }
-    router.push('/scan?for=id');
+    router.push('/id-photo?for=id');
   }, [account, go, router, setSetup]);
 
   /* out of setting up: back to the ready screen it came from, or to the page that opened it */
@@ -480,6 +480,7 @@ export function WayIn() {
     setConsent,
     openLegal: doc => router.push(`/legal?doc=${doc}`),
     bioName,
+    keyboardUp,
     note,
     setNote,
     busy,

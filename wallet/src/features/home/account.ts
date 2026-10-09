@@ -1,6 +1,7 @@
 /* What home shows for an account: its balance and its ledger. A new account
-   has nothing yet. The demo account, the one the design is drawn around, has
-   the day the frames show. This is the shape the real account service will
+   starts with test money in this build (the lab's first day has nothing).
+   The demo account, the one the design is drawn around, has the day the
+   frames show. This is the shape the real account service will
    fill; until then it is derived here. */
 import type { Account } from '../../services/auth';
 import type { Target } from '../../services/nigeria';
@@ -108,5 +109,32 @@ export function holdingsFor(account: Account): Holdings {
       footer: 'Your spending is ₦41,000 above this point last month.',
     };
   }
-  return { everyday: 0, dollars: 0, rate: 1552, health: null, healthMove: '', ledger: [], insights: [], footer: null };
+  if (!hasTestMoney(account)) return { everyday: 0, dollars: 0, rate: 1552, health: null, healthMove: '', ledger: [], insights: [], footer: null };
+  /* every other account starts with test money in this build (Round 33, the owner's word), so it can be tried: sent,
+     saved, borrowed against, and held in dollars. It is said for what it is, a line of its own on the record. */
+  return { everyday: TEST_MONEY.naira, dollars: TEST_MONEY.usd, rate: 1552, health: null, healthMove: '', ledger: [testMoneyLine(account)], insights: [], footer: null };
+}
+
+/** What a new account starts with in this build: not real money, and a real build starts at nothing. */
+export const TEST_MONEY = { naira: 250_000, usd: 500 } as const;
+
+/** Whether an account was given the test money: every one but the demo (which has its own day) and the lab's first day. */
+export const hasTestMoney = (account: Account) => !account.demo && !account.startsEmpty;
+
+/** The test money as a line on the record, on the day the account was opened. */
+function testMoneyLine(account: Account): LedgerRow {
+  const at = new Date(account.createdAt);
+  const time = `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`;
+  return {
+    id: 'test-money',
+    day: 'today',
+    at: at.getTime(),
+    time,
+    icon: 'gift',
+    name: 'Beetle',
+    detail: `Test money, with $${TEST_MONEY.usd} in dollars`,
+    amount: TEST_MONEY.naira,
+    status: 'done',
+    kind: 'in',
+  };
 }

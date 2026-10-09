@@ -28,6 +28,8 @@ export type Account = {
   createdAt: string;
   /** the account the design is drawn around, with its history */
   demo?: boolean;
+  /** the lab's first day: nothing on it yet, where every other account opened in this build starts with test money */
+  startsEmpty?: boolean;
 };
 
 export type Session = { token: string; account: Account };

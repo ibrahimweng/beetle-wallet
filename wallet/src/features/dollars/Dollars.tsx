@@ -16,6 +16,7 @@ import { useMoves } from '../home/moves';
 import { useSetup } from '../setup';
 import { SetupOffer } from '../setup/Offer';
 import { naira } from '../../lib/format';
+import { TEST_MONEY, hasTestMoney } from '../home/account';
 import { DEMO_SOURCES, RATE_MOVE, dollarsOf, heldLine, nairaOf, sourcesOf, usdFull, type DollarSource } from './dollars';
 
 export function Dollars() {
@@ -28,7 +29,17 @@ export function Dollars() {
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
   const rate = h?.rate ?? 1_552;
   const dollars = dollarsOf(h?.dollars ?? 0, moves);
-  const sources: DollarSource[] = useMemo(() => [...sourcesOf(moves, rate), ...(account?.demo ? DEMO_SOURCES : [])], [moves, rate, account]);
+  const sources: DollarSource[] = useMemo(
+    () => [
+      ...sourcesOf(moves, rate),
+      ...(account?.demo
+        ? DEMO_SOURCES
+        : account && hasTestMoney(account)
+          ? [{ id: 'test', glyph: 'gift' as const, title: 'Test dollars from Beetle', sub: 'When the account was opened', usd: TEST_MONEY.usd }]
+          : []),
+    ],
+    [moves, rate, account],
+  );
   useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   return (
@@ -70,7 +81,7 @@ export function Dollars() {
         <Meta tone="secondary" style={{ flex: 1 }}>{`₦${rate.toLocaleString('en-NG')} to the dollar today`}</Meta>
         <Label tone="good">{`Up ₦${RATE_MOVE}`}</Label>
       </Tap>
-      <Say testID="line">{heldLine(dollars, rate)}</Say>
+      <Say testID="line">{heldLine(dollars, rate, !!account.demo)}</Say>
       {sources.length ? (
         <View testID="sources-block">
           <Head>Where they came from</Head>

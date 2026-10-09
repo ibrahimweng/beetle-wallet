@@ -63,6 +63,8 @@ const account = (phone: string) => ({
   firstName: RECORD.firstName,
   lastName: RECORD.lastName,
   createdAt: '2026-09-01T09:00:00Z',
+  /* the first day the frames draw: nothing on it yet, not the test money a new account opened in this build has */
+  startsEmpty: true,
 });
 const sessionFor = (a: Session['account']): Session => ({ token: 'lab', account: a });
 

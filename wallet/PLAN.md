@@ -1882,6 +1882,30 @@ question asked first.
       build and Beetle's keys; the BVN/NIN check, the face match and the
       account closing belong on the server.
 
+## Round 33 · Money to try it with, and finishing setting up on the phone
+
+Asked by the owner: finishing setting up could not be got through on the
+phone, so the loan stayed shut; every account should start with ₦250,000
+and dollars to try things with; stablecoins to start being tested; and the
+screens still missing found and finished.
+
+- [x] Finishing setting up on the phone: Take it on A photo of an ID opened
+      the camera inside the app's own pages, so coming back from it went
+      home and the step came round again. The camera now opens over the way
+      in, at /id-photo, and comes back to the step it was opened from.
+- [x] Where you live: the area was a line 16 tall a thumb could not find,
+      Next on the keyboard went nowhere, and with the keyboard up the rows
+      under the card pushed the card off the top. Now two boxes as tall as
+      every other on the way in (House number and street; Area, town and
+      state), Next goes to the area and Done to Continue, and what is under
+      them folds away while typing.
+- [x] Test money: every account opened in this build starts with ₦250,000
+      and $500, said as a line of its own (Beetle, Test money) on the record
+      and as Test dollars from Beetle on Dollars. It is spent, saved and
+      borrowed against like any other money. The demo keeps its own day,
+      and the lab's first day still starts at nothing. A real build starts
+      at nothing.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

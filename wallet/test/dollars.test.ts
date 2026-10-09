@@ -15,6 +15,7 @@ import { serviceFor } from '../src/features/services/services';
 import { balanceOf, rowFrom } from '../src/features/home/moves';
 import { receiptFor } from '../src/features/receipts/receipts';
 import { DEMO_ACCOUNT } from '../src/services/auth';
+import { TEST_MONEY, holdingsFor } from '../src/features/home/account';
 
 describe('dollars', () => {
   it('converts at the rate and prints the way the frames do', () => {
@@ -45,6 +46,25 @@ describe('dollars', () => {
     expect(heldLine(412.6, 1_552)).toContain('March at ₦1,410');
     expect(heldLine(412.6, 1_552)).toContain('₦58,600 less');
     expect(heldLine(0, 1_552)).toContain('Nothing here yet');
+    expect(heldLine(500, 1_552, false)).toBe('Worth ₦776,000 at today’s rate. They stay in dollars until you turn them back, at the rate on the day.');
+  });
+});
+
+describe('the test money a new account starts with (Round 33)', () => {
+  const opened = { accountNumber: '0123456789', phone: '08031234567', firstName: 'Ada', lastName: 'Obi', createdAt: '2026-10-08T09:30:00Z' };
+  it('gives every new account ₦250,000 and $500, said as a line of its own', () => {
+    const h = holdingsFor(opened);
+    expect(h.everyday).toBe(250_000);
+    expect(h.dollars).toBe(TEST_MONEY.usd);
+    expect(h.ledger).toHaveLength(1);
+    expect(h.ledger[0]).toMatchObject({ id: 'test-money', kind: 'in', amount: 250_000, status: 'done' });
+    /* what is spent comes off it: a payment of ₦50,000 leaves ₦200,000 */
+    expect(h.everyday + balanceOf([{ amount: -50_000, kind: 'transfer' }])).toBe(200_000);
+  });
+  it('leaves the demo its own day and the lab’s first day empty', () => {
+    expect(holdingsFor(DEMO_ACCOUNT).everyday).toBe(595320.75);
+    const empty = holdingsFor({ ...opened, startsEmpty: true });
+    expect([empty.everyday, empty.dollars, empty.ledger.length]).toEqual([0, 0, 0]);
   });
 });
 

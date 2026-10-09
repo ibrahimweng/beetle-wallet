@@ -2804,8 +2804,11 @@ try {
   await tap('Finish setting up');
   await see('Street, town and state');
   at('/way-in');
-  await page.getByLabel('Street').fill('12 Bode Thomas Street');
-  await page.getByLabel('Area, town and state').fill('Surulere, Lagos State');
+  await page.getByTestId('street').fill('12 Bode Thomas Street');
+  /* Next on the keyboard goes on to the area box (Round 33: on the phone it went nowhere) */
+  await page.getByTestId('street').press('Enter');
+  must(await page.getByTestId('area').evaluate(e => e === document.activeElement), 'Next on the street should move to the area box');
+  await page.getByTestId('area').fill('Surulere, Lagos State');
   await shot('setup-address', 700);
   await tap('Continue');
   await see('Lay it flat and fill the frame');

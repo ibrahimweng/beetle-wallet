@@ -137,6 +137,8 @@ export type Ctx = {
   openLegal: (doc: 'terms' | 'privacy') => void;
   /** what the phone checks, as the person knows it: Face ID, Touch ID, fingerprint */
   bioName: string;
+  /** the phone's keyboard is up: what is under the boxes folds away so the one being typed into stays in view */
+  keyboardUp: boolean;
   note: Note;
   setNote: (n: Note) => void;
   busy: boolean;

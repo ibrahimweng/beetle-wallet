@@ -42,7 +42,7 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 /** 19 September, the way the frame says a day. */
 export const dayOf = (d: Date) => `${d.getDate()} ${MONTHS[d.getMonth()]}`;
 
-type LoanRow = { kind: string; name: string; amount: number; detail?: string };
+type LoanRow = { kind: string; name: string; amount: number; detail?: string; at?: number };
 
 const isTaken = (r: LoanRow) => r.kind === 'in' && r.name === 'Beetle Loans';
 /** a payment back: a bill to Beetle Loans (Round 33, the audit after Round 32: there was no way to pay one back) */
@@ -53,24 +53,39 @@ const totalOf = (r: LoanRow) => {
   return days ? costOf(r.amount, days as Term).total : r.amount;
 };
 
-/** What is still owed in all, interest and fee with it: every loan's total, less what has been paid back. */
-export const owedIn = (rows: LoanRow[]) => Math.max(0, rows.filter(isTaken).reduce((a, r) => a + totalOf(r), 0) - rows.filter(isPaidBack).reduce((a, r) => a - r.amount, 0));
-
-/** What is borrowed and not yet paid back, from the lines in the day: the amounts taken, less their share of what has
-    been paid back, so the limit frees up as it is. */
-export function borrowedIn(rows: LoanRow[]): number {
-  const taken = rows.filter(isTaken).reduce((a, r) => a + r.amount, 0);
-  const total = rows.filter(isTaken).reduce((a, r) => a + totalOf(r), 0);
-  return total ? Math.round((taken * owedIn(rows)) / total) : 0;
+/** Each loan taken, oldest first, with what is still owed on it and how much of what it lent is still out: what is paid
+    back clears the oldest first (the analysis after Round 34: shared across the loans by their totals, two long loans
+    paid back freed more of the limit than they had taken, and a third went past it). The day lists newest first. */
+function loansOut(rows: LoanRow[]) {
+  const taken = rows
+    .filter(isTaken)
+    .map((row, i) => ({ row, i, total: totalOf(row) }))
+    .sort((a, b) => (a.row.at ?? 0) - (b.row.at ?? 0) || b.i - a.i);
+  let paid = rows.filter(isPaidBack).reduce((a, r) => a - r.amount, 0);
+  return taken.map(t => {
+    const off = Math.min(paid, t.total);
+    paid -= off;
+    const owed = t.total - off;
+    return { row: t.row, owed, out: t.total ? Math.round((t.row.amount * owed) / t.total) : 0 };
+  });
 }
 
-/** The next payment: the latest loan's monthly one, or what is left where that is less. */
+/** What is still owed in all, interest and fee with it. */
+export const owedIn = (rows: LoanRow[]) => loansOut(rows).reduce((a, l) => a + l.owed, 0);
+
+/** What is borrowed and not yet paid back: each loan's own amount, less its part of what has been paid back on it, so
+    the limit frees up as it is. */
+export const borrowedIn = (rows: LoanRow[]) => loansOut(rows).reduce((a, l) => a + l.out, 0);
+
+/** The next payment: the newest loan still owing's monthly one, or what is owed where that is less (the analysis after
+    Round 34: it was the oldest loan's). */
 export function nextPayment(rows: LoanRow[]): number {
-  const owed = owedIn(rows);
-  const last = rows.filter(isTaken).at(-1);
-  const days = Number(last?.detail?.match(/(30|60|90) days/)?.[1]);
-  const each = last && days ? costOf(last.amount, days as Term).each : owed;
-  return Math.min(owed, each);
+  const owing = loansOut(rows).filter(l => l.owed > 0);
+  const last = owing.at(-1);
+  if (!last) return 0;
+  const days = Number(last.row.detail?.match(/(30|60|90) days/)?.[1]);
+  const each = days ? costOf(last.row.amount, days as Term).each : last.owed;
+  return Math.min(owedIn(rows), each);
 }
 
 /** How much more can be borrowed: the limit, less what is out (the analysis after Round 21: the limit was only the

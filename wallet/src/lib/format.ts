@@ -16,10 +16,13 @@ export const groupAccount = (digits: string) => groupDigits(digits, [4, 4, 2]);
 /** ₦50,026.88: the kobo shown only where there are some. */
 export const moneyExact = (n: number) => '₦' + Math.abs(n).toLocaleString('en-NG', { minimumFractionDigits: Math.abs(n) % 1 ? 2 : 0, maximumFractionDigits: 2 });
 
+/** To the kobo: a sum of many lines can land a hair under a whole naira (249327.99999999994), which the whole naira
+    below would floor a naira short (the analysis after Round 34). */
+export const toKobo = (n: number) => Math.round(n * 100) / 100;
 /** ₦ with thousands, no kobo. */
-export const naira = (n: number) => '₦' + Math.floor(Math.abs(n)).toLocaleString('en-NG');
+export const naira = (n: number) => '₦' + Math.floor(Math.abs(toKobo(n))).toLocaleString('en-NG');
 /** The kobo part, with its point: 595320.75 → '.75'. */
-export const kobo = (n: number) => '.' + Math.abs(n).toFixed(2).split('.')[1];
+export const kobo = (n: number) => '.' + Math.abs(toKobo(n)).toFixed(2).split('.')[1];
 /** Signed, the way a ledger row reads: −₦20,000, +₦50,000. */
 export const signed = (n: number) => (n < 0 ? '−' : n > 0 ? '+' : '') + naira(n);
 

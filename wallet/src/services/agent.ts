@@ -243,6 +243,8 @@ export function amountIn(text: string): number | null {
   const unit = (m[3] ?? '').toLowerCase();
   if (unit === 'k' || unit === 'thousand') n *= 1_000;
   if (unit === 'm' || unit === 'million') n *= 1_000_000;
+  /* to the kobo: "send 1000.555" is ₦1,000.56, not a fraction of a kobo (the analysis after Round 34) */
+  n = Math.round(n * 100) / 100;
   return n > 0 ? n : null;
 }
 

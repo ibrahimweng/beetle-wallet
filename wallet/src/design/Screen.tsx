@@ -1,8 +1,8 @@
 /* The page itself, and the pieces every page is made of. A screen column is
    spaced 20, starts 72 down and leaves 124 clear at the bottom for the dock.
    A card is 24 radius with 20 and 21 of padding. */
-import React, { ReactNode, useState } from 'react';
-import { NativeScrollEvent, NativeSyntheticEvent, Platform, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import React, { ReactNode, useEffect, useState } from 'react';
+import { Keyboard, NativeScrollEvent, NativeSyntheticEvent, Platform, StyleProp, StyleSheet, TextInput, View, ViewStyle } from 'react-native';
 import { Icon } from './Icon';
 import { Meta, Row } from './text';
 import { IconName } from '../icons';
@@ -75,6 +75,30 @@ function Body({ children, head, dock, wash, sink = false, bare = false, scrollEn
   const top = head ? headTop + (headH ?? 0) + frame.columnGap : headTop;
   const band = BAND - (frame.topPad - headTop);
   const hold = HOLD - (frame.topPad - headTop);
+  /* on iOS the keyboard comes up over the column, the window staying as it is, and a page's foot rides up on it
+     (more/Foot.tsx): the column makes room for the keyboard and brings the box being typed in up to it, and then on
+     past the foot, as clear of the keyboard as the column's end is of the bottom (the analysis after Round 34: the
+     address and the amount on Send to a wallet were under the keyboard) */
+  useEffect(() => {
+    if (Platform.OS !== 'ios') return undefined;
+    const sub = Keyboard.addListener('keyboardDidShow', e => {
+      const box = TextInput.State.currentlyFocusedInput();
+      const list = column.current;
+      const host = list?.getNativeScrollRef();
+      if (!box || !list || !host) return;
+      /* only the column the box is in: measured against any other, it fails, and that one stays where it is */
+      box.measureLayout(
+        host,
+        () =>
+          box.measureInWindow((_x, top, _w, h) => {
+            const over = top + h - (e.endCoordinates.screenY - frame.bottomPad);
+            if (over > 0) list.scrollTo({ y: y.value + over, animated: true });
+          }),
+        () => undefined,
+      );
+    });
+    return () => sub.remove();
+  }, [column, y]);
   return (
     <HeadScroll.Provider value={y}>
       <PageScroll.Provider value={column}>
@@ -100,6 +124,7 @@ function Body({ children, head, dock, wash, sink = false, bare = false, scrollEn
             contentContainerStyle={[s.body, { paddingTop: top }, sink && s.sunk]}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
+            automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
             onScroll={onScroll}
             scrollEventThrottle={16}
           >

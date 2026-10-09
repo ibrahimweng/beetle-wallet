@@ -163,6 +163,8 @@ export function WayIn() {
   const [lastNumber, setLastNumber] = useState('');
   const [provider, setProvider] = useState<'google' | 'apple'>(() => (LAB && asked.provider === 'apple' ? 'apple' : 'google'));
   const [providerFor, setProviderFor] = useState<'signup' | 'login'>('signup');
+  const [otherAccount, setOtherAccount] = useState(false);
+  const [providerFrom, setProviderFrom] = useState<'number' | 'email'>('number');
   const [docKind, setDocKind] = useState<DocumentKind>('slip');
   const [docState, setDocState] = useState<'idle' | 'checking'>('idle');
   const [free, setFree] = useState<Free>(null);
@@ -296,6 +298,7 @@ export function WayIn() {
       setBusy(false);
       setUnknown(false);
       setFree(null);
+      setOtherAccount(false);
       if (next === 'finish' || next === 'signface' || next === 'recoverface') setFaceState('idle');
       if (next === 'finish') setConsent(false);
     },
@@ -508,6 +511,10 @@ export function WayIn() {
     setProvider,
     providerFor,
     setProviderFor,
+    otherAccount,
+    setOtherAccount,
+    providerFrom,
+    setProviderFrom,
     docKind,
     setDocKind,
     docState,

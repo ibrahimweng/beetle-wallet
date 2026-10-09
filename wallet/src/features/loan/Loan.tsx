@@ -27,6 +27,7 @@ import { SetupOffer } from '../setup/Offer';
 import { clock, useChats } from '../agent/chats';
 import { turn } from '../agent/turns';
 import { PasscodeSheet, lockedFor, waitWords } from '../passcode';
+import { useSendGate } from '../settings/sendGate';
 import { naira } from '../../lib/format';
 import { COLLECTED, LOAN, MISSED, TERMS, costOf, countWord, dayOf, eachWords, leftToBorrow, limitNote, nextPayment, owedIn, type Term } from './loan';
 
@@ -38,6 +39,7 @@ export function Loan() {
   const { moves, add: addMove } = useMoves(account?.accountNumber);
   const { setup } = useSetup(account?.accountNumber, !!account?.demo);
   const { file } = useChats(account?.accountNumber, !!account?.demo);
+  const sendGate = useSendGate(account);
   const balance = (account ? holdingsFor(account).everyday : 0) + balanceOf(moves);
   /* the frame opens on ₦150,000 for 90 days */
   const [picked, setAmount] = useState(150_000);
@@ -95,6 +97,12 @@ export function Loan() {
 
   /* paying back: from Everyday, checked against what it holds, a line in the day and its receipt; the limit frees up */
   const payBack = (figure: number) => {
+    /* a frozen account moves nothing, this included (the analysis after Round 34) */
+    const stopped = sendGate.stopped(figure);
+    if (stopped) {
+      toast(stopped);
+      return;
+    }
     if (figure > balance) {
       toast(`That is ${naira(figure - balance)} more than Everyday holds.`);
       return;

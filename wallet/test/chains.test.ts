@@ -73,3 +73,11 @@ describe('what a QR code leads to', () => {
     expect(codeTarget('0123456789')).toBeNull();
   });
 });
+
+describe('the coin a payment link names (the analysis after Round 34)', () => {
+  it('reads USDT by its contract or mint, and puts it on a network that carries it', () => {
+    expect(codeTarget(`ethereum:0xdAC17F958D2ee523a2206206994597C13D831ec7@1/transfer?address=${EVM}&uint256=5e6`)).toEqual({ network: 'ethereum', coin: 'USDT', address: EVM });
+    expect(codeTarget(`solana:${SOL}?amount=5&spl-token=Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB`)).toEqual({ network: 'solana', coin: 'USDT', address: SOL });
+    expect(codeTarget(`solana:${SOL}?spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`)).toEqual({ network: 'solana', coin: 'USDC', address: SOL });
+  });
+});

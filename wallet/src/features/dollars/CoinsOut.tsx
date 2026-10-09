@@ -74,6 +74,11 @@ export function CoinsOut() {
       toast(stopped);
       return;
     }
+    /* the day after a recovery nobody new is paid, and an address is nobody paid before (the analysis after Round 34) */
+    if (sendGate.holding) {
+      toast('The account was recovered today, so for a day no coins go out. Money still comes in.');
+      return;
+    }
     const shut = lockedFor();
     if (shut) {
       toast(`That was three wrong tries. Give it ${waitWords(shut)} and slide again.`);

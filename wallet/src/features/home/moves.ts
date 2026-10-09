@@ -8,6 +8,7 @@ import { storage, type Move } from '../../services';
 import { dayName, sessionWhen } from '../../lib/days';
 import type { LedgerRow } from './account';
 import { fromEveryday } from './everyday';
+import { onForget } from '../../lib/forget';
 
 export { fromEveryday };
 
@@ -22,7 +23,7 @@ export function sessionId(at = new Date(), seq = 16): string {
 }
 
 /** What the rows moved in naira, fees and all. */
-export const balanceOf = (rows: { amount: number; usd?: number; kind: string; fee?: number }[]) => rows.reduce((a, r) => a + fromEveryday(r), 0);
+export const balanceOf = (rows: { amount: number; usd?: number; kind: string; fee?: number }[]) => Math.round(rows.reduce((a, r) => a + fromEveryday(r), 0) * 100) / 100;
 
 /** The line the day gets for a move, with what its receipt will need. */
 export function rowFrom(m: Move, balanceBefore: number, seq: number, at = new Date()): LedgerRow {
@@ -62,6 +63,7 @@ export function aged(row: LedgerRow, now = new Date()): LedgerRow {
 
 /* one list per account, shared by every screen holding it */
 const kept = new Map<string, LedgerRow[]>();
+onForget(account => kept.delete(account));
 const listeners = new Set<(account: string) => void>();
 
 /** The list as this phone last had it, forgotten: the lab starts a place afresh. */

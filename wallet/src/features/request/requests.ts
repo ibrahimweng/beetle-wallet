@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { storage } from '../../services/storage';
 import { clock } from '../../lib/clock';
 import type { Payer } from './people';
+import { onForget } from '../../lib/forget';
 
 export type Request = {
   id: string;
@@ -58,6 +59,7 @@ export const DEMO_REQUEST: Request = {
 };
 
 const kept = new Map<string, Request[]>();
+onForget(account => kept.delete(account));
 const listeners = new Set<(account: string) => void>();
 
 export function forgetRequests(account: string) {

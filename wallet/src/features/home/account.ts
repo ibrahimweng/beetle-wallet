@@ -5,6 +5,7 @@
    fill; until then it is derived here. */
 import type { Account } from '../../services/auth';
 import type { CoinLine } from '../../services/agent';
+import { dayName } from '../../lib/days';
 import type { Target } from '../../services/nigeria';
 import type { IconName } from '../../icons';
 
@@ -130,7 +131,8 @@ function testMoneyLine(account: Account): LedgerRow {
   const time = `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`;
   return {
     id: 'test-money',
-    day: 'today',
+    /* the day it was opened, as it ages (the analysis after Round 34: it said today weeks later) */
+    day: dayName(at.getTime()),
     at: at.getTime(),
     time,
     icon: 'gift',

@@ -94,6 +94,9 @@ const GRID_TOP = 24;
 /** The chats drawer stops this far above the card's foot: at the top of the ask bar, which stays clear; its blur runs down over the chips. */
 const DRAWER_CLEAR = 20 + 48 + 4;
 
+/** The day after a recovery, said where somebody new would be paid. */
+const HOLD_LINE = 'The account was recovered today, so for a day money goes only to people you have paid before.';
+
 export function Home() {
   return (
     <JourneyProvider>
@@ -478,6 +481,12 @@ function HomeScreen() {
         talk.open(stopped);
         return;
       }
+      /* the day after a recovery nobody new is paid, from the chat as on Send money (the analysis after Round 34) */
+      const toWhom = panel.move?.kind === 'transfer' ? panel.move.person : undefined;
+      if (sendGate.holding && toWhom && !saved.people.some(p => p.number === toWhom.number)) {
+        talk.open(HOLD_LINE);
+        return;
+      }
       const shut = lockedFor();
       if (shut) {
         talk.open(`That was three wrong tries. Give it ${waitWords(shut)} and press it again.`);
@@ -486,7 +495,7 @@ function HomeScreen() {
       Keyboard.dismiss();
       setGuard({ panelId, panel });
     },
-    [talk, balance, sendGate],
+    [talk, balance, sendGate, saved],
   );
   /* a card with all it needs: what it stands for goes to the passcode, with the whole of it on the sheet */
   const confirmAsk = useCallback(
@@ -519,6 +528,10 @@ function HomeScreen() {
       const stopped = sendGate.stopped(out);
       if (stopped) {
         talk.open(stopped);
+        return;
+      }
+      if (sendGate.holding && to && !saved.people.some(p => p.number === to.number)) {
+        talk.open(HOLD_LINE);
         return;
       }
       const shut = lockedFor();
@@ -1126,7 +1139,7 @@ function HomeScreen() {
               />
               {/* the four cards, going as the card opens (the offers are in the card since Round 15) */}
               <Animated.View style={[{ paddingTop: GRID_TOP }, gridStyle]} pointerEvents={opened ? 'none' : 'auto'}>
-                <Grid width={W} accountNumber={account.accountNumber} demo={!!account.demo} moves={moves} borrowing={setup.done} />
+                <Grid width={W} accountNumber={account.accountNumber} demo={!!account.demo} moves={moves} borrowing={setup.done} loanLeft={loanLeft} />
               </Animated.View>
             </View>
           </Animated.ScrollView>

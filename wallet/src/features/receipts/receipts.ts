@@ -470,5 +470,7 @@ export function shareLine(r: Receipt): string {
   /* data and airtime: ₦2,500 of data for Mum, as the share frame says it */
   const sent = r.kind === 'airtime' ? r.line.match(/^(.+?) sent to (.+)$/) : null;
   if (sent) return `${naira(r.amount)} of ${/\d(GB|MB)/.test(sent[1] ?? '') ? 'data' : 'airtime'} for ${sent[2]}, ${at}`;
+  /* a coin line says its dollars, not the naira that sorts it (the analysis after Round 34) */
+  if (r.figure) return `${r.line.replace(/^Sent to /, 'to ')}, ${at}`;
   return `${naira(r.amount)} ${r.line.replace(/^Sent to /, 'to ').replace(/^From /, 'from ')}, ${at}`;
 }

@@ -2163,7 +2163,11 @@ try {
   at('/bills');
   await see('3 of 5 covered');
   await shot('bills', 900);
-  await tap('Ikeja Electric');
+  await page
+    .getByRole('button', { name: /^Ikeja Electric,/ })
+    .filter({ visible: true })
+    .first()
+    .click();
   await see('Ikeja Electric, on your saved meter');
   await see('The meter you paid last month');
   at('/pay');
@@ -2370,7 +2374,7 @@ try {
   await page.getByRole('radio', { name: /Tron/ }).click();
   await see('Only USDT, and only on Tron (TRC-20).');
   must(/^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(await page.getByTestId('coin-address-text').innerText()), 'the Tron address should be T and 33 more');
-  await tap('$100');
+  await tap('Send $100 of test USDT');
   await receiptSheet();
   await see('Coins in');
   await see('$100.00 USDT on Tron (TRC-20)');
@@ -2988,6 +2992,66 @@ try {
   await tap('Settings');
   await see('Your email was changed today');
   await shot('hold-notice', 500);
+
+  /* ---- Signing up again on the same phone (Round 34) ---- */
+  console.log('Signing up again on the same phone');
+  /* this build keeps the accounts it opens on the phone: the Google stand-in's own account already opened here is said
+     so, the button reads Log in instead (it was left blank, the owner's phone), and another Google account typed opens
+     a new one */
+  await tap('Sign out');
+  await page.getByTestId('confirm-sign-out').getByRole('button', { name: 'Sign out', exact: true }).click();
+  await see('Sign up');
+  at('/way-in');
+  await page.evaluate(() =>
+    localStorage.setItem(
+      'beetle.accounts.v1',
+      JSON.stringify([
+        { accountNumber: '0155550000', phone: '08035550000', email: 'ibrahim.musa@gmail.com', signInWith: 'google', firstName: 'Ibrahim', lastName: 'Musa', createdAt: '2026-10-01T09:00:00Z' },
+      ]),
+    ),
+  );
+  await tap('Sign up');
+  await seeExactly('Enter mobile number');
+  await tap('Google');
+  await seeExactly('Continue with Google');
+  await tap('Continue as Ibrahim');
+  await see('This Google email already has a Beetle account');
+  await page.waitForTimeout(1200);
+  const shownBar = await page.evaluate(() => {
+    const words = [...document.querySelectorAll('div')].find(d => d.childElementCount === 0 && d.textContent === 'Log in instead');
+    let o = 1;
+    for (let n = words; n; n = n.parentElement) o *= Number(getComputedStyle(n).opacity);
+    return words ? o : -1;
+  });
+  must(shownBar > 0.9, `the button should read Log in instead, not be left blank (its words at opacity ${shownBar})`);
+  await see('Test build: start over on this phone');
+  await shot('provider-taken', 500);
+  await tap('Use another Google account');
+  await page.getByTestId('provider-email').fill('ada.obi@gmail.com');
+  await see('Continue as Ada');
+  await tap('Continue as Ada');
+  await seeExactly('Your details');
+  must((await page.getByTestId('full-name').inputValue()) === 'Ada Obi', 'the name Google handed over should be in the box');
+  /* Start over on this phone, in Settings: every account opened here forgotten, so the stand-in's own opens again */
+  await page.goto(`${base}/lab`, { waitUntil: 'load' });
+  await see('Beetle Lab');
+  await tap('The demo account');
+  await see(DEMO_HOME);
+  await page.goto(`${base}/settings`, { waitUntil: 'load' });
+  await see('What keeps the money yours');
+  await tap('Start over on this phone');
+  /* the phone forgets, then the app opens again from nothing */
+  const reopened = page.waitForEvent('load', { timeout: 15000 });
+  await page.getByTestId('confirm-start-over').getByRole('button', { name: 'Start over', exact: true }).click();
+  await reopened;
+  await button('Sign up').waitFor();
+  must((await page.evaluate(() => localStorage.getItem('beetle.accounts.v1'))) === null, 'the accounts kept on this phone should be gone');
+  await tap('Sign up');
+  await seeExactly('Enter mobile number');
+  await tap('Google');
+  await tap('Continue as Ibrahim');
+  await seeExactly('Your details');
+  await shot('started-over', 500);
 } catch (e) {
   await page.screenshot({ path: join(SHOTS, '00-failed.png') }).catch(() => {});
   const text = await page.evaluate(() => document.body.innerText || '').catch(() => '');

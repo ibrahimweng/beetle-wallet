@@ -13,7 +13,7 @@
    (biometric.ts). The password (Round 30) is not these six: it logs in on a
    new phone, and is changed from Lock and privacy (Round 32, the owner's
    word). */
-import { DEMO_PASSCODES, DEMO_PASSWORDS, MOCK, storage } from '../../services';
+import { DEMO_PASSCODES, DEMO_PASSWORDS, MOCK, sealed } from '../../services';
 import { LAB } from '../../lab/enabled';
 
 /** The build's own keys let anyone through only where trying the app is
@@ -39,9 +39,10 @@ type Gate = { wrong: number; lockedUntil: number; shut: number };
 const gate: Gate = { wrong: 0, lockedUntil: 0, shut: 0 };
 let loaded: Promise<void> | null = null;
 
-/** The gate as the phone kept it, read once. */
+/** The gate as the phone kept it, read once. It is kept with the passcode, in the secure store (the analysis after
+    Round 34: in plain storage, removing the app on an iPhone cleared the lockout while the keychain kept the session). */
 export function loadGate(): Promise<void> {
-  loaded ??= storage
+  loaded ??= sealed
     .get<Partial<Gate>>(GATE_KEY)
     .then(kept => {
       if (!kept) return;
@@ -52,7 +53,7 @@ export function loadGate(): Promise<void> {
     .catch(() => undefined);
   return loaded;
 }
-const keepGate = () => void storage.set(GATE_KEY, { ...gate });
+const keepGate = () => void sealed.set(GATE_KEY, { ...gate });
 
 /** Seconds the gate stays shut for, or 0 when it is open. */
 export function lockedFor(now = Date.now()): number {

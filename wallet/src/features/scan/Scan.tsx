@@ -65,6 +65,9 @@ export function Scan() {
   const standIn = !reader.real;
   const stood: SampleKind = forBill ? 'bill' : forData ? 'topup' : 'slip';
   const [state, setState] = useState<State>('asking');
+  /** the camera allowed: only then is it put up, so a sample read before that does not start it without leave and
+      come back with No camera here (the analysis after Round 34) */
+  const [granted, setGranted] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const [torch, setTorch] = useState(false);
   /** reading codes (Round 33): a QR with a USDC or USDT address opens Send to a wallet with it in */
@@ -100,7 +103,10 @@ export function Scan() {
       return;
     }
     cam.Camera.getCameraPermissionsAsync()
-      .then(p => setState(p.granted ? 'ready' : p.canAskAgain ? 'asking' : 'denied'))
+      .then(p => {
+        setGranted(p.granted);
+        setState(p.granted ? 'ready' : p.canAskAgain ? 'asking' : 'denied');
+      })
       .catch(() => setState('none'));
   }, []);
 
@@ -111,6 +117,7 @@ export function Scan() {
     }
     try {
       const r = await cam.Camera.requestCameraPermissionsAsync();
+      setGranted(r.granted);
       setState(r.granted ? 'ready' : r.canAskAgain ? 'asking' : 'denied');
     } catch {
       setState('none');
@@ -281,7 +288,7 @@ export function Scan() {
   return (
     <View style={s.screen}>
       <StatusBar style="light" />
-      {CameraView && live ? (
+      {CameraView && live && granted ? (
         <CameraView
           ref={camera}
           style={StyleSheet.absoluteFill}
@@ -297,9 +304,10 @@ export function Scan() {
       ) : null}
       <View style={s.column}>
         {/* the frame's head: 40 discs on a 44 row 56 down, Read a code at the left where the frame's close was (Back is
-            at the bottom left since Round 31, the owner's word: every Back is), the light at the right */}
+            at the bottom left since Round 31, the owner's word: every Back is), the light at the right; each takes a
+            finger 4 past its edge, 48 across (the analysis after Round 34: 40 was under the 44 a finger needs) */}
         <View style={s.top} testID="scan-top">
-          <Pressable accessibilityRole="button" accessibilityLabel="Read a code" accessibilityState={{ selected: codes }} onPress={readCodes} style={[s.disc40, codes ? s.disc40On : null]}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Read a code" accessibilityState={{ selected: codes }} onPress={readCodes} hitSlop={4} style={[s.disc40, codes ? s.disc40On : null]}>
             <Icon name="qr" size={20} colour={dark.paper} />
           </Pressable>
           <Pressable
@@ -307,6 +315,7 @@ export function Scan() {
             accessibilityLabel="Light"
             accessibilityState={{ selected: torch }}
             onPress={() => setTorch(t => !t)}
+            hitSlop={4}
             style={[s.disc40, { marginRight: 4 }, torch ? s.disc40On : null]}
           >
             <Icon name="power" size={20} colour={dark.paper} />

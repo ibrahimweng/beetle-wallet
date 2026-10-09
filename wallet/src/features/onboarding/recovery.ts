@@ -46,3 +46,23 @@ export async function noteIdMiss(now = Date.now()): Promise<{ misses: number; un
 }
 export const idMisses = async () => (await storage.get<number>(MISSES)) ?? 0;
 export const clearIdMisses = () => storage.set(MISSES, 0);
+
+/* Wrong BVNs while getting an account back, counted against the account on the phone (the analysis after Round 34: the
+   screen's own count was the code's too, so two wrong codes left one try at the BVN, and going back to the number gave
+   two more each time). A match clears them; the third pauses getting it back for a day and starts the count again. */
+const BVN_MISSES = 'beetle.recovery-misses.v1';
+/** One more wrong BVN on an account: how many there have been, and when it opens again if this was the third. */
+export async function noteRecoveryMiss(account: string, now = Date.now()): Promise<{ misses: number; until: string | null }> {
+  const kept = (await storage.get<Record<string, number>>(BVN_MISSES)) ?? {};
+  const misses = (kept[account] ?? 0) + 1;
+  if (misses >= 3) {
+    await storage.set(BVN_MISSES, { ...kept, [account]: 0 });
+    return { misses, until: await pauseRecovery(account, now) };
+  }
+  await storage.set(BVN_MISSES, { ...kept, [account]: misses });
+  return { misses, until: null };
+}
+export async function clearRecoveryMisses(account: string) {
+  const kept = (await storage.get<Record<string, number>>(BVN_MISSES)) ?? {};
+  await storage.set(BVN_MISSES, { ...kept, [account]: 0 });
+}

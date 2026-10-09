@@ -21,8 +21,10 @@ import { balanceOf, rowFrom, useMoves } from '../home/moves';
 import { clock } from '../../lib/clock';
 import { PasscodeSheet, lockedFor, waitWords } from '../passcode';
 import { LAB } from '../../lab/enabled';
+import { useSetup } from '../setup';
+import { SetupOffer } from '../setup/Offer';
 import { naira } from '../../lib/format';
-import { RATE_MOVE, dollarsOf, feeForUsd, nairaOf, rateLine, usdFull, usdOf } from './dollars';
+import { RATE_MOVE, convertedToday, dollarsOf, feeForUsd, nairaOf, rateLine, usdFull, usdIn } from './dollars';
 
 export function Convert() {
   const app = useApp();
@@ -32,6 +34,9 @@ export function Convert() {
   const demo = LAB && asked.demo === '1';
   const account = app.session?.account;
   const { moves, add: addMove } = useMoves(account?.accountNumber);
+  /* holding dollars is one of the things setting up turns on, however Convert was reached (the analysis after Round 34:
+     typed "convert" opened it before) */
+  const { setup } = useSetup(account?.accountNumber, !!account?.demo);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
   const rate = h?.rate ?? 1_552;
   const balance = (h?.everyday ?? 0) + balanceOf(moves);
@@ -41,8 +46,8 @@ export function Convert() {
   const [digits, setDigits] = useState(demo ? '155200' : '');
   const [guard, setGuard] = useState(false);
   const amount = Number(digits || 0);
-  const usd = toDollars ? usdOf(amount, rate) : amount;
-  const fee = feeForUsd(usd);
+  const usd = toDollars ? usdIn(amount, rate) : amount;
+  const fee = feeForUsd(usd, convertedToday(moves));
   /* the fee comes out of the dollars going across, both ways: into dollars there are fewer of them, back to naira
      there is less naira (the analysis after Round 21: back to naira showed the fee and took none) */
   const nairaAmount = toDollars ? amount : nairaOf(Math.max(0, usd - fee), rate);
@@ -50,6 +55,10 @@ export function Convert() {
 
   const slide = () => {
     if (!amount) return;
+    if (!setup.done) {
+      toast('Finish setting up first, and you can hold dollars. It takes two minutes.');
+      return;
+    }
     if (toDollars && amount > balance) {
       router.push(`/short?asked=${amount}&for=convert`);
       return;
@@ -110,6 +119,7 @@ export function Convert() {
   return (
     <>
       <Screen head={<PageHead lead title="Convert" sub={toDollars ? 'Naira into dollars, at the rate on this screen' : 'Dollars into naira, at the rate on this screen'} />}>
+        {setup.done ? null : <SetupOffer sub="Two minutes, and you can hold dollars" />}
         <View style={s.card} testID="convert-card">
           <View style={s.place} testID="convert-from">
             <View style={{ gap: 4, marginTop: 8 }}>

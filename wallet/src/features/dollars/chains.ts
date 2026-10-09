@@ -205,6 +205,19 @@ export function testHash(network: NetworkId, seed = `${Date.now()}:${Math.random
 /** The test wallet that sends this build's test coins in. */
 export const TEST_WALLET = 'a test wallet';
 
+/** The coins by their contracts and mints, lower case, for reading payment links. */
+const TOKENS: Record<string, Coin> = Object.fromEntries(
+  (
+    [
+      ['0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 'USDC'], // Ethereum
+      ['0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 'USDC'], // Base
+      ['0xdAC17F958D2ee523a2206206994597C13D831ec7', 'USDT'], // Ethereum
+      ['EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 'USDC'], // Solana
+      ['Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', 'USDT'], // Solana
+    ] as const
+  ).map(([k, coin]) => [k.toLowerCase(), coin]),
+);
+
 /** Where a QR code leads, read off it (Round 33: Scan reads codes): a coin address with the network its link names or its
     own shape says, or null for anything else. A payment link (EIP-681) to a token's transfer gives the address paid. */
 export function codeTarget(data: string): { network: NetworkId; coin: Coin; address: string } | null {
@@ -225,8 +238,12 @@ export function codeTarget(data: string): { network: NetworkId; coin: Coin; addr
   text = (text.split(/[?@/&]/)[0] ?? '').trim();
   const family = familyOf(text);
   if (!family) return null;
+  /* the coin the link names, by its token contract or its Solana mint, where it names one (the analysis after Round 34:
+     a USDT link was filled in as USDC) */
+  const named = TOKENS[(data.match(/^[a-z]+:(?:\/\/)?(0x[0-9a-fA-F]{40})@/)?.[1] ?? data.match(/[?&]spl-token=([^&]+)/)?.[1] ?? '').toLowerCase()];
   if (family === 'tron') return { network: 'tron', coin: 'USDT', address: text };
-  if (family === 'solana') return { network: 'solana', coin: 'USDC', address: text };
+  if (family === 'solana') return { network: 'solana', coin: named ?? 'USDC', address: text };
   const network = hinted === 'ethereum' ? 'ethereum' : 'base';
-  return { network, coin: 'USDC', address: checksummed(text) };
+  /* Tether is not on Base: a USDT link is Ethereum's */
+  return { network: named === 'USDT' ? 'ethereum' : network, coin: named ?? 'USDC', address: checksummed(text) };
 }

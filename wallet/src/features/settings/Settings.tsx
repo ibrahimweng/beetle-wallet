@@ -18,6 +18,7 @@ import { Details } from './Details';
 import { rulesRunning, usePrefs } from './prefs';
 import { capital, useBiometricName } from '../passcode/biometric';
 import { LAB } from '../../lab/enabled';
+import { reopen } from '../onboarding/wipe';
 
 export function Settings() {
   const app = useApp();
@@ -35,14 +36,22 @@ export function Settings() {
   const bio = useBiometricName();
   /** Sign out, asked about first */
   const [leaving, setLeaving] = useState(false);
+  /* the test build's Start over on this phone (Round 34) */
+  const [wiping, setWiping] = useState(false);
   /* the foot: the bar, going out of the way under Your details or the question */
-  useFoot({ kind: 'bar', veil: details || leaving ? 'away' : undefined }, active);
+  useFoot({ kind: 'bar', veil: details || leaving || wiping ? 'away' : undefined }, active);
   /* the pages stand still while Your details, or the question, is up */
-  useHoldPages('details', details || leaving);
+  useHoldPages('details', details || leaving || wiping);
   if (!app.ready || !account) return null;
 
   const ask = (q: string) => () => askHome(router, q);
   const signOut = () => void app.signOut().then(() => router.replace('/way-in'));
+  const startAgain = async () => {
+    setWiping(false);
+    await app.forgetPhone();
+    toast('This phone has forgotten every account. Sign up from the start.');
+    await reopen(() => router.replace('/way-in'));
+  };
   const section = (label: string, rows: React.ReactNode) => (
     <View style={{ gap: 8 }}>
       <SectionLabel>{label}</SectionLabel>
@@ -132,6 +141,15 @@ export function Settings() {
             Version {Constants.expoConfig?.version ?? '1.0.0'}
           </Meta>
         </Pressable>
+        {/* the test build keeps the accounts it opens on the phone, so a number or an email used once is taken: this
+            forgets them all, to try signing up again from nothing (Round 34, the owner's word) */}
+        {LAB ? (
+          <Tap accessibilityRole="button" accessibilityLabel="Start over on this phone" onPress={() => setWiping(true)} style={s.wipe} testID="start-over">
+            <Meta tone="accent" style={{ textAlign: 'center' }}>
+              Start over on this phone
+            </Meta>
+          </Tap>
+        ) : null}
       </Screen>
       {details ? <Details account={account} onDismiss={() => setDetails(false)} /> : null}
       {leaving ? (
@@ -142,6 +160,16 @@ export function Settings() {
           onConfirm={signOut}
           onCancel={() => setLeaving(false)}
           testID="confirm-sign-out"
+        />
+      ) : null}
+      {wiping ? (
+        <ConfirmSheet
+          title="Start over on this phone?"
+          body="This test build keeps the accounts it opens on the phone. Every one is forgotten, with its money, chats and settings, so each number and email can sign up again. The demo account comes back as it was."
+          action="Start over"
+          onConfirm={() => void startAgain()}
+          onCancel={() => setWiping(false)}
+          testID="confirm-start-over"
         />
       ) : null}
     </>
@@ -155,6 +183,7 @@ const holdEnds = (until: number) => {
 };
 
 const s = StyleSheet.create({
+  wipe: { alignSelf: 'center', paddingHorizontal: 16, paddingVertical: 10, marginTop: -8 },
   hold: { gap: 10, padding: 16, borderRadius: 16 },
   /* the frame's card is 88 tall with the words 13 in and the mark centred; 12
      above the words and 6 under them puts each where the frame has it */

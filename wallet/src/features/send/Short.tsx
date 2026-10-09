@@ -71,7 +71,8 @@ export function Short() {
   /* what can go now: what Everyday holds, less the transfer's own fee, which is where Send money stops too */
   const can = Math.max(0, Math.floor(have - feeFor(have)));
   const toSend = useBackToSend();
-  useFoot({ kind: 'back' });
+  /* the foot: Back, out of the way while the passcode is up (the analysis after Round 34: a tap on it left mid-passcode) */
+  useFoot({ kind: 'back', veil: guard ? 'away' : undefined });
   if (!ok || !account) return null;
   const sendNow = () => {
     draft.put({ amount: can, amountNote: 'What Everyday holds, less the fee' });
@@ -121,39 +122,42 @@ export function Short() {
     router.push('/request');
   };
   return (
-    <Screen head={<PageHead title="Not enough in Everyday" sub="Nothing has been sent" />}>
-      {/* the frame: the figures 7 under the status, the bubble 12 under them, the ways 3 under the bubble */}
-      <View style={{ marginTop: -2 }}>
-        <BigStatus glyph="warn-filled" tone={colour.good} amount={naira(short)} line={`short of the ${naira(want)} you asked for`} />
-      </View>
-      <View style={{ marginTop: -13 }}>
-        <Facts
-          inset={8}
-          rows={[
-            { label: 'You asked for', value: naira(want) },
-            { label: 'In Everyday', value: naira(have) },
-            { label: 'Short by', value: naira(short), tone: colour.warn },
-          ]}
-        />
-      </View>
-      <View style={{ marginTop: -8 }}>
-        <Say testID="line">{sending ? 'Three ways to close it.' : 'Two ways to close it.'} None of them costs you anything.</Say>
-      </View>
-      <View style={{ marginTop: -8 }}>
-        <ChoiceList
-          testID="ways"
-          items={[
-            { glyph: 'pot', title: `Move it from ${name}`, sub: holiday ? `${naira(holiday)} is sitting there` : 'Nothing put aside yet', onPress: fromHoliday },
-            ...(sending ? [{ glyph: 'up' as const, title: `Send ${naira(can)} now`, sub: 'The rest when your salary lands', onPress: sendNow }] : []),
-            {
-              glyph: 'down',
-              title: `Ask ${account.demo ? 'Musa' : 'someone'} for ${naira(short)}`,
-              sub: account.demo ? 'He owes you from the rent' : 'A request they answer in a tap',
-              onPress: askFor,
-            },
-          ]}
-        />
-      </View>
+    <>
+      <Screen head={<PageHead title="Not enough in Everyday" sub="Nothing has been sent" />}>
+        {/* the frame: the figures 7 under the status, the bubble 12 under them, the ways 3 under the bubble */}
+        <View style={{ marginTop: -2 }}>
+          <BigStatus glyph="warn-filled" tone={colour.good} amount={naira(short)} line={`short of the ${naira(want)} you asked for`} />
+        </View>
+        <View style={{ marginTop: -13 }}>
+          <Facts
+            inset={8}
+            rows={[
+              { label: 'You asked for', value: naira(want) },
+              { label: 'In Everyday', value: naira(have) },
+              { label: 'Short by', value: naira(short), tone: colour.warn },
+            ]}
+          />
+        </View>
+        <View style={{ marginTop: -8 }}>
+          <Say testID="line">{sending ? 'Three ways to close it.' : 'Two ways to close it.'} None of them costs you anything.</Say>
+        </View>
+        <View style={{ marginTop: -8 }}>
+          <ChoiceList
+            testID="ways"
+            items={[
+              { glyph: 'pot', title: `Move it from ${name}`, sub: holiday ? `${naira(holiday)} is sitting there` : 'Nothing put aside yet', onPress: fromHoliday },
+              ...(sending ? [{ glyph: 'up' as const, title: `Send ${naira(can)} now`, sub: 'The rest when your salary lands', onPress: sendNow }] : []),
+              {
+                glyph: 'down',
+                title: `Ask ${account.demo ? 'Musa' : 'someone'} for ${naira(short)}`,
+                sub: account.demo ? 'He owes you from the rent' : 'A request they answer in a tap',
+                onPress: askFor,
+              },
+            ]}
+          />
+        </View>
+      </Screen>
+      {/* over the screen, not in the column, where it scrolled with the page (the analysis after Round 34) */}
       {guard && from ? (
         <PasscodeSheet
           amount={naira(short)}
@@ -170,6 +174,6 @@ export function Short() {
           onCancel={() => setGuard(false)}
         />
       ) : null}
-    </Screen>
+    </>
   );
 }

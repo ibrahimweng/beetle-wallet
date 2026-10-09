@@ -7,7 +7,7 @@
    to the address itself, as a wallet would, and they arrive as a line on the
    record with its receipt. Holding dollars is one of the things finishing
    setting up turns on, so until then the page says so instead. */
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Aside, Body, Button, Head, Meta, PageHead, Picker, Qr, Row, Screen, Segments, colour, toast } from '../../design';
@@ -45,6 +45,10 @@ export function CoinsIn() {
   const network = nets.some(n => n.id === picked) ? picked : (nets[0]?.id ?? 'base');
   const net = networkOf(network);
   const [sending, setSending] = useState<number | null>(null);
+  /** the test coins' moment on the network, called off if the page is closed first (the analysis after Round 34: $50
+      and then Back put a receipt up over Dollars a moment later) */
+  const landing = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(landing.current), []);
   useFoot({ kind: 'back' });
   if (!ok || !account) return null;
   const address = testAddressFor(account.accountNumber, network);
@@ -53,7 +57,7 @@ export function CoinsIn() {
   const sendTest = (usd: number) => {
     if (sending) return;
     setSending(usd);
-    setTimeout(() => {
+    landing.current = setTimeout(() => {
       const move: Move = {
         name: `${coin} on ${net.name}`,
         detail: `From ${TEST_WALLET} · ${clock()}`,
@@ -125,6 +129,7 @@ export function CoinsIn() {
                 <Button
                   key={usd}
                   label={sending === usd ? 'Sending…' : usdFull(usd).replace('.00', '')}
+                  accessibilityLabel={`Send ${usdFull(usd).replace('.00', '')} of test ${coin}`}
                   size={48}
                   tone="white"
                   disabled={sending !== null}

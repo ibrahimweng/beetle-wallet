@@ -63,8 +63,12 @@ export function Dollars() {
             label="Send"
             size={48}
             tone="white"
-            to={dollars > 0 ? '/send?from=dollars' : undefined}
-            onPress={dollars > 0 ? undefined : () => toast('Nothing to send from yet. Convert some naira first.')}
+            to={setup.done && dollars > 0 ? '/send?from=dollars' : undefined}
+            onPress={
+              setup.done && dollars > 0
+                ? undefined
+                : () => toast(setup.done ? 'Nothing to send from yet. Convert some naira first.' : 'Finish setting up first, and you can send from your dollars. It takes two minutes.')
+            }
             style={[{ flex: 1 }, s.outlined]}
           />
         </View>

@@ -20,6 +20,8 @@ import { DEMO_MONTH, monthOf, paidBills, type MonthBill } from './billers';
 import { useMoves } from '../home/moves';
 
 const WORDS = ['none', 'one', 'two', 'three', 'four', 'five', 'six'];
+/** A count in words, and past six as the figure (the analysis after Round 34: seven bills said "undefined"). */
+const inWords = (n: number) => WORDS[n] ?? String(n);
 
 export function Bills() {
   const app = useApp();
@@ -47,7 +49,7 @@ export function Bills() {
       <View style={s.card} testID="month">
         <Say tone="ink" testID="month-line">
           {bills.length
-            ? `${naira(m.total)} of bills this month. ${WORDS[m.covered]?.replace(/^./, c => c.toUpperCase())} of the ${WORDS[m.count]} are covered.`
+            ? `${naira(m.total)} of bills this month. ${inWords(m.covered).replace(/^./, c => c.toUpperCase())} of the ${inWords(m.count)} are covered.`
             : 'Nothing repeats yet. The first bill you pay, I keep here.'}
         </Say>
         <View style={{ marginTop: 12, gap: 8 }}>
@@ -80,8 +82,10 @@ function BillRow({ bill, onPress }: { bill: MonthBill; onPress: () => void }) {
   const j = useDeparture({ id: `bill:${bill.id}`, to: bill.to, words: bill.name });
   const paid = bill.covered === 'paid';
   const tone = paid ? colour.textTertiary : colour.ink;
+  /* said whole, as the row draws it: the name, the figure, when, and what stands behind it (the analysis after Round 34: only the name was said) */
+  const behind = bill.covered === 'rule' ? 'covered, Beetle pays it' : paid ? 'covered' : 'not covered';
   return (
-    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={bill.name} onPress={j.onPress} style={[s.row]} testID="bill">
+    <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={`${bill.name}, ${naira(bill.amount)}, ${bill.when}, ${behind}`} onPress={j.onPress} style={[s.row]} testID="bill">
       {j.wash}
       <View style={s.box}>
         <Icon name={bill.glyph as IconName} size={20} colour={tone} />

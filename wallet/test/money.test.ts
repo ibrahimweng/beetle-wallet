@@ -10,6 +10,8 @@ vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem
 vi.mock('expo-crypto', () => ({ getRandomBytes: (n: number) => new Uint8Array(n), CryptoDigestAlgorithm: { SHA256: 'SHA-256' }, digestStringAsync: async () => 'h' }));
 import { dayName, daysAgo, localIsoDay, sessionWhen } from '../src/lib/days';
 import { CAPS, COOL_MS, pastCap, spentToday, stoppedBy } from '../src/features/settings/gate';
+import { naira as fmtNaira, kobo as fmtKobo } from '../src/lib/format';
+import { balanceOf } from '../src/features/home/moves';
 import { LOAN, costOf, eachWords, leftToBorrow, limitNote, nextPayment, owedIn } from '../src/features/loan/loan';
 import { usdCost } from '../src/features/dollars/dollars';
 import { overLine, takesOut } from '../src/services/rules';
@@ -141,5 +143,29 @@ describe('a loan paid back (Round 33)', () => {
     expect(owedIn([taken, one, rest])).toBe(0);
     expect(nextPayment([taken, one, rest])).toBe(0);
     expect(leftToBorrow([taken, one, rest])).toBe(LOAN.most);
+  });
+});
+
+describe('the limit, loan by loan (the analysis after Round 34)', () => {
+  const loan = (amount: number, days: number, at: number) => ({ kind: 'in', name: 'Beetle Loans', amount, detail: `Loan · ${days} days · 09:00`, at });
+  const back = (amount: number, at: number) => ({ kind: 'bill', name: 'Beetle Loans', amount: -amount, detail: 'Paid back · 10:00', at });
+  it('frees no more of the limit than was taken, whatever the loans cost', () => {
+    const rows = [loan(250_000, 90, 1), back(282_500, 2), loan(250_000, 90, 3), back(282_500, 4)];
+    expect(leftToBorrow(rows)).toBe(LOAN.most);
+    expect(leftToBorrow([...rows, loan(250_000, 30, 5)])).toBe(0);
+  });
+  it('pays back the oldest loan first, and asks next for the newest still owing', () => {
+    const rows = [loan(200_000, 90, 2), loan(10_000, 30, 1)];
+    expect(nextPayment(rows)).toBe(costOf(200_000, 90).each);
+    expect(nextPayment([...rows, back(10_500, 3)])).toBe(costOf(200_000, 90).each);
+    expect(owedIn([...rows, back(10_500, 3)])).toBe(costOf(200_000, 90).total);
+  });
+});
+
+describe('money to the kobo (the analysis after Round 34)', () => {
+  it('shows a sum that lands a hair under a naira as the naira it is', () => {
+    expect(fmtNaira(249327.99999999994)).toBe('₦249,328');
+    expect(fmtKobo(249327.99999999994)).toBe('.00');
+    expect(balanceOf(Array.from({ length: 25 }, () => ({ amount: -10_000, kind: 'transfer', fee: 26.88 })))).toBe(-250_672);
   });
 });

@@ -479,7 +479,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
             <Swap value={line ?? 'Total balance'}>{w => <Caption style={{ color: line ? colour.good : dark.chipText }}>{w}</Caption>}</Swap>
             {/* the figure is drawn once, below, and travels; the chip has its place here */}
             <View style={{ height: 40 }} />
-            <Tap accessibilityRole="button" accessibilityLabel={chipLabel ?? 'Your dollars'} onPress={onDollars} style={s.chip} testID="chip">
+            <Tap accessibilityRole="button" accessibilityLabel={chipLabel ?? `The balance in dollars, ${dollars}. Opens Dollars`} onPress={onDollars} style={s.chip} testID="chip">
               <Caption style={[s.chipText, { color: dark.chipText }]}>{dollars}</Caption>
             </Tap>
           </View>

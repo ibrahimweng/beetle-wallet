@@ -6,11 +6,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { storage } from '../../services';
 import { seedGoals, type Goal } from './goals';
+import { onForget } from '../../lib/forget';
 
 export const goalsKey = (account: string) => `beetle.goals.${account}.v1`;
 
 /* one list per account, shared by every screen holding it; null where nothing is kept yet */
 const kept = new Map<string, Goal[] | null>();
+onForget(account => kept.delete(account));
 const listeners = new Set<(account: string) => void>();
 
 /** The list as this phone last had it, forgotten: the lab starts a place afresh. */

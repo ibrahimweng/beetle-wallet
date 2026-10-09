@@ -5,7 +5,7 @@
    from them at the rate on it. */
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Body, Button, Head, Icon, Meta, Row, Say, Sheet, Tap, colour } from '../../design';
+import { Body, Button, Head, Icon, Meta, Row, Say, Sheet, Tap, colour, toast } from '../../design';
 import { naira } from '../../lib/format';
 import { nairaOf, usdFull } from './dollars';
 
@@ -19,6 +19,7 @@ export function PayFromSheet({
   who,
   onPick,
   onDismiss,
+  locked = false,
 }: {
   everyday: number;
   dollars: number;
@@ -28,9 +29,18 @@ export function PayFromSheet({
   who: string;
   onPick: (s: Source) => void;
   onDismiss: () => void;
+  /** setting up is not finished, and holding dollars is one of the things it turns on (the analysis after Round 34) */
+  locked?: boolean;
 }) {
+  const pick = (id: Source) => {
+    if (locked && id === 'dollars') {
+      toast('Finish setting up first, and you can pay from your dollars. It takes two minutes.');
+      return;
+    }
+    onPick(id);
+  };
   const row = (id: Source, glyph: 'bank' | 'dollar', title: string, sub: string) => (
-    <Tap accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ selected: value === id }} onPress={() => onPick(id)} style={s.row} testID="source-row">
+    <Tap accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ selected: value === id }} onPress={() => pick(id)} style={s.row} testID="source-row">
       <View style={s.box}>
         <Icon name={glyph} size={20} colour={colour.ink} />
       </View>

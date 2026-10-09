@@ -18,7 +18,11 @@ import { useLine } from './use';
 
 export function AlreadyGone({ id }: { id: string }) {
   const router = useRouter();
-  const { ok, ready, row, balance, moves, add } = useLine(id);
+  const { ok, ready, row: line, balance, moves, add, account } = useLine(id);
+  /* Beetle covers only what it sent wrong itself: a transfer that left, settled, to a number read off a photo (the frame's
+     own line on the demo account aside). Any other line is no such payment (the analysis after Round 34: any line's
+     id, the test money's or a cover's own, paid out again and again) */
+  const row = line && line.kind === 'transfer' && line.amount < 0 && line.status === 'done' && (line.read === 'photo' || (!!account?.demo && line.id === 'l08')) ? line : null;
   const [asked, setAsked] = useState(false);
   const taking = useRef(false);
   const about = row ? `${naira(row.amount)} sent to the wrong account, covered by Beetle` : undefined;

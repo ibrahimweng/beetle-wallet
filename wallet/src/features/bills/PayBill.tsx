@@ -26,6 +26,7 @@ import { LAB } from '../../lab/enabled';
 import { groupAccount, naira } from '../../lib/format';
 import { billDraft } from './hand';
 import { BILLERS, billerById, buysWords } from './billers';
+import { useSetup } from '../setup';
 
 /** The frame's words, for the lab. */
 const SAID = 'pay my light bill';
@@ -39,6 +40,8 @@ export function PayBill() {
   const biller = billerById(asked.biller ?? '') ?? BILLERS[0]!;
   const power = biller.kind === 'power';
   const account = app.session?.account;
+  /* paying from the dollars waits on setting up, as holding them does (the analysis after Round 34) */
+  const { setup } = useSetup(account?.accountNumber, !!account?.demo);
   const { moves, add: addMove } = useMoves(account?.accountNumber);
   const sendGate = useSendGate(account);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
@@ -235,7 +238,7 @@ export function PayBill() {
           onClose={() => setPick(null)}
         />
       ) : null}
-      {choosing ? <PayFromSheet everyday={balance} dollars={dollars} rate={rate} value={source} who="the light" onPick={setSource} onDismiss={() => setChoosing(false)} /> : null}
+      {choosing ? <PayFromSheet locked={!setup.done} everyday={balance} dollars={dollars} rate={rate} value={source} who="the light" onPick={setSource} onDismiss={() => setChoosing(false)} /> : null}
       {guard ? (
         <PasscodeSheet
           amount={naira(amount)}

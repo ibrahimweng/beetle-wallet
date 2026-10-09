@@ -24,9 +24,12 @@ export const COOL_MS = 12 * 60 * 60 * 1000;
     for somebody who took the account over to empty it before the owner sees the alert and says This wasn't me. */
 export const HOLD_CAP = 20000;
 
-/** What has left today: settled money out, not what went into your own goals. */
-export const spentToday = (rows: Pick<LedgerRow, 'day' | 'status' | 'amount' | 'kind'>[]) =>
-  rows.filter(r => r.day === 'today' && r.status === 'done' && r.amount < 0 && r.kind !== 'saving').reduce((a, r) => a - r.amount, 0);
+/** What has left today: settled money out, not what stays yours: your own goals, your dollars, your card, and a loan
+    paid back (the analysis after Round 34: converting ₦100,000 left nothing of the day's cap to send). */
+export const spentToday = (rows: (Pick<LedgerRow, 'day' | 'status' | 'amount' | 'kind'> & { name?: string })[]) =>
+  rows
+    .filter(r => r.day === 'today' && r.status === 'done' && r.amount < 0 && r.kind !== 'saving' && r.kind !== 'convert' && r.kind !== 'card' && !(r.kind === 'bill' && r.name === 'Beetle Loans'))
+    .reduce((a, r) => a - r.amount, 0);
 
 /** The cap a payment crosses, as the line says it, or null. */
 export function pastCap(amount: number, spent: number): string | null {

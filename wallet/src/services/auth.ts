@@ -64,6 +64,9 @@ export interface AuthService {
   /** The account closed at its owner's asking (Round 32: the right to erasure). What the law makes a bank keep is kept
       for as long as it says, on the server; the rest goes. */
   closeAccount(accountNumber: string): Promise<void>;
+  /** The test build's Start over: every account opened on this device forgotten, and their account numbers, so what
+      was kept for them can go too. Nothing like it reaches a real account service. */
+  forgetAll(): Promise<string[]>;
 }
 
 /** The demo account's number, made up for it: signing in with it opens the
@@ -188,6 +191,13 @@ export class MockAuthService implements AuthService {
       ACCOUNTS_KEY,
       list.filter(a => a.accountNumber !== accountNumber),
     );
+  }
+
+  async forgetAll(): Promise<string[]> {
+    const list = (await storage.get<Account[]>(ACCOUNTS_KEY)) ?? [];
+    await storage.remove(ACCOUNTS_KEY);
+    await storage.remove(DEMO_KEY);
+    return [...list.map(a => a.accountNumber), DEMO_ACCOUNT.accountNumber];
   }
 }
 

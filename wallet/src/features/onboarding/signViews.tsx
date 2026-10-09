@@ -28,7 +28,7 @@ import { HOLD_CAP } from '../settings/gate';
 import { holdAfterRecovery } from '../settings/prefs';
 import { checkPhone, isEmail } from './validation';
 import { isKnownHere, rememberHere } from './devices';
-import { pauseRecovery, recoveryPaused } from './recovery';
+import { clearRecoveryMisses, noteRecoveryMiss, recoveryPaused } from './recovery';
 import {
   DigitBody,
   NoteLine,
@@ -344,7 +344,9 @@ function signface(c: Ctx): StageView {
       </View>
     ),
     bar: { label: c.faceState === 'checking' ? 'Hold still…' : failed ? 'Try again' : 'Scan my face', onPress: scan, disabled: c.faceState === 'checking' || c.faceState === 'done' },
-    back: () => c.go('signpass', -1),
+    /* back to what proved it: Google or Apple for an account opened with them (they have no password, and every try at
+       one counted towards the lockout), the password for the rest */
+    back: () => c.go(account?.signInWith === 'google' || account?.signInWith === 'apple' ? 'provider' : 'signpass', -1),
   };
 }
 
@@ -425,15 +427,15 @@ function recoverbvn(c: Ctx): StageView {
       await new Promise(r => setTimeout(r, 500));
       if (account.idNumber && d === account.idNumber) {
         c.setWrong(0);
+        await clearRecoveryMisses(account.accountNumber);
         c.go('recoverface');
         return;
       }
       c.bump();
       c.setDigits('');
-      const n = c.wrong + 1;
+      const { misses: n, until } = await noteRecoveryMiss(account.accountNumber);
       c.setWrong(n);
-      if (n >= TRIES) {
-        const until = await pauseRecovery(account.accountNumber);
+      if (until) {
         c.setNote({ text: `Three that did not match. Getting this account back is paused until ${until}, and its owner has been told.`, tone: 'bad' });
         /* and the pad stays still: nothing more is tried from here */
         paused = true;
@@ -725,6 +727,8 @@ function signpasscode(c: Ctx): StageView {
           <More
             label="Forgot passcode? Log in with your number"
             onPress={() => {
+              /* forgotten, so kept no longer: logging in again asks for new ones at its end */
+              if (account && !account.demo) void c.app.forgetPasscode(account.accountNumber);
               c.go('signin', -1);
               c.setAnother(true);
             }}

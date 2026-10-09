@@ -133,55 +133,59 @@ export function Request() {
   const status = busy ? 'Sending' : !complete ? 'Waiting' : dated ? 'Ready' : 'Running';
   const yours = [...said].reverse().find(t => t.who === 'you');
   return (
-    <Screen head={<PageHead lead title="Request money" sub="They get it on WhatsApp and by text" />}>
-      {yours ? <YouTyped said={yours.text} /> : null}
-      <View style={{ gap: 12 }}>
-        <LightPanel
-          glyph="up"
-          title="Beetle Requests"
-          status={status}
-          centre
-          disc={18}
-          testID="request-panel"
-          rows={[
-            { label: 'Person', value: who ? who.name : 'Pick someone', done: !!who, onPress: () => setPicking(true), chevron: !who },
-            { label: who ? `Reaches ${objectOf(who.pronoun)}` : 'Reaches them', value: who ? 'WhatsApp and SMS' : 'Their line', done: !!who },
-            {
-              label: 'Amount',
-              value: amount ? naira(amount) : 'Pick it',
-              done: amount > 0,
-              onPress: () => {
-                setPickAmount(amount);
-                setSheet('amount');
+    <>
+      <Screen head={<PageHead lead title="Request money" sub="They get it on WhatsApp and by text" />}>
+        {yours ? <YouTyped said={yours.text} /> : null}
+        <View style={{ gap: 12 }}>
+          <LightPanel
+            glyph="up"
+            title="Beetle Requests"
+            status={status}
+            centre
+            disc={18}
+            testID="request-panel"
+            rows={[
+              { label: 'Person', value: who ? who.name : 'Pick someone', done: !!who, onPress: () => setPicking(true), chevron: !who },
+              { label: who ? `Reaches ${objectOf(who.pronoun)}` : 'Reaches them', value: who ? 'WhatsApp and SMS' : 'Their line', done: !!who },
+              {
+                label: 'Amount',
+                value: amount ? naira(amount) : 'Pick it',
+                done: amount > 0,
+                onPress: () => {
+                  setPickAmount(amount);
+                  setSheet('amount');
+                },
+                chevron: true,
               },
-              chevron: true,
-            },
-            {
-              label: 'For',
-              value: note || 'Anything, or nothing',
-              done: !!note,
-              onPress: () => {
-                setPickNote(note);
-                setSheet('for');
+              {
+                label: 'For',
+                value: note || 'Anything, or nothing',
+                done: !!note,
+                onPress: () => {
+                  setPickNote(note);
+                  setSheet('for');
+                },
+                chevron: !note,
               },
-              chevron: !note,
-            },
-            { label: 'Expires', value: dated ? 'In 7 days' : 'Picking a date', done: dated, working: complete && !dated },
-          ]}
-        />
-        {/* what the bubble used to say, under the panel it is about */}
-        <Meta tone="secondary" style={{ paddingHorizontal: 4 }} testID="request-note">
-          {lineFor(who, amount)}
-        </Meta>
-      </View>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }} testID="lock-line">
-        <View style={{ marginTop: 2 }}>
-          <Icon name="lock" size={16} colour={colour.textTertiary} />
+              { label: 'Expires', value: dated ? 'In 7 days' : 'Picking a date', done: dated, working: complete && !dated },
+            ]}
+          />
+          {/* what the bubble used to say, under the panel it is about */}
+          <Meta tone="secondary" style={{ paddingHorizontal: 4 }} testID="request-note">
+            {lineFor(who, amount)}
+          </Meta>
         </View>
-        <Meta tone="secondary" style={{ flex: 1 }}>
-          Asking cannot move money. Nothing can leave your account because somebody was asked to pay into it.
-        </Meta>
-      </View>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }} testID="lock-line">
+          <View style={{ marginTop: 2 }}>
+            <Icon name="lock" size={16} colour={colour.textTertiary} />
+          </View>
+          <Meta tone="secondary" style={{ flex: 1 }}>
+            Asking cannot move money. Nothing can leave your account because somebody was asked to pay into it.
+          </Meta>
+        </View>
+      </Screen>
+      {/* the sheets over the screen, not in the column: in it they filled what scrolls and scrolled with it, the button
+          under the fold (the analysis after Round 34) */}
       {picking ? (
         <Sheet onDismiss={() => setPicking(false)} testID="pick-person">
           <Head>Who should I ask?</Head>
@@ -299,7 +303,7 @@ export function Request() {
           </View>
         </Sheet>
       ) : null}
-    </Screen>
+    </>
   );
 }
 

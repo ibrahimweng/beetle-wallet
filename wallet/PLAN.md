@@ -1934,6 +1934,71 @@ screens still missing found and finished.
       Save as PDF on a receipt, the rate's history, a second card, and
       I lost the phone too on getting an account back.
 
+## Round 34 · Signing up again on the same phone
+
+Asked by the owner, testing sign-up: "it seems you have a stored backend…
+you are telling me all my details have been used up". There is no server
+yet: this build keeps the accounts it opens on the phone itself, standing
+in for Beetle's, so a number or an email used once stays taken, and the
+Google stand-in only ever handed over the one email.
+
+- [x] The Google or Apple stand-in: Use another Google (or Apple) account,
+      its email typed, opens a new account with the name read off it.
+- [x] An email already taken there says so, and the button reads Log in
+      instead and logs in with it. The button had been left blank: its
+      words faded out for Just a moment…, and the answer came back before
+      the fade began, so they never came back in. Fixed in Swap itself, so
+      no button's words are left out again.
+- [x] The name Google or Apple hands over is in Your details' box (it had
+      been left empty: the step read what was kept before it was).
+- [x] Start over on this phone (test builds only): under the version line
+      in Settings, and on the sign-up steps beside "already has a Beetle
+      account". Every account opened on the phone is forgotten, with what
+      was kept for each; the demo comes back as its frames draw it, and the
+      AI key is kept.
+
+## Round 35 · What the analysis after Round 34 found, fixed
+
+Asked by the owner: analyse the project for problems, list them, and fix
+them. Three reviews (the money, the way in and what is kept, and the phone
+itself) found twenty; each is fixed, with the walk and the unit tests
+holding them.
+
+- [x] Security: the Google or Apple stand-in opens only an account opened
+      with that same Google or Apple (an email typed into it opened whoever's
+      account it was), and Use another account is the test build's alone. A
+      Google or Apple account logging in by its number gets its own account,
+      not the demo's.
+- [x] Closing an account forgets what was kept for it, on the phone and in
+      memory, so the next account on that number starts clean. Download my
+      data holds this account's phones alone.
+- [x] Forgot passcode? forgets the passcode, so logging in again asks for
+      new ones. Wrong BVNs while getting an account back are counted against
+      the account on the phone, not in the screen. The lockout after wrong
+      passcodes is kept in the secure store.
+- [x] Back on the way in: Password goes back to the BVN, Your details to
+      Google or Apple where it began there, Google or Apple to the step it
+      was picked on, and the face scan to Google or Apple for their accounts.
+- [x] Money: "I sent it wrong" covers only a settled transfer to a number
+      read off a photo, once. A loan paid back clears the oldest first and
+      frees only what it lent; the next payment is the newest loan's; home's
+      Loan card says what is left. The day after a recovery holds the chat's
+      payments and coins out too. Balances are to the kobo. Naira into
+      dollars buys down to the cent, and the fee counts the day's
+      conversions. The day's cap counts money that leaves, not money moved
+      between your own. Dollars wait on setting up wherever they are used.
+      Receipts and shared lines say coins in dollars; the test money line
+      ages; a USDT payment link is read as USDT.
+- [x] The phone: the Start over sheet hides the bar; Request's and Short's
+      sheets sit over the screen, not in the page; the box being typed into
+      on a page stays above the keyboard; test coins left behind send no
+      receipt; a frozen account pays back no loan; Bills counts past six;
+      fuller VoiceOver labels; bigger tap targets; the camera waits for its
+      permission.
+- [ ] Kept as it is, for the real service: the accounts this build opens
+      stay in plain storage, standing in for Beetle's server (the keychain
+      takes no more than 2KB a value, and the list outgrows it).
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

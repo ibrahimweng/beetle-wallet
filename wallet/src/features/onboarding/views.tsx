@@ -74,6 +74,7 @@ import type { Income, Setup } from '../setup/setup';
 import { address, full, idcard, income } from './setupViews';
 import { putSetup } from '../setup/store';
 import { afterProof, signViews } from './signViews';
+import { reopen } from './wipe';
 
 export type Note = { text: string; tone?: 'secondary' | 'bad' | 'accent' } | null;
 export type Bar = { label: string; onPress: () => void; disabled?: boolean; /** Back at the bottom left, beside the button, where a frame draws it there */ back?: () => void };
@@ -171,6 +172,12 @@ export type Ctx = {
   /** where Google or Apple was asked from: opening an account, or logging in */
   providerFor: 'signup' | 'login';
   setProviderFor: (p: 'signup' | 'login') => void;
+  /** another Google or Apple account, its email typed, in place of the one the stand-in hands over */
+  otherAccount: boolean;
+  setOtherAccount: (b: boolean) => void;
+  /** the step Google or Apple was picked on, for its Back */
+  providerFrom: 'number' | 'email';
+  setProviderFrom: (s: 'number' | 'email') => void;
   /** a NIN slip or a voter's card, and the photo of it being read */
   docKind: DocumentKind;
   setDocKind: (k: DocumentKind) => void;
@@ -315,6 +322,9 @@ export function Providers({ c, purpose }: { c: Ctx; purpose: 'signup' | 'login' 
   const pick = (p: 'google' | 'apple') => {
     c.setProvider(p);
     c.setProviderFor(purpose);
+    c.setProviderFrom(c.stage === 'email' ? 'email' : 'number');
+    /* nobody yet: the account Google or Apple hands over is whoever it hands over, not one a code went to before */
+    c.setWho(null);
     c.go('provider');
   };
   return (
@@ -485,7 +495,10 @@ function number(c: Ctx): StageView {
         footer={
           c.unknown ? (
             /* the number has an account already: logging in is one tap, the number carried over */
-            <More label="Log in with this number" onPress={() => logInWith(c, c.digits)} />
+            <View style={{ gap: 12 }}>
+              <More label="Log in with this number" onPress={() => logInWith(c, c.digits)} />
+              <StartOver c={c} />
+            </View>
           ) : add ? undefined : (
             <View style={{ gap: 12 }}>
               <More label="Use email instead" onPress={() => c.go('email')} />
@@ -591,7 +604,7 @@ function email(c: Ctx): StageView {
               />
             ) : null}
             <More label="Use mobile number instead" onPress={() => c.go('number', -1)} />
-            {c.unknown ? null : <Providers c={c} purpose="signup" />}
+            {c.unknown ? <StartOver c={c} /> : <Providers c={c} purpose="signup" />}
             <Legal c={c} />
           </View>
         }
@@ -626,35 +639,106 @@ function email(c: Ctx): StageView {
 const providerName = (p: 'google' | 'apple') => (p === 'google' ? 'Google' : 'Apple');
 export const PROVIDER_EMAIL = { google: 'ibrahim.musa@gmail.com', apple: 'ibrahim.musa@icloud.com' } as const;
 
+/* The test build's way out when every number and email tried is taken (Round 34, the owner testing sign-up): this build
+   keeps the accounts it opens on the phone, standing in for Beetle's servers, so a detail used once is taken for good.
+   Two taps, the first saying what the second does, and the phone forgets every account opened on it. Not in a real
+   build, where the accounts are Beetle's, not the phone's. */
+function StartOver({ c }: { c: Ctx }) {
+  const [armed, setArmed] = React.useState(false);
+  if (!LAB) return null;
+  const wipe = async () => {
+    if (!armed) {
+      setArmed(true);
+      return;
+    }
+    c.setBusy(true);
+    await c.app.forgetPhone();
+    /* where the phone will not reopen the app (Expo Go), the way in goes back to its start, and says so there */
+    await reopen(() => {
+      c.go('welcome', -1);
+      toast('This phone has forgotten every account opened on it. Sign up from the start.');
+    });
+  };
+  return (
+    <Tap
+      accessibilityRole="button"
+      accessibilityLabel={armed ? 'Forget every account on this phone' : 'Start over on this phone'}
+      onPress={() => void wipe()}
+      style={{ alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' }}
+      testID="start-over"
+    >
+      <Label tone={armed ? 'bad' : 'secondary'}>{armed ? 'Tap again: forget every account on this phone' : 'Test build: start over on this phone'}</Label>
+    </Tap>
+  );
+}
+
+/** A name for the stand-in to hand over with a typed email: ada.obi@gmail.com is Ada Obi. */
+export function nameFromEmail(email: string): string {
+  const words = (email.split('@')[0] ?? '')
+    .split(/[._+\-\d]+/)
+    .filter(Boolean)
+    .map(w => w[0]!.toUpperCase() + w.slice(1).toLowerCase());
+  return words.length ? words.slice(0, 2).join(' ') : 'Beetle tester';
+}
+
 function provider(c: Ctx): StageView {
   const name = providerName(c.provider);
   const login = c.providerFor === 'login';
-  /* logging in, the stand-in hands over the email on the demo account, so it finds one */
-  const handed = login ? (DEMO_ACCOUNT.email ?? '') : PROVIDER_EMAIL[c.provider];
+  /* the stand-in's account: Ibrahim Musa's (logging in, the demo account's email, so it finds one), or another one
+     typed (Round 34, the owner testing sign-up: the one account it handed over was soon taken, so nothing could be
+     opened with Google again) */
+  const typed = c.otherAccount;
+  /* logging in after the code to an account opened with Google or Apple, it is that account's email (the analysis after
+     Round 34: it handed over the demo's, and opened the demo account) */
+  const handed = typed ? c.text.trim().toLowerCase() : login ? (c.who?.email ?? DEMO_ACCOUNT.email ?? '') : PROVIDER_EMAIL[c.provider];
+  const person = typed ? nameFromEmail(handed) : 'Ibrahim Musa';
+  const first = person.split(' ')[0] ?? person;
+  const ready = !typed || isEmail(handed);
+  /* logging in with it: Google or Apple is the proof (Round 32, the owner's word): no password, and the face once on a
+     phone it has not seen */
+  const logIn = async () => {
+    const account = await auth.findAccount(handed);
+    if (!account) {
+      c.setNote({ text: `No Beetle account has this ${name} email. Open one, or log in with your number.`, tone: 'bad' });
+      return;
+    }
+    /* only an account opened with this same Google or Apple is opened by it (the analysis after Round 34: an email typed
+       into the stand-in opened whoever's account it was); the demo account, the frames' own, is the one exception */
+    if (!account.demo && account.signInWith !== c.provider) {
+      c.setNote({ text: `This account was not opened with ${name}. Log in with its number or email and its password.`, tone: 'bad' });
+      return;
+    }
+    c.setContact(account.phone);
+    c.setWho(account);
+    await afterProof(c, account);
+  };
   const go = async () => {
+    if (!ready) return;
     c.setBusy(true);
     try {
-      if (login) {
-        const account = await auth.findAccount(handed);
-        if (!account) {
-          c.setNote({ text: `No Beetle account has this ${name} email. Open one, or log in with your number.`, tone: 'bad' });
-          return;
-        }
-        /* Google or Apple is the proof (Round 32, the owner's word): no password, and the face once on a phone it has not seen */
-        c.setContact(account.phone);
-        c.setWho(account);
-        await afterProof(c, account);
+      /* the email already has an account: what was said is acted on, Log in instead logs in with it */
+      if (login || c.unknown) {
+        await logIn();
         return;
       }
       if (await auth.findAccount(handed)) {
-        c.setNote({ text: `This ${name} email already has a Beetle account. Log in instead.`, tone: 'bad' });
+        c.setNote({ text: `This ${name} email already has a Beetle account. Log in with it, or use another ${name} account.`, tone: 'bad' });
+        c.setUnknown(true);
         return;
       }
-      await c.app.beginWith(c.provider, handed, 'Ibrahim Musa');
+      await c.app.beginWith(c.provider, handed, person);
       c.go('details');
+      /* the name Google or Apple handed over, in its box (the way in reads what was kept before this was) */
+      c.setText(person);
     } finally {
       c.setBusy(false);
     }
+  };
+  const switchAccount = () => {
+    c.setOtherAccount(!typed);
+    c.setText('');
+    c.setNote(null);
+    c.setUnknown(false);
   };
   return {
     icon: 'mail-filled',
@@ -664,22 +748,58 @@ function provider(c: Ctx): StageView {
       ? `${name} proves it is you, so there is no password. On a phone new to your account, a face scan once.`
       : `${name} has already checked the email, so there is no code for it and no password. Beetle gets your name and email, nothing else.`,
     bodyKey: `provider:${c.provider}:${c.providerFor}`,
+    words: typed,
     body: (
       <View style={{ gap: 16 }}>
-        <Card style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }} testID="provider-account">
-          <Avatar initials="IM" />
-          <View style={{ gap: 2, flex: 1 }}>
-            <RowText>Ibrahim Musa</RowText>
-            <Meta tone="secondary">{handed}</Meta>
-          </View>
-        </Card>
+        {typed ? (
+          <TextBox
+            label={`Your ${name} email`}
+            value={c.text}
+            onChangeText={t => {
+              c.setText(t);
+              c.setNote(null);
+              c.setUnknown(false);
+            }}
+            autoFocus
+            keyboardType="email-address"
+            textContentType="emailAddress"
+            autoComplete="email"
+            autoCapitalize="none"
+            returnKeyType="go"
+            onSubmitEditing={() => void go()}
+            placeholder={`you@${c.provider === 'google' ? 'gmail.com' : 'icloud.com'}`}
+            testID="provider-email"
+          />
+        ) : (
+          <Card style={{ flexDirection: 'row', alignItems: 'center', gap: space.s3 }} testID="provider-account">
+            <Avatar initials="IM" />
+            <View style={{ gap: 2, flex: 1 }}>
+              <RowText>{person}</RowText>
+              <Meta tone="secondary">{handed}</Meta>
+            </View>
+          </Card>
+        )}
         {c.note ? <NoteLine note={c.note} /> : null}
+        {/* the stand-in's other accounts are the test build's alone: a real build has Google's or Apple's own sheet */}
+        {LAB ? (
+          <Tap
+            accessibilityRole="button"
+            accessibilityLabel={typed ? 'Use Ibrahim Musa' : `Use another ${name} account`}
+            onPress={switchAccount}
+            style={{ alignSelf: 'flex-start' }}
+            testID="provider-another"
+          >
+            <Label tone="accent">{typed ? 'Use Ibrahim Musa' : `Use another ${name} account`}</Label>
+          </Tap>
+        ) : null}
+        {c.unknown && !login ? <StartOver c={c} /> : null}
         <Aside glyph="eye">{`A stand-in for ${name}’s own sheet. The real one comes with the app’s own build and Beetle’s keys with ${name}.`}</Aside>
         {login ? null : <Legal c={c} />}
       </View>
     ),
-    bar: { label: c.busy ? 'Just a moment…' : 'Continue as Ibrahim', onPress: go, disabled: c.busy },
-    back: () => c.go(login ? 'signin' : 'number', -1),
+    bar: { label: c.busy ? 'Just a moment…' : c.unknown ? 'Log in instead' : `Continue as ${first}`, onPress: () => void go(), disabled: c.busy || !ready },
+    /* back to the step Google or Apple was picked on: the number, the email, or Log in */
+    back: () => c.go(login ? 'signin' : c.providerFrom, -1),
   };
 }
 
@@ -794,7 +914,9 @@ function details(c: Ctx): StageView {
       </WordsBody>
     ),
     bar: { label: 'Continue', onPress: save, disabled: !ok || c.busy },
-    back: () => c.go(p.via === 'email' ? 'email' : 'number', -1),
+    /* back to where it began: the email, the number, or Google or Apple (the analysis after Round 34: Google and Apple
+       went back to a fresh number) */
+    back: () => c.go(withProvider(p) ? 'provider' : p.via === 'email' ? 'email' : 'number', -1),
   };
 }
 
@@ -992,7 +1114,9 @@ function password(c: Ctx): StageView {
     body: passwordBody(c),
     bar: { label: 'Continue', onPress: save, disabled: !meetsRules(c.text) || c.busy },
     hint: MOCK && LAB ? `The lab takes ${DEMO_PASSWORDS[1]} as well.` : undefined,
-    back: () => c.go(p.via === 'phone' ? 'bvn' : 'number', -1),
+    /* back to the BVN: the number added after an email is checked already, and typing it again started the way in over
+       from the top (the analysis after Round 34) */
+    back: () => c.go('bvn', -1),
   };
 }
 

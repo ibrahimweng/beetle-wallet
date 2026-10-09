@@ -54,8 +54,11 @@ export function Button({
   disabled,
   badge = false,
   to,
+  accessibilityLabel,
 }: {
   label: string;
+  /** what a screen reader says, where the word on the button is not the whole of it: "Send $50 of test USDC" for "$50" */
+  accessibilityLabel?: string;
   onPress?: () => void;
   /** the page the button leads to: the screen recedes and the page arrives */
   to?: string;
@@ -83,6 +86,7 @@ export function Button({
     <AnimatedPressable
       ref={j.ref}
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}
       onPress={to ? j.onPress : onPress}

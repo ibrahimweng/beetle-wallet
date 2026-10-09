@@ -98,6 +98,13 @@ export function AppLock() {
         setLocked(false);
         void app.signOut().then(() => router.replace('/way-in'));
       }}
+      onForgot={() => {
+        setLocked(false);
+        void app
+          .forgetPasscode(account.accountNumber)
+          .then(() => app.signOut())
+          .then(() => router.replace('/way-in'));
+      }}
     />
   );
 }
@@ -109,6 +116,7 @@ function LockScreen({
   verify,
   onOpen,
   onSignOut,
+  onForgot,
 }: {
   name: string;
   account: string;
@@ -116,6 +124,8 @@ function LockScreen({
   verify: (code: string) => Promise<boolean>;
   onOpen: () => void;
   onSignOut: () => void;
+  /** the six digits forgotten: kept no longer, and signed out to log in again */
+  onForgot: () => void;
 }) {
   const [digits, setDigits] = useState('');
   /* what the face is doing, or what was wrong with the six digits, on the line under the welcome */
@@ -194,7 +204,7 @@ function LockScreen({
   /* the six digits forgotten: logging in again sets new ones at its end (onboarding), so this is the way out to it */
   const forgot = () => {
     toast('Log in again, and set a new passcode at the end.');
-    onSignOut();
+    onForgot();
   };
   const hint = demoHint({ demo });
   const idle = face ? `${capital(yourBiometric(bio))} or your passcode opens Beetle.` : 'Your passcode opens Beetle.';

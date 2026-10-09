@@ -40,6 +40,11 @@ const kept = {
   },
 };
 
+/** What the session remembers under the keys a test says, let go (the test build's Start over). */
+export function forgetRemembered(test: (key: string) => boolean) {
+  for (const k of [...memory.keys()]) if (test(k)) memory.delete(k);
+}
+
 export const storage = {
   async get<T>(key: string): Promise<T | null> {
     try {

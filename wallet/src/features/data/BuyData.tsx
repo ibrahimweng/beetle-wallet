@@ -44,6 +44,7 @@ import { PasscodeSheet, lockedFor, waitWords } from '../passcode';
 import { LAB } from '../../lab/enabled';
 import { groupAccount, initialsOf, naira } from '../../lib/format';
 import { topupDraft } from './hand';
+import { useSetup } from '../setup';
 
 /** The frame's words, for the lab. */
 const SAID = '2k data for mum';
@@ -77,6 +78,8 @@ export function BuyData() {
   const airtime = asked.kind === 'airtime';
   const demo = LAB && asked.demo === '1';
   const account = app.session?.account;
+  /* paying from the dollars waits on setting up, as holding them does (the analysis after Round 34) */
+  const { setup } = useSetup(account?.accountNumber, !!account?.demo);
   /* round ups go to the first goal, by its name */
   const fed = useFedName(account);
   const { moves, add: addMove } = useMoves(account?.accountNumber);
@@ -383,7 +386,7 @@ export function BuyData() {
           onClose={() => setPick(null)}
         />
       ) : null}
-      {choosing ? <PayFromSheet everyday={balance} dollars={dollars} rate={rate} value={source} who="the line" onPick={setSource} onDismiss={() => setChoosing(false)} /> : null}
+      {choosing ? <PayFromSheet locked={!setup.done} everyday={balance} dollars={dollars} rate={rate} value={source} who="the line" onPick={setSource} onDismiss={() => setChoosing(false)} /> : null}
       {guard && line ? (
         <PasscodeSheet
           amount={naira(price)}

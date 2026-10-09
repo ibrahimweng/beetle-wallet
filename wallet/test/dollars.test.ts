@@ -7,7 +7,7 @@ vi.mock('react-native', () => ({ Platform: { OS: 'web', select: (o: Record<strin
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: async () => null, setItem: async () => undefined, removeItem: async () => undefined } }));
 vi.mock('expo-router', () => ({ useFocusEffect: () => undefined, useRouter: () => ({}) }));
 vi.mock('expo-crypto', () => ({ getRandomBytes: (n: number) => new Uint8Array(n), CryptoDigestAlgorithm: { SHA256: 'SHA-256' }, digestStringAsync: async () => 'h' }));
-import { DEMO_SOURCES, FREE_UNDER_USD, dollarsOf, feeForUsd, heldLine, nairaOf, rateLine, sourcesOf, usdFull, usdOf } from '../src/features/dollars/dollars';
+import { DEMO_SOURCES, FREE_UNDER_USD, convertedToday, dollarsOf, feeForUsd, heldLine, nairaOf, rateLine, sourcesOf, usdFull, usdIn, usdOf } from '../src/features/dollars/dollars';
 import { healthLine, healthRows } from '../src/features/health/health';
 import { DEFAULT_PREFS } from '../src/features/settings/prefs';
 import { isConvert, isGoal, isHealth, pageFor } from '../src/features/request/intent';
@@ -123,5 +123,29 @@ describe('a line paid from the dollars', () => {
     expect(c.head).toBe('Converted');
     expect(c.line).toBe('$100.00 into Dollars');
     expect(c.fields.find(f => f[0] === 'Rate')?.[1]).toBe('₦1,552 to $1');
+  });
+});
+
+describe('converting, without a game in it (the analysis after Round 34)', () => {
+  it('buys dollars down to the cent, so a round trip never comes back with more', () => {
+    expect(usdIn(1_545, 1_552)).toBe(0.99);
+    expect(usdIn(155_200, 1_552)).toBe(100);
+    expect(nairaOf(usdIn(1_545, 1_552), 1_552)).toBeLessThanOrEqual(1_545);
+  });
+  it('charges once the day’s conversions reach $500, however they are split', () => {
+    expect(feeForUsd(300)).toBe(0);
+    expect(feeForUsd(300, 300)).toBe(3);
+    expect(feeForUsd(600)).toBe(6);
+    const today = new Date();
+    expect(
+      convertedToday(
+        [
+          { kind: 'convert', usd: 300, at: today.getTime() },
+          { kind: 'convert', usd: -50, at: today.getTime() },
+          { kind: 'convert', usd: 80, at: today.getTime() - 3 * 86_400_000 },
+        ],
+        today,
+      ),
+    ).toBe(350);
   });
 });

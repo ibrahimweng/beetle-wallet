@@ -9,6 +9,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { powerPanel, storage, type Pending } from '../../services';
 import { turn, type Turn } from './turns';
+import { onForget } from '../../lib/forget';
 
 export type Chat = {
   id: string;
@@ -37,6 +38,7 @@ export const newChatId = () => `chat-${Date.now().toString(36)}-${Math.random().
 
 /* one list per account, shared by every screen holding it */
 const kept = new Map<string, Chat[]>();
+onForget(account => kept.delete(account));
 const listeners = new Set<(account: string) => void>();
 
 /** The list as this phone last had it, forgotten: the lab starts a place afresh. */

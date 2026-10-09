@@ -13,6 +13,7 @@ import { useFoot } from '../more/Foot';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { forgetHere, knownHere } from '../onboarding/devices';
+import { forgetAccount } from '../onboarding/wipe';
 import { useSetup } from '../setup/store';
 import { PROVIDER_LINE } from '../legal/legal';
 import { usePrefs } from './prefs';
@@ -42,7 +43,8 @@ export function Privacy() {
       account: { ...account },
       settings: prefs,
       settingUp: setup,
-      phones: await knownHere(),
+      /* this account's phones alone (the analysis after Round 34: every account known on the phone was in the copy) */
+      phones: (await knownHere()).filter(k => k.accountNumber === account.accountNumber),
     };
     try {
       await Share.share({ title: 'My Beetle data', message: JSON.stringify(copy, null, 2) });
@@ -61,6 +63,7 @@ export function Privacy() {
       return;
     }
     await forgetHere(account.accountNumber);
+    await forgetAccount(account.accountNumber);
     await app.signOut();
     toast('Your account is closed, and this phone has forgotten it.');
     router.replace('/way-in');

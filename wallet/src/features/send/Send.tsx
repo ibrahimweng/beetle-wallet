@@ -11,7 +11,7 @@
    whole of it while the six digits go in, and the receipt after it, with
    the line in the day. Send on the card and Send money in More open it
    empty; the people paid before are under the empty To field, one tap each. */
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { AmountPicker, Body, Caption, Icon, Label, Meta, PageHead, Screen, Tap, YouTyped, colour, font, toast } from '../../design';
@@ -32,6 +32,7 @@ import { refuses } from './rules';
 import { useOnline } from '../offline';
 import { PayFromSheet, dollarsOf, usdCost, usdFull, type Source } from '../dollars';
 import { ToField, howOf, whereOf } from './ToField';
+import { useSetup } from '../setup';
 
 /** The three parts the frame's message fills in, for the lab. */
 const DEMO = { who: PEOPLE[0]!, amount: 50_000, reference: 'Flat deposit', said: 'send Sarah 50k for the flat deposit' };
@@ -46,6 +47,8 @@ export function Send() {
   const asked = useLocalSearchParams<{ demo?: string; from?: string; to?: string }>();
   const demo = LAB && asked.demo === '1';
   const account = app.session?.account;
+  /* paying from the dollars waits on setting up, as holding them does (the analysis after Round 34) */
+  const { setup, ready: setupReady } = useSetup(account?.accountNumber, !!account?.demo);
   const { moves, add: addMove } = useMoves(account?.accountNumber);
   const sendGate = useSendGate(account);
   const h = useMemo(() => (account ? holdingsFor(account) : null), [account]);
@@ -73,7 +76,11 @@ export function Send() {
   /* where it leaves from: Everyday, or the dollars at the rate on this page */
   const [source, setSource] = useState<Source>(asked.from === 'dollars' ? 'dollars' : 'everyday');
   const [choosing, setChoosing] = useState(LAB && asked.from === 'pick');
-  const fromDollars = source === 'dollars';
+  /* asked to pay from the dollars before setting up is done: from Everyday, as the Pay from sheet would have it */
+  useEffect(() => {
+    if (setupReady && !setup.done && source === 'dollars') setSource('everyday');
+  }, [setupReady, setup.done, source]);
+  const fromDollars = source === 'dollars' && (setup.done || !setupReady);
   const usd = fromDollars ? usdCost(amount, rate) : 0;
 
   /* a photo the camera took: the number on it, or both readings where the reader was not sure */
@@ -331,7 +338,16 @@ export function Send() {
         </View>
       </Screen>
       {choosing ? (
-        <PayFromSheet everyday={balance} dollars={dollars} rate={rate} value={source} who={who ? first : 'Whoever it is for'} onPick={setSource} onDismiss={() => setChoosing(false)} />
+        <PayFromSheet
+          locked={!setup.done}
+          everyday={balance}
+          dollars={dollars}
+          rate={rate}
+          value={source}
+          who={who ? first : 'Whoever it is for'}
+          onPick={setSource}
+          onDismiss={() => setChoosing(false)}
+        />
       ) : null}
       {guard && who ? (
         <PasscodeSheet

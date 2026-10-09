@@ -11,6 +11,7 @@ import type { DocumentKind, IdentityRecord } from '../../services/identity';
 import { EMPTY, type IdKind, type Progress } from './machine';
 import { rememberHere } from './devices';
 
+import { forgetEverything } from './wipe';
 const PROGRESS_KEY = 'beetle.progress.v1';
 const SESSION_KEY = 'beetle.session.v1';
 /* Each account's passcode is its own (the analysis after Round 21: one
@@ -71,9 +72,13 @@ type Actions = {
   hasPasscodeFor(account: Account): Promise<boolean>;
   /** The six digits for an account, before it is signed in: logging in on a phone without them. */
   setPasscodeFor(account: Account, code: string): Promise<void>;
+  /** The six digits forgotten: kept no longer, so logging in again asks for new ones at its end. */
+  forgetPasscode(accountNumber: string): Promise<void>;
   /** Do these six digits open the account on this phone? Logging in on a phone that knows it, when the face cannot. */
   passcodeOpensFor(account: Account, code: string): Promise<boolean>;
   startOver(): Promise<void>;
+  /** The test build's Start over on this phone: every account opened here forgotten, and everything kept for them. */
+  forgetPhone(): Promise<void>;
   signIn(session: Session): Promise<void>;
   signOut(): Promise<void>;
   /** Does what was typed match the passcode kept on this device for the account signed in? */
@@ -198,12 +203,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       async setPasscodeFor(account, code) {
         await secure.set(passcodeKey(account.accountNumber), JSON.stringify(await keepPasscode(code)));
       },
+      /* the analysis after Round 34: Forgot passcode? signed out and logged in again straight to home, the forgotten
+         passcode still the one asked for at the next lock and every payment */
+      async forgetPasscode(accountNumber) {
+        await secure.remove(passcodeKey(accountNumber));
+        await secure.remove(OLD_KEY(accountNumber));
+      },
       async passcodeOpensFor(account, code) {
         if (demoPasscodeOpens(code, account)) return true;
         const own = await readKept(passcodeKey(account.accountNumber));
         return !!own && (await matchesPasscode(code, own));
       },
       startOver: () => replaceProgress(EMPTY),
+      async forgetPhone() {
+        await forgetEverything();
+        await keepSession(null);
+        await replaceProgress(EMPTY);
+      },
       async signIn(s) {
         await keepSession(s);
         await replaceProgress(EMPTY);

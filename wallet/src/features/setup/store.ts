@@ -6,10 +6,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { sealed } from '../../services';
 import { DEMO_SETUP, EMPTY_SETUP, type Setup } from './setup';
+import { onForget } from '../../lib/forget';
 
 export const setupKey = (account: string) => `beetle.setup.${account}.v1`;
 const key = setupKey;
 const kept = new Map<string, Setup>();
+onForget(account => kept.delete(account));
 const listeners = new Set<(account: string) => void>();
 
 /** Forgotten on this phone: the lab starts a place afresh. */

@@ -5,9 +5,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { storage } from '../../services';
 import { DEMO_DISPUTE, type Dispute } from './dispute';
+import { onForget } from '../../lib/forget';
 
 const key = (account: string) => `beetle.disputes.${account}.v1`;
 const kept = new Map<string, Dispute[]>();
+onForget(account => kept.delete(account));
 const listeners = new Set<(account: string) => void>();
 
 /** The list as this phone last had it, forgotten: the lab starts a place afresh. */

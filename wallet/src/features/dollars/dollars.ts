@@ -26,8 +26,16 @@ export const nairaOf = (usd: number, rate: number) => Math.round(usd * rate);
 export const usdFull = (n: number) => '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 /** ₦1,552 to $1. */
 export const rateLine = (rate: number) => `₦${rate.toLocaleString('en-NG')} to $1`;
-/** The fee on a conversion: free under $500, one percent over. */
-export const feeForUsd = (usd: number) => (usd < FREE_UNDER_USD ? 0 : round2(usd * CONVERT_FEE));
+/** The fee on a conversion: free while the day's conversions stay under $500, one percent once they reach it (the
+    analysis after Round 34: a figure over $500 split into smaller ones went free). `today` is what was already
+    converted today, either way. */
+export const feeForUsd = (usd: number, today = 0) => (today + usd < FREE_UNDER_USD ? 0 : round2(usd * CONVERT_FEE));
+/** Naira into dollars, down to the cent: never a cent more than the naira buys (the analysis after Round 34: rounded to
+    the nearest, ₦1,545 bought $1.00, and turned back it was ₦1,552). */
+export const usdIn = (nairaAmount: number, rate: number) => Math.floor(Math.round((nairaAmount / rate) * 1e6) / 1e4) / 100;
+/** The dollars converted today, either way, from the day's lines. */
+export const convertedToday = (rows: { kind: string; usd?: number; at?: number }[], now = new Date()) =>
+  round2(rows.filter(r => r.kind === 'convert' && r.at !== undefined && new Date(r.at).toDateString() === now.toDateString()).reduce((a, r) => a + Math.abs(r.usd ?? 0), 0));
 
 export type DollarSource = { id: string; glyph: IconName; title: string; sub: string; usd: number };
 

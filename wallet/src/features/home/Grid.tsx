@@ -42,7 +42,22 @@ const GLYPH = 32;
 
 /** Drawn again only when what it is given changes, not with every word the chat above it streams in (Round 29). */
 export const Grid = memo(GridView);
-function GridView({ width, accountNumber, demo, moves, borrowing }: { width: number; accountNumber: string; demo: boolean; moves: LedgerRow[]; borrowing: boolean }) {
+function GridView({
+  width,
+  accountNumber,
+  demo,
+  moves,
+  borrowing,
+  loanLeft = LOAN.most,
+}: {
+  width: number;
+  accountNumber: string;
+  demo: boolean;
+  moves: LedgerRow[];
+  borrowing: boolean;
+  /** what is left of the limit once what is borrowed is counted (the analysis after Round 34: it always said the whole) */
+  loanLeft?: number;
+}) {
   const { prefs } = usePrefs(accountNumber);
   const w = Math.floor((width - 2 * GRID_SIDE - GRID_GAP) / 2);
   const { goals } = useGoals(accountNumber, { demo, started: prefs.goal });
@@ -56,8 +71,8 @@ function GridView({ width, accountNumber, demo, moves, borrowing }: { width: num
           to="/loan"
           w={w}
           lead={<Glyph glyph="loan" tone={colour.warn} />}
-          label={borrowing ? 'Borrow up to' : 'Loan'}
-          figure={borrowing ? naira(LOAN.most) : 'Not yet'}
+          label={borrowing ? (loanLeft < LOAN.most ? 'Left to borrow' : 'Borrow up to') : 'Loan'}
+          figure={borrowing ? naira(loanLeft) : 'Not yet'}
           sub={borrowing ? 'Over 30 to 90 days' : 'Finish setting up'}
         />
       </View>

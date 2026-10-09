@@ -190,11 +190,19 @@ export function Swap({ value, children, style }: { value: string; children: (sho
      changes back before then (Log in, Checking…, Log in) was left on the one in between (Round 30) */
   const latest = useRef(value);
   latest.current = value;
-  const land = () => setShown(latest.current);
+  const showing = useRef(shown);
+  showing.current = shown;
+  /* the old words have gone: the latest lands, or, where the label came back to the words that were going (Continue,
+     Just a moment…, Continue, quicker than a frame), they come back in (Round 34, the owner's phone: the button was left
+     blank, the fade out having begun after the words had already come back) */
+  const land = () => {
+    if (latest.current === showing.current) t.value = withTiming(1, { duration: motion.swap * 1.5, easing: settle });
+    else setShown(latest.current);
+  };
   useEffect(() => {
     if (value === shown) {
       /* back to what is showing before it had gone: it comes back, and the fade in flight is called off */
-      if (!still && t.value < 1) t.value = withTiming(1, { duration: motion.swap, easing: settle });
+      if (!still) t.value = withTiming(1, { duration: motion.swap, easing: settle });
       return;
     }
     if (still) {

@@ -121,12 +121,7 @@ const sheetStill = () =>
     .catch(() => {});
 /* the same, for words that are a thing's whole name: a card's title, where Beetle's own lines may carry the words too */
 /* a chat card's title: the company picked, then the person found (Round 39) */
-const titled = name =>
-  page
-    .locator('[data-testid="panel-title"], [data-testid="ask-title"]')
-    .filter({ hasText: name, visible: true })
-    .last()
-    .waitFor();
+const titled = name => page.locator('[data-testid="panel-title"], [data-testid="ask-title"]').filter({ hasText: name, visible: true }).last().waitFor();
 const seeExactly = text => page.getByText(text, { exact: true }).filter({ visible: true }).first().waitFor();
 /* the moment a screen's words are in the page at all, before it has arrived —
    what a trace of the arrival has to start from */
@@ -344,6 +339,12 @@ try {
   await see('Sign up');
   await see('Log in');
   at('/way-in');
+  /* the two ways in side by side, 12 apart, Sign up the wider (Round 40, the owner's word) */
+  const [up, inn] = [await button('Sign up').boundingBox(), await button('Log in').boundingBox()];
+  must(
+    Math.abs(up.y - inn.y) < 1 && Math.round(inn.x - (up.x + up.width)) === 12 && up.width > inn.width * 1.3,
+    `Sign up and Log in should sit side by side, 12 apart, Sign up the wider (${JSON.stringify({ up, inn })})`,
+  );
   await shot('welcome');
 
   /* the whole change traced from the tap, with a frame mid-way: the welcome

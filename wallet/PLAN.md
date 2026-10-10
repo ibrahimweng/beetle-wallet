@@ -2193,6 +2193,43 @@ never to run past its bounds, as it did under the bar in the picture.
 - [x] Network chips (four networks) and data plans stay as chips: they are
       few, and they fit the card.
 
+## Round 40 · Side by side, and a site of its own
+
+Asked by the owner: Sign up and Log in sat too close, one over the other,
+and read as the same thing twice. They go side by side. And the app is to
+be a website of its own that testers open: only the phone in the middle,
+View details in place of the keys, with what to type on each page, a code
+to scan in Expo Go on an iPhone or an Android phone, and any other way to
+try it.
+
+- [x] The welcome: Sign up takes three fifths of one row in white, Log in
+      the rest as an outline on the dark, 12 between. The walk measures it.
+- [x] `wallet/` is its own website: `npm run site` builds `site/out/`, and
+      `vercel.json` tells Vercel how (Root Directory `wallet`). The page
+      that was `artifact/` is `site/` now. The older projects in the
+      repository stay as they were.
+- [x] The page: only the phone, in the middle, at its real size or shrunk
+      to the height there is. View details comes in from the right and the
+      phone moves over for it; on a narrower screen it comes over the side,
+      and on a phone the app takes the screen under a slim bar and the
+      details come up as a sheet.
+- [x] View details, in two tabs. On your phone: the Expo Go code, with the
+      steps for an iPhone (the Camera) and for Android (Expo Go's own
+      Scan QR code), Open in Expo Go when the page is open on a phone, and
+      the other ways: this page, and the phone's browser by a second code,
+      with Add to Home Screen. What to type: every page's keys, brought up
+      to date (the bank and company boxes, the titles that follow the pick).
+- [x] Expo Go for anyone. Since May 2026 Expo Go opens an EAS Update only
+      for members of the project's Expo account, so the code on the page
+      could not open for a tester. The site serves the app to Expo Go
+      itself: the iOS and Android export in plain JavaScript (Expo Go runs
+      no Hermes bytecode from a site), and at `/expo` an Expo Updates
+      manifest for the platform the request names, every file's hash
+      checked at build. Until the site is on Vercel the page's code falls
+      back to the EAS channel, which always opens the latest update for the
+      owner's own Expo Go.
+- [x] CI builds the page around the web bundle on every push.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

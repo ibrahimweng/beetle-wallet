@@ -5,7 +5,8 @@ shots/
 expo-env.d.ts
 *.log
 .DS_Store
-artifact/out/
+site/out/
+dist-native/
 # keys and other secrets stay off the repository
 .env
 .env.*

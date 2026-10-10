@@ -62,8 +62,49 @@ every screen. It needs a Chromium (`npx playwright install chromium`, or set
 | `npm run typecheck` | it compiles, with `strict` and `noUncheckedIndexedAccess` on |
 | `npm test` | the rules of the way in: what counts as a Nigerian number, what a passcode may not be, where each step leads, how the mock services answer; the scripted Beetle and what it asks for; the model against a fake API, its ask panel and its tools; what Beetle knows of the country — the networks by prefix, the plans, the companies, the meters, what was paid before; the gate before money moves; the hour a chat carries on for; the receipts' figures; the order of the record; the three words past a limit; and that what runs on the phone's animation thread — a gesture's callbacks, an animated style, an animation's last callback — calls nothing that is not a worklet and reaches for nothing that cannot be copied there (React Native's Keyboard, a router, anything made with new), the stops the web never shows (`test/worklets.test.mjs`) |
 | `npm run bundle` | the same JavaScript the phone runs, exported for the web into `dist/` |
+| `npm run site` | the test site, into `site/out/`: the web export, the iOS and Android export, and the page around them |
 | `npm run flow` | from the boot to the welcome and on to home, then out (Sign out asking first) and back in as the demo account, with the doors that should be shut tried on the way and the lab opened from the version line; the card pulled down and traced as it opens down to the bar that stays under it, with the six chips over the input putting their cards up in the chat, Activities and back to the chat as it was and Home again closing it, money sent by asking and let through by the passcode, the card pulled just past where it opens and held there going on by itself with its light coming and going and Home closing it with the quiet glow, the account's details opened and copied, the saving counted — four taps to put money away, three to start a goal — with a goal edited, paused and ended, money taken out and the Save chip's card, a photo taken with the browser's stand-in camera and read, money arriving, the model screen, the four cards on home, the Services card swiped through and the pages swiped between, a chat carried on and New chat in the drawer, the receipt card opening where it is in the chat's dark with every detail, closed with a tap on the frost and See in Activities turning to the record, and every receipt after paying as the sheet with the share sheet, the offers in the black card and its × leaving the empty card in their place, the empty card when there is nothing to offer, the Services card starting on All services, the bar's glass pill, Savings as a sheet over home and Airtime as a sheet over the Services sheet, a title shrinking on Settings, Settings with every row followed — the switches kept, a new passcode, the three words past a limit, an instruction offered and set up, the other devices signed out, the phone that is not yours frozen, the card revealed and frozen — the bar and More under its white veil, the pages sliding under a bar that stays put, the record narrowed to In and to Insights and a line opened in place over the frost — not who, not the total, the session id kept back, its ··· with Ask Beetle about this — and closed with a tap off it, every frame of the close read to see the rows go before the frost thins, the four asks — a transfer with no amount, data for a new number, airtime on the own line, a bill from a new meter and from one paid before — each filled on its card or from Recent, its button saying what is still missing, and taken from that button through the passcode to its receipt; money sent from the Send money page — To as a $tag, as a number with its bank picked and the name checked, and from the people paid before; the amount moved on the ruler and typed in place, a reference typed, the slide, the passcode with the whole of it and Cancel, the receipt, and the line on Activities — then filled from a message, from a photo, stopped hard at what Everyday can send, and from a digit the reader was not sure of; every state of a transfer and every way out of it; the face that did not take; and the lab's places opened on their own; every screen photographed into `shots/` |
 | `npm run figma` | every built screen — thirty-eight of them — against its Figma frame: each named piece where the frame puts it, within three of the frame's figure or of that figure snapped to the 4-point grid; the frame's words on the screen; what is off on purpose listed with its reason; the frame and the screen side by side in `shots/figma/` |
+
+## The test site
+
+`wallet/` is a website of its own as well as an app: `npm run site` builds the
+page testers open, into `site/out/`.
+
+- **The phone in the middle** runs the app's own code, exported for the web.
+- **View details** opens what to type on each page, and the ways to try it on
+  a phone.
+- **Expo Go**: a code to scan on an iPhone or Android phone. Since May 2026
+  Expo Go only opens an EAS Update for members of the project's Expo account,
+  so the site serves the app to Expo Go itself (an update in plain
+  JavaScript at `/expo`, which is how Expo Go loads a self-hosted one).
+  Anyone with Expo Go can scan it; no Expo account is needed.
+- **The phone's browser**: a second code opens the site on a phone, where the
+  app takes the whole screen; Add to Home Screen makes it full screen.
+
+| File | What it is |
+|---|---|
+| `site/page.html` | The page: the phone, View details, the codes |
+| `site/build.mjs` | Puts the page together from `dist/` (the web export) and `dist-native/` (the iOS and Android export, as plain JavaScript), with the Expo Go update and the QR codes |
+| `vercel.json` | How Vercel builds and serves it, with the `/expo` address answering Expo Go by its `expo-platform` header |
+
+**Hosting it on Vercel** (once): on vercel.com, Add New, Project, import
+`ibrahimweng/beetle-wallet`, set **Root Directory** to `wallet`, and Deploy.
+Nothing else needs setting: `vercel.json` gives the install and build commands
+and the output folder, and the build reads the site's own address from
+Vercel. Every push to `main` then rebuilds it. If the app should answer with
+Claude rather than its script, set `EXPO_PUBLIC_ANTHROPIC_BASE_URL` in the
+project's Environment Variables to a server of Beetle's own that keeps the
+key; never put a key itself in a variable named `EXPO_PUBLIC_`, since that
+goes into the published bundle (the build refuses one).
+
+**Elsewhere**: set `SITE_URL` to the address the site will be at and run
+`npm run site`; serve `site/out/` and answer `/expo` with `expo/ios.json` or
+`expo/android.json` by the request's `expo-platform` header, with the headers
+`vercel.json` lists.
+
+The phone build for the owner's own Expo Go still comes from the Phone
+workflow (`eas update` to the `preview` channel), unchanged.
 
 ## On the frame
 
@@ -153,7 +194,7 @@ mocks in and says so on the code screen; a real `AuthService` and
 | `src/services/` | `AuthService`, `IdentityService`, `AgentService` (Beetle: the model in `model.ts` where there is a key, the script in `agent.ts` where there is not), what Beetle knows of the country (`nigeria.ts`: the networks by prefix, the data plans, the electricity companies, what a meter number looks like, a `MeterService` that says whose a meter is, and the people, lines and meters paid before), `ReaderService` (the device's text reader, or a stand-in), storage and hashing behind interfaces, with the mocks this build runs on, and the last problem that stopped the app, kept for the next open (`problems.ts`) |
 | `src/lib/` | Formatting: digit groups, naira and kobo, dates; and the amount picker's steps (`steps.ts`) |
 | `test/` | The unit tests, and the browser walk of the way in |
-| `artifact/` | `npm run artifact` packages the exported bundle as a page that can be hosted anywhere, even inside another page: the phone in a frame with the keys to the mocks beside it |
+| `site/` | The test site: `npm run site` builds the page testers open, the phone in the middle and View details beside it, with the app for Expo Go served from it (see The test site) |
 
 Progress along the way in is kept in `AsyncStorage`, so closing the app halfway
 brings you back to the step you were on. The session and the passcode hash

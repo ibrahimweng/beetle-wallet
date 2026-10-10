@@ -604,11 +604,12 @@ export function WayIn() {
               ) : bottomKind === 'bar' && view.bar ? (
                 <BarBlock bar={view.bar.back || !view.back ? view.bar : { ...view.bar, back: view.back }} />
               ) : bottomKind === 'welcome' ? (
-                /* the two ways in as two buttons (Round 30, the owner's word): Sign up in white, Log in under it on the
-                   dark's own panel, 8 between, the frame's 24 below */
-                <View style={{ paddingHorizontal: WELCOME_SIDE, paddingBottom: 24, gap: 8 }}>
-                  <Button label="Sign up" tone="white" onPress={() => go('number')} />
-                  <Button label="Log in" tone="grey" onPress={() => go('signin')} />
+                /* the two ways in side by side (Round 40, the owner's word: stacked, they sat too close and read as
+                   the same thing twice): Sign up, the way most people come in, takes three fifths in white; Log in
+                   the rest, an outline on the dark; 12 between, the frame's 24 below */
+                <View style={{ flexDirection: 'row', paddingHorizontal: WELCOME_SIDE, paddingBottom: 24, gap: 12 }} testID="welcome-ways">
+                  <Button label="Sign up" tone="white" onPress={() => go('number')} style={{ flex: 3 }} />
+                  <Button label="Log in" tone="grey" onPress={() => go('signin')} style={{ flex: 2, backgroundColor: 'transparent', borderWidth: 1.5, borderColor: night.ruleStrong }} />
                 </View>
               ) : null}
             </Slot>

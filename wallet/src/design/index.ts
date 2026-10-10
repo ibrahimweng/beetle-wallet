@@ -27,6 +27,7 @@ export * from './haptics';
 export * from './Menu';
 export * from './AmountSheet';
 export * from './Coin';
+export * from './Confetti';
 export * from './Drawn';
 export * from './scheme';
 export * from './Lockup';

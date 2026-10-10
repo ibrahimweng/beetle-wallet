@@ -177,7 +177,7 @@ export function Activities() {
         kicker={i.kicker}
         body={i.body}
         action={i.action}
-        to={id === 'spend' ? '/answer' : undefined}
+        to={id === 'spend' ? '/answer' : id === 'card' ? '/card' : undefined}
         onAction={() => askHome(router, i.action)}
         onDismiss={opts.dismiss ? () => setPut(p => [...p, id]) : undefined}
       />
@@ -187,7 +187,7 @@ export function Activities() {
   const yesterday = rows('yesterday');
   const earlier = rows('earlier');
   const noticedToday = [insight('topup', { dismiss: true }), insight('data'), insight('changes')].filter(Boolean);
-  const noticedYesterday = [insight('spend')].filter(Boolean);
+  const noticedYesterday = [insight('spend'), insight('card')].filter(Boolean);
   /* the first of what was noticed comes after the day's first three lines, as the day on home had it */
   const cut = 3;
   const health = h.health !== null && segment !== 'In' && segment !== 'Out';

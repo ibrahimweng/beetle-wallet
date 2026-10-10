@@ -1377,12 +1377,17 @@ try {
   await shot('receipt-to-activities', 500);
   await tap('Back to the lab');
   await see('Beetle Lab');
-  /* the receipt sheet on the frames' transfer: the whole of it, the session id shown and copied, its share sheet */
+  /* the receipt sheet on the frames' transfer: who and the narration, the money and the session id under Show details
+     (Round 37), the id copied, its share sheet */
   await tap('A transfer');
   await receiptSheet();
   await see('Rent part payment');
   at('/receipt/l08');
   await shot('receipt-transfer', 500);
+  must((await button('Copy the session id').count()) === 0, 'the session id should be folded away until asked for');
+  await tap('Show details');
+  await see('Balance after');
+  await shot('receipt-transfer-details', 500);
   await tap('Copy the session id');
   await page
     .getByText(/copied\. Paste it anywhere\.|cannot reach the clipboard/)
@@ -1625,6 +1630,50 @@ try {
   await see('This card is frozen');
   await tap('Unfreeze');
   await page.getByText('This card is frozen').first().waitFor({ state: 'hidden' });
+  /* Round 37, the owner's word: the card's own lines under it, and no sentence about it (that is Activities'); one way
+     to load, among the four; held, it turns over, and its colour, a photo and its name are the owner's; another card is
+     made from the foot, swiped to, and everything under the deck is that card's; a card can be deleted */
+  await see('On this card');
+  await see('Premium plan · Yesterday');
+  /* a line opens its receipt; one opened again later is quiet, no confetti */
+  await page.getByRole('button', { name: /^Netflix, ₦5,200, Yesterday/ }).click();
+  await receiptSheet();
+  must((await page.getByTestId('confetti').count()) === 0, 'a receipt opened again later should throw no confetti');
+  await tap('Done');
+  await see('On this card');
+  must((await page.getByText('This card has paid Netflix').count()) === 0, 'what Beetle notices about a card is said on Activities, not on the card');
+  must((await button('Load card').count()) === 0, 'Load is among the four, and not at the foot as well');
+  await page.getByTestId('card-front').first().click({ delay: 800 });
+  await tap('Sea colour');
+  await shot('card-back', 500);
+  const [chooser] = await Promise.all([page.waitForEvent('filechooser'), tap('Add photo')]);
+  await chooser.setFiles(join(here, '..', 'assets', 'sample-slip.png'));
+  await page.getByTestId('card-photo').first().waitFor({ state: 'attached' });
+  await tap('Name the card');
+  await page.getByTestId('card-name').fill('Streaming');
+  await tap('Save the name');
+  await tap('Turn over');
+  await see('STREAMING');
+  await shot('card-made-mine', 700);
+  await tap('Make another card');
+  await see('Make a card');
+  await tap('Google Play');
+  await tap('Make the card');
+  await see('Enter your passcode');
+  await type(PASSCODE);
+  await see('GOOGLE PLAY ONLY');
+  await button('Card 2 of 2').waitFor();
+  await see('Nothing yet. What it pays and what you load onto it shows here.');
+  await shot('card-second', 700);
+  /* swiped back to the first, everything under the deck is the first card's again */
+  await page.getByTestId('card-pages').evaluate(el => el.scrollTo({ left: 0 }));
+  await see('Premium plan · Yesterday');
+  await tap('Card 2 of 2');
+  await see('Nothing yet. What it pays and what you load onto it shows here.');
+  await tap('Delete this card');
+  await page.getByTestId('card-delete-sheet').getByRole('button', { name: 'Delete it', exact: true }).click();
+  await see('Premium plan · Yesterday');
+  must((await button('Card 2 of 2').count()) === 0, 'the deleted card should be gone from the deck');
   await tap('Rules');
   await see('I will always ask first');
   await tap('Back');
@@ -2354,6 +2403,12 @@ try {
   /* its receipt comes up as the sheet every payment ends on (Round 19); Done goes back past Convert to Dollars */
   await receiptSheet();
   must(page.url().includes('/receipt/'), 'converting should end on its receipt');
+  /* Round 37: the coin in the middle, a little confetti as it comes up, the money and the reference folded away */
+  must((await page.getByTestId('confetti').count()) === 1, 'a receipt that comes up as the money moves should throw its confetti');
+  must((await page.getByTestId('receipt-copy').count()) === 0, 'the reference should be folded away until asked for');
+  await tap('Show details');
+  await page.getByTestId('receipt-copy').waitFor();
+  await tap('Hide details');
   await see('into Dollars');
   await shot('converted', 900);
   await receiptDone();

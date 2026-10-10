@@ -15,7 +15,7 @@ import { resetGate } from '../passcode/check';
 
 /** What is kept for each account, under its number. */
 const PER_ACCOUNT = (n: string) => [
-  ...['moves', 'goals', 'requests', 'chats', 'disputes', 'prefs', 'setup'].map(k => `beetle.${k}.${n}.v1`),
+  ...['moves', 'goals', 'requests', 'chats', 'disputes', 'prefs', 'setup', 'cards'].map(k => `beetle.${k}.${n}.v1`),
   `beetle.passcode.${n}.v3`,
   `beetle.passcode.${n}.v2`,
   `beetle.password.${n}.v1`,

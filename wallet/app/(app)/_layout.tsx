@@ -30,6 +30,7 @@ import { Stack, TransitionPresets, type StackNavigationOptions } from 'expo-rout
 import { colour } from '../../src/design';
 import { SheetScope, forModalPresentationIOS, isSheet } from '../../src/design/sheetStack';
 import { FootHost, FootScope } from '../../src/features/more/Foot';
+import { LayerHost } from '../../src/design/Lift';
 import { TourHost } from '../../src/features/home/Tour';
 
 /** A page: the phone's own slide. */
@@ -81,26 +82,29 @@ const IN_PLACE: StackNavigationOptions = {
 export default function AppLayout() {
   return (
     <View style={{ flex: 1 }}>
-      <Stack
-        /* a page slides in from the right; a page opened from a sheet comes up as a sheet over it */
-        screenOptions={({ route, navigation }) => (isSheet(navigation.getState().routes, route.key) ? SHEET : PAGE)}
-        /* a sheet with something under it stops under the status bar; one the stack starts with (the lab opens a page so) is the whole screen */
-        screenLayout={({ children, options, route, navigation }) => (
-          <SheetScope on={options.cardStyleInterpolator === forModalPresentationIOS && navigation.getState().routes.findIndex(r => r.key === route.key) > 0}>
-            <FootScope navigation={navigation}>{children}</FootScope>
-          </SheetScope>
-        )}
-      >
-        {/* home is where the stack starts: nothing to swipe back to */}
-        <Stack.Screen name="home" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="card" options={SHEET} />
-        <Stack.Screen name="services" options={SHEET} />
-        <Stack.Screen name="loan" options={SHEET} />
-        <Stack.Screen name="goal" options={SHEET} />
-        <Stack.Screen name="receipt/[id]" options={IN_PLACE} />
-      </Stack>
-      {/* the foot, over every page, changing shape from one page's foot to the next */}
-      <FootHost />
+      {/* what a sheet page puts up (a sheet over the card, a goal, the loan) is drawn here, over the whole screen and the foot (Round 37) */}
+      <LayerHost>
+        <Stack
+          /* a page slides in from the right; a page opened from a sheet comes up as a sheet over it */
+          screenOptions={({ route, navigation }) => (isSheet(navigation.getState().routes, route.key) ? SHEET : PAGE)}
+          /* a sheet with something under it stops under the status bar; one the stack starts with (the lab opens a page so) is the whole screen */
+          screenLayout={({ children, options, route, navigation }) => (
+            <SheetScope on={options.cardStyleInterpolator === forModalPresentationIOS && navigation.getState().routes.findIndex(r => r.key === route.key) > 0}>
+              <FootScope navigation={navigation}>{children}</FootScope>
+            </SheetScope>
+          )}
+        >
+          {/* home is where the stack starts: nothing to swipe back to */}
+          <Stack.Screen name="home" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="card" options={SHEET} />
+          <Stack.Screen name="services" options={SHEET} />
+          <Stack.Screen name="loan" options={SHEET} />
+          <Stack.Screen name="goal" options={SHEET} />
+          <Stack.Screen name="receipt/[id]" options={IN_PLACE} />
+        </Stack>
+        {/* the foot, over every page, changing shape from one page's foot to the next */}
+        <FootHost />
+      </LayerHost>
       {/* home's tour for a new account, over the page and the foot alike (Round 28) */}
       <TourHost />
     </View>

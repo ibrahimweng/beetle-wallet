@@ -2044,6 +2044,48 @@ Dollar account on its chip.
       about dollars, Beetle says what the Dollar account is and how coins
       come in.
 
+## Round 37 · Cards of your own, a receipt to celebrate, no blur at the foot
+
+Asked by the owner, from three screenshots: the blur behind Load the card
+was out of place; the virtual card had two ways to load and one card; what
+Beetle noticed about the card was a sentence on its page rather than its
+lines; and the receipt should centre a bigger coin, turning on a loop, with
+the amount under it, fold its details away, rise from about the middle,
+and celebrate, minimally. Then: no blur at the bottom of any page, the Back
+button keeping its frosted glass. The owner picked light confetti, on every
+receipt that comes up as the money moves, and the receipt as the sheet
+that rises from the middle.
+
+- [x] A sheet put up from a page that is itself a sheet (Load the card, a
+      goal's, the loan's) is lifted over the whole screen, so its blur
+      covers everything evenly (design/Lift.tsx).
+- [x] Cards, several: swiped across, with dots that are buttons too;
+      everything under the deck is the card showing. Load is among the four
+      and nowhere else; Make another card is the foot's one button (for a
+      merchant or any shop online, a monthly limit, a colour, then the
+      passcode). A card's own lines are listed under it, each opening its
+      receipt; the sentence about Netflix is an insight on Activities now.
+      A card can be deleted, what was loaded onto it coming back to
+      Everyday. The demo keeps the frames' Netflix card; any other account
+      starts with none.
+- [x] Held, a card turns over: the strip, the signature panel with the CVV
+      (dots until Reveal), six colours, Add photo, Name and Limit. The
+      cardholder's name, the number and the expiry are the issuer's and are
+      not editable; the mark stays on the face over any photo, darkened
+      under the words so they always read. Photos stay on the phone.
+- [x] The receipt: the logo coin in the middle, rendered again from the
+      owner's model at twice the size, turning once every three seconds on
+      a loop with the soft blur travelling round its rim, a warm light
+      breathing behind it; the amount and the line centred under it with
+      the status beside the line. From, To and what was written stay; the
+      money and the reference fold away under Show details. Done and See
+      in Activities share a row, so the sheet rises to a little past the
+      middle. Light confetti comes from behind the coin once, when the
+      receipt comes up as the money moves; one opened again is quiet.
+- [x] No blur at the foot of any page or under home's bar; the chat's foot
+      keeps its darkening without the blur. Back's circle and the bar's
+      pill keep their frosted glass.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

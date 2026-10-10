@@ -7,7 +7,11 @@
    too, once what it was for is done.
 
    Measured off the passcode frame: the panel 373 wide from 10, its grabber
-   44 by 4 at 16, its content 20 in, 32 below the top and 24 above the foot. */
+   44 by 4 at 16, its content 20 in, 32 below the top and 24 above the foot.
+
+   Put up from a page that is itself a sheet, it is lifted over the whole
+   screen (Lift.tsx, Round 37): drawn in that page, its blur stopped at the
+   page's clipped edge. */
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,6 +20,8 @@ import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTi
 import { colour } from './tokens';
 import { away, lift, motion, useStill } from './motion';
 import { GrowingBlur } from './Veil';
+import { Lift } from './Lift';
+import { useSheet } from './sheetStack';
 
 const SIDE = 10;
 const RADIUS = 28;
@@ -25,14 +31,7 @@ const RISE = 460;
 const LET_GO = 80;
 const FLICK = 700;
 
-export function Sheet({
-  children,
-  leaving = false,
-  onGone,
-  onDismiss,
-  testID = 'sheet',
-  foot = 24,
-}: {
+type SheetProps = {
   children: ReactNode;
   /** the screen sending it back; onGone once it has gone */
   leaving?: boolean;
@@ -42,7 +41,20 @@ export function Sheet({
   testID?: string;
   /** the room under the content: 24 on most sheets, 14 on the share sheet */
   foot?: number;
-}) {
+};
+
+export function Sheet(props: SheetProps) {
+  const inSheet = useSheet();
+  return inSheet ? (
+    <Lift>
+      <Panel {...props} />
+    </Lift>
+  ) : (
+    <Panel {...props} />
+  );
+}
+
+function Panel({ children, leaving = false, onGone, onDismiss, testID = 'sheet', foot = 24 }: SheetProps) {
   const still = useStill();
   const { height: H } = useWindowDimensions();
   const insets = useSafeAreaInsets();

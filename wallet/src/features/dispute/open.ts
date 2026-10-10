@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import type { LedgerRow } from '../home/account';
 import { clock, useChats } from '../agent/chats';
 import { turn } from '../agent/turns';
-import { usePrefs } from '../settings/prefs';
+import { useCards } from '../settings/cards';
 import { naira } from '../../lib/format';
 import { DAYS, newDispute, type DisputeKind } from './dispute';
 import { useDisputes } from './store';
@@ -16,7 +16,7 @@ export function useOpenDispute(account: string | undefined, demo: boolean) {
   const router = useRouter();
   const { disputes, add } = useDisputes(account, demo);
   const { file } = useChats(account, demo);
-  const { prefs, set } = usePrefs(account);
+  const { freezeAll } = useCards(account, demo);
   return useCallback(
     (row: LedgerRow, kind: DisputeKind) => {
       const have = disputes.find(d => d.rowId === row.id);
@@ -26,7 +26,8 @@ export function useOpenDispute(account: string | undefined, demo: boolean) {
       }
       const d = newDispute(row, kind);
       add(d);
-      if (kind === 'fraud' && !prefs.cardFrozen) set({ cardFrozen: true });
+      /* not the owner's doing: every card stops at once (Round 37: there can be more than one) */
+      if (kind === 'fraud') freezeAll();
       const at = clock();
       const words =
         kind === 'fraud'
@@ -47,6 +48,6 @@ export function useOpenDispute(account: string | undefined, demo: boolean) {
       });
       router.push(`/dispute/${d.id}`);
     },
-    [disputes, add, file, prefs.cardFrozen, set, router],
+    [disputes, add, file, freezeAll, router],
   );
 }

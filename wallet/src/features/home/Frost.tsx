@@ -35,6 +35,7 @@ export function Frost({
   side = 'top',
   solid = height * 0.5,
   rgb,
+  blur = true,
 }: {
   height: number;
   side?: Side;
@@ -42,8 +43,11 @@ export function Frost({
   solid?: number;
   /** the dark, as `r, g, b`: the card's unless said */
   rgb?: string;
+  /** the blur under the darkening; the foot's has none since Round 37 (the owner's word: nothing at the bottom blurs
+      what is under it), so a bubble there dims and is not smudged */
+  blur?: boolean;
 }) {
-  const Blur = blurModule?.BlurView;
+  const Blur = blur ? blurModule?.BlurView : undefined;
   const edge = side === 'top' ? { top: 0 } : { bottom: 0 };
   const t = tint(height, solid, !!Blur, rgb);
   return (

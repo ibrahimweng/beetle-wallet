@@ -45,6 +45,14 @@
       ],
       "expo-secure-store",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "Beetle puts a photo you pick on the face of your virtual card. The photo stays on this phone.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ],
+      [
         "expo-media-library",
         {
           "savePhotosPermission": "Beetle saves a receipt to Photos when you ask it to.",

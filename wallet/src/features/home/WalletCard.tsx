@@ -443,7 +443,7 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
         </Animated.View>
       </Animated.View>
       <Animated.View style={[s.foot, coming]} pointerEvents={opened && !over ? 'box-none' : 'none'} aria-hidden={!opened}>
-        <Frost height={FOOT_HAZE} side="bottom" solid={20} />
+        <Frost height={FOOT_HAZE} side="bottom" solid={20} blur={false} />
         <Animated.View style={[s.bar, fading]}>{foot}</Animated.View>
       </Animated.View>
       {/* what sits over the chat, under the header: the passcode, the details */}

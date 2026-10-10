@@ -41,6 +41,8 @@ export type LedgerRow = {
   covers?: string;
   /** a stablecoin in or out (Round 33) */
   coin?: CoinLine;
+  /** the virtual card it was loaded onto or paid with (Round 37) */
+  cardId?: string;
 };
 
 export type Insight = { id: string; kicker: string; body: string; action: string };
@@ -90,7 +92,7 @@ export const DEMO_LEDGER: LedgerRow[] = [
     kind: 'bill',
     target: { kind: 'meter', disco: 'ikeja', meterKind: 'prepaid', meter: '44578891', name: 'Ibrahim Musa', label: 'Home' },
   },
-  { id: 'l12', day: 'yesterday', time: '09:00', icon: 'data', name: 'Netflix', detail: 'Virtual card', amount: -5200, status: 'done', kind: 'card' },
+  { id: 'l12', day: 'yesterday', time: '09:00', icon: 'data', name: 'Netflix', detail: 'Virtual card', amount: -5200, status: 'done', kind: 'card', cardId: 'c1' },
 ];
 
 export const DEMO_INSIGHTS: Insight[] = [
@@ -98,6 +100,8 @@ export const DEMO_INSIGHTS: Insight[] = [
   { id: 'data', kicker: 'Your data is nearly gone', body: 'Your data usually runs out about now. The same 5GB is ₦2,500.', action: 'Buy it again' },
   { id: 'changes', kicker: 'Three changes you made', body: 'They save you ₦1,800 every month. The data plan, the DStv package, and the transfer you moved off your card.', action: 'See the three' },
   { id: 'spend', kicker: 'Where your money went', body: 'You spent ₦18,900 on airtime and data last month. That is your highest month this year.', action: 'Show me what would help' },
+  /* Round 37, the owner's word: what Beetle notices about a card is said here, among what it notices, not on the card */
+  { id: 'card', kicker: 'Your Netflix card', body: 'It has paid Netflix four times this month, ₦21,000 in all. ₦29,000 is left before it stops.', action: 'Open the card' },
 ];
 
 export function holdingsFor(account: Account): Holdings {

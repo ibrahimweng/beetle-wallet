@@ -102,6 +102,8 @@ export type Move = {
   covers?: string;
   /** a stablecoin in or out: its coin, network, the address on the other side and the network's record of it */
   coin?: CoinLine;
+  /** the virtual card it was loaded onto or paid with (Round 37: a card lists its own lines) */
+  cardId?: string;
 };
 
 /** A Dollar account line (Rounds 33 and 36): a listed stablecoin in or out on Solana (the networks of Round 33 are still

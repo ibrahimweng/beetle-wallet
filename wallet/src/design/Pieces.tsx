@@ -9,7 +9,7 @@
    turns while money is on its way, the steps it has taken, a tool at work
    on a light panel, and a few ways out on one card. */
 import React, { ReactNode, useEffect, useRef } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from './Icon';
@@ -598,10 +598,36 @@ export function NoteRow({ glyph, children, centre = false }: { glyph: IconName; 
 
 /* The card's face, 194 tall: the mark on a white square and whose card it is
    across the top, the chip, the number, and the holder and the expiry along
-   the foot. */
-export function CardFace({ only, number, name, expiry, frozen = false }: { only: string; number: string; name: string; expiry: string; frozen?: boolean }) {
+   the foot. Round 37: in the owner's own colour, or over a photo they picked,
+   darkened enough under the words that the name, the number and the mark
+   always read. */
+export function CardFace({
+  only,
+  number,
+  name,
+  expiry,
+  frozen = false,
+  colours = ['#5a3524', '#1f1a15'],
+  photo,
+  testID = 'card-face',
+}: {
+  only: string;
+  number: string;
+  name: string;
+  expiry: string;
+  frozen?: boolean;
+  colours?: readonly [string, string];
+  photo?: string;
+  testID?: string;
+}) {
   return (
-    <LinearGradient colors={frozen ? ['#5b554d', '#2b2721'] : ['#5a3524', '#1f1a15']} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={s.face} testID="card-face">
+    <LinearGradient colors={frozen ? ['#5b554d', '#2b2721'] : [colours[0], colours[1]]} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={[s.face, { overflow: 'hidden' }]} testID={testID}>
+      {photo && !frozen ? (
+        <>
+          <Image source={{ uri: photo }} resizeMode="cover" style={StyleSheet.absoluteFill} accessibilityIgnoresInvertColors testID="card-photo" />
+          <LinearGradient colors={['rgba(20,16,12,0.58)', 'rgba(20,16,12,0.5)', 'rgba(20,16,12,0.82)']} locations={[0, 0.45, 1]} style={StyleSheet.absoluteFill} />
+        </>
+      ) : null}
       <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
         <View style={s.faceMark}>
           <Icon name="mark" size={18} colour={dark.kobo} />

@@ -520,7 +520,7 @@ export const SETTINGS: Feature = {
     settingsPage('settings-password', 'key-filled', 'Change password', 'The current one and a new one, for logging in on a new phone', '/password'),
     settingsPage('settings-privacy', 'shield-filled', 'Privacy and your data', 'Offers off until switched on, a copy of your data, closing the account, who to write to', '/privacy'),
     settingsPage('settings-legal', 'list-filled', 'Privacy notice', 'The draft for the lawyers, in plain words, every [bracket] theirs', '/legal?doc=privacy'),
-    settingsPage('settings-card', 'card-filled', 'Virtual card', 'The face, Reveal, Freeze, Fund, Rules, and how much of its ceiling has gone', '/card'),
+    settingsPage('settings-card', 'card-filled', 'Virtual card', 'The cards side by side, Reveal, Freeze, Load, Rules, the month, its own lines; hold one to turn it over', '/card'),
   ],
 };
 

@@ -23,17 +23,23 @@ export function useReceipt(id: string) {
   const app = useApp();
   const account = app.session?.account;
   const { moves, ready } = useMoves(account?.accountNumber);
-  const receipt = useMemo(() => {
+  const found = useMemo(() => {
     if (!account || !ready) return null;
     const h = holdingsFor(account);
     const rows = [...moves, ...h.ledger];
     const row = rows.find(r => r.id === id);
     if (!row) return null;
     const balanceNow = h.everyday + balanceOf(moves);
-    return receiptFor(row, { account, balanceNow, rows });
+    /* moved on this phone a moment ago and settled: the receipt is the one that comes up as it succeeds (Round 37: it
+       celebrates then, and not when it is opened again later) */
+    const fresh = row.status === 'done' && row.at !== undefined && Date.now() - row.at < FRESH;
+    return { receipt: receiptFor(row, { account, balanceNow, rows }), fresh };
   }, [account, ready, moves, id]);
-  return { account, ready, receipt };
+  return { account, ready, receipt: found?.receipt ?? null, fresh: found?.fresh ?? false };
 }
+
+/** How long after a line moved its receipt still counts as the one that came up as it succeeded. */
+const FRESH = 30_000;
 
 /** What a question about the receipt carries to the chat: the money, who, and when. */
 export const aboutOf = (r: ReceiptModel) => `${r.figure ?? naira(r.amount)} ${r.line.replace(/^Sent to /, 'to ')}, ${r.when}`;

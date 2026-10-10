@@ -473,10 +473,19 @@
    ],
    "why": "no page has Beetle's bubble since Round 11 (the owner's word; DESIGN.md, Pages): what it said is a plain line where the bubble was, so the mark and the bubble are not drawn"
   },
+    {
+   "band": [340, 460],
+   "dy": 29.8,
+   "why": "Round 37, the owner's word: the cards swipe and turn over, and a line under the deck says a card held turns over, so the four tools come down by it"
+  },
   {
    "band": [550, 678],
-   "dy": -54.1,
-   "why": "with Beetle's bubble gone (DESIGN.md, Pages), its words are a plain line, shorter than the bubble, so what is under it comes up into the room it left"
+   "dy": -85,
+   "why": "Round 37, the owner's word: what Beetle noticed about the card is said on Activities, not here, so the line where the bubble was is gone and the month comes up into its room, less the line under the deck"
+  },
+  {
+   "pieces": [["Card", 5], ["Glyph · plus", 1], ["Make another card", 0]],
+   "why": "Round 37, the owner's word: Make another card is the page's one button, at its foot beside Back, where Load card was; loading is Load, among the four"
   },
   {
    "text": "Ask about this card",
@@ -2440,6 +2449,10 @@
   }
  ],
  "home-card": [
+  {
+   "piece": "Foot fade",
+   "why": "Round 37, the owner's word: no blur at the bottom of any page or under the bar; the bar's pill keeps its own frosted glass"
+  },
   {
    "text": "~ 384 USD",
    "why": "Round 36, the owner's word: the chip on the card is the Dollar account's own balance (Dollars · $412.60), and opens it; the frame's reads the naira balance in dollars"

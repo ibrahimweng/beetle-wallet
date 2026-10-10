@@ -34,7 +34,7 @@ import { tabs, useHoldPages, useTab, type Tab } from '../tabs';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { SharedValue, runOnJS, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import { ActionButton, Body, Button, Icon, Row, Tap, colour, frame, keys, motion, settle, useStill, type ButtonSize, type ButtonTone } from '../../design';
-import { AnimatedBlur, FROSTED, SoftBlur, blurModule } from '../../design/Glass';
+import { AnimatedBlur, FROSTED, blurModule } from '../../design/Glass';
 import { useSheet } from '../../design/sheetStack';
 import type { IconName } from '../../icons';
 import { More, moreTo, type MoreItem } from './More';
@@ -52,9 +52,9 @@ export const barLift = (bottomInset: number) => (bottomInset > 0 ? Math.max(BAR_
 const BAR_FLOOR = 12;
 /** The bar's sides, the owner's home frame; a page's foot keeps the page's 20. */
 const BAR_SIDE = 24;
-/** How far the bar's soft blur reaches over the page: its row, what is under the row, and 7 over it (the frame's 75). */
-const BAR_FADE_OVER = 7;
-/** How far the soft blur reaches up over the page, past the foot's own row. */
+/** How far past its own row the foot goes when it goes down out of the way. Round 37, the owner's word: no blur under
+    the foot any more, on any page or on home; the page runs clear under it, and only Back's circle and the bar's pill
+    keep their frosted glass. */
 const FADE = 40;
 
 /** What a screen's own overlay does to the foot: under a peek's blur it
@@ -62,7 +62,7 @@ const FADE = 40;
 export type Veil = 'recede' | 'away';
 
 export type FootSpec =
-  /** the three pages: the bar. `open` is home's card: the blur under the bar goes as the card opens, so the chat can come down to just over the glyphs */
+  /** the three pages: the bar. `open` is home's card, opening over the bar */
   | { kind: 'bar'; open?: SharedValue<number>; onPick?: (item: MoreItem) => void; veil?: Veil }
   /** a page with nothing of its own to do at its foot: Back alone */
   | { kind: 'back'; veil?: Veil; onBack?: () => void }
@@ -377,7 +377,6 @@ function Drawn({ spec, who }: { spec: FootSpec; who: number }) {
     there.value = still ? 1 : withTiming(1, { duration: FADE_MS, easing: settle });
   }, [spec.kind, isPage, still, m, there]);
 
-  const open = shown?.kind === 'bar' ? shown.open : undefined;
   const veil = shown?.veil;
   const away = veil === 'away';
   const hide = useSharedValue(away ? 1 : 0);
@@ -425,14 +424,6 @@ function Drawn({ spec, who }: { spec: FootSpec; who: number }) {
       opacity: (1 - dim.value * 0.55) * there.value,
     };
   });
-  /* the blur under the foot: the bar's short one and a page's taller one, each as far as the shape is that one; not
-     under home's open card, which comes down over the bar's top, and not while the foot is down out of the way */
-  const barSoft = useDerivedValue(() => {
-    const opening = open ? Math.min(1, open.value * 2.5) : 0;
-    return (1 - opening) * (1 - gone.value) * (1 - k.value) * there.value;
-  }, [open]);
-  const pageSoft = useDerivedValue(() => (1 - gone.value) * k.value * there.value);
-
   /* the frosted shape: the pill at the bar's place, Back's circle at a page's */
   const backTop = frame.dockPad + (ROW - BACK) / 2;
   const shape = useAnimatedStyle(() => {
@@ -520,8 +511,6 @@ function Drawn({ spec, who }: { spec: FootSpec; who: number }) {
     <>
       {/* clipped at the window's edge: a foot gone down out of the way must not lengthen the page under it */}
       <View style={[StyleSheet.absoluteFill, { overflow: 'hidden' }]} pointerEvents="box-none">
-        <SoftBlur side="bottom" height={BAR_H - barTop + BAR_FADE_OVER} k={barSoft} testID={bar ? 'foot-fade' : undefined} />
-        <SoftBlur side="bottom" height={BAR_H + FADE} k={pageSoft} testID={bar ? undefined : 'foot-fade'} />
         <Animated.View style={[s.surface, whole]} pointerEvents={live && spec.kind !== 'none' ? 'box-none' : 'none'} testID={bar ? 'bar' : 'foot'}>
           {/* the one frosted shape, pill or circle */}
           <Animated.View style={[s.shape, shape]} pointerEvents="none" testID={bar ? 'bar-pill' : 'back-glass'}>

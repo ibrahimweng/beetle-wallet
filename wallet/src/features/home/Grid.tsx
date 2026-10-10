@@ -27,7 +27,8 @@ import type { IconName } from '../../icons';
 import { naira } from '../../lib/format';
 import { standingOf, together, useGoals, type Standing } from '../goal';
 import { LOAN } from '../loan/loan';
-import { CARD, lastFour } from '../settings/card';
+import { standing } from '../settings/card';
+import { useCards } from '../settings/cards';
 import { usePrefs } from '../settings/prefs';
 import { settleOn, usePagerSwipe } from '../tabs';
 import type { LedgerRow } from './account';
@@ -61,6 +62,10 @@ function GridView({
   const { prefs } = usePrefs(accountNumber);
   const w = Math.floor((width - 2 * GRID_SIDE - GRID_GAP) / 2);
   const { goals } = useGoals(accountNumber, { demo, started: prefs.goal });
+  /* the cards (Round 37): the first one's number, and what all the live ones can still spend */
+  const { cards } = useCards(accountNumber, demo);
+  const live = cards.filter(c => !c.frozen);
+  const cardsFrozen = cards.length > 0 && !live.length;
   const list = goals.map(g => standingOf(g, { goals, demo, tight: prefs.tight, moves }));
   return (
     <View style={s.grid} testID="grid">
@@ -83,9 +88,9 @@ function GridView({
           w={w}
           lead={<Glyph glyph="card" tone={colour.ink} />}
           label="Virtual card"
-          figure={`•••• ${lastFour()}`}
-          sub={prefs.cardFrozen ? 'Frozen' : `${naira(CARD.ceiling - CARD.spent + (prefs.cardLoaded ?? 0))} to spend`}
-          subTone={prefs.cardFrozen ? colour.cyan : undefined}
+          figure={cards[0] ? `•••• ${cards[0].number.slice(-4)}` : 'None yet'}
+          sub={!cards.length ? 'Make one' : cardsFrozen ? 'Frozen' : `${naira(live.reduce((a, c) => a + standing(c).left, 0))} to spend`}
+          subTone={cardsFrozen ? colour.cyan : undefined}
         />
         <Services w={w} />
       </View>

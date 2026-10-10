@@ -14,7 +14,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { AmountPicker, Aside, Caption, Facts, Head, Meta, PageHead, Row, Screen, Segments, Tap, colour, toast } from '../../design';
+import { AmountPicker, Aside, Caption, Facts, Head, Meta, PageHead, Row, Screen, Segments, Tap, colour, logoOf, toast } from '../../design';
 import { TextBox } from '../../design/TextBox';
 import { auth, tagged, type Move } from '../../services';
 import { useApp } from '../onboarding/store';
@@ -179,7 +179,7 @@ export function CoinsOut() {
           <>
             <View style={{ gap: 12 }}>
               <Head>The coin they get</Head>
-              <Segments options={LISTED.map(c => c.id)} value={coin} onChange={v => isListed(v) && setCoin(v)} />
+              <Segments options={LISTED.map(c => c.id)} value={coin} onChange={v => isListed(v) && setCoin(v)} logos />
             </View>
             <View style={{ gap: 8 }} testID="coin-to-block">
               <TextBox
@@ -251,6 +251,7 @@ export function CoinsOut() {
           name={way === 'tag' && who ? who.name : check.ok ? shortAddress(check.address) : ''}
           detail={way === 'tag' && who ? `$${who.tag} · Dollar account` : `${coin} on Solana`}
           glyph={way === 'tag' ? 'send' : 'up'}
+          logo={way === 'tag' ? undefined : logoOf(coin)}
           rows={
             way === 'tag'
               ? [

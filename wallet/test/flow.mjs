@@ -1672,8 +1672,18 @@ try {
   await see('Nothing yet. What it pays and what you load onto it shows here.');
   await tap('Delete this card');
   await page.getByTestId('card-delete-sheet').getByRole('button', { name: 'Delete it', exact: true }).click();
+  /* the card goes as the sheet does: wait for the sheet, not for words a closed receipt may still hold */
+  await page.getByTestId('card-delete-sheet').waitFor({ state: 'detached' });
   await see('Premium plan · Yesterday');
-  must((await button('Card 2 of 2').count()) === 0, 'the deleted card should be gone from the deck');
+  must(
+    await button('Card 2 of 2')
+      .waitFor({ state: 'detached', timeout: 3000 })
+      .then(
+        () => true,
+        () => false,
+      ),
+    'the deleted card should be gone from the deck',
+  );
   await tap('Rules');
   await see('I will always ask first');
   await tap('Back');

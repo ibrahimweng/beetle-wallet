@@ -16,7 +16,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { usePageScroll } from '../../design/collapse';
-import { Aside, Body, Button, Head, Icon, Label, Meta, PageHead, Qr, Row, Screen, Tap, colour, toast } from '../../design';
+import { Aside, Body, Button, Head, Icon, Label, Logo, Meta, PageHead, Qr, Row, Screen, Tap, colour, logoOf, toast, type LogoName } from '../../design';
 import type { Move } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -199,8 +199,8 @@ export function CoinsIn() {
             </View>
           </View>
           <View style={s.facts} testID="coins-facts">
-            <Fact label="Network" value="Solana only" />
-            <Fact label="Coins that land" value={LISTED.map(c => c.id).join(' · ')} />
+            <Fact label="Network" value="Solana only" logos={['solana']} />
+            <Fact label="Coins that land" value={LISTED.map(c => c.id).join(' · ')} logos={LISTED.map(c => logoOf(c.id)).filter((l): l is LogoName => !!l)} />
             <Fact label="Least that lands" value={usdFull(LEAST_IN)} />
             <Fact label="Arrives" value="In about a minute" />
           </View>
@@ -242,11 +242,22 @@ function ToTop() {
   return null;
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
+function Fact({ label, value, logos }: { label: string; value: string; /** the coins or the chain it names, their logos before it (Round 38) */ logos?: LogoName[] }) {
   return (
     <View style={s.fact}>
       <Meta tone="secondary">{label}</Meta>
-      <Label>{value}</Label>
+      {logos?.length ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <View style={{ flexDirection: 'row', gap: 2 }}>
+            {logos.map(l => (
+              <Logo key={l} name={l} size={18} round />
+            ))}
+          </View>
+          <Label>{value}</Label>
+        </View>
+      ) : (
+        <Label>{value}</Label>
+      )}
     </View>
   );
 }

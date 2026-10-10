@@ -5,9 +5,10 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
-import { Body, Caption, Icon, Label, Meta, Pop, Row, Swap, Tap, dark, font, motion, standard, useStill } from '../../design';
+import { Body, Caption, Icon, Label, Logo, Meta, Pop, Row, Swap, Tap, dark, font, motion, standard, useStill } from '../../design';
 import type { IconName } from '../../icons';
 import type { Panel, PanelRow } from '../../services';
+import { lineLogo } from '../home/lineLogo';
 
 export function Said({ title, children }: { title?: string; children: ReactNode }) {
   if (title)
@@ -154,12 +155,18 @@ export function ToolPanel({
     if (state === 'running' && landed >= panel.rows.length) onReady?.();
   }, [landed, state, panel.rows.length]); // eslint-disable-line react-hooks/exhaustive-deps
   const live = state !== 'running' || landed >= panel.rows.length;
+  const logo = panel.move && (panel.tool === 'pay' || panel.tool === 'data' || panel.tool === 'airtime') ? lineLogo(panel.move) : undefined;
   return (
     <View style={{ backgroundColor: dark.panel, borderWidth: 1, borderColor: dark.edge, borderRadius: 24, overflow: 'hidden', paddingBottom: 12 }} testID="panel">
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, height: 48, paddingHorizontal: 12, backgroundColor: dark.edge, borderBottomWidth: 1, borderBottomColor: dark.edgeStrong }}>
-        <View style={{ width: 32, height: 32, borderRadius: 12, backgroundColor: dark.edgeStrong, alignItems: 'center', justifyContent: 'center' }} testID="panel-icon">
-          <Icon name={panel.icon} size={16} colour={dark.paper} />
-        </View>
+        {/* whose it is, where it is a company's: the network, the electricity company (Round 38) */}
+        {logo ? (
+          <Logo name={logo} size={32} radius={12} testID="panel-logo" />
+        ) : (
+          <View style={{ width: 32, height: 32, borderRadius: 12, backgroundColor: dark.edgeStrong, alignItems: 'center', justifyContent: 'center' }} testID="panel-icon">
+            <Icon name={panel.icon} size={16} colour={dark.paper} />
+          </View>
+        )}
         <Label style={{ flex: 1, color: dark.paper }}>{panel.title}</Label>
         <View
           style={{ flexDirection: 'row', alignItems: 'center', gap: 8, height: 24, paddingHorizontal: 8, borderRadius: 12, backgroundColor: dark.edge, borderWidth: 1, borderColor: dark.edgeStrong }}

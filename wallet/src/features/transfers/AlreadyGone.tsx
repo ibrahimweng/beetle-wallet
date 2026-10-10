@@ -7,7 +7,7 @@
 import React, { useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Banner, BigStatus, Body, ChoiceList, Head, PageHead, Say, SayCard, Screen, colour, toast } from '../../design';
+import { Banner, BigStatus, Body, ChoiceList, Head, PageHead, Say, SayCard, Screen, colour, logoOf, toast } from '../../design';
 import { useFoot } from '../more/Foot';
 import { askHome } from '../more/More';
 import { rowFrom } from '../home/moves';
@@ -82,7 +82,7 @@ export function AlreadyGone({ id }: { id: string }) {
             cover
               ? { glyph: 'up', title: `${naira(amount)} is back`, sub: `Paid by us at ${cover.time}`, onPress: takeBack }
               : { glyph: 'up', title: `Take ${naira(amount)} back`, sub: 'Paid by us today, not in days', onPress: takeBack },
-            { glyph: 'bank', title: `Ask ${bank} to recall it`, sub: 'We do this to recover our side', to: `/recall/${row.id}` },
+            { glyph: 'bank', logo: logoOf(bank), title: `Ask ${bank} to recall it`, sub: 'We do this to recover our side', to: `/recall/${row.id}` },
           ]}
         />
       </View>

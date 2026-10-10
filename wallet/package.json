@@ -9,6 +9,7 @@
     "android": "expo start --android",
     "web": "expo start --web",
     "icons": "node scripts/generate-icons.mjs",
+    "logos": "node scripts/generate-logos.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "bundle": "expo export --platform web --output-dir dist",

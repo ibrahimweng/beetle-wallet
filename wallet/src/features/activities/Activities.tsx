@@ -29,6 +29,7 @@ import { usePage, useHoldPages } from '../tabs';
 import { FROST_OUT, OPEN_MS, ROWS_OUT, STATUS_TONE, type Opened } from './InPlace';
 import { LineDetails, LineMenu, LineShare, PageFrost, useOpenCtl } from './OpenLine';
 import { SEGMENTS, activityAmount, activityRows, detailOf, type Segment } from './rows';
+import { lineLogo } from '../home/lineLogo';
 
 export function Activities() {
   const app = useApp();
@@ -142,6 +143,7 @@ export function Activities() {
           <HistoryRow
             status={r.status !== 'done'}
             glyph={r.icon}
+            logo={lineLogo(r)}
             tone={STATUS_TONE[r.status]}
             name={r.name}
             detail={detailOf(r)}

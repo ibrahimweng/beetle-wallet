@@ -6,7 +6,7 @@
    phone; there is no PDF yet. */
 import React, { type RefObject } from 'react';
 import { Linking, Share, StyleSheet, View } from 'react-native';
-import { Body, Button, Head, Icon, Meta, Row, Sheet, Tap, colour, toast } from '../../design';
+import { Body, Button, Head, Icon, Logo, Meta, Row, Sheet, Tap, colour, logoOf, toast } from '../../design';
 import type { IconName } from '../../icons';
 import { copyText } from '../receive/clipboard';
 import { savePicture, sharePicture } from '../receive/picture';
@@ -51,9 +51,14 @@ export function ShareSheet({
   const pdf = () => toast('Beetle cannot make a PDF yet. Share the picture, or save it.');
   const way = (glyph: IconName, title: string, sub: string, go: () => void) => (
     <Tap key={title} accessibilityRole="button" accessibilityLabel={title} onPress={go} style={s.way}>
-      <View style={s.mark}>
-        <Icon name={glyph} size={20} colour={colour.ink} />
-      </View>
+      {/* WhatsApp in its own colours (Round 38) */}
+      {logoOf(title) ? (
+        <Logo name={logoOf(title)!} size={40} radius={13} />
+      ) : (
+        <View style={s.mark}>
+          <Icon name={glyph} size={20} colour={colour.ink} />
+        </View>
+      )}
       <View style={{ flex: 1, gap: 4 }}>
         <Row>{title}</Row>
         <Meta tone="tertiary">{sub}</Meta>

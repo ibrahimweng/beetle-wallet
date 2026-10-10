@@ -5,11 +5,13 @@
    paid back. The chat's cards and the panels say the same thing here as
    Send money does. */
 import type { IconName } from '../../icons';
+import type { LogoName } from '../../design/logos';
 import { arrivesAt, feeLabel, isBeetle, type Panel } from '../../services';
+import { lineLogo } from '../home/lineLogo';
 import { groupAccount, moneyExact } from '../../lib/format';
 import type { Breakdown } from './Passcode';
 
-export type Sheet = { amount: string; name: string; detail?: string; glyph?: IconName; rows: Breakdown[] };
+export type Sheet = { amount: string; name: string; detail?: string; glyph?: IconName; logo?: LogoName; rows: Breakdown[] };
 
 const row = (panel: Panel, label: string) => panel.rows.find(r => r.label === label)?.value;
 
@@ -39,6 +41,7 @@ export function sheetFor(panel: Panel): Sheet {
       name: row(panel, 'Biller') ?? panel.title,
       detail: row(panel, 'Meter'),
       glyph: 'power',
+      logo: move ? lineLogo(move) : undefined,
       rows: [
         { label: 'Name on the meter', value: row(panel, 'Name') ?? 'Looked up' },
         row(panel, 'Units') ? { label: 'Units', value: row(panel, 'Units')! } : { label: 'Settles', value: row(panel, 'Settles') ?? 'At once' },
@@ -52,6 +55,7 @@ export function sheetFor(panel: Panel): Sheet {
       name: `${row(panel, 'Network') ?? ''} · ${row(panel, 'Plan') ?? 'Data'}`,
       detail: row(panel, 'Line'),
       glyph: 'data',
+      logo: move ? lineLogo(move) : undefined,
       rows: [{ label: 'Plan', value: row(panel, 'Plan') ?? '' }, { label: 'Fee', value: 'Free' }, leaves],
     };
   if (panel.tool === 'airtime')
@@ -60,6 +64,7 @@ export function sheetFor(panel: Panel): Sheet {
       name: `${row(panel, 'Network') ?? ''} airtime`,
       detail: row(panel, 'Line'),
       glyph: 'airtime',
+      logo: move ? lineLogo(move) : undefined,
       rows: [{ label: 'Lands', value: 'At once' }, { label: 'Fee', value: 'Free' }, leaves],
     };
   if (panel.tool === 'loan')

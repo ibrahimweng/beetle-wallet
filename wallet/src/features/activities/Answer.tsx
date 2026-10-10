@@ -6,7 +6,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Caption, Card, Display, Head, Icon, Label, Meta, PageHead, Row, Say, SayCard, Screen, Tap, colour, radius, toast } from '../../design';
+import { Caption, Card, Display, Head, Icon, Label, Logo, Meta, PageHead, Row, Say, SayCard, Screen, Tap, colour, logoOf, radius, toast } from '../../design';
 import { useFoot } from '../more/Foot';
 import type { IconName } from '../../icons';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -81,9 +81,14 @@ export function Answer() {
           <View style={{ gap: 16 }}>
             {WENT.map(([glyph, what, howMany, amount]) => (
               <View key={what} style={s.went} testID="went">
-                <View style={s.box40}>
-                  <Icon name={glyph} size={20} colour={colour.ink} />
-                </View>
+                {/* the network it went to (Round 38) */}
+                {logoOf(what) ? (
+                  <Logo name={logoOf(what)!} size={40} radius={12} />
+                ) : (
+                  <View style={s.box40}>
+                    <Icon name={glyph} size={20} colour={colour.ink} />
+                  </View>
+                )}
                 <View style={{ flex: 1, gap: 4, marginTop: 5 }}>
                   <Row>{what}</Row>
                   <Meta tone="secondary">{howMany}</Meta>

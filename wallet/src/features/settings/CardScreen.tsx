@@ -18,7 +18,30 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { AmountSheet, Banner, Button, Card, Caption, ConfirmSheet, Head, Icon, Label, Meta, Meter, PageHead, Row, Screen, Segments, Sheet, Tap, Tools, colour, toast } from '../../design';
+import {
+  AmountSheet,
+  Banner,
+  Button,
+  Card,
+  Caption,
+  ConfirmSheet,
+  Head,
+  Icon,
+  Label,
+  Logo,
+  Meta,
+  Meter,
+  PageHead,
+  Row,
+  Screen,
+  Segments,
+  Sheet,
+  Tap,
+  Tools,
+  colour,
+  logoOf,
+  toast,
+} from '../../design';
 import { TextBox } from '../../design/TextBox';
 import { holdingsFor } from '../home/account';
 import { balanceOf, rowFrom, useMoves } from '../home/moves';
@@ -384,9 +407,14 @@ export function CardScreen() {
 function LineRow({ line, onPress }: { line: CardLine; onPress?: () => void }) {
   const body = (
     <>
-      <View style={s.lineBox}>
-        <Icon name={line.loaded ? 'plus' : 'card'} size={18} colour={colour.ink} />
-      </View>
+      {/* where it was spent: the merchant's logo (Round 38); a load keeps its plus */}
+      {!line.loaded && logoOf(line.name) ? (
+        <Logo name={logoOf(line.name)!} size={40} radius={12} />
+      ) : (
+        <View style={s.lineBox}>
+          <Icon name={line.loaded ? 'plus' : 'card'} size={18} colour={colour.ink} />
+        </View>
+      )}
       <View style={{ flex: 1, gap: 2 }}>
         <Row>{line.name}</Row>
         <Meta tone="secondary">{`${line.detail} · ${line.when}`}</Meta>
@@ -450,8 +478,9 @@ function MakeSheet({ onDone, onDismiss }: { onDone: (c: { merchant: string; limi
             accessibilityState={{ selected: merchant === m }}
             accessibilityLabel={merchantName(m)}
             onPress={() => setMerchant(m)}
-            style={[s.chip, merchant === m ? s.chipOn : null]}
+            style={[s.chip, logoOf(m) ? s.chipLogo : null, merchant === m ? s.chipOn : null]}
           >
+            {logoOf(m) ? <Logo name={logoOf(m)!} size={24} round /> : null}
             <Label style={merchant === m ? { color: colour.textInverse } : null}>{merchantName(m)}</Label>
           </Tap>
         ))}
@@ -491,6 +520,8 @@ const s = StyleSheet.create({
   none: { height: 194, borderRadius: 24, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colour.ruleStrong, alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 32 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
   chip: { height: 36, paddingHorizontal: 14, borderRadius: 18, backgroundColor: colour.surface2, justifyContent: 'center' },
+  /* a merchant's chip: its logo at the front, 6 in from the round end */
+  chipLogo: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 6 },
   chipOn: { backgroundColor: colour.ink },
   swatch: { width: 36, height: 36, borderRadius: 18, padding: 3, borderWidth: 2, borderColor: 'transparent' },
   swatchOn: { borderColor: colour.ink },

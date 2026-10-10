@@ -11,7 +11,7 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { AmountPicker, Avatar, Body, Caption, Icon, Label, Meta, PageHead, Picks, Screen, Tap, YouTyped, type Rect, colour, font, measure, toast } from '../../design';
+import { AmountPicker, Avatar, Body, Caption, Icon, Label, Logo, Meta, PageHead, Picks, Screen, Tap, YouTyped, type Rect, colour, font, logoOf, measure, toast } from '../../design';
 import {
   AIRTIME,
   DEMO_SAVED,
@@ -210,6 +210,7 @@ export function BuyData() {
   const others = airtime ? null : plan ? otherPlans(plan) : [];
   const alsoLines = saved.lines.filter(l => !l.own && l.number !== line?.number).slice(0, 4);
   const openLines = () => void measure(lineCard).then(setPick);
+  const typedLogo = number.length >= 4 ? logoOf(networkOf(number)) : undefined;
 
   return (
     <>
@@ -219,9 +220,14 @@ export function BuyData() {
           {typing ? (
             <View style={[s.sub, s.line]} testID="buy-line">
               <View style={s.typingRow}>
-                <View style={s.disc}>
-                  <Icon name="grid" size={18} colour={colour.ink} />
-                </View>
+                {/* the network, as soon as the number says which (Round 38) */}
+                {typedLogo ? (
+                  <Logo name={typedLogo} size={38} round />
+                ) : (
+                  <View style={s.disc}>
+                    <Icon name="grid" size={18} colour={colour.ink} />
+                  </View>
+                )}
                 <TextInput
                   ref={numberField}
                   accessibilityLabel="Phone number"
@@ -280,9 +286,16 @@ export function BuyData() {
           ) : (
             <View style={[s.sub, s.bundle]} testID="buy-bundle">
               <View style={s.bundleRow}>
-                <View style={{ marginTop: 6 }}>
-                  <Icon name="data" size={22} colour={colour.ink} />
-                </View>
+                {/* whose bundle: the line's network (Round 38) */}
+                {line && logoOf(line.network) ? (
+                  <View style={{ marginTop: 3 }}>
+                    <Logo name={logoOf(line.network)!} size={28} radius={8} />
+                  </View>
+                ) : (
+                  <View style={{ marginTop: 6 }}>
+                    <Icon name="data" size={22} colour={colour.ink} />
+                  </View>
+                )}
                 <View style={{ flex: 1, gap: 4 }}>
                   <Label>{plan ? planName(plan) : 'Pick a bundle'}</Label>
                   <Caption tone="secondary">{plan ? 'It will not renew on its own' : 'From the ones below'}</Caption>
@@ -394,6 +407,7 @@ export function BuyData() {
           name={airtime || !plan ? `${line.network} · Airtime` : `${line.network} · ${planSize(plan)}`}
           detail={`${line.own ? 'Your line' : line.label} · ${groupPhoneNumber(line.number)}`}
           glyph={airtime ? 'airtime' : 'data'}
+          logo={logoOf(line.network)}
           rows={[
             airtime || !plan ? { label: 'Airtime', value: naira(price) } : { label: 'Plan', value: planName(plan) },
             { label: 'Lands', value: 'At once' },

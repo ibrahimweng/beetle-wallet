@@ -330,10 +330,10 @@ export function Providers({ c, purpose }: { c: Ctx; purpose: 'signup' | 'login' 
   return (
     <View style={{ flexDirection: 'row', gap: 8 }}>
       <View style={{ flex: 1 }} testID="with-google">
-        <Button label="Google" tone="grey" size={44} onPress={() => pick('google')} />
+        <Button label="Google" tone="grey" size={44} brand="google" onPress={() => pick('google')} />
       </View>
       <View style={{ flex: 1 }} testID="with-apple">
-        <Button label="Apple" tone="grey" size={44} onPress={() => pick('apple')} />
+        <Button label="Apple" tone="grey" size={44} brand="apple" brandInk onPress={() => pick('apple')} />
       </View>
     </View>
   );

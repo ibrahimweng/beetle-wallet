@@ -10,7 +10,7 @@
    without the screen saying so. Light on a page, dark on the chat's card. */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { Avatar, Caption, Chevron, Icon, Label, Meta, Tap, colour, dark, font } from '../../design';
+import { Avatar, Caption, Chevron, Icon, Label, Logo, Meta, Tap, colour, dark, font, logoOf } from '../../design';
 import { BEETLE, allBanks, checkName, closest, isBeetle, likelyBanks, tagWords, toKind, type Match } from '../../services/recipients';
 import type { Person, PersonPaid } from '../../services';
 import { groupAccount, initialsOf } from '../../lib/format';
@@ -298,9 +298,11 @@ export function ToField({
                     accessibilityLabel={b}
                     onPress={() => void lookUp(b)}
                     scale={0.96}
-                    style={[s.chip, { backgroundColor: bank === b ? look.chipOn : look.chip }]}
+                    style={[s.chip, logoOf(b) ? s.chipLogo : null, { backgroundColor: bank === b ? look.chipOn : look.chip }]}
                     testID={`${testID}-bank`}
                   >
+                    {/* the bank's logo before its name (Round 38) */}
+                    {logoOf(b) ? <Logo name={logoOf(b)!} size={24} round /> : null}
                     <Label style={{ color: bank === b ? look.chipOnText : look.chipText }}>{b}</Label>
                   </Tap>
                 ))}
@@ -332,7 +334,7 @@ export function ToField({
                       .filter(b => b.toLowerCase().includes(find.trim().toLowerCase()))
                       .map(b => (
                         <Tap key={b} accessibilityRole="button" accessibilityLabel={b} onPress={() => void lookUp(b)} style={s.bankRow}>
-                          <Icon name="bank" size={16} colour={look.soft} />
+                          {logoOf(b) ? <Logo name={logoOf(b)!} size={24} radius={7} /> : <Icon name="bank" size={16} colour={look.soft} />}
                           <Meta style={{ color: look.ink, flex: 1 }}>{b}</Meta>
                         </Tap>
                       ))}
@@ -380,6 +382,8 @@ const s = StyleSheet.create({
   checking: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 36, paddingHorizontal: 4 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 36, borderRadius: 18, paddingHorizontal: 14 },
+  /* a bank's chip: its logo at the front, 6 in from the round end */
+  chipLogo: { paddingLeft: 6, gap: 8 },
   list: { borderRadius: 14, overflow: 'hidden' },
   find: { height: 44, paddingHorizontal: 14, fontSize: 15, ...font('400'), borderBottomWidth: 1, outlineWidth: 0 },
   bankRow: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 44, paddingHorizontal: 14, borderRadius: 10 },

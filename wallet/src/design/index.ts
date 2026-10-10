@@ -3,6 +3,7 @@
 export * from './tokens';
 export * from './text';
 export * from './Icon';
+export * from './Logo';
 export * from './Button';
 export * from './PageHead';
 export * from './Keypad';

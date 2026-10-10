@@ -2086,6 +2086,62 @@ that rises from the middle.
       keeps its darkening without the blur. Back's circle and the bar's
       pill keep their frosted glass.
 
+## Round 38 · The companies' own logos
+
+Asked by the owner: logos were missing for the companies the app names,
+the bills first. Find every such place, browse for each logo, trace a
+picture to SVG where no vector is published, and put each in place well
+enough that nothing has to be redesigned round it.
+
+- [x] Fifty-six tiles, one per company. Each tile is the brand's ground
+      colour and its mark in a 64 square. Lagos Water Corporation
+      publishes no logo, so its bill keeps the water glyph.
+      `assets/logos/SOURCES.md` says where each logo came from:
+      - from the brand's own vector: MTN, UBA, GTBank, Fidelity, OPay, Wema;
+      - from CC0 icon sets: Airtel, Netflix, Spotify, Apple, WhatsApp,
+        Google, Google Play, Solana, USDC, USDT, Ethereum, Tron;
+      - drawn here: Mastercard's circles, Base's square, Beetle's own mark;
+      - the rest traced from each company's own picture, cut into its brand
+        colours and traced with potrace.
+- [x] `npm run logos` writes `src/design/logos.ts` from the tiles.
+      `Logo` draws a tile in the box the glyph or the initials stood in, at
+      that box's size and corners, so nothing round it moves. A white tile
+      keeps a hairline edge. Each tile drawn makes its gradient ids its
+      own, since the web keeps every id on one page.
+      `logoOf` finds a company from the names the app already holds; a
+      line named for what was bought ("MTN data", "DStv Compact") still
+      finds whose it was.
+- [x] Where the logos are now:
+      - Bills: the rows, Pay a bill's account card and the passcode sheet.
+        A meter at Eko shows Eko's logo.
+      - The meter photo's card, where the company's initials were.
+      - Saved lines and meters, on the page and in the chat. The chat's
+        card head and confirm panel show the network or electricity company
+        once known; its company chips and network badge carry the logo
+        too.
+      - Buy data: the typed number shows its network as soon as the prefix
+        says which; also the bundle row and the passcode sheet.
+      - The spending answer's rows.
+      - Send: the likely-bank chips and the Another bank list.
+      - The bank choices on It did not go and Already gone.
+      - Activities: a settled line paid to a company.
+      - The card: its lines, the Make a card chips, and the Mastercard
+        circles across from the chip on the face (a 5399 card is a
+        Mastercard).
+      - Dollars: the coins' logos on the Dollar sources, the coin picker,
+        the receive facts and the send-to-a-wallet passcode sheet.
+      - Google's and Apple's marks on their buttons.
+      - WhatsApp's on the share sheet.
+- [x] Some things keep their glyphs or initials:
+      - People, with their initials.
+      - Beetle's own lines: a loan, a saving, a conversion.
+      - The services' categories (Power, Cable TV, Internet), which name
+        kinds of bill, not companies.
+      - Beetle Data and Beetle Airtime's head, which is Beetle's own.
+- [x] 9mobile is T2 now, so its line wears T2's mark. The app still calls
+      the network 9mobile. Unity Bank is one bank with Providus now, so
+      it wears ProvidusUnity's mark.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

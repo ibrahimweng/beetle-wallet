@@ -10,7 +10,7 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { AmountPicker, Body, Caption, Icon, Label, Meta, PageHead, Picks, Screen, Tap, YouTyped, colour, measure, toast, type Rect } from '../../design';
+import { AmountPicker, Body, Caption, Icon, Label, Logo, Meta, PageHead, Picks, Screen, Tap, YouTyped, colour, logoOf, measure, toast, type Rect } from '../../design';
 import { DEMO_SAVED, PEOPLE, beneficiariesOf, billPanelFor, discoById, groupMeter, ownLine, type MeterPaid, type Move } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSendGate } from '../settings/sendGate';
@@ -139,6 +139,8 @@ export function PayBill() {
     }
     void measure(accountCard).then(setPick);
   };
+  /* whose bill: the meter's own company where a meter is picked, else the biller's (Round 38) */
+  const logo = logoOf(meter?.disco) ?? logoOf(biller.id);
   const detail = meter ? `${meter.meterKind === 'prepaid' ? 'Prepaid' : 'Postpaid'} · ${groupMeter(meter.meter)}` : power ? 'No meter yet' : `${biller.plan} · ${biller.account}`;
 
   return (
@@ -149,9 +151,15 @@ export function PayBill() {
         <View style={s.card} testID="pay-card">
           <Tap ref={accountCard} accessibilityRole="button" accessibilityLabel={meter ? `${name}, ${detail}` : name} onPress={openSaved} style={[s.sub, s.account]} testID="pay-account">
             <View style={s.accountRow}>
-              <View style={{ marginTop: 8 }}>
-                <Icon name={biller.glyph} size={22} colour={colour.ink} />
-              </View>
+              {logo ? (
+                <View style={{ marginTop: 3 }}>
+                  <Logo name={logo} size={32} radius={10} />
+                </View>
+              ) : (
+                <View style={{ marginTop: 8 }}>
+                  <Icon name={biller.glyph} size={22} colour={colour.ink} />
+                </View>
+              )}
               <View style={{ flex: 1, gap: 4 }}>
                 <Label>{name}</Label>
                 <Meta tone="secondary">{detail}</Meta>
@@ -246,6 +254,7 @@ export function PayBill() {
           name={name}
           detail={meter ? `Meter ${groupMeter(meter.meter)}` : `${biller.accountLabel} ${biller.account}`}
           glyph={biller.glyph}
+          logo={logo}
           verify={app.checkPasscode}
           onDone={done}
           onCancel={() => setGuard(false)}

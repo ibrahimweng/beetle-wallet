@@ -9,7 +9,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Body, Caption, Icon, Meta, PageHead, Row, Say, Screen, Tap, colour, font, useDeparture } from '../../design';
+import { Body, Caption, Icon, Logo, Meta, PageHead, Row, Say, Screen, Tap, colour, font, logoOf, useDeparture } from '../../design';
 import type { IconName } from '../../icons';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -76,7 +76,8 @@ export function Bills() {
   );
 }
 
-/* A bill's row, 70 tall: its glyph on a grey square, the name over when it
+/* A bill's row, 70 tall: whose bill it is (the company's logo, Round 38; its
+   glyph on a grey square where a company has none), the name over when it
    is due and what stands behind it, the figure at the end; a paid one greyed. */
 function BillRow({ bill, onPress }: { bill: MonthBill; onPress: () => void }) {
   const j = useDeparture({ id: `bill:${bill.id}`, to: bill.to, words: bill.name });
@@ -84,12 +85,17 @@ function BillRow({ bill, onPress }: { bill: MonthBill; onPress: () => void }) {
   const tone = paid ? colour.textTertiary : colour.ink;
   /* said whole, as the row draws it: the name, the figure, when, and what stands behind it (the analysis after Round 34: only the name was said) */
   const behind = bill.covered === 'rule' ? 'covered, Beetle pays it' : paid ? 'covered' : 'not covered';
+  const logo = logoOf(bill.biller) ?? logoOf(bill.name);
   return (
     <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={`${bill.name}, ${naira(bill.amount)}, ${bill.when}, ${behind}`} onPress={j.onPress} style={[s.row]} testID="bill">
       {j.wash}
-      <View style={s.box}>
-        <Icon name={bill.glyph as IconName} size={20} colour={tone} />
-      </View>
+      {logo ? (
+        <Logo name={logo} size={40} radius={12} faded={paid} />
+      ) : (
+        <View style={s.box}>
+          <Icon name={bill.glyph as IconName} size={20} colour={tone} />
+        </View>
+      )}
       <View style={{ flex: 1, gap: 4 }}>
         <Row style={{ color: tone }}>{bill.name}</Row>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>

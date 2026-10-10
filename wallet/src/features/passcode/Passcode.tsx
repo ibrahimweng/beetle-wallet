@@ -31,7 +31,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Keyboard, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
-import { Avatar, Button, Display, Head, Icon, Keypad, Label, Meta, PAD_CELLS, Pips, Pop, Row, Sheet, Swap, colour, font, padHeight, useStill } from '../../design';
+import { Avatar, Button, Display, Head, Icon, Keypad, Label, Logo, Meta, PAD_CELLS, Pips, Pop, Row, Sheet, Swap, colour, font, padHeight, useStill, type LogoName } from '../../design';
 import type { IconName } from '../../icons';
 import { initialsOf } from '../../lib/format';
 import { checkCode, demoHint, lockedFor, refusal, waitWords } from './check';
@@ -63,6 +63,7 @@ export function PasscodeSheet({
   onCancel,
   faceMissed = false,
   glyph,
+  logo,
   rows = [],
   pastLimit,
 }: {
@@ -81,6 +82,8 @@ export function PasscodeSheet({
   faceMissed?: boolean;
   /** a bill or a bundle rather than a person: the glyph on a 40 square in the avatar's place */
   glyph?: IconName;
+  /** whose bill or bundle it is: the company's logo on that square, where it has one (Round 38) */
+  logo?: LogoName;
   /** the cap this crosses, as the line says it: no face, and the three words after the six digits */
   pastLimit?: string | null;
 }) {
@@ -212,7 +215,9 @@ export function PasscodeSheet({
             {/* the whole of it, on grey: who and where, then the money, the strongest line what leaves */}
             <View style={s.card} testID="passcode-breakdown">
               <View style={s.who}>
-                {glyph ? (
+                {logo ? (
+                  <Logo name={logo} size={40} radius={12} testID="passcode-logo" />
+                ) : glyph ? (
                   <View style={s.square} testID="passcode-glyph">
                     <Icon name={glyph} size={20} colour={colour.ink} />
                   </View>

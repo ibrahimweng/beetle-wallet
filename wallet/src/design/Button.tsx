@@ -6,6 +6,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, ViewStyle, StyleProp } from 'react-native';
 import { Icon } from './Icon';
+import { Logo, type LogoName } from './Logo';
 import { IconName } from '../icons';
 import { colour, font } from './tokens';
 import { night, useScheme } from './scheme';
@@ -55,6 +56,8 @@ export function Button({
   badge = false,
   to,
   accessibilityLabel,
+  brand,
+  brandInk = false,
 }: {
   label: string;
   /** what a screen reader says, where the word on the button is not the whole of it: "Send $50 of test USDC" for "$50" */
@@ -71,6 +74,10 @@ export function Button({
   disabled?: boolean;
   /* the share buttons on the receipts carry their glyph on a white disc */
   badge?: boolean;
+  /** a company's mark before the word: Continue with Google, with Apple (Round 38) */
+  brand?: LogoName;
+  /** that mark in the button's own ink, the way Apple's is drawn */
+  brandInk?: boolean;
 }) {
   const s = SIZES[size];
   /* A button that cannot be pressed is not the same button faded. The frames
@@ -121,6 +128,8 @@ export function Button({
         </View>
       ) : leading ? (
         <Icon name={leading} size={20} colour={t.ink} />
+      ) : brand ? (
+        <Logo name={brand} size={20} bare tint={brandInk ? t.ink : undefined} />
       ) : null}
       <Swap value={label}>
         {shown => (

@@ -7,7 +7,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
-import { Avatar, Caption, Icon, Label, Tap, colour, lift, settle, useStill, type Rect } from '../../design';
+import { Avatar, Caption, Icon, Label, Logo, Tap, colour, lift, logoOf, settle, useStill, type Rect } from '../../design';
 import { discoById, groupMeter, groupPhoneNumber, networkInfo, planById, planName, type Beneficiary } from '../../services';
 import { groupAccount, initialsOf, naira } from '../../lib/format';
 import type { SavedKind } from './AskPanel';
@@ -126,8 +126,11 @@ function SavedRow({ b, onPress }: { b: Beneficiary; onPress: () => void }) {
   const times = b.times ? (b.times === 1 ? 'once' : `${b.times} times`) : '';
   return (
     <Tap accessibilityRole="button" accessibilityLabel={name} onPress={onPress} style={s.row} scale={0.98}>
+      {/* a person by their initials; a line by its network's logo and a meter by its company's (Round 38) */}
       {b.kind === 'person' ? (
         <Avatar initials={initialsOf(b.name)} size={36} />
+      ) : logoOf(b.kind === 'line' ? b.network : b.disco) ? (
+        <Logo name={logoOf(b.kind === 'line' ? b.network : b.disco)!} size={36} round />
       ) : b.kind === 'line' ? (
         <View style={[s.mark, { backgroundColor: networkInfo(b.network).colour }]}>
           <Label style={{ color: networkInfo(b.network).ink }}>{name.charAt(0).toUpperCase()}</Label>

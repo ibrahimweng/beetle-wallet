@@ -10,7 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { unitsFor } from '../../services/nigeria';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Body, Button, Caption, Head, Icon, Label, Meta, PageHead, Screen, Tap, colour, font, toast } from '../../design';
+import { Body, Button, Caption, Head, Icon, Label, Logo, Meta, PageHead, Screen, Tap, colour, font, logoOf, toast } from '../../design';
 import { BILL_READING, billPanelFor, discoById, groupMeter, meters, type BillReading, type MeterRecord } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSendGate } from '../settings/sendGate';
@@ -121,9 +121,14 @@ export function Meter() {
         {/* the bill, as read: the frame draws the photo back as a slip, with the pieces Beetle read boxed */}
         <View style={s.photoCard} testID="photo-card">
           <View style={s.photoHead}>
-            <View style={s.chip24}>
-              <Caption style={{ color: colour.textInverse, ...font('700') }}>{initialsOf(name)}</Caption>
-            </View>
+            {/* the company the bill is from: its logo, where the frame had its initials (Round 38) */}
+            {logoOf(reading.disco) ? (
+              <Logo name={logoOf(reading.disco)!} size={24} round />
+            ) : (
+              <View style={s.chip24}>
+                <Caption style={{ color: colour.textInverse, ...font('700') }}>{initialsOf(name)}</Caption>
+              </View>
+            )}
             <Caption style={{ flex: 1, ...font('600') }}>Bill photo</Caption>
             <Caption tone="secondary">{clock12(time)}</Caption>
           </View>
@@ -218,6 +223,7 @@ export function Meter() {
           name={name}
           detail={`${reading.meterKind === 'prepaid' ? 'Prepaid' : 'Postpaid'} · ${groupMeter(reading.meter)}`}
           glyph="power"
+          logo={logoOf(reading.disco)}
           rows={[
             { label: 'Name on the meter', value: record?.name ?? 'Looked up' },
             reading.meterKind === 'prepaid' ? { label: 'Units', value: `About ${unitsFor(amount)} kWh` } : { label: 'Settles', value: 'The account, at once' },

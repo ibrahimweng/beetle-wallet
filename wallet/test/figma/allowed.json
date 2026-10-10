@@ -274,6 +274,12 @@
   {
    "anchor": true,
    "why": "the page is held to the frame from the figure's card: the line under the title wraps in the web's font where the frame's SF Pro keeps it to one (on the phone it is one line), and Beetle's words above the card are a plain line since Round 11 (no page has the bubble; DESIGN.md, Pages), so the card sits higher than the frame's and everything under it is held to the frame from there"
+  },
+  {
+   "pieces": [
+    ["Glyph · down", 0]
+   ],
+   "why": "Round 38, the owner's word: the companies' own logos where the app names them. Where the money went is a network, so its row wears the network's logo, filling the 40 square the glyph sat in"
   }
  ],
  "lock": [
@@ -730,6 +736,12 @@
     "Glyph · camera"
    ],
    "why": "part of the ask bar, which is home's alone since Round 10"
+  },
+  {
+   "pieces": [
+    ["Glyph · airtime", 0]
+   ],
+   "why": "Round 38, the owner's word: the companies' own logos where the app names them. The other way goes through the Zenith account, so its row wears Zenith's logo, filling the 40 square the glyph sat in"
   }
  ],
  "reversed": [
@@ -898,6 +910,12 @@
     "Glyph · camera"
    ],
    "why": "part of the ask bar, which is home's alone since Round 10"
+  },
+  {
+   "pieces": [
+    ["Glyph · airtime", 0]
+   ],
+   "why": "Round 38, the owner's word: the companies' own logos where the app names them. The recall is asked of their bank, so its row wears that bank's logo, filling the 40 square the glyph sat in"
   }
  ],
  "facemissed": [
@@ -1108,6 +1126,10 @@
     "Sheet"
    ],
    "why": "Since Round 11 the passcode sheet shows the whole of it at its top while the six digits go in — who, their bank and number, what they receive, the fee and what leaves which account — so the sheet reaches up to 69 and everything under its head comes down to make room, the pad a step smaller to fit; and Cancel sits plainly under the pad where the frame's line about the sixth digit was (the owner's word: a clear Cancel, since the sixth digit sends it)"
+  },
+  {
+   "text": "IE",
+   "why": "Round 38, the owner's word: the companies' own logos where the app names them. The bill's company is its logo in the 24 circle where the frame has its initials"
   }
  ],
  "services": [
@@ -2350,6 +2372,16 @@
   {
    "piece": "Button · Continue",
    "why": "Back sits on the page's 20 (see Back), so the button beside it starts 4 further right; it keeps its width and ends on the page's 20"
+  },
+  {
+   "pieces": [
+    ["IE", 0]
+   ],
+   "why": "Round 38, the owner's word: the companies' own logos where the app names them. The bill's company is its logo in the 24 circle where the frame has its initials"
+  },
+  {
+   "text": "IE",
+   "why": "Round 38, the owner's word: the companies' own logos where the app names them. The bill's company is its logo in the 24 circle where the frame has its initials"
   }
  ],
  "airtime": [

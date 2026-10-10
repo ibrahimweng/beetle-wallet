@@ -18,7 +18,7 @@
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { AmountPicker, Avatar, Caption, Chevron, Icon, LOOSE, Label, Meta, Row, Swap, Tap, colour, dark, font, settle, useStill } from '../../design';
+import { AmountPicker, Avatar, Caption, Chevron, Icon, LOOSE, Label, Logo, Meta, Row, Swap, Tap, colour, dark, font, logoOf, settle, useStill, type LogoName } from '../../design';
 import {
   AIRTIME,
   BILL_AMOUNTS,
@@ -137,12 +137,18 @@ export function AskPanelView({
   /* a word on the card only when something is wrong: what is missing, the chat above has said, and the button says */
   const lead = state === 'done' ? null : (ask.note ?? null);
   const ready = open && missing.length === 0;
+  const headLogo = ask.tool === 'data' || ask.tool === 'airtime' ? logoOf(network) : ask.tool === 'pay' ? logoOf(v.disco) : undefined;
   return (
     <View style={s.panel} testID="ask">
       <View style={s.head}>
-        <View style={s.icon} testID="ask-icon">
-          <Icon name={ask.icon} size={16} colour={dark.paper} />
-        </View>
+        {/* whose it is, once that is known: the network's logo for a top-up, the company's for the light (Round 38) */}
+        {headLogo ? (
+          <Logo name={headLogo} size={32} radius={12} testID="ask-logo" />
+        ) : (
+          <View style={s.icon} testID="ask-icon">
+            <Icon name={ask.icon} size={16} colour={dark.paper} />
+          </View>
+        )}
         <Label style={{ flex: 1, color: dark.paper }}>{ask.title}</Label>
         {/* Recent: the card grows into the list of what was paid before */}
         {list.length && open ? (
@@ -376,6 +382,8 @@ function RecentList({ title, list, onPick }: { title: string; list: Beneficiary[
             <Tap key={b.id} accessibilityRole="button" accessibilityLabel={name} onPress={() => onPick(b)} style={s.recentRow} scale={0.98} testID="ask-recent-row">
               {b.kind === 'person' ? (
                 <Avatar initials={initialsOf(b.name)} size={34} />
+              ) : logoOf(b.kind === 'line' ? b.network : b.disco) ? (
+                <Logo name={logoOf(b.kind === 'line' ? b.network : b.disco)!} size={34} round />
               ) : b.kind === 'line' ? (
                 <View style={[s.mark, { backgroundColor: networkInfo(b.network).colour }]}>
                   <Label style={{ color: networkInfo(b.network).ink }}>{name.charAt(0).toUpperCase()}</Label>
@@ -432,8 +440,11 @@ const inputStyle = { flex: 1, color: dark.paper, fontSize: 16, ...font('600'), p
 
 export function NetworkBadge({ network }: { network: Network }) {
   const info = networkInfo(network);
+  const logo = logoOf(network);
+  /* the network's colour and name, its logo at the front (Round 38) */
   return (
-    <View style={[s.badge, { backgroundColor: info.colour }]} testID="network">
+    <View style={[s.badge, { backgroundColor: info.colour }, logo ? s.badgeLogo : null]} testID="network">
+      {logo ? <Logo name={logo} size={16} round /> : null}
       <Caption style={{ color: info.ink, ...font('600') }}>{network}</Caption>
     </View>
   );
@@ -615,7 +626,7 @@ function DiscoField({ value, onChange }: { value?: string; onChange: (disco: str
     <Field label="Company" testID="ask-disco">
       <View style={s.wrap}>
         {shown.map(d => (
-          <Chip key={d.id} on={value === d.id} label={d.short} small onPress={() => onChange(d.id)} />
+          <Chip key={d.id} on={value === d.id} label={d.short} small logo={logoOf(d.id)} onPress={() => onChange(d.id)} />
         ))}
         {!all ? (
           <Tap accessibilityRole="button" accessibilityLabel="More companies" onPress={() => setAll(true)} style={[s.chip, s.chipSmall]}>
@@ -705,7 +716,7 @@ function MeterField({
 
 /** A chip: a word and a smaller one under it, the frame's 112×62 at the
     panel's scale; lit white when picked. */
-function Chip({ on, label, sub, small, onPress }: { on: boolean; label: string; sub?: string; small?: boolean; onPress: () => void }) {
+function Chip({ on, label, sub, small, logo, onPress }: { on: boolean; label: string; sub?: string; small?: boolean; logo?: LogoName; onPress: () => void }) {
   return (
     <Tap
       accessibilityRole="button"
@@ -713,8 +724,9 @@ function Chip({ on, label, sub, small, onPress }: { on: boolean; label: string; 
       accessibilityState={{ selected: on }}
       onPress={onPress}
       scale={0.96}
-      style={[s.chip, small && s.chipSmall, on && s.chipOn]}
+      style={[s.chip, small && s.chipSmall, logo ? s.chipLogo : null, on && s.chipOn]}
     >
+      {logo ? <Logo name={logo} size={20} round /> : null}
       <Label style={{ color: on ? colour.ink : dark.paper }}>{label}</Label>
       {sub ? <Caption style={{ color: on ? dark.edgeStrong : dark.textSoft }}>{sub}</Caption> : null}
     </Tap>
@@ -743,6 +755,7 @@ const s = StyleSheet.create({
   },
   tertiary: { height: 28, paddingHorizontal: 10, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: dark.edgeStrong },
   badge: { height: 24, paddingHorizontal: 8, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  badgeLogo: { flexDirection: 'row', gap: 5, paddingLeft: 4 },
   chips: { flexDirection: 'row', gap: 8, paddingTop: 4 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
@@ -759,6 +772,8 @@ const s = StyleSheet.create({
     borderColor: dark.edgeStrong,
   },
   chipSmall: { flexGrow: 0, flexShrink: 0, flexBasis: 'auto', minHeight: 40, paddingVertical: 8, paddingHorizontal: 14 },
+  /* a company's chip: its logo before its name */
+  chipLogo: { flexDirection: 'row', gap: 8, paddingLeft: 9 },
   chipOn: { backgroundColor: dark.paper, borderColor: dark.paper },
   segments: { flexDirection: 'row', padding: 4, gap: 4, borderRadius: 24, backgroundColor: dark.edge, borderWidth: 1, borderColor: dark.edgeStrong },
   segment: { flex: 1, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },

@@ -12,7 +12,9 @@ import React, { ReactNode, useEffect, useRef } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import { SvgXml } from 'react-native-svg';
 import { Icon } from './Icon';
+import { Logo, logoOf, type LogoName } from './Logo';
 import { Button } from './Button';
 import { Body, Caption, Display, Head, Label, Meta, Row, Title } from './text';
 import type { IconName } from '../icons';
@@ -376,7 +378,7 @@ export function LightPanel({
 /* A few ways out on one grey card, 72 a row: a glyph on a white 40 square,
    the title over its line, a chevron at the end, and a hairline between
    the rows. Each row can lead to a page the way a choice on its own does. */
-export type Way = { glyph: IconName; title: string; sub: string; onPress?: () => void; to?: string; testID?: string };
+export type Way = { glyph: IconName; /** the bank or company the way goes through (Round 38) */ logo?: LogoName; title: string; sub: string; onPress?: () => void; to?: string; testID?: string };
 
 export function ChoiceList({ items, testID }: { items: Way[]; testID?: string }) {
   return (
@@ -388,14 +390,18 @@ export function ChoiceList({ items, testID }: { items: Way[]; testID?: string })
   );
 }
 
-function BigChoice({ glyph, title, sub, onPress, to, first, testID }: Way & { first: boolean }) {
+function BigChoice({ glyph, logo, title, sub, onPress, to, first, testID }: Way & { first: boolean }) {
   const j = useDeparture({ id: `choice:${title}`, to, words: title });
   return (
     <Tap ref={j.ref} accessibilityRole="button" accessibilityLabel={title} onPress={to ? j.onPress : onPress} style={[s.bigChoice, first ? null : s.hairTop]} testID={testID}>
       {j.wash}
-      <View style={[s.box40, { backgroundColor: colour.surface }]}>
-        <Icon name={glyph} size={20} colour={colour.ink} />
-      </View>
+      {logo ? (
+        <Logo name={logo} size={40} radius={12} />
+      ) : (
+        <View style={[s.box40, { backgroundColor: colour.surface }]}>
+          <Icon name={glyph} size={20} colour={colour.ink} />
+        </View>
+      )}
       <View style={{ flex: 1, gap: 4 }}>
         <Row>{title}</Row>
         <Meta tone="secondary">{sub}</Meta>
@@ -488,13 +494,34 @@ export function Usage({ out, of, pct, note }: { out: string; of: string; pct: nu
 /* All, Insights, In, Out: a grey pill the width of the column, with the
    chosen one on white, each an equal share of it and 40 tall, 4 in from the
    pill, so its edges keep to the cards above and the lines below. */
-export function Segments({ options, value, onChange }: { options: string[]; value: string; onChange: (v: string) => void }) {
+export function Segments({
+  options,
+  value,
+  onChange,
+  logos = false,
+}: {
+  options: string[];
+  value: string;
+  onChange: (v: string) => void;
+  /** options that are companies (the coins): each with its logo before its name (Round 38) */
+  logos?: boolean;
+}) {
   return (
     <View style={s.segments} testID="segments">
       {options.map(o => {
         const on = o === value;
+        const logo = logos ? logoOf(o) : undefined;
         return (
-          <Tap key={o} accessibilityRole="button" accessibilityLabel={o} accessibilityState={{ selected: on }} onPress={() => onChange(o)} scale={0.97} style={[s.segment, on ? s.segmentOn : null]}>
+          <Tap
+            key={o}
+            accessibilityRole="button"
+            accessibilityLabel={o}
+            accessibilityState={{ selected: on }}
+            onPress={() => onChange(o)}
+            scale={0.97}
+            style={[s.segment, logo ? s.segmentLogo : null, on ? s.segmentOn : null]}
+          >
+            {logo ? <Logo name={logo} size={20} round /> : null}
             <Label tone={on ? 'ink' : 'secondary'}>{o}</Label>
           </Tap>
         );
@@ -503,12 +530,14 @@ export function Segments({ options, value, onChange }: { options: string[]; valu
   );
 }
 
-/* A line of the record. One that settled has its glyph on a grey square and
-   its figure in black, 70 tall. One still on its way, or that did not go, or
+/* A line of the record. One that settled has its glyph on a grey square (the
+   company's logo there, where it was paid to one: Round 38) and its figure
+   in black, 70 tall. One still on its way, or that did not go, or
    that came back, has its status glyph bare and coloured, its figure in grey,
    and a chevron, 64 tall, and leads to its own page. */
 export function HistoryRow({
   glyph,
+  logo,
   tone,
   name,
   detail,
@@ -520,6 +549,8 @@ export function HistoryRow({
   to,
 }: {
   glyph: IconName;
+  /** whose line it is: the network, the company or the merchant it paid */
+  logo?: LogoName;
   tone?: string;
   name: string;
   detail: string;
@@ -549,6 +580,8 @@ export function HistoryRow({
       {j.wash}
       {status ? (
         <Icon name={glyph} size={28} colour={tone ?? colour.ink} />
+      ) : logo ? (
+        <Logo name={logo} size={40} radius={12} />
       ) : (
         <View style={s.box40}>
           <Icon name={glyph} size={20} colour={colour.ink} />
@@ -596,6 +629,19 @@ export function NoteRow({ glyph, children, centre = false }: { glyph: IconName; 
 
 /* ---- the card ---- */
 
+/** The scheme's two circles, as Mastercard draws them, for the card's face. */
+const MASTERCARD =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="14 26 72 48"><circle cx="38" cy="50" r="24" fill="#eb001b"/><circle cx="62" cy="50" r="24" fill="#f79e1b"/><path fill="#ff5f00" d="M50 29.215A24 24 0 0 1 50 70.785A24 24 0 0 1 50 29.215Z"/></svg>';
+
+/** Which scheme a card number is, from its first digits: 51 to 55 and 2221 to 2720 are Mastercard. The face shows
+    the number masked, so this reads the four it still shows at the front. */
+export function schemeOf(number: string): 'mastercard' | null {
+  const d = number.replace(/[^0-9]/g, '');
+  const two = +d.slice(0, 2),
+    four = +d.slice(0, 4);
+  return (two >= 51 && two <= 55) || (four >= 2221 && four <= 2720) ? 'mastercard' : null;
+}
+
 /* The card's face, 194 tall: the mark on a white square and whose card it is
    across the top, the chip, the number, and the holder and the expiry along
    the foot. Round 37: in the owner's own colour, or over a photo they picked,
@@ -636,9 +682,13 @@ export function CardFace({
           {only}
         </Caption>
       </View>
-      <View style={s.chip}>
-        <View style={s.chipLine} />
-        <View style={s.chipLine} />
+      {/* the chip, and the card's scheme across from it: a 5399 card is a Mastercard (Round 38) */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <View style={s.chip}>
+          <View style={s.chipLine} />
+          <View style={s.chipLine} />
+        </View>
+        {schemeOf(number) === 'mastercard' ? <SvgXml xml={MASTERCARD} width={37} height={25} testID="card-scheme" /> : null}
       </View>
       <Head tone="inverse" style={{ ...font('500'), letterSpacing: 3 }}>
         {number}
@@ -705,6 +755,7 @@ const s = StyleSheet.create({
   segments: { flexDirection: 'row', alignSelf: 'stretch', padding: 4, gap: 4, borderRadius: 24, backgroundColor: colour.surface2 },
   segment: { flex: 1, height: 40, paddingHorizontal: 8, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   segmentOn: { backgroundColor: colour.surface },
+  segmentLogo: { flexDirection: 'row', gap: 6 },
   statusRow: { flexDirection: 'row', alignItems: 'center', height: 64, paddingLeft: 5, gap: 16, borderRadius: 16 },
   doneRow: { flexDirection: 'row', alignItems: 'center', height: 70, gap: 12, borderRadius: 16 },
   pill: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, height: 48, borderRadius: radius.pill, backgroundColor: colour.surface2 },

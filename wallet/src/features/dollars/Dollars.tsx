@@ -9,7 +9,7 @@
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Body, Button, ChoiceRow, Display, Head, Icon, Label, Meta, NoteCard, PageHead, Row, Say, Screen, Tap, colour, toast } from '../../design';
+import { Body, Button, ChoiceRow, Display, Head, Icon, Label, Logo, Meta, NoteCard, PageHead, Row, Say, Screen, Tap, colour, logoOf, toast } from '../../design';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
 import { useFoot } from '../more/Foot';
@@ -104,9 +104,14 @@ export function Dollars() {
           <View style={{ marginTop: 12 }} testID="sources">
             {sources.map(src => (
               <View key={src.id} style={s.row} testID="source">
-                <View style={s.box}>
-                  <Icon name={src.glyph} size={20} colour={colour.ink} />
-                </View>
+                {/* coins that came in wear the coin's logo (Round 38) */}
+                {logoOf(src.title) ? (
+                  <Logo name={logoOf(src.title)!} size={40} radius={12} />
+                ) : (
+                  <View style={s.box}>
+                    <Icon name={src.glyph} size={20} colour={colour.ink} />
+                  </View>
+                )}
                 <View style={{ flex: 1, gap: 4 }}>
                   <Row>{src.title}</Row>
                   <Meta tone="secondary">{src.sub}</Meta>

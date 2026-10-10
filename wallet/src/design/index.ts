@@ -4,6 +4,8 @@ export * from './tokens';
 export * from './text';
 export * from './Icon';
 export * from './Logo';
+export * from './Picker';
+export * from './clips';
 export * from './Button';
 export * from './PageHead';
 export * from './Keypad';

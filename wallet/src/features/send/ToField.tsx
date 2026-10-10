@@ -9,9 +9,9 @@
    were found, with Change beside them. Nothing about who can be wrong
    without the screen saying so. Light on a page, dark on the chat's card. */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { Avatar, Caption, Chevron, Icon, Label, Logo, Meta, Tap, colour, dark, font, logoOf } from '../../design';
-import { BEETLE, allBanks, checkName, closest, isBeetle, likelyBanks, tagWords, toKind, type Match } from '../../services/recipients';
+import { ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
+import { Avatar, Caption, CompanyPicker, Icon, Label, Meta, Tap, colour, dark, font, logoOf, type PickItem } from '../../design';
+import { BEETLE, allBanks, bankKindWords, checkName, closest, isBeetle, likelyBanks, tagWords, toKind, type Match } from '../../services/recipients';
 import type { Person, PersonPaid } from '../../services';
 import { groupAccount, initialsOf } from '../../lib/format';
 
@@ -27,12 +27,6 @@ const LOOK = {
     link: colour.accent,
     box: colour.surface2,
     edge: 'transparent',
-    row: colour.surface2,
-    chip: colour.surface2,
-    chipOn: colour.ink,
-    chipText: colour.ink,
-    chipOnText: colour.textInverse,
-    disc: colour.surface3,
   },
   dark: {
     ink: dark.paper,
@@ -43,12 +37,6 @@ const LOOK = {
     link: dark.link,
     box: dark.edge,
     edge: dark.edgeStrong,
-    row: dark.edge,
-    chip: dark.edge,
-    chipOn: dark.paper,
-    chipText: dark.paper,
-    chipOnText: colour.ink,
-    disc: dark.edgeStrong,
   },
 } as const;
 
@@ -58,6 +46,9 @@ export const howOf = (p: Person, times?: number) =>
 
 /** Their bank and their number, or Beetle and their tag: what every screen says under a name. */
 export const whereOf = (p: Person) => (isBeetle(p) && p.tag ? `${BEETLE} · ${tagWords(p.tag)}` : `${p.bank} · ${groupAccount(p.number)}`);
+
+/* the list the bank is picked from: Beetle, then every bank and money app by name */
+const BANK_ITEMS: PickItem[] = allBanks().map(name => ({ id: name, name, sub: bankKindWords(name), logo: logoOf(name) }));
 
 export function ToField({
   tone = 'light',
@@ -99,8 +90,6 @@ export function ToField({
   const [bank, setBank] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
-  const [all, setAll] = useState(false);
-  const [find, setFind] = useState('');
   const input = useRef<TextInput>(null);
   const live = useRef(true);
   useEffect(
@@ -113,19 +102,17 @@ export function ToField({
   const kind = toKind(text);
   const digits = text.replace(/\D/g, '');
   const matches: Match[] = useMemo(() => (kind === 'tag' || kind === 'name' ? closest(text, paid) : []), [kind, text, paid]);
-  const likely = useMemo(() => (digits.length === 10 ? likelyBanks(digits, paid).slice(0, 4) : []), [digits, paid]);
+  const likely = useMemo(() => (digits.length === 10 ? likelyBanks(digits, paid).slice(0, 6) : []), [digits, paid]);
   const recent = useMemo(() => [...paid].sort((a, b) => b.times - a.times).slice(0, 3), [paid]);
 
   const pick = (p: Person, how: string) => {
     setProblem(null);
     setBank(null);
-    setAll(false);
     onChange(p, how);
   };
   /* ten digits and a bank: the name on the account, looked up there */
   const lookUp = async (b: string) => {
     setBank(b);
-    setAll(false);
     setProblem(null);
     setChecking(true);
     const r = await checkName(digits, b, paid);
@@ -290,57 +277,20 @@ export function ToField({
                   {problem}
                 </Caption>
               ) : null}
-              <View style={s.chips}>
-                {likely.map(b => (
-                  <Tap
-                    key={b}
-                    accessibilityRole="button"
-                    accessibilityLabel={b}
-                    onPress={() => void lookUp(b)}
-                    scale={0.96}
-                    style={[s.chip, logoOf(b) ? s.chipLogo : null, { backgroundColor: bank === b ? look.chipOn : look.chip }]}
-                    testID={`${testID}-bank`}
-                  >
-                    {/* the bank's logo before its name (Round 38) */}
-                    {logoOf(b) ? <Logo name={logoOf(b)!} size={24} round /> : null}
-                    <Label style={{ color: bank === b ? look.chipOnText : look.chipText }}>{b}</Label>
-                  </Tap>
-                ))}
-                <Tap
-                  accessibilityRole="button"
-                  accessibilityLabel="All banks"
-                  onPress={() => setAll(a => !a)}
-                  scale={0.96}
-                  style={[s.chip, { backgroundColor: 'transparent', borderWidth: 1, borderColor: tone === 'dark' ? dark.edgeStrong : colour.rule }]}
-                  testID={`${testID}-all-banks`}
-                >
-                  <Label style={{ color: look.ink }}>{likely.length ? 'Another bank' : 'Pick the bank'}</Label>
-                  <Chevron dir={all ? 'up' : 'down'} size={14} colour={look.soft} />
-                </Tap>
-              </View>
-              {all ? (
-                <View style={[s.list, { backgroundColor: look.row }]} testID={`${testID}-bank-list`}>
-                  <TextInput
-                    value={find}
-                    onChangeText={setFind}
-                    placeholder="Find a bank"
-                    placeholderTextColor={look.faint}
-                    autoCorrect={false}
-                    style={[s.find, { color: look.ink, borderBottomColor: tone === 'dark' ? dark.edgeStrong : colour.rule }]}
-                    accessibilityLabel="Find a bank"
-                  />
-                  <ScrollView style={{ maxHeight: 200 }} nestedScrollEnabled keyboardShouldPersistTaps="handled">
-                    {allBanks()
-                      .filter(b => b.toLowerCase().includes(find.trim().toLowerCase()))
-                      .map(b => (
-                        <Tap key={b} accessibilityRole="button" accessibilityLabel={b} onPress={() => void lookUp(b)} style={s.bankRow}>
-                          {logoOf(b) ? <Logo name={logoOf(b)!} size={24} radius={7} /> : <Icon name="bank" size={16} colour={look.soft} />}
-                          <Meta style={{ color: look.ink, flex: 1 }}>{b}</Meta>
-                        </Tap>
-                      ))}
-                  </ScrollView>
-                </View>
-              ) : null}
+              {/* every bank and money app, the likely ones for this number first, scrolled or found by name (Round 39) */}
+              <CompanyPicker
+                items={BANK_ITEMS}
+                value={bank}
+                onPick={b => void lookUp(b.id)}
+                tone={tone}
+                pinned={likely}
+                pinnedTitle="Likely for this number"
+                allTitle="Every bank"
+                placeholder="Find the bank"
+                what="bank"
+                rows={tone === 'dark' ? 3.5 : 4.5}
+                testID={`${testID}-bank-picker`}
+              />
             </>
           )}
         </View>
@@ -380,11 +330,4 @@ const s = StyleSheet.create({
   icon: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   choice: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 48, borderRadius: 12, paddingHorizontal: 4 },
   checking: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 36, paddingHorizontal: 4 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 36, borderRadius: 18, paddingHorizontal: 14 },
-  /* a bank's chip: its logo at the front, 6 in from the round end */
-  chipLogo: { paddingLeft: 6, gap: 8 },
-  list: { borderRadius: 14, overflow: 'hidden' },
-  find: { height: 44, paddingHorizontal: 14, fontSize: 15, ...font('400'), borderBottomWidth: 1, outlineWidth: 0 },
-  bankRow: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 44, paddingHorizontal: 14, borderRadius: 10 },
 });

@@ -22,6 +22,7 @@ import type { Person } from './agent';
 import { networkOf } from './nigeria';
 import { groupAccount } from '../lib/format';
 import { wait } from './support';
+import { BANK_LIST, KIND_WORDS, type Bank } from './banks';
 
 /* ---- Beetle's own accounts ---- */
 
@@ -73,38 +74,10 @@ export function tagged(tag: string): Person | null {
 
 /* ---- the banks ---- */
 
-export type Bank = {
-  name: string;
-  /** the code the check digit is worked from: three digits for the banks, six for the newer ones */
-  code: string;
-  /** the newer banks that hand out phone numbers as account numbers */
-  phone?: boolean;
-};
+export { BANK_LIST, KIND_WORDS, type Bank, type BankKind } from './banks';
 
-/** The banks, by the names the app uses everywhere (GTBank, not Guaranty Trust). */
-export const BANK_LIST: Bank[] = [
-  { name: 'Access Bank', code: '044' },
-  { name: 'Ecobank', code: '050' },
-  { name: 'Fidelity Bank', code: '070' },
-  { name: 'First Bank', code: '011' },
-  { name: 'FCMB', code: '214' },
-  { name: 'GTBank', code: '058' },
-  { name: 'Heritage Bank', code: '030' },
-  { name: 'Keystone Bank', code: '082' },
-  { name: 'Kuda', code: '090267', phone: true },
-  { name: 'Moniepoint', code: '090405', phone: true },
-  { name: 'OPay', code: '100004', phone: true },
-  { name: 'PalmPay', code: '100033', phone: true },
-  { name: 'Polaris Bank', code: '076' },
-  { name: 'Providus Bank', code: '101' },
-  { name: 'Stanbic IBTC', code: '221' },
-  { name: 'Sterling Bank', code: '232' },
-  { name: 'UBA', code: '033' },
-  { name: 'Union Bank', code: '032' },
-  { name: 'Unity Bank', code: '215' },
-  { name: 'Wema Bank', code: '035' },
-  { name: 'Zenith Bank', code: '057' },
-];
+/** The newer banks that hand out phone numbers, the most used first. */
+const PHONE_FIRST = ['Kuda', 'Moniepoint', 'OPay', 'PalmPay', 'Paga', '9PSB', 'MoMo PSB', 'SmartCash PSB', 'HopePSB', 'Eyowo'];
 
 const ALIASES: Record<string, string> = {
   access: 'Access Bank',
@@ -123,7 +96,6 @@ const ALIASES: Record<string, string> = {
   providus: 'Providus Bank',
   keystone: 'Keystone Bank',
   unity: 'Unity Bank',
-  heritage: 'Heritage Bank',
   ecobank: 'Ecobank',
   opay: 'OPay',
   palmpay: 'PalmPay',
@@ -131,13 +103,50 @@ const ALIASES: Record<string, string> = {
   kuda: 'Kuda',
   uba: 'UBA',
   fcmb: 'FCMB',
+  diamond: 'Access Bank (Diamond)',
+  'diamond bank': 'Access Bank (Diamond)',
+  alat: 'ALAT by Wema',
+  piggyvest: 'Pocket by PiggyVest',
+  'piggy vest': 'Pocket by PiggyVest',
+  vbank: 'VFD MFB',
+  vfd: 'VFD MFB',
+  titan: 'Titan Trust Bank',
+  'standard chartered': 'Standard Chartered Bank',
+  citi: 'Citibank',
+  jaiz: 'Jaiz Bank',
+  taj: 'TAJ Bank',
+  lotus: 'Lotus Bank',
+  globus: 'Globus Bank',
+  suntrust: 'SunTrust Bank',
+  parallex: 'Parallex Bank',
+  premiumtrust: 'PremiumTrust Bank',
+  optimus: 'Optimus Bank',
+  fairmoney: 'FairMoney',
+  'fair money': 'FairMoney',
+  gomoney: 'GoMoney',
+  momo: 'MoMo PSB',
+  smartcash: 'SmartCash PSB',
+  'mtn momo': 'MoMo PSB',
+  '9psb': '9PSB',
+  '9mobile psb': '9PSB',
+  rubies: 'Rubies MFB',
+  accion: 'Accion MFB',
   beetle: BEETLE,
 };
+
+/* names that are ordinary words too: found only with "bank" or "app" after them, or as an alias */
+const PLAIN_WORDS = new Set(['Branch', 'Carbon', 'Sparkle', 'Paga', 'TENN', 'Summit Bank']);
+
+const escape = (w: string) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const whole = (name: string) => new RegExp(`(^|[^a-z0-9])${escape(name.toLowerCase())}($|[^a-z0-9])`);
 
 /** The bank some words name, by the app's own name for it. */
 export function bankIn(text: string): string | null {
   const lower = text.toLowerCase();
-  for (const b of BANK_LIST) if (lower.includes(b.name.toLowerCase())) return b.name;
+  /* the longest name first, so "Access Bank (Diamond)" wins over "Access Bank" */
+  for (const b of [...BANK_LIST].sort((x, y) => y.name.length - x.name.length)) {
+    if (PLAIN_WORDS.has(b.name) ? whole(`${b.name} bank`).test(lower) || whole(`${b.name} app`).test(lower) : whole(b.name).test(lower)) return b.name;
+  }
   for (const [k, v] of Object.entries(ALIASES)) if (new RegExp(`\\b${k}\\b`).test(lower)) return v;
   return null;
 }
@@ -153,6 +162,9 @@ export function checkDigit(code: string, serial: string): number {
 /** Whether a number could be an account at a bank, by its check digit. */
 export const fits = (number: string, bank: Bank) => /^\d{10}$/.test(number) && checkDigit(bank.code, number.slice(0, 9)) === Number(number[9]);
 
+/* the banks whose account numbers the check digit decides: the ones with a three-digit code */
+const CHECKED = BANK_LIST.filter(b => /^\d{3}$/.test(b.code) && (b.kind === 'bank' || b.kind === 'merchant' || b.kind === 'noninterest'));
+
 /** A number that is a phone number without its first nought. */
 export const phoneShaped = (number: string) => /^[789]\d{9}$/.test(number) && !!networkOf(`0${number}`);
 
@@ -166,13 +178,20 @@ export function likelyBanks(number: string, known: Pick<Person, 'bank' | 'number
   };
   for (const p of known) if (p.number === number) add(p.bank);
   if (BEETLE_USERS.some(u => u.number === number)) add(BEETLE);
-  if (phoneShaped(number)) for (const b of BANK_LIST) if (b.phone) add(b.name);
-  for (const b of BANK_LIST) if (!b.phone && fits(number, b)) add(b.name);
+  if (phoneShaped(number)) for (const name of PHONE_FIRST) add(name);
+  for (const b of CHECKED) if (fits(number, b)) add(b.name);
   return out;
 }
 
 /** Every bank, for the list after the likely ones; Beetle first, since it is this app's own. */
 export const allBanks = () => [BEETLE, ...BANK_LIST.map(b => b.name)];
+
+/** The words under a bank's name in the list: what kind of bank it is. */
+export function bankKindWords(name: string): string {
+  if (name === BEETLE) return 'This app · free and at once';
+  const b = BANK_LIST.find(x => x.name === name);
+  return b ? KIND_WORDS[b.kind] : '';
+}
 
 /* ---- the name on an account ---- */
 

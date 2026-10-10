@@ -156,6 +156,8 @@ export function ToolPanel({
   }, [landed, state, panel.rows.length]); // eslint-disable-line react-hooks/exhaustive-deps
   const live = state !== 'running' || landed >= panel.rows.length;
   const logo = panel.move && (panel.tool === 'pay' || panel.tool === 'data' || panel.tool === 'airtime') ? lineLogo(panel.move) : undefined;
+  /* the card keeps the title it had as it was filled (Round 39): who it is for, by name, else the company */
+  const title = titleOf(panel);
   return (
     <View style={{ backgroundColor: dark.panel, borderWidth: 1, borderColor: dark.edge, borderRadius: 24, overflow: 'hidden', paddingBottom: 12 }} testID="panel">
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, height: 48, paddingHorizontal: 12, backgroundColor: dark.edge, borderBottomWidth: 1, borderBottomColor: dark.edgeStrong }}>
@@ -167,7 +169,9 @@ export function ToolPanel({
             <Icon name={panel.icon} size={16} colour={dark.paper} />
           </View>
         )}
-        <Label style={{ flex: 1, color: dark.paper }}>{panel.title}</Label>
+        <Label style={{ flex: 1, color: dark.paper }} numberOfLines={1} ellipsizeMode="tail" testID="panel-title">
+          {title}
+        </Label>
         <View
           style={{ flexDirection: 'row', alignItems: 'center', gap: 8, height: 24, paddingHorizontal: 8, borderRadius: 12, backgroundColor: dark.edge, borderWidth: 1, borderColor: dark.edgeStrong }}
           testID="pill"
@@ -276,4 +280,19 @@ function Spinning({ children }: { children: ReactNode }) {
   }, [still, t]);
   const turning = useAnimatedStyle(() => ({ transform: [{ rotate: `${t.value * 360}deg` }] }));
   return <Animated.View style={turning}>{children}</Animated.View>;
+}
+
+/** A panel's title as the card shows it: the person it is for once their name is known (a transfer's recipient, the
+    name on a meter, a line's owner), else the company (the electricity company, the network), else its own. */
+export function titleOf(panel: Panel): string {
+  const row = (label: string) => panel.rows.find(r => r.label === label)?.value;
+  if (panel.tool === 'transfer') return row('Recipient') ?? panel.title;
+  if (panel.tool === 'pay') return row('Name') ?? row('Biller') ?? panel.title;
+  if (panel.tool === 'data' || panel.tool === 'airtime') {
+    const target = panel.move?.target;
+    const owner = target?.kind === 'line' && target.label && target.label !== 'Your line' ? target.label : undefined;
+    const network = row('Network') ?? (target?.kind === 'line' ? target.network : undefined);
+    return owner ?? (network ? `${network} ${panel.tool === 'data' ? 'data' : 'airtime'}` : panel.title);
+  }
+  return panel.title;
 }

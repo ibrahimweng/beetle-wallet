@@ -2142,6 +2142,57 @@ enough that nothing has to be redesigned round it.
       the network 9mobile. Unity Bank is one bank with Providus now, so
       it wears ProvidusUnity's mark.
 
+## Round 39 · Long lists, picked from a box
+
+Asked by the owner, with a picture of the chat's bills card: eleven
+electricity company chips were wrong there, and wrong everywhere else a
+company is picked; there are far more companies than chips can hold, and
+far more banks. Each is picked from a long list by scrolling or by typing
+its name, in a box that scrolls with a tick under the finger. The card's
+title follows the pick: the company, then the name found on the meter or
+the account, cut short with … where it runs long. And the dark card is
+never to run past its bounds, as it did under the bar in the picture.
+
+- [x] `CompanyPicker` (`src/design/Picker.tsx`): a box of its own height,
+      a field at its top to find a company by any name it goes by (AEDC,
+      GTB, Diamond), each row with the company's logo or its initials.
+      The phone ticks as each row passes and knocks once on a pick. Where
+      there is no room for more, a pick folds the box to the one picked,
+      with Change beside it. Light on a page, dark on the chat's card.
+- [x] Electricity companies: every one, Aba Power added, in the chat's
+      bills card. The card's title is the company once picked, then the
+      name on the meter once found.
+- [x] Banks: 284 banks and money apps the transfer network reaches, from
+      the list Paystack publishes, by the names people use
+      (`src/services/banks.ts`). Heritage Bank is gone (licence revoked
+      in 2024). The likely ones for a number sit at the top of the box,
+      under "Likely for this number": where it was paid before, Beetle,
+      the phone-number banks for a phone-shaped number, then the
+      commercial, merchant and non-interest banks its check digit fits.
+      Each row says what kind of bank it is. The same box is on Send money
+      and in the chat's transfer card, whose title becomes the account's
+      name once it is checked. Bank names in a message are found as whole
+      words, the longest first; names that are ordinary words too (Carbon,
+      Branch, Sparkle) only with "bank" or "app" after them.
+- [x] The card's merchants: any shop online, the five most kept to, then
+      sixty more A to Z, in Make a card's box, folded to the one picked.
+- [x] Eighty-two more logos for the longer lists, made the Round 38 way:
+      forty-seven merchants from Simple Icons, and thirty-five banks, money
+      apps and Aba Power traced from their own pictures. Smaller banks whose marks exist
+      only as a 16-pixel favicon, and merchants whose marks are not open
+      to use (Amazon, Microsoft, Adobe and others), show their initials.
+- [x] The dark card's bounds. Open, the card stops over the bar in the
+      window as it is now: a window that shrinks with no keyboard (the
+      browser's bar, the preview's frame) no longer leaves the card the
+      height it had, running under the bar. Only a keyboard takes the
+      bar's room. And on the web a field focused low in the chat had the
+      browser scroll the home page, held still under the card, and the
+      card's own frame, sliding the card up off its place with the page
+      showing under it; those two boxes are now held where they were
+      (`src/design/clips.ts`).
+- [x] Network chips (four networks) and data plans stay as chips: they are
+      few, and they fit the card.
+
 ## Since the rounds
 
 - [x] The mark leaves the card's header (the owner's word, testing on the

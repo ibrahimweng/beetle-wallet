@@ -18,7 +18,29 @@
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { AmountPicker, Avatar, Caption, Chevron, Icon, LOOSE, Label, Logo, Meta, Row, Swap, Tap, colour, dark, font, logoOf, settle, useStill, type LogoName } from '../../design';
+import {
+  AmountPicker,
+  Avatar,
+  Caption,
+  Chevron,
+  CompanyPicker,
+  Icon,
+  LOOSE,
+  Label,
+  Logo,
+  Meta,
+  Row,
+  Swap,
+  Tap,
+  colour,
+  dark,
+  font,
+  logoOf,
+  settle,
+  useStill,
+  type LogoName,
+  type PickItem,
+} from '../../design';
 import {
   AIRTIME,
   BILL_AMOUNTS,
@@ -138,6 +160,14 @@ export function AskPanelView({
   const lead = state === 'done' ? null : (ask.note ?? null);
   const ready = open && missing.length === 0;
   const headLogo = ask.tool === 'data' || ask.tool === 'airtime' ? logoOf(network) : ask.tool === 'pay' ? logoOf(v.disco) : undefined;
+  /* the title follows what is known (Round 39, the owner's word): the company once it is picked, then the person
+     once their name is found, cut short with … where it runs long */
+  const title =
+    ask.tool === 'pay'
+      ? (ask.found?.meter?.name ?? (v.disco ? discoById(v.disco)?.name : undefined) ?? ask.title)
+      : ask.tool === 'transfer'
+        ? (person?.name ?? ask.title)
+        : ((line && !line.own ? line.label : undefined) ?? (network ? `${network} ${ask.tool === 'data' ? 'data' : 'airtime'}` : ask.title));
   return (
     <View style={s.panel} testID="ask">
       <View style={s.head}>
@@ -149,7 +179,9 @@ export function AskPanelView({
             <Icon name={ask.icon} size={16} colour={dark.paper} />
           </View>
         )}
-        <Label style={{ flex: 1, color: dark.paper }}>{ask.title}</Label>
+        <Label style={{ flex: 1, color: dark.paper }} numberOfLines={1} ellipsizeMode="tail" testID="ask-title">
+          {title}
+        </Label>
         {/* Recent: the card grows into the list of what was paid before */}
         {list.length && open ? (
           <Tap
@@ -619,21 +651,15 @@ function KindField({ value, onChange }: { value?: MeterKind; onChange: (kind: Me
   );
 }
 
+/* the electricity companies, every one, in a box of its own height that scrolls: found by typing or by scrolling,
+   the phone ticking as they pass; once one is picked the box folds to it (Round 39, the owner's word: chips were
+   wrong, and the card must keep its size) */
+const DISCO_ITEMS: PickItem[] = DISCOS.map(d => ({ id: d.id, name: d.name, sub: `${d.short === d.name ? '' : `${d.short} · `}${d.area}`, logo: logoOf(d.id), words: [d.short, ...d.aliases] }));
+
 function DiscoField({ value, onChange }: { value?: string; onChange: (disco: string) => void }) {
-  const [all, setAll] = useState(false);
-  const shown = all ? DISCOS : DISCOS.slice(0, 5);
   return (
     <Field label="Company" testID="ask-disco">
-      <View style={s.wrap}>
-        {shown.map(d => (
-          <Chip key={d.id} on={value === d.id} label={d.short} small logo={logoOf(d.id)} onPress={() => onChange(d.id)} />
-        ))}
-        {!all ? (
-          <Tap accessibilityRole="button" accessibilityLabel="More companies" onPress={() => setAll(true)} style={[s.chip, s.chipSmall]}>
-            <Caption style={{ color: dark.textSoft }}>More…</Caption>
-          </Tap>
-        ) : null}
-      </View>
+      <CompanyPicker items={DISCO_ITEMS} value={value} onPick={d => onChange(d.id)} tone="dark" fold rows={3.5} placeholder="Find your electricity company" testID="disco-picker" />
     </Field>
   );
 }

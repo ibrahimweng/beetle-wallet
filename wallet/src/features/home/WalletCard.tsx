@@ -17,12 +17,12 @@
    enough the card goes on by itself and the light pulses through it
    (Round 21, the owner's word, after Apple's NameDrop: see glow and Light);
    closing, a quieter glow rises along the edge. */
-import React, { ReactNode, useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { LayoutChangeEvent, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, type PanGesture } from 'react-native-gesture-handler';
 import Animated, { Easing, SharedValue, interpolate, runOnJS, useAnimatedReaction, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
-import { Caption, Drawing, Icon, Label, Swap, Tap, blurred, colour, dark, feel, font, keys, motion, settle as settleCurve, soft, swipes, useStill } from '../../design';
+import { Caption, Drawing, Icon, Label, Swap, Tap, blurred, colour, dark, feel, font, keys, motion, settle as settleCurve, soft, swipes, useClipsHeld, useStill } from '../../design';
 import { useDeparture } from '../../design/journey';
 import { Frost } from './Frost';
 import { spotRef } from './spots';
@@ -428,8 +428,12 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
     };
   });
 
+  /* the card's own frame clips: a field focused low in the chat does not scroll it (Round 39) */
+  const frame = useRef<View>(null);
+  useClipsHeld(() => frame.current);
+
   return (
-    <Animated.View style={[s.card, card]} testID="card">
+    <Animated.View ref={frame} style={[s.card, card]} testID="card">
       {/* the card's place, for the tour (Round 28) */}
       <View ref={spotRef('card')} collapsable={false} pointerEvents="none" style={StyleSheet.absoluteFill} />
       {/* a wing's veins in the paper, faint, across the card's top corner, as the brand lays them on its dark cards (Round 26) */}

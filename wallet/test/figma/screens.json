@@ -676,7 +676,7 @@
   "frame": "home",
   "root": "1201:17925",
   "place": "A transfer, mid-way",
-  "wait": "Send money",
+  "wait": "Sarah Adeyemi",
   "waitExact": true,
   "settle": 2600,
   "pieces": [
@@ -735,9 +735,7 @@
      "testid": "panel"
     },
     "find": {
-     "text": "Send money",
-     "exact": true,
-     "inside": "panel"
+     "testid": "panel-title"
     }
    },
    {
@@ -1566,7 +1564,7 @@
   "frame": "home",
   "root": "1201:17925",
   "place": "A transfer, mid-way",
-  "wait": "Send money",
+  "wait": "Sarah Adeyemi",
   "waitExact": true,
   "settle": 2600,
   "pieces": [
@@ -1625,9 +1623,7 @@
      "testid": "panel"
     },
     "find": {
-     "text": "Send money",
-     "exact": true,
-     "inside": "panel"
+     "testid": "panel-title"
     }
    },
    {

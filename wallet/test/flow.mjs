@@ -120,6 +120,13 @@ const sheetStill = () =>
     )
     .catch(() => {});
 /* the same, for words that are a thing's whole name: a card's title, where Beetle's own lines may carry the words too */
+/* a chat card's title: the company picked, then the person found (Round 39) */
+const titled = name =>
+  page
+    .locator('[data-testid="panel-title"], [data-testid="ask-title"]')
+    .filter({ hasText: name, visible: true })
+    .last()
+    .waitFor();
 const seeExactly = text => page.getByText(text, { exact: true }).filter({ visible: true }).first().waitFor();
 /* the moment a screen's words are in the page at all, before it has arrived —
    what a trace of the arrival has to start from */
@@ -956,7 +963,7 @@ try {
     'the words should only ever add up',
   );
   console.log(`  the sentence grew through ${new Set(lengths).size} lengths`);
-  await seeExactly('Send money');
+  await titled('Sarah Adeyemi');
   await shot('chat-transfer-running', 250);
   await button('Confirm ₦20,000').waitFor();
   await page.waitForTimeout(1900);
@@ -1209,7 +1216,7 @@ try {
   await shot('chat-drawer', 400);
   /* a chat picked there picks up where it was, panels and all */
   await tap('Send 20k to Sarah');
-  await seeExactly('Send money');
+  await titled('Sarah Adeyemi');
   await page.waitForTimeout(700);
   await shot('chat-reopened');
   /* and Home on the bar, tapped in the chat, closes it: the edge and the drawer go with it */
@@ -1219,7 +1226,7 @@ try {
   await pull('card-for-the-prompt', false);
   await openChats();
   await tap('Your usual top up');
-  await see('Beetle Bills');
+  await titled('Ibrahim Musa');
   await shot('chat-prompt', 900);
   await backToHome();
   await page.waitForTimeout(700);
@@ -1294,7 +1301,7 @@ try {
   await tap('Back to the lab');
   await see('Beetle Lab');
   await tap('A prompt from Beetle');
-  await see('Beetle Bills');
+  await titled('Ibrahim Musa');
   at('/home');
   await shot('lab-prompt', 900);
   await tap('Back to the lab');
@@ -1305,7 +1312,7 @@ try {
   await tap('Back to the lab');
   await see('Beetle Lab');
   await tap('A transfer, mid-way');
-  await seeExactly('Send money');
+  await titled('Sarah Adeyemi');
   at('/home');
   await shot('lab-transfer', 1600);
   await tap('Back to the lab');
@@ -1657,7 +1664,11 @@ try {
   await shot('card-made-mine', 700);
   await tap('Make another card');
   await see('Make a card');
+  /* the merchant is picked from a long list, folded to the one picked (Round 39) */
+  await page.getByTestId('card-merchant-change').click();
+  await page.getByTestId('card-merchant-find').fill('google');
   await tap('Google Play');
+  await page.getByTestId('card-merchant-chosen').filter({ hasText: 'Google Play' }).waitFor();
   await tap('Make the card');
   await see('Enter your passcode');
   await type(PASSCODE);
@@ -2062,10 +2073,19 @@ try {
   await askPanel.waitFor();
   await stillSays('Pick the company');
   await shot('ask-bill', 900);
-  await inAsk('JED');
+  /* every company in a box that scrolls, found by any name it goes by; the pick folds the box and names the card
+     (Round 39, the owner's word) */
+  must((await askPanel.getByTestId('disco-picker-row').count()) >= 12, 'every electricity company is in the box');
+  await askPanel.getByTestId('disco-picker-find').fill('jed');
+  await askPanel.getByTestId('disco-picker-row').filter({ hasText: 'Jos Electricity' }).click();
+  await askPanel.getByTestId('disco-picker-chosen').filter({ hasText: 'Jos Electricity' }).waitFor();
+  await titled('Jos Electricity');
   await inAsk('Prepaid');
   await askField('Meter number').fill('12345678901');
   await askPanel.getByTestId('ask-meter-under').filter({ hasText: 'Jos' }).waitFor();
+  /* the name on the meter, found, is the card's title now */
+  const owner = (await askPanel.getByTestId('ask-meter-under').innerText()).split(' · ')[0];
+  await titled(owner);
   await askPanel.getByRole('button', { name: '₦8,000', exact: true }).click();
   await shot('ask-bill-new', 400);
   await askPanel.getByTestId('ask-recent').click();
@@ -2126,8 +2146,15 @@ try {
   /* ten digits ask for the bank, the likely ones first, and the name is looked up there before anything can move */
   await page.getByTestId('to-input').fill('0123456785');
   await page.getByTestId('to-banks').waitFor();
+  /* every bank is in the box (Round 39): the likely ones first, then the rest scrolled or found by name */
+  await see('Likely for this number');
+  await page.getByTestId('to-bank-picker-find').fill('jaiz');
+  await page.getByTestId('to-bank-picker-row').filter({ hasText: 'Jaiz Bank' }).first().waitFor();
+  must((await page.getByTestId('to-bank-picker-row').count()) === 1, 'a name typed finds that bank alone');
+  await page.getByTestId('to-bank-picker-find').fill('');
+  must((await page.getByTestId('to-bank-picker-row').count()) > 250, 'every bank and money app is in the list');
   await shot('send-number', 400);
-  await page.getByTestId('to-bank').filter({ hasText: 'GTBank' }).first().click();
+  await page.getByTestId('to-bank-picker-row').filter({ hasText: 'GTBank' }).first().click();
   await see('Name checked at GTBank');
   await shot('send-checked', 500);
   /* Change keeps what was typed, so another bank is a tap away; emptied, the field has the people paid before under it, one tap each */
@@ -2795,7 +2822,7 @@ try {
   await page.goto(`${base}/send`, { waitUntil: 'load' });
   await see('Nothing moves until you slide');
   await page.getByTestId('to-input').fill('0123456785');
-  await page.getByTestId('to-bank').filter({ hasText: 'GTBank' }).first().click();
+  await page.getByTestId('to-bank-picker-row').filter({ hasText: 'GTBank' }).first().click();
   await see('Name checked at GTBank');
   await tap('All of it');
   await see(/All of it: ₦/);

@@ -24,6 +24,7 @@ import {
   Button,
   Card,
   Caption,
+  CompanyPicker,
   ConfirmSheet,
   Head,
   Icon,
@@ -41,6 +42,7 @@ import {
   colour,
   logoOf,
   toast,
+  type PickItem,
 } from '../../design';
 import { TextBox } from '../../design/TextBox';
 import { holdingsFor } from '../home/account';
@@ -54,7 +56,7 @@ import { useFoot } from '../more/Foot';
 import { naira } from '../../lib/format';
 import { Deck } from './CardDeck';
 import { useCards } from './cards';
-import { LIMITS, MERCHANTS, MOST_CARDS, MOST_LIMIT, TONES, TONE_IDS, cardName, linesOf, makeCard, merchantName, standing, type CardLine, type CardTone, type VirtualCard } from './card';
+import { LIMITS, MERCHANT_LIST, MOST_CARDS, MOST_LIMIT, TONES, TONE_IDS, cardName, linesOf, makeCard, merchantName, standing, type CardLine, type CardTone, type VirtualCard } from './card';
 
 type Open = null | 'load' | 'make' | 'name' | 'limit' | 'photo' | 'delete';
 
@@ -456,6 +458,10 @@ function NameSheet({ card, onDone, onDismiss }: { card: VirtualCard; onDone: (ni
   );
 }
 
+/* the merchants a card can be kept to, each with what it is; any shop online first */
+const ANY = 'any';
+const MERCHANT_ITEMS: PickItem[] = MERCHANT_LIST.map(m => ({ id: m.name || ANY, name: merchantName(m.name), sub: m.what, logo: logoOf(m.name) }));
+
 /* A new card: what it is for, its monthly limit, its colour; then the passcode. */
 function MakeSheet({ onDone, onDismiss }: { onDone: (c: { merchant: string; limit: number; tone: CardTone }) => void; onDismiss: () => void }) {
   const [merchant, setMerchant] = useState<string>('Spotify');
@@ -470,20 +476,9 @@ function MakeSheet({ onDone, onDismiss }: { onDone: (c: { merchant: string; limi
       <Caption tone="secondary" style={{ marginTop: 18 }}>
         What it is for
       </Caption>
-      <View style={s.chips}>
-        {MERCHANTS.map(m => (
-          <Tap
-            key={m || 'any'}
-            accessibilityRole="button"
-            accessibilityState={{ selected: merchant === m }}
-            accessibilityLabel={merchantName(m)}
-            onPress={() => setMerchant(m)}
-            style={[s.chip, logoOf(m) ? s.chipLogo : null, merchant === m ? s.chipOn : null]}
-          >
-            {logoOf(m) ? <Logo name={logoOf(m)!} size={24} round /> : null}
-            <Label style={merchant === m ? { color: colour.textInverse } : null}>{merchantName(m)}</Label>
-          </Tap>
-        ))}
+      {/* every merchant, scrolled or found by name; folded to the one picked (Round 39) */}
+      <View style={{ marginTop: 8 }}>
+        <CompanyPicker items={MERCHANT_ITEMS} value={merchant || ANY} onPick={m => setMerchant(m.id === ANY ? '' : m.id)} fold placeholder="Find the merchant" what="merchant" testID="card-merchant" />
       </View>
       <Caption tone="secondary" style={{ marginTop: 18, marginBottom: 8 }}>
         Monthly limit
@@ -518,11 +513,6 @@ const s = StyleSheet.create({
   lineBox: { width: 40, height: 40, borderRadius: 12, backgroundColor: colour.surface2, alignItems: 'center', justifyContent: 'center' },
   delete: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, height: 48, marginTop: 4 },
   none: { height: 194, borderRadius: 24, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colour.ruleStrong, alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 32 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
-  chip: { height: 36, paddingHorizontal: 14, borderRadius: 18, backgroundColor: colour.surface2, justifyContent: 'center' },
-  /* a merchant's chip: its logo at the front, 6 in from the round end */
-  chipLogo: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 6 },
-  chipOn: { backgroundColor: colour.ink },
   swatch: { width: 36, height: 36, borderRadius: 18, padding: 3, borderWidth: 2, borderColor: 'transparent' },
   swatchOn: { borderColor: colour.ink },
   swatchIn: { flex: 1, borderRadius: 14 },

@@ -26,7 +26,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
-import { Meta, Tap, away, colour, dark, font, keys, settle, standard, useStill } from '../../design';
+import { Meta, Tap, away, colour, dark, font, keys, settle, standard, useClipsHeld, useStill } from '../../design';
 import type { IconName } from '../../icons';
 import {
   DEMO_SAVED,
@@ -140,6 +140,8 @@ function HomeScreen() {
   openedRef.current = opened;
   const input = useRef<TextInput>(null);
   const page = useRef<Animated.ScrollView>(null);
+  /* the page, held still under the open card: a field focused in the chat does not scroll it (Round 39) */
+  useClipsHeld(() => page.current);
 
   /* ---- the card's one number, and the room it has ---- */
   const open = useSharedValue(0);
@@ -162,12 +164,30 @@ function HomeScreen() {
       hide.remove();
     };
   }, [kb]);
+  /* on the web a keyboard is a field being typed in on a touch screen; a window that shrank with none (the
+     browser's own bar, the preview's frame, a phone turned) is just the room there is */
+  const typing = useSharedValue(0);
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined' || !window.matchMedia?.('(pointer: coarse)').matches) return;
+    const field = () => {
+      const el = document.activeElement;
+      typing.value = el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') ? 1 : 0;
+    };
+    const left = () => setTimeout(field, 0);
+    document.addEventListener('focusin', field);
+    document.addEventListener('focusout', left);
+    return () => {
+      document.removeEventListener('focusin', field);
+      document.removeEventListener('focusout', left);
+    };
+  }, [typing]);
   const full = tallest.current;
   /* what is visible above the keyboard: the window if it shrank for it, else the window less the keyboard;
-     with the keyboard down, the card stops just over the bar's glyphs */
+     with the keyboard down, the card stops just over the bar's glyphs in the window as it is now. Only a keyboard
+     may take the bar's room (Round 39, the owner's word: the card never runs past its bounds, under the bar). */
   const visible = useDerivedValue(() => Math.min(H, full - kb.value));
   const under = barLift(insets.bottom) + BAR_ROW + ROW_GAP;
-  const openH = useDerivedValue(() => Math.min(full - under, visible.value - 8));
+  const openH = useDerivedValue(() => (kb.value > 0 || typing.value ? Math.min(full - under, visible.value - 8) : Math.min(full, H) - under));
   /* the chats drawer, inside the card: from under its header to just over the ask bar */
   const drawerTop = haze - 8;
   const drawerH = useDerivedValue(() => Math.max(0, openH.value - drawerTop - DRAWER_CLEAR));

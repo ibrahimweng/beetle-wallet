@@ -204,6 +204,8 @@ export const DISCOS: Disco[] = [
   { id: 'benin', name: 'Benin Electricity', short: 'BEDC', area: 'Edo, Delta, Ondo and Ekiti', town: 'Benin City', aliases: ['bedc', 'benin'] },
   { id: 'kaduna', name: 'Kaduna Electric', short: 'KAEDCO', area: 'Kaduna, Kebbi, Sokoto and Zamfara', town: 'Kaduna', aliases: ['kaedco', 'kaduna'] },
   { id: 'yola', name: 'Yola Electricity', short: 'YEDC', area: 'Adamawa, Borno, Taraba and Yobe', town: 'Yola', aliases: ['yedc', 'yola'] },
+  /* the twelfth, licensed apart from the eleven that came out of PHCN (Round 39) */
+  { id: 'aba', name: 'Aba Power', short: 'Aba Power', area: 'Aba and its nine local governments in Abia', town: 'Aba', aliases: ['aba power', 'aple', 'aba'] },
 ];
 
 export const discoById = (id: string): Disco | null => DISCOS.find(d => d.id === id) ?? null;

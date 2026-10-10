@@ -51,6 +51,23 @@ describe('the banks a number is at', () => {
     expect(bankIn('to opay')).toBe('OPay');
     expect(bankIn('her beetle account')).toBe(BEETLE);
     expect(bankIn('the shop')).toBeNull();
+    /* the whole list (Round 39): whole words only, the longest name first, and names that are plain words need "bank" */
+    expect(bankIn('my diamond bank account')).toBe('Access Bank (Diamond)');
+    expect(bankIn('send it to my vbank')).toBe('VFD MFB');
+    expect(bankIn('the carbon in the air')).toBeNull();
+    expect(bankIn('my carbon app')).toBe('Carbon');
+    expect(bankIn('at the branch')).toBeNull();
+    expect(bankIn('my kudaa')).toBeNull();
+  });
+  it('knows every bank and money app the transfer network reaches, Heritage gone', () => {
+    expect(BANK_LIST.length).toBeGreaterThan(250);
+    expect(BANK_LIST.some(b => /heritage/i.test(b.name))).toBe(false);
+    expect(new Set(BANK_LIST.map(b => b.name)).size).toBe(BANK_LIST.length);
+    for (const name of ['Jaiz Bank', 'Globus Bank', 'Paga', '9PSB', 'MoMo PSB', 'FairMoney', 'VFD MFB'])
+      expect(
+        BANK_LIST.some(b => b.name === name),
+        name,
+      ).toBe(true);
   });
 });
 

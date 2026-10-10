@@ -17,14 +17,42 @@ import { DEMO_LEDGER } from '../src/features/home/account';
 
 describe('company logos (Round 38)', () => {
   it('every bank, network, electricity company, merchant and coin the app names has its logo', () => {
-    for (const b of BANK_LIST) expect(logoOf(b.name), b.name).toBeDefined();
+    /* the banks most people send to, and every money app that hands out phone numbers but HopePSB; the smaller banks
+       whose marks could not be found as more than a 16-pixel favicon show their initials instead (Round 39) */
+    const most = [
+      'Access Bank',
+      'Ecobank',
+      'Fidelity Bank',
+      'First Bank',
+      'FCMB',
+      'GTBank',
+      'Keystone Bank',
+      'Polaris Bank',
+      'Providus Bank',
+      'Stanbic IBTC',
+      'Sterling Bank',
+      'UBA',
+      'Union Bank',
+      'Unity Bank',
+      'Wema Bank',
+      'Zenith Bank',
+      'Jaiz Bank',
+      'Globus Bank',
+      'Citibank',
+      'Standard Chartered Bank',
+    ];
+    for (const name of most) expect(logoOf(name), name).toBeDefined();
+    for (const b of BANK_LIST.filter(x => x.phone && x.name !== 'HopePSB')) expect(logoOf(b.name), b.name).toBeDefined();
+    expect(BANK_LIST.filter(b => logoOf(b.name)).length).toBeGreaterThanOrEqual(55);
     expect(logoOf('Beetle')).toBe('beetle');
     for (const n of NETWORKS) expect(logoOf(n.name), n.name).toBeDefined();
     for (const d of DISCOS) {
       expect(logoOf(d.id), d.id).toBeDefined();
       expect(logoOf(d.name), d.name).toBe(logoOf(d.id));
     }
-    for (const m of MERCHANTS.filter(Boolean)) expect(logoOf(m), m).toBeDefined();
+    /* the merchants whose marks are not open to use show their initials; every other one has its tile (Round 39) */
+    const initialsOnly = new Set(['Adobe', 'Amazon', 'Bolt', 'Boomplay', 'Canva', 'CapCut', 'ChatGPT', 'Disney+', 'Jumia', 'LinkedIn', 'Microsoft 365', 'Prime Video', 'Shein', 'Temu', 'Xbox']);
+    for (const m of MERCHANTS.filter(Boolean)) expect(!!logoOf(m), m).toBe(!initialsOnly.has(m));
     for (const c of LISTED) expect(logoOf(c.id), c.id).toBeDefined();
   });
 

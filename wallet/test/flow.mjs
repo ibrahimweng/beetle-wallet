@@ -340,7 +340,16 @@ try {
   await see('Log in');
   at('/way-in');
   /* the two ways in side by side, 12 apart, Sign up the wider (Round 40, the owner's word) */
-  const [up, inn] = [await button('Sign up').boundingBox(), await button('Log in').boundingBox()];
+  /* measured once they have stopped arriving: they slide up together with a spring */
+  let up = null;
+  let inn = null;
+  for (let i = 0, last = ''; i < 40; i++) {
+    [up, inn] = [await button('Sign up').boundingBox(), await button('Log in').boundingBox()];
+    const now = JSON.stringify([up, inn]);
+    if (now === last) break;
+    last = now;
+    await page.waitForTimeout(100);
+  }
   must(
     Math.abs(up.y - inn.y) < 1 && Math.round(inn.x - (up.x + up.width)) === 12 && up.width > inn.width * 1.3,
     `Sign up and Log in should sit side by side, 12 apart, Sign up the wider (${JSON.stringify({ up, inn })})`,

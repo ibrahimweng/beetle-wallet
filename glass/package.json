@@ -1,0 +1,11 @@
+{
+  "name": "beetle-glass",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Beetle Glass: glass tiles over a photo, drawn in raw WebGL. Static site, no build step.",
+  "scripts": {
+    "start": "python3 -m http.server 4174 --bind 127.0.0.1",
+    "test": "node test/glass.mjs"
+  }
+}

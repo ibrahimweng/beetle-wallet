@@ -33,6 +33,21 @@ jobs:
       - name: The Figma plugin's panel works in a browser
         run: node glyphs/figma-plugin/test/ui.mjs
 
+  # Beetle Glass in glass/: the shader compiles and draws, every control
+  # changes what it draws, history and the link keep up, the export comes out
+  # at the photo's own size, it fits a phone, and no WebGL is said plainly.
+  glass:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: The glass draws, its controls work, and the export is the photo's own size
+        run: node glass/test/glass.mjs
+
   # The product app in wallet/: it compiles, the rules of the way in hold, the
   # web bundle builds, and the whole way in runs in a browser from the loading
   # screen to home. The pictures it takes are kept with the run.

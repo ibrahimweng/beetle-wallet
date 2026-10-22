@@ -52,7 +52,7 @@ export function Editor() {
     renderParts(prims, P);
     updateTools(prims);
   }
-  const art = (prims, P) => { const inner = E.svgInner(prims, P, { uid: 'cv' }); const goo = E.gooFilter(P, 'cv'); return goo ? `<defs>${goo}</defs><g filter="url(#goo-cv)">${inner}</g>` : inner; };
+  const art = (prims, P) => E.svgInner(prims, P, { uid: 'cv' });
   function live(prims) { const P = store.get().P; canvas.querySelector('.art').innerHTML = art(prims, P); canvas.querySelector('.handles').innerHTML = highlight(prims, P) + handles(prims); }
   const highlight = (prims, P) => { if (selPrim === null || !prims[selPrim]) return ''; const d = E.pathOf(prims[selPrim], P); return d ? `<path class="hl-under" d="${d}"/><path class="hl" d="${d}"/>` : ''; };
 

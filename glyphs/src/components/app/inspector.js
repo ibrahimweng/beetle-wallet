@@ -4,7 +4,7 @@
    This icon: name and tags, the style switch made of the icon's own four
    previews (the one you edit is the one the grid shows), the icon on paper and
    on ink at three sizes, copy and download, the point editor, the parts list,
-   and the SVG code. Whole library: the six parameters every icon is derived
+   goo before and after, and the SVG code. Whole library: the six parameters every icon is derived
    from, presets, the weight the grid shows, the preview surface, and the
    sprite, font and JSON exports of the current view. */
 import * as E from '../../lib/engine.js';
@@ -16,6 +16,7 @@ import { lib, primsOf, hasOwnSolid, onDrawings } from '../../lib/library.js';
 import { Editor } from './editor.js';
 import { LibraryPanel } from './library-panel.js';
 import { IconExport, LibraryExport } from './export-panel.js';
+import { GooPreview } from './goo-preview.js';
 
 const SCOPES = [['icon', 'This icon'], ['library', 'Whole library']];
 
@@ -26,7 +27,7 @@ function Section({ title, description, actions, content }) {
 }
 
 export function Inspector() {
-  const editor = Editor(), library = LibraryPanel(), iconExport = IconExport(), libExport = LibraryExport();
+  const editor = Editor(), library = LibraryPanel(), iconExport = IconExport(), libExport = LibraryExport(), goo = GooPreview();
 
   /* head: the scope */
   const scopeBtns = SCOPES.map(([v, label]) => h('button', { type: 'button', role: 'tab', 'data-value': v, 'aria-selected': 'false', onClick: () => store.set({ scope: v }) }, label));
@@ -52,6 +53,7 @@ export function Inspector() {
     Section({ title: 'Use it', content: iconExport.actions }),
     Section({ title: 'Points', actions: resetBtn, content: h('div', { class: 'stack', style: { gap: '10px' } }, source, editor.el) }),
     Section({ title: 'Parts', description: 'Click a part to see its points. The role is what it does in the filled styles.', content: editor.partsEl }),
+    Section({ title: 'Goo', description: 'Before and after. Goo is only added to the “with goo” exports; the grid and every plain export stay as drawn.', content: goo.el }),
     iconExport.code);
 
   /* the whole library */
@@ -93,6 +95,7 @@ export function Inspector() {
     libDesc.textContent = `Every icon is re-derived from these values. They apply to all ${fmtInt(lib.sets.all || 0)} icons; the four-style set follows the stroke, the corners, choke and goo, and keeps its own corner shapes.`;
   }
   store.subscribe((s, keys) => { if (keys.some(k => ['sel', 'P', 'edits', 'ready'].includes(k))) refresh(); if (keys.some(k => ['scope', 'sel', 'ready'].includes(k))) refreshScope(); });
+  onDrawings(() => goo.refresh());
   /* a four-style icon's other styles arrive after it was first drawn: draw it again with them */
   onDrawings(file => { const e = lib.byKey.get(store.get().sel); if (e && (e.drawn || file === 'fills')) { refresh(); editor.render(); } });
   refreshScope();

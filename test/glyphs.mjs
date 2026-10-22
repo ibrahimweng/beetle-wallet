@@ -263,6 +263,31 @@ console.log('glyphs toolbar while scrolling');
   await ctx.close();
 }
 
+/* ---------- goo, before and after ---------- */
+console.log('glyphs goo');
+{
+  const { ctx, p, errors, store } = await open('/public/glyphs/');
+  await store(`s => s.set({ sel: 'beetle:eye', scope: 'icon' })`);
+  const pair = p.locator('.goo-pair');
+  await pair.scrollIntoViewIfNeeded();
+  await p.waitForFunction(() => document.querySelectorAll('.goo-pair svg').length === 2 && document.querySelector('.goo-pair figure + figure path'));
+  const art = () => p.evaluate(() => [...document.querySelectorAll('.goo-pair .goo-art')].map(a => a.innerHTML));
+  const grid = () => p.evaluate(() => [...document.querySelectorAll('.grid svg')].slice(0, 40).map(s => s.outerHTML).join(''));
+  const [plain, goo] = await art();
+  check(/<path/.test(goo) && !/<(filter|mask|clipPath|image|use)\b|<fe[A-Z]/.test(goo), 'the icon is shown without and with goo, the goo one as paths alone');
+  check(plain !== goo && !/<filter/.test(plain), 'and the one without is the icon as drawn');
+  const before = await grid();
+  const slider = p.locator('#goo-here');
+  await slider.focus();
+  for (let i = 0; i < 6; i++) await slider.press('ArrowRight');
+  await p.waitForFunction(g => document.querySelector('.goo-pair figure + figure .goo-art').innerHTML !== g, goo);
+  check(Math.abs(await store('s => s.get().P.goo') - 0.9) < 1e-9, 'its slider sets the goo amount', String(await store('s => s.get().P.goo')));
+  check((await art())[1] !== goo && (await art())[0] === plain, 'more goo changes the goo one, and only the goo one');
+  check(await grid() === before && !/<filter/.test(before), 'the grid stays as drawn, with no goo in it');
+  check(!errors.length, 'no console errors', errors.slice(0, 3).join(' | '));
+  await ctx.close();
+}
+
 /* ---------- a category as a ZIP of SVGs ---------- */
 console.log('glyphs category download');
 {

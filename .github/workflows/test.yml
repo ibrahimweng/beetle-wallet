@@ -30,6 +30,8 @@ jobs:
         run: node glyphs/tools/build-library.mjs --check
       - name: Every line near a diagonal is on it, or says why not
         run: node glyphs/tools/check-angles.mjs
+      - name: Goo is paths alone, keeps every line's weight, and rounds every corner by the same radius
+        run: node glyphs/tools/check-goo.mjs
       - name: The Figma plugin matches the site it is built from, and every icon reaches Figma whole
         run: node glyphs/tools/build-figma-plugin.mjs --check
       - name: The Figma plugin's panel works in a browser

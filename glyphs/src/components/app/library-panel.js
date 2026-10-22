@@ -16,7 +16,7 @@ const SPEC = [
   ['fillet', 'Corner fillet', 0, 3, 0.1, v => Number.isInteger(+v.toFixed(1)), 'S', v => v.toFixed(1), 'Rounds every sharp join between straight segments.'],
   ['G', 'Gap', 0, 1.5, 0.05, v => Math.abs(v * 2 - Math.round(v * 2)) < 1e-6, 'S', v => v.toFixed(2), 'Space where separate parts meet, and around a stacked shape in the solid.'],
   ['choke', 'Choke', -0.9, 0.9, 0.05, v => Math.abs(v * 10 - Math.round(v * 10)) < 1e-6 && Math.round(v * 10) % 3 === 0, '', v => (v > 0 ? '+' : '') + v.toFixed(2), 'Negative erodes every edge, positive dilates. Baked into exports.'],
-  ['goo', 'Goo', 0, 1.2, 0.05, v => Math.abs(v * 10 - Math.round(v * 10)) < 1e-6 && Math.round(v * 10) % 3 === 0, '', v => v.toFixed(2), 'Blur then threshold. Rounds corners and fuses near parts. Preview and SVG only.'],
+  ['goo', 'Goo', 0.1, 1.2, 0.05, v => Math.abs(v * 10 - Math.round(v * 10)) < 1e-6 && Math.round(v * 10) % 3 === 0, '', v => v.toFixed(2), 'For the “with goo” exports only: the radius every corner is rounded by, on the 24 grid. Near parts fuse; lines and dots keep their weight. The grid stays as drawn.'],
 ];
 
 export function LibraryPanel() {

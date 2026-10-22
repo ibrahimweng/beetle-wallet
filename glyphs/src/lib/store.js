@@ -28,6 +28,8 @@ function load() {
     const out = {};
     for (const k of PERSIST) if (saved[k] != null) out[k] = saved[k];
     if (out.P) out.P = { ...DEF, ...out.P };
+    /* goo used to be off at 0; it is now the amount the "with goo" exports use, never 0 */
+    if (out.P && !(out.P.goo > 0)) out.P.goo = DEF.goo;
     if (out.filter) out.filter = { ...initial.filter, ...out.filter };
     if (!['auto', 'paper', 'ink'].includes(out.surface)) delete out.surface;
     if (!['icon', 'library'].includes(out.scope)) delete out.scope;

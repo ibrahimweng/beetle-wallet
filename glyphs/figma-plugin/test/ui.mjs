@@ -202,7 +202,7 @@ console.log('figma plugin panel');
   /* goo, and the About sheet */
   await ui.locator('.pg-head button:has-text("Settings")').click();
   ok(await ui.locator('.sheet input#p-S').isVisible() && !(await ui.locator('.sheet input#p-goo').isVisible()), 'Settings has the site\'s sliders, without goo');
-  ok(/Figma cannot import SVG filters/.test(await ui.locator('.sheet').innerText()), 'and says why goo is left out');
+  ok(/Goo is left out of the plugin\. It turns every line into a filled shape/.test(await ui.locator('.sheet').innerText()), 'and says why goo is left out');
   await ui.locator('.sheet [aria-label="Close"]').click();
   await page.waitForTimeout(400);
   await ui.locator('.pg-head button:has-text("About")').click();

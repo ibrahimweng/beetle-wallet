@@ -73,6 +73,42 @@ console.log('glyphs exports');
   await ctx.close();
 }
 
+/* ---------- every export, plain and with goo, from its button ---------- */
+console.log('glyphs exports with goo');
+{
+  const { readFileSync } = await import('fs');
+  const ctx = await b.newContext({ viewport: { width: 1440, height: 1000 }, acceptDownloads: true });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('pageerror', e => errors.push(e.message));
+  await p.goto(base + '/public/glyphs/'); await p.waitForFunction(() => document.querySelectorAll('.grid .tile').length > 100);
+  const store = fn => p.evaluate(`import(new URL('src/lib/store.js', location.href).href).then(({ store }) => (${fn})(store))`);
+  const save = async (name, timeout = 30000) => { const [dl] = await Promise.all([p.waitForEvent('download', { timeout }), p.getByRole('button', { name, exact: true }).click()]); return { name: dl.suggestedFilename(), buf: readFileSync(await dl.path()) }; };
+  const pathsOnly = svg => /<path/.test(svg) && !/<(filter|mask|clipPath|image|use)\b|<fe[A-Z]|stroke=/.test(svg);
+
+  await store(`s => s.set({ sel: 'beetle:eye', scope: 'icon' })`);
+  const plain = await save('Download'), goo = await save('Download with goo');
+  check(!plain.name.includes('goo') && /<svg/.test(plain.buf), `Download is the icon as drawn (${plain.name})`);
+  check(goo.name === plain.name.replace(/\.svg$/, '-goo.svg') && pathsOnly(goo.buf.toString()), `Download with goo, beside it, is paths alone (${goo.name})`);
+  check(String(goo.buf) !== String(plain.buf), 'and the two differ');
+
+  await store(`s => s.set({ scope: 'library', filter: { ...s.get().filter, set: 'beetle', cat: 'all', q: '' } })`);
+  const n = await p.evaluate(() => import(new URL('src/lib/library.js', location.href).href).then(L => L.search({ q: '', set: 'beetle', cat: 'all' }).length));
+  const sprite = await save('Sprite'), gooSprite = await save('Sprite with goo', 120000);
+  const symbols = t => [...String(t).matchAll(/<symbol id="[^"]+" viewBox="0 0 24 24">([\s\S]*?)<\/symbol>/g)].map(m => m[1]);
+  check(!sprite.name.includes('goo') && symbols(sprite.buf).length === n, `Sprite is as it was, a symbol per icon (${symbols(sprite.buf).length} of ${n})`);
+  check(gooSprite.name.endsWith('-goo-sprite.svg') && symbols(gooSprite.buf).length === n && symbols(gooSprite.buf).every(pathsOnly), `Sprite with goo has the same symbols, each paths alone (${gooSprite.name})`);
+  const font = await save('Font with goo', 120000);
+  const has = (buf, s) => buf.includes(Buffer.from(s, 'latin1')) || buf.includes(Buffer.from(s, 'utf16le').swap16());
+  check(font.name.endsWith('-goo.ttf') && ['OTTO', '\0\x01\0\0'].includes(font.buf.toString('latin1', 0, 4)) && has(font.buf, 'Beetle Glyphs Goo'), `Font with goo is a font of its own family, as the plain one is (${font.name}, ${(font.buf.length / 1024).toFixed(0)} KB)`);
+  const json = await save('JSON with goo', 120000);
+  const j = JSON.parse(json.buf.toString());
+  check(json.name.endsWith('-goo.json') && Object.keys(j.icons).length === n && Object.values(j.icons).every(ls => ls.length && ls.every(l => /^M[\d.\- ]/.test(l.d))), `JSON with goo has every icon as path data (${Object.keys(j.icons).length} of ${n})`);
+  check(/Downloading|Saved|Delivered/.test(await p.locator('.status').filter({ hasText: 'with goo in' }).first().textContent()), 'and says how long goo took');
+  check(!errors.length, 'no errors', errors.slice(0, 3).join(' | '));
+  await ctx.close();
+}
+
 /* ---------- the point editor ---------- */
 console.log('glyphs editor');
 {

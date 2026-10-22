@@ -9401,10 +9401,14 @@ const clipperD = paths => paths.map(p => {
   }
   return d + 'Z';
 }).join('');
+/* the icon with goo, layer by layer: [{ d, alpha }], path data on the 24 grid */
+function gooLayers(prims, P, opts = {}) {
+  const weight = opts.weight || P.weight;
+  return inkLayers(prims, P, weight).map(l => ({ d: clipperD(gooPaths(l.paths, P)), alpha: l.alpha })).filter(l => l.d);
+}
 /* the icon with goo, as paths only: no filter, no mask, no image */
 function gooInner(prims, P, opts = {}) {
-  const weight = opts.weight || P.weight;
-  return inkLayers(prims, P, weight).map(l => { const d = clipperD(gooPaths(l.paths, P)); return d ? `<path d="${d}" fill="currentColor"${l.alpha < 1 ? ` opacity="${f2(l.alpha)}"` : ''}/>` : ''; }).join('');
+  return gooLayers(prims, P, opts).map(l => `<path d="${l.d}" fill="currentColor"${l.alpha < 1 ? ` opacity="${f2(l.alpha)}"` : ''}/>`).join('');
 }
 function gooSvg(prims, P, opts = {}) {
   const size = opts.size || 24;
@@ -9424,14 +9428,18 @@ function fontPath(paths, ot) {
   }
   return p;
 }
-/* entries: [{ name, prims, roles? }] -> opentype Font; icons sit at U+E000 upward in order */
+/* entries: [{ name, prims, roles? } or { name, paths }] -> opentype Font; icons sit at U+E000 upward in order.
+   opts.goo adds goo; paths worked out beforehand (with fontInk) go in as they are */
+function fontInk(prims, P, opts, CL, roles) {
+  const ink = outline(prims, P, opts.weight || P.weight, CL, roles);
+  return opts.goo ? gooPaths(ink, P, CL) : ink;
+}
 function buildFont(P, entries, opts, CL, ot) {
   const weight = opts.weight || P.weight;
   const list = [new ot.Glyph({ name: '.notdef', unicode: 0, advanceWidth: 500, path: new ot.Path() })];
   const map = [];
   entries.forEach((e, i) => {
-    const ink = outline(e.prims, P, weight, CL, e.roles);
-    const paths = opts.goo ? gooPaths(ink, P, CL) : ink;
+    const paths = e.paths || fontInk(e.prims, P, { ...opts, weight }, CL, e.roles);
     const cp = 0xE000 + i;
     map.push({ name: e.name, cp });
     list.push(new ot.Glyph({ name: e.name.replace(/[^A-Za-z0-9._-]/g, '_'), unicode: cp, advanceWidth: 1000, path: fontPath(paths, ot) }));
@@ -9576,7 +9584,7 @@ const ICON_ORDER = ['card', 'home', 'bag', 'search', 'globe', 'send', 'person', 
 
 
 
-return { DEF, WEIGHTS, TONE, PRESETS, ICONS, ICON_ORDER, BASE, corners, radiusOf, parsePath, segsToString, subpaths, polyfy, arcCentre, pathOf, flatten, isClosed, bbox, autoRoles, svg, svgInner, symbol, gooSvg, gooSymbol, gooInner, gooPaths, gooRadius, inkLayers, widths, fromNodes, outline, buildFont, deriveOutline, primsFor, halos, safeId, f2, f4, isNative, layers, drawn, analyse, analysisOf, useClipper };
+return { DEF, WEIGHTS, TONE, PRESETS, ICONS, ICON_ORDER, BASE, corners, radiusOf, parsePath, segsToString, subpaths, polyfy, arcCentre, pathOf, flatten, isClosed, bbox, autoRoles, svg, svgInner, symbol, gooSvg, gooSymbol, gooInner, gooLayers, gooPaths, gooRadius, inkLayers, widths, fromNodes, outline, buildFont, fontInk, deriveOutline, primsFor, halos, safeId, f2, f4, isNative, layers, drawn, analyse, analysisOf, useClipper };
 })();
 
 /* src/lib/utils.js */
@@ -10321,9 +10329,10 @@ return { crc32, zip };
 
 /* src/lib/export.js */
 const M$src_lib_export_js = (function () {
-/* Exports: SVG text, an SVG sprite, an icon font, JSON. Saving goes through the
-   viewer's save dialog when the page runs inside claude.ai and through a plain
-   download link everywhere else, so the same file works on Vercel. */
+/* Exports: SVG text, an SVG sprite, an icon font and JSON, each plain, as
+   drawn, and with goo. Saving goes through the viewer's save dialog when the
+   page runs inside claude.ai and through a plain download link everywhere
+   else, so the same file works on Vercel. */
 const E = M$src_lib_engine_js;
 const { exportName, search, primsOf, drawingsFor, entryOf } = M$src_lib_library_js;
 const { STYLE_SLUG, STYLE_LABEL } = M$src_lib_utils_js;
@@ -10349,18 +10358,42 @@ async function copyText(txt) {
 }
 
 const iconSVG = (key, prims, P, weight) => E.svg(prims, P, { size: 24, uid: exportName(key), weight: weight || P.weight });
+const gooIconSVG = (prims, P, weight) => E.gooSvg(prims, P, { size: 24, weight: weight || P.weight });
 
-function spriteOf(entries, P, prims) {
-  const syms = entries.map(e => E.symbol(exportName(e.key), prims(e.key), P, {})).join('\n');
-  return `<svg xmlns="http://www.w3.org/2000/svg" style="display:none">\n<!-- Beetle Glyphs · S ${P.S} R ${P.R} fillet ${P.fillet} choke ${P.choke} · ${fileStem(P)} · core set under the ISC license, see LICENSE-core.txt; four-style set (Keyline Icons) under the MIT license, see LICENSE-keyline.txt -->\n${syms}\n</svg>`;
+/* goo takes a moment an icon: a long list is worked through in slices, with the
+   page free to draw between them and progress(done, total) told as it goes */
+async function inSlices(list, fn, progress) {
+  const out = [];
+  let t = performance.now();
+  for (let i = 0; i < list.length; i++) {
+    out.push(fn(list[i], i));
+    if (performance.now() - t > 40) { if (progress) progress(i + 1, list.length); await new Promise(r => setTimeout(r, 0)); t = performance.now(); }
+  }
+  return out;
 }
+
+const gooNote = P => `with goo ${P.goo}, paths only`;
+
+const spriteDoc = (P, syms, goo) => `<svg xmlns="http://www.w3.org/2000/svg" style="display:none">\n<!-- Beetle Glyphs · S ${P.S} R ${P.R} fillet ${P.fillet} choke ${P.choke} · ${fileStem(P)}${goo ? ' · ' + gooNote(P) : ''} · core set under the ISC license, see LICENSE-core.txt; four-style set (Keyline Icons) under the MIT license, see LICENSE-keyline.txt -->\n${syms.join('\n')}\n</svg>`;
+const spriteOf = (entries, P, prims) => spriteDoc(P, entries.map(e => E.symbol(exportName(e.key), prims(e.key), P, {})));
+const gooSpriteOf = async (entries, P, prims, progress) => spriteDoc(P, await inSlices(entries, e => E.gooSymbol(exportName(e.key), prims(e.key), P), progress), true);
 
 function fontOf(entries, P, prims) {
   const { font, map } = E.buildFont(P, entries.map(e => ({ name: exportName(e.key), prims: prims(e.key) })), { weight: P.weight, family: 'Beetle Glyphs' }, window.ClipperLib, window.opentype);
   return { buf: font.toArrayBuffer(), map };
 }
+/* a font with goo is a family of its own, so it can sit beside the plain one */
+async function gooFontOf(entries, P, prims, progress) {
+  const opts = { weight: P.weight, family: 'Beetle Glyphs Goo', goo: true };
+  const list = await inSlices(entries, e => ({ name: exportName(e.key), paths: E.fontInk(prims(e.key), P, opts, window.ClipperLib) }), progress);
+  const { font, map } = E.buildFont(P, list, opts, window.ClipperLib, window.opentype);
+  return { buf: font.toArrayBuffer(), map };
+}
 
 const jsonOf = (entries, P, prims) => JSON.stringify({ engine: 2, params: P, icons: Object.fromEntries(entries.map(e => [exportName(e.key), prims(e.key)])) });
+/* with goo there are no primitives left: each icon is its layers of path data on the 24 grid, filled, a translucent one with its opacity */
+const gooJsonOf = async (entries, P, prims, progress) => JSON.stringify({ engine: 2, goo: P.goo, params: P, viewBox: '0 0 24 24',
+  icons: Object.fromEntries(await inSlices(entries, e => [exportName(e.key), E.gooLayers(prims(e.key), P).map(l => (l.alpha < 1 ? { d: l.d, opacity: E.f2(l.alpha) } : { d: l.d }))], progress)) });
 
 const usageSnippet = (key, P) => {
   const n = exportName(key);
@@ -10395,7 +10428,7 @@ async function categoryZip(cat, state) {
   return { name: `${folder}.zip`, blob: await zip(files), count: entries.length };
 }
 
-return { fileStem, saveFile, copyText, iconSVG, spriteOf, fontOf, jsonOf, usageSnippet, categoryZip };
+return { fileStem, saveFile, copyText, iconSVG, gooIconSVG, inSlices, spriteOf, gooSpriteOf, fontOf, gooFontOf, jsonOf, gooJsonOf, usageSnippet, categoryZip };
 })();
 
 /* src/components/app/sidebar.js */

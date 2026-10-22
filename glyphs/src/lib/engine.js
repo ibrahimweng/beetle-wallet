@@ -1101,10 +1101,14 @@ const clipperD = paths => paths.map(p => {
   }
   return d + 'Z';
 }).join('');
+/* the icon with goo, layer by layer: [{ d, alpha }], path data on the 24 grid */
+function gooLayers(prims, P, opts = {}) {
+  const weight = opts.weight || P.weight;
+  return inkLayers(prims, P, weight).map(l => ({ d: clipperD(gooPaths(l.paths, P)), alpha: l.alpha })).filter(l => l.d);
+}
 /* the icon with goo, as paths only: no filter, no mask, no image */
 function gooInner(prims, P, opts = {}) {
-  const weight = opts.weight || P.weight;
-  return inkLayers(prims, P, weight).map(l => { const d = clipperD(gooPaths(l.paths, P)); return d ? `<path d="${d}" fill="currentColor"${l.alpha < 1 ? ` opacity="${f2(l.alpha)}"` : ''}/>` : ''; }).join('');
+  return gooLayers(prims, P, opts).map(l => `<path d="${l.d}" fill="currentColor"${l.alpha < 1 ? ` opacity="${f2(l.alpha)}"` : ''}/>`).join('');
 }
 function gooSvg(prims, P, opts = {}) {
   const size = opts.size || 24;
@@ -1124,14 +1128,18 @@ function fontPath(paths, ot) {
   }
   return p;
 }
-/* entries: [{ name, prims, roles? }] -> opentype Font; icons sit at U+E000 upward in order */
+/* entries: [{ name, prims, roles? } or { name, paths }] -> opentype Font; icons sit at U+E000 upward in order.
+   opts.goo adds goo; paths worked out beforehand (with fontInk) go in as they are */
+function fontInk(prims, P, opts, CL, roles) {
+  const ink = outline(prims, P, opts.weight || P.weight, CL, roles);
+  return opts.goo ? gooPaths(ink, P, CL) : ink;
+}
 function buildFont(P, entries, opts, CL, ot) {
   const weight = opts.weight || P.weight;
   const list = [new ot.Glyph({ name: '.notdef', unicode: 0, advanceWidth: 500, path: new ot.Path() })];
   const map = [];
   entries.forEach((e, i) => {
-    const ink = outline(e.prims, P, weight, CL, e.roles);
-    const paths = opts.goo ? gooPaths(ink, P, CL) : ink;
+    const paths = e.paths || fontInk(e.prims, P, { ...opts, weight }, CL, e.roles);
     const cp = 0xE000 + i;
     map.push({ name: e.name, cp });
     list.push(new ot.Glyph({ name: e.name.replace(/[^A-Za-z0-9._-]/g, '_'), unicode: cp, advanceWidth: 1000, path: fontPath(paths, ot) }));
@@ -1274,4 +1282,4 @@ const ICONS = {
 };
 const ICON_ORDER = ['card', 'home', 'bag', 'search', 'globe', 'send', 'person', 'target', 'star', 'plus', 'arrow', 'naira'];
 
-export { DEF, WEIGHTS, TONE, PRESETS, ICONS, ICON_ORDER, BASE, corners, radiusOf, parsePath, segsToString, subpaths, polyfy, arcCentre, pathOf, flatten, isClosed, bbox, autoRoles, svg, svgInner, symbol, gooSvg, gooSymbol, gooInner, gooPaths, gooRadius, inkLayers, widths, fromNodes, outline, buildFont, deriveOutline, primsFor, halos, safeId, f2, f4, isNative, layers, drawn, analyse, analysisOf, useClipper  };
+export { DEF, WEIGHTS, TONE, PRESETS, ICONS, ICON_ORDER, BASE, corners, radiusOf, parsePath, segsToString, subpaths, polyfy, arcCentre, pathOf, flatten, isClosed, bbox, autoRoles, svg, svgInner, symbol, gooSvg, gooSymbol, gooInner, gooLayers, gooPaths, gooRadius, inkLayers, widths, fromNodes, outline, buildFont, fontInk, deriveOutline, primsFor, halos, safeId, f2, f4, isNative, layers, drawn, analyse, analysisOf, useClipper  };

@@ -40,7 +40,7 @@ glyphs/
       engine.js               the geometry engine (ES module)
       library.js              loading, search, edits applied on top of the library
       store.js                one observable store with persistence
-      export.js               SVG, sprite, font, JSON and category ZIP exports; save through claude.ai or a plain link
+      export.js               SVG, sprite, font, JSON and category ZIP exports, plain and with goo; save through claude.ai or a plain link
       zip.js                  a small ZIP writer (deflate through the browser's CompressionStream, or stored)
       utils.js                h(), cn(), debounce, the style names, the interface's own small icons
     components/
@@ -78,7 +78,7 @@ With reduced motion turned on, none of it moves. On a narrow screen the controls
 
 ## Categories
 
-Each category in the sidebar has a download button where its count is, shown on hover or focus (always, on a touch screen). It saves a ZIP of every icon the category counts, one SVG each, in the style, corners and parameters the grid shows and in the grid's colour when one is picked. The ZIP also holds the licence notice of each set it draws on and a README with the settings.
+Each category in the sidebar has two download buttons where its count is, shown on hover or focus (always, on a touch screen): the arrow downloads the category plain, as drawn, and the drop downloads it with goo. Either saves a ZIP of every icon the category counts, one SVG each, in the style, corners and parameters the grid shows and in the grid's colour when one is picked. Inside, every file is named `category/icon-name.svg`, the same in both, and the ZIP is named for the category and the style, with `-goo` for the one with goo (`beetle-glyphs-animals-fill.zip`, `beetle-glyphs-animals-fill-goo.zip`). The category folder also holds the licence notice of each set it draws on and a README with the settings, and the goo amount when there is goo.
 
 ## The inspector
 

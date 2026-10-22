@@ -71,7 +71,7 @@ const status = h('div', { class: 'pg-status', role: 'status', 'aria-live': 'poli
 const say = text => { status.textContent = text; };
 
 const libraryBtn = Button({ variant: 'outline', size: 'sm', icon: ICO.menu, label: 'Library', title: 'Sets and categories', onClick: () => {
-  const nav = Sidebar(); nav.el.classList.add('in-sheet'); nav.render();
+  const nav = Sidebar({ goo: false }); nav.el.classList.add('in-sheet'); nav.render(); // goo is left out here, so a category downloads plain only
   let un = () => {};
   const close = openSheet({ side: 'left', title: 'Library', content: nav.el, onClose: () => { nav.destroy(); un(); } });
   un = store.subscribe((s, keys) => { if (keys.includes('filter')) close(); });

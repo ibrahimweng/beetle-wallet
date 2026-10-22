@@ -297,19 +297,21 @@ a { color: inherit; text-decoration: none; }
 .nav-item[aria-current="true"] { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); font-weight: 500; }
 .nav-item[aria-current="true"] .count { color: hsl(var(--primary-foreground) / .7); }
 .nav-item .count { font-family: var(--font-mono); font-size: 11px; color: hsl(var(--muted-foreground)); transition: opacity .15s var(--ease); }
-/* a category's download sits where its count is, shown on hover or focus */
+/* a category's two downloads, plain and with goo, sit where its count is, shown on hover or focus */
 .nav-row { position: relative; }
-.nav-dl { position: absolute; right: 2px; top: 50%; width: 28px; height: 28px; margin-top: -14px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: calc(var(--radius) - 2px); background: transparent; color: hsl(var(--muted-foreground)); opacity: 0; transition: opacity .15s var(--ease), background-color .15s var(--ease), color .15s var(--ease); }
+.nav-dls { position: absolute; right: 2px; top: 50%; height: 28px; margin-top: -14px; display: flex; gap: 2px; }
+.nav-dl { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: calc(var(--radius) - 2px); background: transparent; color: hsl(var(--muted-foreground)); opacity: 0; transition: opacity .15s var(--ease), background-color .15s var(--ease), color .15s var(--ease); }
 .nav-dl svg { width: 15px; height: 15px; }
 .nav-dl:hover { background: hsl(var(--muted)); color: hsl(var(--foreground)); }
-.nav-row:hover .nav-dl, .nav-dl:focus-visible, .nav-dl[aria-busy] { opacity: 1; }
+.nav-row:hover .nav-dl, .nav-row:has(.nav-dl:focus-visible) .nav-dl, .nav-dl[aria-busy] { opacity: 1; }
+.nav-row:has(.nav-dl-goo):hover .nav-item, .nav-row:has(.nav-dl-goo):has(.nav-dl:focus-visible) .nav-item { padding-right: 64px; }
 .nav-row:hover .count, .nav-row:has(.nav-dl:focus-visible) .count, .nav-row:has(.nav-dl[aria-busy]) .count { opacity: 0; }
 .nav-row:has(.nav-item[aria-current="true"]) .nav-dl { color: hsl(var(--primary-foreground)); }
 .nav-row:has(.nav-item[aria-current="true"]) .nav-dl:hover { background: hsl(var(--primary-foreground) / .15); }
 .nav-dl[aria-busy] svg { animation: nav-dl-pulse 1s var(--ease) infinite; }
 @keyframes nav-dl-pulse { 50% { opacity: .35; transform: translateY(1px); } }
-/* where nothing hovers, the download shows beside the count */
-@media (hover: none) { .nav-dl { opacity: 1; } .nav-row .nav-item { padding-right: 36px; } .nav-row:hover .count { opacity: 1; } }
+/* where nothing hovers, the downloads show beside the count */
+@media (hover: none) { .nav-dl { opacity: 1; } .nav-row .nav-item { padding-right: 36px; } .nav-row:has(.nav-dl-goo) .nav-item, .nav-row:has(.nav-dl-goo):hover .nav-item { padding-right: 64px; } .nav-row:hover .count { opacity: 1; } }
 .main { padding: 24px 24px 64px; min-width: 0; max-width: 1100px; }
 .page-head { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
 .page-title { font-size: 24px; line-height: 30px; font-weight: 700; letter-spacing: -.02em; }
@@ -9638,6 +9640,7 @@ const ICO = {
   check: ico('<path d="M20 6 9 17l-5-5"/>'),
   copy: ico('<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>'),
   download: ico('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>'),
+  downloadGoo: ico('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M12 3c1.6 2.5 4.5 4.5 4.5 7.5a4.5 4.5 0 0 1-9 0C7.5 7.5 10.4 5.5 12 3z"/>'),
   sliders: ico('<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>'),
   pen: ico('<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>'),
   github: ico('<path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/>'),
@@ -10329,10 +10332,10 @@ return { crc32, zip };
 
 /* src/lib/export.js */
 const M$src_lib_export_js = (function () {
-/* Exports: SVG text, an SVG sprite, an icon font and JSON, each plain, as
-   drawn, and with goo. Saving goes through the viewer's save dialog when the
-   page runs inside claude.ai and through a plain download link everywhere
-   else, so the same file works on Vercel. */
+/* Exports: SVG text, an SVG sprite, an icon font, JSON and a category as a
+   ZIP, each plain, as drawn, and with goo. Saving goes through the viewer's
+   save dialog when the page runs inside claude.ai and through a plain
+   download link everywhere else, so the same file works on Vercel. */
 const E = M$src_lib_engine_js;
 const { exportName, search, primsOf, drawingsFor, entryOf } = M$src_lib_library_js;
 const { STYLE_SLUG, STYLE_LABEL } = M$src_lib_utils_js;
@@ -10402,18 +10405,19 @@ const usageSnippet = (key, P) => {
 
 /* a category as a ZIP of SVGs: every icon in it, in the style, corners and
    parameters the grid shows, in the grid's colour when one is picked, with the
-   licence notices of the sets it draws on */
+   licence notices of the sets it draws on. Inside, every file is
+   category/icon-name.svg; with goo, the same names, the icons with goo. */
 const LICENSES = { core: ['LICENSE-core.txt', 'The core set, under the ISC license.'], four: ['LICENSE-keyline.txt', 'The four-style set (Keyline Icons), under the MIT license.'], beetle: [null, 'The app glyphs belong to the Beetle wallet design.'] };
-async function categoryZip(cat, state) {
+async function categoryZip(cat, state, { goo = false, progress } = {}) {
   const { P } = state, color = state.view && state.view.color;
   await drawingsFor(P);
   const entries = search({ set: 'all', cat, q: '', box: 'all' });
-  const folder = `beetle-glyphs-${cat}-${fileStem(P)}`;
-  const files = entries.map(e => {
-    let svg = iconSVG(e.key, primsOf(e.key, state), P);
+  const folder = cat;
+  const files = await inSlices(entries, e => {
+    let svg = goo ? gooIconSVG(primsOf(e.key, state), P) : iconSVG(e.key, primsOf(e.key, state), P);
     if (color) svg = svg.replace(/currentColor/g, color);
     return { name: `${folder}/${exportName(e.key)}.svg`, data: svg + '\n' };
-  });
+  }, progress);
   const sets = [...new Set(entries.map(e => { const b = e.base ? entryOf(e.base) : e; return b ? b.set : e.set; }))].filter(x => LICENSES[x]);
   for (const set of sets) {
     const [file] = LICENSES[set]; if (!file) continue;
@@ -10422,10 +10426,10 @@ async function categoryZip(cat, state) {
   files.push({ name: `${folder}/README.txt`, data: [
     `Beetle Glyphs: ${cat.replace(/-/g, ' ')}, ${entries.length} icons.`,
     `${STYLE_LABEL[P.weight] || P.weight}, ${P.corners === 'sharp' ? 'sharp' : 'rounded'} corners, stroke ${P.S}, box corner ${P.R}, fillet ${P.fillet}, gap ${P.G}, choke ${P.choke}${color ? `, colour ${color}` : ', in currentColor'}.`,
-    'Each SVG is 24 by 24.', '',
+    goo ? `With goo: every corner, inside and outside, rounded by ${P.goo} on the 24 grid, and parts closer than twice that fused. Each SVG is paths alone, 24 by 24.` : 'Each SVG is 24 by 24, as drawn.', '',
     ...sets.map(set => LICENSES[set][1] + (LICENSES[set][0] ? ` The notice is in ${LICENSES[set][0]} and stays with the icons.` : '')),
   ].join('\n') + '\n' });
-  return { name: `${folder}.zip`, blob: await zip(files), count: entries.length };
+  return { name: `beetle-glyphs-${cat}-${fileStem(P)}${goo ? '-goo' : ''}.zip`, blob: await zip(files), count: entries.length };
 }
 
 return { fileStem, saveFile, copyText, iconSVG, gooIconSVG, inSlices, spriteOf, gooSpriteOf, fontOf, gooFontOf, jsonOf, gooJsonOf, usageSnippet, categoryZip };
@@ -10434,7 +10438,8 @@ return { fileStem, saveFile, copyText, iconSVG, gooIconSVG, inSlices, spriteOf, 
 /* src/components/app/sidebar.js */
 const M$src_components_app_sidebar_js = (function () {
 /* Sidebar navigation: sets and categories, with counts; each category downloads
-   as a ZIP of SVGs in the style the grid shows. */
+   as a ZIP of SVGs in the style the grid shows, plain or with goo (goo: false
+   leaves the one with goo out). */
 const { h, fmtInt, ICO } = M$src_lib_utils_js;
 const { store } = M$src_lib_store_js;
 const { lib } = M$src_lib_library_js;
@@ -10442,28 +10447,34 @@ const { categoryZip, saveFile } = M$src_lib_export_js;
 
 const SETS = [['all', 'All icons'], ['scenarios', 'App scenarios'], ['beetle', 'App glyphs'], ['four', 'Four-style set'], ['core', 'Core set']];
 
-const busy = new Set(); // categories being zipped, kept across re-renders
+const busy = new Set(); // downloads being zipped (the category, and :goo for one with goo), kept across re-renders
 
-function Sidebar() {
+function Sidebar({ goo = true } = {}) {
   const el = h('nav', { class: 'sidebar', 'aria-label': 'Library' });
   const status = h('div', { class: 'sr-only', role: 'status' });
-  async function download(cat, btn) {
-    if (busy.has(cat)) return;
-    const label = cat.replace(/-/g, ' ');
-    busy.add(cat); btn.setAttribute('aria-busy', 'true'); status.textContent = `Preparing ${label}…`;
+  async function download(cat, goo, btn) {
+    const job = cat + (goo ? ':goo' : '');
+    if (busy.has(job)) return;
+    const label = cat.replace(/-/g, ' ') + (goo ? ' with goo' : '');
+    busy.add(job); btn.setAttribute('aria-busy', 'true'); status.textContent = `Preparing ${label}…`;
     try {
-      const { name, blob, count } = await categoryZip(cat, store.get());
+      const { name, blob, count } = await categoryZip(cat, store.get(), { goo, progress: goo ? (n, total) => { status.textContent = `Adding goo to ${cat.replace(/-/g, ' ')}: ${fmtInt(n)} of ${fmtInt(total)} icons…`; } : null });
       status.textContent = `${await saveFile(name, blob, 'application/zip')} ${fmtInt(count)} icons in ${label}.`;
     } catch (e) { status.textContent = `Could not prepare ${label}: ${e.message}`; }
-    busy.delete(cat); el.querySelectorAll('.nav-dl[aria-busy]').forEach(b => { if (!busy.has(b.dataset.cat)) b.removeAttribute('aria-busy'); });
+    busy.delete(job); el.querySelectorAll('.nav-dl[aria-busy]').forEach(b => { if (!busy.has(b.dataset.job)) b.removeAttribute('aria-busy'); });
   }
   const catRow = c => {
     const label = c.name.replace(/-/g, ' ');
-    const dl = h('button', { type: 'button', class: 'nav-dl', 'data-cat': c.name, 'aria-label': `Download ${label} as SVGs`, title: `Download ${label} (${fmtInt(c.count)} SVGs, in the grid's style)`, html: ICO.download, 'aria-busy': busy.has(c.name) ? 'true' : null });
-    dl.addEventListener('click', () => download(c.name, dl));
+    const dl = goo => {
+      const job = c.name + (goo ? ':goo' : '');
+      const b = h('button', { type: 'button', class: ['nav-dl', goo && 'nav-dl-goo'], 'data-job': job, 'aria-label': `Download ${label} as SVGs${goo ? ' with goo' : ''}`,
+        title: goo ? `Download ${label} with goo (${fmtInt(c.count)} SVGs, paths alone)` : `Download ${label} (${fmtInt(c.count)} SVGs, in the grid's style)`, html: goo ? ICO.downloadGoo : ICO.download, 'aria-busy': busy.has(job) ? 'true' : null });
+      b.addEventListener('click', () => download(c.name, goo, b));
+      return b;
+    };
     return h('div', { class: 'nav-row' },
       h('button', { type: 'button', class: 'nav-item', 'aria-current': store.get().filter.cat === c.name ? 'true' : null, onClick: () => store.set({ filter: { ...store.get().filter, cat: c.name, set: store.get().filter.set === 'scenarios' ? 'all' : store.get().filter.set } }) }, h('span', { class: 'truncate' }, label), h('span', { class: 'count' }, fmtInt(c.count))),
-      dl);
+      h('div', { class: 'nav-dls' }, dl(false), goo ? dl(true) : null));
   };
   function render() {
     const f = store.get().filter;
@@ -10787,7 +10798,7 @@ const status = h('div', { class: 'pg-status', role: 'status', 'aria-live': 'poli
 const say = text => { status.textContent = text; };
 
 const libraryBtn = Button({ variant: 'outline', size: 'sm', icon: ICO.menu, label: 'Library', title: 'Sets and categories', onClick: () => {
-  const nav = Sidebar(); nav.el.classList.add('in-sheet'); nav.render();
+  const nav = Sidebar({ goo: false }); nav.el.classList.add('in-sheet'); nav.render(); // goo is left out here, so a category downloads plain only
   let un = () => {};
   const close = openSheet({ side: 'left', title: 'Library', content: nav.el, onClose: () => { nav.destroy(); un(); } });
   un = store.subscribe((s, keys) => { if (keys.includes('filter')) close(); });

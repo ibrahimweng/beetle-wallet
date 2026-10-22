@@ -324,7 +324,7 @@ console.log('glyphs goo');
   await ctx.close();
 }
 
-/* ---------- a category as a ZIP of SVGs ---------- */
+/* ---------- a category as a ZIP of SVGs, plain and with goo ---------- */
 console.log('glyphs category download');
 {
   const { readFileSync } = await import('fs');
@@ -335,24 +335,36 @@ console.log('glyphs category download');
   await p.evaluate(() => import(new URL('src/lib/store.js', location.href).href).then(({ store }) => store.set({ P: { ...store.get().P, weight: 'solid' }, view: { ...store.get().view, color: '#ff7a1a' } })));
   const row = p.locator('.nav-row').filter({ hasText: 'animals' });
   const count = +(await row.locator('.count').textContent()).replace(/\D/g, '');
-  await row.hover();
-  const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 15000 }), row.locator('.nav-dl').click()]);
-  const buf = readFileSync(await dl.path());
-  /* the central directory, read from the end */
-  const end = buf.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
-  const files = [];
-  for (let at = buf.readUInt32LE(end + 16), i = 0; i < buf.readUInt16LE(end + 10); i++) {
-    const method = buf.readUInt16LE(at + 10), csize = buf.readUInt32LE(at + 20), nlen = buf.readUInt16LE(at + 28), off = buf.readUInt32LE(at + 42);
-    const name = buf.toString('utf8', at + 46, at + 46 + nlen);
-    const start = off + 30 + buf.readUInt16LE(off + 26) + buf.readUInt16LE(off + 28), raw = buf.subarray(start, start + csize);
-    files.push({ name, text: (method === 8 ? inflateRawSync(raw) : raw).toString('utf8') });
-    at += 46 + nlen + buf.readUInt16LE(at + 30) + buf.readUInt16LE(at + 32);
-  }
-  const svgs = files.filter(f => f.name.endsWith('.svg'));
-  check(dl.suggestedFilename() === 'beetle-glyphs-animals-fill.zip', 'the file is named for the category and the style', dl.suggestedFilename());
-  check(svgs.length === count, `it holds every icon the category counts (${svgs.length} of ${count})`);
-  check(svgs.every(f => f.text.startsWith('<svg') && f.text.includes('#ff7a1a') && !f.text.includes('currentColor')), 'each one an SVG in the grid\'s colour');
-  check(files.some(f => f.name.endsWith('/LICENSE-core.txt') && f.text.includes('ISC')) && files.some(f => f.name.endsWith('/README.txt')), 'with the licence of the set it draws on and a note of the settings');
+  const names = await p.evaluate(() => import(new URL('src/lib/library.js', location.href).href).then(L => L.search({ set: 'all', cat: 'animals', q: '', box: 'all' }).map(e => L.exportName(e.key))));
+  const unzip = async button => {
+    await row.hover();
+    const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 60000 }), row.locator(button).click()]);
+    const buf = readFileSync(await dl.path());
+    /* the central directory, read from the end */
+    const end = buf.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
+    const files = [];
+    for (let at = buf.readUInt32LE(end + 16), i = 0; i < buf.readUInt16LE(end + 10); i++) {
+      const method = buf.readUInt16LE(at + 10), csize = buf.readUInt32LE(at + 20), nlen = buf.readUInt16LE(at + 28), off = buf.readUInt32LE(at + 42);
+      const name = buf.toString('utf8', at + 46, at + 46 + nlen);
+      const start = off + 30 + buf.readUInt16LE(off + 26) + buf.readUInt16LE(off + 28), raw = buf.subarray(start, start + csize);
+      files.push({ name, text: (method === 8 ? inflateRawSync(raw) : raw).toString('utf8') });
+      at += 46 + nlen + buf.readUInt16LE(at + 30) + buf.readUInt16LE(at + 32);
+    }
+    return { name: dl.suggestedFilename(), files, svgs: files.filter(f => f.name.endsWith('.svg')) };
+  };
+  const named = svgs => svgs.length === names.length && svgs.every(f => /^animals\/[a-z0-9-]+\.svg$/.test(f.name)) && names.every(n => svgs.some(f => f.name === `animals/${n}.svg`));
+  const plain = await unzip('.nav-dl:not(.nav-dl-goo)');
+  check(plain.name === 'beetle-glyphs-animals-fill.zip', 'the file is named for the category and the style', plain.name);
+  check(plain.svgs.length === count, `it holds every icon the category counts (${plain.svgs.length} of ${count})`);
+  check(named(plain.svgs), 'each one at animals/icon-name.svg', plain.svgs.slice(0, 2).map(f => f.name).join(', '));
+  check(plain.svgs.every(f => f.text.startsWith('<svg') && f.text.includes('#ff7a1a') && !f.text.includes('currentColor')), 'each one an SVG in the grid\'s colour');
+  check(plain.files.some(f => f.name === 'animals/LICENSE-core.txt' && f.text.includes('ISC')) && plain.files.some(f => f.name === 'animals/README.txt'), 'with the licence of the set it draws on and a note of the settings');
+  const goo = await unzip('.nav-dl-goo');
+  check(goo.name === 'beetle-glyphs-animals-fill-goo.zip', 'beside it, the same category with goo', goo.name);
+  check(named(goo.svgs) && goo.svgs.length === count, `with the same names, animals/icon-name.svg (${goo.svgs.length} of ${count})`);
+  check(goo.svgs.every(f => f.text.startsWith('<svg') && /<path/.test(f.text) && !/<(filter|mask|clipPath|image|use)\b|<fe[A-Z]|stroke=/.test(f.text) && f.text.includes('#ff7a1a')), 'each one paths alone, in the grid\'s colour');
+  check(goo.svgs.some(f => f.text !== (plain.svgs.find(q => q.name === f.name) || {}).text), 'and with goo in them');
+  check(goo.files.some(f => f.name === 'animals/LICENSE-core.txt') && goo.files.some(f => f.name === 'animals/README.txt' && /With goo/.test(f.text)), 'with the licence and a note that says goo');
   await ctx.close();
 }
 

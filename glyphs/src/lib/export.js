@@ -1,7 +1,7 @@
-/* Exports: SVG text, an SVG sprite, an icon font and JSON, each plain, as
-   drawn, and with goo. Saving goes through the viewer's save dialog when the
-   page runs inside claude.ai and through a plain download link everywhere
-   else, so the same file works on Vercel. */
+/* Exports: SVG text, an SVG sprite, an icon font, JSON and a category as a
+   ZIP, each plain, as drawn, and with goo. Saving goes through the viewer's
+   save dialog when the page runs inside claude.ai and through a plain
+   download link everywhere else, so the same file works on Vercel. */
 import * as E from './engine.js';
 import { exportName, search, primsOf, drawingsFor, entryOf } from './library.js';
 import { STYLE_SLUG, STYLE_LABEL } from './utils.js';
@@ -71,18 +71,19 @@ export const usageSnippet = (key, P) => {
 
 /* a category as a ZIP of SVGs: every icon in it, in the style, corners and
    parameters the grid shows, in the grid's colour when one is picked, with the
-   licence notices of the sets it draws on */
+   licence notices of the sets it draws on. Inside, every file is
+   category/icon-name.svg; with goo, the same names, the icons with goo. */
 const LICENSES = { core: ['LICENSE-core.txt', 'The core set, under the ISC license.'], four: ['LICENSE-keyline.txt', 'The four-style set (Keyline Icons), under the MIT license.'], beetle: [null, 'The app glyphs belong to the Beetle wallet design.'] };
-export async function categoryZip(cat, state) {
+export async function categoryZip(cat, state, { goo = false, progress } = {}) {
   const { P } = state, color = state.view && state.view.color;
   await drawingsFor(P);
   const entries = search({ set: 'all', cat, q: '', box: 'all' });
-  const folder = `beetle-glyphs-${cat}-${fileStem(P)}`;
-  const files = entries.map(e => {
-    let svg = iconSVG(e.key, primsOf(e.key, state), P);
+  const folder = cat;
+  const files = await inSlices(entries, e => {
+    let svg = goo ? gooIconSVG(primsOf(e.key, state), P) : iconSVG(e.key, primsOf(e.key, state), P);
     if (color) svg = svg.replace(/currentColor/g, color);
     return { name: `${folder}/${exportName(e.key)}.svg`, data: svg + '\n' };
-  });
+  }, progress);
   const sets = [...new Set(entries.map(e => { const b = e.base ? entryOf(e.base) : e; return b ? b.set : e.set; }))].filter(x => LICENSES[x]);
   for (const set of sets) {
     const [file] = LICENSES[set]; if (!file) continue;
@@ -91,8 +92,8 @@ export async function categoryZip(cat, state) {
   files.push({ name: `${folder}/README.txt`, data: [
     `Beetle Glyphs: ${cat.replace(/-/g, ' ')}, ${entries.length} icons.`,
     `${STYLE_LABEL[P.weight] || P.weight}, ${P.corners === 'sharp' ? 'sharp' : 'rounded'} corners, stroke ${P.S}, box corner ${P.R}, fillet ${P.fillet}, gap ${P.G}, choke ${P.choke}${color ? `, colour ${color}` : ', in currentColor'}.`,
-    'Each SVG is 24 by 24.', '',
+    goo ? `With goo: every corner, inside and outside, rounded by ${P.goo} on the 24 grid, and parts closer than twice that fused. Each SVG is paths alone, 24 by 24.` : 'Each SVG is 24 by 24, as drawn.', '',
     ...sets.map(set => LICENSES[set][1] + (LICENSES[set][0] ? ` The notice is in ${LICENSES[set][0]} and stays with the icons.` : '')),
   ].join('\n') + '\n' });
-  return { name: `${folder}.zip`, blob: await zip(files), count: entries.length };
+  return { name: `beetle-glyphs-${cat}-${fileStem(P)}${goo ? '-goo' : ''}.zip`, blob: await zip(files), count: entries.length };
 }

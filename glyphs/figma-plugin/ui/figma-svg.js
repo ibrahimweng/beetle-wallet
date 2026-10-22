@@ -10,7 +10,7 @@
      chose its masks, so whatever the site draws, the plugin draws the same.
      Lines outside a mask stay live strokes, so their weight can still change
      in Figma.
-   - Goo is left out. Figma cannot import an SVG filter.
+   - Goo is left out. It turns every line into a filled shape, and here lines stay live strokes.
    - currentColor becomes the chosen colour, because Figma cannot read it.
 
    No DOM: the build's check runs this in Node over every icon. */

@@ -71,14 +71,14 @@ const status = h('div', { class: 'pg-status', role: 'status', 'aria-live': 'poli
 const say = text => { status.textContent = text; };
 
 const libraryBtn = Button({ variant: 'outline', size: 'sm', icon: ICO.menu, label: 'Library', title: 'Sets and categories', onClick: () => {
-  const nav = Sidebar(); nav.el.classList.add('in-sheet'); nav.render();
+  const nav = Sidebar({ goo: false }); nav.el.classList.add('in-sheet'); nav.render(); // goo is left out here, so a category downloads plain only
   let un = () => {};
   const close = openSheet({ side: 'left', title: 'Library', content: nav.el, onClose: () => { nav.destroy(); un(); } });
   un = store.subscribe((s, keys) => { if (keys.includes('filter')) close(); });
 } });
 const settingsBtn = Button({ variant: 'outline', size: 'sm', icon: ICO.sliders, label: 'Settings', title: 'Box corner, fillet, gap and choke', onClick: () => {
   const panel = LibraryPanel();
-  openSheet({ side: 'right', title: 'Whole library', content: h('div', { class: 'stack', style: { gap: '16px' } }, panel.el, h('p', { class: 'hint pg-note' }, 'Goo is left out of the plugin. It is a blur filter, and Figma cannot import SVG filters.')) });
+  openSheet({ side: 'right', title: 'Whole library', content: h('div', { class: 'stack', style: { gap: '16px' } }, panel.el, h('p', { class: 'hint pg-note' }, 'Goo is left out of the plugin. It turns every line into a filled shape, and here lines stay live strokes. The site’s “with goo” exports have it.')) });
 } });
 const aboutBtn = Button({ variant: 'ghost', size: 'sm', label: 'About', onClick: () => openAbout() });
 const head = h('header', { class: 'pg-head' }, libraryBtn, settingsBtn, h('span', { class: 'pg-grow' }), aboutBtn);
@@ -205,7 +205,7 @@ function openAbout() {
   openSheet({ side: 'right', title: 'About Beetle Glyphs', content: h('div', { class: 'stack pg-about', style: { gap: '14px' } },
     h('p', {}, `${fmtInt(lib.sets.all)} icons and ${lib.sets.scenarios} app scenarios, drawn by the same engine as the Beetle Glyphs site: the four-style set (${fmtInt(lib.sets.four)} icons in stroke, two-tone, duotone and fill, rounded and sharp), the core set (${fmtInt(lib.sets.core)}), and the app's own ${lib.sets.beetle} glyphs and parametric icons.`),
     h('p', {}, 'The toolbar is the site\'s own. Size is the size an icon arrives at, and Color is its colour, black when none is picked. Everything is inside the plugin, and it never uses the network.'),
-    h('p', {}, 'Lines stay live strokes, so you can still change their weight in Figma. A filled part with a cut in it arrives as one shape with a hole. Goo is left out, because Figma cannot import SVG filters.'),
+    h('p', {}, 'Lines stay live strokes, so you can still change their weight in Figma. A filled part with a cut in it arrives as one shape with a hole. Goo is left out, because it would turn those strokes into filled shapes.'),
     h('p', {}, 'Each icon remembers its name and settings. Select one and use Update selection, or the button in the right panel, to redraw it at the current settings.'),
     h('p', {}, h('a', { href: REPO, target: '_blank', rel: 'noopener' }, 'Source and support on GitHub')),
     h('h3', { class: 'font-semibold' }, 'The core set: ISC licence'),

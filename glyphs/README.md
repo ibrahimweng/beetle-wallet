@@ -40,15 +40,16 @@ glyphs/
       engine.js               the geometry engine (ES module)
       library.js              loading, search, edits applied on top of the library
       store.js                one observable store with persistence
-      export.js               SVG, sprite, font, JSON and category ZIP exports; save through claude.ai or a plain link
+      export.js               SVG, sprite, font, JSON and category ZIP exports, plain and with goo; save through claude.ai or a plain link
       zip.js                  a small ZIP writer (deflate through the browser's CompressionStream, or stored)
       utils.js                h(), cn(), debounce, the style names, the interface's own small icons
     components/
       ui/                     button, badge, input + select, segmented, tick-slider, switch, menu, slider, toggle-group, tabs, card + separator + kbd, sheet, code-block, command
-      app/                    topbar, sidebar, toolbar, icon-grid, inspector, editor, library-panel, export-panel
+      app/                    topbar, sidebar, toolbar, icon-grid, inspector, editor, goo-preview, library-panel, export-panel
   data/four/                  the four-style set's drawings, one file per corners and style, loaded when picked
   sources/core/               the core set's source data
   sources/keyline/            the four-style set's source data, copied by tools/import-keyline.mjs
+  audit/                      what every icon is made of and where its lines sit against the diagonals (tools/audit.mjs), and what the 45° pass changed (45-degrees.md)
   figma-plugin/PLAN.md        the plan for a free Figma plugin
 ```
 
@@ -77,14 +78,14 @@ With reduced motion turned on, none of it moves. On a narrow screen the controls
 
 ## Categories
 
-Each category in the sidebar has a download button where its count is, shown on hover or focus (always, on a touch screen). It saves a ZIP of every icon the category counts, one SVG each, in the style, corners and parameters the grid shows and in the grid's colour when one is picked. The ZIP also holds the licence notice of each set it draws on and a README with the settings.
+Each category in the sidebar has two download buttons where its count is, shown on hover or focus (always, on a touch screen): the arrow downloads the category plain, as drawn, and the drop downloads it with goo. Either saves a ZIP of every icon the category counts, one SVG each, in the style, corners and parameters the grid shows and in the grid's colour when one is picked. Inside, every file is named `category/icon-name.svg`, the same in both, and the ZIP is named for the category and the style, with `-goo` for the one with goo (`beetle-glyphs-animals-fill.zip`, `beetle-glyphs-animals-fill-goo.zip`). The category folder also holds the licence notice of each set it draws on and a README with the settings, and the goo amount when there is goo.
 
 ## The inspector
 
 The panel on the right is about one thing at a time, and says which at the top: **This icon** or **Whole library**.
 
-- **This icon**: the name and tags; the style switch, made of the icon in its four styles, where the one you pick is the one you edit and the one the grid shows; the icon on paper and on ink at three sizes; copy and download; the point editor, which edits exactly the weight on show (an icon with a solid of its own keeps separate edits per weight); the list of parts with the role each plays in the solid; and the SVG code.
-- **Whole library**: the six parameters every icon is derived from, the presets, the style and corners the grid shows, the preview surface, and the sprite, font and JSON exports of the current view. Everything here applies to all icons at once.
+- **This icon**: the name and tags; the style switch, made of the icon in its four styles, where the one you pick is the one you edit and the one the grid shows; the icon on paper and on ink at three sizes; copy and download, plain and with goo; the point editor, which edits exactly the weight on show (an icon with a solid of its own keeps separate edits per weight); the list of parts with the role each plays in the solid; goo before and after, with the goo amount; and the SVG code.
+- **Whole library**: the six parameters every icon is derived from, the presets, the style and corners the grid shows, the preview surface, and the sprite, font and JSON exports of the current view, plain and with goo. Everything here applies to all icons at once.
 
 The palette is black and white: every token is a grey with no hue, and the preview surface is the page, white paper or black ink.
 
@@ -94,7 +95,7 @@ The palette is black and white: every token is a grey with no hue, and the previ
 - **Corners.** Straight joins get true circular fillets from the corner fillet slider. Quarter-circle corners in imported paths were recognised at import and follow the box corner slider.
 - **Solid weight.** Closed shapes fill and inflate by S with round joins. A part sitting inside a closed shape becomes a cut of S; a filled dot on a line shape punches a hole of its outline size; a shape stacked on another gets a gap of G around it; a pill narrower than 2 S (a digit) stays a stroke. Parts marked `cut`, `knock`, `punch` or `flat` keep that role in both weights. Any part can be set by hand in the editor.
 - **Two weights for the Beetle glyphs.** The 22 pairs the designer drew (bell and bell-filled, grid and grid-tone, alert and warn-filled, and so on) are one icon each, with the outline and the solid both native; the old name is an alias. Two of them take their filled styles from their line instead, as any line icon does: power, whose drawn solid was a smaller bolt than its line, and send, whose drawn solid was a paper plane where its line is an arrow. So does bet, drawn as a line die with filled pips. The 9 filled glyphs without a drawn outline (mark, step-done, home-filled, undo-filled, receive-filled, history-filled, settings-filled, phone-filled, more) get one derived from the solid through Clipper: a stroke of S just inside every edge, so the outline covers the solid's footprint exactly; parts thinner than about 1.2 S become a line along their middle, small discs a dot; a hole gets a ring on its edge, moved inside when it would crowd the outer stroke. Cuts and plain strokes pass through.
-- **Four styles.** The four-style set brings a drawing of its own for every style and both corners, and is drawn exactly as drawn. Its lines follow the stroke, sharp ends, choke and goo. Its fills and corner shapes stay as drawn, so a plate always sits under its line. Each drawing of the four-style set keeps edits of its own.
+- **Four styles.** The four-style set brings a drawing of its own for every style and both corners, and is drawn exactly as drawn. Its lines follow the stroke, sharp ends and choke, and goo in the "with goo" exports. Its fills and corner shapes stay as drawn, so a plate always sits under its line. Each drawing of the four-style set keeps edits of its own.
 - **The filled styles of a line icon** come from what its line encloses, worked out once by the build and stored in `data/fills.json`:
   - **Plates**: every space the ink closes round, at a stroke of 2, grown to just short of the centrelines around it.
   - **Details**: parts that never reach the icon's edge (an eye's iris, a die's pips).
@@ -104,14 +105,29 @@ The palette is black and white: every token is a grey with no hue, and the previ
 - **A part narrower than its stroke is drawn filled.** A circle stroked wider than itself (palette's wells, skull's nose, the dots of grip) leaves a hole in the middle in the browser, so such a part is drawn as the area its stroke covers. A circle is exact, and any other part takes Clipper's offset.
 - **A fillet never blunts a tip.** On an acute corner the fillet is capped so the curve moves the point in by no more than half a stroke.
 - **Corners.** Sharp gives every corner kind a radius of 0, and gives lines butt ends. Dots keep a square end so they do not vanish.
-- **Choke** offsets every edge geometrically and is baked into exports. **Goo** is a blur-then-threshold filter for preview and SVG.
-- **Exports.** SVG and the sprite keep curves, strokes and masks. The font flattens every primitive, offsets it by S/2 with round joins and caps through Clipper, unions and cuts it, and maps results to U+E000 upward in result order. A font has one colour, so a two-tone font keeps the line and a duotone font takes the fill. Every icon goes by a name of its own in a sprite, a font or JSON: where two sets share a name, the set goes in front (`param-card`, `beetle-card`).
+- **Choke** offsets every edge geometrically and is baked into exports.
+- **Goo** is geometry, added only on the way out: the grid, the editor and every plain export stay exactly as drawn, and only the "with goo" exports have it. Each layer of ink (the line, a plate, a translucent track) is closed by the goo radius and then opened by it through Clipper with round joins, so every outside corner and every inside corner is rounded by the same radius, in the icon's own 24-unit grid, and parts closer than twice the radius fuse. The opening is never wider than the stroke allows, so a line stays the weight it was and a dot stays the size it was, and a part the opening would wear away is kept as it was. The result is cropped to the 24 box and written back as paths alone, with straight runs as lines and rounded runs fitted back into arcs: no filter, mask, clip path or image. The amount is one number for the whole library (0.6 by default, set beside the before-and-after in the inspector or in the library parameters).
+- **Exports.** Every export is there plain, as drawn, and beside it with goo: Copy SVG and Download, then Copy with goo and Download with goo, for the icon; Sprite, Font and JSON, then Sprite with goo, Font with goo and JSON with goo, for the current view. Plain files are exactly what they were. A file with goo has `-goo` in its name and is paths alone; the font with goo is its own family, Beetle Glyphs Goo, so it can sit beside the plain one, and the JSON with goo holds each icon as its layers of path data on the 24 grid instead of the engine's primitives. Goo is worked out icon by icon, a few hundredths of a second each, so a large view takes a while with goo and the panel counts it through. SVG and the sprite keep curves, strokes and masks. The font flattens every primitive, offsets it by S/2 with round joins and caps through Clipper, unions and cuts it, and maps results to U+E000 upward in result order. A font has one colour, so a two-tone font keeps the line and a duotone font takes the fill. Every icon goes by a name of its own in a sprite, a font or JSON: where two sets share a name, the set goes in front (`param-card`, `beetle-card`).
 
 ## Regenerating the library
 
+`tools/audit.mjs` reads the built library and writes `audit/`: `structure.md` lists every icon under its first category with what it is made of (lines, polylines, rects, polygons, circles, dots, arcs, free paths, and how many are stroked or filled), `structure.csv` is the same as a spreadsheet, and `angles.csv` lists every straight line, and every pair of dots, within 15° of a diagonal but not on one, with its drawing, its ends and how far off it is.
+
 `tools/import-keyline.mjs path/to/keyline-icons` copies the four-style set from a checkout of its repository into `sources/keyline/`, with its keywords, categories and licence notice. It only needs to run again for a newer release.
 
-`tools/build-library.mjs` reads the core set's `icon-nodes.json`, `tags.json` and category map from `sources/core/`, the four-style set from `sources/keyline/`, converts every element into engine primitives, imports the app's glyphs from `src/icons.js` at the repository root, merges each drawn pair into one icon, derives the missing outlines, validates every icon (it has to render, and stay on the 24 grid), and writes `data/icons.json`, `data/fills.json` and the eight files in `data/four/`. Every one of the 10,928 four-style drawings is checked. Rasterised at 48 px, they match the originals to within 0.5% of their ink. Light strokes on a glyph with nothing to cut into (the rails of the progress rings) become translucent tracks.
+`tools/build-library.mjs` reads the core set's `icon-nodes.json`, `tags.json` and category map from `sources/core/`, the four-style set from `sources/keyline/`, converts every element into engine primitives, imports the app's glyphs from `src/icons.js` at the repository root, merges each drawn pair into one icon, derives the missing outlines, snaps lines to 45° (below), validates every icon (it has to render, and stay on the 24 grid), and writes `data/icons.json`, `data/fills.json` and the eight files in `data/four/`. Every one of the 10,928 four-style drawings is checked. Light strokes on a glyph with nothing to cut into (the rails of the progress rings) become translucent tracks. `--sheet path.html` also writes a sheet of every icon the 45° pass changed, before and after, for review.
+
+### The 45° pass
+
+As the library is built, every straight line within 12° of a diagonal, in every set and in each of the four-style set's eight drawings, is moved onto it exactly: 45°, 135°, 225° or 315°. So is a pair of neighbouring dots lined up near one. `tools/snap45.mjs` does it by moving the points themselves, as little as they can move: it solves for the smallest weighted movement that puts every snapped line on its diagonal, keeps every line that was flat, upright or diagonal as it was, and keeps points that met still meeting. Curves follow their ends, and a handle that ran on along a line turns with it, so rounded corners stay smooth. No transform is added and the sources stay as they came; the stroke, caps, joins, grid and padding are untouched.
+
+A snap is refused when it would move any point more than 0.75, push the icon past its own box, shorten a line by half, make a filled shape cross itself, or turn a line it was not snapping by more than 6°; the pass then gives up the line furthest from its diagonal and tries again. A few icons are left as drawn on purpose: the Beetle mark, letters, numerals and handwriting, and asterisks, whose arms are evenly spaced. `audit/45-degrees.md` lists every change, every line the pass could not take with the reason, and every icon it left alone. The parametric person is drawn with its shoulders at 45° at any stroke and gap.
+
+`tools/check-angles.mjs` measures every straight line in the built library and fails if one sits within the tolerance of a diagonal without being on it to within 0.01°, unless the report gives its reason. CI runs it.
+
+### Goo
+
+`tools/check-goo.mjs` holds goo to what it promises, and CI runs it: a sample of icons and drawings in every style comes out as paths alone, never past the plain icon's box or the 24 grid; a straight line keeps its thickness at thin and thick strokes, even with more goo than half the stroke; grip's nine dots all stay, each the size and in the place it was; and the arcs written at outside corners and inside corners, on shapes of different sizes in different places and on a real icon, all have the goo radius.
 
 ## Licenses
 

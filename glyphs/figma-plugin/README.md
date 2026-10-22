@@ -18,7 +18,7 @@ Everything is inside the plugin. It never uses the network, and it costs nothing
 - **Swap.** Select a Beetle Glyphs icon on the canvas and click another icon in the panel. The layer keeps its place and size. On an instance, the plugin swaps the component, so your overrides stay.
 - **Update.** Every icon remembers its name and settings. Change the settings, then press **Update selection** or **Update page**. Each icon is redrawn in place. A variant keeps its own style and corners. When you select an icon, the right panel also shows **Edit in Beetle Glyphs** and **Update to current settings**.
 
-Size is the size an icon arrives at. Color is its colour, and black when none is picked. Lines stay live strokes, so you can still change their weight in Figma. A part the site cuts with a mask arrives as one plain shape with holes. Goo is not in the plugin, because Figma cannot import SVG filters.
+Size is the size an icon arrives at. Color is its colour, and black when none is picked. Lines stay live strokes, so you can still change their weight in Figma. A part the site cuts with a mask arrives as one plain shape with holes. Goo is not in the plugin, because it turns every line into a filled shape and lines here stay live strokes; the site’s “with goo” exports have it.
 
 ## Try it in the Figma desktop app
 

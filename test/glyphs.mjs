@@ -73,6 +73,42 @@ console.log('glyphs exports');
   await ctx.close();
 }
 
+/* ---------- every export, plain and with goo, from its button ---------- */
+console.log('glyphs exports with goo');
+{
+  const { readFileSync } = await import('fs');
+  const ctx = await b.newContext({ viewport: { width: 1440, height: 1000 }, acceptDownloads: true });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('pageerror', e => errors.push(e.message));
+  await p.goto(base + '/public/glyphs/'); await p.waitForFunction(() => document.querySelectorAll('.grid .tile').length > 100);
+  const store = fn => p.evaluate(`import(new URL('src/lib/store.js', location.href).href).then(({ store }) => (${fn})(store))`);
+  const save = async (name, timeout = 30000) => { const [dl] = await Promise.all([p.waitForEvent('download', { timeout }), p.getByRole('button', { name, exact: true }).click()]); return { name: dl.suggestedFilename(), buf: readFileSync(await dl.path()) }; };
+  const pathsOnly = svg => /<path/.test(svg) && !/<(filter|mask|clipPath|image|use)\b|<fe[A-Z]|stroke=/.test(svg);
+
+  await store(`s => s.set({ sel: 'beetle:eye', scope: 'icon' })`);
+  const plain = await save('Download'), goo = await save('Download with goo');
+  check(!plain.name.includes('goo') && /<svg/.test(plain.buf), `Download is the icon as drawn (${plain.name})`);
+  check(goo.name === plain.name.replace(/\.svg$/, '-goo.svg') && pathsOnly(goo.buf.toString()), `Download with goo, beside it, is paths alone (${goo.name})`);
+  check(String(goo.buf) !== String(plain.buf), 'and the two differ');
+
+  await store(`s => s.set({ scope: 'library', filter: { ...s.get().filter, set: 'beetle', cat: 'all', q: '' } })`);
+  const n = await p.evaluate(() => import(new URL('src/lib/library.js', location.href).href).then(L => L.search({ q: '', set: 'beetle', cat: 'all' }).length));
+  const sprite = await save('Sprite'), gooSprite = await save('Sprite with goo', 120000);
+  const symbols = t => [...String(t).matchAll(/<symbol id="[^"]+" viewBox="0 0 24 24">([\s\S]*?)<\/symbol>/g)].map(m => m[1]);
+  check(!sprite.name.includes('goo') && symbols(sprite.buf).length === n, `Sprite is as it was, a symbol per icon (${symbols(sprite.buf).length} of ${n})`);
+  check(gooSprite.name.endsWith('-goo-sprite.svg') && symbols(gooSprite.buf).length === n && symbols(gooSprite.buf).every(pathsOnly), `Sprite with goo has the same symbols, each paths alone (${gooSprite.name})`);
+  const font = await save('Font with goo', 120000);
+  const has = (buf, s) => buf.includes(Buffer.from(s, 'latin1')) || buf.includes(Buffer.from(s, 'utf16le').swap16());
+  check(font.name.endsWith('-goo.ttf') && ['OTTO', '\0\x01\0\0'].includes(font.buf.toString('latin1', 0, 4)) && has(font.buf, 'Beetle Glyphs Goo'), `Font with goo is a font of its own family, as the plain one is (${font.name}, ${(font.buf.length / 1024).toFixed(0)} KB)`);
+  const json = await save('JSON with goo', 120000);
+  const j = JSON.parse(json.buf.toString());
+  check(json.name.endsWith('-goo.json') && Object.keys(j.icons).length === n && Object.values(j.icons).every(ls => ls.length && ls.every(l => /^M[\d.\- ]/.test(l.d))), `JSON with goo has every icon as path data (${Object.keys(j.icons).length} of ${n})`);
+  check(/Downloading|Saved|Delivered/.test(await p.locator('.status').filter({ hasText: 'with goo in' }).first().textContent()), 'and says how long goo took');
+  check(!errors.length, 'no errors', errors.slice(0, 3).join(' | '));
+  await ctx.close();
+}
+
 /* ---------- the point editor ---------- */
 console.log('glyphs editor');
 {
@@ -263,7 +299,32 @@ console.log('glyphs toolbar while scrolling');
   await ctx.close();
 }
 
-/* ---------- a category as a ZIP of SVGs ---------- */
+/* ---------- goo, before and after ---------- */
+console.log('glyphs goo');
+{
+  const { ctx, p, errors, store } = await open('/public/glyphs/');
+  await store(`s => s.set({ sel: 'beetle:eye', scope: 'icon' })`);
+  const pair = p.locator('.goo-pair');
+  await pair.scrollIntoViewIfNeeded();
+  await p.waitForFunction(() => document.querySelectorAll('.goo-pair svg').length === 2 && document.querySelector('.goo-pair figure + figure path'));
+  const art = () => p.evaluate(() => [...document.querySelectorAll('.goo-pair .goo-art')].map(a => a.innerHTML));
+  const grid = () => p.evaluate(() => [...document.querySelectorAll('.grid svg')].slice(0, 40).map(s => s.outerHTML).join(''));
+  const [plain, goo] = await art();
+  check(/<path/.test(goo) && !/<(filter|mask|clipPath|image|use)\b|<fe[A-Z]/.test(goo), 'the icon is shown without and with goo, the goo one as paths alone');
+  check(plain !== goo && !/<filter/.test(plain), 'and the one without is the icon as drawn');
+  const before = await grid();
+  const slider = p.locator('#goo-here');
+  await slider.focus();
+  for (let i = 0; i < 6; i++) await slider.press('ArrowRight');
+  await p.waitForFunction(g => document.querySelector('.goo-pair figure + figure .goo-art').innerHTML !== g, goo);
+  check(Math.abs(await store('s => s.get().P.goo') - 0.9) < 1e-9, 'its slider sets the goo amount', String(await store('s => s.get().P.goo')));
+  check((await art())[1] !== goo && (await art())[0] === plain, 'more goo changes the goo one, and only the goo one');
+  check(await grid() === before && !/<filter/.test(before), 'the grid stays as drawn, with no goo in it');
+  check(!errors.length, 'no console errors', errors.slice(0, 3).join(' | '));
+  await ctx.close();
+}
+
+/* ---------- a category as a ZIP of SVGs, plain and with goo ---------- */
 console.log('glyphs category download');
 {
   const { readFileSync } = await import('fs');
@@ -274,24 +335,36 @@ console.log('glyphs category download');
   await p.evaluate(() => import(new URL('src/lib/store.js', location.href).href).then(({ store }) => store.set({ P: { ...store.get().P, weight: 'solid' }, view: { ...store.get().view, color: '#ff7a1a' } })));
   const row = p.locator('.nav-row').filter({ hasText: 'animals' });
   const count = +(await row.locator('.count').textContent()).replace(/\D/g, '');
-  await row.hover();
-  const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 15000 }), row.locator('.nav-dl').click()]);
-  const buf = readFileSync(await dl.path());
-  /* the central directory, read from the end */
-  const end = buf.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
-  const files = [];
-  for (let at = buf.readUInt32LE(end + 16), i = 0; i < buf.readUInt16LE(end + 10); i++) {
-    const method = buf.readUInt16LE(at + 10), csize = buf.readUInt32LE(at + 20), nlen = buf.readUInt16LE(at + 28), off = buf.readUInt32LE(at + 42);
-    const name = buf.toString('utf8', at + 46, at + 46 + nlen);
-    const start = off + 30 + buf.readUInt16LE(off + 26) + buf.readUInt16LE(off + 28), raw = buf.subarray(start, start + csize);
-    files.push({ name, text: (method === 8 ? inflateRawSync(raw) : raw).toString('utf8') });
-    at += 46 + nlen + buf.readUInt16LE(at + 30) + buf.readUInt16LE(at + 32);
-  }
-  const svgs = files.filter(f => f.name.endsWith('.svg'));
-  check(dl.suggestedFilename() === 'beetle-glyphs-animals-fill.zip', 'the file is named for the category and the style', dl.suggestedFilename());
-  check(svgs.length === count, `it holds every icon the category counts (${svgs.length} of ${count})`);
-  check(svgs.every(f => f.text.startsWith('<svg') && f.text.includes('#ff7a1a') && !f.text.includes('currentColor')), 'each one an SVG in the grid\'s colour');
-  check(files.some(f => f.name.endsWith('/LICENSE-core.txt') && f.text.includes('ISC')) && files.some(f => f.name.endsWith('/README.txt')), 'with the licence of the set it draws on and a note of the settings');
+  const names = await p.evaluate(() => import(new URL('src/lib/library.js', location.href).href).then(L => L.search({ set: 'all', cat: 'animals', q: '', box: 'all' }).map(e => L.exportName(e.key))));
+  const unzip = async button => {
+    await row.hover();
+    const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 60000 }), row.locator(button).click()]);
+    const buf = readFileSync(await dl.path());
+    /* the central directory, read from the end */
+    const end = buf.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
+    const files = [];
+    for (let at = buf.readUInt32LE(end + 16), i = 0; i < buf.readUInt16LE(end + 10); i++) {
+      const method = buf.readUInt16LE(at + 10), csize = buf.readUInt32LE(at + 20), nlen = buf.readUInt16LE(at + 28), off = buf.readUInt32LE(at + 42);
+      const name = buf.toString('utf8', at + 46, at + 46 + nlen);
+      const start = off + 30 + buf.readUInt16LE(off + 26) + buf.readUInt16LE(off + 28), raw = buf.subarray(start, start + csize);
+      files.push({ name, text: (method === 8 ? inflateRawSync(raw) : raw).toString('utf8') });
+      at += 46 + nlen + buf.readUInt16LE(at + 30) + buf.readUInt16LE(at + 32);
+    }
+    return { name: dl.suggestedFilename(), files, svgs: files.filter(f => f.name.endsWith('.svg')) };
+  };
+  const named = svgs => svgs.length === names.length && svgs.every(f => /^animals\/[a-z0-9-]+\.svg$/.test(f.name)) && names.every(n => svgs.some(f => f.name === `animals/${n}.svg`));
+  const plain = await unzip('.nav-dl:not(.nav-dl-goo)');
+  check(plain.name === 'beetle-glyphs-animals-fill.zip', 'the file is named for the category and the style', plain.name);
+  check(plain.svgs.length === count, `it holds every icon the category counts (${plain.svgs.length} of ${count})`);
+  check(named(plain.svgs), 'each one at animals/icon-name.svg', plain.svgs.slice(0, 2).map(f => f.name).join(', '));
+  check(plain.svgs.every(f => f.text.startsWith('<svg') && f.text.includes('#ff7a1a') && !f.text.includes('currentColor')), 'each one an SVG in the grid\'s colour');
+  check(plain.files.some(f => f.name === 'animals/LICENSE-core.txt' && f.text.includes('ISC')) && plain.files.some(f => f.name === 'animals/README.txt'), 'with the licence of the set it draws on and a note of the settings');
+  const goo = await unzip('.nav-dl-goo');
+  check(goo.name === 'beetle-glyphs-animals-fill-goo.zip', 'beside it, the same category with goo', goo.name);
+  check(named(goo.svgs) && goo.svgs.length === count, `with the same names, animals/icon-name.svg (${goo.svgs.length} of ${count})`);
+  check(goo.svgs.every(f => f.text.startsWith('<svg') && /<path/.test(f.text) && !/<(filter|mask|clipPath|image|use)\b|<fe[A-Z]|stroke=/.test(f.text) && f.text.includes('#ff7a1a')), 'each one paths alone, in the grid\'s colour');
+  check(goo.svgs.some(f => f.text !== (plain.svgs.find(q => q.name === f.name) || {}).text), 'and with goo in them');
+  check(goo.files.some(f => f.name === 'animals/LICENSE-core.txt') && goo.files.some(f => f.name === 'animals/README.txt' && /With goo/.test(f.text)), 'with the licence and a note that says goo');
   await ctx.close();
 }
 

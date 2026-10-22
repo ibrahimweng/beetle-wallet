@@ -49,7 +49,7 @@ glyphs/
   data/four/                  the four-style set's drawings, one file per corners and style, loaded when picked
   sources/core/               the core set's source data
   sources/keyline/            the four-style set's source data, copied by tools/import-keyline.mjs
-  audit/                      what every icon is made of and where its lines sit against the diagonals, written by tools/audit.mjs
+  audit/                      what every icon is made of and where its lines sit against the diagonals (tools/audit.mjs), and what the 45° pass changed (45-degrees.md)
   figma-plugin/PLAN.md        the plan for a free Figma plugin
 ```
 
@@ -114,7 +114,15 @@ The palette is black and white: every token is a grey with no hue, and the previ
 
 `tools/import-keyline.mjs path/to/keyline-icons` copies the four-style set from a checkout of its repository into `sources/keyline/`, with its keywords, categories and licence notice. It only needs to run again for a newer release.
 
-`tools/build-library.mjs` reads the core set's `icon-nodes.json`, `tags.json` and category map from `sources/core/`, the four-style set from `sources/keyline/`, converts every element into engine primitives, imports the app's glyphs from `src/icons.js` at the repository root, merges each drawn pair into one icon, derives the missing outlines, validates every icon (it has to render, and stay on the 24 grid), and writes `data/icons.json`, `data/fills.json` and the eight files in `data/four/`. Every one of the 10,928 four-style drawings is checked. Rasterised at 48 px, they match the originals to within 0.5% of their ink. Light strokes on a glyph with nothing to cut into (the rails of the progress rings) become translucent tracks.
+`tools/build-library.mjs` reads the core set's `icon-nodes.json`, `tags.json` and category map from `sources/core/`, the four-style set from `sources/keyline/`, converts every element into engine primitives, imports the app's glyphs from `src/icons.js` at the repository root, merges each drawn pair into one icon, derives the missing outlines, snaps lines to 45° (below), validates every icon (it has to render, and stay on the 24 grid), and writes `data/icons.json`, `data/fills.json` and the eight files in `data/four/`. Every one of the 10,928 four-style drawings is checked. Light strokes on a glyph with nothing to cut into (the rails of the progress rings) become translucent tracks. `--sheet path.html` also writes a sheet of every icon the 45° pass changed, before and after, for review.
+
+### The 45° pass
+
+As the library is built, every straight line within 12° of a diagonal, in every set and in each of the four-style set's eight drawings, is moved onto it exactly: 45°, 135°, 225° or 315°. So is a pair of neighbouring dots lined up near one. `tools/snap45.mjs` does it by moving the points themselves, as little as they can move: it solves for the smallest weighted movement that puts every snapped line on its diagonal, keeps every line that was flat, upright or diagonal as it was, and keeps points that met still meeting. Curves follow their ends, and a handle that ran on along a line turns with it, so rounded corners stay smooth. No transform is added and the sources stay as they came; the stroke, caps, joins, grid and padding are untouched.
+
+A snap is refused when it would move any point more than 0.75, push the icon past its own box, shorten a line by half, make a filled shape cross itself, or turn a line it was not snapping by more than 6°; the pass then gives up the line furthest from its diagonal and tries again. A few icons are left as drawn on purpose: the Beetle mark, letters, numerals and handwriting, and asterisks, whose arms are evenly spaced. `audit/45-degrees.md` lists every change, every line the pass could not take with the reason, and every icon it left alone. The parametric person is drawn with its shoulders at 45° at any stroke and gap.
+
+`tools/check-angles.mjs` measures every straight line in the built library and fails if one sits within the tolerance of a diagonal without being on it to within 0.01°, unless the report gives its reason. CI runs it.
 
 ## Licenses
 

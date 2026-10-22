@@ -246,4 +246,8 @@ this was being built.
 
 The same file feeds `glyphs/`, the icon library and editor: every glyph here is
 read into the engine there, next to the core set, so the app's icons and the
-library never drift apart.
+library never drift apart. The one difference is on purpose: as the library is
+built, lines close to 45° are moved onto the diagonal, so a dozen glyphs there
+(back, check, receipt and the others listed in `glyphs/audit/45-degrees.md`)
+sit a fraction of a unit from the app's own until the Figma file takes the same
+change. The app keeps drawing what the file draws.

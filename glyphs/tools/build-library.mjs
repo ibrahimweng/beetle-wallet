@@ -9,12 +9,14 @@
    at the repository root, the code mirror of the Figma Icon set. Figma itself
    is never touched. A glyph drawn in both weights becomes one icon with p
    (outline) and ps (solid); a filled glyph without a drawn outline gets one
-   derived from its solid. */
+   derived from its solid. Lines close to a diagonal are snapped onto it as
+   the library is built (tools/snap45.mjs); the sources are never changed. */
 import { createRequire } from 'module';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import * as E from '../src/lib/engine.js';
+import { snapPrims, snapDrawing, skipped, TOL, MAX_MOVE } from './snap45.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
@@ -23,6 +25,27 @@ const CL = require('../vendor/clipper.js');
 const ot = require('../vendor/opentype.min.js');
 const { ICONS: BEETLE_SVG } = await import(resolve(root, '..', 'src', 'icons.js'));
 const check = process.argv.includes('--check');
+/* --sheet path.html also writes every icon the 45° pass changed, before and after, for review */
+const sheetAt = (i => (i > 0 ? process.argv[i + 1] : null))(process.argv.indexOf('--sheet'));
+
+/* ---------- the 45° pass ----------
+   Every line close to a diagonal is moved onto it in the geometry itself (see
+   tools/snap45.mjs). What it changed, what it refused and why, and the icons
+   it leaves as drawn go into audit/45-degrees.json and .md. The sources stay
+   exactly as they came. */
+const snapLog = { changed: {}, refused: {}, skipped: {} };
+const sheet = [];
+function snap45(key, drawing, geometry, run) {
+  const why = skipped(key);
+  if (why) { snapLog.skipped[key] = why; return; }
+  const copy = sheetAt ? JSON.parse(JSON.stringify(geometry)) : null;
+  const r = run(geometry);
+  if (r.snapped.length) {
+    (snapLog.changed[key] ||= {})[drawing] = { lines: r.snapped.length, moved: r.moved };
+    if (sheetAt) sheet.push({ key, drawing, before: copy, after: geometry });
+  }
+  if (r.refused.length) (snapLog.refused[key] ||= {})[drawing] = r.refused.map(l => ({ from: l.from, to: l.to, angle: l.angle, why: l.why }));
+}
 
 const CORE_DIR = resolve(root, 'sources', 'core');
 for (const name of ['icon-nodes.json', 'tags.json', 'categories.json']) if (!existsSync(resolve(CORE_DIR, name))) { console.error(`missing glyphs/sources/core/${name}: the core set's source data is part of the repository`); process.exit(1); }
@@ -39,6 +62,7 @@ for (const [name, els] of Object.entries(nodes)) {
   for (const pr of prims) { if (pr.t === 'poly') stats.polys++; else if (pr.t === 'path') stats.paths++; else stats.arcs++; delete pr.segs; }
   core[name] = { c: cats[name] || ['other'], t: tags[name] || [], p: prims };
 }
+for (const [name, ic] of Object.entries(core)) snap45(`core:${name}`, 'line', ic.p, snapPrims);
 
 /* ---------- Beetle: the app's own glyphs ---------- */
 function parseElements(markup) {
@@ -98,6 +122,11 @@ for (const [name, ic] of Object.entries(beetle)) {
    arrow. All three take their other styles from their line, like any line icon */
 for (const name of ['bet', 'power', 'send']) if (beetle[name]) { delete beetle[name].ps; if (beetle[name].d) { delete beetle[name].d; derived.splice(derived.indexOf(name), 1); } }
 console.log(`beetle: ${merged.length} drawn pairs merged, ${derived.length} outlines derived (${derived.join(', ')})`);
+/* the line and the solid are snapped each on its own; a derived outline after its solid, so they agree */
+for (const [name, ic] of Object.entries(beetle)) {
+  snap45(`beetle:${name}`, 'line', ic.p, snapPrims);
+  if (ic.ps) snap45(`beetle:${name}`, 'solid', ic.ps, snapPrims);
+}
 
 /* ---------- Beetle: every scenario of the app, mapped to a glyph ---------- */
 const SCENARIOS = [
@@ -172,6 +201,12 @@ for (const [name, ic] of Object.entries(KL.icons)) {
   }
 }
 console.log(`four-style: ${Object.keys(four).length} icons, ${Object.keys(four).filter(n => four[n].k).length} in a circle or square, ${Object.keys(fourData).length} drawings each`);
+/* each of the eight drawings is snapped on its own: they were drawn on their own */
+for (const [file, icons] of Object.entries(fourData)) for (const [name, parts] of Object.entries(icons)) snap45(`four:${name}`, file, parts, snapDrawing);
+{
+  const n = Object.keys(snapLog.changed).length, lines = Object.values(snapLog.changed).reduce((a, d) => a + Object.values(d).reduce((b, x) => b + x.lines, 0), 0);
+  console.log(`45°: ${lines} lines snapped in ${n} icons, ${Object.keys(snapLog.refused).length} icons with lines it could not take, ${Object.keys(snapLog.skipped).length} left as drawn`);
+}
 
 /* ---------- the filled styles of every line icon, worked out once ----------
    where the ink closes round space (plates), which lines are details, and the
@@ -256,13 +291,59 @@ const lib = {
 const json = JSON.stringify(lib);
 const out = resolve(root, 'data', 'icons.json');
 const files = [[out, json], [resolve(root, 'data', 'fills.json'), JSON.stringify(fills)], ...Object.entries(fourData).map(([f, icons]) => [resolve(root, 'data', 'four', f + '.json'), JSON.stringify(icons)])];
+
+/* the 45° pass's own report: what changed, what it could not take, what it left as drawn */
+{
+  const sorted = o => Object.fromEntries(Object.entries(o).sort(([a], [b]) => a.localeCompare(b)));
+  const report = { tolerance: TOL, maxMove: MAX_MOVE, changed: sorted(snapLog.changed), refused: sorted(snapLog.refused), skipped: sorted(snapLog.skipped) };
+  const count = o => Object.values(o).reduce((a, d) => a + Object.values(d).reduce((b, x) => b + (Array.isArray(x) ? x.length : x.lines), 0), 0);
+  const name = k => k.replace(/^core:/, 'core set: ').replace(/^beetle:/, 'app glyph: ').replace(/^four:/, 'four-style set: ');
+  const md = [
+    '# The 45° pass', '',
+    `Written by \`node glyphs/tools/build-library.mjs\`. A straight line within ${TOL}° of a diagonal, and a pair of neighbouring dots lined up within ${TOL}° of one, is moved onto it exactly (45°, 135°, 225° or 315°) by moving its points as little as possible, with no point moving more than ${MAX_MOVE} on the 24 grid. Lines already flat, upright or diagonal stay so. The sources are untouched: this happens as the library is built. See \`tools/snap45.mjs\`.`, '',
+    `${count(report.changed)} lines snapped in ${Object.keys(report.changed).length} icons. ${count(report.refused)} lines in ${Object.keys(report.refused).length} icons could not be taken without changing the icon too much; they stay as drawn and are listed below with the reason. ${Object.keys(report.skipped).length} icons are left as drawn on purpose.`, '',
+    '## Left as drawn, on purpose', '',
+    ...Object.entries(report.skipped).map(([k, why]) => `- **${name(k)}**: ${why}.`), '',
+    '## Lines it could not take', '',
+    '| Icon | Drawing | Line | Angle | Why not |', '| --- | --- | --- | ---: | --- |',
+    ...Object.entries(report.refused).flatMap(([k, d]) => Object.entries(d).flatMap(([dr, ls]) => ls.map(l => `| ${name(k)} | ${dr} | ${l.from.join(', ')} to ${l.to.join(', ')} | ${l.angle}° | ${l.why} |`))), '',
+    '## Changed', '',
+    '| Icon | Drawings (lines snapped, furthest a point moved) |', '| --- | --- |',
+    ...Object.entries(report.changed).map(([k, d]) => `| ${name(k)} | ${Object.entries(d).map(([dr, x]) => `${dr} (${x.lines}, ${x.moved})`).join('; ')} |`), '',
+  ].join('\n');
+  files.push([resolve(root, 'audit', '45-degrees.json'), JSON.stringify(report, null, 1) + '\n'], [resolve(root, 'audit', '45-degrees.md'), md]);
+}
+
+/* the review sheet: every changed icon, before (orange, under) and after (ink, over), by set */
+if (sheetAt) {
+  const Pcore = { ...P, ...E.PRESETS.core };
+  const draw = (geo, key, drawing, uid) => {
+    if (key.startsWith('four:')) { const corners = drawing.split('-')[0], weight = drawing.slice(corners.length + 1); return E.svg(E.drawn(geo), { ...P, corners }, { uid, weight, size: 64 }); }
+    return E.svg(geo, key.startsWith('core:') ? Pcore : P, { uid, weight: 'outline', size: 64 });
+  };
+  const byIcon = new Map();
+  sheet.forEach((s, i) => { if (!byIcon.has(s.key)) byIcon.set(s.key, []); byIcon.get(s.key).push({ ...s, i }); });
+  const cell = s => { const b = draw(s.before, s.key, s.drawing, 'b' + s.i).replace(/currentColor/g, '#f04f22'), a = draw(s.after, s.key, s.drawing, 'a' + s.i); const x = snapLog.changed[s.key][s.drawing];
+    return `<div class=d><div class=t><div>${b}</div><div>${a}</div><div class=o><i>${b}</i><i class=on>${a}</i></div></div><small>${s.drawing} · ${x.lines} · ${x.moved}</small></div>`; };
+  /* a four-style icon shows its rounded stroke and fill drawings (or the first it changed), and counts the rest */
+  const shown = list => { const pick = list.filter(s => s.drawing === 'rounded-outline' || s.drawing === 'rounded-solid'); return pick.length ? pick : list.slice(0, 1); };
+  const sections = [['beetle:', 'App glyphs'], ['core:', 'Core set'], ['four:', 'Four-style set']].map(([pre, title]) => {
+    const icons = [...byIcon].filter(([k]) => k.startsWith(pre));
+    return `<h2>${title} · ${icons.length} icons</h2><div class=g>${icons.map(([k, list]) => { const show = shown(list), rest = list.length - show.length;
+      return `<section><h3>${k.slice(pre.length)}</h3>${show.map(cell).join('')}${rest ? `<small class=more>and ${rest} more drawing${rest > 1 ? 's' : ''}: ${list.filter(s => !show.includes(s)).map(s => s.drawing).join(', ')}</small>` : ''}</section>`; }).join('')}</div>`;
+  });
+  const skippedHtml = `<h2>Left as drawn · ${Object.keys(snapLog.skipped).length}</h2><ul>${Object.entries(snapLog.skipped).map(([k, w]) => `<li><b>${k}</b>: ${w}</li>`).join('')}</ul>`;
+  writeFileSync(sheetAt, `<!doctype html><meta charset=utf-8><title>Beetle Glyphs: the 45° pass</title><style>body{font:12px/1.4 system-ui,sans-serif;margin:24px;color:#2b2721;background:#fafaf9}h1{font-size:22px}h2{margin:32px 0 12px}h3{margin:0 0 6px;font-size:12px}.g{display:flex;flex-wrap:wrap;gap:10px}section{border:1px solid #e5e3de;border-radius:10px;padding:8px;background:#fff}.d{display:inline-block;margin:0 8px 6px 0;vertical-align:top}.t{display:flex;gap:2px}.t>div{width:64px;height:64px;background:#f1f0ed;border-radius:4px;position:relative}.o i{position:absolute;inset:0}.o .on{opacity:.75}small{color:#77726b}.more{display:block;max-width:420px}svg{display:block}</style><h1>The 45° pass: before, after, and the two laid over each other</h1><p>Before in orange, after in ink; in the third square the after lies over the before, so orange shows only where something moved. Under each: the drawing, how many lines snapped, and the furthest a point moved on the 24 grid. ${Object.keys(snapLog.changed).length} icons changed.</p>${skippedHtml}${sections.join('')}`);
+  console.log(`wrote the 45° sheet to ${sheetAt}`);
+}
 console.log(`four-style ${Object.keys(four).length} icons in ${Object.keys(fourData).length} drawings; core ${Object.keys(core).length} icons (polys ${stats.polys}, paths ${stats.paths}, arcs ${stats.arcs}); beetle ${Object.keys(beetle).length} glyphs (${Object.values(beetle).filter(ic => ic.ps).length} with a solid of their own); scenarios ${SCENARIOS.length}; failures ${stats.fail.length} ${stats.fail.slice(0, 6).join(', ')}`);
 if (stats.fail.length) process.exit(1);
 if (check) {
   const stale = files.filter(([file, text]) => (existsSync(file) ? readFileSync(file, 'utf8') : '') !== text).map(([file]) => file.slice(root.length + 1));
   if (stale.length) { console.error(`${stale.join(', ')} ${stale.length > 1 ? 'are' : 'is'} stale: run \`node glyphs/tools/build-library.mjs\` and commit ${stale.length > 1 ? 'them' : 'it'}`); process.exit(1); }
-  console.log(`data/icons.json, data/fills.json and the ${files.length - 2} four-style drawings match their sources`);
+  console.log(`data/icons.json, data/fills.json, the ${Object.keys(fourData).length} four-style drawings and the 45° report match their sources`);
 } else {
   for (const [file, text] of files) { mkdirSync(dirname(file), { recursive: true }); writeFileSync(file, text); }
-  console.log(`wrote data/icons.json (${(json.length / 1024).toFixed(0)} KB), data/fills.json (${(files[1][1].length / 1024).toFixed(0)} KB) and ${files.length - 2} four-style drawings (${(files.slice(2).reduce((n, [, t]) => n + t.length, 0) / 1024).toFixed(0)} KB)`);
+  const drawings = files.slice(2, 2 + Object.keys(fourData).length);
+  console.log(`wrote data/icons.json (${(json.length / 1024).toFixed(0)} KB), data/fills.json (${(files[1][1].length / 1024).toFixed(0)} KB), ${drawings.length} four-style drawings (${(drawings.reduce((n, [, t]) => n + t.length, 0) / 1024).toFixed(0)} KB) and the 45° report in audit/`);
 }

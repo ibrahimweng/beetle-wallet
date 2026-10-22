@@ -1097,9 +1097,10 @@ const ICONS = {
     { role: 'detail', t: 'poly', pts: [[1 + h, 12], [23 - h, 12]], cut: { t: 'poly', pts: [[12 - q, 12], [12 + q, 12]] } } ]; } },
   send: { name: 'Send', make: P => { const h = P.S / 2; return [
     { role: 'shape', t: 'poly', closed: true, pts: [[12, 2 + h], [20, 22 - h], [12, 16], [4, 22 - h]] } ]; } },
-  person: { name: 'Person', make: P => { const s = P.S, h = s / 2, g = P.G * s, yb = 10.5 + g + h; return [
+  /* the shoulders slope at exactly 45°, about the middle of where they were drawn, at any stroke and gap */
+  person: { name: 'Person', make: P => { const s = P.S, h = s / 2, g = P.G * s, yb = 10.5 + g + h, yf = 22 - h, mid = (9.25 + 2.25 + h) / 2, run = (yf - yb) / 2; return [
     { role: 'shape', t: 'poly', closed: true, pts: [[9, 2 + h, 2.25], [15, 2 + h, 2.25], [15, 10.5 - h, 2.25], [9, 10.5 - h, 2.25]] },
-    { role: 'shape', t: 'poly', closed: true, pts: [[9.25, yb, 'soft'], [14.75, yb, 'soft'], [21.75 - h, 22 - h, 'box'], [2.25 + h, 22 - h, 'box']] } ]; } },
+    { role: 'shape', t: 'poly', closed: true, pts: [[mid + run, yb, 'soft'], [24 - mid - run, yb, 'soft'], [24 - mid + run, yf, 'box'], [mid - run, yf, 'box']] } ]; } },
   star: { name: 'Star', shared: true, make: P => { const h = P.S / 2, r = 10 - h, k = 2.1; return [
     { role: 'fill', t: 'quad', pts: [[12, 12 - r], [12 + k, 12 - k], [12 + r, 12], [12 + k, 12 + k], [12, 12 + r], [12 - k, 12 + k], [12 - r, 12], [12 - k, 12 - k]] } ]; } },
   plus: { name: 'Plus', shared: true, make: P => { const h = P.S / 2; return [

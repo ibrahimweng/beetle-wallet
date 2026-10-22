@@ -19,10 +19,10 @@ A straight line counts if it is at least 0.75 long and not already flat or uprig
 
 | Set | Icons with an exact diagonal | 0–2° off: lines (icons) | 2–5° off: lines (icons) | 5–10° off: lines (icons) | 10–15° off: lines (icons) |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| parametric | 3 | 0 (0) | 0 (0) | 3 (2) | 2 (1) |
-| app glyph | 20 | 15 (7) | 29 (5) | 20 (6) | 47 (11) |
-| core set | 764 | 214 (122) | 79 (42) | 111 (55) | 404 (141) |
-| four-style set | 522 | 1058 (90) | 1370 (114) | 2267 (143) | 1614 (114) |
+| parametric | 4 | 0 (0) | 0 (0) | 1 (1) | 2 (1) |
+| app glyph | 29 | 0 (0) | 24 (3) | 5 (3) | 41 (11) |
+| core set | 897 | 0 (0) | 1 (1) | 37 (21) | 326 (95) |
+| four-style set | 726 | 17 (3) | 193 (33) | 521 (48) | 1242 (103) |
 
 Dots that line up near a diagonal: 28 pairs in 7 icons (core set brain-circuit, core set chart-scatter, core set grip-horizontal, core set grip-vertical, core set grip, core set palette, core set vault).
 
@@ -34,13 +34,13 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 
 | Icon | Set | Parts | Stroked / filled | Near 45° | Also in |
 | --- | --- | --- | --- | ---: | --- |
-| accessibility | core set | 2 polylines, 1 dot, 2 paths | 5 / 0 | 1 | medical |
+| accessibility | core set | 2 polylines, 1 dot, 2 paths | 5 / 0 |  | medical |
 | baby | core set | 2 lines, 2 paths | 4 / 0 |  | people |
 | badge-question-mark | core set | 1 line, 1 circle, 1 path | 3 / 0 |  | social, shapes |
 | circle-question-mark | core set | 1 line, 1 circle, 1 path | 3 / 0 |  | text, notifications |
 | closed-caption | core set | 1 rect, 2 paths | 3 / 0 |  | multimedia |
 | eye | core set | 2 circles | 2 / 0 |  | photography, design, security |
-| eye-closed | core set | 4 lines, 1 path | 5 / 0 | 2 | photography, design, security |
+| eye-closed | core set | 4 lines, 1 path | 5 / 0 |  | photography, design, security |
 | eye-dashed | core set | 1 circle, 8 paths | 9 / 0 |  | photography, design, security |
 | eye-off | core set | 1 line, 3 paths | 4 / 0 |  | photography, design, security |
 | glasses | core set | 2 circles, 3 paths | 5 / 0 |  |  |
@@ -61,7 +61,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 
 | Icon | Set | Parts | Stroked / filled | Near 45° | Also in |
 | --- | --- | --- | --- | ---: | --- |
-| award | core set | 1 circle, 1 path | 2 / 0 | 2 | sports, gaming |
+| award | core set | 1 circle, 1 path | 2 / 0 |  | sports, gaming |
 | badge | core set | 1 circle | 1 / 0 |  | social, shapes |
 | badge-alert | core set | 2 lines, 1 circle | 3 / 0 |  | social |
 | badge-info | core set | 2 lines, 1 circle | 3 / 0 |  | accessibility, social |
@@ -90,12 +90,12 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | credit-card-minus | core set | 3 lines, 1 polyline | 4 / 0 |  | finance, shopping |
 | credit-card-plus | core set | 4 lines, 1 polyline | 5 / 0 |  | finance, shopping |
 | credit-card-x | core set | 4 lines, 1 polyline | 5 / 0 |  | finance, shopping |
-| file-user | core set | 1 polyline, 1 circle, 2 paths | 4 / 0 | 1 | files |
+| file-user | core set | 1 polyline, 1 circle, 2 paths | 4 / 0 |  | files |
 | fingerprint-pattern | core set | 1 line, 8 paths | 9 / 0 |  | security, medical, devices |
 | flag | core set | 1 path | 1 / 0 |  | social |
 | flag-off | core set | 2 lines, 2 paths | 4 / 0 |  | social |
 | handshake | core set | 1 line, 1 polyline, 3 paths | 5 / 0 |  | social, communication, finance, security |
-| inbox | core set | 1 polyline, 1 path | 2 / 0 | 2 | mail |
+| inbox | core set | 1 polyline, 1 path | 2 / 0 |  | mail |
 | message-circle-x | core set | 2 lines, 1 path | 3 / 0 |  | social |
 | notebook-tabs | core set | 8 lines, 1 rect | 9 / 0 |  | communication, social |
 | scan-face | core set | 2 lines, 4 polylines, 1 path | 7 / 0 |  | security, devices, social |
@@ -106,7 +106,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | share-2 | core set | 2 lines, 3 circles | 5 / 0 | 2 | social |
 | shield | core set | 1 path | 1 / 0 |  | security, development, gaming, shapes |
 | shield-alert | core set | 2 lines, 1 path | 3 / 0 |  | security, development, notifications, gaming |
-| shield-ban | core set | 1 line, 1 path | 2 / 0 | 1 | security, development, gaming |
+| shield-ban | core set | 1 line, 1 path | 2 / 0 |  | security, development, gaming |
 | shield-check | core set | 1 polyline, 1 path | 2 / 0 |  | security, development, gaming |
 | shield-cog | core set | 8 lines, 1 circle, 1 path | 10 / 0 |  | security, development, gaming, shapes |
 | shield-cog-corner | core set | 8 lines, 1 circle, 1 path | 10 / 0 |  | security, development, gaming, shapes |
@@ -123,11 +123,11 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | sliders-vertical | core set | 9 lines | 9 / 0 |  |  |
 | square-user | core set | 1 polyline, 1 rect, 1 circle | 3 / 0 |  |  |
 | square-user-round | core set | 1 rect, 1 circle, 1 path | 3 / 0 |  |  |
-| star | core set | 1 path | 1 / 0 | 2 | social, shapes, multimedia, weather, emoji, gaming |
-| star-check | core set | 1 polyline, 1 path | 2 / 0 | 2 | social, shapes, multimedia, weather, emoji, gaming |
-| star-minus | core set | 1 line, 1 path | 2 / 0 | 2 | social, shapes, multimedia, weather, emoji, gaming |
-| star-plus | core set | 2 lines, 1 path | 3 / 0 | 2 | social, shapes, multimedia, weather, emoji, gaming |
-| star-x | core set | 2 lines, 1 path | 3 / 0 | 2 | social, shapes, multimedia, weather, emoji, gaming |
+| star | core set | 1 path | 1 / 0 |  | social, shapes, multimedia, weather, emoji, gaming |
+| star-check | core set | 1 polyline, 1 path | 2 / 0 |  | social, shapes, multimedia, weather, emoji, gaming |
+| star-minus | core set | 1 line, 1 path | 2 / 0 |  | social, shapes, multimedia, weather, emoji, gaming |
+| star-plus | core set | 2 lines, 1 path | 3 / 0 |  | social, shapes, multimedia, weather, emoji, gaming |
+| star-x | core set | 2 lines, 1 path | 3 / 0 |  | social, shapes, multimedia, weather, emoji, gaming |
 | tag | core set | 1 dot, 1 path | 1 / 1 |  |  |
 | tag-plus | core set | 2 lines, 1 dot, 1 path | 3 / 1 |  |  |
 | tag-x | core set | 2 lines, 1 dot, 1 path | 3 / 1 |  |  |
@@ -142,7 +142,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | user-key | core set | 2 lines, 2 circles, 1 path | 5 / 0 |  |  |
 | user-lock | core set | 1 polyline, 1 rect, 1 circle, 1 path | 4 / 0 |  | security |
 | user-minus | core set | 1 line, 1 polyline, 1 circle | 3 / 0 |  |  |
-| user-pen | core set | 1 polyline, 1 circle, 1 path | 3 / 0 | 1 |  |
+| user-pen | core set | 1 polyline, 1 circle, 1 path | 3 / 0 |  |  |
 | user-plus | core set | 2 lines, 1 polyline, 1 circle | 4 / 0 |  |  |
 | user-round | core set | 1 circle, 1 path | 2 / 0 |  |  |
 | user-round-arrow-left | core set | 1 line, 1 polyline, 1 circle, 1 path | 4 / 0 |  | people, arrows |
@@ -151,23 +151,23 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | user-round-group | core set | 3 circles, 3 paths | 6 / 0 |  | people, social |
 | user-round-key | core set | 2 lines, 2 circles, 1 path | 5 / 0 |  |  |
 | user-round-minus | core set | 1 line, 1 circle, 1 path | 3 / 0 |  |  |
-| user-round-pen | core set | 1 circle, 2 paths | 3 / 0 | 1 |  |
+| user-round-pen | core set | 1 circle, 2 paths | 3 / 0 |  |  |
 | user-round-plus | core set | 2 lines, 1 circle, 1 path | 4 / 0 |  |  |
 | user-round-search | core set | 1 line, 2 circles, 1 path | 4 / 0 |  | social |
 | user-round-x | core set | 2 lines, 1 circle, 1 path | 4 / 0 |  |  |
 | user-search | core set | 1 line, 1 polyline, 2 circles | 4 / 0 |  | social |
 | user-shield | core set | 1 polyline, 1 circle, 1 path | 3 / 0 |  | security, development, people |
-| user-star | core set | 1 polyline, 1 circle, 1 path | 3 / 0 | 1 |  |
+| user-star | core set | 1 polyline, 1 circle, 1 path | 3 / 0 |  |  |
 | user-x | core set | 2 lines, 1 polyline, 1 circle | 4 / 0 |  |  |
 | users | core set | 1 polyline, 1 circle, 2 paths | 4 / 0 |  |  |
 | users-round | core set | 1 circle, 2 paths | 3 / 0 |  |  |
 | venetian-mask | core set | 3 paths | 3 / 0 |  | gaming |
 | wallet | core set | 1 polyline, 1 path | 2 / 0 |  | finance |
-| wallet-cards | core set | 1 line, 1 rect, 1 path | 3 / 0 | 2 | finance |
+| wallet-cards | core set | 1 line, 1 rect, 1 path | 3 / 0 |  | finance |
 | wallet-minimal | core set | 1 line, 1 polyline | 2 / 0 |  | finance |
-| wallpaper | core set | 2 lines, 1 polyline, 1 rect, 1 circle | 5 / 0 | 1 | devices |
+| wallpaper | core set | 2 lines, 1 polyline, 1 rect, 1 circle | 5 / 0 |  | devices |
 | wrench | core set | 1 path | 1 / 0 |  | development, tools |
-| wrench-off | core set | 1 line, 2 paths | 3 / 0 | 1 | development, tools |
+| wrench-off | core set | 1 line, 2 paths | 3 / 0 |  | development, tools |
 
 ### actions (78)
 
@@ -176,34 +176,34 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | alert | four-style set | 1 line, 1 dot; solid: 1 line, 1 dot | 1 / 1 |  |  |
 | badge | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
 | badge-alert | four-style set | 1 line, 1 dot, 1 path; solid: 1 dot, 2 paths | 2 / 1 |  |  |
-| badge-check | four-style set | 1 polyline, 1 path; solid: 2 paths | 2 / 0 | 22 |  |
+| badge-check | four-style set | 1 polyline, 1 path; solid: 2 paths | 2 / 0 |  |  |
 | badge-info | four-style set | 1 line, 1 dot, 1 path; solid: 1 dot, 2 paths | 2 / 1 |  |  |
 | badge-minus | four-style set | 1 line, 1 path; solid: 2 paths | 2 / 0 |  |  |
 | badge-plus | four-style set | 2 lines, 1 path; solid: 2 paths | 3 / 0 |  |  |
 | badge-question | four-style set | 1 dot, 2 paths; solid: 1 dot, 2 paths | 2 / 1 |  |  |
 | badge-x | four-style set | 2 lines, 1 path; solid: 2 paths | 3 / 0 |  |  |
 | ban | four-style set | 1 line, 1 circle; solid: 1 circle, 1 path | 2 / 0 |  |  |
-| check | four-style set | 1 polyline; solid: 1 polyline | 1 / 0 | 16 |  |
+| check | four-style set | 1 polyline; solid: 1 polyline | 1 / 0 |  |  |
 | circle-alert | four-style set | 1 line, 1 circle, 1 dot; solid: 1 circle, 1 dot, 1 path | 2 / 1 |  |  |
-| circle-check | four-style set | 1 polyline, 1 circle; solid: 1 circle, 1 path | 2 / 0 | 22 |  |
+| circle-check | four-style set | 1 polyline, 1 circle; solid: 1 circle, 1 path | 2 / 0 |  |  |
 | circle-minus | four-style set | 1 line, 1 circle; solid: 1 circle, 1 path | 2 / 0 |  |  |
 | circle-more-horizontal | four-style set | 4 circles; solid: 4 circles | 1 / 3 |  |  |
 | circle-more-vertical | four-style set | 4 circles; solid: 4 circles | 1 / 3 |  |  |
 | circle-plus | four-style set | 2 lines, 1 circle; solid: 1 circle, 1 path | 3 / 0 |  |  |
 | circle-question | four-style set | 1 circle, 1 dot, 1 path; solid: 1 circle, 1 dot, 1 path | 2 / 1 |  |  |
 | circle-x | four-style set | 2 lines, 1 circle; solid: 1 circle, 1 path | 3 / 0 |  |  |
-| delete | four-style set | 2 lines, 1 path; solid: 2 paths | 3 / 0 | 20 |  |
-| double-check | four-style set | 2 polylines; solid: 2 polylines | 2 / 0 | 24 |  |
+| delete | four-style set | 2 lines, 1 path; solid: 2 paths | 3 / 0 | 2 |  |
+| double-check | four-style set | 2 polylines; solid: 2 polylines | 2 / 0 | 4 |  |
 | download | four-style set | 1 line, 1 polyline, 1 path; solid: 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
 | eye | four-style set | 1 circle, 1 path; solid: 2 circles, 1 path | 2 / 0 |  |  |
-| eye-off | four-style set | 1 line, 3 paths; solid: 1 line, 4 paths | 4 / 0 | 7 |  |
-| filter | four-style set | 1 path; solid: 1 path | 1 / 0 | 25 |  |
+| eye-off | four-style set | 1 line, 3 paths; solid: 1 line, 4 paths | 4 / 0 | 6 |  |
+| filter | four-style set | 1 path; solid: 1 path | 1 / 0 | 8 |  |
 | flame | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
 | hand-heart | four-style set | 1 line, 3 paths; solid: 1 line, 4 paths | 4 / 0 |  |  |
 | heart | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
 | heart-crack | four-style set | 1 polyline, 1 path; solid: 1 path | 2 / 0 |  |  |
-| heart-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 7 |  |
-| heart-plus | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 | 3 |  |
+| heart-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
+| heart-plus | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 |  |  |
 | hearts | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
 | info | four-style set | 1 line, 1 circle, 1 dot; solid: 1 circle, 1 dot, 1 path | 2 / 1 |  |  |
 | key | four-style set | 3 lines, 1 circle; solid: 3 lines, 1 circle | 4 / 0 |  |  |
@@ -220,37 +220,37 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | octagon-x | four-style set | 2 lines, 1 path; solid: 2 paths | 3 / 0 |  |  |
 | plus | four-style set | 2 lines; solid: 2 lines | 2 / 0 |  |  |
 | question | four-style set | 1 dot, 1 path; solid: 1 dot, 1 path | 1 / 1 |  |  |
-| shield | four-style set | 1 path; solid: 1 path | 1 / 0 | 10 |  |
-| shield-alert | four-style set | 1 line, 1 dot, 1 path; solid: 1 dot, 2 paths | 2 / 1 | 10 |  |
-| shield-check | four-style set | 1 polyline, 1 path; solid: 2 paths | 2 / 0 | 32 |  |
-| shield-heart | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 10 |  |
-| shield-key | four-style set | 2 lines, 1 circle, 1 path; solid: 1 dot, 2 paths | 4 / 0 | 10 |  |
-| shield-lock | four-style set | 1 rect, 2 paths; solid: 3 paths | 3 / 0 | 10 |  |
-| shield-minus | four-style set | 1 line, 1 path; solid: 2 paths | 2 / 0 | 10 |  |
-| shield-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 6 |  |
-| shield-plus | four-style set | 2 lines, 1 path; solid: 2 paths | 3 / 0 | 10 |  |
-| shield-question | four-style set | 1 dot, 2 paths; solid: 1 dot, 2 paths | 2 / 1 | 10 |  |
-| shield-terminal | four-style set | 1 line, 2 paths; solid: 3 paths | 3 / 0 | 32 |  |
-| shield-user | four-style set | 1 circle, 2 paths; solid: 1 circle, 2 paths | 3 / 0 | 10 |  |
-| shield-x | four-style set | 2 lines, 1 path; solid: 2 paths | 3 / 0 | 10 |  |
+| shield | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
+| shield-alert | four-style set | 1 line, 1 dot, 1 path; solid: 1 dot, 2 paths | 2 / 1 |  |  |
+| shield-check | four-style set | 1 polyline, 1 path; solid: 2 paths | 2 / 0 |  |  |
+| shield-heart | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
+| shield-key | four-style set | 2 lines, 1 circle, 1 path; solid: 1 dot, 2 paths | 4 / 0 |  |  |
+| shield-lock | four-style set | 1 rect, 2 paths; solid: 3 paths | 3 / 0 |  |  |
+| shield-minus | four-style set | 1 line, 1 path; solid: 2 paths | 2 / 0 |  |  |
+| shield-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 1 |  |
+| shield-plus | four-style set | 2 lines, 1 path; solid: 2 paths | 3 / 0 |  |  |
+| shield-question | four-style set | 1 dot, 2 paths; solid: 1 dot, 2 paths | 2 / 1 |  |  |
+| shield-terminal | four-style set | 1 line, 2 paths; solid: 3 paths | 3 / 0 |  |  |
+| shield-user | four-style set | 1 circle, 2 paths; solid: 1 circle, 2 paths | 3 / 0 |  |  |
+| shield-x | four-style set | 2 lines, 1 path; solid: 2 paths | 3 / 0 |  |  |
 | siren | four-style set | 3 lines, 1 rect, 1 path; solid: 3 lines, 1 rect, 1 path | 5 / 0 |  |  |
 | square-alert | four-style set | 1 line, 1 rect, 1 dot; solid: 1 rect, 1 dot, 1 path | 2 / 1 |  |  |
-| square-check | four-style set | 1 polyline, 1 rect; solid: 1 rect, 1 path | 2 / 0 | 22 |  |
+| square-check | four-style set | 1 polyline, 1 rect; solid: 1 rect, 1 path | 2 / 0 |  |  |
 | square-minus | four-style set | 1 line, 1 rect; solid: 1 rect, 1 path | 2 / 0 |  |  |
 | square-more-horizontal | four-style set | 1 rect, 3 circles; solid: 1 rect, 3 circles | 1 / 3 |  |  |
 | square-more-vertical | four-style set | 1 rect, 3 circles; solid: 1 rect, 3 circles | 1 / 3 |  |  |
 | square-plus | four-style set | 2 lines, 1 rect; solid: 1 rect, 1 path | 3 / 0 |  |  |
 | square-question | four-style set | 1 rect, 1 dot, 1 path; solid: 1 rect, 1 dot, 1 path | 2 / 1 |  |  |
 | square-x | four-style set | 2 lines, 1 rect; solid: 1 rect, 1 path | 3 / 0 |  |  |
-| star | four-style set | 1 path; solid: 1 path | 1 / 0 | 40 |  |
-| star-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 38 |  |
-| star-shooting | four-style set | 3 lines, 1 path; solid: 3 lines, 1 path | 4 / 0 | 40 |  |
+| star | four-style set | 1 path; solid: 1 path | 1 / 0 | 20 |  |
+| star-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 20 |  |
+| star-shooting | four-style set | 3 lines, 1 path; solid: 3 lines, 1 path | 4 / 0 | 20 |  |
 | triangle-alert | four-style set | 1 line, 1 dot, 1 path; solid: 1 dot, 2 paths | 2 / 1 | 10 |  |
 | unlock | four-style set | 1 rect, 1 circle, 1 path; solid: 1 rect, 1 circle, 1 path | 2 / 1 |  |  |
 | upload | four-style set | 1 line, 1 polyline, 1 path; solid: 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
 | x | four-style set | 2 lines; solid: 2 lines | 2 / 0 |  |  |
-| zap | four-style set | 1 path; solid: 1 path | 1 / 0 | 10 |  |
-| zap-off | four-style set | 1 line, 3 paths; solid: 1 line, 2 paths | 4 / 0 | 18 |  |
+| zap | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
+| zap-off | four-style set | 1 line, 3 paths; solid: 1 line, 2 paths | 4 / 0 |  |  |
 
 ### ai (93)
 
@@ -264,19 +264,19 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | bot | four-style set | 6 lines, 1 rect, 1 circle; solid: 3 lines, 1 rect, 1 circle, 3 paths | 7 / 1 |  |  |
 | bot-circle | four-style set | 2 lines, 1 circle; solid: 1 circle, 2 paths | 3 / 0 |  |  |
 | bot-cloud | four-style set | 2 lines, 1 path; solid: 3 paths | 3 / 0 |  |  |
-| bot-droplet | four-style set | 2 lines, 1 path; solid: 3 paths | 3 / 0 | 20 |  |
+| bot-droplet | four-style set | 2 lines, 1 path; solid: 3 paths | 3 / 0 |  |  |
 | bot-heart | four-style set | 2 lines, 1 path; solid: 3 paths | 3 / 0 |  |  |
 | bot-message | four-style set | 2 lines, 1 path; solid: 3 paths | 3 / 0 |  |  |
 | bot-off | four-style set | 3 lines, 1 circle, 1 dot, 2 paths; solid: 4 lines, 1 circle, 1 dot, 3 paths | 5 / 2 |  |  |
 | bot-square | four-style set | 2 lines, 1 rect; solid: 1 rect, 2 paths | 3 / 0 |  |  |
-| bot-star | four-style set | 2 lines, 1 path; solid: 3 paths | 3 / 0 | 20 |  |
-| brain-circuit | four-style set | 3 lines, 3 circles, 5 paths; solid: 3 lines, 3 circles, 2 paths | 8 / 3 | 1 |  |
+| bot-star | four-style set | 2 lines, 1 path; solid: 3 paths | 3 / 0 |  |  |
+| brain-circuit | four-style set | 3 lines, 3 circles, 5 paths; solid: 3 lines, 3 circles, 2 paths | 8 / 3 |  |  |
 | brain-cog | four-style set | 8 lines, 1 circle, 7 paths; solid: 1 circle, 2 paths | 16 / 0 |  |  |
 | brain-sparkles | four-style set | 8 paths; solid: 8 paths | 6 / 2 |  |  |
 | calculator-sparkles | four-style set | 2 lines, 3 dots, 3 paths; solid: 2 lines, 3 dots, 3 paths | 3 / 5 |  |  |
 | calendar-sparkles | four-style set | 3 lines, 3 paths; solid: 3 lines, 3 paths | 4 / 2 |  |  |
-| camera-sparkles | four-style set | 1 circle, 3 paths; solid: 1 circle, 3 paths | 2 / 2 | 16 |  |
-| captions-sparkles | four-style set | 5 paths; solid: 5 paths | 3 / 2 | 16 |  |
+| camera-sparkles | four-style set | 1 circle, 3 paths; solid: 1 circle, 3 paths | 2 / 2 |  |  |
+| captions-sparkles | four-style set | 5 paths; solid: 5 paths | 3 / 2 |  |  |
 | chart-area-sparkles | four-style set | 4 paths; solid: 4 paths | 2 / 2 |  |  |
 | chart-bar-sparkles | four-style set | 2 lines, 3 paths; solid: 2 lines, 3 paths | 3 / 2 |  |  |
 | chart-column-sparkles | four-style set | 3 lines, 3 paths; solid: 3 lines, 3 paths | 4 / 2 |  |  |
@@ -302,11 +302,11 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | film-sparkles | four-style set | 6 lines, 3 paths; solid: 6 lines, 3 paths | 7 / 2 |  |  |
 | folder-sparkles | four-style set | 3 paths; solid: 3 paths | 1 / 2 |  |  |
 | gift-sparkles | four-style set | 6 paths; solid: 6 paths | 4 / 2 |  |  |
-| hand-pointer-sparkles | four-style set | 5 paths; solid: 5 paths | 3 / 2 | 16 |  |
+| hand-pointer-sparkles | four-style set | 5 paths; solid: 5 paths | 3 / 2 | 8 |  |
 | handbag-sparkles | four-style set | 4 paths; solid: 4 paths | 2 / 2 |  |  |
 | heart-sparkles | four-style set | 3 paths; solid: 3 paths | 1 / 2 |  |  |
-| image-sparkles | four-style set | 1 circle, 4 paths; solid: 1 circle, 4 paths | 2 / 3 | 8 |  |
-| inbox-sparkles | four-style set | 1 polyline, 3 paths; solid: 1 polyline, 3 paths | 2 / 2 | 32 |  |
+| image-sparkles | four-style set | 1 circle, 4 paths; solid: 1 circle, 4 paths | 2 / 3 |  |  |
+| inbox-sparkles | four-style set | 1 polyline, 3 paths; solid: 1 polyline, 3 paths | 2 / 2 | 16 |  |
 | language-sparkles | four-style set | 3 lines, 1 polyline, 4 paths; solid: 3 lines, 1 polyline, 4 paths | 6 / 2 |  |  |
 | laptop-sparkles | four-style set | 1 line, 1 rect, 3 paths; solid: 1 line, 1 rect, 3 paths | 3 / 2 |  |  |
 | lightbulb-sparkles | four-style set | 2 lines, 4 paths; solid: 2 lines, 4 paths | 4 / 2 |  |  |
@@ -322,7 +322,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | palette-sparkles | four-style set | 3 circles, 4 paths; solid: 3 circles, 4 paths | 2 / 5 |  |  |
 | paper-bag-sparkles | four-style set | 2 lines, 3 paths; solid: 2 lines, 3 paths | 3 / 2 |  |  |
 | pen-sparkles | four-style set | 1 line, 3 paths; solid: 1 line, 3 paths | 2 / 2 |  |  |
-| phone-sparkles | four-style set | 3 paths; solid: 3 paths | 1 / 2 | 8 |  |
+| phone-sparkles | four-style set | 3 paths; solid: 3 paths | 1 / 2 |  |  |
 | refresh-ccw-sparkles | four-style set | 7 paths; solid: 7 paths | 5 / 2 |  |  |
 | refresh-cw-sparkles | four-style set | 7 paths; solid: 7 paths | 5 / 2 |  |  |
 | scan-text-sparkles | four-style set | 2 lines, 5 paths; solid: 2 lines, 5 paths | 5 / 2 |  |  |
@@ -330,7 +330,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | search-sparkles | four-style set | 1 line, 3 paths; solid: 1 line, 3 paths | 2 / 2 |  |  |
 | send-horizontal-sparkles | four-style set | 1 line, 3 paths; solid: 1 line, 3 paths | 2 / 2 |  |  |
 | send-sparkles | four-style set | 1 line, 3 paths; solid: 1 line, 3 paths | 2 / 2 | 16 |  |
-| shield-sparkles | four-style set | 3 paths; solid: 3 paths | 1 / 2 | 8 |  |
+| shield-sparkles | four-style set | 3 paths; solid: 3 paths | 1 / 2 |  |  |
 | shirt-sparkles | four-style set | 3 paths; solid: 3 paths | 1 / 2 |  |  |
 | shopping-cart-sparkles | four-style set | 2 circles, 4 paths; solid: 2 circles, 4 paths | 2 / 4 |  |  |
 | signal-sparkles | four-style set | 4 lines, 1 dot, 2 paths; solid: 4 lines, 1 dot, 2 paths | 4 / 3 |  |  |
@@ -340,32 +340,32 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | sparkles | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
 | sticky-note-sparkles | four-style set | 4 paths; solid: 4 paths | 2 / 2 |  |  |
 | subtitles-sparkles | four-style set | 4 lines, 4 paths; solid: 4 lines, 4 paths | 6 / 2 |  |  |
-| tag-horizontal-start-sparkles | four-style set | 1 circle, 3 paths; solid: 1 circle, 3 paths | 1 / 3 | 8 |  |
-| tag-sparkles | four-style set | 1 circle, 3 paths; solid: 1 circle, 3 paths | 1 / 3 | 8 |  |
-| terminal-sparkles | four-style set | 1 line, 3 paths; solid: 1 line, 3 paths | 2 / 2 | 16 |  |
+| tag-horizontal-start-sparkles | four-style set | 1 circle, 3 paths; solid: 1 circle, 3 paths | 1 / 3 | 4 |  |
+| tag-sparkles | four-style set | 1 circle, 3 paths; solid: 1 circle, 3 paths | 1 / 3 |  |  |
+| terminal-sparkles | four-style set | 1 line, 3 paths; solid: 1 line, 3 paths | 2 / 2 |  |  |
 | truck-sparkles | four-style set | 1 line, 2 circles, 5 paths; solid: 1 line, 2 circles, 5 paths | 6 / 2 |  |  |
 | user-sparkles | four-style set | 1 circle, 3 paths; solid: 1 circle, 3 paths | 2 / 2 |  |  |
 | video-sparkles | four-style set | 1 circle, 4 paths; solid: 1 circle, 4 paths | 3 / 2 |  |  |
 | wallet-sparkles | four-style set | 5 paths; solid: 5 paths | 3 / 2 |  |  |
 | wand-sparkles | four-style set | 1 line, 3 paths; solid: 1 line, 3 paths | 2 / 2 |  |  |
-| zap-sparkles | four-style set | 3 paths; solid: 3 paths | 1 / 2 | 8 |  |
+| zap-sparkles | four-style set | 3 paths; solid: 3 paths | 1 / 2 |  |  |
 
 ### animals (19)
 
 | Icon | Set | Parts | Stroked / filled | Near 45° | Also in |
 | --- | --- | --- | --- | ---: | --- |
 | bird | core set | 3 lines, 1 polyline, 2 paths | 6 / 0 | 1 |  |
-| bird | four-style set | 2 lines, 1 dot, 3 paths; solid: 2 lines, 1 dot, 3 paths | 5 / 1 | 30 |  |
+| bird | four-style set | 2 lines, 1 dot, 3 paths; solid: 2 lines, 1 dot, 3 paths | 5 / 1 | 12 |  |
 | bone | core set | 1 path | 1 / 0 |  | medical, gaming |
 | cat | core set | 2 lines, 1 polygon, 1 path | 4 / 0 |  |  |
 | dog | core set | 2 lines, 1 polygon, 2 paths | 5 / 0 |  |  |
-| origami | core set | 3 paths | 3 / 0 | 3 | design |
+| origami | core set | 3 paths | 3 / 0 |  | design |
 | panda | core set | 2 lines, 1 polygon, 3 paths | 6 / 0 |  |  |
 | paw-print | core set | 3 circles, 1 path | 4 / 0 |  |  |
 | paw-print | four-style set | 4 paths; solid: 4 paths | 4 / 0 |  |  |
-| pig | four-style set | 1 dot, 2 paths; solid: 1 dot, 2 paths | 2 / 1 | 20 |  |
+| pig | four-style set | 1 dot, 2 paths; solid: 1 dot, 2 paths | 2 / 1 | 3 |  |
 | rabbit | core set | 1 line, 4 paths | 5 / 0 |  |  |
-| rat | core set | 1 line, 4 paths | 5 / 0 | 1 |  |
+| rat | core set | 1 line, 4 paths | 5 / 0 |  |  |
 | shell | core set | 1 path | 1 / 0 |  | development, nature, science, travel, food-beverage, home |
 | shrimp | core set | 1 line, 4 paths | 5 / 0 |  | food-beverage |
 | shrimp-off | core set | 1 line, 6 paths | 7 / 0 |  | food-beverage |
@@ -396,8 +396,8 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | arrow-big-up-dash | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 |  |  |
 | arrow-big-up-short | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
 | arrow-down | core set | 1 line, 1 polyline | 2 / 0 |  |  |
-| arrow-down | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 16 |  |
-| arrow-down-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 | 16 |  |
+| arrow-down | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 |  |  |
+| arrow-down-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 |  |  |
 | arrow-down-from-line | core set | 2 lines, 1 polyline | 3 / 0 |  | files |
 | arrow-down-left | core set | 1 line, 1 polyline | 2 / 0 |  |  |
 | arrow-down-left | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 |  |  |
@@ -410,41 +410,41 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | arrow-down-to-line | core set | 2 lines, 1 polyline | 3 / 0 |  | files, development |
 | arrow-down-up | core set | 2 lines, 2 polylines | 4 / 0 |  |  |
 | arrow-down-up | four-style set | 2 lines, 2 polylines; solid: 2 lines, 2 polylines | 4 / 0 |  |  |
-| arrow-down-up-2 | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 | 32 |  |
+| arrow-down-up-2 | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 |  |  |
 | arrow-down-wide-narrow | four-style set | 5 lines, 1 path; solid: 5 lines, 1 path | 6 / 0 |  |  |
-| arrow-in-down-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 | 16 |  |
+| arrow-in-down-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 |  |  |
 | arrow-in-down-left-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 |  |  |
 | arrow-in-down-right-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 |  |  |
-| arrow-in-left-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 | 16 |  |
-| arrow-in-right-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 | 16 |  |
-| arrow-in-up-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 | 16 |  |
+| arrow-in-left-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 |  |  |
+| arrow-in-right-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 |  |  |
+| arrow-in-up-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 |  |  |
 | arrow-in-up-left-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 |  |  |
 | arrow-in-up-right-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 |  |  |
 | arrow-left | core set | 1 line, 1 polyline | 2 / 0 |  |  |
-| arrow-left | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 16 |  |
-| arrow-left-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 | 16 |  |
+| arrow-left | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 |  |  |
+| arrow-left-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 |  |  |
 | arrow-left-from-line | core set | 2 lines, 1 polyline | 3 / 0 |  |  |
 | arrow-left-right | core set | 2 lines, 2 polylines | 4 / 0 |  |  |
 | arrow-left-right | four-style set | 2 lines, 2 polylines; solid: 2 lines, 2 polylines | 4 / 0 |  |  |
-| arrow-left-right-2 | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 | 32 |  |
+| arrow-left-right-2 | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 |  |  |
 | arrow-left-to-line | core set | 2 lines, 1 polyline | 3 / 0 |  |  |
 | arrow-right | core set | 1 line, 1 polyline | 2 / 0 |  |  |
-| arrow-right | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 16 |  |
-| arrow-right-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 | 16 |  |
+| arrow-right | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 |  |  |
+| arrow-right-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 |  |  |
 | arrow-right-from-line | core set | 2 lines, 1 polyline | 3 / 0 |  |  |
 | arrow-right-left | core set | 2 lines, 2 polylines | 4 / 0 |  |  |
 | arrow-right-left | four-style set | 2 lines, 2 polylines; solid: 2 lines, 2 polylines | 4 / 0 |  |  |
-| arrow-right-left-2 | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 | 32 |  |
+| arrow-right-left-2 | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 |  |  |
 | arrow-right-to-line | core set | 2 lines, 1 polyline | 3 / 0 |  | development |
-| arrow-right-to-line | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 | 16 |  |
-| arrow-u-turn-left | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 16 |  |
-| arrow-u-turn-right | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 16 |  |
+| arrow-right-to-line | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 |  |  |
+| arrow-u-turn-left | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 12 |  |
+| arrow-u-turn-right | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 8 |  |
 | arrow-up | core set | 1 line, 1 polyline | 2 / 0 |  |  |
-| arrow-up | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 16 |  |
-| arrow-up-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 | 16 |  |
+| arrow-up | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 |  |  |
+| arrow-up-dashed-panel | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 |  |  |
 | arrow-up-down | core set | 2 lines, 2 polylines | 4 / 0 |  |  |
 | arrow-up-down | four-style set | 2 lines, 2 polylines; solid: 2 lines, 2 polylines | 4 / 0 |  |  |
-| arrow-up-down-2 | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 | 32 |  |
+| arrow-up-down-2 | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 |  |  |
 | arrow-up-from-dot | core set | 1 line, 1 polyline, 1 dot | 3 / 0 |  |  |
 | arrow-up-from-line | core set | 2 lines, 1 polyline | 3 / 0 |  | files, development |
 | arrow-up-left | core set | 1 line, 1 polyline | 2 / 0 |  |  |
@@ -457,11 +457,11 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | arrow-up-to-line | core set | 2 lines, 1 polyline | 3 / 0 |  | files |
 | arrow-up-wide-narrow | four-style set | 5 lines, 1 path; solid: 5 lines, 1 path | 6 / 0 |  |  |
 | arrows-up-from-line | core set | 3 lines, 2 polylines | 5 / 0 |  | transportation, mail |
-| bracket-arrow-down | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 16 |  |
-| bracket-arrow-left | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 16 |  |
-| bracket-arrow-right | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 16 |  |
-| bracket-arrow-up | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 16 |  |
-| calendar-sync | core set | 3 lines, 3 polylines, 2 paths | 8 / 0 | 2 | time |
+| bracket-arrow-down | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
+| bracket-arrow-left | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
+| bracket-arrow-right | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
+| bracket-arrow-up | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
+| calendar-sync | core set | 3 lines, 3 polylines, 2 paths | 8 / 0 |  | time |
 | chevron-down | core set | 1 polyline | 1 / 0 |  | gaming |
 | chevron-first | core set | 1 line, 1 polyline | 2 / 0 |  | multimedia |
 | chevron-last | core set | 1 line, 1 polyline | 2 / 0 |  | multimedia |
@@ -477,21 +477,21 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | chevrons-up | core set | 2 polylines | 2 / 0 |  | gaming |
 | chevrons-up-down | core set | 2 polylines | 2 / 0 |  |  |
 | circle-arrow-down | core set | 1 line, 1 polyline, 1 circle | 3 / 0 |  | gaming |
-| circle-arrow-down | four-style set | 1 line, 1 circle, 1 path; solid: 1 circle, 1 path | 3 / 0 | 22 |  |
+| circle-arrow-down | four-style set | 1 line, 1 circle, 1 path; solid: 1 circle, 1 path | 3 / 0 |  |  |
 | circle-arrow-down-left | four-style set | 1 line, 1 circle, 1 path; solid: 1 circle, 1 path | 3 / 0 |  |  |
 | circle-arrow-down-right | four-style set | 1 line, 1 circle, 1 path; solid: 1 circle, 1 path | 3 / 0 |  |  |
 | circle-arrow-left | core set | 1 line, 1 polyline, 1 circle | 3 / 0 |  | gaming |
-| circle-arrow-left | four-style set | 1 line, 1 circle, 1 path; solid: 1 circle, 1 path | 3 / 0 | 22 |  |
+| circle-arrow-left | four-style set | 1 line, 1 circle, 1 path; solid: 1 circle, 1 path | 3 / 0 |  |  |
 | circle-arrow-out-down-left | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
 | circle-arrow-out-down-right | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
 | circle-arrow-out-up-left | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  | development |
 | circle-arrow-out-up-right | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
 | circle-arrow-right | core set | 1 line, 1 polyline, 1 circle | 3 / 0 |  | gaming |
-| circle-arrow-right | four-style set | 1 line, 1 circle, 1 path; solid: 1 circle, 1 path | 3 / 0 | 22 |  |
-| circle-arrow-u-turn-left | four-style set | 1 circle, 2 paths; solid: 1 circle, 1 path | 3 / 0 | 22 |  |
-| circle-arrow-u-turn-right | four-style set | 1 circle, 2 paths; solid: 1 circle, 1 path | 3 / 0 | 22 |  |
+| circle-arrow-right | four-style set | 1 line, 1 circle, 1 path; solid: 1 circle, 1 path | 3 / 0 |  |  |
+| circle-arrow-u-turn-left | four-style set | 1 circle, 2 paths; solid: 1 circle, 1 path | 3 / 0 |  |  |
+| circle-arrow-u-turn-right | four-style set | 1 circle, 2 paths; solid: 1 circle, 1 path | 3 / 0 |  |  |
 | circle-arrow-up | core set | 1 line, 1 polyline, 1 circle | 3 / 0 |  | gaming |
-| circle-arrow-up | four-style set | 1 line, 1 circle, 1 path; solid: 1 circle, 1 path | 3 / 0 | 22 |  |
+| circle-arrow-up | four-style set | 1 line, 1 circle, 1 path; solid: 1 circle, 1 path | 3 / 0 |  |  |
 | circle-arrow-up-left | four-style set | 1 line, 1 circle, 1 path; solid: 1 circle, 1 path | 3 / 0 |  |  |
 | circle-arrow-up-right | four-style set | 1 line, 1 circle, 1 path; solid: 1 circle, 1 path | 3 / 0 |  |  |
 | circle-chevron-down | core set | 1 polyline, 1 circle | 2 / 0 |  |  |
@@ -501,7 +501,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | circle-fading-arrow-up | core set | 1 line, 1 polyline, 5 paths | 7 / 0 |  | development |
 | cloud-backup | core set | 1 polyline, 2 paths | 3 / 0 |  | files |
 | cloud-download | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  | files |
-| cloud-sync | core set | 2 polylines, 3 paths | 5 / 0 | 2 | files |
+| cloud-sync | core set | 2 polylines, 3 paths | 5 / 0 |  | files |
 | cloud-upload | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  | files |
 | corner-down-left | core set | 2 polylines | 2 / 0 |  |  |
 | corner-down-left | four-style set | 1 polyline, 1 path; solid: 1 polyline, 1 path | 2 / 0 |  |  |
@@ -532,11 +532,11 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | import | core set | 1 line, 2 polylines | 3 / 0 |  | files |
 | iteration-ccw | core set | 1 polyline, 1 path | 2 / 0 |  | design |
 | iteration-cw | core set | 1 polyline, 1 path | 2 / 0 |  | design |
-| lasso-select | core set | 1 circle, 4 paths | 5 / 0 | 2 | design, cursors |
+| lasso-select | core set | 1 circle, 4 paths | 5 / 0 | 1 | design, cursors |
 | log-in | core set | 1 line, 2 polylines | 3 / 0 |  | account |
-| log-in | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 16 |  |
+| log-in | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
 | log-out | core set | 1 line, 2 polylines | 3 / 0 |  | account |
-| log-out | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 16 |  |
+| log-out | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
 | maximize-2 | core set | 2 lines, 2 polylines | 4 / 0 |  | layout, design |
 | milestone | core set | 2 lines, 1 path | 3 / 0 |  | navigation, development, gaming |
 | minimize-2 | core set | 2 lines, 2 polylines | 4 / 0 |  | layout, design |
@@ -544,7 +544,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | mouse-pointer-2 | core set | 1 path | 1 / 0 |  | cursors |
 | mouse-pointer-2-off | core set | 1 line, 2 paths | 3 / 0 |  | cursors |
 | mouse-pointer-ban | core set | 1 line, 1 circle, 1 path | 3 / 0 |  | cursors |
-| mouse-pointer-click | core set | 4 lines, 1 path | 5 / 0 | 2 | cursors |
+| mouse-pointer-click | core set | 4 lines, 1 path | 5 / 0 |  | cursors |
 | move | core set | 2 lines, 4 polylines | 6 / 0 |  | cursors |
 | move | four-style set | 4 lines, 4 polylines; solid: 4 lines, 4 polylines | 8 / 0 |  |  |
 | move-diagonal | core set | 1 line, 2 polylines | 3 / 0 |  | cursors |
@@ -584,7 +584,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | signpost-big | core set | 1 line, 2 polylines, 1 path | 4 / 0 |  | navigation, development, gaming |
 | spline-pointer | core set | 2 circles, 2 paths | 4 / 0 |  | cursors, design, tools |
 | square-arrow-down | core set | 1 line, 1 polyline, 1 rect | 3 / 0 |  | gaming |
-| square-arrow-down | four-style set | 1 line, 1 rect, 1 path; solid: 1 rect, 1 path | 3 / 0 | 22 |  |
+| square-arrow-down | four-style set | 1 line, 1 rect, 1 path; solid: 1 rect, 1 path | 3 / 0 |  |  |
 | square-arrow-down-left | core set | 1 line, 1 polyline, 1 rect | 3 / 0 |  | gaming |
 | square-arrow-down-left | four-style set | 1 line, 1 rect, 1 path; solid: 1 rect, 1 path | 3 / 0 |  |  |
 | square-arrow-down-right | core set | 1 line, 1 polyline, 1 rect | 3 / 0 |  | gaming |
@@ -594,7 +594,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | square-arrow-in-up-left | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
 | square-arrow-in-up-right | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
 | square-arrow-left | core set | 1 line, 1 polyline, 1 rect | 3 / 0 |  |  |
-| square-arrow-left | four-style set | 1 line, 1 rect, 1 path; solid: 1 rect, 1 path | 3 / 0 | 22 |  |
+| square-arrow-left | four-style set | 1 line, 1 rect, 1 path; solid: 1 rect, 1 path | 3 / 0 |  |  |
 | square-arrow-out-down-left | core set | 1 line, 2 polylines | 3 / 0 |  |  |
 | square-arrow-out-down-left | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
 | square-arrow-out-down-right | core set | 1 line, 2 polylines | 3 / 0 |  |  |
@@ -604,13 +604,13 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | square-arrow-out-up-right | core set | 1 line, 2 polylines | 3 / 0 |  | social |
 | square-arrow-out-up-right | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
 | square-arrow-right | core set | 1 line, 1 polyline, 1 rect | 3 / 0 |  |  |
-| square-arrow-right | four-style set | 1 line, 1 rect, 1 path; solid: 1 rect, 1 path | 3 / 0 | 22 |  |
+| square-arrow-right | four-style set | 1 line, 1 rect, 1 path; solid: 1 rect, 1 path | 3 / 0 |  |  |
 | square-arrow-right-enter | core set | 1 line, 2 polylines | 3 / 0 |  | shapes, layout, multimedia |
 | square-arrow-right-exit | core set | 1 line, 2 polylines | 3 / 0 |  | shapes, layout, multimedia |
-| square-arrow-u-turn-left | four-style set | 1 rect, 2 paths; solid: 1 rect, 1 path | 3 / 0 | 22 |  |
-| square-arrow-u-turn-right | four-style set | 1 rect, 2 paths; solid: 1 rect, 1 path | 3 / 0 | 22 |  |
+| square-arrow-u-turn-left | four-style set | 1 rect, 2 paths; solid: 1 rect, 1 path | 3 / 0 |  |  |
+| square-arrow-u-turn-right | four-style set | 1 rect, 2 paths; solid: 1 rect, 1 path | 3 / 0 |  |  |
 | square-arrow-up | core set | 1 line, 1 polyline, 1 rect | 3 / 0 |  |  |
-| square-arrow-up | four-style set | 1 line, 1 rect, 1 path; solid: 1 rect, 1 path | 3 / 0 | 22 |  |
+| square-arrow-up | four-style set | 1 line, 1 rect, 1 path; solid: 1 rect, 1 path | 3 / 0 |  |  |
 | square-arrow-up-left | core set | 1 line, 1 polyline, 1 rect | 3 / 0 |  |  |
 | square-arrow-up-left | four-style set | 1 line, 1 rect, 1 path; solid: 1 rect, 1 path | 3 / 0 |  |  |
 | square-arrow-up-right | core set | 1 line, 1 polyline, 1 rect | 3 / 0 |  | social |
@@ -637,7 +637,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | paint-roller | four-style set | 2 rects, 1 path; solid: 2 rects, 1 path | 3 / 0 |  |  |
 | paintbrush | four-style set | 3 lines, 1 path; solid: 4 paths | 4 / 0 |  |  |
 | palette | four-style set | 5 circles, 1 path; solid: 5 circles, 1 path | 1 / 5 |  |  |
-| swatch-book | four-style set | 1 dot, 3 paths; solid: 1 dot, 3 paths | 3 / 1 | 24 |  |
+| swatch-book | four-style set | 1 dot, 3 paths; solid: 1 dot, 3 paths | 3 / 1 | 4 |  |
 | wand | four-style set | 1 line, 1 path; solid: 2 paths | 2 / 0 |  |  |
 
 ### beetle (85)
@@ -647,7 +647,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | airtime | app glyph | 1 line, 1 rect; solid: 2 rects, 1 path | 2 / 0 |  |  |
 | alert | app glyph | 2 lines, 1 polygon; solid: 2 lines, 1 path | 3 / 0 |  |  |
 | arrow | parametric | 1 line, 1 polyline | 2 / 0 |  |  |
-| back | app glyph | 1 polyline | 1 / 0 | 2 |  |
+| back | app glyph | 1 polyline | 1 / 0 |  |  |
 | bag | parametric | 1 polyline, 1 polygon | 2 / 0 |  |  |
 | bank | app glyph | 5 lines, 1 polyline | 6 / 0 |  |  |
 | bell | app glyph | 2 paths; solid: 2 paths | 2 / 0 |  |  |
@@ -657,7 +657,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | card | parametric | 1 line, 1 rect | 2 / 0 |  |  |
 | chart | app glyph | 4 lines | 4 / 0 |  |  |
 | chat | app glyph | 1 path; solid: 1 path | 1 / 0 |  |  |
-| check | app glyph | 1 polyline | 1 / 0 | 2 |  |
+| check | app glyph | 1 polyline | 1 / 0 | 1 |  |
 | check-small | app glyph | 1 polyline | 1 / 0 |  |  |
 | chevron | app glyph | 1 polyline | 1 / 0 |  |  |
 | clock | app glyph | 1 polyline, 1 circle; solid: 1 polyline, 1 circle | 2 / 0 | 2 |  |
@@ -665,7 +665,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | close-small | app glyph | 2 lines | 2 / 0 |  |  |
 | copy | app glyph | 1 rect, 1 path | 2 / 0 |  |  |
 | data | app glyph | 1 line, 2 paths | 3 / 0 |  |  |
-| del | app glyph | 2 lines, 1 path | 3 / 0 | 4 |  |
+| del | app glyph | 2 lines, 1 path | 3 / 0 |  |  |
 | dial | app glyph | 1 circle, 1 path | 2 / 0 |  |  |
 | dollar | app glyph | 1 line, 1 path | 2 / 0 |  |  |
 | down | app glyph | 1 line, 1 polyline | 2 / 0 |  |  |
@@ -681,9 +681,9 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | grid | app glyph | 4 rects; solid: 4 rects | 4 / 0 |  |  |
 | history-filled | app glyph | 1 polyline, 1 polygon; solid: 1 polyline, 1 circle | 1 / 1 | 18 |  |
 | home | parametric | 1 line, 1 polygon | 2 / 0 |  |  |
-| home-filled | app glyph | 1 polygon; solid: 2 paths | 1 / 0 | 7 |  |
+| home-filled | app glyph | 1 polygon; solid: 2 paths | 1 / 0 | 1 |  |
 | id | app glyph | 2 lines, 1 rect, 1 circle, 1 path; solid: 2 lines, 1 rect, 1 circle, 1 path | 5 / 0 |  |  |
-| key | app glyph | 3 lines, 1 circle; solid: 2 circles, 1 path | 4 / 0 | 1 |  |
+| key | app glyph | 3 lines, 1 circle; solid: 2 circles, 1 path | 4 / 0 |  |  |
 | laptop | app glyph | 1 line, 1 rect; solid: 2 rects, 1 path | 2 / 0 |  |  |
 | list | app glyph | 3 lines; solid: 3 paths | 3 / 0 |  |  |
 | loan | app glyph | 3 paths | 3 / 0 |  |  |
@@ -693,15 +693,15 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | more | app glyph | 4 polygons; solid: 4 circles | 0 / 4 |  |  |
 | naira | parametric | 2 lines, 1 polyline | 3 / 0 | 1 |  |
 | person | app glyph | 1 circle, 1 path; solid: 1 circle, 1 path | 2 / 0 |  |  |
-| person | parametric | 1 rect, 1 polygon | 2 / 0 | 2 |  |
+| person | parametric | 1 rect, 1 polygon | 2 / 0 |  |  |
 | phone-filled | app glyph | 1 line, 2 polygons; solid: 1 line, 1 rect, 1 circle | 1 / 2 |  |  |
 | plus | app glyph | 2 lines | 2 / 0 |  |  |
 | plus | parametric | 2 lines, 1 polygon | 2 / 1 |  |  |
 | pot | app glyph | 1 rect, 1 path; solid: 1 rect, 2 paths | 2 / 0 |  |  |
 | power | app glyph | 1 polygon | 1 / 0 | 2 |  |
 | qr | app glyph | 5 rects | 5 / 0 |  |  |
-| receipt | app glyph | 2 lines, 1 polygon | 3 / 0 | 6 |  |
-| receive-filled | app glyph | 1 polygon; solid: 1 path | 1 / 0 | 3 |  |
+| receipt | app glyph | 2 lines, 1 polygon | 3 / 0 | 3 |  |
+| receive-filled | app glyph | 1 polygon; solid: 1 path | 1 / 0 |  |  |
 | request | app glyph | 1 line, 1 polyline | 2 / 0 |  |  |
 | ring | app glyph | 1 circle, 1 path | 2 / 0 |  |  |
 | school | app glyph | 1 polygon, 1 path | 2 / 0 |  |  |
@@ -709,20 +709,20 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | search | parametric | 1 line, 1 circle | 2 / 0 |  |  |
 | send | app glyph | 1 line, 1 polyline | 2 / 0 |  |  |
 | send | parametric | 1 polygon | 1 / 0 | 2 |  |
-| settings-filled | app glyph | 2 lines, 4 polygons; solid: 2 lines, 1 polygon | 1 / 5 | 14 |  |
+| settings-filled | app glyph | 2 lines, 4 polygons; solid: 2 lines, 1 polygon | 1 / 5 | 3 |  |
 | share | app glyph | 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
 | sheet-close | app glyph | 2 lines | 2 / 0 |  |  |
-| shield | app glyph | 1 path; solid: 1 polyline, 1 path | 1 / 0 | 2 |  |
+| shield | app glyph | 1 path; solid: 1 polyline, 1 path | 1 / 0 |  |  |
 | slide-arrow | app glyph | 1 line, 1 polyline | 2 / 0 |  |  |
 | sort | app glyph | 2 lines, 2 polylines | 4 / 0 |  |  |
-| star | app glyph | 1 polygon; solid: 1 path | 1 / 0 | 6 |  |
+| star | app glyph | 1 polygon; solid: 1 path | 1 / 0 | 2 |  |
 | star | parametric | 1 polygon | 0 / 1 |  |  |
-| step-done | app glyph | 1 polyline, 1 polygon; solid: 1 polyline, 1 circle | 1 / 1 | 18 |  |
+| step-done | app glyph | 1 polyline, 1 polygon; solid: 1 polyline, 1 circle | 1 / 1 | 16 |  |
 | step-todo | app glyph | 1 circle | 1 / 0 |  |  |
 | step-work | app glyph | 1 circle, 1 path | 2 / 0 |  |  |
 | swap | app glyph | 2 lines, 2 polylines | 4 / 0 |  |  |
 | target | parametric | 4 lines, 4 arcs | 8 / 0 |  |  |
-| tv | app glyph | 1 line, 1 polyline, 1 rect | 3 / 0 | 2 |  |
+| tv | app glyph | 1 line, 1 polyline, 1 rect | 3 / 0 |  |  |
 | undo-filled | app glyph | 1 polyline, 1 arc; solid: 1 path | 2 / 0 |  |  |
 | up | app glyph | 1 line, 1 polyline | 2 / 0 |  |  |
 | up-small | app glyph | 1 line, 1 polyline | 2 / 0 |  |  |
@@ -737,17 +737,17 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | anvil | core set | 2 lines, 3 paths | 5 / 0 |  | tools, gaming |
 | brick-wall | core set | 7 lines, 1 rect | 8 / 0 |  | home |
 | castle | core set | 6 lines, 1 polyline, 1 path | 8 / 0 |  | gaming, navigation |
-| church | core set | 2 lines, 3 paths | 5 / 0 | 4 | navigation |
+| church | core set | 2 lines, 3 paths | 5 / 0 | 3 | navigation |
 | dam | core set | 4 lines, 3 paths | 7 / 0 |  | sustainability, navigation |
 | dome | core set | 3 lines, 1 rect, 2 paths | 6 / 0 |  | navigation, travel |
 | factory | core set | 3 lines, 1 path | 4 / 0 | 2 | navigation |
 | graduation-cap | core set | 1 line, 2 paths | 3 / 0 |  |  |
 | hotel | core set | 8 lines, 1 rect, 1 path | 10 / 0 |  | navigation, travel |
-| house | core set | 1 polyline, 1 path | 2 / 0 | 2 | home, navigation |
-| house-cog | core set | 8 lines, 1 polyline, 1 circle, 1 path | 11 / 0 | 2 | home |
-| house-plug | core set | 2 lines, 1 rect, 1 path | 4 / 0 | 2 | home, sustainability |
-| house-plus | core set | 2 lines, 2 paths | 4 / 0 | 2 | medical |
-| houses | core set | 1 polyline, 2 paths | 3 / 0 | 4 | home |
+| house | core set | 1 polyline, 1 path | 2 / 0 |  | home, navigation |
+| house-cog | core set | 8 lines, 1 polyline, 1 circle, 1 path | 11 / 0 |  | home |
+| house-plug | core set | 2 lines, 1 rect, 1 path | 4 / 0 |  | home, sustainability |
+| house-plus | core set | 2 lines, 2 paths | 4 / 0 |  | medical |
+| houses | core set | 1 polyline, 2 paths | 3 / 0 |  | home |
 | lighthouse | core set | 11 lines, 1 path | 12 / 0 | 4 | navigation, travel |
 | mosque | core set | 2 lines, 4 paths | 6 / 0 |  | navigation, travel |
 | school | core set | 2 lines, 1 circle, 3 paths | 6 / 0 | 2 | navigation |
@@ -797,10 +797,10 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | chart-line | core set | 2 polylines | 2 / 0 |  |  |
 | chart-line | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
 | chart-line-decreasing | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
-| chart-line-down | four-style set | 3 paths; solid: 3 paths | 3 / 0 | 24 |  |
+| chart-line-down | four-style set | 3 paths; solid: 3 paths | 3 / 0 |  |  |
 | chart-line-increasing | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
-| chart-line-up | four-style set | 3 paths; solid: 3 paths | 3 / 0 | 24 |  |
-| chart-network | core set | 3 lines, 1 polyline, 3 circles | 7 / 0 | 1 |  |
+| chart-line-up | four-style set | 3 paths; solid: 3 paths | 3 / 0 |  |  |
+| chart-network | core set | 3 lines, 1 polyline, 3 circles | 7 / 0 |  |  |
 | chart-network | four-style set | 2 lines, 3 circles, 1 path; solid: 2 lines, 3 circles, 3 dots, 1 path | 6 / 0 |  |  |
 | chart-no-axes-column | core set | 3 lines | 3 / 0 |  |  |
 | chart-no-axes-column-decreasing | core set | 3 lines | 3 / 0 |  |  |
@@ -830,9 +830,9 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | circle-bar-chart-down | four-style set | 3 lines, 1 circle; solid: 1 circle, 3 paths | 4 / 0 |  |  |
 | circle-bar-chart-horizontal-end | four-style set | 3 lines, 1 circle; solid: 1 circle, 3 paths | 4 / 0 |  |  |
 | circle-bar-chart-horizontal-start | four-style set | 3 lines, 1 circle; solid: 1 circle, 3 paths | 4 / 0 |  |  |
-| circle-trending-down | four-style set | 1 polyline, 1 circle, 1 path; solid: 1 circle, 1 path | 3 / 0 | 1 |  |
-| circle-trending-up | four-style set | 1 polyline, 1 circle, 1 path; solid: 1 circle, 1 path | 3 / 0 | 1 |  |
-| folder-kanban | core set | 3 lines, 1 path | 4 / 0 | 1 | development, design, files |
+| circle-trending-down | four-style set | 1 polyline, 1 circle, 1 path; solid: 1 circle, 1 path | 3 / 0 |  |  |
+| circle-trending-up | four-style set | 1 polyline, 1 circle, 1 path; solid: 1 circle, 1 path | 3 / 0 |  |  |
+| folder-kanban | core set | 3 lines, 1 path | 4 / 0 |  | development, design, files |
 | gauge | four-style set | 1 line, 2 circles, 4 dots; solid: 1 circle, 4 dots, 1 path | 2 / 5 |  |  |
 | gauge-high | four-style set | 1 line, 2 circles, 4 dots; solid: 1 circle, 4 dots, 1 path | 2 / 5 |  |  |
 | gauge-low | four-style set | 1 line, 2 circles, 4 dots; solid: 1 circle, 4 dots, 1 path | 2 / 5 |  |  |
@@ -855,8 +855,8 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | square-chart-gantt | core set | 3 lines, 1 rect | 4 / 0 |  | time, development, design |
 | square-dashed-kanban | core set | 11 lines, 4 paths | 15 / 0 |  | development, design |
 | square-kanban | core set | 3 lines, 1 rect | 4 / 0 |  | development, design |
-| square-trending-down | four-style set | 1 polyline, 1 rect, 1 path; solid: 1 rect, 1 path | 3 / 0 | 1 |  |
-| square-trending-up | four-style set | 1 polyline, 1 rect, 1 path; solid: 1 rect, 1 path | 3 / 0 | 1 |  |
+| square-trending-down | four-style set | 1 polyline, 1 rect, 1 path; solid: 1 rect, 1 path | 3 / 0 |  |  |
+| square-trending-up | four-style set | 1 polyline, 1 rect, 1 path; solid: 1 rect, 1 path | 3 / 0 |  |  |
 | trending-down | core set | 2 polylines | 2 / 0 |  | arrows |
 | trending-down | four-style set | 1 polyline, 1 path; solid: 1 polyline, 1 path | 2 / 0 |  |  |
 | trending-up | core set | 2 polylines | 2 / 0 |  | arrows |
@@ -893,7 +893,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | circle-chevrons-down | four-style set | 2 polylines, 1 circle; solid: 1 circle, 2 paths | 3 / 0 |  |  |
 | circle-chevrons-left | four-style set | 2 polylines, 1 circle; solid: 1 circle, 2 paths | 3 / 0 |  |  |
 | circle-chevrons-right | four-style set | 2 polylines, 1 circle; solid: 1 circle, 2 paths | 3 / 0 |  |  |
-| circle-chevrons-up | four-style set | 2 polylines, 1 circle; solid: 1 circle, 2 paths | 3 / 0 | 2 |  |
+| circle-chevrons-up | four-style set | 2 polylines, 1 circle; solid: 1 circle, 2 paths | 3 / 0 |  |  |
 | square-caret-down | four-style set | 1 rect, 1 path; solid: 1 rect, 1 path | 2 / 0 |  |  |
 | square-caret-left | four-style set | 1 rect, 1 path; solid: 1 rect, 1 path | 2 / 0 |  |  |
 | square-caret-right | four-style set | 1 rect, 1 path; solid: 1 rect, 1 path | 2 / 0 |  |  |
@@ -905,7 +905,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | square-chevrons-down | four-style set | 2 polylines, 1 rect; solid: 1 rect, 2 paths | 3 / 0 |  |  |
 | square-chevrons-left | four-style set | 2 polylines, 1 rect; solid: 1 rect, 2 paths | 3 / 0 |  |  |
 | square-chevrons-right | four-style set | 2 polylines, 1 rect; solid: 1 rect, 2 paths | 3 / 0 |  |  |
-| square-chevrons-up | four-style set | 2 polylines, 1 rect; solid: 1 rect, 2 paths | 3 / 0 | 2 |  |
+| square-chevrons-up | four-style set | 2 polylines, 1 rect; solid: 1 rect, 2 paths | 3 / 0 |  |  |
 
 ### commerce (47)
 
@@ -934,19 +934,19 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | percent | four-style set | 1 line, 2 circles; solid: 1 line, 2 circles | 3 / 0 |  |  |
 | receipt | four-style set | 2 lines, 1 path; solid: 3 paths | 3 / 0 |  |  |
 | shirt | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
-| shopping-bag | four-style set | 1 line, 2 paths; solid: 3 paths | 3 / 0 | 24 |  |
+| shopping-bag | four-style set | 1 line, 2 paths; solid: 3 paths | 3 / 0 |  |  |
 | shopping-basket | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
 | shopping-basket-plus | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 |  |  |
 | shopping-cart | four-style set | 2 circles, 2 paths; solid: 2 circles, 2 paths | 2 / 2 |  |  |
 | shopping-cart-plus | four-style set | 2 lines, 2 circles, 2 paths; solid: 2 lines, 2 circles, 2 paths | 4 / 2 |  |  |
 | square-percent | four-style set | 1 line, 1 rect, 2 circles; solid: 1 rect, 2 circles, 1 path | 2 / 2 |  |  |
-| store | four-style set | 3 lines, 3 paths; solid: 3 paths | 6 / 0 | 24 |  |
+| store | four-style set | 3 lines, 3 paths; solid: 3 paths | 6 / 0 |  |  |
 | sunglasses | four-style set | 5 paths; solid: 5 paths | 5 / 0 |  |  |
-| tag | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 1 / 1 | 10 |  |
-| tag-horizontal-end | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 1 / 1 | 10 |  |
-| tag-horizontal-end-percent | four-style set | 1 line, 2 circles, 1 path; solid: 2 circles, 2 paths | 2 / 2 | 10 |  |
-| tag-horizontal-start | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 1 / 1 | 10 |  |
-| tag-horizontal-start-percent | four-style set | 1 line, 2 circles, 1 path; solid: 2 circles, 2 paths | 2 / 2 | 10 |  |
+| tag | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 1 / 1 |  |  |
+| tag-horizontal-end | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 1 / 1 | 1 |  |
+| tag-horizontal-end-percent | four-style set | 1 line, 2 circles, 1 path; solid: 2 circles, 2 paths | 2 / 2 | 1 |  |
+| tag-horizontal-start | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 1 / 1 | 1 |  |
+| tag-horizontal-start-percent | four-style set | 1 line, 2 circles, 1 path; solid: 2 circles, 2 paths | 2 / 2 | 1 |  |
 | truck | four-style set | 1 line, 2 circles, 2 paths; solid: 1 line, 2 circles, 3 paths | 5 / 0 |  |  |
 | truck-arrow-down | four-style set | 2 lines, 1 polyline, 2 circles, 3 paths; solid: 2 lines, 1 polyline, 2 circles, 4 paths | 8 / 0 |  |  |
 | truck-arrow-left | four-style set | 2 lines, 1 polyline, 2 circles, 3 paths; solid: 2 lines, 1 polyline, 2 circles, 4 paths | 8 / 0 |  |  |
@@ -1023,7 +1023,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | signal-medium | core set | 3 lines | 3 / 0 |  |  |
 | signal-zero | core set | 1 line | 1 / 0 |  |  |
 | smartphone | core set | 1 line, 1 rect | 2 / 0 |  | devices |
-| smartphone-charging | core set | 1 polyline, 1 rect | 2 / 0 | 2 | devices |
+| smartphone-charging | core set | 1 polyline, 1 rect | 2 / 0 |  | devices |
 | square-power | core set | 1 line, 1 rect, 1 path | 3 / 0 |  |  |
 | voicemail | core set | 1 line, 2 circles | 3 / 0 |  | devices, social |
 | volume | core set | 1 path | 1 / 0 |  | communication, multimedia |
@@ -1038,8 +1038,8 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | wifi-high | core set | 1 line, 2 paths | 3 / 0 |  | devices |
 | wifi-low | core set | 1 line, 1 path | 2 / 0 |  | devices |
 | wifi-off | core set | 2 lines, 5 paths | 7 / 0 |  | devices |
-| wifi-pen | core set | 4 paths | 4 / 0 | 1 | devices |
-| wifi-sync | core set | 3 lines, 4 paths | 7 / 0 | 2 | devices |
+| wifi-pen | core set | 4 paths | 4 / 0 |  | devices |
+| wifi-sync | core set | 3 lines, 4 paths | 7 / 0 |  | devices |
 | wifi-zero | core set | 1 line | 1 / 0 |  | devices |
 | zap | core set | 1 path | 1 / 0 |  | devices, photography, weather |
 | zap-off | core set | 1 line, 3 paths | 4 / 0 |  | devices, photography, weather |
@@ -1050,8 +1050,8 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | --- | --- | --- | --- | ---: | --- |
 | grip-horizontal | four-style set | 6 dots; solid: 6 dots | 6 / 0 |  |  |
 | grip-vertical | four-style set | 6 dots; solid: 6 dots | 6 / 0 |  |  |
-| power | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 8 |  |
-| power-off | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 | 4 |  |
+| power | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 |  |  |
+| power-off | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 |  |  |
 | sliders-2-horizontal | four-style set | 4 lines, 2 paths; solid: 4 lines, 2 paths | 6 / 0 |  |  |
 | sliders-2-vertical | four-style set | 4 lines, 2 paths; solid: 4 lines, 2 paths | 6 / 0 |  |  |
 | sliders-horizontal | four-style set | 9 lines; solid: 9 lines | 9 / 0 |  |  |
@@ -1070,7 +1070,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | loader-circle | core set | 1 path | 1 / 0 |  | multimedia, layout |
 | loader-pinwheel | core set | 1 circle, 3 paths | 4 / 0 |  | design |
 | pointer | core set | 5 paths | 5 / 0 |  |  |
-| pointer-off | core set | 2 lines, 4 paths | 6 / 0 | 1 |  |
+| pointer-off | core set | 2 lines, 4 paths | 6 / 0 |  |  |
 | sparkles | core set | 2 lines, 1 circle, 1 path | 4 / 0 |  | multimedia, gaming, weather |
 
 ### design (63)
@@ -1083,7 +1083,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | component | core set | 4 polygons | 4 / 0 |  | development |
 | decimals-arrow-left | core set | 2 lines, 1 polyline, 1 rect | 4 / 0 |  | text, arrows, math |
 | decimals-arrow-right | core set | 2 lines, 1 polyline, 2 rects | 5 / 0 |  | text, arrows, math |
-| file-axis-3d | core set | 1 line, 2 polylines, 1 path | 4 / 0 | 1 | files |
+| file-axis-3d | core set | 1 line, 2 polylines, 1 path | 4 / 0 |  | files |
 | frame | core set | 4 lines | 4 / 0 |  | photography |
 | gap-horizontal | core set | 4 lines, 2 polylines | 6 / 0 |  | layout |
 | gap-vertical | core set | 4 lines, 2 polylines | 6 / 0 |  | layout |
@@ -1109,7 +1109,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | move-3d | core set | 1 line, 3 polylines | 4 / 0 |  |  |
 | paint-bucket | core set | 2 lines, 1 polyline, 1 path | 4 / 0 |  | tools |
 | pencil | core set | 1 line, 1 path | 2 / 0 |  | cursors, tools, text |
-| pencil-off | core set | 2 lines, 2 paths | 4 / 0 | 2 | cursors, tools, text |
+| pencil-off | core set | 2 lines, 2 paths | 4 / 0 |  | cursors, tools, text |
 | pencil-sparkles | core set | 7 lines, 1 path | 8 / 0 |  | cursors, tools, text, photography |
 | rotate-3d | core set | 1 polyline, 2 paths | 3 / 0 |  |  |
 | scale-3d | core set | 1 line, 1 polyline, 2 circles | 4 / 0 |  |  |
@@ -1133,13 +1133,13 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | squares-subtract | core set | 2 lines, 1 polygon, 3 paths | 6 / 0 |  |  |
 | squares-unite | core set | 1 polygon | 1 / 0 |  |  |
 | stamp | core set | 1 line, 1 rect, 1 path | 3 / 0 |  | cursors, tools |
-| swatch-book | core set | 1 line, 2 polylines, 1 path | 4 / 0 | 2 | home, photography |
+| swatch-book | core set | 1 line, 2 polylines, 1 path | 4 / 0 |  | home, photography |
 | triangles-centerline-dashed-horizontal | core set | 4 lines, 2 paths | 6 / 0 |  | photography |
 | triangles-centerline-dashed-vertical | core set | 4 lines, 2 paths | 6 / 0 |  | photography |
 | vector-polygon | core set | 4 lines, 4 circles | 8 / 0 | 2 | math, shapes |
 | view | core set | 2 polylines, 1 circle, 1 dot | 4 / 0 |  | photography |
 | wand | core set | 9 lines | 9 / 0 |  | gaming, cursors, photography |
-| wand-sparkles | core set | 7 lines, 1 polygon | 8 / 0 | 2 | gaming, cursors, photography |
+| wand-sparkles | core set | 7 lines, 1 polygon | 8 / 0 |  | gaming, cursors, photography |
 
 ### development (98)
 
@@ -1230,7 +1230,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | slash | core set | 1 line | 1 / 0 |  | math |
 | split | core set | 1 line, 2 polylines, 1 path | 4 / 0 |  | arrows |
 | square-dashed-bottom | core set | 2 lines, 1 path | 3 / 0 |  | files |
-| square-dashed-bottom-code | core set | 2 lines, 2 polylines, 1 path | 5 / 0 | 4 | files |
+| square-dashed-bottom-code | core set | 2 lines, 2 polylines, 1 path | 5 / 0 |  | files |
 | square-dot | core set | 1 rect, 1 dot | 2 / 0 |  |  |
 | square-function | core set | 1 line, 1 rect, 1 path | 3 / 0 |  | math |
 | square-pi | core set | 2 lines, 1 rect, 1 path | 4 / 0 |  | math |
@@ -1248,11 +1248,11 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 
 | Icon | Set | Parts | Stroked / filled | Near 45° | Also in |
 | --- | --- | --- | --- | ---: | --- |
-| alarm-clock | core set | 4 lines, 1 polyline, 1 circle | 6 / 0 | 2 | notifications, time |
-| alarm-clock-check | core set | 4 lines, 1 polyline, 1 circle | 6 / 0 | 2 | notifications, time |
-| alarm-clock-minus | core set | 5 lines, 1 circle | 6 / 0 | 2 | notifications, time |
-| alarm-clock-off | core set | 4 lines, 2 paths | 6 / 0 | 1 | notifications, time |
-| alarm-clock-plus | core set | 6 lines, 1 circle | 7 / 0 | 2 | notifications, time |
+| alarm-clock | core set | 4 lines, 1 polyline, 1 circle | 6 / 0 |  | notifications, time |
+| alarm-clock-check | core set | 4 lines, 1 polyline, 1 circle | 6 / 0 |  | notifications, time |
+| alarm-clock-minus | core set | 5 lines, 1 circle | 6 / 0 |  | notifications, time |
+| alarm-clock-off | core set | 4 lines, 2 paths | 6 / 0 |  | notifications, time |
+| alarm-clock-plus | core set | 6 lines, 1 circle | 7 / 0 |  | notifications, time |
 | antenna | core set | 6 lines | 6 / 0 |  | multimedia, communication |
 | app-check | four-style set | 1 polyline, 1 path; solid: 1 polyline, 1 path | 2 / 0 |  |  |
 | app-dot | four-style set | 1 circle, 1 path; solid: 2 circles, 1 path | 2 / 0 |  |  |
@@ -1263,11 +1263,11 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | app-window-cursor | four-style set | 3 dots, 2 paths; solid: 3 dots, 2 paths | 2 / 3 |  |  |
 | app-window-minus | four-style set | 1 line, 3 dots, 1 path; solid: 1 line, 3 dots, 1 path | 2 / 3 |  |  |
 | app-window-plus | four-style set | 2 lines, 3 dots, 1 path; solid: 2 lines, 3 dots, 1 path | 3 / 3 |  |  |
-| app-window-terminal | four-style set | 1 line, 1 rect, 3 dots, 1 path; solid: 1 rect, 3 dots, 2 paths | 3 / 3 | 22 |  |
+| app-window-terminal | four-style set | 1 line, 1 rect, 3 dots, 1 path; solid: 1 rect, 3 dots, 2 paths | 3 / 3 |  |  |
 | app-window-x | four-style set | 2 lines, 3 dots, 1 path; solid: 2 lines, 3 dots, 1 path | 3 / 3 |  |  |
 | app-x | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 |  |  |
 | battery | four-style set | 1 line, 1 rect; solid: 1 line, 1 rect | 2 / 0 |  |  |
-| battery-charging | four-style set | 1 line, 1 polyline, 2 paths; solid: 1 line, 1 polyline, 2 paths | 4 / 0 | 16 |  |
+| battery-charging | four-style set | 1 line, 1 polyline, 2 paths; solid: 1 line, 1 polyline, 2 paths | 4 / 0 |  |  |
 | battery-full | four-style set | 4 lines, 1 rect; solid: 1 line, 4 rects | 5 / 0 |  |  |
 | battery-low | four-style set | 2 lines, 1 rect; solid: 1 line, 2 rects | 3 / 0 |  |  |
 | battery-medium | four-style set | 3 lines, 1 rect; solid: 1 line, 3 rects | 4 / 0 |  |  |
@@ -1279,10 +1279,10 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | cable | four-style set | 2 lines, 2 rects, 1 path; solid: 2 lines, 2 rects, 1 path | 5 / 0 |  |  |
 | calculator | four-style set | 2 lines, 1 rect, 7 dots; solid: 1 rect, 7 dots, 2 paths | 3 / 7 |  |  |
 | cast | core set | 1 line, 1 polyline, 2 paths | 4 / 0 |  | connectivity |
-| cctv | four-style set | 1 line, 1 polyline, 2 paths; solid: 1 line, 1 polyline, 2 paths | 4 / 0 | 10 |  |
+| cctv | four-style set | 1 line, 1 polyline, 2 paths; solid: 1 line, 1 polyline, 2 paths | 4 / 0 |  |  |
 | cctv-off | four-style set | 2 lines, 1 polyline, 3 paths; solid: 2 lines, 1 polyline, 3 paths | 6 / 0 |  |  |
-| code | four-style set | 2 polylines; solid: 2 polylines | 2 / 0 | 32 |  |
-| code-xml | four-style set | 1 line, 2 polylines; solid: 1 line, 2 polylines | 3 / 0 | 32 |  |
+| code | four-style set | 2 polylines; solid: 2 polylines | 2 / 0 | 28 |  |
+| code-xml | four-style set | 1 line, 2 polylines; solid: 1 line, 2 polylines | 3 / 0 | 28 |  |
 | computer | core set | 3 lines, 2 rects | 5 / 0 |  | development, gaming |
 | cpu | core set | 12 lines, 2 rects | 14 / 0 |  |  |
 | cpu | four-style set | 8 lines, 2 rects; solid: 8 lines, 2 rects | 10 / 0 |  |  |
@@ -1311,7 +1311,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | disc-2 | core set | 1 line, 2 circles | 3 / 0 |  | multimedia |
 | disc-3 | core set | 2 circles, 2 paths | 4 / 0 |  | multimedia |
 | disc-album | core set | 1 line, 1 rect, 1 circle | 3 / 0 |  | multimedia |
-| eject | core set | 1 rect, 1 path | 2 / 0 | 2 | files, multimedia |
+| eject | core set | 1 rect, 1 path | 2 / 0 |  | files, multimedia |
 | gamepad | four-style set | 2 lines, 3 paths; solid: 4 paths | 3 / 2 |  |  |
 | gpu | core set | 1 line, 2 polylines, 2 circles | 5 / 0 |  | gaming |
 | hard-drive | four-style set | 1 rect, 1 circle, 1 path; solid: 1 circle, 2 paths | 2 / 1 |  |  |
@@ -1329,7 +1329,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | mic-audio-lines | core set | 8 lines, 1 rect | 9 / 0 |  | communication, multimedia |
 | mic-off | core set | 2 lines, 4 paths | 6 / 0 |  | communication, connectivity, multimedia |
 | mic-signal | core set | 2 lines, 1 rect, 4 paths | 7 / 0 |  | communication, connectivity, multimedia |
-| mic-vocal | core set | 1 circle, 2 paths | 3 / 0 | 3 | multimedia |
+| mic-vocal | core set | 1 circle, 2 paths | 3 / 0 | 2 | multimedia |
 | microchip | core set | 9 lines, 1 rect | 10 / 0 |  |  |
 | monitor | four-style set | 2 lines, 1 rect; solid: 2 lines, 1 rect | 3 / 0 |  |  |
 | monitor-off | four-style set | 3 lines, 2 paths; solid: 3 lines, 2 paths | 5 / 0 |  |  |
@@ -1340,17 +1340,17 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | mouse-off | core set | 2 lines, 2 paths | 4 / 0 |  |  |
 | mouse-right | core set | 1 line, 1 circle, 1 path | 3 / 0 |  |  |
 | pc-case | core set | 3 lines, 1 rect | 4 / 0 |  | gaming |
-| phone | four-style set | 1 path; solid: 1 path | 1 / 0 | 10 |  |
-| phone-call | four-style set | 3 paths; solid: 3 paths | 3 / 0 | 10 |  |
-| phone-forwarded | four-style set | 1 line, 1 polyline, 1 path; solid: 1 line, 1 polyline, 1 path | 3 / 0 | 10 |  |
-| phone-incoming | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 10 |  |
-| phone-missed | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 | 10 |  |
-| phone-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 9 |  |
-| phone-outgoing | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 10 |  |
+| phone | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
+| phone-call | four-style set | 3 paths; solid: 3 paths | 3 / 0 |  |  |
+| phone-forwarded | four-style set | 1 line, 1 polyline, 1 path; solid: 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
+| phone-incoming | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
+| phone-missed | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 |  |  |
+| phone-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
+| phone-outgoing | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
 | plug | core set | 3 lines, 1 rect | 4 / 0 |  | development |
 | plug | four-style set | 3 lines, 1 path; solid: 3 lines, 1 path | 4 / 0 |  |  |
 | plug-2 | core set | 4 lines, 1 path | 5 / 0 |  | development |
-| plug-zap | core set | 3 lines, 1 polyline, 1 polygon | 5 / 0 | 2 |  |
+| plug-zap | core set | 3 lines, 1 polyline, 1 polygon | 5 / 0 |  |  |
 | printer | core set | 2 polylines, 1 rect | 3 / 0 |  |  |
 | printer | four-style set | 1 rect, 2 paths; solid: 2 rects, 2 paths | 3 / 0 |  |  |
 | printer-check | core set | 4 polylines | 4 / 0 |  |  |
@@ -1360,8 +1360,8 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | radio-off | core set | 1 line, 5 paths | 6 / 0 |  | multimedia, social |
 | radio-receiver | core set | 3 lines, 1 rect | 4 / 0 |  |  |
 | radio-tower | core set | 1 line, 1 polyline, 1 circle, 4 paths | 7 / 0 |  | multimedia, social |
-| rectangle-goggles | core set | 1 path | 1 / 0 | 2 | gaming, multimedia, connectivity |
-| regex | four-style set | 3 lines, 1 circle; solid: 3 lines, 1 circle | 3 / 1 | 16 |  |
+| rectangle-goggles | core set | 1 path | 1 / 0 |  | gaming, multimedia, connectivity |
+| regex | four-style set | 3 lines, 1 circle; solid: 3 lines, 1 circle | 3 / 1 | 8 |  |
 | robot-vacuum | core set | 6 lines, 1 circle, 1 path | 8 / 0 |  | home, tools |
 | scan | core set | 4 polylines | 4 / 0 |  | shopping, security, social, gaming |
 | scan | four-style set | 4 paths; solid: 4 paths | 4 / 0 |  |  |
@@ -1387,7 +1387,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | smartphone-arrow-left | four-style set | 2 lines, 1 polyline, 1 path; solid: 1 line, 1 polyline, 3 paths | 4 / 0 |  |  |
 | smartphone-arrow-up-left | four-style set | 2 lines, 2 paths; solid: 1 line, 4 paths | 4 / 0 |  |  |
 | smartphone-cast | four-style set | 1 line, 1 dot, 3 paths; solid: 1 line, 1 dot, 3 paths | 4 / 1 |  |  |
-| smartphone-check | four-style set | 1 line, 1 polyline, 1 path; solid: 1 polyline, 3 paths | 3 / 0 | 16 |  |
+| smartphone-check | four-style set | 1 line, 1 polyline, 1 path; solid: 1 polyline, 3 paths | 3 / 0 | 8 |  |
 | smartphone-horizontal | four-style set | 1 line, 1 rect; solid: 1 rect, 1 path | 2 / 0 |  |  |
 | smartphone-minus | four-style set | 2 lines, 1 path; solid: 1 line, 3 paths | 3 / 0 |  |  |
 | smartphone-nfc | four-style set | 1 line, 1 rect, 2 paths; solid: 1 rect, 3 paths | 4 / 0 |  |  |
@@ -1397,34 +1397,34 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | smartphone-zap | four-style set | 1 line, 1 polyline, 1 path; solid: 1 polyline, 3 paths | 3 / 0 |  |  |
 | spotlight | core set | 4 lines, 1 path | 5 / 0 |  | photography, multimedia, communication |
 | square-terminal | four-style set | 1 line, 1 polyline, 1 rect; solid: 1 rect, 2 paths | 3 / 0 |  |  |
-| square-terminal-asterisk | four-style set | 4 lines, 1 rect; solid: 1 rect, 2 paths | 5 / 0 | 32 |  |
+| square-terminal-asterisk | four-style set | 4 lines, 1 rect; solid: 1 rect, 2 paths | 5 / 0 | 6 |  |
 | tablet | core set | 1 line, 1 rect | 2 / 0 |  |  |
 | tablet | four-style set | 1 rect, 1 circle; solid: 1 rect, 1 circle | 1 / 1 |  |  |
 | tablet-arrow-down | four-style set | 1 line, 1 polyline, 1 circle, 1 path; solid: 1 line, 1 polyline, 1 circle, 2 paths | 3 / 1 |  |  |
 | tablet-arrow-in-right | four-style set | 1 line, 1 polyline, 1 circle, 1 path; solid: 1 line, 1 polyline, 1 circle, 2 paths | 3 / 1 |  |  |
 | tablet-arrow-in-up | four-style set | 1 line, 1 polyline, 1 circle, 1 path; solid: 1 line, 1 polyline, 1 circle, 2 paths | 3 / 1 |  |  |
 | tablet-arrow-left | four-style set | 1 line, 1 polyline, 1 circle, 1 path; solid: 1 line, 1 polyline, 1 circle, 2 paths | 3 / 1 |  |  |
-| tablet-check | four-style set | 1 polyline, 1 circle, 1 path; solid: 1 polyline, 1 circle, 2 paths | 2 / 1 | 16 |  |
+| tablet-check | four-style set | 1 polyline, 1 circle, 1 path; solid: 1 polyline, 1 circle, 2 paths | 2 / 1 | 8 |  |
 | tablet-minus | four-style set | 1 line, 1 circle, 1 path; solid: 1 line, 1 circle, 2 paths | 2 / 1 |  |  |
 | tablet-plus | four-style set | 2 lines, 1 circle, 1 path; solid: 2 lines, 1 circle, 2 paths | 3 / 1 |  |  |
 | tablet-smartphone | core set | 1 line, 1 rect, 1 path | 3 / 0 |  | design, development, tools |
 | tablet-vertical | four-style set | 1 rect, 1 circle; solid: 1 rect, 1 circle | 1 / 1 |  |  |
 | tablet-x | four-style set | 2 lines, 1 circle, 1 path; solid: 2 lines, 1 circle, 2 paths | 3 / 1 |  |  |
 | tablet-zap | four-style set | 1 polyline, 1 circle, 1 path; solid: 1 polyline, 1 circle, 2 paths | 2 / 1 |  |  |
-| terminal | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 16 |  |
-| terminal-asterisk | four-style set | 4 lines; solid: 4 lines | 4 / 0 | 16 |  |
+| terminal | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 8 |  |
+| terminal-asterisk | four-style set | 4 lines; solid: 4 lines | 4 / 0 | 8 |  |
 | terminal-cursor | four-style set | 1 line, 1 path; solid: 1 line, 2 paths | 2 / 0 |  |  |
-| terminal-plus | four-style set | 3 lines, 1 path; solid: 3 lines, 1 path | 4 / 0 | 16 |  |
+| terminal-plus | four-style set | 3 lines, 1 path; solid: 3 lines, 1 path | 4 / 0 | 4 |  |
 | toilet | core set | 2 paths | 2 / 0 | 2 | home |
 | touchpad | core set | 2 lines, 1 rect | 3 / 0 |  |  |
 | touchpad-off | core set | 4 lines, 1 polyline, 1 path | 6 / 0 |  |  |
 | tv | core set | 1 polyline, 1 rect | 2 / 0 |  | multimedia, communication |
-| tv | four-style set | 1 polyline, 1 rect; solid: 1 polyline, 1 rect | 2 / 0 | 16 |  |
+| tv | four-style set | 1 polyline, 1 rect; solid: 1 polyline, 1 rect | 2 / 0 |  |  |
 | tv-minimal | core set | 1 line, 1 rect | 2 / 0 |  | multimedia |
 | tv-minimal-play | core set | 1 line, 1 rect, 1 path | 3 / 0 | 2 | multimedia |
-| unplug | core set | 4 lines, 2 polygons | 6 / 0 | 4 | development |
-| usb | core set | 1 line, 2 polylines, 2 polygons, 2 dots | 7 / 0 | 1 | multimedia, home |
-| usb | four-style set | 3 lines, 1 polyline, 1 rect, 2 circles; solid: 3 lines, 1 polyline, 1 rect, 2 circles | 7 / 0 | 16 |  |
+| unplug | core set | 4 lines, 2 polygons | 6 / 0 |  | development |
+| usb | core set | 1 line, 2 polylines, 2 polygons, 2 dots | 7 / 0 |  | multimedia, home |
+| usb | four-style set | 3 lines, 1 polyline, 1 rect, 2 circles; solid: 3 lines, 1 polyline, 1 rect, 2 circles | 7 / 0 |  |  |
 | usb-c-port | core set | 1 line, 1 rect | 2 / 0 |  | multimedia, home, gaming |
 | usb-drive | four-style set | 1 rect, 2 dots, 1 path; solid: 1 rect, 2 dots, 1 path | 2 / 2 |  |  |
 | vibrate | core set | 2 polylines, 1 rect | 3 / 0 |  | connectivity, account, notifications |
@@ -1432,7 +1432,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | video | core set | 1 rect, 1 path | 2 / 0 | 2 | communication, connectivity, photography |
 | video-off | core set | 1 line, 2 paths | 3 / 0 | 1 | communication, connectivity, photography |
 | videotape | core set | 2 lines, 1 rect, 2 circles | 5 / 0 |  | communication, connectivity, photography, files |
-| vision-pro | four-style set | 1 path; solid: 1 path | 1 / 0 | 10 |  |
+| vision-pro | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
 | watch | four-style set | 1 rect, 2 paths; solid: 2 polygons, 1 path | 3 / 0 |  |  |
 | webcam | four-style set | 2 lines, 1 rect, 1 circle; solid: 2 lines, 1 rect, 2 circles | 4 / 0 |  |  |
 
@@ -1472,10 +1472,10 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | face-slightly-smiling-plus | core set | 4 lines, 2 paths | 6 / 0 |  | social, notifications, communication |
 | face-smile | four-style set | 2 lines, 1 circle, 1 path; solid: 1 circle, 3 paths | 4 / 0 |  |  |
 | face-smile-plus | four-style set | 4 lines, 2 paths; solid: 4 lines, 2 paths | 6 / 0 |  |  |
-| hand-helping | core set | 1 line, 2 paths | 3 / 0 | 4 |  |
+| hand-helping | core set | 1 line, 2 paths | 3 / 0 |  |  |
 | hand-metal | core set | 4 paths | 4 / 0 |  | multimedia |
-| heart-crack | core set | 2 paths | 2 / 0 | 2 |  |
-| heart-handshake | core set | 1 path | 1 / 0 | 3 | account, security |
+| heart-crack | core set | 2 paths | 2 / 0 |  |  |
+| heart-handshake | core set | 1 path | 1 / 0 |  | account, security |
 | party-popper | core set | 4 lines, 1 polyline, 4 paths | 9 / 0 |  |  |
 | thumbs-down | four-style set | 1 line, 1 path; solid: 1 rect, 1 path | 2 / 0 |  |  |
 | thumbs-up | four-style set | 1 line, 1 path; solid: 1 rect, 1 path | 2 / 0 |  |  |
@@ -1501,19 +1501,19 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | clipboard | four-style set | 1 rect, 1 path; solid: 1 rect, 1 path | 2 / 0 |  |  |
 | clipboard-alert | four-style set | 1 line, 1 rect, 1 dot, 1 path; solid: 1 rect, 1 dot, 2 paths | 3 / 1 |  |  |
 | clipboard-check | four-style set | 1 polyline, 1 rect, 1 path; solid: 1 rect, 2 paths | 3 / 0 |  |  |
-| clipboard-code | four-style set | 2 polylines, 1 rect, 1 path; solid: 1 rect, 3 paths | 4 / 0 | 44 |  |
+| clipboard-code | four-style set | 2 polylines, 1 rect, 1 path; solid: 1 rect, 3 paths | 4 / 0 |  |  |
 | clipboard-copy | four-style set | 1 line, 1 polyline, 1 rect, 1 path; solid: 1 rect, 2 paths | 4 / 0 |  |  |
 | clipboard-list | four-style set | 2 lines, 1 rect, 2 dots, 1 path; solid: 1 rect, 2 dots, 3 paths | 4 / 2 |  |  |
 | clipboard-minus | four-style set | 1 line, 1 rect, 1 path; solid: 1 rect, 2 paths | 3 / 0 |  |  |
 | clipboard-paste | four-style set | 1 line, 1 polyline, 1 rect, 1 path; solid: 1 rect, 2 paths | 4 / 0 |  |  |
 | clipboard-plus | four-style set | 2 lines, 1 rect, 1 path; solid: 1 rect, 2 paths | 4 / 0 |  |  |
-| clipboard-terminal | four-style set | 1 line, 1 rect, 2 paths; solid: 1 rect, 3 paths | 4 / 0 | 22 |  |
+| clipboard-terminal | four-style set | 1 line, 1 rect, 2 paths; solid: 1 rect, 3 paths | 4 / 0 |  |  |
 | clipboard-type | four-style set | 2 lines, 1 rect, 2 paths; solid: 1 rect, 2 paths | 5 / 0 |  |  |
 | clipboard-x | four-style set | 2 lines, 1 rect, 1 path; solid: 1 rect, 2 paths | 4 / 0 |  |  |
 | copy | four-style set | 1 rect, 1 path; solid: 1 rect, 1 path | 2 / 0 |  |  |
 | copy-check | four-style set | 1 polyline, 1 rect, 1 path; solid: 1 rect, 2 paths | 3 / 0 |  |  |
 | copy-plus | four-style set | 2 lines, 1 rect, 1 path; solid: 1 rect, 2 paths | 4 / 0 |  |  |
-| file | core set | 1 polyline, 1 path | 2 / 0 | 1 |  |
+| file | core set | 1 polyline, 1 path | 2 / 0 |  |  |
 | file | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
 | file-alert | four-style set | 1 line, 1 polyline, 1 dot, 2 paths; solid: 1 line, 1 dot, 2 paths | 4 / 1 |  |  |
 | file-archive | core set | 3 lines, 1 polyline, 1 circle, 1 path | 6 / 0 |  |  |
@@ -1524,120 +1524,120 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | file-audio | four-style set | 3 lines, 2 paths; solid: 5 paths | 5 / 0 |  |  |
 | file-badge | core set | 1 polyline, 1 circle, 2 paths | 4 / 0 |  |  |
 | file-box | core set | 1 line, 2 polylines, 2 paths | 5 / 0 | 6 | design, development |
-| file-braces | core set | 1 polyline, 3 paths | 4 / 0 | 1 | development |
+| file-braces | core set | 1 polyline, 3 paths | 4 / 0 |  | development |
 | file-braces-corner | core set | 1 polyline, 3 paths | 4 / 0 |  | development |
-| file-chart-column | core set | 3 lines, 1 polyline, 1 path | 5 / 0 | 1 |  |
+| file-chart-column | core set | 3 lines, 1 polyline, 1 path | 5 / 0 |  |  |
 | file-chart-column | four-style set | 3 lines, 2 paths; solid: 5 paths | 5 / 0 |  |  |
-| file-chart-column-increasing | core set | 3 lines, 1 polyline, 1 path | 5 / 0 | 1 |  |
-| file-chart-line | core set | 2 polylines, 1 path | 3 / 0 | 1 |  |
-| file-chart-pie | core set | 1 polyline, 3 paths | 4 / 0 | 1 |  |
-| file-check | core set | 2 polylines, 1 path | 3 / 0 | 1 |  |
+| file-chart-column-increasing | core set | 3 lines, 1 polyline, 1 path | 5 / 0 |  |  |
+| file-chart-line | core set | 2 polylines, 1 path | 3 / 0 |  |  |
+| file-chart-pie | core set | 1 polyline, 3 paths | 4 / 0 |  |  |
+| file-check | core set | 2 polylines, 1 path | 3 / 0 |  |  |
 | file-check | four-style set | 2 polylines, 2 paths; solid: 1 polyline, 2 paths | 4 / 0 |  |  |
 | file-check-corner | core set | 2 polylines, 1 path | 3 / 0 |  |  |
 | file-clock | core set | 2 polylines, 1 circle, 1 path | 4 / 0 | 1 | time |
-| file-code | core set | 3 polylines, 1 path | 4 / 0 | 5 | development |
-| file-code | four-style set | 2 polylines, 2 paths; solid: 4 paths | 4 / 0 | 44 |  |
+| file-code | core set | 3 polylines, 1 path | 4 / 0 |  | development |
+| file-code | four-style set | 2 polylines, 2 paths; solid: 4 paths | 4 / 0 |  |  |
 | file-code-corner | core set | 3 polylines, 1 path | 4 / 0 |  | development |
-| file-cog | core set | 8 lines, 2 polylines, 1 circle, 1 path | 12 / 0 | 1 |  |
+| file-cog | core set | 8 lines, 2 polylines, 1 circle, 1 path | 12 / 0 |  |  |
 | file-cog | four-style set | 8 lines, 1 circle, 2 paths; solid: 8 lines, 1 circle, 2 paths | 11 / 0 |  |  |
-| file-diff | core set | 3 lines, 1 path | 4 / 0 | 1 | development |
+| file-diff | core set | 3 lines, 1 path | 4 / 0 |  | development |
 | file-digit | core set | 1 line, 2 polylines, 1 rect, 1 path | 5 / 0 |  | development |
-| file-down | core set | 1 line, 2 polylines, 1 path | 4 / 0 | 1 | arrows |
-| file-exclamation-point | core set | 2 lines, 1 path | 3 / 0 | 1 | notifications |
+| file-down | core set | 1 line, 2 polylines, 1 path | 4 / 0 |  | arrows |
+| file-exclamation-point | core set | 2 lines, 1 path | 3 / 0 |  | notifications |
 | file-headphone | core set | 1 polyline, 2 paths | 3 / 0 |  |  |
-| file-heart | core set | 1 polyline, 2 paths | 3 / 0 | 2 |  |
-| file-image | core set | 2 polylines, 1 circle, 1 path | 4 / 0 | 1 |  |
+| file-heart | core set | 1 polyline, 2 paths | 3 / 0 |  |  |
+| file-image | core set | 2 polylines, 1 circle, 1 path | 4 / 0 |  |  |
 | file-image | four-style set | 1 circle, 3 paths; solid: 1 circle, 3 paths | 3 / 1 |  |  |
 | file-input | core set | 1 line, 2 polylines, 1 path | 4 / 0 |  | arrows |
 | file-key | core set | 2 lines, 1 polyline, 1 circle, 1 path | 5 / 0 |  | security |
 | file-lock | core set | 1 polyline, 1 rect, 2 paths | 4 / 0 |  | security |
-| file-minus | core set | 1 line, 1 polyline, 1 path | 3 / 0 | 1 |  |
+| file-minus | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
 | file-minus | four-style set | 1 line, 1 polyline, 2 paths; solid: 1 line, 2 paths | 4 / 0 |  |  |
 | file-minus-corner | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
 | file-music | core set | 2 polylines, 1 circle, 1 path | 4 / 0 |  | multimedia |
-| file-off | four-style set | 1 line, 3 paths; solid: 1 line, 3 paths | 4 / 0 | 1 |  |
+| file-off | four-style set | 1 line, 3 paths; solid: 1 line, 3 paths | 4 / 0 |  |  |
 | file-output | core set | 1 line, 2 polylines, 1 path | 4 / 0 |  | arrows |
-| file-pen | core set | 1 polyline, 2 paths | 3 / 0 | 1 |  |
-| file-pen-line | core set | 1 line, 3 paths | 4 / 0 | 2 |  |
-| file-play | core set | 1 polyline, 2 paths | 3 / 0 | 3 |  |
-| file-plus | core set | 2 lines, 1 polyline, 1 path | 4 / 0 | 1 |  |
+| file-pen | core set | 1 polyline, 2 paths | 3 / 0 |  |  |
+| file-pen-line | core set | 1 line, 3 paths | 4 / 0 |  |  |
+| file-play | core set | 1 polyline, 2 paths | 3 / 0 | 2 |  |
+| file-plus | core set | 2 lines, 1 polyline, 1 path | 4 / 0 |  |  |
 | file-plus | four-style set | 2 lines, 1 polyline, 2 paths; solid: 2 lines, 2 paths | 5 / 0 |  |  |
 | file-plus-corner | core set | 2 lines, 1 polyline, 1 path | 4 / 0 |  |  |
-| file-question-mark | core set | 1 line, 2 paths | 3 / 0 | 1 |  |
-| file-scan | core set | 1 polyline, 5 paths | 6 / 0 | 1 |  |
-| file-search | core set | 1 line, 1 polyline, 1 circle, 1 path | 4 / 0 | 1 |  |
+| file-question-mark | core set | 1 line, 2 paths | 3 / 0 |  |  |
+| file-scan | core set | 1 polyline, 5 paths | 6 / 0 |  |  |
+| file-search | core set | 1 line, 1 polyline, 1 circle, 1 path | 4 / 0 |  |  |
 | file-search | four-style set | 1 line, 1 polyline, 1 circle, 2 paths; solid: 1 line, 1 circle, 2 paths | 5 / 0 |  |  |
 | file-search-corner | core set | 1 line, 1 polyline, 1 circle, 1 path | 4 / 0 |  |  |
-| file-signal | core set | 1 line, 1 polyline, 3 paths | 5 / 0 | 1 |  |
-| file-sliders | core set | 4 lines, 1 polyline, 1 path | 6 / 0 | 1 | development |
-| file-spreadsheet | core set | 4 lines, 1 polyline, 1 path | 6 / 0 | 1 |  |
+| file-signal | core set | 1 line, 1 polyline, 3 paths | 5 / 0 |  |  |
+| file-sliders | core set | 4 lines, 1 polyline, 1 path | 6 / 0 |  | development |
+| file-spreadsheet | core set | 4 lines, 1 polyline, 1 path | 6 / 0 |  |  |
 | file-spreadsheet | four-style set | 4 lines, 2 paths; solid: 6 paths | 6 / 0 |  |  |
 | file-stack | core set | 3 paths | 3 / 0 |  | development |
 | file-symlink | core set | 2 polylines, 1 path | 3 / 0 |  |  |
-| file-terminal | core set | 1 line, 2 polylines, 1 path | 4 / 0 | 1 | development |
-| file-terminal | four-style set | 1 line, 3 paths; solid: 4 paths | 4 / 0 | 22 |  |
-| file-text | core set | 3 lines, 1 polyline, 1 path | 5 / 0 | 1 | text |
+| file-terminal | core set | 1 line, 2 polylines, 1 path | 4 / 0 |  | development |
+| file-terminal | four-style set | 1 line, 3 paths; solid: 4 paths | 4 / 0 |  |  |
+| file-text | core set | 3 lines, 1 polyline, 1 path | 5 / 0 |  | text |
 | file-text | four-style set | 2 lines, 2 paths; solid: 4 paths | 4 / 0 |  |  |
-| file-type | core set | 2 lines, 2 polylines, 1 path | 5 / 0 | 1 | text |
+| file-type | core set | 2 lines, 2 polylines, 1 path | 5 / 0 |  | text |
 | file-type | four-style set | 2 lines, 3 paths; solid: 3 paths | 5 / 0 |  |  |
 | file-type-corner | core set | 2 lines, 2 polylines, 1 path | 5 / 0 |  | text |
 | file-type-corner | four-style set | 2 lines, 1 polyline, 3 paths; solid: 2 lines, 3 paths | 6 / 0 |  |  |
-| file-up | core set | 1 line, 2 polylines, 1 path | 4 / 0 | 1 | arrows |
+| file-up | core set | 1 line, 2 polylines, 1 path | 4 / 0 |  | arrows |
 | file-video | four-style set | 3 paths; solid: 3 paths | 3 / 0 |  |  |
 | file-video-camera | core set | 1 polyline, 1 rect, 2 paths | 4 / 0 | 2 |  |
-| file-volume | core set | 1 polyline, 3 paths | 4 / 0 | 2 |  |
-| file-x | core set | 2 lines, 1 polyline, 1 path | 4 / 0 | 1 |  |
+| file-volume | core set | 1 polyline, 3 paths | 4 / 0 |  |  |
+| file-x | core set | 2 lines, 1 polyline, 1 path | 4 / 0 |  |  |
 | file-x | four-style set | 2 lines, 1 polyline, 2 paths; solid: 2 lines, 2 paths | 5 / 0 |  |  |
 | file-x-corner | core set | 2 lines, 1 polyline, 1 path | 4 / 0 |  |  |
 | file-zap | four-style set | 2 polylines, 2 paths; solid: 1 polyline, 2 paths | 4 / 0 |  |  |
 | file-zip | four-style set | 2 lines, 1 circle, 2 paths; solid: 1 dot, 4 paths | 5 / 0 |  |  |
 | files | core set | 1 polyline, 2 paths | 3 / 0 |  |  |
-| folder | core set | 1 path | 1 / 0 | 1 |  |
+| folder | core set | 1 path | 1 / 0 |  |  |
 | folder | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
-| folder-archive | core set | 2 lines, 1 circle, 1 path | 4 / 0 | 1 |  |
+| folder-archive | core set | 2 lines, 1 circle, 1 path | 4 / 0 |  |  |
 | folder-arrow-down | four-style set | 1 line, 1 polyline, 1 path; solid: 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
 | folder-arrow-left | four-style set | 1 line, 1 polyline, 1 path; solid: 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
 | folder-arrow-right | four-style set | 1 line, 1 polyline, 1 path; solid: 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
 | folder-arrow-up | four-style set | 1 line, 1 polyline, 1 path; solid: 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
-| folder-bookmark | core set | 2 paths | 2 / 0 | 3 |  |
-| folder-check | core set | 1 polyline, 1 path | 2 / 0 | 1 |  |
+| folder-bookmark | core set | 2 paths | 2 / 0 |  |  |
+| folder-check | core set | 1 polyline, 1 path | 2 / 0 |  |  |
 | folder-check | four-style set | 1 polyline, 1 path; solid: 1 polyline, 1 path | 2 / 0 |  |  |
-| folder-clock | core set | 1 polyline, 1 circle, 1 path | 3 / 0 | 2 | time |
-| folder-closed | core set | 1 line, 1 path | 2 / 0 | 1 |  |
-| folder-code | core set | 2 polylines, 1 path | 3 / 0 | 5 | development |
+| folder-clock | core set | 1 polyline, 1 circle, 1 path | 3 / 0 | 1 | time |
+| folder-closed | core set | 1 line, 1 path | 2 / 0 |  |  |
+| folder-code | core set | 2 polylines, 1 path | 3 / 0 |  | development |
 | folder-cog | core set | 8 lines, 1 circle, 1 path | 10 / 0 |  |  |
 | folder-cog | four-style set | 8 lines, 1 circle, 1 path; solid: 8 lines, 1 circle, 1 path | 10 / 0 |  |  |
-| folder-dot | core set | 1 dot, 1 path | 2 / 0 | 1 | development |
-| folder-down | core set | 1 line, 1 polyline, 1 path | 3 / 0 | 1 | arrows |
-| folder-git | core set | 2 lines, 1 circle, 1 path | 4 / 0 | 1 |  |
-| folder-git-2 | core set | 2 circles, 2 paths | 4 / 0 | 1 |  |
-| folder-heart | core set | 2 paths | 2 / 0 | 3 |  |
-| folder-input | core set | 1 line, 1 polyline, 1 path | 3 / 0 | 1 | arrows |
-| folder-key | core set | 2 lines, 1 circle, 1 path | 4 / 0 | 1 | security |
-| folder-lock | core set | 1 rect, 2 paths | 3 / 0 | 1 | security |
-| folder-minus | core set | 1 line, 1 path | 2 / 0 | 1 |  |
+| folder-dot | core set | 1 dot, 1 path | 2 / 0 |  | development |
+| folder-down | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  | arrows |
+| folder-git | core set | 2 lines, 1 circle, 1 path | 4 / 0 |  |  |
+| folder-git-2 | core set | 2 circles, 2 paths | 4 / 0 |  |  |
+| folder-heart | core set | 2 paths | 2 / 0 |  |  |
+| folder-input | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  | arrows |
+| folder-key | core set | 2 lines, 1 circle, 1 path | 4 / 0 |  | security |
+| folder-lock | core set | 1 rect, 2 paths | 3 / 0 |  | security |
+| folder-minus | core set | 1 line, 1 path | 2 / 0 |  |  |
 | folder-minus | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 |  |  |
-| folder-open | core set | 1 path | 1 / 0 | 1 |  |
+| folder-open | core set | 1 path | 1 / 0 |  |  |
 | folder-open | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
-| folder-open-dot | core set | 1 dot, 1 path | 2 / 0 | 1 | development |
-| folder-output | core set | 1 line, 1 polyline, 1 path | 3 / 0 | 1 | arrows |
-| folder-pen | core set | 2 paths | 2 / 0 | 1 |  |
-| folder-plus | core set | 2 lines, 1 path | 3 / 0 | 1 |  |
+| folder-open-dot | core set | 1 dot, 1 path | 2 / 0 |  | development |
+| folder-output | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  | arrows |
+| folder-pen | core set | 2 paths | 2 / 0 |  |  |
+| folder-plus | core set | 2 lines, 1 path | 3 / 0 |  |  |
 | folder-plus | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 |  |  |
-| folder-root | core set | 1 line, 1 circle, 1 path | 3 / 0 | 1 | development |
-| folder-search | core set | 1 line, 1 circle, 1 path | 3 / 0 | 1 |  |
+| folder-root | core set | 1 line, 1 circle, 1 path | 3 / 0 |  | development |
+| folder-search | core set | 1 line, 1 circle, 1 path | 3 / 0 |  |  |
 | folder-search | four-style set | 1 line, 1 circle, 1 path; solid: 1 line, 1 circle, 1 path | 3 / 0 |  |  |
-| folder-search-2 | core set | 1 line, 1 circle, 1 path | 3 / 0 | 1 |  |
-| folder-symlink | core set | 1 polyline, 1 path | 2 / 0 | 1 |  |
-| folder-sync | core set | 2 polylines, 3 paths | 5 / 0 | 3 | arrows |
-| folder-tree | core set | 1 polyline, 3 paths | 4 / 0 | 1 |  |
+| folder-search-2 | core set | 1 line, 1 circle, 1 path | 3 / 0 |  |  |
+| folder-symlink | core set | 1 polyline, 1 path | 2 / 0 |  |  |
+| folder-sync | core set | 2 polylines, 3 paths | 5 / 0 |  | arrows |
+| folder-tree | core set | 1 polyline, 3 paths | 4 / 0 |  |  |
 | folder-tree | four-style set | 4 paths; solid: 4 paths | 4 / 0 |  |  |
-| folder-up | core set | 1 line, 1 polyline, 1 path | 3 / 0 | 1 | arrows |
-| folder-x | core set | 2 lines, 1 path | 3 / 0 | 1 |  |
+| folder-up | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  | arrows |
+| folder-x | core set | 2 lines, 1 path | 3 / 0 |  |  |
 | folder-x | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 |  |  |
 | folder-zap | four-style set | 1 polyline, 1 path; solid: 1 polyline, 1 path | 2 / 0 |  |  |
 | folder-zip | four-style set | 2 lines, 1 circle, 1 path; solid: 1 dot, 3 paths | 4 / 0 |  |  |
-| folders | core set | 2 paths | 2 / 0 | 1 |  |
+| folders | core set | 2 paths | 2 / 0 |  |  |
 | folders | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
 | group | core set | 2 rects, 4 paths | 6 / 0 |  |  |
 | list-tree | core set | 3 lines, 1 polyline, 1 path | 5 / 0 |  | text, layout |
@@ -1669,14 +1669,14 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | banknote | core set | 2 lines, 1 rect, 1 circle | 4 / 0 |  |  |
 | banknote | four-style set | 2 lines, 1 rect, 1 circle; solid: 1 rect, 1 circle, 1 dot, 2 paths | 4 / 0 |  |  |
 | banknote-2 | four-style set | 1 rect, 1 circle, 4 paths; solid: 2 rects, 1 circle, 1 dot, 4 paths | 6 / 0 |  |  |
-| banknote-2-check | four-style set | 1 polyline, 1 circle, 4 paths; solid: 1 polyline, 1 circle, 1 dot, 5 paths | 6 / 0 | 16 |  |
+| banknote-2-check | four-style set | 1 polyline, 1 circle, 4 paths; solid: 1 polyline, 1 circle, 1 dot, 5 paths | 6 / 0 | 8 |  |
 | banknote-2-minus | four-style set | 1 line, 1 circle, 4 paths; solid: 1 line, 1 circle, 1 dot, 5 paths | 6 / 0 |  |  |
 | banknote-2-plus | four-style set | 2 lines, 1 circle, 4 paths; solid: 2 lines, 1 circle, 1 dot, 5 paths | 7 / 0 |  |  |
 | banknote-2-x | four-style set | 2 lines, 1 circle, 4 paths; solid: 2 lines, 1 circle, 1 dot, 5 paths | 7 / 0 |  |  |
 | banknote-arrow-down | core set | 3 lines, 2 polylines, 1 circle | 6 / 0 |  |  |
 | banknote-arrow-up | core set | 3 lines, 2 polylines, 1 circle | 6 / 0 |  |  |
 | banknote-check | core set | 2 lines, 2 polylines, 1 circle | 5 / 0 |  |  |
-| banknote-check | four-style set | 2 lines, 1 polyline, 1 circle, 1 path; solid: 1 polyline, 1 circle, 1 dot, 3 paths | 5 / 0 | 16 |  |
+| banknote-check | four-style set | 2 lines, 1 polyline, 1 circle, 1 path; solid: 1 polyline, 1 circle, 1 dot, 3 paths | 5 / 0 | 8 |  |
 | banknote-minus | four-style set | 3 lines, 1 circle, 1 path; solid: 1 line, 1 circle, 1 dot, 3 paths | 5 / 0 |  |  |
 | banknote-plus | four-style set | 4 lines, 1 circle, 1 path; solid: 2 lines, 1 circle, 1 dot, 3 paths | 6 / 0 |  |  |
 | banknote-x | core set | 4 lines, 1 polyline, 1 circle | 6 / 0 |  |  |
@@ -1684,9 +1684,9 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | bitcoin | four-style set | 4 lines, 2 paths; solid: 4 lines, 2 paths | 6 / 0 |  |  |
 | circle-dollar-sign | core set | 1 line, 1 circle, 1 path | 3 / 0 |  |  |
 | circle-dollar-sign | four-style set | 1 line, 1 circle, 1 path; solid: 1 circle, 3 paths | 3 / 0 |  |  |
-| circle-euro | four-style set | 2 lines, 1 circle, 1 path; solid: 1 circle, 1 path | 4 / 0 | 2 |  |
-| circle-indian-rupee | four-style set | 2 lines, 1 circle, 1 path; solid: 1 circle, 1 path | 4 / 0 | 11 |  |
-| circle-japanese-yen | four-style set | 3 lines, 1 polyline, 1 circle; solid: 1 circle, 1 path | 5 / 0 | 22 |  |
+| circle-euro | four-style set | 2 lines, 1 circle, 1 path; solid: 1 circle, 1 path | 4 / 0 |  |  |
+| circle-indian-rupee | four-style set | 2 lines, 1 circle, 1 path; solid: 1 circle, 1 path | 4 / 0 |  |  |
+| circle-japanese-yen | four-style set | 3 lines, 1 polyline, 1 circle; solid: 1 circle, 1 path | 5 / 0 |  |  |
 | circle-pound-sterling | core set | 2 lines, 1 circle, 1 path | 4 / 0 |  |  |
 | circle-pound-sterling | four-style set | 2 lines, 1 circle, 1 path; solid: 1 circle, 1 path | 4 / 0 | 1 |  |
 | circle-swiss-franc | four-style set | 2 lines, 1 polyline, 1 circle; solid: 1 circle, 1 path | 4 / 0 |  |  |
@@ -1705,29 +1705,29 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | euro | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 |  |  |
 | georgian-lari | core set | 3 lines, 1 path | 4 / 0 |  |  |
 | gold-bars | four-style set | 3 paths; solid: 3 paths | 3 / 0 |  |  |
-| hand-coins | core set | 1 line, 2 circles, 2 paths | 5 / 0 | 4 | account |
+| hand-coins | core set | 1 line, 2 circles, 2 paths | 5 / 0 |  | account |
 | hand-coins | four-style set | 1 line, 2 circles, 2 paths; solid: 1 line, 2 circles, 3 paths | 5 / 0 |  |  |
-| indian-rupee | core set | 4 lines, 1 path | 5 / 0 | 1 |  |
-| indian-rupee | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 | 8 |  |
-| japanese-yen | core set | 5 lines | 5 / 0 | 2 |  |
-| japanese-yen | four-style set | 3 lines, 1 polyline; solid: 3 lines, 1 polyline | 4 / 0 | 16 |  |
+| indian-rupee | core set | 4 lines, 1 path | 5 / 0 |  |  |
+| indian-rupee | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 | 4 |  |
+| japanese-yen | core set | 5 lines | 5 / 0 |  |  |
+| japanese-yen | four-style set | 3 lines, 1 polyline; solid: 3 lines, 1 polyline | 4 / 0 |  |  |
 | landmark | core set | 5 lines, 1 path | 6 / 0 |  | navigation, buildings |
-| money-bag | four-style set | 1 line, 1 path; solid: 2 paths | 2 / 0 | 28 |  |
-| money-bag-check | four-style set | 1 line, 1 polyline, 1 path; solid: 3 paths | 3 / 0 | 28 |  |
-| money-bag-dollar-sign | four-style set | 2 lines, 2 paths; solid: 5 paths | 4 / 0 | 28 |  |
-| money-bag-minus | four-style set | 2 lines, 1 path; solid: 3 paths | 3 / 0 | 28 |  |
-| money-bag-plus | four-style set | 3 lines, 1 path; solid: 3 paths | 4 / 0 | 28 |  |
-| money-bag-x | four-style set | 3 lines, 1 path; solid: 3 paths | 4 / 0 | 28 |  |
-| nepali-rupee | core set | 3 lines, 2 paths | 5 / 0 | 1 | shopping, travel |
+| money-bag | four-style set | 1 line, 1 path; solid: 2 paths | 2 / 0 | 10 |  |
+| money-bag-check | four-style set | 1 line, 1 polyline, 1 path; solid: 3 paths | 3 / 0 | 10 |  |
+| money-bag-dollar-sign | four-style set | 2 lines, 2 paths; solid: 5 paths | 4 / 0 | 10 |  |
+| money-bag-minus | four-style set | 2 lines, 1 path; solid: 3 paths | 3 / 0 | 10 |  |
+| money-bag-plus | four-style set | 3 lines, 1 path; solid: 3 paths | 4 / 0 | 10 |  |
+| money-bag-x | four-style set | 3 lines, 1 path; solid: 3 paths | 4 / 0 | 10 |  |
+| nepali-rupee | core set | 3 lines, 2 paths | 5 / 0 |  | shopping, travel |
 | philippine-peso | core set | 2 lines, 1 path | 3 / 0 |  |  |
 | piggy-bank | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
-| piggy-bank | four-style set | 1 circle, 1 dot, 1 path; solid: 1 circle, 1 dot, 1 path | 2 / 1 | 25 |  |
+| piggy-bank | four-style set | 1 circle, 1 dot, 1 path; solid: 1 circle, 1 dot, 1 path | 2 / 1 | 21 |  |
 | pound-sterling | core set | 3 lines, 1 path | 4 / 0 |  |  |
 | pound-sterling | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 |  |  |
 | receipt | core set | 1 line, 2 paths | 3 / 0 | 12 | travel |
 | receipt-cent | core set | 1 line, 2 paths | 3 / 0 | 12 | travel |
 | receipt-euro | core set | 1 line, 2 paths | 3 / 0 | 12 | travel |
-| receipt-indian-rupee | core set | 2 lines, 2 paths | 4 / 0 | 13 | travel |
+| receipt-indian-rupee | core set | 2 lines, 2 paths | 4 / 0 | 12 | travel |
 | receipt-japanese-yen | core set | 3 lines, 1 polyline, 1 path | 5 / 0 | 12 | travel |
 | receipt-pound-sterling | core set | 2 lines, 2 paths | 4 / 0 | 12 | travel |
 | receipt-russian-ruble | core set | 1 line, 2 paths | 3 / 0 | 12 | travel |
@@ -1757,18 +1757,18 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | beer | core set | 2 lines, 1 polyline, 2 paths | 5 / 0 |  |  |
 | beer-off | core set | 4 lines, 1 polyline, 3 paths | 8 / 0 |  |  |
 | blender | core set | 3 lines, 3 paths | 6 / 0 |  | home |
-| bottle-wine | core set | 1 polyline, 1 path | 2 / 0 | 2 |  |
+| bottle-wine | core set | 1 polyline, 1 path | 2 / 0 |  |  |
 | broccoli | core set | 4 paths | 4 / 0 |  |  |
 | cake | core set | 7 lines, 1 polyline, 1 path | 9 / 0 |  | social, account |
-| cake-slice | core set | 2 lines, 1 circle, 1 path | 4 / 0 | 2 | social |
+| cake-slice | core set | 2 lines, 1 circle, 1 path | 4 / 0 |  | social |
 | can | core set | 1 circle, 3 paths | 4 / 0 |  |  |
-| can-soda | core set | 4 lines, 2 paths | 6 / 0 | 4 |  |
+| can-soda | core set | 4 lines, 2 paths | 6 / 0 |  |  |
 | candy | core set | 2 lines, 3 paths | 5 / 0 |  |  |
 | candy-cane | core set | 4 lines, 1 path | 5 / 0 | 2 |  |
-| candy-off | core set | 3 lines, 4 paths | 7 / 0 | 2 |  |
+| candy-off | core set | 3 lines, 4 paths | 7 / 0 |  |  |
 | carrot | core set | 1 line, 1 circle, 1 path | 3 / 0 |  |  |
-| carton | core set | 1 line, 1 path | 2 / 0 | 3 |  |
-| carton-off | core set | 2 lines, 2 polylines, 2 paths | 6 / 0 | 3 |  |
+| carton | core set | 1 line, 1 path | 2 / 0 |  |  |
+| carton-off | core set | 2 lines, 2 polylines, 2 paths | 6 / 0 |  |  |
 | chef-hat | core set | 1 line, 1 path | 2 / 0 |  |  |
 | cherry | core set | 1 circle, 3 paths | 4 / 0 |  |  |
 | citrus | core set | 1 line, 1 polyline, 2 paths | 4 / 0 |  |  |
@@ -1789,9 +1789,9 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | fish-symbol | core set | 1 path | 1 / 0 |  | animals |
 | glass-water | core set | 2 paths | 2 / 0 |  |  |
 | grape | core set | 1 polyline, 8 circles | 9 / 0 |  |  |
-| ham | core set | 1 line, 1 circle, 2 paths | 4 / 0 | 2 |  |
-| hamburger | core set | 1 polyline, 3 paths | 4 / 0 | 2 |  |
-| hand-platter | core set | 2 lines, 1 polyline, 3 paths | 6 / 0 | 3 | people |
+| ham | core set | 1 line, 1 circle, 2 paths | 4 / 0 |  |  |
+| hamburger | core set | 1 polyline, 3 paths | 4 / 0 | 1 |  |
+| hand-platter | core set | 2 lines, 1 polyline, 3 paths | 6 / 0 |  | people |
 | hop | core set | 8 paths | 8 / 0 |  |  |
 | hop-off | core set | 1 line, 8 paths | 9 / 0 |  |  |
 | ice-cream-bowl | core set | 2 lines, 4 paths | 6 / 0 |  |  |
@@ -1800,12 +1800,12 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | lollipop | core set | 1 line, 1 circle, 1 path | 3 / 0 |  |  |
 | martini | core set | 2 lines, 1 path | 3 / 0 |  |  |
 | microwave | core set | 3 lines, 2 rects | 5 / 0 |  | home |
-| milk | core set | 1 line, 2 paths | 3 / 0 | 2 |  |
-| milk-off | core set | 3 lines, 3 paths | 6 / 0 | 1 |  |
+| milk | core set | 1 line, 2 paths | 3 / 0 |  |  |
+| milk-off | core set | 3 lines, 3 paths | 6 / 0 |  |  |
 | nut | core set | 1 line, 2 paths | 3 / 0 |  |  |
 | nut-off | core set | 3 lines, 3 paths | 6 / 0 |  |  |
 | paper-bag | core set | 2 paths | 2 / 0 |  | shopping |
-| pizza | core set | 2 lines, 3 paths | 5 / 0 | 1 |  |
+| pizza | core set | 2 lines, 3 paths | 5 / 0 |  |  |
 | popcorn | core set | 2 lines, 2 paths | 4 / 0 |  | multimedia |
 | popsicle | core set | 1 line, 1 path | 2 / 0 |  |  |
 | refrigerator | core set | 2 lines, 1 rect | 3 / 0 |  | home |
@@ -1813,10 +1813,10 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | sandwich | core set | 1 polyline, 1 rect, 3 paths | 5 / 0 | 4 |  |
 | soup | core set | 2 lines, 4 paths | 6 / 0 |  |  |
 | utensils | core set | 2 lines, 2 paths | 4 / 0 |  | travel, navigation |
-| utensils-crossed | core set | 3 lines, 1 polyline, 1 path | 5 / 0 | 3 | travel, navigation |
+| utensils-crossed | core set | 3 lines, 1 polyline, 1 path | 5 / 0 |  | travel, navigation |
 | vegan | core set | 1 circle, 2 paths | 3 / 0 |  | sustainability |
-| wheat | core set | 1 line, 1 rect, 6 polygons | 8 / 0 | 24 |  |
-| wheat-off | core set | 3 lines, 1 rect, 2 polygons, 4 paths | 10 / 0 | 8 |  |
+| wheat | core set | 1 line, 1 rect, 6 polygons | 8 / 0 |  |  |
+| wheat-off | core set | 3 lines, 1 rect, 2 polygons, 4 paths | 10 / 0 |  |  |
 | wine | core set | 3 lines, 1 path | 4 / 0 |  |  |
 | wine-off | core set | 5 lines, 2 paths | 7 / 0 |  |  |
 
@@ -1834,33 +1834,33 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | Icon | Set | Parts | Stroked / filled | Near 45° | Also in |
 | --- | --- | --- | --- | ---: | --- |
 | backpack | core set | 2 lines, 2 polylines, 1 rect | 5 / 0 |  | photography, travel |
-| bow-arrow | core set | 1 line, 1 polyline, 3 paths | 5 / 0 | 2 | tools |
+| bow-arrow | core set | 1 line, 1 polyline, 3 paths | 5 / 0 |  | tools |
 | chess-bishop | core set | 2 lines, 1 rect, 1 path | 4 / 0 |  | emoji |
 | chess-king | core set | 2 lines, 1 rect, 1 path | 4 / 0 |  | emoji |
-| chess-knight | core set | 3 lines, 1 rect, 1 path | 5 / 0 | 1 | emoji |
+| chess-knight | core set | 3 lines, 1 rect, 1 path | 5 / 0 |  | emoji |
 | chess-pawn | core set | 3 lines, 1 rect, 1 circle | 5 / 0 |  | emoji |
-| chess-queen | core set | 2 lines, 1 rect, 3 circles, 2 paths | 8 / 0 | 2 | emoji |
+| chess-queen | core set | 2 lines, 1 rect, 3 circles, 2 paths | 8 / 0 |  | emoji |
 | chess-rook | core set | 5 lines, 1 polyline, 1 rect | 7 / 0 |  | emoji |
 | clover | core set | 2 lines, 1 path | 3 / 0 |  |  |
 | coins | core set | 2 polylines, 1 circle, 1 path | 4 / 0 | 2 |  |
-| crown | core set | 1 line, 1 path | 2 / 0 | 2 |  |
+| crown | core set | 1 line, 1 path | 2 / 0 |  |  |
 | dice-1 | core set | 1 line, 1 rect | 2 / 0 |  |  |
 | dice-2 | core set | 2 lines, 1 rect | 3 / 0 |  |  |
 | dice-3 | core set | 3 lines, 1 rect | 4 / 0 |  |  |
 | dice-4 | core set | 4 lines, 1 rect | 5 / 0 |  |  |
 | dice-5 | core set | 5 lines, 1 rect | 6 / 0 |  |  |
 | dice-6 | core set | 6 lines, 1 rect | 7 / 0 |  |  |
-| dices | core set | 4 lines, 1 rect, 1 path | 6 / 0 | 1 |  |
+| dices | core set | 4 lines, 1 rect, 1 path | 6 / 0 |  |  |
 | gamepad | core set | 4 lines, 1 rect | 5 / 0 |  | devices |
 | gamepad-2 | core set | 4 lines, 1 path | 5 / 0 |  | devices |
 | gamepad-directional | core set | 4 paths | 4 / 0 |  | devices |
-| gem | core set | 1 line, 1 polyline, 1 path | 3 / 0 | 4 | development, finance |
-| ghost | core set | 2 lines, 1 path | 3 / 0 | 1 |  |
+| gem | core set | 1 line, 1 polyline, 1 path | 3 / 0 | 2 | development, finance |
+| ghost | core set | 2 lines, 1 path | 3 / 0 |  |  |
 | gift | core set | 1 line, 1 polyline, 1 rect, 1 path | 4 / 0 |  | account |
 | goal | core set | 1 polyline, 2 paths | 3 / 0 |  |  |
 | joystick | core set | 2 lines, 1 rect, 1 circle | 4 / 0 |  | devices |
-| playing-card | core set | 1 rect, 1 path | 2 / 0 | 4 | development |
-| playing-cards | core set | 1 polyline, 1 rect, 1 path | 3 / 0 | 4 | development |
+| playing-card | core set | 1 rect, 1 path | 2 / 0 |  | development |
+| playing-cards | core set | 1 polyline, 1 rect, 1 path | 3 / 0 |  | development |
 | playing-cards-fan | core set | 1 polyline, 1 polygon, 1 path | 3 / 0 |  | development, social |
 | rocket | core set | 4 paths | 4 / 0 |  | development |
 | scroll | core set | 1 polyline, 1 path | 2 / 0 |  | development, text |
@@ -1883,7 +1883,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 
 | Icon | Set | Parts | Stroked / filled | Near 45° | Also in |
 | --- | --- | --- | --- | ---: | --- |
-| git-arrow-right | four-style set | 1 line, 1 circle, 3 paths; solid: 1 line, 1 circle, 3 paths | 5 / 0 | 8 |  |
+| git-arrow-right | four-style set | 1 line, 1 circle, 3 paths; solid: 1 line, 1 circle, 3 paths | 5 / 0 |  |  |
 | git-branch | four-style set | 2 circles, 1 path; solid: 2 circles, 1 path | 3 / 0 |  |  |
 | git-branch-minus | four-style set | 1 line, 2 circles, 1 path; solid: 1 line, 2 circles, 1 path | 4 / 0 |  |  |
 | git-branch-plus | four-style set | 2 lines, 2 circles, 1 path; solid: 2 lines, 2 circles, 1 path | 5 / 0 |  |  |
@@ -1899,7 +1899,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | git-merge | four-style set | 2 circles, 1 path; solid: 2 circles, 1 path | 3 / 0 |  |  |
 | git-merge-conflict | four-style set | 3 lines, 1 circle, 1 path; solid: 3 lines, 1 circle, 1 path | 5 / 0 |  |  |
 | git-pull-request | four-style set | 1 line, 2 circles, 1 path; solid: 1 line, 2 circles, 1 path | 4 / 0 |  |  |
-| git-pull-request-arrow | four-style set | 2 circles, 2 paths; solid: 2 circles, 2 paths | 4 / 0 | 2 |  |
+| git-pull-request-arrow | four-style set | 2 circles, 2 paths; solid: 2 circles, 2 paths | 4 / 0 |  |  |
 | git-pull-request-closed | four-style set | 4 lines, 2 circles; solid: 4 lines, 2 circles | 6 / 0 |  |  |
 | git-pull-request-create | four-style set | 3 lines, 1 circle, 1 path; solid: 3 lines, 1 circle, 1 path | 5 / 0 |  |  |
 | git-pull-request-create-arrow | four-style set | 3 lines, 1 circle, 2 paths; solid: 3 lines, 1 circle, 2 paths | 6 / 0 |  |  |
@@ -1914,12 +1914,12 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | Icon | Set | Parts | Stroked / filled | Near 45° | Also in |
 | --- | --- | --- | --- | ---: | --- |
 | bandage | four-style set | 2 lines, 1 path; solid: 2 polygons, 1 path | 3 / 0 |  |  |
-| brain | four-style set | 1 line, 9 paths; solid: 4 paths | 10 / 0 | 2 |  |
+| brain | four-style set | 1 line, 9 paths; solid: 4 paths | 10 / 0 |  |  |
 | ear | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
 | ear-listen | four-style set | 2 lines, 3 paths; solid: 2 lines, 3 paths | 5 / 0 |  |  |
 | ear-waveform | four-style set | 3 lines, 3 paths; solid: 3 lines, 3 paths | 6 / 0 |  |  |
 | heart-pulse | four-style set | 1 polyline, 1 path; solid: 2 paths | 2 / 0 |  |  |
-| lungs | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 | 18 |  |
+| lungs | four-style set | 3 lines, 4 paths; solid: 3 lines, 4 paths | 7 / 0 |  |  |
 | pill | four-style set | 1 line, 1 path; solid: 2 paths | 2 / 0 |  |  |
 | stethoscope | four-style set | 1 circle, 3 paths; solid: 1 circle, 3 paths | 4 / 0 |  |  |
 | syringe | four-style set | 5 lines, 1 polyline, 1 path; solid: 3 lines, 1 polyline, 3 paths | 7 / 0 |  |  |
@@ -1952,11 +1952,11 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | fence | core set | 4 lines, 3 paths | 7 / 0 |  | buildings |
 | fire-extinguisher | core set | 3 lines, 1 polyline, 2 paths | 6 / 0 |  | tools, travel |
 | heater | core set | 7 lines, 3 paths | 10 / 0 |  | devices, travel |
-| house-heart | core set | 2 paths | 2 / 0 | 4 | buildings, medical |
-| house-wifi | core set | 1 line, 3 paths | 4 / 0 | 2 | buildings, connectivity |
+| house-heart | core set | 2 paths | 2 / 0 |  | buildings, medical |
+| house-wifi | core set | 1 line, 3 paths | 4 / 0 |  | buildings, connectivity |
 | lamp | core set | 1 line, 1 rect, 1 path | 3 / 0 |  |  |
 | lamp-ceiling | core set | 1 line, 2 paths | 3 / 0 |  |  |
-| lamp-desk | core set | 1 line, 1 rect, 2 paths | 4 / 0 | 1 |  |
+| lamp-desk | core set | 1 line, 1 rect, 2 paths | 4 / 0 |  |  |
 | lamp-floor | core set | 2 lines, 1 path | 3 / 0 |  |  |
 | lamp-wall-down | core set | 1 polyline, 1 rect, 1 path | 3 / 0 |  |  |
 | lamp-wall-up | core set | 1 polyline, 1 rect, 1 path | 3 / 0 |  |  |
@@ -1970,8 +1970,8 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | sofa | core set | 3 lines, 1 polyline, 1 path | 5 / 0 |  |  |
 | sofa | four-style set | 2 lines, 2 paths; solid: 2 lines, 3 paths | 4 / 0 |  |  |
 | solar-panel | core set | 4 lines, 1 polyline, 2 paths | 7 / 0 |  | science, sustainability, weather |
-| toothbrush | core set | 2 paths | 2 / 0 | 1 | travel, tools, medical |
-| toothbrush-sparkles | core set | 7 lines, 2 paths | 9 / 0 | 2 | tools, medical, travel |
+| toothbrush | core set | 2 paths | 2 / 0 |  | travel, tools, medical |
+| toothbrush-sparkles | core set | 7 lines, 2 paths | 9 / 0 |  | tools, medical, travel |
 | towel-rack | core set | 2 lines, 1 path | 3 / 0 |  | travel |
 | washing-machine | core set | 2 lines, 1 rect, 1 circle, 1 path | 5 / 0 |  | devices, travel |
 
@@ -2046,16 +2046,16 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | dock | core set | 2 lines, 1 rect | 3 / 0 |  | design, development, files |
 | ellipsis | core set | 3 dots | 3 / 0 |  | development |
 | ellipsis-vertical | core set | 3 dots | 3 / 0 |  |  |
-| flip-horizontal | four-style set | 4 lines, 2 paths; solid: 4 lines, 2 paths | 6 / 0 | 20 |  |
-| flip-vertical | four-style set | 4 lines, 2 paths; solid: 4 lines, 2 paths | 6 / 0 | 20 |  |
+| flip-horizontal | four-style set | 4 lines, 2 paths; solid: 4 lines, 2 paths | 6 / 0 |  |  |
+| flip-vertical | four-style set | 4 lines, 2 paths; solid: 4 lines, 2 paths | 6 / 0 |  |  |
 | fullscreen | core set | 4 polylines, 1 rect | 5 / 0 |  | multimedia, design, photography |
 | fullscreen | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 |  |  |
 | fullscreen-2 | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
 | fullscreen-exit | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 |  |  |
 | fullscreen-exit-2 | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
-| funnel | core set | 1 path | 1 / 0 | 2 |  |
-| funnel-plus | core set | 2 lines, 1 path | 3 / 0 | 2 |  |
-| funnel-x | core set | 2 lines, 1 path | 3 / 0 | 1 |  |
+| funnel | core set | 1 path | 1 / 0 |  |  |
+| funnel-plus | core set | 2 lines, 1 path | 3 / 0 |  |  |
+| funnel-x | core set | 2 lines, 1 path | 3 / 0 |  |  |
 | gallery-horizontal | core set | 2 lines, 1 rect | 3 / 0 |  | design, development, photography, multimedia |
 | gallery-horizontal-end | core set | 2 lines, 1 rect | 3 / 0 |  | design, development, photography, multimedia, files |
 | gallery-thumbnails | core set | 4 lines, 1 rect | 5 / 0 |  | design, development, photography, multimedia |
@@ -2067,11 +2067,11 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | grid-3x2 | four-style set | 3 lines, 1 rect; solid: 1 rect, 1 polygon | 4 / 0 |  |  |
 | grid-3x3 | four-style set | 4 lines, 1 rect; solid: 2 rects, 1 polygon | 5 / 0 |  |  |
 | grid-circles | four-style set | 4 circles; solid: 4 circles | 4 / 0 |  |  |
-| grid-circles-check | four-style set | 1 polyline, 3 circles; solid: 1 polyline, 3 circles | 4 / 0 | 16 |  |
+| grid-circles-check | four-style set | 1 polyline, 3 circles; solid: 1 polyline, 3 circles | 4 / 0 |  |  |
 | grid-circles-plus | four-style set | 2 lines, 3 circles; solid: 2 lines, 3 circles | 5 / 0 |  |  |
 | grid-circles-x | four-style set | 2 lines, 3 circles; solid: 2 lines, 3 circles | 5 / 0 |  |  |
 | grid-squares | four-style set | 4 rects; solid: 4 rects | 4 / 0 |  |  |
-| grid-squares-check | four-style set | 1 polyline, 3 rects; solid: 1 polyline, 3 rects | 4 / 0 | 16 |  |
+| grid-squares-check | four-style set | 1 polyline, 3 rects; solid: 1 polyline, 3 rects | 4 / 0 |  |  |
 | grid-squares-plus | four-style set | 2 lines, 3 rects; solid: 2 lines, 3 rects | 5 / 0 |  |  |
 | grid-squares-x | four-style set | 2 lines, 3 rects; solid: 2 lines, 3 rects | 5 / 0 |  |  |
 | grip | core set | 9 dots | 9 / 0 |  |  |
@@ -2199,14 +2199,14 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | bell-check | four-style set | 1 polyline, 2 paths; solid: 1 polyline, 2 paths | 3 / 0 |  |  |
 | bell-dot | four-style set | 1 circle, 2 paths; solid: 2 circles, 2 paths | 3 / 0 |  |  |
 | bell-minus | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
-| bell-off | four-style set | 1 line, 3 paths; solid: 1 line, 3 paths | 4 / 0 | 7 |  |
+| bell-off | four-style set | 1 line, 3 paths; solid: 1 line, 3 paths | 4 / 0 | 1 |  |
 | bell-plus | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 |  |  |
 | bell-ring | four-style set | 4 paths; solid: 4 paths | 4 / 0 |  |  |
 | bell-x | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 |  |  |
 | bell-zap | four-style set | 1 polyline, 2 paths; solid: 1 polyline, 2 paths | 3 / 0 |  |  |
 | forward | core set | 2 polylines | 2 / 0 |  |  |
 | forward | four-style set | 1 polyline, 1 path; solid: 1 polyline, 1 path | 2 / 0 |  |  |
-| inbox | four-style set | 1 polyline, 1 path; solid: 1 polyline, 2 paths | 2 / 0 | 40 |  |
+| inbox | four-style set | 1 polyline, 1 path; solid: 1 polyline, 2 paths | 2 / 0 | 20 |  |
 | mail | four-style set | 1 rect, 1 path; solid: 1 rect, 2 paths | 2 / 0 |  |  |
 | mail-badge | core set | 1 polyline, 1 circle, 2 paths | 4 / 0 | 1 | communication, security |
 | mail-check | core set | 1 polyline, 2 paths | 3 / 0 | 2 |  |
@@ -2216,7 +2216,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | mail-minus | four-style set | 1 line, 2 paths; solid: 1 line, 3 paths | 3 / 0 |  |  |
 | mail-open | core set | 2 paths | 2 / 0 | 4 |  |
 | mail-open | four-style set | 2 paths; solid: 3 paths | 2 / 0 | 40 |  |
-| mail-pen | core set | 1 polyline, 2 paths | 3 / 0 | 3 |  |
+| mail-pen | core set | 1 polyline, 2 paths | 3 / 0 | 2 |  |
 | mail-plus | core set | 2 lines, 2 paths | 4 / 0 | 2 |  |
 | mail-plus | four-style set | 2 lines, 2 paths; solid: 2 lines, 3 paths | 4 / 0 |  |  |
 | mail-question-mark | core set | 1 line, 3 paths | 4 / 0 | 2 |  |
@@ -2232,7 +2232,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | message-dot | four-style set | 1 circle, 1 path; solid: 2 circles, 1 path | 2 / 0 |  |  |
 | message-lines | four-style set | 2 lines, 1 path; solid: 3 paths | 3 / 0 |  |  |
 | message-minus | four-style set | 1 line, 1 path; solid: 2 paths | 2 / 0 |  |  |
-| message-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 4 |  |
+| message-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
 | message-plus | four-style set | 2 lines, 1 path; solid: 2 paths | 3 / 0 |  |  |
 | message-question | four-style set | 1 dot, 2 paths; solid: 1 dot, 2 paths | 2 / 1 |  |  |
 | message-square | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
@@ -2252,8 +2252,8 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | reply-all | four-style set | 2 polylines, 1 path; solid: 2 polylines, 1 path | 3 / 0 |  |  |
 | send | core set | 1 line, 1 path | 2 / 0 |  | communication, connectivity |
 | send | four-style set | 1 line, 1 path; solid: 2 paths | 2 / 0 | 30 |  |
-| send-clock | four-style set | 1 line, 1 polyline, 1 circle, 1 path; solid: 1 line, 1 circle, 2 paths | 4 / 0 | 8 |  |
-| send-fast | four-style set | 4 lines, 1 path; solid: 3 lines, 1 path | 5 / 0 | 26 |  |
+| send-clock | four-style set | 1 line, 1 polyline, 1 circle, 1 path; solid: 1 line, 1 circle, 2 paths | 4 / 0 |  |  |
+| send-fast | four-style set | 4 lines, 1 path; solid: 3 lines, 1 path | 5 / 0 | 15 |  |
 | send-horizontal | core set | 1 line, 1 path | 2 / 0 |  | communication, connectivity |
 | send-horizontal | four-style set | 1 line, 1 path; solid: 2 paths | 2 / 0 |  |  |
 | shredder | core set | 5 lines, 1 polyline, 1 path | 7 / 0 |  | files |
@@ -2273,15 +2273,15 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | locate | four-style set | 4 lines, 1 circle; solid: 4 lines, 1 circle | 5 / 0 |  |  |
 | locate-fixed | four-style set | 4 lines, 2 circles; solid: 4 lines, 2 circles | 5 / 1 |  |  |
 | map | four-style set | 2 lines, 1 path; solid: 1 polygon, 1 path | 3 / 0 |  |  |
-| map-pin | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 2 / 0 | 20 |  |
-| map-pin-check | four-style set | 1 polyline, 1 circle, 1 path; solid: 1 polyline, 1 circle, 1 path | 3 / 0 | 13 |  |
-| map-pin-heart | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 20 |  |
-| map-pin-minus | four-style set | 1 line, 1 circle, 1 path; solid: 1 line, 1 circle, 1 path | 3 / 0 | 13 |  |
-| map-pin-off | four-style set | 1 line, 4 paths; solid: 1 line, 3 paths | 5 / 0 | 20 |  |
-| map-pin-plus | four-style set | 2 lines, 1 circle, 1 path; solid: 2 lines, 1 circle, 1 path | 4 / 0 | 13 |  |
-| map-pin-search | four-style set | 1 line, 2 circles, 1 path; solid: 1 line, 2 circles, 1 path | 4 / 0 | 13 |  |
-| map-pin-x | four-style set | 2 lines, 1 circle, 1 path; solid: 2 lines, 1 circle, 1 path | 4 / 0 | 13 |  |
-| milestone | four-style set | 3 lines, 1 path; solid: 3 lines, 1 path | 4 / 0 | 20 |  |
+| map-pin | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 2 / 0 |  |  |
+| map-pin-check | four-style set | 1 polyline, 1 circle, 1 path; solid: 1 polyline, 1 circle, 1 path | 3 / 0 |  |  |
+| map-pin-heart | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
+| map-pin-minus | four-style set | 1 line, 1 circle, 1 path; solid: 1 line, 1 circle, 1 path | 3 / 0 |  |  |
+| map-pin-off | four-style set | 1 line, 4 paths; solid: 1 line, 3 paths | 5 / 0 |  |  |
+| map-pin-plus | four-style set | 2 lines, 1 circle, 1 path; solid: 2 lines, 1 circle, 1 path | 4 / 0 |  |  |
+| map-pin-search | four-style set | 1 line, 2 circles, 1 path; solid: 1 line, 2 circles, 1 path | 4 / 0 |  |  |
+| map-pin-x | four-style set | 2 lines, 1 circle, 1 path; solid: 2 lines, 1 circle, 1 path | 4 / 0 |  |  |
+| milestone | four-style set | 3 lines, 1 path; solid: 3 lines, 1 path | 4 / 0 | 10 |  |
 | radar | four-style set | 1 circle, 2 paths; solid: 1 circle, 2 paths | 2 / 1 |  |  |
 | route | four-style set | 1 polyline, 1 circle, 1 path; solid: 1 polyline, 1 circle, 1 path | 3 / 0 |  |  |
 | route-off | four-style set | 2 lines, 1 polyline, 1 circle, 1 path; solid: 2 lines, 1 polyline, 1 circle, 1 path | 5 / 0 |  |  |
@@ -2303,7 +2303,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | circle-equal | four-style set | 2 lines, 1 circle; solid: 2 lines, 1 circle | 3 / 0 |  |  |
 | circle-minus | core set | 1 line, 1 circle | 2 / 0 |  |  |
 | circle-plus | core set | 2 lines, 1 circle | 3 / 0 |  | development, cursors, gaming |
-| circle-radical | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 2 / 0 | 8 |  |
+| circle-radical | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 2 / 0 | 4 |  |
 | circle-x | core set | 2 lines, 1 circle | 3 / 0 |  | development |
 | divide | core set | 1 line, 2 dots | 3 / 0 |  | development |
 | divide | four-style set | 1 line, 2 circles; solid: 1 line, 2 circles | 1 / 2 |  |  |
@@ -2317,7 +2317,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | equal-not | core set | 3 lines | 3 / 0 |  | development |
 | equal-not | four-style set | 3 lines; solid: 3 lines | 3 / 0 |  |  |
 | hash | four-style set | 4 lines; solid: 4 lines | 4 / 0 |  |  |
-| infinity | four-style set | 1 path; solid: 1 path | 1 / 0 | 16 |  |
+| infinity | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
 | minus | core set | 1 line | 1 / 0 |  | development, text, tools |
 | octagon-x | core set | 2 lines, 1 path | 3 / 0 |  | notifications |
 | omega | core set | 1 path | 1 / 0 |  | development, text, science |
@@ -2325,7 +2325,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | percent | core set | 1 line, 2 circles | 3 / 0 |  | development, finance, shopping |
 | phi | core set | 1 line, 1 circle | 2 / 0 |  | science |
 | plus | core set | 2 lines | 2 / 0 |  | tools, development, text, cursors, gaming |
-| radical | four-style set | 1 path; solid: 1 path | 1 / 0 | 8 |  |
+| radical | four-style set | 1 path; solid: 1 path | 1 / 0 | 4 |  |
 | square-asterisk | four-style set | 3 lines, 1 rect; solid: 3 lines, 1 rect | 4 / 0 | 16 |  |
 | square-divide | core set | 3 lines, 1 rect | 4 / 0 |  |  |
 | square-divide | four-style set | 1 line, 1 rect, 2 circles; solid: 1 line, 1 rect, 2 circles | 2 / 2 |  |  |
@@ -2333,7 +2333,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | square-equal | four-style set | 2 lines, 1 rect; solid: 2 lines, 1 rect | 3 / 0 |  |  |
 | square-minus | core set | 1 line, 1 rect | 2 / 0 |  | development, text, tools, devices |
 | square-plus | core set | 2 lines, 1 rect | 3 / 0 |  | tools, development, text |
-| square-radical | four-style set | 1 rect, 1 path; solid: 1 rect, 1 path | 2 / 0 | 8 |  |
+| square-radical | four-style set | 1 rect, 1 path; solid: 1 rect, 1 path | 2 / 0 | 4 |  |
 | square-x | core set | 2 lines, 1 rect | 3 / 0 |  | notifications |
 | tally-1 | core set | 1 line | 1 / 0 |  | gaming |
 | tally-2 | core set | 2 lines | 2 / 0 |  | gaming |
@@ -2349,16 +2349,16 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 
 | Icon | Set | Parts | Stroked / filled | Near 45° | Also in |
 | --- | --- | --- | --- | ---: | --- |
-| airplay | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 20 |  |
+| airplay | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 6 |  |
 | airpods | four-style set | 1 line, 1 rect, 1 dot, 1 path; solid: 1 rect, 1 dot, 1 path | 3 / 1 |  |  |
 | airpods-open | four-style set | 1 rect, 1 dot, 2 paths; solid: 1 dot, 3 paths | 3 / 1 |  |  |
 | audio-lines | four-style set | 5 lines; solid: 5 lines | 5 / 0 |  |  |
 | audio-lines-search | four-style set | 6 lines, 1 circle; solid: 6 lines, 1 circle | 7 / 0 |  |  |
-| broadcast | four-style set | 1 line, 1 dot, 4 paths; solid: 1 line, 1 dot, 4 paths | 5 / 1 | 24 |  |
-| camera | four-style set | 1 circle, 1 path; solid: 2 circles, 1 path | 2 / 0 | 20 |  |
-| camera-off | four-style set | 1 line, 3 paths; solid: 1 line, 4 paths | 4 / 0 | 13 |  |
-| captions | four-style set | 1 rect, 2 paths; solid: 1 rect, 2 paths | 3 / 0 | 20 |  |
-| captions-off | four-style set | 1 line, 3 paths; solid: 1 line, 2 paths | 4 / 0 | 10 |  |
+| broadcast | four-style set | 1 line, 1 dot, 4 paths; solid: 1 line, 1 dot, 4 paths | 5 / 1 |  |  |
+| camera | four-style set | 1 circle, 1 path; solid: 2 circles, 1 path | 2 / 0 |  |  |
+| camera-off | four-style set | 1 line, 3 paths; solid: 1 line, 4 paths | 4 / 0 | 2 |  |
+| captions | four-style set | 1 rect, 2 paths; solid: 1 rect, 2 paths | 3 / 0 |  |  |
+| captions-off | four-style set | 1 line, 3 paths; solid: 1 line, 2 paths | 4 / 0 |  |  |
 | cast | four-style set | 1 dot, 3 paths; solid: 1 dot, 3 paths | 3 / 1 |  |  |
 | circle-pause | four-style set | 2 lines, 1 circle; solid: 1 circle, 2 paths | 3 / 0 |  |  |
 | circle-play | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 2 / 0 | 12 |  |
@@ -2366,8 +2366,8 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | circle-record | four-style set | 2 circles; solid: 2 circles | 2 / 0 |  |  |
 | circle-stop | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 2 / 0 |  |  |
 | earbuds | four-style set | 2 lines, 2 dots, 2 paths; solid: 2 dots, 4 paths | 4 / 2 |  |  |
-| eject | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 16 |  |
-| fast-forward | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 40 |  |
+| eject | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 8 |  |
+| fast-forward | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 20 |  |
 | film | four-style set | 7 lines, 1 rect; solid: 9 rects | 8 / 0 |  |  |
 | gallery-horizontal | four-style set | 2 lines, 1 rect; solid: 2 lines, 1 rect | 3 / 0 |  |  |
 | gallery-horizontal-end | four-style set | 2 lines, 1 rect; solid: 2 lines, 1 rect | 3 / 0 |  |  |
@@ -2379,20 +2379,20 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | headphones-off | four-style set | 1 line, 1 rect, 4 paths; solid: 1 line, 1 rect, 4 paths | 6 / 0 |  |  |
 | headset | four-style set | 4 paths; solid: 4 paths | 4 / 0 |  |  |
 | headset-2 | four-style set | 5 paths; solid: 5 paths | 5 / 0 |  |  |
-| headset-off | four-style set | 1 line, 1 rect, 5 paths; solid: 1 line, 6 paths | 7 / 0 | 1 |  |
-| image | four-style set | 1 rect, 1 circle, 1 path; solid: 1 rect, 1 circle, 1 path | 2 / 1 | 8 |  |
-| image-arrow-down | four-style set | 1 line, 1 polyline, 1 circle, 2 paths; solid: 1 line, 1 polyline, 1 circle, 2 paths | 4 / 1 | 8 |  |
-| image-arrow-left | four-style set | 1 line, 1 polyline, 1 circle, 2 paths; solid: 1 line, 1 polyline, 1 circle, 2 paths | 4 / 1 | 8 |  |
-| image-arrow-right | four-style set | 1 line, 1 polyline, 1 circle, 2 paths; solid: 1 line, 1 polyline, 1 circle, 2 paths | 4 / 1 | 8 |  |
-| image-arrow-up | four-style set | 1 line, 1 polyline, 1 circle, 2 paths; solid: 1 line, 1 polyline, 1 circle, 2 paths | 4 / 1 | 8 |  |
-| image-check | four-style set | 1 polyline, 1 circle, 2 paths; solid: 1 polyline, 1 circle, 2 paths | 3 / 1 | 8 |  |
-| image-minus | four-style set | 1 line, 1 circle, 2 paths; solid: 1 line, 1 circle, 2 paths | 3 / 1 | 8 |  |
-| image-off | four-style set | 1 line, 3 paths; solid: 1 line, 2 paths | 4 / 0 | 8 |  |
-| image-plus | four-style set | 2 lines, 1 circle, 2 paths; solid: 2 lines, 1 circle, 2 paths | 4 / 1 | 8 |  |
-| image-x | four-style set | 2 lines, 1 circle, 2 paths; solid: 2 lines, 1 circle, 2 paths | 4 / 1 | 8 |  |
+| headset-off | four-style set | 1 line, 1 rect, 5 paths; solid: 1 line, 6 paths | 7 / 0 |  |  |
+| image | four-style set | 1 rect, 1 circle, 1 path; solid: 1 rect, 1 circle, 1 path | 2 / 1 |  |  |
+| image-arrow-down | four-style set | 1 line, 1 polyline, 1 circle, 2 paths; solid: 1 line, 1 polyline, 1 circle, 2 paths | 4 / 1 |  |  |
+| image-arrow-left | four-style set | 1 line, 1 polyline, 1 circle, 2 paths; solid: 1 line, 1 polyline, 1 circle, 2 paths | 4 / 1 |  |  |
+| image-arrow-right | four-style set | 1 line, 1 polyline, 1 circle, 2 paths; solid: 1 line, 1 polyline, 1 circle, 2 paths | 4 / 1 |  |  |
+| image-arrow-up | four-style set | 1 line, 1 polyline, 1 circle, 2 paths; solid: 1 line, 1 polyline, 1 circle, 2 paths | 4 / 1 |  |  |
+| image-check | four-style set | 1 polyline, 1 circle, 2 paths; solid: 1 polyline, 1 circle, 2 paths | 3 / 1 |  |  |
+| image-minus | four-style set | 1 line, 1 circle, 2 paths; solid: 1 line, 1 circle, 2 paths | 3 / 1 |  |  |
+| image-off | four-style set | 1 line, 3 paths; solid: 1 line, 2 paths | 4 / 0 |  |  |
+| image-plus | four-style set | 2 lines, 1 circle, 2 paths; solid: 2 lines, 1 circle, 2 paths | 4 / 1 |  |  |
+| image-x | four-style set | 2 lines, 1 circle, 2 paths; solid: 2 lines, 1 circle, 2 paths | 4 / 1 |  |  |
 | images | four-style set | 1 rect, 1 dot, 2 paths; solid: 1 rect, 1 dot, 2 paths | 3 / 1 |  |  |
 | list-music | four-style set | 4 lines, 1 circle; solid: 4 lines, 1 circle | 5 / 0 |  |  |
-| list-video | four-style set | 3 lines, 1 path; solid: 3 lines, 1 path | 4 / 0 | 20 |  |
+| list-video | four-style set | 3 lines, 1 path; solid: 3 lines, 1 path | 4 / 0 | 11 |  |
 | megaphone | four-style set | 1 line, 2 paths; solid: 2 paths | 3 / 0 |  |  |
 | mic | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 |  |  |
 | mic-off | four-style set | 3 lines, 3 paths; solid: 3 lines, 3 paths | 6 / 0 |  |  |
@@ -2400,19 +2400,19 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | music-note-off | four-style set | 2 lines, 1 polyline, 1 circle, 2 paths; solid: 2 lines, 1 polyline, 1 circle, 1 path | 6 / 0 |  |  |
 | pause | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
 | picture-in-picture | four-style set | 1 rect, 1 path; solid: 1 rect, 1 path | 2 / 0 |  |  |
-| play | four-style set | 1 path; solid: 1 path | 1 / 0 | 20 |  |
-| play-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 22 |  |
+| play | four-style set | 1 path; solid: 1 path | 1 / 0 | 10 |  |
+| play-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 12 |  |
 | podcast | four-style set | 1 line, 1 dot, 2 paths; solid: 1 line, 1 dot, 2 paths | 3 / 1 | 16 |  |
 | queue | four-style set | 2 lines, 1 rect; solid: 2 lines, 1 rect | 3 / 0 |  |  |
 | radio | four-style set | 3 lines, 1 rect, 1 circle; solid: 1 line, 1 rect, 1 circle, 1 dot, 2 paths | 5 / 0 |  |  |
 | record | four-style set | 1 circle; solid: 1 circle | 1 / 0 |  |  |
 | repeat | four-style set | 2 polylines, 2 paths; solid: 2 polylines, 2 paths | 4 / 0 |  |  |
-| repeat-1 | four-style set | 2 polylines, 2 paths; solid: 2 polylines, 2 paths | 4 / 0 | 8 |  |
+| repeat-1 | four-style set | 2 polylines, 2 paths; solid: 2 polylines, 2 paths | 4 / 0 |  |  |
 | replay | four-style set | 3 paths; solid: 3 paths | 3 / 0 | 20 |  |
-| rewind | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 40 |  |
+| rewind | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 20 |  |
 | shuffle | four-style set | 2 polylines, 3 paths; solid: 2 polylines, 3 paths | 5 / 0 | 24 |  |
-| skip-back | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 20 |  |
-| skip-forward | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 20 |  |
+| skip-back | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 10 |  |
+| skip-forward | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 10 |  |
 | square-pause | four-style set | 2 lines, 1 path; solid: 3 paths | 3 / 0 |  |  |
 | square-play | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 12 |  |
 | square-play-off | four-style set | 1 line, 3 paths; solid: 1 line, 2 paths | 4 / 0 | 11 |  |
@@ -2423,12 +2423,12 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | subtitles-off | four-style set | 3 lines, 2 paths; solid: 1 line, 2 paths | 5 / 0 |  |  |
 | video | four-style set | 1 rect, 2 circles, 1 path; solid: 2 circles, 1 path | 4 / 0 |  |  |
 | video-2 | four-style set | 1 rect, 1 path; solid: 1 path | 2 / 0 |  |  |
-| volume | four-style set | 3 paths; solid: 3 paths | 3 / 0 | 18 |  |
-| volume-low | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 18 |  |
-| volume-minus | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 10 |  |
-| volume-off | four-style set | 1 line, 3 paths; solid: 1 line, 3 paths | 4 / 0 | 14 |  |
-| volume-plus | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 | 10 |  |
-| volume-x | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 | 10 |  |
+| volume | four-style set | 3 paths; solid: 3 paths | 3 / 0 | 6 |  |
+| volume-low | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 6 |  |
+| volume-minus | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 6 |  |
+| volume-off | four-style set | 1 line, 3 paths; solid: 1 line, 3 paths | 4 / 0 | 6 |  |
+| volume-plus | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 | 6 |  |
+| volume-x | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 | 6 |  |
 
 ### medical (35)
 
@@ -2444,12 +2444,12 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | dna-off | core set | 6 lines, 4 paths | 10 / 0 |  | food-beverage |
 | ear | core set | 2 paths | 2 / 0 |  | accessibility |
 | ear-off | core set | 1 line, 5 paths | 6 / 0 |  | accessibility |
-| germ | core set | 10 lines, 1 circle, 1 path | 12 / 0 | 1 | science, security |
-| germ-off | core set | 10 lines, 3 paths | 13 / 0 | 1 | science, security |
-| heart | core set | 1 path | 1 / 0 | 2 | social, multimedia, emoji, gaming, shapes |
-| heart-minus | core set | 1 line, 1 path | 2 / 0 | 2 | account, multimedia, gaming, social |
-| heart-plus | core set | 2 lines, 1 path | 3 / 0 | 2 | account, multimedia, gaming, social |
-| heart-pulse | core set | 1 polyline, 1 path | 2 / 0 | 2 |  |
+| germ | core set | 10 lines, 1 circle, 1 path | 12 / 0 |  | science, security |
+| germ-off | core set | 10 lines, 3 paths | 13 / 0 |  | science, security |
+| heart | core set | 1 path | 1 / 0 |  | social, multimedia, emoji, gaming, shapes |
+| heart-minus | core set | 1 line, 1 path | 2 / 0 |  | account, multimedia, gaming, social |
+| heart-plus | core set | 2 lines, 1 path | 3 / 0 |  | account, multimedia, gaming, social |
+| heart-pulse | core set | 1 polyline, 1 path | 2 / 0 |  |  |
 | hospital | core set | 2 lines, 2 polylines, 1 path | 5 / 0 |  | buildings, navigation, travel |
 | iv-bag | core set | 1 polyline, 2 paths | 3 / 0 |  |  |
 | mars | core set | 1 line, 1 polyline, 1 circle | 3 / 0 |  |  |
@@ -2459,7 +2459,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | non-binary | core set | 3 lines, 1 circle | 4 / 0 |  |  |
 | pill | core set | 1 line, 1 path | 2 / 0 |  |  |
 | pill-bottle | core set | 2 polylines, 1 rect | 3 / 0 |  |  |
-| scan-heart | core set | 4 polylines, 1 path | 5 / 0 | 2 |  |
+| scan-heart | core set | 4 polylines, 1 path | 5 / 0 |  |  |
 | siren | core set | 6 lines, 1 rect, 1 path | 8 / 0 |  |  |
 | square-activity | core set | 1 polyline, 1 rect | 2 / 0 |  | social, science, multimedia |
 | tablets | core set | 2 lines, 2 circles | 4 / 0 |  |  |
@@ -2475,7 +2475,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | Icon | Set | Parts | Stroked / filled | Near 45° | Also in |
 | --- | --- | --- | --- | ---: | --- |
 | ad | core set | 1 line, 2 rects, 1 path | 4 / 0 |  | accessibility, notifications |
-| airplay | core set | 1 polyline, 1 polygon | 2 / 0 | 2 | connectivity |
+| airplay | core set | 1 polyline, 1 polygon | 2 / 0 |  | connectivity |
 | audio-lines | core set | 6 lines | 6 / 0 |  | communication |
 | audio-lines-off | core set | 9 lines | 9 / 0 |  | communication |
 | audio-lines-x | core set | 8 lines | 8 / 0 |  | communication |
@@ -2487,7 +2487,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | circle-pause | core set | 2 lines, 1 circle | 3 / 0 |  |  |
 | circle-play | core set | 1 circle, 1 path | 2 / 0 | 2 |  |
 | circle-stop | core set | 1 rect, 1 circle | 2 / 0 |  |  |
-| clapperboard | core set | 2 lines, 1 rect, 1 path | 4 / 0 | 2 |  |
+| clapperboard | core set | 2 lines, 1 rect, 1 path | 4 / 0 |  |  |
 | clef-alto | core set | 2 lines, 1 path | 3 / 0 |  |  |
 | clef-bass | core set | 2 lines, 1 circle, 1 path | 4 / 0 |  |  |
 | clef-treble | core set | 1 path | 1 / 0 |  |  |
@@ -2534,7 +2534,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | speaker | core set | 2 lines, 1 rect, 1 circle | 4 / 0 |  | devices |
 | square-pause | core set | 2 lines, 1 rect | 3 / 0 |  |  |
 | square-stop | core set | 2 rects | 2 / 0 |  |  |
-| star-off | core set | 1 line, 2 paths | 3 / 0 | 2 | social |
+| star-off | core set | 1 line, 2 paths | 3 / 0 |  | social |
 | step-back | core set | 1 line, 1 path | 2 / 0 | 2 | arrows |
 | step-forward | core set | 1 line, 1 path | 2 / 0 | 2 | arrows |
 | turntable | core set | 1 line, 1 rect, 1 circle, 1 path | 4 / 0 |  | home |
@@ -2546,10 +2546,10 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | birdhouse | core set | 4 lines, 1 circle, 1 path | 6 / 0 | 2 | animals, navigation, home |
 | cannabis | core set | 1 line, 1 path | 2 / 0 |  |  |
 | cannabis-off | core set | 1 line, 5 paths | 6 / 0 |  |  |
-| droplet | four-style set | 1 path; solid: 1 path | 1 / 0 | 20 |  |
-| droplet-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 24 |  |
-| droplets | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 44 |  |
-| feather | core set | 2 lines, 1 path | 3 / 0 | 1 | animals, gaming, text |
+| droplet | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
+| droplet-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
+| droplets | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
+| feather | core set | 2 lines, 1 path | 3 / 0 |  | animals, gaming, text |
 | flame-kindling | core set | 2 lines, 1 path | 3 / 0 |  | social, gaming |
 | flower | core set | 8 lines, 2 circles | 10 / 0 |  | gaming, sustainability |
 | flower-2 | core set | 5 lines, 3 circles, 4 paths | 12 / 0 |  | sustainability, seasons |
@@ -2563,13 +2563,13 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | shovel | core set | 1 line, 2 paths | 3 / 0 |  | tools, gaming |
 | shrub | core set | 1 line, 2 paths | 3 / 0 |  |  |
 | sprout | core set | 1 line, 1 circle, 1 path | 3 / 0 |  | gaming, sustainability |
-| stone | core set | 1 line, 1 polyline, 1 path | 3 / 0 | 2 |  |
+| stone | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
 | tree-deciduous | core set | 1 line, 1 path | 2 / 0 |  | sustainability |
 | tree-deciduous | four-style set | 1 line, 1 polyline, 1 path; solid: 2 paths | 3 / 0 |  |  |
-| tree-palm | core set | 4 paths | 4 / 0 | 1 | sustainability |
+| tree-palm | core set | 4 paths | 4 / 0 |  | sustainability |
 | tree-palm | four-style set | 4 paths; solid: 4 paths | 4 / 0 | 16 |  |
-| tree-pine | core set | 1 line, 1 path | 2 / 0 | 6 | sustainability |
-| trees | core set | 2 lines, 2 paths | 4 / 0 | 4 | sustainability |
+| tree-pine | core set | 1 line, 1 path | 2 / 0 |  | sustainability |
+| trees | core set | 2 lines, 2 paths | 4 / 0 |  | sustainability |
 | wind-turbine | four-style set | 5 lines, 1 circle, 2 paths; solid: 5 lines, 1 circle, 2 paths | 8 / 0 | 16 |  |
 
 ### navigation (40)
@@ -2578,7 +2578,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | --- | --- | --- | --- | ---: | --- |
 | binoculars | core set | 2 lines, 2 polylines, 2 paths | 6 / 0 |  | nature, photography, science, travel, development |
 | compass | core set | 1 circle, 1 path | 2 / 0 |  | travel |
-| dumbbell | core set | 3 lines, 2 paths | 5 / 0 | 4 | sports |
+| dumbbell | core set | 3 lines, 2 paths | 5 / 0 |  | sports |
 | earth | core set | 1 polyline, 1 circle, 2 paths | 4 / 0 |  |  |
 | ferris-wheel | core set | 6 lines, 1 polyline, 1 circle, 1 path | 9 / 0 |  |  |
 | footprints | core set | 2 lines, 2 paths | 4 / 0 |  |  |
@@ -2594,11 +2594,11 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | map-pin | core set | 1 circle, 1 path | 2 / 0 |  | travel, account |
 | map-pin-check | core set | 1 polyline, 1 circle, 1 path | 3 / 0 |  | travel, account |
 | map-pin-check-inside | core set | 1 polyline, 1 path | 2 / 0 |  | travel, account |
-| map-pin-house | core set | 1 line, 1 circle, 2 paths | 4 / 0 | 2 | travel, account |
+| map-pin-house | core set | 1 line, 1 circle, 2 paths | 4 / 0 |  | travel, account |
 | map-pin-minus | core set | 1 line, 1 circle, 1 path | 3 / 0 |  | travel, account |
 | map-pin-minus-inside | core set | 1 line, 1 path | 2 / 0 |  | travel, account |
 | map-pin-off | core set | 1 line, 4 paths | 5 / 0 |  | travel |
-| map-pin-pen | core set | 1 circle, 2 paths | 3 / 0 | 1 | travel, account |
+| map-pin-pen | core set | 1 circle, 2 paths | 3 / 0 |  | travel, account |
 | map-pin-plus | core set | 2 lines, 1 circle, 1 path | 4 / 0 |  | travel, account |
 | map-pin-plus-inside | core set | 2 lines, 1 path | 3 / 0 |  | travel, account |
 | map-pin-x | core set | 2 lines, 1 circle, 1 path | 4 / 0 |  | travel, account |
@@ -2656,31 +2656,31 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | Icon | Set | Parts | Stroked / filled | Near 45° | Also in |
 | --- | --- | --- | --- | ---: | --- |
 | aperture | core set | 6 lines, 1 circle | 7 / 0 | 4 |  |
-| book-image | core set | 1 polyline, 1 circle, 1 path | 3 / 0 | 2 | text, multimedia, files, social, shopping, travel |
+| book-image | core set | 1 polyline, 1 circle, 1 path | 3 / 0 |  | text, multimedia, files, social, shopping, travel |
 | camera | core set | 1 circle, 1 path | 2 / 0 |  | devices, communication |
 | camera-off | core set | 1 line, 3 paths | 4 / 0 |  | devices, communication |
 | contrast | core set | 1 circle, 1 path | 2 / 0 |  | accessibility, design |
 | crop | core set | 2 polylines | 2 / 0 |  | design |
 | crosshair | core set | 4 lines, 1 circle | 5 / 0 |  |  |
 | film | core set | 7 lines, 1 rect | 8 / 0 |  | multimedia |
-| flashlight | core set | 2 lines, 1 path | 3 / 0 | 2 | devices |
-| flashlight-off | core set | 3 lines, 2 paths | 5 / 0 | 2 | devices |
+| flashlight | core set | 2 lines, 1 path | 3 / 0 |  | devices |
+| flashlight-off | core set | 3 lines, 2 paths | 5 / 0 |  | devices |
 | focus | core set | 4 polylines, 1 circle | 5 / 0 |  |  |
 | image | core set | 1 polyline, 1 rect, 1 circle | 3 / 0 |  | text, multimedia, files |
-| image-down | core set | 1 line, 2 polylines, 1 circle | 4 / 0 | 1 | text, multimedia, files |
+| image-down | core set | 1 line, 2 polylines, 1 circle | 4 / 0 |  | text, multimedia, files |
 | image-minus | core set | 1 line, 2 polylines, 1 circle | 4 / 0 |  | multimedia, files |
 | image-off | core set | 3 lines, 1 polyline, 2 paths | 6 / 0 |  | multimedia, files |
 | image-play | core set | 1 line, 1 polyline, 1 circle, 1 path | 4 / 0 | 2 | text, multimedia, files |
 | image-plus | core set | 2 lines, 2 polylines, 1 circle | 5 / 0 |  | multimedia, files |
-| image-up | core set | 1 line, 2 polylines, 1 circle | 4 / 0 | 1 | text, multimedia, files |
+| image-up | core set | 1 line, 2 polylines, 1 circle | 4 / 0 |  | text, multimedia, files |
 | image-upscale | core set | 3 lines, 2 polylines, 1 rect, 2 paths | 8 / 0 |  | multimedia |
-| images | core set | 1 polyline, 1 rect, 1 dot, 1 path | 3 / 1 | 1 | text, multimedia, files |
+| images | core set | 1 polyline, 1 rect, 1 dot, 1 path | 3 / 1 |  | text, multimedia, files |
 | lightbulb | core set | 2 lines, 1 path | 3 / 0 |  |  |
 | lightbulb-off | core set | 3 lines, 2 paths | 5 / 0 |  |  |
 | scan-eye | core set | 4 polylines, 1 circle, 1 dot | 6 / 0 |  | multimedia, accessibility, security, devices, account |
 | scan-search | core set | 1 line, 4 polylines, 1 circle | 6 / 0 |  | multimedia, accessibility |
 | scan-square | core set | 4 polylines, 1 rect | 5 / 0 |  | design, development |
-| square-bookmark | core set | 1 rect, 1 path | 2 / 0 | 2 | multimedia |
+| square-bookmark | core set | 1 rect, 1 path | 2 / 0 |  | multimedia |
 | square-sparkles | core set | 2 lines, 1 polyline, 1 path | 4 / 0 |  | text, multimedia, files |
 
 ### pointers (16)
@@ -2689,7 +2689,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | --- | --- | --- | --- | ---: | --- |
 | circle-cursor | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 2 / 0 |  |  |
 | cursor | four-style set | 1 path; solid: 2 paths | 1 / 0 |  |  |
-| cursor-click | four-style set | 4 lines, 1 path; solid: 4 lines, 2 paths | 5 / 0 | 16 |  |
+| cursor-click | four-style set | 4 lines, 1 path; solid: 4 lines, 2 paths | 5 / 0 |  |  |
 | cursor-dashed-panel | four-style set | 2 lines, 4 paths; solid: 2 lines, 5 paths | 6 / 0 |  |  |
 | cursor-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
 | cursor-panel | four-style set | 2 paths; solid: 3 paths | 2 / 0 |  |  |
@@ -2697,11 +2697,11 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | cursor-text | four-style set | 3 lines, 1 path; solid: 3 lines, 2 paths | 4 / 0 |  |  |
 | cursor-window | four-style set | 1 line, 2 paths; solid: 1 line, 3 paths | 3 / 0 |  |  |
 | hand-closed | four-style set | 4 paths; solid: 5 paths | 4 / 0 |  |  |
-| hand-open | four-style set | 2 lines, 3 paths; solid: 4 paths | 5 / 0 | 20 |  |
-| hand-pointer | four-style set | 3 paths; solid: 4 paths | 3 / 0 | 14 |  |
-| hand-pointer-down | four-style set | 3 paths; solid: 4 paths | 3 / 0 | 14 |  |
-| hand-pointer-left | four-style set | 3 paths; solid: 4 paths | 3 / 0 | 14 |  |
-| hand-pointer-right | four-style set | 3 paths; solid: 4 paths | 3 / 0 | 14 |  |
+| hand-open | four-style set | 2 lines, 3 paths; solid: 4 paths | 5 / 0 |  |  |
+| hand-pointer | four-style set | 3 paths; solid: 4 paths | 3 / 0 | 10 |  |
+| hand-pointer-down | four-style set | 3 paths; solid: 4 paths | 3 / 0 | 10 |  |
+| hand-pointer-left | four-style set | 3 paths; solid: 4 paths | 3 / 0 | 10 |  |
+| hand-pointer-right | four-style set | 3 paths; solid: 4 paths | 3 / 0 | 10 |  |
 | square-cursor | four-style set | 1 rect, 1 path; solid: 1 rect, 1 path | 2 / 0 |  |  |
 
 ### science (33)
@@ -2738,7 +2738,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | test-tube | core set | 2 lines, 1 path | 3 / 0 |  |  |
 | test-tube | four-style set | 2 lines, 1 path; solid: 1 line, 1 rect, 1 path | 3 / 0 |  |  |
 | test-tube-diagonal | core set | 2 lines, 1 path | 3 / 0 |  |  |
-| test-tube-diagonal | four-style set | 2 lines, 1 path; solid: 1 line, 1 polygon, 1 path | 3 / 0 | 48 |  |
+| test-tube-diagonal | four-style set | 2 lines, 1 path; solid: 1 line, 1 polygon, 1 path | 3 / 0 | 45 |  |
 | test-tubes | core set | 4 lines, 2 paths | 6 / 0 |  |  |
 | test-tubes | four-style set | 4 lines, 2 paths; solid: 2 lines, 2 rects, 2 paths | 6 / 0 |  |  |
 
@@ -2746,16 +2746,16 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 
 | Icon | Set | Parts | Stroked / filled | Near 45° | Also in |
 | --- | --- | --- | --- | ---: | --- |
-| bomb | core set | 1 line, 1 polyline, 1 circle | 3 / 0 | 3 | tools |
+| bomb | core set | 1 line, 1 polyline, 1 circle | 3 / 0 |  | tools |
 | brick-wall-fire | core set | 5 lines, 1 polyline, 1 path | 7 / 0 |  | home, connectivity |
 | brick-wall-shield | core set | 6 lines, 1 polyline, 1 path | 8 / 0 |  | home, connectivity |
-| cctv | core set | 2 lines, 1 polygon, 2 paths | 5 / 0 | 1 | devices, communication, connectivity, photography |
-| cctv-off | core set | 3 lines, 3 paths | 6 / 0 | 1 | devices, communication, connectivity, photography |
+| cctv | core set | 2 lines, 1 polygon, 2 paths | 5 / 0 |  | devices, communication, connectivity, photography |
+| cctv-off | core set | 3 lines, 3 paths | 6 / 0 |  | devices, communication, connectivity, photography |
 | earth-lock | core set | 1 polyline, 1 rect, 4 paths | 6 / 0 |  | development, devices |
 | globe-lock | core set | 1 line, 1 rect, 2 paths | 4 / 0 |  | development, devices |
 | id-card | core set | 2 lines, 1 rect, 1 circle, 1 path | 5 / 0 |  | account |
 | id-card-lanyard | core set | 2 lines, 1 polyline, 1 circle, 1 path | 5 / 0 |  | account |
-| key | core set | 1 line, 1 polyline, 1 circle | 3 / 0 | 2 | account |
+| key | core set | 1 line, 1 polyline, 1 circle | 3 / 0 |  | account |
 | key-round | core set | 1 dot, 1 path | 1 / 1 |  | account |
 | key-square | core set | 1 line, 2 paths | 3 / 0 |  | account |
 | lock | core set | 1 rect, 1 path | 2 / 0 |  |  |
@@ -2776,29 +2776,29 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | boxes | core set | 9 lines, 3 paths | 12 / 0 | 18 | gaming, development |
 | circle | core set | 1 circle | 1 / 0 |  |  |
 | circle | four-style set | 1 circle; solid: 1 circle | 1 / 0 |  |  |
-| circle-dashed | four-style set | 8 paths; solid: 8 paths | 8 / 0 | 32 |  |
+| circle-dashed | four-style set | 8 paths; solid: 8 paths | 8 / 0 |  |  |
 | circle-dashed-check | core set | 1 polyline, 8 paths | 9 / 0 |  | development, notifications |
-| circle-dashed-check | four-style set | 1 polyline, 8 paths; solid: 1 polyline, 8 paths | 9 / 0 | 48 |  |
-| circle-dashed-full | four-style set | 1 circle, 8 paths; solid: 1 circle, 8 paths | 9 / 0 | 32 |  |
-| circle-dashed-half | four-style set | 9 paths; solid: 9 paths | 9 / 0 | 32 |  |
-| circle-dashed-plus | four-style set | 2 lines, 8 paths; solid: 2 lines, 8 paths | 10 / 0 | 32 |  |
-| circle-dashed-quarter | four-style set | 9 paths; solid: 9 paths | 9 / 0 | 32 |  |
-| circle-dashed-three-quarter | four-style set | 9 paths; solid: 9 paths | 9 / 0 | 32 |  |
+| circle-dashed-check | four-style set | 1 polyline, 8 paths; solid: 1 polyline, 8 paths | 9 / 0 |  |  |
+| circle-dashed-full | four-style set | 1 circle, 8 paths; solid: 1 circle, 8 paths | 9 / 0 |  |  |
+| circle-dashed-half | four-style set | 9 paths; solid: 9 paths | 9 / 0 |  |  |
+| circle-dashed-plus | four-style set | 2 lines, 8 paths; solid: 2 lines, 8 paths | 10 / 0 |  |  |
+| circle-dashed-quarter | four-style set | 9 paths; solid: 9 paths | 9 / 0 |  |  |
+| circle-dashed-three-quarter | four-style set | 9 paths; solid: 9 paths | 9 / 0 |  |  |
 | circle-full | four-style set | 2 circles; solid: 2 circles | 2 / 0 |  |  |
 | circle-half | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 2 / 0 |  |  |
 | circle-off | core set | 1 line, 2 paths | 3 / 0 |  |  |
 | circle-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
 | circle-pile | core set | 6 circles | 6 / 0 |  |  |
-| circle-progress-arrow-up | four-style set | 1 line, 5 paths; solid: 1 line, 5 paths | 6 / 0 | 32 |  |
-| circle-progress-check | four-style set | 1 polyline, 4 paths; solid: 1 polyline, 4 paths | 5 / 0 | 32 |  |
-| circle-progress-half | four-style set | 4 paths; solid: 4 paths | 4 / 0 | 16 |  |
-| circle-progress-pause | four-style set | 2 lines, 4 paths; solid: 2 lines, 4 paths | 6 / 0 | 16 |  |
-| circle-progress-play | four-style set | 5 paths; solid: 5 paths | 5 / 0 | 36 |  |
-| circle-progress-plus | four-style set | 2 lines, 4 paths; solid: 2 lines, 4 paths | 6 / 0 | 16 |  |
-| circle-progress-quarter | four-style set | 6 paths; solid: 6 paths | 6 / 0 | 24 |  |
-| circle-progress-stop | four-style set | 5 paths; solid: 5 paths | 5 / 0 | 16 |  |
-| circle-progress-three-quarter | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 8 |  |
-| circle-progress-x | four-style set | 2 lines, 4 paths; solid: 2 lines, 4 paths | 6 / 0 | 16 |  |
+| circle-progress-arrow-up | four-style set | 1 line, 5 paths; solid: 1 line, 5 paths | 6 / 0 |  |  |
+| circle-progress-check | four-style set | 1 polyline, 4 paths; solid: 1 polyline, 4 paths | 5 / 0 |  |  |
+| circle-progress-half | four-style set | 4 paths; solid: 4 paths | 4 / 0 |  |  |
+| circle-progress-pause | four-style set | 2 lines, 4 paths; solid: 2 lines, 4 paths | 6 / 0 |  |  |
+| circle-progress-play | four-style set | 5 paths; solid: 5 paths | 5 / 0 | 20 |  |
+| circle-progress-plus | four-style set | 2 lines, 4 paths; solid: 2 lines, 4 paths | 6 / 0 |  |  |
+| circle-progress-quarter | four-style set | 6 paths; solid: 6 paths | 6 / 0 |  |  |
+| circle-progress-stop | four-style set | 5 paths; solid: 5 paths | 5 / 0 |  |  |
+| circle-progress-three-quarter | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
+| circle-progress-x | four-style set | 2 lines, 4 paths; solid: 2 lines, 4 paths | 6 / 0 |  |  |
 | circle-quarter | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 2 / 0 |  |  |
 | circle-slash-2 | core set | 1 line, 1 circle | 2 / 0 |  | math, development |
 | circle-small | core set | 1 circle | 1 / 0 |  | medical |
@@ -2806,7 +2806,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | circle-square-dashed | four-style set | 2 lines, 1 circle, 3 paths; solid: 2 lines, 1 circle, 3 paths | 6 / 0 |  |  |
 | circle-three-quarter | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 2 / 0 |  |  |
 | circles | four-style set | 2 circles; solid: 2 circles | 2 / 0 |  |  |
-| circles-dashed | four-style set | 1 circle, 5 paths; solid: 1 circle, 5 paths | 6 / 0 | 16 |  |
+| circles-dashed | four-style set | 1 circle, 5 paths; solid: 1 circle, 5 paths | 6 / 0 |  |  |
 | club | core set | 1 line, 1 path | 2 / 0 |  | gaming |
 | cone | core set | 1 ellipse, 1 path | 2 / 0 |  | math |
 | cross | core set | 1 polygon | 1 / 0 |  |  |
@@ -2838,7 +2838,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | shapes | core set | 1 rect, 1 circle, 1 path | 3 / 0 | 2 | gaming |
 | shapes | four-style set | 2 lines, 1 rect, 1 polygon, 1 circle; solid: 2 lines, 1 rect, 1 circle, 1 path | 5 / 0 |  |  |
 | shapes-2 | four-style set | 1 rect, 1 circle, 1 path; solid: 1 rect, 1 circle, 1 path | 3 / 0 | 10 |  |
-| spade | core set | 1 line, 1 path | 2 / 0 | 2 | gaming |
+| spade | core set | 1 line, 1 path | 2 / 0 |  | gaming |
 | sparkle | core set | 1 path | 1 / 0 |  |  |
 | square | core set | 1 rect | 1 / 0 |  | multimedia |
 | square | four-style set | 1 rect; solid: 1 rect | 1 / 0 |  |  |
@@ -2879,7 +2879,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | handbag | core set | 2 paths | 2 / 0 |  | transportation |
 | scan-barcode | core set | 3 lines, 4 polylines | 7 / 0 |  | devices |
 | shirt | core set | 1 path | 1 / 0 |  |  |
-| shopping-bag | core set | 1 line, 2 paths | 3 / 0 | 2 |  |
+| shopping-bag | core set | 1 line, 2 paths | 3 / 0 |  |  |
 | shopping-basket | core set | 6 lines, 1 path | 7 / 0 |  |  |
 | shopping-cart | core set | 2 circles, 2 paths | 4 / 0 |  |  |
 | shopping-cart-minus | core set | 2 lines, 2 circles, 2 paths | 6 / 0 |  |  |
@@ -2894,19 +2894,19 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | badge-percent | core set | 3 lines, 1 circle | 4 / 0 |  | finance, shopping, math |
 | badge-plus | core set | 2 lines, 1 circle | 3 / 0 |  |  |
 | badge-x | core set | 2 lines, 1 circle | 3 / 0 |  |  |
-| book-heart | core set | 2 paths | 2 / 0 | 2 | text, gaming |
+| book-heart | core set | 2 paths | 2 / 0 |  | text, gaming |
 | circle-percent | core set | 3 lines, 1 circle | 4 / 0 |  | finance, shopping, math |
 | diamond-percent | core set | 3 lines, 1 polygon | 4 / 0 |  | finance, shopping, math |
 | hand-fist | core set | 4 paths | 4 / 0 |  | emoji, communication, sports |
-| hand-heart | core set | 1 line, 3 paths | 4 / 0 | 5 |  |
+| hand-heart | core set | 1 line, 3 paths | 4 / 0 |  |  |
 | hat-glasses | core set | 1 line, 2 circles, 2 paths | 5 / 0 |  | account, security |
-| heart-off | core set | 1 line, 2 paths | 3 / 0 | 2 | multimedia |
-| heart-x | core set | 2 lines, 1 path | 3 / 0 | 1 | multimedia, design, shapes |
+| heart-off | core set | 1 line, 2 paths | 3 / 0 |  | multimedia |
+| heart-x | core set | 2 lines, 1 path | 3 / 0 |  | multimedia, design, shapes |
 | message-circle | core set | 1 path | 1 / 0 |  |  |
 | message-circle-check | core set | 1 polyline, 1 path | 2 / 0 |  | account |
 | message-circle-dashed | core set | 8 paths | 8 / 0 |  |  |
 | message-circle-dashed-check | core set | 1 polyline, 8 paths | 9 / 0 |  | account |
-| message-circle-heart | core set | 2 paths | 2 / 0 | 2 |  |
+| message-circle-heart | core set | 2 paths | 2 / 0 |  |  |
 | message-circle-more | core set | 3 lines, 1 path | 4 / 0 |  |  |
 | message-circle-off | core set | 1 line, 2 paths | 3 / 0 |  |  |
 | message-circle-plus | core set | 2 lines, 1 path | 3 / 0 |  |  |
@@ -2917,7 +2917,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | message-square-check | core set | 1 polyline, 1 path | 2 / 0 |  | account |
 | message-square-dashed | core set | 6 lines, 4 paths | 10 / 0 |  |  |
 | message-square-dot | core set | 1 circle, 1 path | 2 / 0 |  | notifications |
-| message-square-heart | core set | 2 paths | 2 / 0 | 2 |  |
+| message-square-heart | core set | 2 paths | 2 / 0 |  |  |
 | message-square-lock | core set | 1 rect, 2 paths | 3 / 0 |  |  |
 | message-square-more | core set | 3 lines, 1 path | 4 / 0 |  |  |
 | message-square-off | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
@@ -2930,12 +2930,12 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | message-square-x | core set | 2 lines, 1 path | 3 / 0 |  |  |
 | messages-circle | core set | 2 paths | 2 / 0 |  | communication, notifications |
 | messages-square | core set | 2 paths | 2 / 0 |  |  |
-| ribbon | core set | 2 lines, 3 paths | 5 / 0 | 8 | medical, emoji |
+| ribbon | core set | 2 lines, 3 paths | 5 / 0 | 6 | medical, emoji |
 | square-percent | core set | 3 lines, 1 rect | 4 / 0 |  | finance, shopping, math |
-| star-half | core set | 1 path | 1 / 0 | 1 | multimedia |
+| star-half | core set | 1 path | 1 / 0 |  | multimedia |
 | sticker | core set | 2 lines, 1 polyline, 2 paths | 5 / 0 |  |  |
 | vote | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
-| zodiac-aquarius | core set | 2 paths | 2 / 0 | 12 | emoji |
+| zodiac-aquarius | core set | 2 paths | 2 / 0 | 4 | emoji |
 | zodiac-aries | core set | 2 paths | 2 / 0 |  | emoji |
 | zodiac-cancer | core set | 2 circles, 2 paths | 4 / 0 |  | emoji |
 | zodiac-capricorn | core set | 1 circle, 2 paths | 3 / 0 |  | emoji |
@@ -2955,18 +2955,18 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | --- | --- | --- | --- | ---: | --- |
 | american-football | four-style set | 4 lines, 1 path; solid: 5 paths | 5 / 0 |  |  |
 | award | four-style set | 1 circle, 1 path; solid: 2 circles, 1 path | 2 / 0 | 8 |  |
-| baseball | four-style set | 1 circle, 6 paths; solid: 1 circle, 6 paths | 7 / 0 | 4 |  |
-| basketball | four-style set | 2 lines, 1 circle, 2 paths; solid: 1 circle, 1 path | 5 / 0 | 4 |  |
+| baseball | four-style set | 1 circle, 6 paths; solid: 1 circle, 6 paths | 7 / 0 |  |  |
+| basketball | four-style set | 2 lines, 1 circle, 2 paths; solid: 1 circle, 1 path | 5 / 0 |  |  |
 | cricket-bat | four-style set | 1 line, 1 polyline, 1 circle, 1 path; solid: 1 line, 1 circle, 2 paths | 4 / 0 |  |  |
-| crown | four-style set | 1 line, 1 path; solid: 2 paths | 2 / 0 | 30 |  |
+| crown | four-style set | 1 line, 1 path; solid: 2 paths | 2 / 0 | 10 |  |
 | flag-chequered | four-style set | 2 lines, 2 paths; solid: 2 lines, 6 paths | 4 / 0 |  |  |
 | golf-hole | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
 | hockey-sticks | four-style set | 3 paths; solid: 3 paths | 3 / 0 | 36 |  |
 | podium | four-style set | 1 line, 1 polygon; solid: 1 line, 2 polygons | 2 / 0 |  |  |
-| podium-1 | four-style set | 1 line, 1 polyline, 1 polygon; solid: 1 line, 1 polyline, 2 polygons | 3 / 0 | 8 |  |
+| podium-1 | four-style set | 1 line, 1 polyline, 1 polygon; solid: 1 line, 1 polyline, 2 polygons | 3 / 0 |  |  |
 | podium-2 | four-style set | 1 line, 1 polygon, 1 path; solid: 1 line, 2 polygons, 1 path | 3 / 0 |  |  |
-| podium-3 | four-style set | 1 line, 1 polygon, 1 path; solid: 1 line, 2 polygons, 1 path | 3 / 0 | 8 |  |
-| soccer-ball | four-style set | 5 lines, 1 circle, 1 path; solid: 1 polygon, 1 circle, 1 path | 7 / 0 | 44 |  |
+| podium-3 | four-style set | 1 line, 1 polygon, 1 path; solid: 1 line, 2 polygons, 1 path | 3 / 0 |  |  |
+| soccer-ball | four-style set | 5 lines, 1 circle, 1 path; solid: 1 polygon, 1 circle, 1 path | 7 / 0 |  |  |
 | target | four-style set | 3 circles; solid: 4 circles | 2 / 1 |  |  |
 | tennis-ball | four-style set | 1 circle, 2 paths; solid: 1 circle, 2 paths | 3 / 0 |  |  |
 | trophy | four-style set | 1 line, 4 paths; solid: 1 line, 6 paths | 5 / 0 |  |  |
@@ -2975,13 +2975,13 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 
 | Icon | Set | Parts | Stroked / filled | Near 45° | Also in |
 | --- | --- | --- | --- | ---: | --- |
-| circle-star | core set | 1 circle, 1 path | 2 / 0 | 2 | gaming |
+| circle-star | core set | 1 circle, 1 path | 2 / 0 |  | gaming |
 | fishing-hook | core set | 1 line, 1 circle, 1 path | 3 / 0 |  | travel |
 | fishing-rod | core set | 1 line, 1 circle, 1 path | 3 / 0 |  | travel |
-| medal | core set | 3 lines, 1 polyline, 1 circle, 1 path | 6 / 0 | 6 | gaming |
+| medal | core set | 3 lines, 1 polyline, 1 circle, 1 path | 6 / 0 | 4 | gaming |
 | podium | core set | 2 polylines, 1 path | 3 / 0 |  | gaming |
-| sport-shoe | core set | 2 lines, 1 path | 3 / 0 | 3 |  |
-| square-star | core set | 1 rect, 1 path | 2 / 0 | 1 | gaming |
+| sport-shoe | core set | 2 lines, 1 path | 3 / 0 | 1 |  |
+| square-star | core set | 1 rect, 1 path | 2 / 0 |  | gaming |
 | trophy | core set | 1 line, 2 polylines, 3 paths | 6 / 0 |  | gaming |
 | volleyball | core set | 1 circle, 5 paths | 6 / 0 |  | gaming, travel |
 | waves-ladder | core set | 2 lines, 3 paths | 5 / 0 |  | home |
@@ -2994,8 +2994,8 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | eraser | four-style set | 2 lines, 1 path; solid: 2 paths | 3 / 0 |  |  |
 | notebook | four-style set | 4 lines, 1 rect; solid: 3 lines, 1 rect, 1 path | 5 / 0 |  |  |
 | notebook-pen | four-style set | 3 lines, 2 paths; solid: 3 lines, 2 paths | 5 / 0 |  |  |
-| pin | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 20 |  |
-| pin-off | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 | 18 |  |
+| pin | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 |  |  |
+| pin-off | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 |  |  |
 | stamp | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 |  |  |
 | sticky-note | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
 | sticky-note-check | four-style set | 2 polylines, 2 paths; solid: 1 polyline, 2 paths | 4 / 0 |  |  |
@@ -3004,7 +3004,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | sticky-note-plus | four-style set | 2 lines, 1 polyline, 2 paths; solid: 2 lines, 2 paths | 5 / 0 |  |  |
 | sticky-note-x | four-style set | 2 lines, 1 polyline, 2 paths; solid: 2 lines, 2 paths | 5 / 0 |  |  |
 | sticky-notes | four-style set | 3 paths; solid: 3 paths | 3 / 0 |  |  |
-| tape | four-style set | 1 polyline, 3 paths; solid: 1 polyline, 4 paths | 4 / 0 | 72 |  |
+| tape | four-style set | 1 polyline, 3 paths; solid: 1 polyline, 4 paths | 4 / 0 |  |  |
 
 ### sustainability (1)
 
@@ -3048,7 +3048,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | book | core set | 1 path | 1 / 0 |  | development, gaming |
 | book-a | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  | gaming |
 | book-alert | core set | 2 lines, 1 path | 3 / 0 |  | development, gaming |
-| book-bookmark | core set | 2 paths | 2 / 0 | 2 | development, gaming |
+| book-bookmark | core set | 2 paths | 2 / 0 |  | development, gaming |
 | book-check | core set | 1 polyline, 1 path | 2 / 0 |  | development, gaming |
 | book-open | core set | 1 line, 1 path | 2 / 0 |  | development, gaming |
 | book-open-check | core set | 1 line, 1 polyline, 1 path | 3 / 0 |  | development, gaming |
@@ -3071,7 +3071,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | clipboard-minus | core set | 1 line, 1 polyline, 1 rect | 3 / 0 |  | medical |
 | clipboard-paste | core set | 1 line, 2 polylines, 1 rect, 1 path | 5 / 0 |  | arrows |
 | clipboard-pen | core set | 2 polylines, 1 rect, 1 path | 4 / 0 |  |  |
-| clipboard-pen-line | core set | 1 line, 1 polyline, 1 rect, 2 paths | 5 / 0 | 1 |  |
+| clipboard-pen-line | core set | 1 line, 1 polyline, 1 rect, 2 paths | 5 / 0 |  |  |
 | clipboard-plus | core set | 2 lines, 1 polyline, 1 rect | 4 / 0 |  | medical |
 | clipboard-type | core set | 2 lines, 2 polylines, 1 rect | 5 / 0 |  |  |
 | clipboard-x | core set | 2 lines, 1 polyline, 1 rect | 4 / 0 |  |  |
@@ -3085,8 +3085,8 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | copyleft | core set | 1 circle, 1 path | 2 / 0 |  |  |
 | copyright | core set | 1 circle, 1 path | 2 / 0 |  |  |
 | creative-commons | core set | 1 circle, 2 paths | 3 / 0 |  |  |
-| delete | core set | 2 lines, 1 path | 3 / 0 | 2 | arrows |
-| eraser | core set | 1 line, 1 path | 2 / 0 | 1 |  |
+| delete | core set | 2 lines, 1 path | 3 / 0 |  | arrows |
+| eraser | core set | 1 line, 1 path | 2 / 0 |  |  |
 | expand | core set | 4 lines, 4 polylines | 8 / 0 |  | arrows |
 | grid-2x2 | core set | 2 lines, 1 rect | 3 / 0 |  | layout, design, math |
 | grid-2x2-check | core set | 2 polylines | 2 / 0 |  | layout, math |
@@ -3109,7 +3109,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | heading-5 | four-style set | 3 lines, 1 path; solid: 3 lines, 1 path | 4 / 0 |  |  |
 | heading-6 | core set | 3 lines, 1 circle, 1 path | 5 / 0 |  |  |
 | heading-6 | four-style set | 3 lines, 1 circle, 1 path; solid: 3 lines, 1 circle, 1 path | 5 / 0 |  |  |
-| highlighter | core set | 2 polylines | 2 / 0 | 2 | design |
+| highlighter | core set | 2 polylines | 2 / 0 |  | design |
 | italic | core set | 3 lines | 3 / 0 |  |  |
 | italic | four-style set | 3 lines; solid: 3 lines | 3 / 0 |  |  |
 | keyboard | core set | 8 lines, 1 rect | 9 / 0 |  | devices, development |
@@ -3118,7 +3118,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | library | core set | 4 lines | 4 / 0 |  | photography, multimedia, navigation, development |
 | library-big | core set | 1 line, 1 rect, 1 path | 3 / 0 |  | photography, multimedia, navigation, development |
 | ligature | core set | 3 lines, 1 polyline, 1 path | 5 / 0 |  |  |
-| link | core set | 2 paths | 2 / 0 | 1 | account |
+| link | core set | 2 paths | 2 / 0 |  | account |
 | link-2 | core set | 1 line, 2 paths | 3 / 0 |  | account |
 | link-2-off | core set | 2 lines, 2 paths | 4 / 0 |  |  |
 | list | core set | 6 lines | 6 / 0 |  |  |
@@ -3142,18 +3142,18 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | map | core set | 2 lines, 1 path | 3 / 0 |  | navigation |
 | map-pin-search | core set | 1 line, 2 circles, 1 path | 4 / 0 |  | navigation, travel, account |
 | notebook | core set | 5 lines, 1 rect | 6 / 0 |  | communication, social, design |
-| notebook-pen | core set | 4 lines, 1 polyline, 1 path | 6 / 0 | 1 | social |
+| notebook-pen | core set | 4 lines, 1 polyline, 1 path | 6 / 0 |  | social |
 | notebook-text | core set | 7 lines, 1 rect | 8 / 0 |  | social |
 | notepad-text | core set | 6 lines, 1 rect | 7 / 0 |  | social |
 | notepad-text-dashed | core set | 9 lines, 4 polylines | 13 / 0 |  | social |
 | paint-roller | core set | 1 polyline, 2 rects | 3 / 0 |  | design, home, tools |
-| paintbrush | core set | 1 line, 2 paths | 3 / 0 | 3 | design, photography, home, tools |
+| paintbrush | core set | 1 line, 2 paths | 3 / 0 | 1 | design, photography, home, tools |
 | paintbrush-vertical | core set | 2 lines, 1 rect, 1 path | 4 / 0 |  | design, photography, home, tools |
 | palette | core set | 4 dots, 1 path | 1 / 4 |  | design, photography |
-| paperclip | core set | 1 path | 1 / 0 | 4 | design, files, mail |
+| paperclip | core set | 1 path | 1 / 0 |  | design, files, mail |
 | pen | core set | 1 path | 1 / 0 |  | design, tools |
 | pen-line | core set | 1 line, 1 path | 2 / 0 |  | design, tools |
-| pen-off | core set | 1 line, 2 paths | 3 / 0 | 2 | design, tools |
+| pen-off | core set | 1 line, 2 paths | 3 / 0 |  | design, tools |
 | pen-tool | core set | 1 line, 1 polygon, 1 circle, 1 path | 4 / 0 |  | design, cursors |
 | pencil-line | core set | 2 lines, 1 path | 3 / 0 |  | design, tools |
 | phone | core set | 1 path | 1 / 0 |  | connectivity, devices, communication |
@@ -3167,9 +3167,9 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | quote-single | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
 | quote-single-end | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
 | rectangle-ellipsis | core set | 3 lines, 1 rect | 4 / 0 |  | development |
-| redo | core set | 1 polyline, 1 path | 2 / 0 | 1 | arrows |
+| redo | core set | 1 polyline, 1 path | 2 / 0 |  | arrows |
 | redo-2 | core set | 1 polyline, 1 path | 2 / 0 |  | arrows |
-| redo-dot | core set | 1 polyline, 1 dot, 1 path | 3 / 0 | 1 | arrows |
+| redo-dot | core set | 1 polyline, 1 dot, 1 path | 3 / 0 |  | arrows |
 | regex | core set | 3 lines, 1 rect | 4 / 0 | 2 | development |
 | remove-formatting | core set | 4 lines, 1 polyline | 5 / 0 |  |  |
 | replace | core set | 2 polylines, 1 rect, 4 paths | 7 / 0 |  |  |
@@ -3178,14 +3178,14 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | save-all | core set | 3 polylines, 1 path | 4 / 0 |  | files |
 | save-check | core set | 3 polylines, 1 path | 4 / 0 |  | files, development |
 | save-off | core set | 3 lines, 1 polyline, 2 paths | 6 / 0 |  | files |
-| save-pen | core set | 2 polylines, 2 paths | 4 / 0 | 1 | files |
+| save-pen | core set | 2 polylines, 2 paths | 4 / 0 |  | files |
 | save-plus | core set | 2 lines, 2 polylines, 1 path | 5 / 0 |  | files |
 | scan-text | core set | 3 lines, 4 polylines | 7 / 0 |  | devices |
 | scissors | core set | 3 lines, 2 circles | 5 / 0 |  | design, tools |
 | search | core set | 1 line, 1 circle | 2 / 0 |  | social |
 | search-alert | core set | 3 lines, 1 circle | 4 / 0 |  | social |
 | search-check | core set | 1 line, 1 polyline, 1 circle | 3 / 0 |  | social |
-| search-code | core set | 1 line, 2 polylines, 1 circle | 4 / 0 | 4 | social, development |
+| search-code | core set | 1 line, 2 polylines, 1 circle | 4 / 0 |  | social, development |
 | search-slash | core set | 2 lines, 1 circle | 3 / 0 |  | social |
 | search-x | core set | 3 lines, 1 circle | 4 / 0 |  | social |
 | section | core set | 2 paths | 2 / 0 |  |  |
@@ -3249,10 +3249,10 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | type-outline | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
 | underline | core set | 1 line, 1 path | 2 / 0 |  |  |
 | underline | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 |  |  |
-| undo | core set | 1 polyline, 1 path | 2 / 0 | 1 | arrows |
+| undo | core set | 1 polyline, 1 path | 2 / 0 |  | arrows |
 | undo-2 | core set | 1 polyline, 1 path | 2 / 0 |  | arrows |
-| undo-dot | core set | 1 polyline, 1 dot, 1 path | 3 / 0 | 1 | arrows |
-| unlink | core set | 4 lines, 2 paths | 6 / 0 | 2 |  |
+| undo-dot | core set | 1 polyline, 1 dot, 1 path | 3 / 0 |  | arrows |
+| unlink | core set | 4 lines, 2 paths | 6 / 0 |  |  |
 | unlink-2 | core set | 2 paths | 2 / 0 |  |  |
 | whole-word | core set | 2 lines, 2 circles, 1 path | 5 / 0 |  |  |
 | whole-word | four-style set | 2 lines, 2 circles, 1 path; solid: 2 lines, 2 circles, 1 path | 5 / 0 |  |  |
@@ -3262,7 +3262,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | Icon | Set | Parts | Stroked / filled | Near 45° | Also in |
 | --- | --- | --- | --- | ---: | --- |
 | alarm-clock | four-style set | 2 lines, 1 polyline, 1 circle, 2 paths; solid: 2 lines, 1 circle, 3 paths | 6 / 0 | 8 |  |
-| alarm-clock-check | four-style set | 2 lines, 1 polyline, 1 circle, 2 paths; solid: 2 lines, 1 circle, 3 paths | 6 / 0 | 30 |  |
+| alarm-clock-check | four-style set | 2 lines, 1 polyline, 1 circle, 2 paths; solid: 2 lines, 1 circle, 3 paths | 6 / 0 | 19 |  |
 | alarm-clock-minus | four-style set | 3 lines, 1 circle, 2 paths; solid: 2 lines, 1 circle, 3 paths | 6 / 0 | 8 |  |
 | alarm-clock-plus | four-style set | 4 lines, 1 circle, 2 paths; solid: 2 lines, 1 circle, 3 paths | 7 / 0 | 8 |  |
 | calendar | core set | 3 lines, 1 rect | 4 / 0 |  |  |
@@ -3283,7 +3283,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | calendar-days | core set | 9 lines, 1 rect | 10 / 0 |  |  |
 | calendar-days | four-style set | 2 lines, 1 rect, 6 dots; solid: 2 lines, 1 rect, 6 dots | 3 / 6 |  |  |
 | calendar-fold | core set | 3 lines, 1 polygon, 1 path | 5 / 0 |  | files |
-| calendar-heart | core set | 3 lines, 1 polyline, 1 path | 5 / 0 | 2 |  |
+| calendar-heart | core set | 3 lines, 1 polyline, 1 path | 5 / 0 |  |  |
 | calendar-minus | core set | 4 lines, 1 polyline | 5 / 0 |  |  |
 | calendar-minus | four-style set | 4 lines, 1 path; solid: 3 lines, 2 paths | 5 / 0 |  |  |
 | calendar-minus-2 | core set | 4 lines, 1 rect | 5 / 0 |  |  |
@@ -3345,18 +3345,18 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | clock-zap | four-style set | 2 polylines, 1 path; solid: 1 polyline, 2 paths | 3 / 0 |  |  |
 | history | four-style set | 1 polyline, 2 paths; solid: 1 polyline, 2 paths | 3 / 0 |  |  |
 | hourglass | core set | 2 lines, 2 paths | 4 / 0 |  | gaming |
-| hourglass | four-style set | 2 lines, 2 paths; solid: 2 paths | 4 / 0 | 44 |  |
+| hourglass | four-style set | 2 lines, 2 paths; solid: 2 paths | 4 / 0 |  |  |
 | hourglass-cog | core set | 10 lines, 1 circle, 2 paths | 13 / 0 |  | tools |
-| hourglass-end | four-style set | 3 lines, 2 paths; solid: 1 polygon, 2 paths | 5 / 0 | 48 |  |
-| hourglass-half | four-style set | 4 lines, 2 paths; solid: 1 polygon, 2 paths | 6 / 0 | 48 |  |
-| hourglass-start | four-style set | 3 lines, 2 paths; solid: 1 rect, 2 paths | 5 / 0 | 48 |  |
+| hourglass-end | four-style set | 3 lines, 2 paths; solid: 1 polygon, 2 paths | 5 / 0 |  |  |
+| hourglass-half | four-style set | 4 lines, 2 paths; solid: 1 polygon, 2 paths | 6 / 0 |  |  |
+| hourglass-start | four-style set | 3 lines, 2 paths; solid: 1 rect, 2 paths | 5 / 0 |  |  |
 | rotate-cw-fading-clock | core set | 3 lines, 1 polyline, 6 paths | 10 / 0 |  |  |
 | timeline | core set | 5 lines, 3 paths | 8 / 0 |  |  |
 | timer | core set | 2 lines, 1 circle | 3 / 0 |  |  |
 | timer | four-style set | 4 lines, 1 circle; solid: 3 lines, 1 circle, 1 path | 5 / 0 |  |  |
 | timer-fast | four-style set | 6 lines, 1 path; solid: 3 lines, 2 paths | 7 / 0 |  |  |
 | timer-off | core set | 3 lines, 2 paths | 5 / 0 |  |  |
-| timer-reset | core set | 2 lines, 1 polyline, 1 path | 4 / 0 | 1 |  |
+| timer-reset | core set | 2 lines, 1 polyline, 1 path | 4 / 0 |  |  |
 | timer-reset | four-style set | 4 lines, 2 paths; solid: 4 lines, 2 paths | 6 / 0 |  |  |
 | watch | core set | 1 polyline, 1 circle, 2 paths | 4 / 0 | 1 |  |
 
@@ -3371,7 +3371,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | broom-sparkles | core set | 9 lines, 1 path | 10 / 0 | 2 | home, gaming |
 | drill | core set | 3 lines, 1 polyline, 2 paths | 6 / 0 |  | home, devices |
 | hammer | core set | 1 line, 2 paths | 3 / 0 |  | home |
-| hammer | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 61 |  |
+| hammer | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 1 |  |
 | hard-hat | core set | 1 polyline, 1 rect, 2 paths | 4 / 0 |  |  |
 | inspection-panel | core set | 4 lines, 1 rect | 5 / 0 |  |  |
 | pencil-ruler | core set | 3 lines, 1 polyline, 2 paths | 6 / 0 |  | design, layout, text |
@@ -3380,9 +3380,9 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | pocket-knife | core set | 2 lines, 3 paths | 5 / 0 |  |  |
 | ruler | core set | 4 lines, 1 polygon | 5 / 0 |  | design, layout |
 | ruler-dimension-line | core set | 7 lines, 1 rect | 8 / 0 |  | design, layout |
-| scissors | four-style set | 3 lines, 2 circles; solid: 3 lines, 4 circles | 5 / 0 | 24 |  |
-| scissors-horizontal | four-style set | 3 lines, 2 circles; solid: 3 lines, 4 circles | 5 / 0 | 24 |  |
-| tool-case | core set | 1 line, 1 polyline, 1 polygon, 1 path | 4 / 0 | 3 | development, home |
+| scissors | four-style set | 3 lines, 2 circles; solid: 3 lines, 4 circles | 5 / 0 | 16 |  |
+| scissors-horizontal | four-style set | 3 lines, 2 circles; solid: 3 lines, 4 circles | 5 / 0 | 16 |  |
+| tool-case | core set | 1 line, 1 polyline, 1 polygon, 1 path | 4 / 0 |  | development, home |
 | toolbox | core set | 3 lines, 1 polyline, 1 path | 5 / 0 |  | home |
 | toolbox | four-style set | 3 lines, 2 paths; solid: 3 paths | 5 / 0 |  |  |
 | wrench | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
@@ -3391,17 +3391,17 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 
 | Icon | Set | Parts | Stroked / filled | Near 45° | Also in |
 | --- | --- | --- | --- | ---: | --- |
-| bike | four-style set | 2 circles, 1 dot, 1 path; solid: 3 circles, 1 path | 4 / 0 | 8 |  |
+| bike | four-style set | 2 circles, 1 dot, 1 path; solid: 3 circles, 1 path | 4 / 0 |  |  |
 | bike-2 | four-style set | 2 circles, 3 paths; solid: 2 circles, 3 paths | 5 / 0 |  |  |
-| bike-fast | four-style set | 2 lines, 2 circles, 1 dot, 1 path; solid: 2 lines, 3 circles, 1 path | 6 / 0 | 8 |  |
-| car | four-style set | 1 line, 2 circles, 3 paths; solid: 2 circles, 3 paths | 6 / 0 | 12 |  |
-| plane | four-style set | 4 paths; solid: 1 path | 4 / 0 | 90 |  |
+| bike-fast | four-style set | 2 lines, 2 circles, 1 dot, 1 path; solid: 2 lines, 3 circles, 1 path | 6 / 0 |  |  |
+| car | four-style set | 1 line, 2 circles, 3 paths; solid: 2 circles, 3 paths | 6 / 0 | 8 |  |
+| plane | four-style set | 4 paths; solid: 1 path | 4 / 0 | 29 |  |
 | plane-landing | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 10 |  |
-| plane-takeoff | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 | 25 |  |
-| rocket | four-style set | 2 lines, 2 paths; solid: 2 lines, 4 paths | 4 / 0 | 20 |  |
-| rocket-fast | four-style set | 4 lines, 1 path; solid: 4 lines, 2 paths | 5 / 0 | 20 |  |
+| plane-takeoff | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 |  |  |
+| rocket | four-style set | 2 lines, 2 paths; solid: 2 lines, 4 paths | 4 / 0 | 16 |  |
+| rocket-fast | four-style set | 4 lines, 1 path; solid: 4 lines, 2 paths | 5 / 0 | 16 |  |
 | rocket-vertical | four-style set | 2 lines, 1 path; solid: 2 lines, 2 paths | 3 / 0 |  |  |
-| ship | four-style set | 2 lines, 3 paths; solid: 1 line, 4 paths | 5 / 0 | 10 |  |
+| ship | four-style set | 2 lines, 3 paths; solid: 1 line, 4 paths | 5 / 0 |  |  |
 | train | four-style set | 5 lines, 1 rect, 2 circles; solid: 4 lines, 1 rect, 2 circles, 1 path | 6 / 2 |  |  |
 
 ### transportation (56)
@@ -3410,7 +3410,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | --- | --- | --- | --- | ---: | --- |
 | anchor | core set | 2 lines, 1 circle, 1 path | 4 / 0 |  | text |
 | baggage-claim | core set | 1 polyline, 1 rect, 2 circles, 1 path | 5 / 0 |  | travel |
-| bike | core set | 1 polyline, 2 circles, 1 dot | 4 / 0 | 2 |  |
+| bike | core set | 1 polyline, 2 circles, 1 dot | 4 / 0 |  |  |
 | briefcase | core set | 1 polyline, 1 rect | 2 / 0 |  |  |
 | briefcase-business | core set | 1 line, 1 polyline, 1 rect, 1 path | 4 / 0 |  |  |
 | briefcase-plus | core set | 2 lines, 2 polylines | 4 / 0 |  | files, account |
@@ -3425,21 +3425,21 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | circle-parking | core set | 1 circle, 1 path | 2 / 0 |  | navigation |
 | circle-parking-off | core set | 3 lines, 3 paths | 6 / 0 |  | navigation |
 | drone | core set | 4 lines, 1 rect, 4 paths | 9 / 0 |  | devices |
-| engine | core set | 4 lines, 1 path | 5 / 0 | 2 |  |
-| ev-charger | core set | 2 lines, 2 polylines, 1 path | 5 / 0 | 3 | navigation |
+| engine | core set | 4 lines, 1 path | 5 / 0 |  |  |
+| ev-charger | core set | 2 lines, 2 polylines, 1 path | 5 / 0 |  | navigation |
 | forklift | core set | 3 lines, 1 polyline, 2 circles, 1 path | 7 / 0 |  |  |
-| fuel | core set | 2 lines, 1 polyline, 1 path | 4 / 0 | 1 | navigation |
+| fuel | core set | 2 lines, 1 polyline, 1 path | 4 / 0 |  | navigation |
 | gauge | core set | 1 line, 1 path | 2 / 0 |  | sports, science |
 | helicopter | core set | 6 lines, 1 polyline, 1 path | 8 / 0 |  | travel |
 | kayak | core set | 1 line, 1 circle, 2 paths | 4 / 0 |  |  |
 | motorbike | core set | 1 line, 2 circles, 2 paths | 5 / 0 |  |  |
 | octagon-minus | core set | 1 line, 1 path | 2 / 0 |  |  |
 | parking-meter | core set | 3 lines, 2 paths | 5 / 0 |  | navigation |
-| plane | core set | 1 path | 1 / 0 | 6 | travel, navigation |
+| plane | core set | 1 path | 1 / 0 | 2 | travel, navigation |
 | plane-landing | core set | 1 line, 1 path | 2 / 0 | 1 | travel |
-| plane-takeoff | core set | 1 line, 1 path | 2 / 0 | 1 | travel |
+| plane-takeoff | core set | 1 line, 1 path | 2 / 0 |  | travel |
 | road | core set | 3 lines, 1 path | 4 / 0 |  |  |
-| sailboat | core set | 1 line, 2 paths | 3 / 0 | 2 | travel |
+| sailboat | core set | 1 line, 2 paths | 3 / 0 | 1 | travel |
 | scooter | core set | 1 polyline, 2 circles, 1 path | 4 / 0 |  |  |
 | ship | core set | 2 lines, 1 polyline, 2 paths | 5 / 0 |  | navigation, travel |
 | ship-cargo | core set | 2 lines, 1 polyline, 2 paths | 5 / 0 |  | navigation, travel |
@@ -3453,17 +3453,17 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | ticket-plus | core set | 2 lines, 1 path | 3 / 0 |  |  |
 | ticket-slash | core set | 1 line, 1 path | 2 / 0 |  |  |
 | ticket-x | core set | 2 lines, 1 path | 3 / 0 |  |  |
-| tickets-plane | core set | 4 lines, 1 polyline, 1 rect, 1 path | 7 / 0 | 1 | travel |
+| tickets-plane | core set | 4 lines, 1 polyline, 1 rect, 1 path | 7 / 0 |  | travel |
 | tractor | core set | 4 lines, 2 circles, 3 paths | 9 / 0 |  | sustainability, food-beverage |
 | traffic-cone | core set | 4 paths | 4 / 0 |  |  |
 | trailer | core set | 3 lines, 2 polylines, 1 circle | 6 / 0 |  |  |
-| train-front | core set | 4 lines, 2 paths | 6 / 0 | 2 |  |
-| train-front-tunnel | core set | 4 lines, 3 paths | 7 / 0 | 2 | navigation |
+| train-front | core set | 4 lines, 2 paths | 6 / 0 |  |  |
+| train-front-tunnel | core set | 4 lines, 3 paths | 7 / 0 |  | navigation |
 | train-track | core set | 7 lines | 7 / 0 |  | navigation |
-| tram-front | core set | 6 lines, 1 rect | 7 / 0 | 2 |  |
-| truck | core set | 1 line, 1 polyline, 2 circles, 1 path | 5 / 0 | 1 |  |
-| truck-electric | core set | 1 line, 2 polylines, 2 circles, 2 paths | 7 / 0 | 3 |  |
-| van | core set | 1 line, 2 circles, 2 paths | 5 / 0 | 1 |  |
+| tram-front | core set | 6 lines, 1 rect | 7 / 0 |  |  |
+| truck | core set | 1 line, 1 polyline, 2 circles, 1 path | 5 / 0 |  |  |
+| truck-electric | core set | 1 line, 2 polylines, 2 circles, 2 paths | 7 / 0 |  |  |
+| van | core set | 1 line, 2 circles, 2 paths | 5 / 0 |  |  |
 
 ### travel (12)
 
@@ -3489,24 +3489,24 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | accessibility | four-style set | 2 lines, 1 polyline, 2 circles; solid: 2 circles, 1 path | 4 / 1 |  |  |
 | circle-user | four-style set | 2 circles, 1 path; solid: 2 circles, 1 path | 3 / 0 |  |  |
 | contacts | four-style set | 1 line, 1 rect, 1 circle, 1 path; solid: 1 line, 1 rect, 1 circle, 1 path | 4 / 0 |  |  |
-| fingerprint-pattern | four-style set | 8 paths; solid: 8 paths | 8 / 0 | 8 |  |
-| hat-glasses | four-style set | 1 line, 2 circles, 2 paths; solid: 2 circles, 2 paths | 5 / 0 | 10 |  |
+| fingerprint-pattern | four-style set | 8 paths; solid: 8 paths | 8 / 0 |  |  |
+| hat-glasses | four-style set | 1 line, 2 circles, 2 paths; solid: 2 circles, 2 paths | 5 / 0 |  |  |
 | id-badge | four-style set | 1 line, 1 rect, 1 circle, 1 path; solid: 1 rect, 1 circle, 2 paths | 4 / 0 |  |  |
 | id-card | four-style set | 2 lines, 1 rect, 1 circle, 1 path; solid: 1 rect, 1 circle, 3 paths | 5 / 0 |  |  |
 | scan-face | four-style set | 2 lines, 5 paths; solid: 2 lines, 5 paths | 7 / 0 |  |  |
 | user | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 2 / 0 |  |  |
-| user-check | four-style set | 1 polyline, 1 circle, 1 path; solid: 1 polyline, 1 circle, 1 path | 3 / 0 | 16 |  |
+| user-check | four-style set | 1 polyline, 1 circle, 1 path; solid: 1 polyline, 1 circle, 1 path | 3 / 0 |  |  |
 | user-cog | four-style set | 8 lines, 2 circles, 1 path; solid: 8 lines, 2 circles, 1 path | 11 / 0 |  |  |
 | user-heart | four-style set | 1 circle, 2 paths; solid: 1 circle, 2 paths | 3 / 0 |  |  |
 | user-key | four-style set | 2 lines, 2 circles, 1 path; solid: 2 lines, 2 circles, 1 path | 5 / 0 |  |  |
 | user-list | four-style set | 3 lines, 1 circle, 1 path; solid: 3 lines, 1 circle, 1 path | 5 / 0 |  |  |
 | user-lock | four-style set | 1 rect, 1 circle, 2 paths; solid: 1 rect, 1 circle, 2 paths | 4 / 0 |  |  |
-| user-message | four-style set | 1 circle, 2 paths; solid: 1 circle, 2 paths | 3 / 0 | 8 |  |
+| user-message | four-style set | 1 circle, 2 paths; solid: 1 circle, 2 paths | 3 / 0 |  |  |
 | user-minus | four-style set | 1 line, 1 circle, 1 path; solid: 1 line, 1 circle, 1 path | 3 / 0 |  |  |
 | user-pen | four-style set | 1 circle, 2 paths; solid: 1 circle, 2 paths | 3 / 0 |  |  |
 | user-plus | four-style set | 2 lines, 1 circle, 1 path; solid: 2 lines, 1 circle, 1 path | 4 / 0 |  |  |
 | user-search | four-style set | 1 line, 2 circles, 1 path; solid: 1 line, 2 circles, 1 path | 4 / 0 |  |  |
-| user-shield | four-style set | 1 circle, 2 paths; solid: 1 circle, 2 paths | 3 / 0 | 8 |  |
+| user-shield | four-style set | 1 circle, 2 paths; solid: 1 circle, 2 paths | 3 / 0 |  |  |
 | user-voice | four-style set | 1 circle, 3 paths; solid: 1 circle, 3 paths | 4 / 0 |  |  |
 | user-x | four-style set | 2 lines, 1 circle, 1 path; solid: 2 lines, 1 circle, 1 path | 4 / 0 |  |  |
 | user-zap | four-style set | 1 polyline, 1 circle, 1 path; solid: 1 polyline, 1 circle, 1 path | 3 / 0 |  |  |
@@ -3531,7 +3531,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | cloud-rain-wind | core set | 3 lines, 1 path | 4 / 0 |  |  |
 | cloud-snow | core set | 6 lines, 1 path | 7 / 0 |  |  |
 | cloud-sun | core set | 4 lines, 2 paths | 6 / 0 |  |  |
-| cloud-sun | four-style set | 4 lines, 2 paths; solid: 4 lines, 2 paths | 6 / 0 | 4 |  |
+| cloud-sun | four-style set | 4 lines, 2 paths; solid: 4 lines, 2 paths | 6 / 0 |  |  |
 | cloud-sun-rain | core set | 6 lines, 2 paths | 8 / 0 |  |  |
 | clouds | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
 | cloudy | core set | 2 paths | 2 / 0 |  |  |
@@ -3540,17 +3540,17 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | droplets | core set | 2 paths | 2 / 0 |  |  |
 | flame | core set | 1 path | 1 / 0 |  | social, gaming |
 | haze | core set | 7 lines, 1 path | 8 / 0 |  |  |
-| humidity | four-style set | 4 paths; solid: 4 paths | 4 / 0 | 24 |  |
+| humidity | four-style set | 4 paths; solid: 4 paths | 4 / 0 |  |  |
 | moon | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
 | moon-star | four-style set | 3 lines, 1 path; solid: 3 lines, 1 path | 4 / 0 | 8 |  |
 | parasol | four-style set | 1 line, 1 path; solid: 1 line, 1 path | 2 / 0 |  |  |
 | rainbow | core set | 3 paths | 3 / 0 |  |  |
-| snowflake | core set | 12 polylines | 12 / 0 | 4 | seasons |
+| snowflake | core set | 12 polylines | 12 / 0 |  | seasons |
 | snowflake | four-style set | 3 lines, 6 polylines; solid: 3 lines, 6 polylines | 9 / 0 | 16 |  |
 | sun | four-style set | 8 lines, 1 circle; solid: 8 lines, 1 circle | 9 / 0 |  |  |
 | sun-dim | four-style set | 1 circle, 8 dots; solid: 1 circle, 8 dots | 1 / 8 |  |  |
 | sun-medium | four-style set | 8 lines, 1 circle; solid: 8 lines, 1 circle | 9 / 0 |  |  |
-| sun-snow | core set | 5 lines, 5 polylines, 1 path | 11 / 0 | 2 |  |
+| sun-snow | core set | 5 lines, 5 polylines, 1 path | 11 / 0 |  |  |
 | sunrise | four-style set | 6 lines, 1 polyline, 1 path; solid: 6 lines, 1 polyline, 1 path | 8 / 0 |  |  |
 | sunset | four-style set | 6 lines, 1 polyline, 1 path; solid: 6 lines, 1 polyline, 1 path | 8 / 0 |  |  |
 | temperature-empty | four-style set | 1 circle, 1 path; solid: 2 circles, 1 path | 1 / 1 |  |  |
@@ -3559,7 +3559,7 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | temperature-high | four-style set | 1 line, 2 circles, 1 path; solid: 2 circles, 2 paths | 3 / 1 |  |  |
 | temperature-quarter | four-style set | 1 line, 1 circle, 1 path; solid: 1 circle, 2 paths | 2 / 1 |  |  |
 | thermometer | core set | 1 path | 1 / 0 |  |  |
-| thermometer-snowflake | core set | 1 line, 6 polylines, 1 path | 8 / 0 | 2 |  |
+| thermometer-snowflake | core set | 1 line, 6 polylines, 1 path | 8 / 0 |  |  |
 | thermometer-snowflake | four-style set | 3 lines, 3 polylines, 1 circle, 1 path; solid: 3 lines, 3 polylines, 1 circle, 2 paths | 7 / 1 |  |  |
 | thermometer-sun | core set | 4 lines, 2 paths | 6 / 0 |  |  |
 | thermometer-sun | four-style set | 4 lines, 1 circle, 2 paths; solid: 4 lines, 1 circle, 3 paths | 6 / 1 |  |  |
@@ -3582,60 +3582,60 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | --- | --- | --- | --- | ---: | --- |
 | bookmark | four-style set | 1 path; solid: 1 path | 1 / 0 |  |  |
 | bookmark-plus | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 |  |  |
-| circle-navigation | four-style set | 2 paths; solid: 3 paths | 2 / 0 | 8 |  |
+| circle-navigation | four-style set | 2 paths; solid: 3 paths | 2 / 0 |  |  |
 | cloud-alert | four-style set | 1 line, 1 dot, 1 path; solid: 1 line, 1 dot, 1 path | 2 / 1 |  |  |
 | cloud-check | four-style set | 1 polyline, 1 path; solid: 1 polyline, 1 path | 2 / 0 |  |  |
 | cloud-download | four-style set | 1 line, 1 polyline, 1 path; solid: 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
 | cloud-network | four-style set | 3 lines, 1 circle, 1 path; solid: 3 lines, 1 circle, 1 path | 5 / 0 |  |  |
-| cloud-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 3 |  |
+| cloud-off | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
 | cloud-plus | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 |  |  |
 | cloud-search | four-style set | 1 line, 1 circle, 1 path; solid: 1 line, 1 circle, 1 path | 3 / 0 |  |  |
-| cloud-terminal | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 | 16 |  |
+| cloud-terminal | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
 | cloud-upload | four-style set | 1 line, 1 polyline, 1 path; solid: 1 line, 1 polyline, 1 path | 3 / 0 |  |  |
 | cloud-x | four-style set | 2 lines, 1 path; solid: 2 lines, 1 path | 3 / 0 |  |  |
-| earth | four-style set | 1 circle, 2 paths; solid: 1 circle, 2 paths | 3 / 0 | 16 |  |
+| earth | four-style set | 1 circle, 2 paths; solid: 1 circle, 2 paths | 3 / 0 | 10 |  |
 | globe | four-style set | 1 line, 1 circle, 1 path; solid: 1 circle, 3 paths | 3 / 0 |  |  |
-| globe-check | four-style set | 1 line, 1 polyline, 3 paths; solid: 1 polyline, 2 paths | 5 / 0 | 16 |  |
+| globe-check | four-style set | 1 line, 1 polyline, 3 paths; solid: 1 polyline, 2 paths | 5 / 0 | 8 |  |
 | globe-cog | four-style set | 9 lines, 1 circle, 2 paths; solid: 8 lines, 1 circle, 2 paths | 12 / 0 |  |  |
 | globe-cursor | four-style set | 1 line, 4 paths; solid: 3 paths | 5 / 0 |  |  |
 | globe-off | four-style set | 3 lines, 4 paths; solid: 1 line, 6 paths | 7 / 0 |  |  |
 | globe-plus | four-style set | 3 lines, 3 paths; solid: 2 lines, 2 paths | 6 / 0 |  |  |
 | globe-search | four-style set | 2 lines, 1 circle, 3 paths; solid: 1 line, 1 circle, 2 paths | 6 / 0 |  |  |
 | globe-x | four-style set | 3 lines, 3 paths; solid: 2 lines, 2 paths | 6 / 0 |  |  |
-| home | four-style set | 1 polyline, 1 path; solid: 1 path | 2 / 0 | 21 |  |
-| home-check | four-style set | 2 polylines, 1 path; solid: 1 polyline, 1 path | 3 / 0 | 31 |  |
+| home | four-style set | 1 polyline, 1 path; solid: 1 path | 2 / 0 | 19 |  |
+| home-check | four-style set | 2 polylines, 1 path; solid: 1 polyline, 1 path | 3 / 0 | 11 |  |
 | home-heart | four-style set | 2 paths; solid: 2 paths | 2 / 0 | 20 |  |
-| home-plus | four-style set | 2 lines, 1 polyline, 1 path; solid: 2 lines, 1 path | 4 / 0 | 15 |  |
+| home-plus | four-style set | 2 lines, 1 polyline, 1 path; solid: 2 lines, 1 path | 4 / 0 | 3 |  |
 | home-simple | four-style set | 1 path; solid: 1 path | 1 / 0 | 20 |  |
-| home-x | four-style set | 2 lines, 1 polyline, 1 path; solid: 2 lines, 1 path | 4 / 0 | 15 |  |
-| home-zap | four-style set | 2 polylines, 1 path; solid: 1 polyline, 1 path | 3 / 0 | 15 |  |
-| homes | four-style set | 1 polyline, 2 paths; solid: 2 paths | 3 / 0 | 36 |  |
-| house | four-style set | 3 paths; solid: 1 path | 3 / 0 | 32 |  |
-| house-cast | four-style set | 1 dot, 4 paths; solid: 1 dot, 4 paths | 4 / 1 | 16 |  |
-| house-check | four-style set | 1 polyline, 3 paths; solid: 1 polyline, 1 path | 4 / 0 | 32 |  |
-| house-chimney | four-style set | 4 paths; solid: 1 path | 4 / 0 | 38 |  |
-| house-cog | four-style set | 8 lines, 1 circle, 2 paths; solid: 1 circle, 2 paths | 11 / 0 | 32 |  |
-| house-heart | four-style set | 3 paths; solid: 2 paths | 3 / 0 | 32 |  |
-| house-plug | four-style set | 3 lines, 3 paths; solid: 1 path | 6 / 0 | 32 |  |
-| house-plus | four-style set | 2 lines, 3 paths; solid: 2 lines, 1 path | 5 / 0 | 16 |  |
-| house-simple | four-style set | 2 paths; solid: 1 path | 2 / 0 | 28 |  |
+| home-x | four-style set | 2 lines, 1 polyline, 1 path; solid: 2 lines, 1 path | 4 / 0 | 3 |  |
+| home-zap | four-style set | 2 polylines, 1 path; solid: 1 polyline, 1 path | 3 / 0 | 3 |  |
+| homes | four-style set | 1 polyline, 2 paths; solid: 2 paths | 3 / 0 | 12 |  |
+| house | four-style set | 3 paths; solid: 1 path | 3 / 0 | 20 |  |
+| house-cast | four-style set | 1 dot, 4 paths; solid: 1 dot, 4 paths | 4 / 1 | 12 |  |
+| house-check | four-style set | 1 polyline, 3 paths; solid: 1 polyline, 1 path | 4 / 0 | 15 |  |
+| house-chimney | four-style set | 4 paths; solid: 1 path | 4 / 0 | 15 |  |
+| house-cog | four-style set | 8 lines, 1 circle, 2 paths; solid: 1 circle, 2 paths | 11 / 0 | 20 |  |
+| house-heart | four-style set | 3 paths; solid: 2 paths | 3 / 0 | 20 |  |
+| house-plug | four-style set | 3 lines, 3 paths; solid: 1 path | 6 / 0 | 20 |  |
+| house-plus | four-style set | 2 lines, 3 paths; solid: 2 lines, 1 path | 5 / 0 | 7 |  |
+| house-simple | four-style set | 2 paths; solid: 1 path | 2 / 0 | 20 |  |
 | house-wifi | four-style set | 1 dot, 5 paths; solid: 1 dot, 5 paths | 5 / 1 | 16 |  |
-| house-x | four-style set | 2 lines, 3 paths; solid: 2 lines, 1 path | 5 / 0 | 16 |  |
-| house-zap | four-style set | 1 polyline, 3 paths; solid: 1 polyline, 1 path | 4 / 0 | 16 |  |
-| houses | four-style set | 1 line, 4 paths; solid: 1 line, 2 paths | 5 / 0 | 48 |  |
+| house-x | four-style set | 2 lines, 3 paths; solid: 2 lines, 1 path | 5 / 0 | 7 |  |
+| house-zap | four-style set | 1 polyline, 3 paths; solid: 1 polyline, 1 path | 4 / 0 | 7 |  |
+| houses | four-style set | 1 line, 4 paths; solid: 1 line, 2 paths | 5 / 0 | 20 |  |
 | link | four-style set | 2 paths; solid: 2 paths | 2 / 0 |  |  |
 | link-2 | four-style set | 1 line, 2 paths; solid: 1 line, 2 paths | 3 / 0 |  |  |
-| link-2-off | four-style set | 3 lines, 2 paths; solid: 3 lines, 2 paths | 5 / 0 | 4 |  |
+| link-2-off | four-style set | 3 lines, 2 paths; solid: 3 lines, 2 paths | 5 / 0 |  |  |
 | link-plus | four-style set | 2 lines, 2 paths; solid: 2 lines, 2 paths | 4 / 0 |  |  |
 | navigation | four-style set | 1 path; solid: 2 paths | 1 / 0 |  |  |
 | search | four-style set | 1 line, 1 circle; solid: 1 line, 1 circle | 2 / 0 |  |  |
 | search-2 | four-style set | 1 line, 1 circle; solid: 1 line, 1 circle | 2 / 0 |  |  |
-| search-2-check | four-style set | 1 line, 1 polyline, 1 circle; solid: 1 line, 1 circle, 1 path | 3 / 0 | 22 |  |
+| search-2-check | four-style set | 1 line, 1 polyline, 1 circle; solid: 1 line, 1 circle, 1 path | 3 / 0 | 11 |  |
 | search-2-list | four-style set | 3 lines, 1 circle; solid: 1 line, 1 circle, 2 paths | 4 / 0 |  |  |
 | search-2-minus | four-style set | 2 lines, 1 circle; solid: 1 line, 1 circle, 1 path | 3 / 0 |  |  |
 | search-2-plus | four-style set | 3 lines, 1 circle; solid: 1 line, 1 circle, 1 path | 4 / 0 |  |  |
 | search-2-x | four-style set | 3 lines, 1 circle; solid: 1 line, 1 circle, 1 path | 4 / 0 |  |  |
-| search-check | four-style set | 1 line, 1 polyline, 1 circle; solid: 1 line, 1 circle, 1 path | 3 / 0 | 22 |  |
+| search-check | four-style set | 1 line, 1 polyline, 1 circle; solid: 1 line, 1 circle, 1 path | 3 / 0 | 11 |  |
 | search-list | four-style set | 3 lines, 1 circle; solid: 1 line, 1 circle, 2 paths | 4 / 0 |  |  |
 | search-minus | four-style set | 2 lines, 1 circle; solid: 1 line, 1 circle, 1 path | 3 / 0 |  |  |
 | search-plus | four-style set | 3 lines, 1 circle; solid: 1 line, 1 circle, 1 path | 4 / 0 |  |  |
@@ -3644,13 +3644,13 @@ Every line and dot pair is in `angles.csv`, with its drawing, its ends and how f
 | settings | four-style set | 1 circle, 1 path; solid: 1 circle, 1 path | 2 / 0 |  |  |
 | settings-dot | four-style set | 2 circles, 1 path; solid: 3 circles, 1 path | 3 / 0 |  |  |
 | share | four-style set | 2 lines, 3 circles; solid: 2 lines, 3 circles | 5 / 0 | 16 |  |
-| share-2 | four-style set | 1 path; solid: 1 path | 1 / 0 | 20 |  |
+| share-2 | four-style set | 1 path; solid: 1 path | 1 / 0 | 7 |  |
 | square-navigation | four-style set | 2 paths; solid: 3 paths | 2 / 0 |  |  |
 | unlink | four-style set | 4 lines, 2 paths; solid: 4 lines, 2 paths | 6 / 0 |  |  |
-| wifi | four-style set | 1 dot, 3 paths; solid: 1 dot, 3 paths | 3 / 1 | 16 |  |
-| wifi-exclamation | four-style set | 1 line, 2 dots, 3 paths; solid: 1 line, 2 dots, 3 paths | 4 / 2 | 8 |  |
-| wifi-info | four-style set | 1 line, 2 dots, 3 paths; solid: 1 line, 2 dots, 3 paths | 4 / 2 | 8 |  |
-| wifi-low | four-style set | 1 dot, 1 path; solid: 1 dot, 1 path | 1 / 1 | 4 |  |
-| wifi-medium | four-style set | 1 dot, 2 paths; solid: 1 dot, 2 paths | 2 / 1 | 8 |  |
-| wifi-plus | four-style set | 2 lines, 1 dot, 3 paths; solid: 2 lines, 1 dot, 3 paths | 5 / 1 | 8 |  |
-| wifi-x | four-style set | 2 lines, 1 dot, 3 paths; solid: 2 lines, 1 dot, 3 paths | 5 / 1 | 12 |  |
+| wifi | four-style set | 1 dot, 3 paths; solid: 1 dot, 3 paths | 3 / 1 |  |  |
+| wifi-exclamation | four-style set | 1 line, 2 dots, 3 paths; solid: 1 line, 2 dots, 3 paths | 4 / 2 |  |  |
+| wifi-info | four-style set | 1 line, 2 dots, 3 paths; solid: 1 line, 2 dots, 3 paths | 4 / 2 |  |  |
+| wifi-low | four-style set | 1 dot, 1 path; solid: 1 dot, 1 path | 1 / 1 |  |  |
+| wifi-medium | four-style set | 1 dot, 2 paths; solid: 1 dot, 2 paths | 2 / 1 |  |  |
+| wifi-plus | four-style set | 2 lines, 1 dot, 3 paths; solid: 2 lines, 1 dot, 3 paths | 5 / 1 |  |  |
+| wifi-x | four-style set | 2 lines, 1 dot, 3 paths; solid: 2 lines, 1 dot, 3 paths | 5 / 1 |  |  |

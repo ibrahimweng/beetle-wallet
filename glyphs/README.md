@@ -49,6 +49,7 @@ glyphs/
   data/four/                  the four-style set's drawings, one file per corners and style, loaded when picked
   sources/core/               the core set's source data
   sources/keyline/            the four-style set's source data, copied by tools/import-keyline.mjs
+  audit/                      what every icon is made of and where its lines sit against the diagonals, written by tools/audit.mjs
   figma-plugin/PLAN.md        the plan for a free Figma plugin
 ```
 
@@ -108,6 +109,8 @@ The palette is black and white: every token is a grey with no hue, and the previ
 - **Exports.** SVG and the sprite keep curves, strokes and masks. The font flattens every primitive, offsets it by S/2 with round joins and caps through Clipper, unions and cuts it, and maps results to U+E000 upward in result order. A font has one colour, so a two-tone font keeps the line and a duotone font takes the fill. Every icon goes by a name of its own in a sprite, a font or JSON: where two sets share a name, the set goes in front (`param-card`, `beetle-card`).
 
 ## Regenerating the library
+
+`tools/audit.mjs` reads the built library and writes `audit/`: `structure.md` lists every icon under its first category with what it is made of (lines, polylines, rects, polygons, circles, dots, arcs, free paths, and how many are stroked or filled), `structure.csv` is the same as a spreadsheet, and `angles.csv` lists every straight line, and every pair of dots, within 15° of a diagonal but not on one, with its drawing, its ends and how far off it is.
 
 `tools/import-keyline.mjs path/to/keyline-icons` copies the four-style set from a checkout of its repository into `sources/keyline/`, with its keywords, categories and licence notice. It only needs to run again for a newer release.
 

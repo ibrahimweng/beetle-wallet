@@ -205,7 +205,7 @@ export function NewCode() {
           {said ? (
             <Meta tone={note === 'asking' ? 'secondary' : 'bad'}>{said}</Meta>
           ) : proved ? (
-            <Aside>Not your year of birth, and not 123456.</Aside>
+            <Aside>Avoid your birth year and 123456.</Aside>
           ) : face ? (
             /* the face or the finger asked again */
             <More

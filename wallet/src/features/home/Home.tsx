@@ -83,6 +83,7 @@ import { tabs, useHoldPages, usePage, useTabAgain } from '../tabs';
 import { Grid } from './Grid';
 import { Promos, promosFor, quietFor } from './Promos';
 import { kobo, moneyExact, naira } from '../../lib/format';
+import { aimHello, chipOrder } from '../aims/aims';
 import { dollarsOf, usdFull } from '../dollars/dollars';
 
 /** What stays showing under the open card: the bar's row of glyphs, 16
@@ -254,6 +255,7 @@ function HomeScreen() {
   /* ---- the conversation, and the chats it becomes ---- */
   const turnsRef = useRef<Turn[]>([]);
   const online = useOnline();
+  const { prefs } = usePrefs(account?.accountNumber);
   const context = useCallback(
     () => ({
       account: account!,
@@ -262,8 +264,9 @@ function HomeScreen() {
       transcript: transcriptOf(turnsRef.current),
       saved,
       online,
+      aims: prefs.aims,
     }),
-    [account, balance, rate, saved, online],
+    [account, balance, rate, saved, online, prefs.aims],
   );
   /* a line added to the day, by a panel or an arrival: it carries what its
      receipt needs, and its id is what the receipt is found by */
@@ -319,7 +322,6 @@ function HomeScreen() {
     panel: Panel;
   } | null>(null);
   /* the goals, for the Save card: each with what it holds */
-  const { prefs } = usePrefs(account?.accountNumber);
   const { goals } = useGoals(account?.accountNumber, { demo: !!account?.demo, started: prefs.goal });
   const standings = useMemo(() => goals.map(g => standingOf(g, { goals, demo: !!account?.demo, tight: prefs.tight, moves })), [goals, account, prefs.tight, moves]);
   /* what Beetle has to offer, in the black card; the lab can ask for none, to see the empty card that stands in */
@@ -342,8 +344,11 @@ function HomeScreen() {
   const greeting = useCallback(() => {
     const list = h?.insights ?? [];
     const noticed = list.length ? list[chats.length % list.length]?.body : undefined;
+    /* a new account has nothing noticed yet: its first line follows what it came for (Round 41) */
+    const aimed = aimHello(prefs.aims);
+    if (!noticed && aimed) return `Hi ${account?.firstName ?? 'there'}. ${aimed}`;
     return noticed ?? `Hello ${account?.firstName ?? 'there'}. I can send money, top up, buy data, and read an account number off a photo. What do you need?`;
-  }, [h, chats.length, account]);
+  }, [h, chats.length, account, prefs.aims]);
 
   /* where Claude answers (a key on this phone, or Beetle's own server), a
      new chat says so first, in small print: what is typed, and the words read
@@ -1138,14 +1143,18 @@ function HomeScreen() {
                 foot={
                   <ChatFoot
                     typing={draft.trim().length > 0}
-                    chips={[
-                      { glyph: 'send', label: 'Send', onPress: () => offer('send') },
-                      { glyph: 'power', label: 'Bills', onPress: () => offer('bills') },
-                      { glyph: 'data', label: 'Data', onPress: () => offer('data') },
-                      { glyph: 'down', label: 'Receive', onPress: () => offer('receive') },
-                      { glyph: 'pot', label: 'Save', onPress: () => offer('save') },
-                      { glyph: 'loan', label: 'Loan', onPress: () => offer('loan') },
-                    ]}
+                    /* led by what they came for (Round 41): saving puts Save first, daily payments Data and Send */
+                    chips={chipOrder(
+                      [
+                        { key: 'send', glyph: 'send', label: 'Send', onPress: () => offer('send') },
+                        { key: 'bills', glyph: 'power', label: 'Bills', onPress: () => offer('bills') },
+                        { key: 'data', glyph: 'data', label: 'Data', onPress: () => offer('data') },
+                        { key: 'receive', glyph: 'down', label: 'Receive', onPress: () => offer('receive') },
+                        { key: 'save', glyph: 'pot', label: 'Save', onPress: () => offer('save') },
+                        { key: 'loan', glyph: 'loan', label: 'Loan', onPress: () => offer('loan') },
+                      ] as const,
+                      prefs.aims,
+                    )}
                   >
                     {/* a tap on the ask bar puts the drawer away, and the bar is the chat's again */}
                     <AskBar ref={input} value={draft} onChange={setDraft} onSubmit={send} onCamera={toCamera} onFocus={() => drawer && closeDrawer()} />

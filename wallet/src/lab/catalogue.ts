@@ -104,6 +104,7 @@ export const WAY_IN: Feature = {
       session: null,
     }),
     stage('ready', 'check', 'Ready', 'The account open, the ticks landing', READY),
+    stage('aims', 'star-filled', 'What is Beetle for?', 'Save, track, daily payments and more, ticked; Beetle fits its help to them', READY),
     /* logging in */
     stage('signin', 'mark', 'Log in', 'The number, the email instead, a passkey, Google and Apple'),
     stage('signemail', 'mail-filled', 'Log in with email', 'The email on the account'),

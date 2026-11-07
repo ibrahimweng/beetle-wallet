@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { storage } from '../../services';
+import { aimsOf, type AimId } from '../aims/aims';
 
 export type Prefs = {
   faceId: boolean;
@@ -52,6 +53,9 @@ export type Prefs = {
   hold?: { until: number; why: 'email' | 'password' };
   /** how receiving stablecoins works, read and said yes to once, before the Dollar account's address is shown (Round 36) */
   coinsUnderstood: boolean;
+  /** what they want Beetle for (Round 41), picked right after the account is ready; Beetle reads them every time it
+      answers. See features/aims. */
+  aims: AimId[];
 };
 
 export const DEFAULT_PREFS: Prefs = {
@@ -71,6 +75,7 @@ export const DEFAULT_PREFS: Prefs = {
   marketing: false,
   frozen: false,
   coinsUnderstood: false,
+  aims: [],
 };
 
 export const prefsKey = (account: string) => `beetle.prefs.${account}.v1`;
@@ -91,6 +96,12 @@ export async function readPrefs(account: string): Promise<Prefs> {
 export async function holdAfterRecovery(account: string, why: 'email' | 'password', now = Date.now()) {
   const kept = (await storage.get<Partial<Prefs>>(prefsKey(account))) ?? {};
   await storage.set(prefsKey(account), { ...kept, hold: { until: now + 24 * 60 * 60 * 1000, why } });
+}
+
+/** What they want Beetle for, kept on the account's prefs from the way in, before anything else reads them. */
+export async function keepAims(account: string, aims: readonly AimId[]) {
+  const kept = (await storage.get<Partial<Prefs>>(prefsKey(account))) ?? {};
+  await storage.set(prefsKey(account), { ...kept, aims: aimsOf(aims) });
 }
 
 /** How many standing instructions are running. */

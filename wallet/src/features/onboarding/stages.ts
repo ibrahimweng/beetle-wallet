@@ -13,7 +13,7 @@ import { IDCARD, INCOME, LIVE } from '../setup/setup';
 
 /** Opening an account, in order; the ones off the main path (the email instead of the number, Google or Apple, a
     paper instead of the BVN, nothing came back) branch from the one before them. */
-export const SIGN_UP = ['welcome', 'number', 'email', 'provider', 'code', 'details', 'bvn', 'document', 'nomatch', 'password', 'passcode', 'finish', 'ready'] as const;
+export const SIGN_UP = ['welcome', 'number', 'email', 'provider', 'code', 'details', 'bvn', 'document', 'nomatch', 'password', 'passcode', 'finish', 'ready', 'aims'] as const;
 /** Logging in: the number or the email, the code, the password (or Google or Apple in their place), on a phone it has
     not seen the face, and on a phone without the account's passcode, the passcode. */
 export const LOG_IN = ['signin', 'signpasscode', 'signemail', 'signcode', 'signpass', 'signface', 'newpasscode'] as const;

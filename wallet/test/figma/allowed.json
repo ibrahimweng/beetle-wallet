@@ -33,6 +33,14 @@
   {
    "text": "A passcode",
    "why": "Round 30, the owner’s word: a password in place of the six digits"
+  },
+  {
+   "text": "Your number",
+   "why": "Round 41, the owner’s word: the way in says less, plainly: ‘Your account number is …’"
+  },
+  {
+   "text": "Two minutes, and the last tw",
+   "why": "Round 41, the owner’s word: the way in says less, plainly: ‘2 minutes to unlock the rest’"
   }
  ],
  "signin": [
@@ -125,8 +133,13 @@
     905,
     2400
    ],
+   "dy": 128,
+   "why": "Round 32, the owner’s word: Privacy and your data is a row of its own under Your account (the Nigeria Data Protection Act's rights in one place), so everything under it sits one row, 64, lower; and Round 41, the owner’s word: What Beetle is for is a row under Your details, so one row, 64, more"
+  },
+  {
+   "band": [700, 905],
    "dy": 64,
-   "why": "Round 32, the owner’s word: Privacy and your data is a row of its own under Your account (the Nigeria Data Protection Act's rights in one place), so everything under it sits one row, 64, lower"
+   "why": "Round 41, the owner’s word: What Beetle is for, picked on the way in, is a row of its own under Your details, so everything under it sits one row, 64, lower"
   }
  ],
  "actions": [
@@ -469,7 +482,12 @@
    "why": "the ask bar is home's alone since Round 10: a page's foot is Back, or Back beside the page's own button"
   }
  ],
- "newcode": [],
+ "newcode": [
+  {
+   "text": "Not your year of birth, and",
+   "why": "Round 41, the owner’s word: the way in says less, plainly: ‘Avoid your birth year and 123456.’"
+  }
+ ],
  "card": [
   {
    "pieces": [
@@ -2078,6 +2096,10 @@
   {
    "piece": "Button · Take me in",
    "why": "the frame insets this one button 34 where every other frame's runs from 20; the build keeps 20"
+  },
+  {
+   "text": "You can send a million naira",
+   "why": "Round 41, the owner’s word: the way in says less, plainly: ‘You can now send ₦1,000,000 a day and hold dollars.’"
   }
  ],
  "emptyactivity": [
@@ -2147,6 +2169,19 @@
   {
    "text": "Surulere, Lagos State",
    "why": "typed into the card: the words are the field's value, not text on the page"
+  },
+  {
+   "band": [380, 720],
+   "dy": 22,
+   "why": "Round 41, the owner’s word: the way in says less, plainly: the line at the foot is one line, ‘Every Nigerian bank asks this. I never sell it.’, so everything above it sits a line lower"
+  },
+  {
+   "pieces": ["This is the same check every"],
+   "why": "Round 41, the owner’s word: the way in says less, plainly: ‘Every Nigerian bank asks this. I never sell it.’, one line"
+  },
+  {
+   "text": "This is the same check every",
+   "why": "Round 41, the owner’s word: the way in says less, plainly: ‘Every Nigerian bank asks this. I never sell it.’"
   }
  ],
  "firsthome": [
@@ -2565,6 +2600,10 @@
   {
    "piece": "A bank that answers when you a",
    "why": "Round 40, the owner's word: Sign up and Log in side by side in one row, so the line sits lower than the frame's, which stacks them"
+  },
+  {
+   "text": "A bank that answers when you a",
+   "why": "Round 41, the owner’s word: the way in says less, plainly: ‘A bank you can talk to. Open an account in about a minute.’"
   }
  ],
  "number": [
@@ -2609,6 +2648,53 @@
   {
    "text": "Six digits. These are what s",
    "why": "Round 32, the owner’s word: the line says the six digits open Beetle and send money when the face or the fingerprint cannot"
+  },
+  {
+   "band": [200, 440],
+   "dy": 17,
+   "why": "Round 41, the owner’s word: the way in says less, plainly: the line under Create passcode is one line, ‘6 digits to open Beetle and send money.’, so the stack above it sits a line lower"
+  },
+  {
+   "pieces": ["Six digits. These are what s"],
+   "why": "Round 41, the owner’s word: the way in says less, plainly: ‘6 digits to open Beetle and send money.’, one line"
+  },
+  {
+   "text": "Not your year of birth, and",
+   "why": "Round 41, the owner’s word: the way in says less, plainly: ‘Avoid your birth year and 123456.’"
+  }
+ ],
+ "idcard": [
+  {
+   "band": [250, 400],
+   "dy": 22,
+   "why": "Round 41, the owner’s word: the way in says less, plainly: the line under A photo of an ID is one line, ‘Driver’s licence, passport or voter’s card.’, so the stack above it sits a line lower"
+  },
+  {
+   "pieces": ["A driver’s licence, a passpo", "I read the name and the numb"],
+   "why": "Round 41, the owner’s word: the way in says less, plainly: ‘Driver’s licence, passport or voter’s card.’ and ‘I only read the name and number. The photo stays on your phone.’"
+  },
+  {
+   "text": "A driver’s licence, a passpo",
+   "why": "Round 41, the owner’s word: the way in says less, plainly: ‘Driver’s licence, passport or voter’s card.’"
+  },
+  {
+   "text": "I read the name and the numb",
+   "why": "Round 41, the owner’s word: the way in says less, plainly: ‘I only read the name and number. The photo stays on your phone.’"
+  }
+ ],
+ "income": [
+  {
+   "band": [240, 470],
+   "dy": 22,
+   "why": "Round 41, the owner’s word: the way in says less, plainly: the line under the title is one line, ‘Last question. Every bank asks it.’, so the stack above it sits a line lower"
+  },
+  {
+   "pieces": ["One tap. It is the last ques"],
+   "why": "Round 41, the owner’s word: the way in says less, plainly: ‘Last question. Every bank asks it.’, one line"
+  },
+  {
+   "text": "One tap. It is the last ques",
+   "why": "Round 41, the owner’s word: the way in says less, plainly: ‘Last question. Every bank asks it.’"
   }
  ]
 }

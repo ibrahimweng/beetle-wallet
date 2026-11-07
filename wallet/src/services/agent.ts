@@ -50,6 +50,7 @@ import {
 } from './nigeria';
 import type { Reading, ReaderService, SampleKind } from './reader';
 import { wait } from './support';
+import type { AimId } from '../features/aims/aims';
 
 /** A photo, and what was already read off it where the camera read it first;
     a sample photo says which it is. */
@@ -187,6 +188,8 @@ export type Context = {
   saved?: Beneficiaries;
   /** whether the network is there: false and Beetle holds a transfer rather than send it */
   online?: boolean;
+  /** what the owner wants Beetle for (Round 41): saving, tracking, daily payments and the rest, so its help fits */
+  aims?: readonly AimId[];
 };
 
 export type Reply = { blocks: Block[]; pending: Pending; reading?: Reading };

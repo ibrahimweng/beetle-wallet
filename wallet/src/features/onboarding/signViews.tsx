@@ -59,7 +59,7 @@ async function letIn(c: Ctx, account: Account) {
   }
   const s = await auth.signIn(account.phone, await randomToken());
   if (!s) {
-    c.setNote({ text: 'The account could not be opened. Try again in a moment.', tone: 'bad' });
+    c.setNote({ text: 'Couldn’t open your account. Try again shortly.', tone: 'bad' });
     return;
   }
   await rememberHere(account);
@@ -108,7 +108,7 @@ function signin(c: Ctx): StageView {
           c.go('signpasscode');
           return;
         }
-        c.setNote({ text: `${c.bioName} did not take. Try again, or use your passcode.`, tone: 'bad' });
+        c.setNote({ text: `${c.bioName} didn’t work. Try again or use your passcode.`, tone: 'bad' });
       } finally {
         c.setBusy(false);
       }
@@ -116,7 +116,7 @@ function signin(c: Ctx): StageView {
     return {
       icon: 'mark',
       title: 'Log in',
-      sub: `Welcome back, ${known.firstName}. This phone knows your account: ${c.bioName}, or your passcode.`,
+      sub: `Welcome back, ${known.firstName}. Use ${c.bioName} or your passcode.`,
       bodyKey: `signin:known:${known.accountNumber}`,
       body: (
         <View style={{ gap: 16 }}>
@@ -141,7 +141,7 @@ function signin(c: Ctx): StageView {
     /* a passkey lives on the phone that made it: one here is the account this phone knows */
     const k = c.known;
     if (!k?.passkey) {
-      c.setNote({ text: 'There is no Beetle passkey on this phone yet. Log in with your number, then save one.', tone: 'bad' });
+      c.setNote({ text: 'No passkey on this phone yet. Log in with your number first.', tone: 'bad' });
       return;
     }
     c.setAnother(false);
@@ -149,7 +149,7 @@ function signin(c: Ctx): StageView {
   return {
     icon: 'mark',
     title: 'Log in',
-    sub: 'Your mobile number. A code comes next, then your password.',
+    sub: 'Enter your mobile number.',
     bodyKey: 'signin',
     body: (
       <DigitBody
@@ -189,7 +189,7 @@ function signemail(c: Ctx): StageView {
     try {
       const account = await auth.findAccount(to);
       if (!account) {
-        c.setNote({ text: 'No account has this email. If it was changed or lost, recover the account with its mobile number.', tone: 'bad' });
+        c.setNote({ text: 'No account uses this email. Lost access? Recover it with your number.', tone: 'bad' });
         c.setUnknown(true);
         return;
       }
@@ -200,7 +200,7 @@ function signemail(c: Ctx): StageView {
       c.setWrong(0);
       c.go('signcode');
     } catch {
-      c.setNote({ text: 'The email could not be sent. Check the network and try again.', tone: 'bad' });
+      c.setNote({ text: 'Couldn’t send the email. Check your network.', tone: 'bad' });
     } finally {
       c.setBusy(false);
     }
@@ -208,7 +208,7 @@ function signemail(c: Ctx): StageView {
   return {
     icon: 'mail-filled',
     title: 'Log in with email',
-    sub: 'The email on your account. A code goes to it, then your password.',
+    sub: 'Enter your account’s email.',
     bodyKey: 'signemail',
     words: true,
     body: (
@@ -277,7 +277,7 @@ function signpass(c: Ctx): StageView {
       }
       c.bump();
       c.setText('');
-      if ('lockedFor' in v) c.setNote({ text: `Too many wrong. Try again in ${v.lockedFor < 90 ? `${v.lockedFor} seconds` : `${Math.ceil(v.lockedFor / 60)} minutes`}.`, tone: 'bad' });
+      if ('lockedFor' in v) c.setNote({ text: `Too many tries. Try again in ${v.lockedFor < 90 ? `${v.lockedFor} seconds` : `${Math.ceil(v.lockedFor / 60)} minutes`}.`, tone: 'bad' });
       else c.setNote({ text: `That is not the password. ${v.triesLeft === 1 ? 'One more try' : `${v.triesLeft} more tries`} before it waits.`, tone: 'bad' });
     } finally {
       c.setBusy(false);
@@ -332,7 +332,7 @@ function signface(c: Ctx): StageView {
     icon: 'faceid-filled',
     tint: washes.face.tone,
     title: 'Face scan',
-    sub: 'This phone is new to your account, so once, a live scan matched to your BVN photo. After this, Face ID alone opens it here.',
+    sub: 'New phone, so a quick face scan once. After this, Face ID is enough.',
     bodyKey: 'signface',
     body: (
       <View style={{ gap: 20 }}>
@@ -340,7 +340,7 @@ function signface(c: Ctx): StageView {
           <Icon name={failed ? 'alert' : 'person'} size={56} colour={failed ? colour.bad : night.tertiary} />
           <Meta tone={failed ? 'bad' : 'secondary'}>{failed ? 'That did not take. Hold still and look at the camera.' : 'Hold still and look at the camera'}</Meta>
         </View>
-        <Aside glyph="eye">The scan is checked and thrown away. It is not a profile picture and nobody sees it.</Aside>
+        <Aside glyph="eye">The scan isn’t kept or shown to anyone.</Aside>
       </View>
     ),
     bar: { label: c.faceState === 'checking' ? 'Hold still…' : failed ? 'Try again' : 'Scan my face', onPress: scan, disabled: c.faceState === 'checking' || c.faceState === 'done' },
@@ -365,12 +365,12 @@ function recover(c: Ctx): StageView {
     try {
       const account = await auth.findAccount(check.phone);
       if (!account) {
-        c.setNote({ text: 'There is no account on this number.', tone: 'bad' });
+        c.setNote({ text: 'No account on this number.', tone: 'bad' });
         return;
       }
       const paused = await recoveryPaused(account.accountNumber);
       if (paused) {
-        c.setNote({ text: `Getting this account back is paused until ${paused} after three wrong BVNs. Its owner has been told.`, tone: 'bad' });
+        c.setNote({ text: `Recovery is paused until ${paused} after 3 wrong BVNs. The owner has been told.`, tone: 'bad' });
         return;
       }
       c.setRec({ account });
@@ -379,7 +379,7 @@ function recover(c: Ctx): StageView {
       c.setWrong(0);
       c.go('recovercode');
     } catch {
-      c.setNote({ text: 'The text could not be sent. Check the network and try again.', tone: 'bad' });
+      c.setNote({ text: 'Couldn’t send the text. Check your network.', tone: 'bad' });
     } finally {
       c.setBusy(false);
     }
@@ -387,7 +387,7 @@ function recover(c: Ctx): StageView {
   return {
     icon: 'shield-filled',
     title: 'Recover your account',
-    sub: 'Lost the email or the password? Start with the mobile number on the account. Then your BVN and a face scan, so nobody else can.',
+    sub: 'Lost your email or password? Enter the account’s mobile number.',
     bodyKey: 'recover',
     body: (
       <DigitBody
@@ -396,7 +396,7 @@ function recover(c: Ctx): StageView {
         footer={
           <More
             label="I lost the phone too"
-            onPress={() => toast('Without the phone, a person at Beetle checks your BVN and your face on a video call before anything changes. That is not in this build yet.')}
+            onPress={() => toast('No access to the number? We verify you on a video call. Not in this build yet.')}
           />
         }
       />
@@ -436,7 +436,7 @@ function recoverbvn(c: Ctx): StageView {
       const { misses: n, until } = await noteRecoveryMiss(account.accountNumber);
       c.setWrong(n);
       if (until) {
-        c.setNote({ text: `Three that did not match. Getting this account back is paused until ${until}, and its owner has been told.`, tone: 'bad' });
+        c.setNote({ text: `3 wrong tries. Recovery is paused until ${until}. The owner has been told.`, tone: 'bad' });
         /* and the pad stays still: nothing more is tried from here */
         paused = true;
         return;
@@ -450,7 +450,7 @@ function recoverbvn(c: Ctx): StageView {
     icon: 'id-filled',
     tint: washes.nin.tone,
     title: 'BVN number',
-    sub: 'The BVN the account was opened with. Dial *565*0# from the number your bank has to see it.',
+    sub: 'The BVN on this account. Forgot it? Dial *565*0#.',
     bodyKey: 'recoverbvn',
     body: <DigitBody c={c} groups={[4, 4, 3]} />,
     keypad: typing(c, 11, full),
@@ -474,7 +474,7 @@ function recoverface(c: Ctx): StageView {
     icon: 'faceid-filled',
     tint: washes.face.tone,
     title: 'Face scan',
-    sub: 'A live scan, matched to the photo on your BVN. A photo of you held up to the camera does not pass.',
+    sub: 'A live scan, matched to your BVN photo.',
     bodyKey: 'recoverface',
     body: (
       <View style={{ gap: 20 }}>
@@ -515,7 +515,7 @@ function recoverwhat(c: Ctx): StageView {
   return {
     icon: 'mail-filled',
     title: 'Your email',
-    sub: 'It is you. This is the email on the account: keep it, or change it.',
+    sub: 'Verified. Keep this email or change it.',
     bodyKey: 'recoverwhat',
     body: account ? (
       <View style={{ gap: 12 }}>
@@ -548,7 +548,7 @@ function newemail(c: Ctx): StageView {
     try {
       const owner = await auth.findAccount(to);
       if (owner && owner.accountNumber !== c.rec.account?.accountNumber) {
-        c.setNote({ text: 'Another account has this email. Use one that is only yours.', tone: 'bad' });
+        c.setNote({ text: 'Another account uses this email. Use a different one.', tone: 'bad' });
         return;
       }
       c.setRec({ ...c.rec, email: to });
@@ -557,7 +557,7 @@ function newemail(c: Ctx): StageView {
       c.setWrong(0);
       c.go('newemailcode');
     } catch {
-      c.setNote({ text: 'The email could not be sent. Check the network and try again.', tone: 'bad' });
+      c.setNote({ text: 'Couldn’t send the email. Check your network.', tone: 'bad' });
     } finally {
       c.setBusy(false);
     }
@@ -565,7 +565,7 @@ function newemail(c: Ctx): StageView {
   return {
     icon: 'mail-filled',
     title: 'Enter new email',
-    sub: 'A code goes to it, to check it is yours. The old one is told it was changed.',
+    sub: 'I’ll send it a code. Your old email gets a notice.',
     bodyKey: 'newemail',
     words: true,
     body: (
@@ -634,7 +634,7 @@ function newpassword(c: Ctx): StageView {
     icon: 'lock-filled',
     tint: washes.passcode.tone,
     title: 'New password',
-    sub: 'At least eight letters and numbers, and not your name or your birthday.',
+    sub: '8+ characters, with a letter and a number.',
     bodyKey: 'newpassword',
     words: true,
     body: passwordBody(c, 'New password'),
@@ -682,7 +682,7 @@ function recovered(c: Ctx): StageView {
             </View>
           ))}
         </Card>
-        <Meta tone="secondary">If somebody else did this, This wasn’t me on what was sent freezes the account, and nothing leaves it.</Meta>
+        <Meta tone="secondary">Not you? Tap This wasn’t me in the message I sent to freeze the account.</Meta>
       </View>
     ),
     bar: { label: c.busy ? 'Just a moment…' : 'Take me in', onPress: take, disabled: c.busy },
@@ -705,7 +705,7 @@ function signpasscode(c: Ctx): StageView {
       }
       c.bump();
       c.setDigits('');
-      if ('lockedFor' in v) c.setNote({ text: `Too many wrong. Try again in ${v.lockedFor < 90 ? `${v.lockedFor} seconds` : `${Math.ceil(v.lockedFor / 60)} minutes`}.`, tone: 'bad' });
+      if ('lockedFor' in v) c.setNote({ text: `Too many tries. Try again in ${v.lockedFor < 90 ? `${v.lockedFor} seconds` : `${Math.ceil(v.lockedFor / 60)} minutes`}.`, tone: 'bad' });
       else c.setNote({ text: `Not it. ${v.triesLeft === 1 ? 'One more try' : `${v.triesLeft} more tries`}.`, tone: 'bad' });
     } finally {
       c.setBusy(false);

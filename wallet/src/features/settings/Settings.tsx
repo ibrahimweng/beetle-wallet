@@ -18,6 +18,7 @@ import { Details } from './Details';
 import { rulesRunning, usePrefs } from './prefs';
 import { capital, useBiometricName } from '../passcode/biometric';
 import { LAB } from '../../lab/enabled';
+import { aimsSummary } from '../aims/Aims';
 import { reopen } from '../onboarding/wipe';
 
 export function Settings() {
@@ -114,6 +115,7 @@ export function Settings() {
             'Your account',
             <>
               <SettingRow glyph="person-filled" ink={colour.accent} title="Your details" onPress={() => setDetails(true)} />
+              <SettingRow glyph="star-filled" ink={colour.warn} title="What Beetle is for" value={aimsSummary(prefs.aims)} to="/aims" testID="aims-row" />
               <SettingRow glyph="bell-filled" ink={colour.warn} title="Notifications" to="/lock" />
               <SettingRow glyph="gift-filled" title="Saved people" to="/send" />
               <SettingRow glyph="card-filled" title="Cards" value="1 virtual" to="/card" />

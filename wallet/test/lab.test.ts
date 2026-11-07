@@ -27,6 +27,8 @@ const STILL_TO_DO: Record<Stage, Step> = {
   passcode: 'passcode',
   finish: 'finish',
   ready: 'ready',
+  /* what Beetle is for comes right after the account is ready, from its screen */
+  aims: 'ready',
   /* logging in and getting an account back start from nothing on the phone */
   signin: 'welcome',
   signemail: 'welcome',
@@ -63,7 +65,7 @@ describe('the lab', () => {
       const asked = new URL('http://app' + p.href).searchParams;
       expect(asked.get('stage')).toBe(stage);
       expect(isStage(asked.get('stage'))).toBe(true);
-      if (stage === 'ready' || isSetupStage(stage)) expect(initialStage(p.seed.progress, p.seed.session)).toBe('ready');
+      if (stage === 'ready' || stage === 'aims' || isSetupStage(stage)) expect(initialStage(p.seed.progress, p.seed.session)).toBe('ready');
       else expect(p.seed.session, `${stage} should open without a session`).toBeNull();
       if (stage.startsWith('sign') && stage !== 'signin' && stage !== 'signemail') expect(asked.get('phone')).toMatch(/^0\d{10}$/);
     }

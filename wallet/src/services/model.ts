@@ -47,6 +47,7 @@ import {
   type Network,
 } from './nigeria';
 import type { Reading, ReaderService } from './reader';
+import { aimsBrief } from '../features/aims/aims';
 import { secure } from './storage';
 
 export const MODEL = 'claude-opus-5-5';
@@ -233,6 +234,9 @@ function state(ctx: Context, now: Date): string {
     `Owner: ${a.firstName} ${a.lastName}, account ${groupAccount(a.accountNumber)} at Beetle, phone ${groupPhoneNumber(a.phone)}${networkOf(a.phone) ? ` (${networkOf(a.phone)})` : ''}.`,
     `Balance: ${naira(ctx.balance)}. A dollar is ₦${ctx.rate.toLocaleString('en-NG')}.`,
   ];
+  /* what they came to Beetle for (Round 41): it shapes what to suggest, never what is allowed */
+  const aims = aimsBrief(ctx.aims ?? []);
+  if (aims) lines.push(aims);
   const s = savedOf(ctx);
   {
     if (s.people.length) lines.push(`People paid before: ${s.people.map(p => `${p.name} (${p.bank} ${p.number}, ${p.when.toLowerCase()})`).join('; ')}.`);

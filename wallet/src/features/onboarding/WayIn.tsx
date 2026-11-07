@@ -64,7 +64,6 @@ import { useSetup } from '../setup/store';
 import { idPhoto } from '../setup/hand';
 import { buildView, type Bar, type Ctx, type FaceState, type Free, type Note } from './views';
 import { auth, identity, namesMatch, type Account } from '../../services';
-import { shownDate } from './validation';
 import { useBiometricName } from '../passcode/biometric';
 import type { DocumentKind } from '../../services/identity';
 import { lastHere, type Known } from './devices';
@@ -73,6 +72,7 @@ import { LAB } from '../../lab/enabled';
 import { MIDDLE, abandon, claimCoin, coin, coverUp, finish, homeIsUnder, releaseCoin } from './arrival';
 import { backTop, logoTop } from './tops';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { AimId } from '../aims/aims';
 import { wantTour } from '../home/tour';
 
 /* The geometry the glide is written against: a 32 glyph, 8 under it, the
@@ -146,6 +146,7 @@ export function WayIn() {
   const [digits, setDigits] = useState('');
   const [text, setText] = useState('');
   const [text2, setText2] = useState('');
+  const [aims, setAims] = useState<AimId[]>([]);
   const [first, setFirst] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
   const [note, setNote] = useState<Note>(null);
@@ -235,19 +236,19 @@ export function WayIn() {
       try {
         const r = await identity.readDocument(docKind, { number });
         if (!r.found) {
-          setNote({ text: 'Nothing came back for that one. Try the photo again in good light, or type the number.', tone: 'bad' });
+          setNote({ text: 'Couldn’t read it. Retake it in good light, or type the number.', tone: 'bad' });
           return;
         }
         /* the paper is held to the details typed, as a number is: somebody else's card opens nothing */
         const p = app.progress;
         if (!namesMatch(p.name ?? '', r.record) || p.dob !== r.record.born) {
-          setNote({ text: 'The name or the date of birth on it is not the one you typed. Check your details, or try the other paper.', tone: 'bad' });
+          setNote({ text: 'The name or birthday doesn’t match your details. Check them, or try the other document.', tone: 'bad' });
           return;
         }
         await app.setIdentity(r.number ?? '', r.record, docKind);
         go(!p.phone ? 'number' : p.via === 'google' || p.via === 'apple' ? 'passcode' : 'password');
       } catch {
-        setNote({ text: 'The register did not answer. Try again in a moment.', tone: 'bad' });
+        setNote({ text: 'Couldn’t check right now. Try again shortly.', tone: 'bad' });
       } finally {
         setDocState('idle');
       }
@@ -291,7 +292,7 @@ export function WayIn() {
       setDir(direction);
       setDigits(next === 'number' && p.via === 'phone' ? (p.phone ?? '') : '');
       setText(next === 'email' && p.via === 'email' ? (p.email ?? '') : next === 'finish' ? usernameFor(p) : next === 'details' ? (p.name ?? '') : '');
-      setText2(next === 'details' && p.dob ? shownDate(p.dob) : '');
+      setText2(next === 'details' && p.dob ? p.dob : '');
       setFirst(null);
       setNote(null);
       setShake(0);
@@ -477,6 +478,8 @@ export function WayIn() {
     setText,
     text2,
     setText2,
+    aims,
+    setAims,
     first,
     setFirst,
     consent,

@@ -53,4 +53,4 @@ export function nextSetup(s: Setup): 'address' | 'idcard' | 'income' | 'full' {
 export const addressOk = (street: string, area: string) => street.trim().length >= 3 && area.trim().length >= 3;
 
 /** Everything is on: what the full frame says under it. */
-export const FULL_LINE = 'You can send a million naira a day and hold dollars now.';
+export const FULL_LINE = 'You can now send ₦1,000,000 a day and hold dollars.';

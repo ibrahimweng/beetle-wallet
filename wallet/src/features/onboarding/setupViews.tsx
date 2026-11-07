@@ -61,7 +61,7 @@ function AddressBody({ c, save }: { c: Ctx; save: () => void }) {
           textContentType="streetAddressLine1"
           returnKeyType="next"
           onSubmitEditing={() => area.current?.focus()}
-          note={streetWrong ? 'The number and the street, please.' : undefined}
+          note={streetWrong ? 'Add the house number and street.' : undefined}
           bad={streetWrong}
           testID="street"
         />
@@ -75,7 +75,7 @@ function AddressBody({ c, save }: { c: Ctx; save: () => void }) {
           textContentType="addressCity"
           returnKeyType="done"
           onSubmitEditing={save}
-          note={areaWrong ? 'The area, the town and the state.' : undefined}
+          note={areaWrong ? 'Add the area, town and state.' : undefined}
           bad={areaWrong}
           testID="area"
         />
@@ -89,7 +89,7 @@ function AddressBody({ c, save }: { c: Ctx; save: () => void }) {
             <Opens on={false} />
           </View>
           <View style={{ paddingTop: 18, paddingBottom: 2 }}>
-            <Aside>This is the same check every Nigerian bank runs. We ask once, and we do not sell it.</Aside>
+            <Aside>Every Nigerian bank asks this. I never sell it.</Aside>
           </View>
         </View>
       )}
@@ -109,7 +109,7 @@ export function address(c: Ctx): StageView {
     icon: 'home-filled',
     tint: washes.finish.tone,
     title: 'Where you live',
-    sub: 'Street, town and state. No utility bill, and nothing arrives in the post.',
+    sub: 'Street, town and state. No utility bill needed.',
     bodyKey: 'address',
     words: true,
     body: <AddressBody c={c} save={save} />,
@@ -125,7 +125,7 @@ export function idcard(c: Ctx): StageView {
     icon: 'camera-filled',
     tint: washes.idcard.tone,
     title: 'A photo of an ID',
-    sub: 'A driver’s licence, a passport or a voter’s card. Any of the three will do.',
+    sub: 'Driver’s licence, passport or voter’s card.',
     bodyKey: 'idcard',
     body: (
       /* the frame: 9 from the line to the card */
@@ -136,7 +136,7 @@ export function idcard(c: Ctx): StageView {
         </Card>
         {/* the frame's row is 66 tall with three lines of 20 from 12 down, the last line running past its foot */}
         <View style={{ paddingTop: 12, height: 66, paddingRight: 37 }} testID="id-note">
-          <Aside glyph="eye">I read the name and the number off it and keep nothing else. The photo does not leave your phone.</Aside>
+          <Aside glyph="eye">I only read the name and number. The photo stays on your phone.</Aside>
         </View>
         <Later icon={INCOME.icon} label={INCOME.label} />
       </View>
@@ -157,7 +157,7 @@ export function income(c: Ctx): StageView {
     icon: 'receive-filled',
     tint: washes.income.tone,
     title: 'Where your money comes from',
-    sub: 'One tap. It is the last question, and every bank has to ask it.',
+    sub: 'Last question. Every bank asks it.',
     bodyKey: 'income',
     body: (
       /* the frame: 14 from the line to the first row */

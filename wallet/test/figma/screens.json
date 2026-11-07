@@ -19,7 +19,7 @@
    {
     "name": "A bank that answers when you a",
     "find": {
-     "text": "A bank that answers"
+     "text": "A bank you can talk to"
     }
    },
    {
@@ -33,7 +33,7 @@
  "number": {
   "frame": "number",
   "place": "Enter mobile number",
-  "wait": "I will text it",
+  "wait": "I’ll text you a code",
   "pieces": [
    {
     "name": "Your number",
@@ -44,7 +44,7 @@
    {
     "name": "I will text you six digits t",
     "find": {
-     "text": "I will text it"
+     "text": "I’ll text you a code"
     }
    },
    {
@@ -131,7 +131,7 @@
    {
     "name": "Six digits, sent to 0803 214",
     "find": {
-     "text": "Enter the six digits sent to"
+     "text": "Enter the code sent to"
     }
    },
    {
@@ -173,7 +173,7 @@
  "passcode": {
   "frame": "passcode",
   "place": "Create passcode",
-  "wait": "Not your year of birth",
+  "wait": "Avoid your birth year",
   "pieces": [
    {
     "name": "Your number",
@@ -203,7 +203,7 @@
    {
     "name": "Six digits. These are what s",
     "find": {
-     "text": "Six digits. They open"
+     "text": "6 digits to open Beetle"
     }
    },
    {
@@ -221,7 +221,7 @@
    {
     "name": "Not your year of birth, and ",
     "find": {
-     "text": "Not your year of birth"
+     "text": "Avoid your birth year"
     }
    },
    {
@@ -245,7 +245,7 @@
  "ready": {
   "frame": "ready",
   "place": "Ready",
-  "wait": "Take me in",
+  "wait": "Continue",
   "settle": 2200,
   "pieces": [
    {
@@ -311,7 +311,7 @@
    {
     "name": "Button · Take me in",
     "find": {
-     "button": "Take me in"
+     "button": "Continue"
     }
    }
   ]
@@ -319,7 +319,7 @@
  "signin": {
   "frame": "signin",
   "place": "Log in",
-  "wait": "A code comes next",
+  "wait": "Enter your mobile number.",
   "pieces": [
    {
     "name": "Welcome back",
@@ -331,7 +331,7 @@
    {
     "name": "Your number, and then six di",
     "find": {
-     "text": "Your mobile number. A code"
+     "text": "Enter your mobile number."
     }
    },
    {
@@ -5370,7 +5370,7 @@
  "newcode": {
   "frame": "newcode",
   "place": "A new passcode",
-  "wait": "Not your year of birth",
+  "wait": "Avoid your birth year",
   "settle": 1400,
   "pieces": [
    {
@@ -5538,14 +5538,14 @@
    {
     "name": "Row · Not your year of bir",
     "find": {
-     "text": "Not your year of birth",
+     "text": "Avoid your birth year",
      "up": 2
     }
    },
    {
     "name": "Glyph · lock",
     "find": {
-     "text": "Not your year of birth",
+     "text": "Avoid your birth year",
      "up": 2,
      "child": [
       0,
@@ -5556,7 +5556,7 @@
    {
     "name": "Not your year of birth, and ",
     "find": {
-     "text": "Not your year of birth"
+     "text": "Avoid your birth year"
     }
    },
    {
@@ -21227,7 +21227,7 @@
    {
     "name": "Glyph · lock",
     "find": {
-     "text": "This is the same check",
+     "text": "Every Nigerian bank asks this",
      "up": 1,
      "child": 0
     }
@@ -21235,7 +21235,7 @@
    {
     "name": "This is the same check every",
     "find": {
-     "text": "This is the same check"
+     "text": "Every Nigerian bank asks this"
     },
     "only": [
      "x",
@@ -21278,7 +21278,7 @@
    {
     "name": "A driver’s licence, a passpo",
     "find": {
-     "text": "A driver’s licence"
+     "text": "Driver’s licence, passport"
     }
    },
    {
@@ -21311,7 +21311,7 @@
    {
     "name": "Glyph · eye",
     "find": {
-     "text": "I read the name",
+     "text": "I only read the name",
      "up": 1,
      "child": 0
     }
@@ -21319,7 +21319,7 @@
    {
     "name": "I read the name and the numb",
     "find": {
-     "text": "I read the name"
+     "text": "I only read the name"
     },
     "only": [
      "x",
@@ -21394,7 +21394,7 @@
    {
     "name": "One tap. It is the last ques",
     "find": {
-     "text": "One tap."
+     "text": "Last question."
     }
    },
    {
@@ -21551,7 +21551,7 @@
    {
     "name": "You can send a million naira",
     "find": {
-     "text": "You can send a million"
+     "text": "You can now send"
     },
     "only": [
      "x",

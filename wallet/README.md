@@ -21,6 +21,16 @@ like pages on an iPhone, and the chat the card turns into when it is
 pulled down, where Beetle sends money, tops up, buys data and reads an
 account number off a photo.
 
+Since Round 41 the date of birth is picked on three wheels (day, month by
+name, year) rather than typed, nothing counting as picked until a wheel is
+turned; right after the account is ready comes **What is Beetle for?**, any
+of seven aims ticked (Save money, Track my spending, Learn ways to save, Keep
+me strict, Small daily payments, Get paid, pay rent and bills, Send money to
+family) or skipped, and changed later in Settings. Beetle reads them every
+time it answers: the model is told them, the chat's first line follows the
+first one, and the chips over the ask bar lead with what they came for (see
+`src/features/aims`). The words of the way in are short and direct.
+
 How it looks and moves is set down in [`DESIGN.md`](DESIGN.md): no drop
 shadows, forms that speak under their fields, the amount picker, the bank
 always said, asking before what cannot be undone, and the rest. A screen

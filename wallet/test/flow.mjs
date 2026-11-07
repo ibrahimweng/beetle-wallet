@@ -391,7 +391,7 @@ try {
   console.log(`  welcome gone at ${gone.t}ms, number step first seen ${soft.number.blur.toFixed(1)}px soft at ${soft.t}ms, sharp at ${sharp.t}ms`);
   /* every step is named for what it asks (Round 30) */
   await seeExactly('Enter mobile number');
-  await see('I will text it a code');
+  await see('I’ll text you a code.');
   /* every Back is at the bottom left (Round 31, the owner's word): on a step that types digits it is the pad's own corner */
   const backAt = await page.getByTestId('back').filter({ visible: true }).first().boundingBox();
   must(backAt && backAt.x < 120 && backAt.y > 600, `Back should be at the bottom left (${JSON.stringify(backAt)})`);
@@ -411,7 +411,7 @@ try {
   must(await button('Send the code').isDisabled(), 'Send the code should wait for an email');
   await page.getByTestId('email').first().fill('ibrahim.musa@example.com');
   await tap('Send the code');
-  await see('This email already has a Beetle account');
+  await see('This email already has an account');
   await button('Log in with this email').waitFor();
   await shot('email-taken');
   await tap('Use mobile number instead');
@@ -424,7 +424,7 @@ try {
   await tap('Back');
   await seeExactly('Enter mobile number');
   await type('01234567890');
-  await see('That is not a Nigerian mobile number');
+  await see('Use a Nigerian number');
   await shot('phone-not-nigerian');
   await wipe(11);
   await type(NEW_PHONE.slice(0, 10));
@@ -432,11 +432,11 @@ try {
   await type(NEW_PHONE.slice(10));
 
   await seeExactly('OTP verification');
-  await see('Enter the six digits sent to 0812 345 6789');
+  await see('Enter the code sent to 0812 345 6789');
   at('/way-in');
   await shot('code');
   await type('111111');
-  await see('did not match');
+  await see('Wrong code. 2 tries left.');
   await shot('code-wrong');
   await type(CODE);
 
@@ -446,12 +446,19 @@ try {
   await shot('details');
   must(await button('Continue').isDisabled(), 'Continue should wait for a name and a date');
   await page.getByTestId('full-name').first().fill('Ibrahim Musa');
-  await page.getByTestId('dob').first().fill('14062016');
-  must((await page.getByTestId('dob').first().inputValue()) === '14/06/2016', 'the date should be shown as DD/MM/YYYY as it is typed');
+  /* the date on three wheels (Round 41): nothing is picked until a wheel is turned or a row tapped */
+  await see('Scroll to your birthday.');
+  must(await button('Continue').isDisabled(), 'Continue should wait for a wheel to be turned, not take the year it starts on');
+  const youngest = new Date().getFullYear() - 16;
+  await page.getByTestId('dob-day-14').first().click();
+  await page.getByTestId('dob-month-June').first().click();
+  await page.getByTestId(`dob-year-${youngest}`).first().click();
+  must((await page.getByTestId('dob-year').first().getAttribute('aria-valuetext')) === String(youngest), 'the year wheel should be on the year tapped');
   await tap('Continue');
   await see('18 or older');
   await shot('details-young');
-  await page.getByTestId('dob').first().fill('14061996');
+  await page.getByTestId('dob-year-1996').first().click();
+  must((await page.getByTestId('dob-day').first().getAttribute('aria-valuetext')) === '14', 'the day should stay where it was when the year changes');
   await shot('details-typed', 300);
   await tap('Continue');
 
@@ -465,7 +472,7 @@ try {
   await seeExactly('BVN number');
   await type('12340000123');
   await seeExactly('Nothing matched');
-  await see('2 more tries');
+  await see('2 tries left today');
   /* nothing on the record is shown for a miss: not the name as the register writes it, not the birthday */
   must(
     (await page
@@ -518,7 +525,7 @@ try {
   await seeExactly('Confirm passcode');
   await shot('passcode-again');
   await type('654322');
-  await see('They did not match');
+  await see('They don’t match');
   await shot('passcode-mismatch');
   await type(PASSCODE);
   await seeExactly('Confirm passcode');
@@ -527,7 +534,7 @@ try {
   /* the last step: the yes to the scan, the face and the username on one screen */
   await seeExactly('Face scan and username');
   at('/way-in');
-  await see('$ibrahimmusa is yours to take');
+  await see('$ibrahimmusa is free');
   await shot('finish');
   /* and back from it, to the passcode and on again (Round 31: there was no way back from here) */
   await tap('Back');
@@ -535,15 +542,15 @@ try {
   await type(PASSCODE);
   await type(PASSCODE);
   await seeExactly('Face scan and username');
-  await see('$ibrahimmusa is yours to take');
+  await see('$ibrahimmusa is free');
   must(await button('Open my account').isDisabled(), 'Open my account should wait for the face');
   await page.getByTestId('username').first().fill('tobi');
   await see('$tobi is taken');
   await page.getByTestId('username').first().fill('ibrahimmusa');
-  await see('$ibrahimmusa is yours to take');
+  await see('$ibrahimmusa is free');
   /* a face is sensitive data: the scan waits for the yes */
   await tap('Scan my face');
-  await see('Tick the box first');
+  await see('Tick the box to allow the scan');
   await page.getByTestId('face-consent').first().click();
   await tap('Scan my face');
   await see('Face scanned');
@@ -565,6 +572,16 @@ try {
   must(new Set(landed).size >= 3, `the ticks should land one after another, not all at once (${landed.join(' ')})`);
   console.log(`  ${early.pending} marks on their way at ${early.t}ms, the last landed by ${ticks.find(x => x.pending === 0).t}ms (${ticks.map(x => `${x.t}:${x.pending}`).join(' ')})`);
   await shot('ready');
+  await tap('Continue');
+
+  /* what Beetle is for (Round 41): any number of aims, ticked; Take me in waits for one, Skip for now does not */
+  await seeExactly('What is Beetle for?');
+  at('/way-in');
+  must(await button('Take me in').isDisabled(), 'Take me in should wait for an aim, with Skip for now beside it');
+  await page.getByTestId('aim-save').first().click();
+  await page.getByTestId('aim-daily').first().click();
+  must((await page.getByTestId('aim-save').first().getAttribute('aria-checked')) === 'true', 'Save money should be ticked');
+  await shot('aims', 300);
   await tap('Take me in');
 
   /* done (Round 28): the steps leave, the coin comes to the middle and breathes for two seconds while the account
@@ -675,10 +692,10 @@ try {
   await shot('log-in-known');
   await tap('Use another account');
   await seeExactly('Log in');
-  await see('A code comes next, then your password');
+  await see('Enter your mobile number.');
   await shot('sign-in');
   await type('09020000000');
-  await see('There is no account on this number yet');
+  await see('No account on this number yet');
   await shot('sign-in-unknown');
   await wipe(11);
   await type(DEMO_PHONE);
@@ -696,7 +713,7 @@ try {
   await page.getByTestId('password').first().fill(PASSWORD);
   await tap('Log in');
   await seeExactly('Face scan');
-  await see('This phone is new to your account');
+  await see('New phone, so a quick face scan once');
   await shot('sign-in-face');
   await tap('Scan my face');
 
@@ -1304,6 +1321,11 @@ try {
   await shot('lab-ready');
   await tap('Back to the lab');
   await see('Beetle Lab');
+  await tap('What is Beetle for?');
+  await arrives('Pick any. Beetle tailors its help to you.');
+  await shot('lab-aims');
+  await tap('Back to the lab');
+  await see('Beetle Lab');
   await tap('A new account');
   await see(NEW_HOME);
   await onPage('home');
@@ -1729,7 +1751,7 @@ try {
   await tap('Use another account');
   await tap('Google');
   await seeExactly('Continue with Google');
-  await see('so there is no password');
+  await see('No password needed');
   await shot('log-in-google', 500);
   await tap('Continue as Ibrahim');
   await arrives(DEMO_HOME);
@@ -3037,7 +3059,7 @@ try {
   await see('Lay it flat and fill the frame');
   await shot('setup-idcard', 700);
   await tap('Take it');
-  await see('One tap. It is the last question');
+  await see('Last question. Every bank asks it');
   await shot('setup-income', 700);
   /* the four sources are radio rows, not buttons */
   await page.getByRole('radio', { name: 'A salary' }).click();
@@ -3174,7 +3196,7 @@ try {
   await tap('Google');
   await seeExactly('Continue with Google');
   await tap('Continue as Ibrahim');
-  await see('This Google email already has a Beetle account');
+  await see('This Google email already has an account');
   await page.waitForTimeout(1200);
   const shownBar = await page.evaluate(() => {
     const words = [...document.querySelectorAll('div')].find(d => d.childElementCount === 0 && d.textContent === 'Log in instead');

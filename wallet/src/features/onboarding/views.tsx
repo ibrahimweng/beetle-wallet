@@ -45,6 +45,7 @@ import {
   washes,
 } from '../../design';
 import { TextBox } from '../../design/TextBox';
+import { DateWheel } from '../../design/DateWheel';
 import type { IconName } from '../../icons';
 import { auth, identity, DEMO_ACCOUNT, DEMO_PASSCODES, DEMO_PASSWORDS, MOCK, MOCK_CODE, type Account } from '../../services';
 import type { DocumentKind } from '../../services/identity';
@@ -54,7 +55,6 @@ import {
   ADULT,
   ageOn,
   checkPhone,
-  dateFrom,
   fullNameProblem,
   isEmail,
   passcodeProblem,
@@ -62,7 +62,6 @@ import {
   passwordProblem,
   PASSWORD_RULES,
   PASSWORD_WORDS,
-  typingDate,
   usernameProblem,
 } from './validation';
 import { withProvider, type IdKind, type Progress } from './machine';
@@ -75,6 +74,9 @@ import { address, full, idcard, income } from './setupViews';
 import { putSetup } from '../setup/store';
 import { afterProof, signViews } from './signViews';
 import { reopen } from './wipe';
+import { AimPicker } from '../aims/AimPicker';
+import type { AimId } from '../aims/aims';
+import { keepAims } from '../settings/prefs';
 
 export type Note = { text: string; tone?: 'secondary' | 'bad' | 'accent' } | null;
 export type Bar = { label: string; onPress: () => void; disabled?: boolean; /** Back at the bottom left, beside the button, where a frame draws it there */ back?: () => void };
@@ -125,9 +127,12 @@ export type Ctx = {
   /** what is typed into the stage's box: an email, a password, a username, a full name */
   text: string;
   setText: (s: string) => void;
-  /** a second box: the date of birth beside the name */
+  /** the date of birth beside the name, as an ISO day off the wheels, or '' until they are turned */
   text2: string;
   setText2: (s: string) => void;
+  /** what they want Beetle for, ticked right after the account is ready */
+  aims: AimId[];
+  setAims: (a: AimId[]) => void;
   /** the passcode typed once, waiting for the second time */
   first: string | null;
   setFirst: (s: string | null) => void;
@@ -399,9 +404,9 @@ export function code(c: Ctx, o: { to: string; icon: IconName; tint?: string; tit
       c.setWait(r.resendAfterSeconds);
       c.setWrong(0);
       c.setDigits('');
-      c.setNote({ text: `Another six digits are on their way to ${where}.` });
+      c.setNote({ text: `New code sent to ${where}.` });
     } catch {
-      c.setNote({ text: 'It could not be sent. Check the network and try again.', tone: 'bad' });
+      c.setNote({ text: 'Couldn’t send it. Check your network.', tone: 'bad' });
     } finally {
       c.setBusy(false);
     }
@@ -412,22 +417,22 @@ export function code(c: Ctx, o: { to: string; icon: IconName; tint?: string; tit
     try {
       const r = await auth.verifyCode(o.to, d);
       if (r.ok) {
-        c.setNote({ text: 'That is the one.', tone: 'accent' });
+        c.setNote({ text: 'Verified.', tone: 'accent' });
         await o.onVerified(r.token);
         return;
       }
       c.bump();
       c.setDigits('');
-      if (r.reason === 'expired') c.setNote({ text: 'Those six have expired. Ask for another.', tone: 'bad' });
-      else if (r.reason === 'too-many') await resend('Too many tries. A fresh code is on its way.');
+      if (r.reason === 'expired') c.setNote({ text: 'Code expired. Get a new one.', tone: 'bad' });
+      else if (r.reason === 'too-many') await resend('Too many tries. New code sent.');
       else {
         const n = c.wrong + 1;
         c.setWrong(n);
-        if (n >= TRIES) await resend('Three that did not match. A fresh code is on its way.');
-        else c.setNote({ text: `Those six did not match. ${TRIES - n === 1 ? 'One more try' : `${TRIES - n} more tries`} before I send another.`, tone: 'bad' });
+        if (n >= TRIES) await resend('3 wrong tries. New code sent.');
+        else c.setNote({ text: `Wrong code. ${TRIES - n === 1 ? '1 try' : `${TRIES - n} tries`} left.`, tone: 'bad' });
       }
     } catch {
-      c.setNote({ text: 'I could not check them. Check the network and try again.', tone: 'bad' });
+      c.setNote({ text: 'Couldn’t check it. Check your network.', tone: 'bad' });
     } finally {
       c.setBusy(false);
     }
@@ -436,7 +441,7 @@ export function code(c: Ctx, o: { to: string; icon: IconName; tint?: string; tit
     icon: o.icon,
     tint: o.tint,
     title: o.title ?? 'OTP verification',
-    sub: o.sub ?? `Enter the six digits sent to ${where}.`,
+    sub: o.sub ?? `Enter the code sent to ${where}.`,
     bodyKey: `code:${o.to}`,
     body: (
       <DigitBody
@@ -469,7 +474,7 @@ function welcome(_c: Ctx): StageView {
     small: true,
     subBody: true,
     title: 'Intelligent finance',
-    sub: 'A bank that answers when you ask it something. Opening one takes about a minute: your mobile number, a code and your BVN.',
+    sub: 'A bank you can talk to. Open an account in about a minute.',
     bodyKey: 'welcome',
     body: null,
     welcome: true,
@@ -486,7 +491,7 @@ function number(c: Ctx): StageView {
     icon: 'phone-filled',
     tint: washes.number.tone,
     title: 'Enter mobile number',
-    sub: add ? 'A BVN is tied to a mobile number, so I need yours as well. I will text it a code.' : 'I will text it a code to check the number is yours.',
+    sub: add ? 'Your BVN needs your number too. I’ll text you a code.' : 'I’ll text you a code.',
     bodyKey: add ? 'number:add' : 'number',
     body: (
       <DigitBody
@@ -530,7 +535,7 @@ export function logInWith(c: Ctx, digits: string) {
 export async function sendNumber(c: Ctx, d: string) {
   const check = checkPhone(d);
   if (!check.ok) {
-    c.setNote({ text: 'That is not a Nigerian mobile number. They start 070, 080, 081, 090 or 091.', tone: 'bad' });
+    c.setNote({ text: 'Use a Nigerian number, like 0803 123 4567.', tone: 'bad' });
     c.bump();
     return;
   }
@@ -539,7 +544,7 @@ export async function sendNumber(c: Ctx, d: string) {
   try {
     /* one account to a number: a number that has one is asked to log in, never handed a second account */
     if (await auth.findAccount(check.phone)) {
-      c.setNote({ text: 'This number already has a Beetle account.', tone: 'bad' });
+      c.setNote({ text: 'This number already has an account.', tone: 'bad' });
       c.setUnknown(true);
       return;
     }
@@ -550,7 +555,7 @@ export async function sendNumber(c: Ctx, d: string) {
     c.setWrong(0);
     c.go('code');
   } catch {
-    c.setNote({ text: 'The text could not be sent. Check the network and try again.', tone: 'bad' });
+    c.setNote({ text: 'Couldn’t send the text. Check your network.', tone: 'bad' });
   } finally {
     c.setBusy(false);
   }
@@ -565,7 +570,7 @@ function email(c: Ctx): StageView {
     c.setNote({ text: 'Sending the code…' });
     try {
       if (await auth.findAccount(to)) {
-        c.setNote({ text: 'This email already has a Beetle account. Log in with it instead.', tone: 'bad' });
+        c.setNote({ text: 'This email already has an account. Log in instead.', tone: 'bad' });
         c.setUnknown(true);
         return;
       }
@@ -575,7 +580,7 @@ function email(c: Ctx): StageView {
       c.setWrong(0);
       c.go('code');
     } catch {
-      c.setNote({ text: 'The email could not be sent. Check the network and try again.', tone: 'bad' });
+      c.setNote({ text: 'Couldn’t send the email. Check your network.', tone: 'bad' });
     } finally {
       c.setBusy(false);
     }
@@ -584,7 +589,7 @@ function email(c: Ctx): StageView {
     icon: 'mail-filled',
     tint: washes.number.tone,
     title: 'Enter email',
-    sub: 'I will email it a code to check it is yours. Your mobile number comes later, with your BVN.',
+    sub: 'I’ll email you a code. Your number comes later.',
     bodyKey: 'email',
     words: true,
     body: (
@@ -699,13 +704,13 @@ function provider(c: Ctx): StageView {
   const logIn = async () => {
     const account = await auth.findAccount(handed);
     if (!account) {
-      c.setNote({ text: `No Beetle account has this ${name} email. Open one, or log in with your number.`, tone: 'bad' });
+      c.setNote({ text: `No account uses this ${name} email. Sign up, or log in with your number.`, tone: 'bad' });
       return;
     }
     /* only an account opened with this same Google or Apple is opened by it (the analysis after Round 34: an email typed
        into the stand-in opened whoever's account it was); the demo account, the frames' own, is the one exception */
     if (!account.demo && account.signInWith !== c.provider) {
-      c.setNote({ text: `This account was not opened with ${name}. Log in with its number or email and its password.`, tone: 'bad' });
+      c.setNote({ text: `This account doesn’t use ${name}. Log in with your number or email.`, tone: 'bad' });
       return;
     }
     c.setContact(account.phone);
@@ -722,7 +727,7 @@ function provider(c: Ctx): StageView {
         return;
       }
       if (await auth.findAccount(handed)) {
-        c.setNote({ text: `This ${name} email already has a Beetle account. Log in with it, or use another ${name} account.`, tone: 'bad' });
+        c.setNote({ text: `This ${name} email already has an account. Log in instead.`, tone: 'bad' });
         c.setUnknown(true);
         return;
       }
@@ -745,8 +750,8 @@ function provider(c: Ctx): StageView {
     tint: washes.number.tone,
     title: `Continue with ${name}`,
     sub: login
-      ? `${name} proves it is you, so there is no password. On a phone new to your account, a face scan once.`
-      : `${name} has already checked the email, so there is no code for it and no password. Beetle gets your name and email, nothing else.`,
+      ? `No password needed. A new phone needs a face scan once.`
+      : `No code or password needed. I only get your name and email.`,
     bodyKey: `provider:${c.provider}:${c.providerFor}`,
     words: typed,
     body: (
@@ -849,22 +854,22 @@ export function Legal({ c }: { c: Ctx }) {
 function details(c: Ctx): StageView {
   const p = c.app.progress;
   const nameWrong = c.text ? fullNameProblem(c.text) : 'short';
-  const iso = dateFrom(c.text2);
+  const iso = c.text2 || null;
   const ok = !nameWrong && !!iso;
   const save = async () => {
     if (c.busy) return;
     if (nameWrong) {
-      c.setNote({ text: nameWrong === 'chars' ? 'Letters only, as it is on your BVN or NIN.' : 'Your first name and your surname, at least.', tone: 'bad' });
+      c.setNote({ text: nameWrong === 'chars' ? 'Letters only, as on your BVN or NIN.' : 'Add your first name and surname.', tone: 'bad' });
       c.bump();
       return;
     }
     if (!iso) {
-      c.setNote({ text: 'A real date, as day, month and year: 14/06/1996.', tone: 'bad' });
+      c.setNote({ text: 'Scroll to your birthday.', tone: 'bad' });
       c.bump();
       return;
     }
     if (ageOn(iso) < ADULT) {
-      c.setNote({ text: `You have to be ${ADULT} or older to open an account. A parent can open one for you at a branch.`, tone: 'bad' });
+      c.setNote({ text: `You must be ${ADULT} or older. A parent can open one for you at a branch.`, tone: 'bad' });
       c.bump();
       return;
     }
@@ -875,7 +880,7 @@ function details(c: Ctx): StageView {
     icon: 'person-filled',
     tint: washes.who.tone,
     title: 'Your details',
-    sub: 'Your full name and date of birth, exactly as they are on your BVN or NIN. I check them; I do not show you what is on the record.',
+    sub: 'As they appear on your BVN or NIN.',
     bodyKey: 'details',
     words: true,
     body: (
@@ -891,25 +896,21 @@ function details(c: Ctx): StageView {
             autoCapitalize="words"
             autoComplete="name"
             textContentType="name"
-            returnKeyType="next"
+            returnKeyType="done"
             placeholder="Ibrahim Musa"
             testID="full-name"
           />
-          <TextBox
-            label="Date of birth"
-            value={c.text2}
-            onChangeText={t => {
-              c.setText2(typingDate(t));
-              c.setNote(null);
-            }}
-            keyboardType="number-pad"
-            autoComplete="birthdate-full"
-            returnKeyType="done"
-            onSubmitEditing={save}
-            placeholder="DD/MM/YYYY"
-            maxLength={10}
-            testID="dob"
-          />
+          <View style={{ gap: 8 }}>
+            <Label>Date of birth</Label>
+            <DateWheel
+              value={c.text2 || null}
+              onChange={iso => {
+                c.setText2(iso);
+                c.setNote(null);
+              }}
+              testID="dob"
+            />
+          </View>
         </View>
       </WordsBody>
     ),
@@ -921,8 +922,8 @@ function details(c: Ctx): StageView {
 }
 
 const ID_WORDS = {
-  bvn: { title: 'BVN number', sub: 'Eleven digits. Dial *565*0# from the number your bank has to see it.', checker: 'NIBSS, the banks’ register' },
-  nin: { title: 'NIN number', sub: 'Eleven digits. Dial *346# to see it, or read it off your NIN slip.', checker: 'NIMC, the identity commission' },
+  bvn: { title: 'BVN number', sub: '11 digits. Forgot it? Dial *565*0#.', checker: 'NIBSS, the banks’ register' },
+  nin: { title: 'NIN number', sub: '11 digits. Dial *346#, or check your NIN slip.', checker: 'NIMC, the identity commission' },
 } as const;
 
 /* The BVN or the NIN, as the person picks (the owner's word), held to the details just typed. Three that do not match
@@ -938,7 +939,7 @@ function bvn(c: Ctx): StageView {
     try {
       const paused = await idChecksPaused();
       if (paused) {
-        c.setNote({ text: `For your safety, checks from this phone wait until ${paused}.`, tone: 'bad' });
+        c.setNote({ text: `Too many tries. Try again after ${paused}.`, tone: 'bad' });
         shut = true;
         return;
       }
@@ -954,14 +955,14 @@ function bvn(c: Ctx): StageView {
       if (miss.until) {
         c.setDigits('');
         c.bump();
-        c.setNote({ text: `Three that did not match. For your safety, checks from this phone wait until ${miss.until}.`, tone: 'bad' });
+        c.setNote({ text: `3 tries didn’t match. Try again after ${miss.until}.`, tone: 'bad' });
         shut = true;
         return;
       }
       c.setWrong(miss.misses);
       c.go('nomatch');
     } catch {
-      c.setNote({ text: 'The register did not answer. Try again in a moment.', tone: 'bad' });
+      c.setNote({ text: 'Couldn’t check right now. Try again shortly.', tone: 'bad' });
     } finally {
       if (!shut) c.setBusy(false);
     }
@@ -999,7 +1000,7 @@ function bvn(c: Ctx): StageView {
           groups={[4, 4, 3]}
           footer={
             <View style={{ gap: 12 }}>
-              <Caption tone="tertiary">{`I check your name and date of birth with ${words.checker}. Nothing else is taken from it.`}</Caption>
+              <Caption tone="tertiary">{`I only check your name and birthday with ${words.checker}.`}</Caption>
               <More label="Use a photo of my NIN slip or voter’s card" onPress={() => c.go('document')} />
             </View>
           }
@@ -1025,7 +1026,7 @@ function documentStage(c: Ctx): StageView {
     icon: 'camera-filled',
     tint: washes.idcard.tone,
     title: 'NIN slip or voter’s card',
-    sub: 'A photo of either is checked against your details, and fills in your address and email so finishing setting up is done.',
+    sub: 'Take a photo. It also fills in your address.',
     bodyKey: 'document',
     body: (
       <View style={{ gap: 12 }}>
@@ -1065,7 +1066,7 @@ function nomatch(c: Ctx): StageView {
     icon: 'id-filled',
     tint: washes.nomatch.tone,
     title: ID_WORDS[kind].title,
-    sub: `These did not match. ${left === 1 ? 'One more try' : `${left} more tries`} before checks from this phone wait a day.`,
+    sub: `These don’t match. ${left === 1 ? '1 try' : `${left} tries`} left today.`,
     bodyKey: 'nomatch',
     body: (
       <View style={{ gap: 20 }}>
@@ -1108,7 +1109,7 @@ function password(c: Ctx): StageView {
     icon: 'lock-filled',
     tint: washes.passcode.tone,
     title: 'Password',
-    sub: 'At least eight letters and numbers, for logging in on a new phone. Not your name or your birthday.',
+    sub: 'For logging in on a new phone. 8+ characters, with a letter and a number.',
     bodyKey: 'password',
     words: true,
     body: passwordBody(c),
@@ -1141,7 +1142,7 @@ export function passcodeView(c: Ctx, o: { save: (code: string) => Promise<void>;
       return;
     }
     if (d !== c.first) {
-      c.setNote({ text: 'They did not match. Start again.', tone: 'bad' });
+      c.setNote({ text: 'They don’t match. Try again.', tone: 'bad' });
       c.bump();
       c.setFirst(null);
       c.setDigits('');
@@ -1151,7 +1152,7 @@ export function passcodeView(c: Ctx, o: { save: (code: string) => Promise<void>;
     try {
       await o.save(d);
     } catch {
-      c.setNote({ text: 'It could not be kept. Try again.', tone: 'bad' });
+      c.setNote({ text: 'Couldn’t save it. Try again.', tone: 'bad' });
       c.setFirst(null);
       c.setDigits('');
     } finally {
@@ -1162,7 +1163,7 @@ export function passcodeView(c: Ctx, o: { save: (code: string) => Promise<void>;
     icon: 'lock-filled',
     tint: washes.passcode.tone,
     title: again ? 'Confirm passcode' : (o.title ?? 'Create passcode'),
-    sub: again ? 'The same six again, to be sure.' : 'Six digits. They open Beetle and send your money when your face or fingerprint cannot.',
+    sub: again ? 'Enter it again.' : '6 digits to open Beetle and send money.',
     bodyKey: `passcode:${again ? 'again' : 'first'}`,
     body: (
       <DigitBody
@@ -1172,7 +1173,7 @@ export function passcodeView(c: Ctx, o: { save: (code: string) => Promise<void>;
         secret
         footer={
           <View style={{ paddingTop: 8 }}>
-            <Aside>Not your year of birth, and not 123456.</Aside>
+            <Aside>Avoid your birth year and 123456.</Aside>
           </View>
         }
       />
@@ -1224,7 +1225,7 @@ function UsernameCheck({ c }: { c: Ctx }) {
   return null;
 }
 
-const USERNAME_WORDS = { short: 'At least three letters.', long: 'Twenty at most.', chars: 'Small letters, numbers and underscores, starting with a letter.' } as const;
+const USERNAME_WORDS = { short: 'At least three letters.', long: 'Twenty at most.', chars: 'Lowercase letters, numbers and _. Start with a letter.' } as const;
 
 /* A box to tick: a consent, said in full beside it. */
 export function Consent({ on, onChange, children, testID }: { on: boolean; onChange: (v: boolean) => void; children: ReactNode; testID?: string }) {
@@ -1261,7 +1262,7 @@ function finish(c: Ctx): StageView {
     c.free === 'checking'
       ? 'Checking…'
       : c.free === 'free'
-        ? `$${c.text} is yours to take.`
+        ? `$${c.text} is free.`
         : c.free === 'taken'
           ? `$${c.text} is taken. Try another.`
           : problem && c.text
@@ -1269,7 +1270,7 @@ function finish(c: Ctx): StageView {
             : 'What people type to pay you.';
   const scan = async () => {
     if (!c.consent) {
-      c.setNote({ text: 'Tick the box first: the scan needs your yes.', tone: 'bad' });
+      c.setNote({ text: 'Tick the box to allow the scan.', tone: 'bad' });
       return;
     }
     c.setNote(null);
@@ -1290,7 +1291,7 @@ function finish(c: Ctx): StageView {
       }
       c.go('ready');
     } catch {
-      c.setNote({ text: 'The account could not be opened. Check the network and try again.', tone: 'bad' });
+      c.setNote({ text: 'Couldn’t open your account. Check your network.', tone: 'bad' });
     } finally {
       c.setBusy(false);
     }
@@ -1299,14 +1300,14 @@ function finish(c: Ctx): StageView {
     icon: 'faceid-filled',
     tint: washes.face.tone,
     title: 'Face scan and username',
-    sub: `The last step. Your face, matched to your ${kind} photo so only you can get back in, and the name people pay.`,
+    sub: `Last step. A quick face scan and your $username.`,
     bodyKey: 'finish',
     words: true,
     body: (
       <View style={{ gap: 12 }}>
         <UsernameCheck c={c} />
         <Consent on={c.consent} onChange={c.setConsent} testID="face-consent">
-          {`I agree to a face scan to prove this ${kind} is mine. It is checked against the ${kind} photo and not kept as a picture.`}
+          {`I agree to a face scan to prove this ${kind} is mine. The photo isn’t kept.`}
         </Consent>
         <Tap
           accessibilityRole="button"
@@ -1370,7 +1371,7 @@ function ready(c: Ctx): StageView {
     title: 'Your account is ready',
     small: true,
     inline: true,
-    sub: account?.username ? `Your number is ${number}, and $${account.username} is yours. Money can reach either now.` : `Your number is ${number}, and money can reach it now.`,
+    sub: account?.username ? `Your account number is ${number}. Your tag is $${account.username}.` : `Your account number is ${number}.`,
     bodyKey: 'ready',
     body: (
       <View style={{ gap: 12, paddingTop: 4 }}>
@@ -1391,14 +1392,39 @@ function ready(c: Ctx): StageView {
             <Icon name="shield-filled" size={24} colour={night.ink} />
             <View style={{ flex: 1 }}>
               <Label>{c.setup.done ? 'Everything is on' : 'Finish setting up'}</Label>
-              <Caption tone="tertiary">{c.setup.done ? 'A million a day, dollars and borrowing' : 'Two minutes, and the last two come on'}</Caption>
+              <Caption tone="tertiary">{c.setup.done ? 'A million a day, dollars and borrowing' : '2 minutes to unlock the rest'}</Caption>
             </View>
             <Icon name="chevron" size={16} colour={night.tertiary} />
           </Card>
         </Tap>
       </View>
     ),
-    bar: { label: 'Take me in', onPress: () => c.toHome(() => c.app.startOver(), { tour: true }) },
+    bar: { label: 'Continue', onPress: () => c.go('aims') },
+  };
+}
+
+/* What they want Beetle for (Round 41, the owner's word): right after the account is ready, before home, so Beetle's
+   help fits from the first chat. Any number, or none: Skip goes in all the same, and Settings changes them later. */
+function aims(c: Ctx): StageView {
+  const account = c.app.session?.account;
+  const go = async (picked: AimId[]) => {
+    if (account) await keepAims(account.accountNumber, picked);
+    c.toHome(() => c.app.startOver(), { tour: true });
+  };
+  return {
+    icon: 'star-filled',
+    tint: washes.finish.tone,
+    title: 'What is Beetle for?',
+    sub: 'Pick any. Beetle tailors its help to you.',
+    bodyKey: 'aims',
+    body: (
+      <View style={{ gap: 12 }}>
+        <AimPicker picked={c.aims} onChange={c.setAims} />
+        <More label="Skip for now" onPress={() => void go([])} />
+      </View>
+    ),
+    bar: { label: 'Take me in', onPress: () => void go(c.aims), disabled: !c.aims.length },
+    back: () => c.go('ready', -1),
   };
 }
 
@@ -1422,7 +1448,7 @@ export async function sendLogInCode(c: Ctx, d: string) {
   try {
     const account = await auth.findAccount(check.phone);
     if (!account) {
-      c.setNote({ text: 'There is no account on this number yet.', tone: 'bad' });
+      c.setNote({ text: 'No account on this number yet.', tone: 'bad' });
       c.setUnknown(true);
       return;
     }
@@ -1433,7 +1459,7 @@ export async function sendLogInCode(c: Ctx, d: string) {
     c.setWrong(0);
     c.go('signcode');
   } catch {
-    c.setNote({ text: 'The text could not be sent. Check the network and try again.', tone: 'bad' });
+    c.setNote({ text: 'Couldn’t send the text. Check your network.', tone: 'bad' });
   } finally {
     c.setBusy(false);
   }
@@ -1467,6 +1493,8 @@ export function buildView(c: Ctx): StageView {
       return finish(c);
     case 'ready':
       return ready(c);
+    case 'aims':
+      return aims(c);
     case 'address':
       return address(c);
     case 'idcard':

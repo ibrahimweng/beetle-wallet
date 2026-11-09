@@ -243,7 +243,9 @@ console.log('figma plugin: a copy with no plugin ID yet');
 console.log('figma plugin: the relaunch button that updates');
 {
   const { page, fig, errors } = await open('?command=sync');
-  const closed = await page.waitForFunction(() => window.figma.closed, null, { timeout: 20000 }).then(() => true, () => false);
+  /* the host page sets window.figma only once its module has fetched the plugin, which can be after the page's load
+     event; asking for figma.closed before then threw, and failed the check now and then */
+  const closed = await page.waitForFunction(() => !!(window.figma && window.figma.closed), null, { timeout: 20000 }).then(() => true, () => false);
   ok(closed && (await fig(() => window.figma.calls.find(c => c.name === 'showUI').opts.visible)) === false, 'it runs with the panel hidden and closes when it is done');
   ok(!errors.length, 'no errors', errors.join(' | '));
   await page.close();

@@ -472,7 +472,7 @@ try {
   await seeExactly('BVN number');
   await type('12340000123');
   await seeExactly('Nothing matched');
-  await see('2 tries left today');
+  await see('2 tries left');
   /* nothing on the record is shown for a miss: not the name as the register writes it, not the birthday */
   must(
     (await page
@@ -482,6 +482,33 @@ try {
     'a miss should give nobody’s details away',
   );
   await shot('no-match');
+  /* three wrong numbers in a row: a two minute wait, counted down on the step (Round 42) */
+  await tap('Try again');
+  await seeExactly('BVN number');
+  await type('22233344455');
+  await seeExactly('Nothing matched');
+  await see('1 try left');
+  await tap('Try again');
+  await seeExactly('BVN number');
+  await type('22233344466');
+  await see('3 wrong tries. Try again in');
+  await shot('bvn-wait');
+  /* nothing is kept halfway (Round 42): the app opened again starts the sign-up afresh, without the wait */
+  await page.reload();
+  await button('Sign up').waitFor({ timeout: 30000 });
+  await tap('Sign up');
+  await seeExactly('Enter mobile number');
+  await type(NEW_PHONE);
+  await seeExactly('OTP verification');
+  await type(CODE);
+  await seeExactly('Your details');
+  await page.getByTestId('full-name').first().fill('Ibrahim Musa');
+  await page.getByTestId('dob-day-14').first().click();
+  await page.getByTestId('dob-month-June').first().click();
+  await page.getByTestId('dob-year-1996').first().click();
+  await tap('Continue');
+  await seeExactly('BVN number');
+  must((await page.getByText('3 wrong tries', { exact: false }).filter({ visible: true }).count()) === 0, 'the wait should not outlive the app being opened again');
   /* the shortcut: a photo of a NIN slip or a voter's card, held to the same details */
   await tap('Use a photo of my NIN slip or voter’s card');
   await seeExactly('NIN slip or voter’s card');
@@ -574,10 +601,11 @@ try {
   await shot('ready');
   await tap('Continue');
 
-  /* what Beetle is for (Round 41): any number of aims, ticked; Take me in waits for one, Skip for now does not */
+  /* what Beetle is for (Round 41): any number of aims, ticked, or none; Take me in never waits (Round 42) */
   await seeExactly('What is Beetle for?');
   at('/way-in');
-  must(await button('Take me in').isDisabled(), 'Take me in should wait for an aim, with Skip for now beside it');
+  must(!(await button('Take me in').isDisabled()), 'Take me in should go in with no aim ticked');
+  must((await page.getByText('Skip for now', { exact: true }).filter({ visible: true }).count()) === 0, 'there is no Skip for now beside Take me in');
   await page.getByTestId('aim-save').first().click();
   await page.getByTestId('aim-daily').first().click();
   must((await page.getByTestId('aim-save').first().getAttribute('aria-checked')) === 'true', 'Save money should be ticked');
@@ -685,16 +713,13 @@ try {
   await page.goto(`${base}/way-in`, { waitUntil: 'load' });
   await see('Sign up');
   await tap('Log in');
-  /* this phone knows the account opened on it a moment ago: Face ID alone, or another account */
-  await see('Welcome back, Ibrahim');
-  await button('Log in with your passkey').waitFor();
-  at('/way-in');
-  await shot('log-in-known');
-  await tap('Use another account');
+  /* signing out forgot the account (Round 42): no Welcome back, and its number has no account any more, so it signs up afresh */
   await seeExactly('Log in');
   await see('Enter your mobile number.');
+  must((await page.getByText('Welcome back, Ibrahim').filter({ visible: true }).count()) === 0, 'a phone signed out of should not know the account');
+  at('/way-in');
   await shot('sign-in');
-  await type('09020000000');
+  await type(NEW_PHONE);
   await see('No account on this number yet');
   await shot('sign-in-unknown');
   await wipe(11);
@@ -1322,7 +1347,7 @@ try {
   await tap('Back to the lab');
   await see('Beetle Lab');
   await tap('What is Beetle for?');
-  await arrives('Pick any. Beetle tailors its help to you.');
+  await arrives('Pick any, or none. Beetle tailors its help to you.');
   await shot('lab-aims');
   await tap('Back to the lab');
   await see('Beetle Lab');
@@ -1746,14 +1771,16 @@ try {
   await page.getByTestId('confirm-sign-out').getByRole('button', { name: 'Sign out', exact: true }).click();
   await see('Sign up');
   at('/way-in');
-  /* logging in with Google (Round 32): no password; on a phone that knows the account, straight in */
+  /* logging in with Google (Round 32): no password; signed out, the phone has forgotten the account (Round 42) */
   await tap('Log in');
-  await tap('Use another account');
+  await seeExactly('Log in');
   await tap('Google');
   await seeExactly('Continue with Google');
   await see('No password needed');
   await shot('log-in-google', 500);
   await tap('Continue as Ibrahim');
+  await seeExactly('Face scan');
+  await tap('Scan my face');
   await arrives(DEMO_HOME);
   at('/home');
   await page

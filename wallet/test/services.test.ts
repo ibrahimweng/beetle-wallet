@@ -19,7 +19,8 @@ vi.mock('expo-crypto', () => ({
 }));
 
 import { MockAuthService, DEMO_PHONE, accountNumberFor } from '@/services/auth';
-import { MockIdentityService } from '@/services/identity';
+import { MockIdentityService, TEST_ID } from '@/services/identity';
+import { ID_WAIT_SECONDS, clearIdMisses, idMisses, idWaitLeft, noteIdMiss } from '@/features/onboarding/recovery';
 import { hashPasscode } from '@/services/crypto';
 
 beforeEach(() => store.clear());
@@ -72,6 +73,37 @@ describe('the register', () => {
     expect(r.found && r.record.recordName).toBe('MUSA IBRAHIM');
     expect(await id.lookup('12340000567')).toEqual({ found: false });
     expect(await id.lookup('123')).toEqual({ found: false });
+  });
+  it('lets the test number through with whatever name and birthday were typed, and turns every other number away', async () => {
+    const r = await id.verify('bvn', TEST_ID, { name: 'Ada Lovelace Obi', dob: '2001-03-09' });
+    expect(r.ok && r.record.firstName).toBe('Ada');
+    expect(r.ok && r.record.lastName).toBe('Obi');
+    expect(r.ok && r.record.birthYear).toBe(2001);
+    expect((await id.verify('nin', TEST_ID, { name: 'Tobi Ade', dob: '1990-01-01' })).ok).toBe(true);
+    expect(await id.verify('bvn', '22233344455', { name: 'Ibrahim Musa', dob: '1996-06-14' })).toEqual({ ok: false, reason: 'mismatch' });
+    expect(await id.verify('nin', '12340000123', { name: 'Ibrahim Musa', dob: '1996-06-14' })).toEqual({ ok: false, reason: 'no-record' });
+  });
+});
+
+describe('wrong BVNs and NINs', () => {
+  beforeEach(() => clearIdMisses());
+  it('three in a row mean a short wait, then a fresh three', () => {
+    const t = 1_000_000;
+    expect(noteIdMiss(t)).toEqual({ misses: 1, wait: 0 });
+    expect(noteIdMiss(t)).toEqual({ misses: 2, wait: 0 });
+    expect(idWaitLeft(t)).toBe(0);
+    expect(noteIdMiss(t)).toEqual({ misses: 3, wait: ID_WAIT_SECONDS });
+    expect(idWaitLeft(t)).toBe(ID_WAIT_SECONDS);
+    expect(idWaitLeft(t + 30_000)).toBe(ID_WAIT_SECONDS - 30);
+    expect(idWaitLeft(t + ID_WAIT_SECONDS * 1000)).toBe(0);
+    expect(idMisses()).toBe(0);
+  });
+  it('a match clears the count and the wait', () => {
+    noteIdMiss(5);
+    noteIdMiss(5);
+    clearIdMisses();
+    expect(idMisses()).toBe(0);
+    expect(noteIdMiss(5).misses).toBe(1);
   });
 });
 

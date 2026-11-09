@@ -31,6 +31,19 @@ time it answers: the model is told them, the chat's first line follows the
 first one, and the chips over the ask bar lead with what they came for (see
 `src/features/aims`). The words of the way in are short and direct.
 
+Since Round 42 signing up is quick and leaves nothing behind. A half-done
+sign-up is kept only while the app is open: close it, or load the page
+again, and it starts from the welcome. Signing out forgets everything on the
+phone: the account (the test build closes it, so the same number signs up
+afresh), its settings, aims and chats, and that the phone knew it. Finishing
+the sign-up keeps you signed in until you sign out. What is Beetle for? goes
+in with any aims ticked, or none. In the test build `1234 5678 900`, as a BVN
+or a NIN, passes with any name and birthday; every other number is turned
+away, and three wrong numbers in a row mean a two minute wait, counted down
+on the step. On the test site the guide, What to type, is open beside the
+phone on a wide screen with the step on screen marked; on a phone a slim bar
+under the app says what to type on this step, and opens the whole guide.
+
 How it looks and moves is set down in [`DESIGN.md`](DESIGN.md): no drop
 shadows, forms that speak under their fields, the amount picker, the bank
 always said, asking before what cannot be undone, and the rest. A screen
@@ -152,8 +165,8 @@ mocks in and says so on the code screen; a real `AuthService` and
 |---|---|---|
 | Enter mobile number | any Nigerian mobile number: 070, 080, 081, 090 or 091 and eleven digits; or Use email instead; or Google or Apple (a stand-in in this build, handing over a checked email) | anything else, with the reason under the field; a number or an email that already has an account, with Log in offered |
 | OTP verification | `123456`, to the number or the email | `000000` has expired; any other six do not match, three of those and a fresh code is sent on its own |
-| Your details | the full name and the date of birth typed as they are on the BVN or NIN: `Ibrahim Musa`, `14/06/1996` (Google and Apple give the name) | one name only, anything but letters, a date that is not a real day, under 18 |
-| BVN number | BVN or NIN, picked; `1234 5678 900` matches Ibrahim Musa, 14/06/1996, and any other number takes the details typed; or a photo of a NIN slip or voter's card (a moment on the web), held to the same details, which finishes setting up with it | eleven digits with `0000` in them, or details that do not match: Nothing matched, never what the record holds; three misses and checks wait a day |
+| Your details | any full name, and a birthday picked on the wheels (Google and Apple give the name) | one name only, anything but letters, a date that is not a real day, under 18 |
+| BVN number | BVN or NIN, picked; `1234 5678 900` passes with whatever name and birthday were typed; or a photo of a NIN slip or voter's card (a moment on the web), which finishes setting up with it | any other number: Nothing matched, never what the record holds; three wrong numbers in a row and a two minute wait, counted down |
 | Password | eight or more, a letter and a number, the rules ticking as they are met; in the lab `beetle321` passes too; not asked of Google and Apple | under eight, no letter, no number, your name or year of birth, and the handful everybody picks |
 | Create passcode | six digits typed twice, kept stretched for that account; in the lab `654321` and `123456` pass too | the same digit six times, a run, a repeated pair, your year of birth, and the handful everybody picks |
 | Face scan and username | the box ticked (a face is sensitive data), the face (a moment in Expo Go and on the web), and a $username, suggested from the name; a passkey saved on the phone unless it is switched off | Scan my face before the box is ticked; a username taken, too short, or with anything but small letters, numbers and underscores; Open my account waits for both |

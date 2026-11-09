@@ -22,7 +22,7 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Platform, View } from 'react-native';
 import { CardStyleInterpolators, Stack, TransitionPresets } from 'expo-router/js-stack';
-import type { ErrorBoundaryProps } from 'expo-router';
+import { usePathname, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { loadAsync, useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -38,6 +38,7 @@ import { keepProblem, problemOf, takeLastProblem, watchProblems } from '../src/s
 import { FONT_FILES, REMOTE_FONTS, REMOTE_WAIT } from '../src/design/fonts';
 import { withoutProse } from '../src/design/tokens';
 import { ArrivalLayer } from '../src/features/onboarding/Arrival';
+import { tellWhere } from '../src/lib/where';
 
 watchProblems();
 
@@ -50,6 +51,15 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
   const style = document.createElement('style');
   style.textContent = 'input:focus, textarea:focus { outline: none; }';
   document.head.appendChild(style);
+}
+
+/** The page open, told to the test site around the web build (the way in tells its own stage). */
+function TellWhere() {
+  const path = usePathname();
+  useEffect(() => {
+    if (!path.startsWith('/way-in')) tellWhere(path);
+  }, [path]);
+  return null;
 }
 
 export default function Root() {
@@ -100,6 +110,7 @@ export default function Root() {
               options={({ route }: { route: { params?: object } }) => ((route.params as { from?: string } | undefined)?.from === 'boot' ? { gestureEnabled: false, ...IN_PLACE } : {})}
             />
           </Stack>
+          <TellWhere />
           <ArrivalLayer />
           <LabTab />
           {/* over everything but the toasts: the app locked, on opening and after the wait */}

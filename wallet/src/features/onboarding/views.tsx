@@ -65,7 +65,7 @@ import {
   usernameProblem,
 } from './validation';
 import { withProvider, type IdKind, type Progress } from './machine';
-import { clearIdMisses, idChecksPaused, noteIdMiss } from './recovery';
+import { clearIdMisses, idWaitLeft, noteIdMiss } from './recovery';
 import type { useApp } from './store';
 import type { Stage } from './stages';
 import type { Known } from './devices';
@@ -927,7 +927,7 @@ const ID_WORDS = {
 } as const;
 
 /* The BVN or the NIN, as the person picks (the owner's word), held to the details just typed. Three that do not match
-   and this phone checks no more for a day (recovery.ts). */
+   and there is a two minute wait, counted down on the step (recovery.ts, Round 42). */
 function bvn(c: Ctx): StageView {
   const p = c.app.progress;
   const kind: IdKind = p.idKind ?? 'bvn';
@@ -935,28 +935,28 @@ function bvn(c: Ctx): StageView {
   const full = async (d: string) => {
     c.setBusy(true);
     c.setNote({ text: 'Checking…' });
-    let shut = false;
     try {
-      const paused = await idChecksPaused();
-      if (paused) {
-        c.setNote({ text: `Too many tries. Try again after ${paused}.`, tone: 'bad' });
-        shut = true;
+      const left = idWaitLeft();
+      if (left > 0) {
+        c.setDigits('');
+        c.setNote(null);
+        c.setWait(left);
         return;
       }
       const r = await identity.verify(kind, d, { name: p.name ?? '', dob: p.dob ?? '' });
       if (r.ok) {
-        await clearIdMisses();
+        clearIdMisses();
         await c.app.setIdentity(d, r.record, kind);
         c.go(afterIdentity(p));
         return;
       }
-      const miss = await noteIdMiss();
+      const miss = noteIdMiss();
       c.setLastNumber(d);
-      if (miss.until) {
+      if (miss.wait) {
         c.setDigits('');
         c.bump();
-        c.setNote({ text: `3 tries didn’t match. Try again after ${miss.until}.`, tone: 'bad' });
-        shut = true;
+        c.setNote(null);
+        c.setWait(miss.wait);
         return;
       }
       c.setWrong(miss.misses);
@@ -964,7 +964,7 @@ function bvn(c: Ctx): StageView {
     } catch {
       c.setNote({ text: 'Couldn’t check right now. Try again shortly.', tone: 'bad' });
     } finally {
-      if (!shut) c.setBusy(false);
+      c.setBusy(false);
     }
   };
   const pick = (k: IdKind) => {
@@ -1000,6 +1000,10 @@ function bvn(c: Ctx): StageView {
           groups={[4, 4, 3]}
           footer={
             <View style={{ gap: 12 }}>
+              {/* three wrong numbers: a short wait, counted down where it can be seen (Round 42) */}
+              {c.wait > 0 ? (
+                <NoteLine note={{ text: `3 wrong tries. Try again in ${Math.floor(c.wait / 60)}:${String(c.wait % 60).padStart(2, '0')}.`, tone: 'bad' }} />
+              ) : null}
               <Caption tone="tertiary">{`I only check your name and birthday with ${words.checker}.`}</Caption>
               <More label="Use a photo of my NIN slip or voter’s card" onPress={() => c.go('document')} />
             </View>
@@ -1008,7 +1012,7 @@ function bvn(c: Ctx): StageView {
       </View>
     ),
     keypad: typing(c, 11, full),
-    hint: MOCK ? 'Demo: 1234 5678 900 is Ibrahim Musa, 14/06/1996' : undefined,
+    hint: MOCK ? 'Test build: 1234 5678 900 passes, with any name and birthday.' : undefined,
     back: () => c.go('details', -1),
   };
 }
@@ -1066,7 +1070,7 @@ function nomatch(c: Ctx): StageView {
     icon: 'id-filled',
     tint: washes.nomatch.tone,
     title: ID_WORDS[kind].title,
-    sub: `These don’t match. ${left === 1 ? '1 try' : `${left} tries`} left today.`,
+    sub: `That number doesn’t match. ${left === 1 ? '1 try' : `${left} tries`} left.`,
     bodyKey: 'nomatch',
     body: (
       <View style={{ gap: 20 }}>
@@ -1075,7 +1079,7 @@ function nomatch(c: Ctx): StageView {
             <Icon name="warn-filled" size={28} colour={colour.warn} />
             <RowText>Nothing matched</RowText>
           </View>
-          <Meta tone="secondary">{`The name, the date of birth and the eleven digits have to belong together, as they are on your ${kind === 'nin' ? 'NIN' : 'BVN'}. A name spelled another way, or one wrong digit, is the usual reason.`}</Meta>
+          <Meta tone="secondary">{`Check the eleven digits on your ${kind === 'nin' ? 'NIN' : 'BVN'}. One wrong digit is the usual reason.`}</Meta>
         </Card>
         <More label="Check my details" onPress={() => c.go('details', -1)} />
         <More label="Use a photo of my NIN slip or voter’s card" onPress={() => c.go('document')} />
@@ -1415,15 +1419,15 @@ function aims(c: Ctx): StageView {
     icon: 'star-filled',
     tint: washes.finish.tone,
     title: 'What is Beetle for?',
-    sub: 'Pick any. Beetle tailors its help to you.',
+    sub: 'Pick any, or none. Beetle tailors its help to you.',
     bodyKey: 'aims',
     body: (
       <View style={{ gap: 12 }}>
         <AimPicker picked={c.aims} onChange={c.setAims} />
-        <More label="Skip for now" onPress={() => void go([])} />
       </View>
     ),
-    bar: { label: 'Take me in', onPress: () => void go(c.aims), disabled: !c.aims.length },
+    /* never a wall (Round 42): in with or without an aim */
+    bar: { label: 'Take me in', onPress: () => void go(c.aims) },
     back: () => c.go('ready', -1),
   };
 }

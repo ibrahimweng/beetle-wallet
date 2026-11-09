@@ -56,6 +56,9 @@ import { wait } from './support';
 /** The mock register. Any eleven digits come back with a record, except a
     number with four zeros in a row, which is how a tester asks for "nothing
     came back". The design's own number, 1234 5678 900, is Ibrahim Musa. */
+/** The BVN or NIN the test build lets through, as its guide says. */
+export const TEST_ID = '12345678900';
+
 export class MockIdentityService implements IdentityService {
   constructor(private readonly delay = 700) {}
   async lookup(number: string): Promise<IdentityLookup> {
@@ -70,14 +73,12 @@ export class MockIdentityService implements IdentityService {
     };
   }
 
-  /** The mock holds the design's own number, 1234 5678 900, to Ibrahim Musa born 14 June 1996; any other number with
-      a record takes the name and the birthday typed, so trying the app never means knowing a stranger's. */
+  /** The test build's one number, the one its guide gives (Round 42, the owner's word): 1234 5678 900, as a BVN or a
+      NIN, passes with whatever name and birthday were typed, so a tester never has to be somebody else; every other
+      number is turned away, the way a wrong number is by the register. */
   async verify(_kind: 'bvn' | 'nin', number: string, typed: { name: string; dob: string }): Promise<IdentityCheck> {
-    const found = await this.lookup(number);
-    if (!found.found) return { ok: false, reason: 'no-record' };
-    if (number === '12345678900') {
-      return namesMatch(typed.name, found.record) && typed.dob === found.record.born ? { ok: true, record: found.record } : { ok: false, reason: 'mismatch' };
-    }
+    await wait(this.delay);
+    if (number !== TEST_ID) return { ok: false, reason: /0000/.test(number) ? 'no-record' : 'mismatch' };
     const words = typed.name.trim().split(/\s+/);
     const firstName = words[0] ?? '';
     const lastName = words[words.length - 1] ?? '';

@@ -63,7 +63,7 @@ import { nextSetup, type Income } from '../setup/setup';
 import { useSetup } from '../setup/store';
 import { idPhoto } from '../setup/hand';
 import { buildView, type Bar, type Ctx, type FaceState, type Free, type Note } from './views';
-import { auth, identity, namesMatch, type Account } from '../../services';
+import { auth, identity, type Account } from '../../services';
 import { useBiometricName } from '../passcode/biometric';
 import type { DocumentKind } from '../../services/identity';
 import { lastHere, type Known } from './devices';
@@ -73,6 +73,8 @@ import { MIDDLE, abandon, claimCoin, coin, coverUp, finish, homeIsUnder, release
 import { backTop, logoTop } from './tops';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { AimId } from '../aims/aims';
+import { idWaitLeft } from './recovery';
+import { tellWhere } from '../../lib/where';
 import { wantTour } from '../home/tour';
 
 /* The geometry the glide is written against: a 32 glyph, 8 under it, the
@@ -239,13 +241,14 @@ export function WayIn() {
           setNote({ text: 'Couldn’t read it. Retake it in good light, or type the number.', tone: 'bad' });
           return;
         }
-        /* the paper is held to the details typed, as a number is: somebody else's card opens nothing */
+        /* the number on the paper is held to the details typed, as a typed number is: somebody else's card opens nothing */
         const p = app.progress;
-        if (!namesMatch(p.name ?? '', r.record) || p.dob !== r.record.born) {
-          setNote({ text: 'The name or birthday doesn’t match your details. Check them, or try the other document.', tone: 'bad' });
+        const held = await identity.verify('nin', r.number ?? '', { name: p.name ?? '', dob: p.dob ?? '' });
+        if (!held.ok) {
+          setNote({ text: 'The number on it doesn’t match. Check your details, or try the other document.', tone: 'bad' });
           return;
         }
-        await app.setIdentity(r.number ?? '', r.record, docKind);
+        await app.setIdentity(r.number ?? '', { ...r.record, ...held.record, address: r.record.address, email: r.record.email }, docKind);
         go(!p.phone ? 'number' : p.via === 'google' || p.via === 'apple' ? 'passcode' : 'password');
       } catch {
         setNote({ text: 'Couldn’t check right now. Try again shortly.', tone: 'bad' });
@@ -270,9 +273,19 @@ export function WayIn() {
     if (read) void readDoc(read.number.replace(/\s/g, ''));
   }, [focused, stage]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* the half minute a code is given before another can be asked for */
+  /* the BVN step starts from its own wait, not what was left of the code's half minute */
   useEffect(() => {
-    if (!(stage === 'code' || stage === 'signcode' || stage === 'recovercode' || stage === 'newemailcode') || wait <= 0) return;
+    if (stage === 'bvn') setWait(idWaitLeft());
+  }, [stage]);
+
+  /* the test site's guide lights up the step on screen */
+  useEffect(() => {
+    if (focused && stage) tellWhere(stage);
+  }, [focused, stage]);
+
+  /* the half minute a code is given before another can be asked for, and the wait after three wrong BVNs or NINs */
+  useEffect(() => {
+    if (!(stage === 'code' || stage === 'signcode' || stage === 'recovercode' || stage === 'newemailcode' || stage === 'bvn') || wait <= 0) return;
     const t = setTimeout(() => setWait(w => w - 1), 1000);
     return () => clearTimeout(t);
   }, [stage, wait]);

@@ -157,7 +157,7 @@ export function Settings() {
       {leaving ? (
         <ConfirmSheet
           title="Sign out of Beetle?"
-          body="You come back in with your phone number and your password. Nothing in your account changes, and nothing moves while you are out."
+          body="This phone forgets everything: your account, settings and chats. Next time, you start with a fresh sign-up."
           action="Sign out"
           onConfirm={signOut}
           onCancel={() => setLeaving(false)}

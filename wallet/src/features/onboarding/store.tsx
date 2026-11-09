@@ -9,9 +9,9 @@ import { demoPasscodeOpens } from '../passcode/check';
 import type { Account } from '../../services';
 import type { DocumentKind, IdentityRecord } from '../../services/identity';
 import { EMPTY, type IdKind, type Progress } from './machine';
-import { rememberHere } from './devices';
+import { forgetHere, rememberHere } from './devices';
 
-import { forgetEverything } from './wipe';
+import { forgetAccount, forgetEverything } from './wipe';
 const PROGRESS_KEY = 'beetle.progress.v1';
 const SESSION_KEY = 'beetle.session.v1';
 /* Each account's passcode is its own (the analysis after Round 21: one
@@ -105,11 +105,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     (async () => {
-      const [p, s] = await Promise.all([sealed.get<Progress>(PROGRESS_KEY), secure.get(SESSION_KEY)]);
-      if (p) {
-        progressRef.current = p;
-        setProgressState(p);
-      }
+      /* an unfinished sign-up is never kept (Round 42, the owner's word): what an older build left is forgotten, and
+         the app opens on the welcome */
+      const [s] = await Promise.all([secure.get(SESSION_KEY), sealed.remove(PROGRESS_KEY)]);
       if (s) {
         try {
           const kept = JSON.parse(s) as Session;
@@ -123,18 +121,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     })();
   }, []);
 
+  /* the way in is held in memory alone: closing or reloading the app starts sign-up again from the welcome, and
+     nothing typed on the way is left on the phone */
   const patch = useCallback(async (change: Partial<Progress>) => {
     const next = { ...progressRef.current, ...change };
     progressRef.current = next;
     setProgressState(next);
-    await sealed.set(PROGRESS_KEY, next);
   }, []);
 
   const replaceProgress = useCallback(async (next: Progress) => {
     progressRef.current = next;
     setProgressState(next);
-    if (Object.keys(next).length) await sealed.set(PROGRESS_KEY, next);
-    else await sealed.remove(PROGRESS_KEY);
   }, []);
 
   const keepSession = useCallback(async (s: Session | null) => {
@@ -224,8 +221,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         await keepSession(s);
         await replaceProgress(EMPTY);
       },
-      /* the account stays where it is; this device just forgets the way in */
+      /* signing out forgets everything (Round 42, the owner's word): the account this build opened, what was kept for
+         it, and that this phone knew it, so the next time is a fresh sign-up with nothing in the way. The demo account
+         lives in the code and comes back as it is drawn. */
       async signOut() {
+        /* everything is forgotten before the session ends (Round 42), so the way in never shows while the phone still
+           knows the account, and an app closed the moment it does has nothing left to remember */
+        const account = sessionRef.current?.account;
+        if (account) {
+          if (!account.demo) await auth.closeAccount(account.accountNumber).catch(() => undefined);
+          await forgetAccount(account.accountNumber).catch(() => undefined);
+          await forgetHere(account.accountNumber).catch(() => undefined);
+        }
         await keepSession(null);
         await replaceProgress(EMPTY);
       },

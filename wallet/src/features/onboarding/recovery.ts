@@ -25,27 +25,32 @@ export async function pauseRecovery(account: string, now = Date.now()): Promise<
   return clock(now + DAY);
 }
 
-/* The same pause for the details held to a BVN or NIN on the way in (Round 32): three that do not match, and this
-   phone checks no more for a day, so it cannot be used to try names and birthdays against other people's numbers. */
-const ID_CHECKS = 'way-in:id-checks';
-export const idChecksPaused = (now = Date.now()) => recoveryPaused(ID_CHECKS, now);
-export const pauseIdChecks = (now = Date.now()) => pauseRecovery(ID_CHECKS, now);
+/* Three numbers that do not match on the way in, and the phone waits a little before it checks again (Round 42, the
+   owner's word: a day was a wall; a short wait with its countdown shown is enough to stop somebody trying numbers one
+   after another). Held in memory only, like the rest of an unfinished sign-up: nothing about it is kept on the phone. */
+export const ID_WAIT_SECONDS = 120;
+let idMissCount = 0;
+let idPausedUntil = 0;
 
-/* The misses are counted on the phone, not in the screen, so closing the app and opening it again does not give three
-   more; a match clears them, and the third pauses checks and starts the count again. */
-const MISSES = 'beetle.id-misses.v1';
-/** One more miss: how many there have been, and when checks open again if this was the third. */
-export async function noteIdMiss(now = Date.now()): Promise<{ misses: number; until: string | null }> {
-  const misses = ((await storage.get<number>(MISSES)) ?? 0) + 1;
-  if (misses >= 3) {
-    await storage.set(MISSES, 0);
-    return { misses, until: await pauseIdChecks(now) };
+/** Seconds until checks open again, or 0 when they are open. */
+export const idWaitLeft = (now = Date.now()) => Math.max(0, Math.ceil((idPausedUntil - now) / 1000));
+
+/** One more miss: how many there have been, and the seconds to wait if this was the third. */
+export function noteIdMiss(now = Date.now()): { misses: number; wait: number } {
+  idMissCount += 1;
+  if (idMissCount >= 3) {
+    const misses = idMissCount;
+    idMissCount = 0;
+    idPausedUntil = now + ID_WAIT_SECONDS * 1000;
+    return { misses, wait: ID_WAIT_SECONDS };
   }
-  await storage.set(MISSES, misses);
-  return { misses, until: null };
+  return { misses: idMissCount, wait: 0 };
 }
-export const idMisses = async () => (await storage.get<number>(MISSES)) ?? 0;
-export const clearIdMisses = () => storage.set(MISSES, 0);
+export const idMisses = () => idMissCount;
+export function clearIdMisses() {
+  idMissCount = 0;
+  idPausedUntil = 0;
+}
 
 /* Wrong BVNs while getting an account back, counted against the account on the phone (the analysis after Round 34: the
    screen's own count was the code's too, so two wrong codes left one try at the BVN, and going back to the number gave

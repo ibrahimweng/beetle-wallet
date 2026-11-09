@@ -51,12 +51,20 @@ import {
 import type { Reading, ReaderService, SampleKind } from './reader';
 import { wait } from './support';
 import type { AimId } from '../features/aims/aims';
+import { DEMO_PLAN, affordCheck, affordWords, answerWords, dollarsIn, isAffordAsk, nextQuestion, planFrom, planKey, thingIn, type AffordCheck, type Draft, type Known, type MoneyPlan, type Question } from '../features/afford/plan';
+import { storage } from './storage';
 
 /** A photo, and what was already read off it where the camera read it first;
     a sample photo says which it is. */
 export type Photo = { uri: string; width?: number; height?: number; reading?: Reading; sample?: SampleKind };
 /** What is asked: words, a photo, or an ask panel's fields, filled. */
-export type Ask = { text?: string; photo?: Photo; answers?: { askId: string; values: AskValues } };
+export type Ask = {
+  text?: string;
+  photo?: Photo;
+  answers?: { askId: string; values: AskValues };
+  /** a question in the chat answered by a tap (Round 43): which question, and the options picked */
+  choice?: { chooseId: string; picked: string[] };
+};
 
 /** Who a transfer goes to: the bank (Beetle, for a Beetle account) and the account number, with the $tag where it is a Beetle account. */
 export type Person = { name: string; bank: string; number: string; tag?: string };
@@ -171,11 +179,20 @@ export type Block =
   /** what can be borrowed, to pick and take */
   | { kind: 'loan' }
   /** money put into a goal: the goal and the amount, filled where the words said them */
-  | { kind: 'save'; amount?: number; goalId?: string };
+  | { kind: 'save'; amount?: number; goalId?: string }
+  /** can I afford it (Round 43): what was checked against the month, and what it leaves */
+  | { kind: 'afford'; check: AffordCheck }
+  /** a question answered by a tap, never by typing (Round 43): one option, or several where `multi` */
+  | { kind: 'choose'; chooseId: string; question: Question; step: number; of: number };
 
 /** What the model is waiting for. Whoever holds the conversation keeps it
     and hands it back with the next ask. */
-export type Pending = { need: 'amount-for'; panel: Panel } | { need: 'ask'; ask: AskPanel } | null;
+export type Pending =
+  | { need: 'amount-for'; panel: Panel }
+  | { need: 'ask'; ask: AskPanel }
+  /** the month's plan being put together, a question at a time, for a purchase asked about */
+  | { need: 'plan'; chooseId: string; question: Question; draft: Draft; buy: { cost: number; usd?: number; what: string } }
+  | null;
 
 export type Context = {
   account: Account;
@@ -190,7 +207,52 @@ export type Context = {
   online?: boolean;
   /** what the owner wants Beetle for (Round 41): saving, tracking, daily payments and the rest, so its help fits */
   aims?: readonly AimId[];
+  /** today, for a check held to the month (the tests set it) */
+  now?: Date;
 };
+
+/* ---- can I afford it (Round 43) ---- */
+
+/** The month an account's answers rest on: the demo's own, or the one its owner's answers made, if any yet. */
+export async function planOf(account: Account): Promise<MoneyPlan | null> {
+  if (account.demo) return DEMO_PLAN;
+  return storage.get<MoneyPlan>(planKey(account.accountNumber));
+}
+
+/** What sign-up and setting up already told, so the likely answer to each question comes first. */
+async function knownOf(ctx: Context): Promise<Known> {
+  const setup = await storage.get<{ income?: Known['income'] }>(`beetle.setup.${ctx.account.accountNumber}.v1`);
+  const saved = ctx.saved;
+  const cards = await storage.get<unknown[]>(`beetle.cards.${ctx.account.accountNumber}.v1`);
+  return { income: setup?.income, aims: ctx.aims, meters: saved?.meters.length ?? 0, lines: Math.max(0, (saved?.lines.length ?? 0) - 1), cards: Array.isArray(cards) ? cards.length : 0 };
+}
+
+let chooseSeq = 0;
+/** The number of questions a plan takes, for "1 of 5". */
+const planSteps = (d: Draft) => 4 + ((d.bills ?? []).includes('rent') || !d.bills ? 1 : 0);
+const answered = (d: Draft) => Object.keys(d).filter(k => d[k as keyof Draft] !== undefined).length;
+
+/** A purchase held to the month, in words and on a card. */
+function affordReply(plan: MoneyPlan, ctx: Context, buy: { cost: number; usd?: number; what: string }): Reply {
+  const c = affordCheck(plan, ctx.balance, buy.cost, buy.what, ctx.now ?? new Date(), buy.usd);
+  return { blocks: [{ kind: 'say', text: affordWords(c) }, { kind: 'afford', check: c }], pending: null };
+}
+
+/** The next question for the plan, or, with every answer in, the plan kept and the purchase answered. */
+async function planStep(draft: Draft, ctx: Context, buy: { cost: number; usd?: number; what: string }, lead?: string): Promise<Reply> {
+  const q = nextQuestion(draft, await knownOf(ctx));
+  if (!q) {
+    const plan = planFrom(draft);
+    await storage.set(planKey(ctx.account.accountNumber), plan);
+    const r = affordReply(plan, ctx, buy);
+    return { ...r, blocks: [{ kind: 'say', text: 'Thanks. I will remember your month, so next time I answer straight away.' }, ...r.blocks] };
+  }
+  const chooseId = `choose-${++chooseSeq}`;
+  const blocks: Block[] = [];
+  if (lead) blocks.push({ kind: 'say', text: lead });
+  blocks.push({ kind: 'choose', chooseId, question: q, step: answered(draft) + 1, of: planSteps(draft) });
+  return { blocks, pending: { need: 'plan', chooseId, question: q, draft, buy } };
+}
 
 export type Reply = { blocks: Block[]; pending: Pending; reading?: Reading };
 
@@ -813,6 +875,13 @@ export class ScriptedAgent implements AgentService {
     const text = (ask.text ?? '').trim();
     const first = ctx.account.firstName;
 
+    /* a question about the month answered by a tap: the next one, or the answer */
+    if (ask.choice && ctx.pending?.need === 'plan' && ctx.pending.chooseId === ask.choice.chooseId) {
+      const p = ctx.pending;
+      const value = p.question.multi ? ask.choice.picked : ask.choice.picked[0];
+      return planStep({ ...p.draft, [p.question.id]: value }, ctx, p.buy);
+    }
+
     /* an ask panel filled and continued */
     if (ask.answers && ctx.pending?.need === 'ask' && ctx.pending.ask.id === ask.answers.askId) {
       const pending = ctx.pending.ask;
@@ -851,6 +920,25 @@ export class ScriptedAgent implements AgentService {
     if (!text) return { blocks: [say('Say what you need, or show me a photo of an account number.')], pending: null };
     const lower = text.toLowerCase();
     const amount = amountIn(text);
+
+    /* can I afford it: held to the month, every bill and saving before the next pay set aside first (Round 43) */
+    if (isAffordAsk(lower)) {
+      const usd = dollarsIn(text);
+      const cost = usd ? Math.round(usd * ctx.rate) : amount;
+      if (!cost) return { blocks: [say('How much does it cost? Say it in naira or dollars, like "Can I afford ₦10,000 of food?"')], pending: ctx.pending };
+      const buy = { cost, usd: usd ?? undefined, what: thingIn(text) };
+      await this.step(onStep, "I'm looking at what is due before your next pay…", 1);
+      const plan = await planOf(ctx.account);
+      if (plan) {
+        await this.step(onStep, "I'm setting aside your bills, savings and food…", 0.8);
+        return affordReply(plan, ctx, buy);
+      }
+      return planStep({}, ctx, buy, `I can answer that properly once I know your month. ${planSteps({})} quick questions, tap your answers.`);
+    }
+    /* a question about the month is up and words come instead: say to tap */
+    if (ctx.pending?.need === 'plan' && !intentOf(lower, ctx)) {
+      return { blocks: [say('Tap an answer on the card above, and I will go on.')], pending: ctx.pending };
+    }
 
     /* an amount for a panel already up */
     if (ctx.pending?.need === 'amount-for' && amount) {

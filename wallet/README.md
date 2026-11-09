@@ -40,9 +40,23 @@ the sign-up keeps you signed in until you sign out. What is Beetle for? goes
 in with any aims ticked, or none. In the test build `1234 5678 900`, as a BVN
 or a NIN, passes with any name and birthday; every other number is turned
 away, and three wrong numbers in a row mean a two minute wait, counted down
-on the step. On the test site the guide, What to type, is open beside the
-phone on a wide screen with the step on screen marked; on a phone a slim bar
-under the app says what to type on this step, and opens the whole guide.
+on the step. Since Round 43 the test site shows what to type as one card, for the step on
+screen only, to the left of the phone, and it cannot be closed; the ways to
+try the app on a phone, the Expo Go code first, stand on the right. On a
+phone the card is pinned above the app.
+
+Since Round 43 Beetle answers **Can I afford it?** Ask "I want to buy a plate
+of food for ₦10,000, can I afford it?" or "Can I afford food of $10?" and it
+holds the purchase to the month: every bill and saving due before the next
+pay (Netflix, the light, data, rent savings, money for family) and food until
+then are set aside first, and the card shows each one, what is free to spend,
+what is left after it, and how much that is a day until payday. Yes, Tight or
+Not now, in plain words. The demo account's month is its frames' own. A new
+account is asked its month once, in the chat, five questions answered by a
+tap (never typed), the likely answer first where sign-up or setting up points
+to it; the month is kept with the account and forgotten on sign out. The sums
+are worked out in code (`src/features/afford/plan.ts`), never by the model, so
+the figures always add up, with a key for the model or without.
 
 How it looks and moves is set down in [`DESIGN.md`](DESIGN.md): no drop
 shadows, forms that speak under their fields, the amount picker, the bank

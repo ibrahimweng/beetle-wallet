@@ -13,8 +13,9 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { agent, type Ask, type AskFound, type AskPanel, type AskValues, type Block, type Context, type Move, type Panel, type PanelRow, type Pending, type Photo } from '../../services';
 import { askMissing } from '../../services/agent';
 import { naira } from '../../lib/format';
+import { answerWords } from '../afford/plan';
 import { useStill } from '../../design';
-import { isAsk, isPanel, newId as id, turn, withBlock, type AskState, type AskTurn, type PanelTurn, type ReceiptCard, type Turn } from './turns';
+import { isAsk, isChoose, isPanel, newId as id, turn, withBlock, type AskState, type AskTurn, type PanelTurn, type ReceiptCard, type Turn } from './turns';
 
 export { isAsk, isPanel, turn, withBlock, type AskState, type ReceiptCard, type Turn };
 
@@ -44,6 +45,8 @@ export type Conversation = {
   offer(you: string, text: string, block: Offer): void;
   /** an ask panel's Continue: what is in it goes to Beetle */
   answer(askId: string): Promise<void>;
+  /** a question about the month answered by a tap: said as if typed, and sent on (Round 43) */
+  choose(chooseId: string, picked: string[]): Promise<void>;
   /** a conversation already under way, for the lab */
   preload(turns: Turn[], pending?: Pending): void;
   /** Beetle opening, before anything has been asked */
@@ -258,6 +261,20 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
     [deliver, patchAsk],
   );
 
+  const choose = useCallback(
+    async (chooseId: string, picked: string[]) => {
+      const t = turnsRef.current.find(x => isChoose(x) && x.block.chooseId === chooseId);
+      if (!t || !isChoose(t) || t.state !== 'open') return;
+      const words = answerWords(t.block.question, picked);
+      const mark = (list: Turn[]) => list.map(x => (isChoose(x) && x.block.chooseId === chooseId ? { ...x, state: 'done' as const, picked } : x));
+      turnsRef.current = mark(turnsRef.current);
+      setTurns(mark);
+      add({ id: id(), who: 'you', text: words });
+      await deliver({ choice: { chooseId, picked } });
+    },
+    [add, deliver],
+  );
+
   const ready = useCallback((panelId: string) => patchPanel(panelId, t => (t.state === 'running' ? { ...t, state: 'ready' } : t)), [patchPanel]);
 
   /* what a panel stands for moves: the line in the day, its receipt, and Beetle's word on it */
@@ -395,8 +412,8 @@ export function useConversation(context: () => Omit<Context, 'pending'>, onMove:
   );
 
   return useMemo(
-    () => ({ turns, thinking, pending, ask, ready, confirm, edit, fill, settleAsk, takeLoan, putAway, offer, answer, preload, open, note, aside, load, reset, shelve, take }),
-    [turns, thinking, pending, ask, ready, confirm, edit, fill, settleAsk, takeLoan, putAway, offer, answer, preload, open, note, aside, load, reset, shelve, take],
+    () => ({ turns, thinking, pending, ask, ready, confirm, edit, fill, settleAsk, takeLoan, putAway, offer, answer, choose, preload, open, note, aside, load, reset, shelve, take }),
+    [turns, thinking, pending, ask, ready, confirm, edit, fill, settleAsk, takeLoan, putAway, offer, answer, choose, preload, open, note, aside, load, reset, shelve, take],
   );
 }
 
@@ -432,7 +449,13 @@ export function transcriptOf(turns: Turn[]): { who: 'you' | 'beetle'; text: stri
     else if (t.block.kind === 'loan') out.push({ who: 'beetle', text: `[Loan card: ${'state' in t && t.state === 'done' ? 'taken' : 'up, the owner picking how much and for how long'}]` });
     else if (t.block.kind === 'save')
       out.push({ who: 'beetle', text: `[Save card: ${'saved' in t && t.saved ? `${naira(t.saved.amount)} put into ${t.saved.name}` : 'up, the owner picking a goal and how much to put in it'}]` });
-    else if (t.block.kind === 'panel') {
+    else if (t.block.kind === 'afford') {
+      const c = t.block.check;
+      out.push({ who: 'beetle', text: `[Afford card: ${c.what} for ${naira(c.cost)} — ${c.verdict}; free before ${naira(c.free)}, after ${naira(c.after)}, ${naira(c.perDay)} a day until ${c.payday}]` });
+    } else if (t.block.kind === 'choose') {
+      const q = t.block.question;
+      out.push({ who: 'beetle', text: `[Question card: ${q.title} — ${'picked' in t && t.picked ? `answered ${answerWords(q, t.picked)}` : 'waiting for a tap'}]` });
+    } else if (t.block.kind === 'panel') {
       const p = t.block.panel;
       const state = 'state' in t && t.state === 'done' ? 'confirmed by the owner' : 'up, waiting for the owner';
       out.push({ who: 'beetle', text: `[Panel ${p.id}: ${p.title} — ${p.rows.map(r => `${r.label}: ${r.value}`).join(', ')} — ${state}]` });

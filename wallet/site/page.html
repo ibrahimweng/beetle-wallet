@@ -5,15 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1a130d">
 <title>Beetle test site</title>
-<meta name="description" content="Try Beetle: the app running in the page, and on your own phone through Expo Go.">
+<meta name="description" content="Try Beetle: the app running in the page, what to type on each step beside it, and on your own phone through Expo Go.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Geist:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
-  /* Round 40, the owner's word: only the phone, in the middle of the screen,
-     and one toggle, View details, for what to type on each page and the ways
-     to try the app on a phone. On a wide screen the details come in from the
-     right and the phone moves over for them; on a phone the app takes the
-     screen under a slim bar and the details come up as a sheet. */
+  /* Round 43, the owner's word: what to type is a card beside the phone, on
+     its left, for the step on screen only, and it cannot be closed; the
+     ways to try the app on a phone, the code first, stand on its right. On
+     a phone the card is pinned above the app. */
   :root {
     --bg: #f1f0ed;
     --fg: #2b2721;
@@ -23,25 +22,25 @@
     --raised: #ffffff;
     --accent: #f04f22;
     --accent-ink: #fbefe3;
+    --accent-wash: #fde6dc;
     --link: #b8390f;
     --bezel: #2b2721;
     --well: #e8e6e2;
-    --shade: rgba(26, 19, 13, 0.32);
     --display: 'Lora', Georgia, serif;
     --body: 'Geist', 'Helvetica Neue', Arial, sans-serif;
     --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-    --panel: 440px;
+    --side: 340px;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --bg: #1a130d; --fg: #efe3cb; --muted: #a89b8a; --rule: #3a2d22; --card: #241a13; --raised: #2e231a;
-      --accent: #f04f22; --accent-ink: #fbefe3; --link: #ff9466; --bezel: #4a433b; --well: #36302a; --shade: rgba(0, 0, 0, 0.5);
+      --accent: #f04f22; --accent-ink: #fbefe3; --accent-wash: #3a2016; --link: #ff9466; --bezel: #4a433b; --well: #36302a;
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
     --bg: #1a130d; --fg: #efe3cb; --muted: #a89b8a; --rule: #3a2d22; --card: #241a13; --raised: #2e231a;
-    --accent: #f04f22; --accent-ink: #fbefe3; --link: #ff9466; --bezel: #4a433b; --well: #36302a; --shade: rgba(0, 0, 0, 0.5);
+    --accent: #f04f22; --accent-ink: #fbefe3; --accent-wash: #3a2016; --link: #ff9466; --bezel: #4a433b; --well: #36302a;
     color-scheme: dark;
   }
   html, body { height: 100%; }
@@ -50,12 +49,14 @@
   button { font: inherit; color: inherit; }
   a { color: var(--link); }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  code { font: 500 13.5px/1 var(--mono); font-variant-numeric: tabular-nums; background: var(--well); border-radius: 6px; padding: 3px 6px; white-space: nowrap; }
 
-  /* ---- the phone, alone in the middle ---- */
-  .stage {
-    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-    padding: 24px; transition: padding-right 320ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
+  /* ---- the three columns: what to type, the phone, the phone's own ---- */
+  .layout { position: fixed; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 40px; padding: 24px 32px; }
+  .left { display: flex; justify-content: flex-end; }
+  .right { align-self: stretch; display: flex; justify-content: flex-start; min-height: 0; }
+
+  /* the phone at its real size, shrunk to the height there is */
   .phone-wrap { --scale: 1; width: calc(413px * var(--scale)); height: calc(872px * var(--scale)); flex: none; }
   .phone {
     width: 413px; height: 872px; transform: scale(var(--scale)); transform-origin: top left;
@@ -64,163 +65,118 @@
   }
   .phone iframe { width: 393px; height: 852px; border: 0; display: block; border-radius: 42px; background: #1a130d; }
 
-  /* ---- the one toggle ---- */
-  .toggle {
-    position: fixed; top: 20px; right: 20px; z-index: 6;
-    display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px 0 12px;
-    font: 600 14px/1 var(--body); background: var(--raised); color: var(--fg);
-    border: 1px solid var(--rule); border-radius: 999px; cursor: pointer;
-    box-shadow: 0 6px 18px -10px rgba(26, 19, 13, 0.35);
+  /* ---- the card: this step, what to type ---- */
+  .guide {
+    position: relative; width: var(--side); padding: 20px 20px 18px; border-radius: 22px;
+    background: var(--raised); border: 1.5px solid var(--accent);
+    box-shadow: 0 18px 40px -22px rgba(240, 79, 34, 0.55), 0 2px 0 rgba(255, 255, 255, 0.04) inset;
   }
-  .toggle:hover { border-color: var(--muted); }
-  .toggle svg { width: 18px; height: 18px; flex: none; }
-  .bar { display: none; }
+  /* the arrow towards the phone */
+  .guide::after {
+    content: ''; position: absolute; right: -9px; top: 50%; width: 16px; height: 16px; margin-top: -8px;
+    background: var(--raised); border-right: 1.5px solid var(--accent); border-top: 1.5px solid var(--accent); transform: rotate(45deg);
+  }
+  .guide.fresh { animation: arrive 520ms cubic-bezier(0.22, 1, 0.36, 1); }
+  @keyframes arrive { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
+  .kicker { display: flex; align-items: center; gap: 8px; font: 600 12px/1.2 var(--body); color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+  .kicker .dot { width: 8px; height: 8px; border-radius: 4px; background: var(--accent); animation: beat 1.6s ease-in-out infinite; }
+  @keyframes beat { 50% { opacity: 0.35; } }
+  .progress { display: flex; gap: 4px; margin: 12px 0 2px; }
+  .progress i { flex: 1; height: 4px; border-radius: 2px; background: var(--well); }
+  .progress i.on { background: var(--accent); }
+  .guide h2 { font: 600 24px/1.2 var(--display); letter-spacing: -0.015em; margin: 12px 0 12px; text-wrap: balance; }
+  .type-label { font: 600 12px/1 var(--body); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .type { padding: 14px; border-radius: 14px; background: var(--accent-wash); font: 500 16px/1.5 var(--body); }
+  .type code { font-size: 16px; line-height: 1.4; padding: 4px 8px; background: var(--raised); border: 1px solid var(--rule); display: inline-block; margin: 2px 0; white-space: normal; max-width: 100%; overflow-wrap: anywhere; }
+  .guide .note code { white-space: normal; }
+  .guide .note { color: var(--muted); font-size: 14px; margin-top: 12px; }
+  .guide .note code { font-size: 13px; }
 
-  /* ---- the details ---- */
-  .shade { position: fixed; inset: 0; z-index: 4; background: var(--shade); opacity: 0; pointer-events: none; transition: opacity 240ms ease; }
-  .details {
-    position: fixed; top: 0; right: 0; bottom: 0; z-index: 5; width: min(var(--panel), 100vw);
-    display: flex; flex-direction: column; background: var(--card); border-left: 1px solid var(--rule);
-    transform: translateX(102%); visibility: hidden;
-    transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 320ms;
+  /* ---- the right: on your phone ---- */
+  .side {
+    width: var(--side); max-height: 100%; overflow: auto; padding: 20px; border-radius: 22px;
+    background: var(--card); border: 1px solid var(--rule); overscroll-behavior: contain;
   }
-  body.open .details { transform: none; visibility: visible; transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1); }
-  .details-head { display: flex; align-items: center; gap: 12px; padding: 18px 20px 14px; border-bottom: 1px solid var(--rule); }
-  .brand { display: flex; align-items: center; gap: 10px; font: 600 19px/1 var(--display); letter-spacing: -0.01em; flex: 1; min-width: 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font: 600 19px/1 var(--display); letter-spacing: -0.01em; margin-bottom: 14px; }
   .brand svg { width: 24px; height: 24px; flex: none; }
-  .close { width: 36px; height: 36px; border-radius: 18px; border: 1px solid var(--rule); background: var(--raised); cursor: pointer; display: grid; place-items: center; }
-  .close svg { width: 16px; height: 16px; }
-  .tabs { display: flex; gap: 4px; margin: 14px 20px 0; padding: 4px; background: var(--well); border-radius: 12px; }
-  .tabs button { flex: 1; height: 36px; border: 0; border-radius: 9px; background: transparent; font: 600 14px/1 var(--body); color: var(--muted); cursor: pointer; }
-  .tabs button[aria-selected="true"] { background: var(--raised); color: var(--fg); box-shadow: 0 1px 2px rgba(26, 19, 13, 0.12); }
-  .scroll { flex: 1; overflow: auto; padding: 18px 20px 28px; overscroll-behavior: contain; }
-  .tab[hidden] { display: none; }
-  h2 { font: 600 22px/1.2 var(--display); letter-spacing: -0.015em; margin: 4px 0 6px; text-wrap: balance; }
-  h3 { font: 600 15px/1.3 var(--body); margin: 26px 0 8px; }
-  .lede { color: var(--muted); margin: 0 0 16px; }
-
-  .code-card { display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: 16px; align-items: center; padding: 14px; background: var(--raised); border: 1px solid var(--rule); border-radius: 18px; }
-  .code { width: 148px; height: 148px; padding: 10px; background: #ffffff; border-radius: 12px; }
+  .side h2 { font: 600 20px/1.2 var(--display); letter-spacing: -0.015em; margin: 4px 0 6px; }
+  .side h3 { font: 600 15px/1.3 var(--body); margin: 22px 0 8px; }
+  .lede { color: var(--muted); margin: 0 0 14px; font-size: 14px; }
+  .code-card { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 14px; background: var(--raised); border: 1px solid var(--rule); border-radius: 18px; }
+  .code { width: 168px; height: 168px; padding: 10px; background: #ffffff; border-radius: 12px; }
   .code svg { width: 100%; height: 100%; display: block; }
   .code-card .what { font-weight: 600; }
   .code-card .how { color: var(--muted); font-size: 14px; margin-top: 4px; }
   .link-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
   .chip-btn { display: inline-flex; align-items: center; height: 34px; padding: 0 12px; border-radius: 17px; border: 1px solid var(--rule); background: var(--card); font: 600 13px/1 var(--body); color: var(--fg); text-decoration: none; cursor: pointer; }
   .chip-btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
-
-  ol.how-to { margin: 12px 0 0; padding: 0; list-style: none; counter-reset: n; display: grid; gap: 10px; }
-  ol.how-to li { counter-increment: n; display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; }
-  ol.how-to li::before { content: counter(n); width: 26px; height: 26px; border-radius: 13px; background: var(--well); display: grid; place-items: center; font: 600 13px/1 var(--body); }
-  .note { color: var(--muted); font-size: 14px; margin-top: 2px; }
-  .team-only { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--well); color: var(--fg); font-size: 14px; }
-
-  .steps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
-  .steps li { padding: 12px 0; border-bottom: 1px solid var(--rule); }
-  .steps .where { font-weight: 600; }
-  .steps .note { margin-top: 4px; }
-  .steps-head { margin: 22px 0 8px; color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; }
-  .steps-head:first-of-type { margin-top: 4px; }
-  .steps li { position: relative; transition: background-color 200ms ease; }
-  .steps li.now { margin: 0 -12px; padding: 12px 12px 12px 14px; background: var(--raised); border-radius: 12px; border-bottom-color: transparent; box-shadow: inset 3px 0 0 var(--accent), 0 6px 18px -12px rgba(26, 19, 13, 0.35); }
-  .steps li.now .where::after { content: 'You are here'; margin-left: 8px; padding: 2px 8px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font: 600 11px/1.6 var(--body); vertical-align: 2px; }
-  .steps li.done .where { color: var(--muted); }
-  .steps li.done .where::before { content: '\2713'; color: var(--accent); margin-right: 6px; }
-
-  /* the slim hint under the app, where the details are not open beside it */
-  .hint {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 3; display: flex; align-items: center; gap: 12px;
-    min-height: 56px; padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px)); border: 0; border-top: 1px solid var(--rule);
-    background: var(--raised); text-align: left; cursor: pointer;
-  }
-  .hint-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-  .hint-where { font: 600 12px/1.3 var(--body); color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; }
-  .hint-what { font: 500 15px/1.35 var(--body); color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .hint-what code { font-size: 13px; padding: 2px 5px; }
-  .hint-all { flex: none; height: 32px; padding: 0 12px; border-radius: 16px; background: var(--well); display: inline-flex; align-items: center; font: 600 13px/1 var(--body); }
-  code { font: 500 13.5px/1 var(--mono); font-variant-numeric: tabular-nums; background: var(--well); border-radius: 6px; padding: 3px 6px; white-space: nowrap; }
-  .foot { display: flex; gap: 10px; align-items: center; margin-top: 22px; flex-wrap: wrap; }
-  .fine { color: var(--muted); font-size: 13px; margin-top: 14px; }
+  ol.how-to { margin: 12px 0 0; padding: 0; list-style: none; counter-reset: n; display: grid; gap: 10px; font-size: 14px; }
+  ol.how-to li { counter-increment: n; display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; }
+  ol.how-to li::before { content: counter(n); width: 24px; height: 24px; border-radius: 12px; background: var(--well); display: grid; place-items: center; font: 600 12px/1 var(--body); }
+  .side .note { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .team-only { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--well); color: var(--fg); font-size: 13px; }
+  .foot { display: flex; gap: 10px; align-items: center; margin-top: 20px; flex-wrap: wrap; }
+  .fine { color: var(--muted); font-size: 13px; }
   .blocked { display: none; color: var(--muted); font-size: 14px; }
+  .data { display: none; }
+  .on-phone { display: none; }
+  .restart { display: none; position: absolute; top: 14px; right: 14px; height: 28px; padding: 0 10px; border-radius: 14px; border: 1px solid var(--rule); background: var(--card); font: 600 12px/1 var(--body); color: var(--muted); cursor: pointer; }
 
-  /* a wide screen: the phone moves over for the details */
-  @media (min-width: 1180px) {
-    .hint { display: none; }
-    body.open .stage { padding-right: calc(var(--panel) + 24px); }
-    body.open .toggle { opacity: 0; pointer-events: none; }
+  /* between: no room for the right, so the card and the phone */
+  @media (max-width: 1159px) {
+    .right .side { display: none; }
+    .restart { display: inline-flex; align-items: center; }
   }
-  /* between: the details over the side, a shade over the phone */
-  @media (min-width: 720px) and (max-width: 1179px) {
-    .stage { bottom: 56px; }
-    .hint { left: 50%; right: auto; bottom: 12px; transform: translateX(-50%); width: min(520px, calc(100vw - 32px)); border: 1px solid var(--rule); border-radius: 16px; box-shadow: 0 10px 28px -14px rgba(26, 19, 13, 0.45); }
-    body.open .shade { opacity: 1; pointer-events: auto; }
-    body.open .toggle { opacity: 0; pointer-events: none; }
-  }
-  /* a phone: the app takes the screen under a slim bar; the details are a sheet */
+  /* a phone: the card pinned over the top, the app under it */
   @media (max-width: 719px) {
-    .toggle { display: none; }
-    .bar {
-      display: flex; position: fixed; top: 0; left: 0; right: 0; z-index: 3; height: calc(48px + env(safe-area-inset-top, 0px));
-      padding: env(safe-area-inset-top, 0px) 12px 0 16px; align-items: center; justify-content: space-between;
-      background: #1a130d; color: #efe3cb;
-    }
-    .bar .brand { font-size: 17px; color: #efe3cb; }
-    .bar .brand svg { width: 22px; height: 22px; }
-    .bar button { height: 34px; padding: 0 14px; border-radius: 17px; border: 1px solid #3a2d22; background: #2e231a; color: #ffffff; font: 600 13px/1 var(--body); cursor: pointer; }
-    .stage { padding: 0; top: calc(48px + env(safe-area-inset-top, 0px)); bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
+    body { display: flex; flex-direction: column; height: 100dvh; }
+    .layout { position: static; display: flex; flex-direction: column; align-items: stretch; flex: 1; min-height: 0; padding: 0; gap: 0; }
+    .right { display: none; }
+    .kicker { padding-right: 84px; }
+    .progress { margin-right: 84px; }
+    .restart { top: 10px; right: 10px; }
+    .left { display: block; width: 100%; flex: none; padding: calc(8px + env(safe-area-inset-top, 0px)) 10px 8px; background: #1a130d; }
+    .guide { width: auto; padding: 12px 14px; border-radius: 16px; box-shadow: none; }
+    .guide::after { display: none; }
+    .guide h2 { font-size: 18px; margin: 6px 0 8px; }
+    .progress { margin-top: 8px; }
+    .type { padding: 10px 12px; font-size: 15px; }
+    .type code { font-size: 15px; }
+    .type-label { display: none; }
+    .guide .note { display: none; }
+    .center { flex: 1; min-height: 0; }
     .phone-wrap { width: 100%; height: 100%; }
     .phone { width: 100%; height: 100%; transform: none; border-radius: 0; padding: 0; box-shadow: none; background: #1a130d; }
     .phone iframe { width: 100%; height: 100%; border-radius: 0; }
-    .details {
-      top: auto; left: 0; width: 100%; max-height: 88dvh; border-left: 0; border-top: 1px solid var(--rule);
-      border-radius: 22px 22px 0 0; transform: translateY(102%); padding-bottom: env(safe-area-inset-bottom, 0px);
-    }
-    body.open .shade { opacity: 1; pointer-events: auto; }
-    .code-card { grid-template-columns: 1fr; justify-items: start; }
-    .on-desk { display: none; }
   }
-  @media (min-width: 720px) { .on-phone { display: none; } }
-  @media (prefers-reduced-motion: reduce) { .stage, .details, .shade { transition: none !important; } }
+  @media (prefers-reduced-motion: reduce) { .guide.fresh, .kicker .dot { animation: none !important; } }
 </style>
 </head>
 <body>
 
-<header class="bar">
-  <div class="brand">{{MARK}} Beetle</div>
-  <button type="button" data-open aria-controls="details" aria-expanded="false">View details</button>
-</header>
+<main class="layout">
+  <section class="left" aria-label="What to type on this step">
+    <div class="guide" id="guide" role="status" aria-live="polite">
+      <button class="restart" type="button" data-start-over>Start over</button>
+      <div class="kicker"><span class="dot"></span><span id="guideKicker">Step 1 of 10 · Sign up</span></div>
+      <div class="progress" id="guideProgress" aria-hidden="true"></div>
+      <h2 id="guideTitle">Welcome</h2>
+      <div class="type-label">Type or tap</div>
+      <div class="type" id="guideType"><strong>Sign up</strong></div>
+      <div class="note" id="guideNote"></div>
+    </div>
+  </section>
 
-<button class="toggle" type="button" data-open aria-controls="details" aria-expanded="false">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6v.2"/></svg>
-  View details
-</button>
-
-<main class="stage">
-  <div class="phone-wrap" id="phoneWrap">
-    <div class="phone"><iframe id="phone" src="app.html" title="Beetle, the app"></iframe></div>
+  <div class="center">
+    <div class="phone-wrap" id="phoneWrap">
+      <div class="phone"><iframe id="phone" src="app.html" title="Beetle, the app"></iframe></div>
+    </div>
   </div>
-</main>
 
-<button class="hint" type="button" id="hint" data-open aria-controls="details" aria-expanded="false">
-  <span class="hint-text"><span class="hint-where" id="hintWhere">What to type</span><span class="hint-what" id="hintWhat">The keys for every page</span></span>
-  <span class="hint-all">All steps</span>
-</button>
+  <aside class="right" aria-label="Try it on your phone">
+    <div class="side">
+      <div class="brand">{{MARK}} Beetle, to test</div>
 
-<div class="shade" id="shade"></div>
-
-<aside class="details" id="details" aria-label="Details" aria-hidden="true">
-  <div class="details-head">
-    <div class="brand">{{MARK}} Beetle, to test</div>
-    <button class="close" type="button" id="close" aria-label="Close the details">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-    </button>
-  </div>
-  <div class="tabs" role="tablist">
-    <button type="button" role="tab" id="tab-type" aria-controls="pane-type" aria-selected="true">What to type</button>
-    <button type="button" role="tab" id="tab-phone" aria-controls="pane-phone" aria-selected="false">On your phone</button>
-  </div>
-  <div class="scroll">
-
-    <section class="tab" id="pane-phone" role="tabpanel" aria-labelledby="tab-phone" hidden>
       <h2>Try it on your phone</h2>
       <p class="lede">The same app as the phone on this page, running natively in Expo Go: the camera, Face ID or your fingerprint, and the phone's own buzz on every tap.</p>
 
@@ -255,146 +211,116 @@
         <li id="siteWay"><span><strong>In your phone's browser.</strong> <span class="on-desk">Scan this code with the phone's camera, or open </span><span class="on-phone">You are there now. Or send </span><a href="{{SITE_URL}}">{{SITE_URL}}</a>.<div class="note">Then Share, <strong>Add to Home Screen</strong>, and it opens full screen like an app.</div>
           <div class="code on-desk" style="width:120px;height:120px;margin-top:10px;padding:8px">{{SITE_CODE}}</div></span></li>
       </ol>
-    </section>
-
-    <section class="tab" id="pane-type" role="tabpanel" aria-labelledby="tab-type">
-      <h2>What to type on each page</h2>
-      <p class="lede">Nothing is texted and no register is asked, so these are the keys. The page you are on is marked. <strong>Sign up</strong> takes ten short steps; nothing is kept halfway, and signing out forgets the account, so every new go is a fresh sign-up.</p>
-      <h3 class="steps-head">Sign up</h3>
-      <ol class="steps" id="signupSteps">
-        <li data-where="welcome /" data-signup><div class="where">Welcome</div><div><strong>Sign up</strong></div><div class="note">At the foot of the first screen, beside <strong>Log in</strong>.</div></li>
-        <li data-where="number email provider" data-signup><div class="where">Enter mobile number</div><div><code>0812 345 6789</code></div><div class="note">Any Nigerian mobile number. Or <strong>Use email instead</strong>, <strong>Google</strong> or <strong>Apple</strong>, which stand in for their own sheets here.</div></li>
-        <li data-where="code" data-signup><div class="where">OTP verification</div><div><code>123456</code></div><div class="note"><code>000000</code> has expired. Three wrong codes send a fresh one.</div></li>
-        <li data-where="details" data-signup><div class="where">Your details</div><div>Any full name, and any birthday 18 or more years ago</div><div class="note">Day, month and year are wheels: scroll each one.</div></li>
-        <li data-where="bvn document nomatch" data-signup><div class="where">BVN</div><div><code>1234 5678 900</code></div><div class="note">As a BVN or a NIN, with any name and birthday. Any other number is turned away, and three wrong numbers mean a 2 minute wait. Or <strong>Use a photo of my NIN slip or voter’s card</strong>.</div></li>
-        <li data-where="password" data-signup><div class="where">Password</div><div><code>beetle321</code></div><div class="note">Not asked of Google and Apple.</div></li>
-        <li data-where="passcode" data-signup><div class="where">Create passcode</div><div><code>654321</code>, twice</div><div class="note">Six digits that open Beetle. Easy ones like <code>123456</code> are refused.</div></li>
-        <li data-where="finish" data-signup><div class="where">Face scan and username</div><div>Tick the box, <strong>Scan my face</strong>, keep the $username</div></li>
-        <li data-where="ready" data-signup><div class="where">Your account is ready</div><div><strong>Continue</strong></div></li>
-        <li data-where="aims /aims" data-signup><div class="where">What is Beetle for?</div><div>Tick any, or none, then <strong>Take me in</strong></div><div class="note">You are in. Settings, then <strong>Sign out</strong>, forgets everything.</div></li>
-      </ol>
-      <h3 class="steps-head">Log in and get back in</h3>
-      <ol class="steps">
-        <li data-where="signin signpasscode signemail signcode signpass signface newpasscode"><div class="where">Log in</div><div><code>0803 000 0001</code>, <code>123456</code>, then <code>beetle123</code></div><div class="note">The test account, always there. An account you made is gone once you sign out: sign up again instead.</div></li>
-        <li data-where="recover recovercode recoverbvn recoverface recoverwhat newemail newemailcode newpassword recovered"><div class="where">Recover your account</div><div>on Log in: <code>0803 000 0001</code>, <code>123456</code>, BVN <code>1234 5678 900</code></div><div class="note">For a day after, no more than ₦20,000 can leave.</div></li>
-      </ol>
-      <h3 class="steps-head">Inside the app</h3>
-      <ol class="steps">
-        <li data-where="/home"><div class="where">The chat</div><div>Pull the black card down, then <code>Send 20k to Sarah</code></div><div class="note">A card comes up in the chat and pays from where it is; its title becomes the person once their name is found. <code>$tobi</code> or <code>$amaka</code> is a Beetle account, free and there at once. Or "top up my light", "buy data", "borrow", "how much do I have".</div></li>
-        <li data-where="/bills /meter /topup /buy"><div class="where">The chips over the chat's input</div><div><strong>Send</strong>, <strong>Bills</strong>, <strong>Data</strong>, <strong>Receive</strong>, <strong>Save</strong>, <strong>Loan</strong></div><div class="note">Bills: find your company in the box (type <code>jos</code>), <strong>Prepaid</strong>, meter <code>12345678901</code>; the card's title becomes the name on the meter. <strong>Recent</strong> at a card's top right shows what was paid before.</div></li>
-        <li data-where="/send /pick /pay"><div class="where">Send money</div><div><strong>Send</strong> on the card, then <code>0123456785</code></div><div class="note">The banks likely for that number come first, then every bank and money app below: scroll, or type a name. Pick <strong>GTBank</strong> and the name on the account is checked. Slide to send, then the passcode.</div></li>
-        <li><div class="where">Amounts</div><div>Drag the ruler, tap a chip, or tap the figure and type</div><div class="note">It stops at what can be sent, the fee counted, and says All of it there.</div></li>
-        <li data-where="/activities /settings /services"><div class="where">The three pages</div><div>Swipe left on home, or tap the bar</div><div class="note">Home, Activities and Settings. Under the black card: Savings, Loan, Card and Services.</div></li>
-        <li data-where="/dollars /convert /coins"><div class="where">Dollars</div><div>The dollars chip on the card</div><div class="note">Convert, Send and Receive; receive in USDC, USDT or PYUSD on Solana.</div></li>
-        <li data-where="/card"><div class="where">The card</div><div>Card under the black card, then <strong>Make another card</strong></div><div class="note">Pick the merchant from the list, a limit and a colour. Hold the card to flip it.</div></li>
-        <li data-where="/short /refused"><div class="where">When it goes wrong</div><div><code>0123456785</code>, GTBank, <strong>All of it</strong></div><div class="note">Beetle will not send the whole balance to a number it has never paid, and offers three ways out.</div></li>
-      </ol>
+          <div class="foot">
+        <button class="chip-btn primary" type="button" id="startOver" data-start-over>Start over</button>
+        <span class="fine">Forgets everything this browser kept, and opens the app from the start.</span>
+      </div>
       <p class="fine">The lab, every screen on its own, is behind a long press on the version line in Settings.</p>
-    </section>
-
-    <div class="foot">
-      <button class="chip-btn primary" type="button" id="startOver">Start over</button>
-      <span class="fine" style="margin:0">Forgets everything this browser kept, and opens the app from the start.</span>
+      <p class="blocked" id="blocked">The phone could not load inside this page. Reload the page to try again.</p>
     </div>
-    <p class="blocked" id="blocked">The phone could not load inside this page. Reload the page to try again.</p>
-  </div>
-</aside>
+  </aside>
+</main>
+
+<!-- what to type on each step: the card shows the one on screen (the app says where it is, src/lib/where.ts) -->
+<ol class="data" id="steps">
+      <li data-where="welcome /" data-signup><div class="where">Welcome</div><div><strong>Sign up</strong></div><div class="note">At the foot of the first screen, beside <strong>Log in</strong>.</div></li>
+      <li data-where="number email provider" data-signup><div class="where">Enter mobile number</div><div><code>0812 345 6789</code></div><div class="note">Any Nigerian mobile number. Or <strong>Use email instead</strong>, <strong>Google</strong> or <strong>Apple</strong>, which stand in for their own sheets here.</div></li>
+      <li data-where="code" data-signup><div class="where">OTP verification</div><div><code>123456</code></div><div class="note"><code>000000</code> has expired. Three wrong codes send a fresh one.</div></li>
+      <li data-where="details" data-signup><div class="where">Your details</div><div>Any full name, and any birthday 18 or more years ago</div><div class="note">Day, month and year are wheels: scroll each one.</div></li>
+      <li data-where="bvn document nomatch" data-signup><div class="where">BVN</div><div><code>1234 5678 900</code></div><div class="note">As a BVN or a NIN, with any name and birthday. Any other number is turned away, and three wrong numbers mean a 2 minute wait. Or <strong>Use a photo of my NIN slip or voter’s card</strong>.</div></li>
+      <li data-where="password" data-signup><div class="where">Password</div><div><code>beetle321</code></div><div class="note">Not asked of Google and Apple.</div></li>
+      <li data-where="passcode" data-signup><div class="where">Create passcode</div><div><code>654321</code>, twice</div><div class="note">Six digits that open Beetle. Easy ones like <code>123456</code> are refused.</div></li>
+      <li data-where="finish" data-signup><div class="where">Face scan and username</div><div>Tick the box, <strong>Scan my face</strong>, keep the $username, then <strong>Open my account</strong></div></li>
+      <li data-where="ready" data-signup><div class="where">Your account is ready</div><div><strong>Continue</strong></div></li>
+      <li data-where="aims /aims" data-signup><div class="where">What is Beetle for?</div><div>Tick any, or none, then <strong>Take me in</strong></div><div class="note">You are in. Settings, then <strong>Sign out</strong>, forgets everything.</div></li>
+      <li data-where="lock"><div class="where">Opening Beetle again</div><div><code>654321</code></div><div class="note">Signed in, Beetle asks for your passcode each time it opens. <strong>Not you? Sign out</strong> forgets the account, for a fresh sign-up.</div></li>
+      <li data-where="signin signpasscode signemail signcode signpass signface newpasscode"><div class="where">Log in</div><div><code>0803 000 0001</code>, <code>123456</code>, then <code>beetle123</code></div><div class="note">The test account, always there. An account you made is gone once you sign out: sign up again instead.</div></li>
+      <li data-where="recover recovercode recoverbvn recoverface recoverwhat newemail newemailcode newpassword recovered"><div class="where">Recover your account</div><div>on Log in: <code>0803 000 0001</code>, <code>123456</code>, BVN <code>1234 5678 900</code></div><div class="note">For a day after, no more than ₦20,000 can leave.</div></li>
+      <li data-where="address idcard income full"><div class="where">Finish setting up</div><div>Any street and area, <strong>Continue</strong>, <strong>Take it</strong> for the ID, then pick where your money comes from</div><div class="note">From the <strong>Finish setting up</strong> card on home, or the <strong>New account</strong> chip. It lifts the limits; nothing here is checked in the test build.</div></li>
+      <li data-where="/home"><div class="where">The chat</div><div>Pull the black card down, then <code>Can I afford a ₦10,000 plate of food?</code></div><div class="note">A new account sees 4 quick tips first: tap <strong>Next</strong>, or <strong>Skip</strong>. Beetle asks a few questions about your month, tap the answers. Try <code>$10</code> too, or <code>Send 20k to Sarah</code>, <code>buy data</code>, <code>how much do I have</code>.</div></li>
+      <li data-where="/bills /meter /topup /buy"><div class="where">The chips over the chat's input</div><div><strong>Send</strong>, <strong>Bills</strong>, <strong>Data</strong>, <strong>Receive</strong>, <strong>Save</strong>, <strong>Loan</strong></div><div class="note">Bills: find your company in the box (type <code>jos</code>), <strong>Prepaid</strong>, meter <code>12345678901</code>; the card's title becomes the name on the meter. <strong>Recent</strong> at a card's top right shows what was paid before.</div></li>
+      <li data-where="/send /pick /pay"><div class="where">Send money</div><div><strong>Send</strong> on the card, then <code>0123456785</code></div><div class="note">The banks likely for that number come first, then every bank and money app below: scroll, or type a name. Pick <strong>GTBank</strong> and the name on the account is checked. Slide to send, then the passcode.</div></li>
+      <li><div class="where">Amounts</div><div>Drag the ruler, tap a chip, or tap the figure and type</div><div class="note">It stops at what can be sent, the fee counted, and says All of it there.</div></li>
+      <li data-where="/activities /settings /services"><div class="where">The three pages</div><div>Swipe left on home, or tap the bar</div><div class="note">Home, Activities and Settings. Under the black card: Savings, Loan, Card and Services.</div></li>
+      <li data-where="/dollars /convert /coins"><div class="where">Dollars</div><div>The dollars chip on the card</div><div class="note">Convert, Send and Receive; receive in USDC, USDT or PYUSD on Solana.</div></li>
+      <li data-where="/card"><div class="where">The card</div><div>Card under the black card, then <strong>Make another card</strong></div><div class="note">Pick the merchant from the list, a limit and a colour. Hold the card to flip it.</div></li>
+      <li data-where="/short /refused"><div class="where">When it goes wrong</div><div><code>0123456785</code>, GTBank, <strong>All of it</strong></div><div class="note">Beetle will not send the whole balance to a number it has never paid, and offers three ways out.</div></li>
+</ol>
 
 <script>
   (function () {
     var wrap = document.getElementById('phoneWrap');
     var frame = document.getElementById('phone');
-    var details = document.getElementById('details');
-    var openers = Array.prototype.slice.call(document.querySelectorAll('[data-open]'));
     var narrow = window.matchMedia('(max-width: 719px)');
-    var wide = window.matchMedia('(min-width: 1180px)');
+    var wide = window.matchMedia('(min-width: 1160px)');
 
     /* what the build knew: who the Expo Go code opens for, and whether there is an address for the phone's browser */
-    if ('{{EXPO_WHO}}' !== 'team') document.getElementById('teamOnly').remove();
-    if (!'{{SITE_URL}}') document.getElementById('siteWay').remove();
+    if ('{{EXPO_WHO}}' !== 'team') { var t = document.getElementById('teamOnly'); if (t) t.remove(); }
+    if (!'{{SITE_URL}}') { var w = document.getElementById('siteWay'); if (w) w.remove(); }
 
-    /* the phone at its real size, shrunk to the height there is */
+    /* the phone at its real size, shrunk to the height and width there is beside the card and the panel */
     function fit() {
       if (narrow.matches) { wrap.style.setProperty('--scale', '1'); return; }
-      var room = window.innerHeight - 48 - (wide.matches ? 0 : 64);
-      var s = Math.max(0.5, Math.min(1, room / 872, (window.innerWidth - 48) / 413));
+      var beside = wide.matches ? 2 * 340 + 2 * 40 + 64 : 340 + 40 + 64;
+      var s = Math.max(0.45, Math.min(1, (window.innerHeight - 48) / 872, (window.innerWidth - beside) / 413));
       wrap.style.setProperty('--scale', String(s));
     }
     fit();
     window.addEventListener('resize', fit);
 
-    /* View details: in from the side on a screen, up from the foot on a phone */
-    function show(on, quiet) {
-      document.body.classList.toggle('open', on);
-      details.setAttribute('aria-hidden', on ? 'false' : 'true');
-      openers.forEach(function (b) { b.setAttribute('aria-expanded', on ? 'true' : 'false'); });
-      if (on && !quiet) document.getElementById('close').focus({ preventScroll: true });
-    }
-    openers.forEach(function (b) { b.addEventListener('click', function () { show(!document.body.classList.contains('open')); }); });
-    document.getElementById('close').addEventListener('click', function () { show(false); });
-    document.getElementById('shade').addEventListener('click', function () { show(false); });
-    window.addEventListener('keydown', function (e) { if (e.key === 'Escape') show(false); });
-
-    /* the two tabs; the page always opens on What to type */
-    var tabs = ['type', 'phone'];
-    function pick(name) {
-      tabs.forEach(function (t) {
-        document.getElementById('tab-' + t).setAttribute('aria-selected', t === name ? 'true' : 'false');
-        document.getElementById('pane-' + t).hidden = t !== name;
-      });
-    }
-    tabs.forEach(function (t) { document.getElementById('tab-' + t).addEventListener('click', function () { pick(t); }); });
-
-    /* on a wide screen the guide is open beside the phone from the start */
-    if (wide.matches) show(true, true);
-
-    /* the app says where it is (src/lib/where.ts); the step for that page is marked, and the hint under the app says it */
-    var steps = Array.prototype.slice.call(document.querySelectorAll('.steps li[data-where]'));
+    /* the card: the step on screen, what to type on it, and how far through sign-up it is */
+    var steps = Array.prototype.slice.call(document.querySelectorAll('#steps li'));
     var signup = steps.filter(function (li) { return li.hasAttribute('data-signup'); });
-    var hintWhere = document.getElementById('hintWhere');
-    var hintWhat = document.getElementById('hintWhat');
+    var guide = document.getElementById('guide');
+    var kicker = document.getElementById('guideKicker');
+    var title = document.getElementById('guideTitle');
+    var type = document.getElementById('guideType');
+    var note = document.getElementById('guideNote');
+    var progress = document.getElementById('guideProgress');
+    var shown = null;
     function stepFor(where) {
       for (var i = 0; i < steps.length; i++) {
-        var keys = steps[i].getAttribute('data-where').split(' ');
+        var keys = (steps[i].getAttribute('data-where') || '').split(' ');
         for (var j = 0; j < keys.length; j++) {
           var k = keys[j];
-          if (k === where || (k.charAt(0) === '/' && k !== '/' && where.indexOf(k + '/') === 0)) return steps[i];
+          if (k && (k === where || (k.charAt(0) === '/' && k !== '/' && where.indexOf(k + '/') === 0))) return steps[i];
         }
       }
       return null;
     }
-    function mark(where) {
-      var now = stepFor(where);
-      var at = signup.indexOf(now);
-      steps.forEach(function (li) {
-        li.classList.toggle('now', li === now);
-        li.classList.toggle('done', at > 0 && signup.indexOf(li) >= 0 && signup.indexOf(li) < at);
-      });
-      if (!now) { hintWhere.textContent = 'What to type'; hintWhat.textContent = 'The keys for every page'; return; }
-      var title = now.querySelector('.where').textContent;
-      hintWhere.textContent = at >= 0 ? 'Step ' + (at + 1) + ' of ' + signup.length + ': ' + title : title;
-      hintWhat.innerHTML = now.children[1] ? now.children[1].innerHTML : '';
-      if (document.body.classList.contains('open')) now.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    function show(li) {
+      if (!li || li === shown) return;
+      shown = li;
+      var at = signup.indexOf(li);
+      var part = at >= 0 ? 'Sign up' : /signin|recover/.test(li.getAttribute('data-where') || '') ? 'Log in' : 'In the app';
+      kicker.textContent = at >= 0 ? 'Step ' + (at + 1) + ' of ' + signup.length + ' · ' + part : part;
+      progress.innerHTML = at >= 0 ? signup.map(function (_, i) { return '<i' + (i <= at ? ' class="on"' : '') + '></i>'; }).join('') : '';
+      progress.style.display = at >= 0 ? '' : 'none';
+      title.textContent = li.querySelector('.where').textContent;
+      type.innerHTML = li.children[1] ? li.children[1].innerHTML : '';
+      note.innerHTML = li.querySelector('.note') ? li.querySelector('.note').innerHTML : '';
+      note.style.display = note.innerHTML ? '' : 'none';
+      guide.classList.remove('fresh');
+      void guide.offsetWidth;
+      guide.classList.add('fresh');
     }
+    show(signup[0]);
     window.addEventListener('message', function (e) {
       if (e.source !== frame.contentWindow || !e.data || e.data.beetle !== 'where' || typeof e.data.where !== 'string') return;
-      mark(e.data.where);
+      /* a page with no step of its own keeps the card on what it showed, or the chat's, once inside */
+      show(stepFor(e.data.where) || (e.data.where.charAt(0) === '/' && e.data.where !== '/' ? stepFor('/home') : null));
     });
-    /* opened on a phone or mid screen, the marked step is brought into view */
-    openers.forEach(function (b) { b.addEventListener('click', function () {
-      pick('type');
-      var now = document.querySelector('.steps li.now');
-      if (now) setTimeout(function () { now.scrollIntoView({ block: 'center' }); }, 60);
-    }); });
 
     /* start over: forget what the app kept in this browser, and load it again */
-    document.getElementById('startOver').addEventListener('click', function () {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-start-over]'), function (b) { b.addEventListener('click', startOver); });
+    function startOver() {
       try {
         Object.keys(localStorage).forEach(function (k) { if (/^(secure\.)?beetle\./.test(k)) localStorage.removeItem(k); });
       } catch (e) { /* nothing kept, nothing to forget */ }
+      shown = null;
+      show(signup[0]);
       try { frame.contentWindow.location.reload(); } catch (e) { frame.src = frame.getAttribute('src'); }
-      if (!wide.matches) show(false);
-    });
+    }
 
     /* if the page is not allowed to frame the app, say so */
     setTimeout(function () {

@@ -19,6 +19,7 @@
    passcode kept on this phone (there is nothing to check it against). The
    lab can leave it off for the checks that walk the app (`__BEETLE_NO_LOCK__`
    set before the page loads); no other build can. */
+import { tellOver } from '../../lib/where';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, BackHandler, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -86,6 +87,10 @@ export function AppLock() {
   }, [lock]);
 
   const account = app.session?.account;
+  /* the test site's card says what opens it (src/lib/where.ts) */
+  useEffect(() => {
+    tellOver(locked && account ? 'lock' : null);
+  }, [locked, account]);
   if (!locked || !account) return null;
   return (
     <LockScreen

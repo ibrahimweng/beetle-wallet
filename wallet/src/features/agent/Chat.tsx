@@ -4,6 +4,7 @@
    way a line opens on Activities (ChatOpen.tsx): the chat holds still while
    it is open, scrolled up in step if the receipt would run under the chips
    and the ask bar. */
+import { AffordCard, ChooseCard } from './MonthCards';
 import React, { useContext, useEffect, useMemo, useRef, type RefObject } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -228,6 +229,26 @@ export function Chat({
                 onFill={(values, found, extra) => talk.fill(ask.id, values, found, extra)}
                 onConfirm={() => onConfirmAsk?.(ask)}
                 onFocus={() => setTimeout(() => list.current?.scrollToEnd({ animated: true }), 350)}
+              />
+            </View>
+          );
+        } else if (t.block.kind === 'afford') {
+          body = (
+            <View style={{ marginRight: ASK_INSET }}>
+              <AffordCard check={t.block.check} />
+            </View>
+          );
+        } else if (t.block.kind === 'choose' && 'state' in t) {
+          const { chooseId, question, step, of } = t.block;
+          body = (
+            <View style={{ marginRight: ASK_INSET }}>
+              <ChooseCard
+                question={question}
+                step={step}
+                of={of}
+                state={t.state as 'open' | 'done'}
+                picked={'picked' in t ? t.picked : undefined}
+                onPick={picked => void talk.choose(chooseId, picked)}
               />
             </View>
           );

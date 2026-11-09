@@ -3129,6 +3129,59 @@ try {
   await see('Finish setting up');
   await shot('dollars-before-setup', 700);
 
+  /* ---- Can I afford it (Round 43) ---- */
+  console.log('Can I afford it');
+  /* the demo account: its month is known, so the answer comes at once, every bill and saving before payday set aside */
+  await page.goto(`${base}/lab`, { waitUntil: 'load' });
+  await see('Beetle Lab');
+  await tap('The demo account');
+  await see(DEMO_HOME);
+  await pull('afford-chat', false);
+  await page.getByLabel('Ask Beetle').fill('I want to buy a plate of food that costs 10,000 naira. Can I afford it?');
+  await tap('Send this');
+  await arrives('Yes, you can buy a plate of food for ₦10,000');
+  await page.getByTestId('afford-card').first().waitFor();
+  await see('Rent savings');
+  await see('Free to spend now');
+  await shot('afford-yes', 700);
+  /* in dollars, at the rate */
+  await page.getByLabel('Ask Beetle').fill('Can I afford food of $10?');
+  await tap('Send this');
+  await arrives('for $10 (about');
+  await shot('afford-dollars', 700);
+  /* a new account: its month asked a tap at a time, never typed, then the answer, and the month kept */
+  await page.goto(`${base}/lab`, { waitUntil: 'load' });
+  await see('Beetle Lab');
+  await tap('A new account');
+  await see(NEW_HOME);
+  await pull('afford-new-chat', false);
+  await page.getByLabel('Ask Beetle').fill('Can I afford ₦10,000 of food?');
+  await tap('Send this');
+  await arrives('quick questions, tap your answers');
+  await page.getByTestId('choose-income-month-end').waitFor();
+  await shot('afford-question', 500);
+  await page.getByTestId('choose-income-month-end').click();
+  await page.getByTestId('choose-band-b2').waitFor();
+  await page.getByTestId('choose-band-b2').click();
+  await page.getByTestId('choose-bills-rent').waitFor();
+  await page.getByTestId('choose-bills-rent').click();
+  await page.getByTestId('choose-bills-light').click();
+  must((await page.getByTestId('choose-bills-rent').getAttribute('aria-checked')) === 'true', 'Rent should be ticked');
+  await shot('afford-bills', 300);
+  await page.getByTestId('choose-continue').click();
+  await page.getByTestId('choose-rent-r2').waitFor();
+  await page.getByTestId('choose-rent-r2').click();
+  await page.getByTestId('choose-daily-d2').waitFor();
+  await page.getByTestId('choose-daily-d2').click();
+  await arrives('I will remember your month');
+  await page.getByTestId('afford-card').first().waitFor();
+  await shot('afford-new', 700);
+  /* asked again, no questions */
+  await page.getByLabel('Ask Beetle').fill('Can I afford ₦2,000 of food?');
+  await tap('Send this');
+  await page.getByTestId('afford-card').nth(1).waitFor({ timeout: 15000 });
+  must((await page.getByTestId('choose-card').count()) === 5, 'the month should not be asked about again');
+
   /* ---- The app locked ---- */
   console.log('The app locked');
   /* opened with an account signed in, the app asks first: a wrong code says so, the right one opens it */

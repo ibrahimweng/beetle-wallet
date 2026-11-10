@@ -48,6 +48,7 @@ import {
 } from './nigeria';
 import type { Reading, ReaderService } from './reader';
 import { aimsBrief } from '../features/aims/aims';
+import { isAffordAsk } from '../features/afford/plan';
 import { secure } from './storage';
 
 export const MODEL = 'claude-opus-5-5';
@@ -693,6 +694,9 @@ export class Beetle implements AgentService {
   async ask(ask: Ask, ctx: Context, onStep?: OnStep): Promise<Reply> {
     const cfg = await this.config();
     if (!cfg) return this.scripted.ask(ask, ctx, onStep);
+    /* can I afford it, and the questions about the month (Round 43): the sums are worked out in code, never by the
+       model, so the answer is the same every time and every figure on the card adds up */
+    if (ask.choice || ctx.pending?.need === 'plan' || isAffordAsk((ask.text ?? '').toLowerCase())) return this.scripted.ask(ask, ctx, onStep);
     try {
       return await this.model.ask(ask, ctx, onStep);
     } catch (e) {

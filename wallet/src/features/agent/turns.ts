@@ -23,7 +23,11 @@ export type Turn =
   /** what can be borrowed: open to pick, done once it is taken */
   | { id: string; who: 'beetle'; block: { kind: 'loan' }; state: 'open' | 'done'; taken?: { amount: number; days: number } }
   /** money put into a goal: open to pick, done once it is in */
-  | { id: string; who: 'beetle'; block: { kind: 'save'; amount?: number; goalId?: string }; state: 'open' | 'done'; saved?: { amount: number; goalId: string; name: string } };
+  | { id: string; who: 'beetle'; block: { kind: 'save'; amount?: number; goalId?: string }; state: 'open' | 'done'; saved?: { amount: number; goalId: string; name: string } }
+  /** a purchase held to the month (Round 43): what was set aside and what it leaves */
+  | { id: string; who: 'beetle'; block: Extract<Block, { kind: 'afford' }> }
+  /** a question answered by a tap: open until it is answered, then it keeps what was picked */
+  | { id: string; who: 'beetle'; block: Extract<Block, { kind: 'choose' }>; state: 'open' | 'done'; picked?: string[] };
 
 export type ReceiptCard = {
   rowId: string;
@@ -55,6 +59,8 @@ export const turn = {
   save: (amount?: number, goalId?: string): Turn => ({ id: id(), who: 'beetle', block: { kind: 'save', amount, goalId }, state: 'open' }),
 };
 
+export type ChooseTurn = Extract<Turn, { who: 'beetle'; block: { kind: 'choose' } }>;
+export const isChoose = (t: Turn): t is ChooseTurn => t.who === 'beetle' && t.block.kind === 'choose';
 export type AskTurn = Extract<Turn, { who: 'beetle'; block: { kind: 'ask' } }>;
 export const isAsk = (t: Turn): t is AskTurn => t.who === 'beetle' && t.block.kind === 'ask';
 export type PanelTurn = Extract<Turn, { who: 'beetle'; block: { kind: 'panel' } }>;
@@ -96,6 +102,10 @@ export function withBlock(list: Turn[], block: Block): Turn[] {
     case 'save':
       return [...list, { id: id(), who: 'beetle', block, state: 'open' }];
     case 'receive':
+      return [...list, { id: id(), who: 'beetle', block }];
+    case 'choose':
+      return [...list, { id: id(), who: 'beetle', block, state: 'open' }];
+    case 'afford':
       return [...list, { id: id(), who: 'beetle', block }];
     default:
       return [...list, { id: id(), who: 'beetle', block }];

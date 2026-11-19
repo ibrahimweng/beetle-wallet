@@ -17,6 +17,8 @@ import { Platform, StyleProp, View, ViewStyle } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
+import { Orb, type OrbState } from '../../design/Orb';
+import { useScheme } from '../../design/scheme';
 import {
   Aside,
   Avatar,
@@ -231,17 +233,26 @@ function Shake({ n, children }: { n: number; children: ReactNode }) {
   return <Animated.View style={shaking}>{children}</Animated.View>;
 }
 
-/* The line under the field: what went wrong, or what is happening. */
+/* The line under the field: what went wrong, or what is happening. While
+   Beetle is at something (a line that ends in … and is not a warning), the
+   orb turns beside the words (Round 44, Thinking orbs): looking for the
+   account searches, sending the code reaches out, the rest works. The words
+   still say what it is; the orb only shows it is under way. */
+const orbFor = (text: string): OrbState => (/^Looking/.test(text) ? 'searching' : /^Sending/.test(text) ? 'connecting' : 'working');
 export function NoteLine({ note, style }: { note: Note; style?: StyleProp<ViewStyle> }) {
   const tone = note?.tone === 'bad' ? 'bad' : note?.tone === 'accent' ? 'accent' : 'secondary';
+  const scheme = useScheme();
   return (
     <View style={[{ minHeight: 20 }, style]}>
       <Swap value={note?.text ?? ''}>
         {shown =>
           shown ? (
-            <Meta tone={tone} accessibilityLiveRegion="polite">
-              {shown}
-            </Meta>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              {tone === 'secondary' && shown.endsWith('…') ? <Orb state={orbFor(shown)} size={20} theme={scheme === 'dark' ? 'dark' : 'light'} testID="note-orb" /> : null}
+              <Meta tone={tone} accessibilityLiveRegion="polite" style={{ flexShrink: 1 }}>
+                {shown}
+              </Meta>
+            </View>
           ) : null
         }
       </Swap>

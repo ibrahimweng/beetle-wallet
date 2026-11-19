@@ -12,6 +12,7 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { AmountPicker, Avatar, Body, Caption, Icon, Label, Logo, Meta, PageHead, Picks, Screen, Tap, YouTyped, type Rect, colour, font, logoOf, measure, toast } from '../../design';
+import { ReadyGlow } from '../../design/ReadyGlow';
 import {
   AIRTIME,
   DEMO_SAVED,
@@ -216,113 +217,116 @@ export function BuyData() {
     <>
       <Screen head={<PageHead lead title={airtime ? 'Buy airtime' : 'Buy data'} sub="Check the parts I filled in before it goes" />}>
         {said ? <YouTyped said={said} /> : null}
-        <View style={s.card} testID="buy-card">
-          {typing ? (
-            <View style={[s.sub, s.line]} testID="buy-line">
-              <View style={s.typingRow}>
-                {/* the network, as soon as the number says which (Round 38) */}
-                {typedLogo ? (
-                  <Logo name={typedLogo} size={38} round />
-                ) : (
-                  <View style={s.disc}>
-                    <Icon name="grid" size={18} colour={colour.ink} />
+        {/* the card where the money moves, alight once it is ready to slide (Round 44) */}
+        <ReadyGlow ready={!!line && !!price && !typing && !guard && !choosing && !pick} testID="buy-glow">
+          <View style={s.card} testID="buy-card">
+            {typing ? (
+              <View style={[s.sub, s.line]} testID="buy-line">
+                <View style={s.typingRow}>
+                  {/* the network, as soon as the number says which (Round 38) */}
+                  {typedLogo ? (
+                    <Logo name={typedLogo} size={38} round />
+                  ) : (
+                    <View style={s.disc}>
+                      <Icon name="grid" size={18} colour={colour.ink} />
+                    </View>
+                  )}
+                  <TextInput
+                    ref={numberField}
+                    accessibilityLabel="Phone number"
+                    value={number}
+                    onChangeText={typed}
+                    keyboardType="number-pad"
+                    placeholder="Eleven digits"
+                    placeholderTextColor={colour.textTertiary}
+                    style={s.input}
+                    autoFocus
+                  />
+                </View>
+                <Caption tone="secondary">{number.length ? `${groupPhoneNumber(number)} · ${11 - number.length} to go` : 'The line the data goes to'}</Caption>
+              </View>
+            ) : (
+              <Tap
+                ref={lineCard}
+                accessibilityRole="button"
+                accessibilityLabel={line ? (line.own ? 'Your line' : line.label) : 'Whose line?'}
+                onPress={openLines}
+                style={[s.sub, s.line]}
+                testID="buy-line"
+              >
+                <View style={s.lineRow}>
+                  {line ? (
+                    <Avatar initials={initialsOf(line.own ? 'You' : line.label)} size={38} />
+                  ) : (
+                    <View style={s.disc}>
+                      <Icon name="person" size={18} colour={colour.ink} />
+                    </View>
+                  )}
+                  <View style={{ flex: 1, gap: 4 }}>
+                    <Label>{line ? (line.own ? 'Your line' : line.label) : 'Whose line?'}</Label>
+                    <Meta tone="secondary">{line ? `${groupPhoneNumber(line.number)} · ${line.network}` : 'Someone you top up, or a number'}</Meta>
                   </View>
-                )}
-                <TextInput
-                  ref={numberField}
-                  accessibilityLabel="Phone number"
-                  value={number}
-                  onChangeText={typed}
-                  keyboardType="number-pad"
-                  placeholder="Eleven digits"
-                  placeholderTextColor={colour.textTertiary}
-                  style={s.input}
-                  autoFocus
+                  <View style={{ marginTop: 11 }}>
+                    <Icon name="chevron" size={16} colour={colour.textTertiary} />
+                  </View>
+                </View>
+                {lineNote ? <Caption tone="secondary">{lineNote}</Caption> : null}
+              </Tap>
+            )}
+            {airtime ? (
+              <View style={[s.sub, s.amount]} testID="buy-amount">
+                <AmountPicker
+                  value={amount}
+                  onChange={v => {
+                    setAmount(v);
+                    setAmountNote('You picked it');
+                  }}
+                  max={fromDollars ? Math.floor(dollars * rate) : Math.max(0, Math.floor(balance))}
+                  note={short ?? amountNote}
+                  warn={!!short}
                 />
               </View>
-              <Caption tone="secondary">{number.length ? `${groupPhoneNumber(number)} · ${11 - number.length} to go` : 'The line the data goes to'}</Caption>
-            </View>
-          ) : (
-            <Tap
-              ref={lineCard}
-              accessibilityRole="button"
-              accessibilityLabel={line ? (line.own ? 'Your line' : line.label) : 'Whose line?'}
-              onPress={openLines}
-              style={[s.sub, s.line]}
-              testID="buy-line"
-            >
-              <View style={s.lineRow}>
-                {line ? (
-                  <Avatar initials={initialsOf(line.own ? 'You' : line.label)} size={38} />
-                ) : (
-                  <View style={s.disc}>
-                    <Icon name="person" size={18} colour={colour.ink} />
+            ) : (
+              <View style={[s.sub, s.bundle]} testID="buy-bundle">
+                <View style={s.bundleRow}>
+                  {/* whose bundle: the line's network (Round 38) */}
+                  {line && logoOf(line.network) ? (
+                    <View style={{ marginTop: 3 }}>
+                      <Logo name={logoOf(line.network)!} size={28} radius={8} />
+                    </View>
+                  ) : (
+                    <View style={{ marginTop: 6 }}>
+                      <Icon name="data" size={22} colour={colour.ink} />
+                    </View>
+                  )}
+                  <View style={{ flex: 1, gap: 4 }}>
+                    <Label>{plan ? planName(plan) : 'Pick a bundle'}</Label>
+                    <Caption tone="secondary">{plan ? 'It will not renew on its own' : 'From the ones below'}</Caption>
                   </View>
-                )}
-                <View style={{ flex: 1, gap: 4 }}>
-                  <Label>{line ? (line.own ? 'Your line' : line.label) : 'Whose line?'}</Label>
-                  <Meta tone="secondary">{line ? `${groupPhoneNumber(line.number)} · ${line.network}` : 'Someone you top up, or a number'}</Meta>
+                  {plan ? <Label style={[s.value, { marginTop: 5 }]}>{naira(plan.price)}</Label> : null}
                 </View>
-                <View style={{ marginTop: 11 }}>
-                  <Icon name="chevron" size={16} colour={colour.textTertiary} />
-                </View>
+                <Caption tone={short ? 'bad' : 'secondary'}>{short ?? planNote}</Caption>
               </View>
-              {lineNote ? <Caption tone="secondary">{lineNote}</Caption> : null}
-            </Tap>
-          )}
-          {airtime ? (
-            <View style={[s.sub, s.amount]} testID="buy-amount">
-              <AmountPicker
-                value={amount}
-                onChange={v => {
-                  setAmount(v);
-                  setAmountNote('You picked it');
-                }}
-                max={fromDollars ? Math.floor(dollars * rate) : Math.max(0, Math.floor(balance))}
-                note={short ?? amountNote}
-                warn={!!short}
-              />
-            </View>
-          ) : (
-            <View style={[s.sub, s.bundle]} testID="buy-bundle">
-              <View style={s.bundleRow}>
-                {/* whose bundle: the line's network (Round 38) */}
-                {line && logoOf(line.network) ? (
-                  <View style={{ marginTop: 3 }}>
-                    <Logo name={logoOf(line.network)!} size={28} radius={8} />
-                  </View>
-                ) : (
-                  <View style={{ marginTop: 6 }}>
-                    <Icon name="data" size={22} colour={colour.ink} />
-                  </View>
-                )}
-                <View style={{ flex: 1, gap: 4 }}>
-                  <Label>{plan ? planName(plan) : 'Pick a bundle'}</Label>
-                  <Caption tone="secondary">{plan ? 'It will not renew on its own' : 'From the ones below'}</Caption>
-                </View>
-                {plan ? <Label style={[s.value, { marginTop: 5 }]}>{naira(plan.price)}</Label> : null}
+            )}
+            <View style={[s.sub, s.rows]} testID="buy-rows">
+              <Tap accessibilityRole="button" accessibilityLabel="From" onPress={() => setChoosing(true)} style={s.row}>
+                <Body tone="secondary" style={{ flex: 1 }}>
+                  From
+                </Body>
+                <Label style={s.value}>{fromDollars ? `Dollars · ${usdFull(dollars)}` : `Everyday · ${groupAccount(account.accountNumber)}`}</Label>
+                <Icon name="chevron" size={16} colour={colour.textTertiary} />
+              </Tap>
+              <View style={s.row}>
+                <Body tone="secondary" style={{ flex: 1 }}>
+                  {fed ? `Goes to your ${fed} goal` : 'Goes to your goal'}
+                </Body>
+                <Label tone="accent" style={s.value}>
+                  {naira(roundUp(price))}
+                </Label>
               </View>
-              <Caption tone={short ? 'bad' : 'secondary'}>{short ?? planNote}</Caption>
-            </View>
-          )}
-          <View style={[s.sub, s.rows]} testID="buy-rows">
-            <Tap accessibilityRole="button" accessibilityLabel="From" onPress={() => setChoosing(true)} style={s.row}>
-              <Body tone="secondary" style={{ flex: 1 }}>
-                From
-              </Body>
-              <Label style={s.value}>{fromDollars ? `Dollars · ${usdFull(dollars)}` : `Everyday · ${groupAccount(account.accountNumber)}`}</Label>
-              <Icon name="chevron" size={16} colour={colour.textTertiary} />
-            </Tap>
-            <View style={s.row}>
-              <Body tone="secondary" style={{ flex: 1 }}>
-                {fed ? `Goes to your ${fed} goal` : 'Goes to your goal'}
-              </Body>
-              <Label tone="accent" style={s.value}>
-                {naira(roundUp(price))}
-              </Label>
             </View>
           </View>
-        </View>
+        </ReadyGlow>
         <View style={{ marginTop: -4 }} testID="others-block">
           <Body tone="secondary">{airtime ? 'Other amounts' : 'Other bundles'}</Body>
           <View style={{ marginTop: 18 }}>

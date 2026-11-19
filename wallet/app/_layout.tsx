@@ -27,7 +27,7 @@ import { StatusBar } from 'expo-status-bar';
 import { loadAsync, useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { AppProvider } from '../src/features/onboarding/store';
 import { Body, Button, Title, ToastHost, colour, frame } from '../src/design';
 import { LabTab } from '../src/lab/LabTab';
@@ -98,7 +98,9 @@ export default function Root() {
   if (!drawn) return null;
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
+      {/* the phone's insets from the first frame, so nothing measured off them (the card, its drag) is drawn and then
+          drawn again once they arrive: a first launch otherwise starts with none (Round 44) */}
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <AppProvider>
           <StatusBar style="dark" />
           <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right', ...TransitionPresets.SlideFromRightIOS, cardStyle: { backgroundColor: colour.surface } }}>

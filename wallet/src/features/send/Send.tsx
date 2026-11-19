@@ -15,6 +15,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { AmountPicker, Body, Caption, Icon, Label, Meta, PageHead, Screen, Tap, YouTyped, colour, font, toast } from '../../design';
+import { ReadyGlow } from '../../design/ReadyGlow';
 import { DEMO_SAVED, PEOPLE, arrivesAt, beneficiariesOf, feeLabel, feeTo, isBeetle, ownLine, reader, whose, type Move, type Person, type Photo } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSendGate } from '../settings/sendGate';
@@ -238,98 +239,101 @@ export function Send() {
       <Screen head={<PageHead title="Send money" sub={who ? `To ${who.name} · ${beetle ? 'Beetle' : who.bank}` : fromDollars ? 'From Dollars' : 'From Everyday'} />}>
         {said ? <YouTyped said={said} /> : null}
         {/* 12 around the white cards, 8 between them; To first, since it decides the rest */}
-        <View style={s.card} testID="send-card">
-          <View style={[s.sub, s.who]} testID="send-who">
-            <ToField
-              label="To"
-              key={typeAgain}
-              value={who}
-              note={who ? (read === 'photo' ? undefined : whoNote || howOf(who, saved.people.find(p => p.number === who.number)?.times)) : undefined}
-              onChange={(p, how) => {
-                setWho(p);
-                setWhoNote(how ?? '');
-                setRead(undefined);
-              }}
-              paid={saved.people}
-              onCamera={() => router.push('/scan')}
-              showRecent
-              autoFocus={typeAgain > 0}
-            />
-            {who && read === 'photo' ? (
-              <Tap
-                accessibilityRole="button"
-                accessibilityLabel="Before I filled this in"
-                onPress={() => {
-                  const past = [...moves, ...(h?.ledger ?? [])].find(r => r.kind === 'transfer' && r.name === who.name);
-                  checkFor.put({
-                    who,
-                    times: saved.people.find(p => p.number === who.number)?.times ?? 0,
-                    usual: past ? { amount: Math.abs(past.amount), reference: past.reference } : undefined,
-                    amount,
-                    read: true,
-                  });
-                  router.push('/checking');
+        {/* the card where the money moves, alight once it is ready to slide (Round 44) */}
+        <ReadyGlow ready={!!who && amount > 0 && !busy && !guard && !choosing} testID="send-glow">
+          <View style={s.card} testID="send-card">
+            <View style={[s.sub, s.who]} testID="send-who">
+              <ToField
+                label="To"
+                key={typeAgain}
+                value={who}
+                note={who ? (read === 'photo' ? undefined : whoNote || howOf(who, saved.people.find(p => p.number === who.number)?.times)) : undefined}
+                onChange={(p, how) => {
+                  setWho(p);
+                  setWhoNote(how ?? '');
+                  setRead(undefined);
                 }}
-                testID="check-photo"
-              >
-                <Caption tone="accent">{`${whoNote} · before I filled this in`}</Caption>
-              </Tap>
-            ) : null}
-          </View>
-          <View style={[s.sub, s.amount]} testID="send-amount">
-            <AmountPicker
-              value={amount}
-              onChange={v => {
-                setAmount(v);
-                setAmountNote('');
-              }}
-              max={cap}
-              note={amountLine}
-              warn={over}
-              chips={chips}
-              all="All of it"
-            />
-          </View>
-          <View style={[s.sub, s.ref]} testID="send-ref">
-            <View style={s.refRow}>
-              <Body tone="secondary">Reference</Body>
-              <TextInput
-                accessibilityLabel="Reference"
-                value={reference}
-                onChangeText={v => {
-                  setReference(v);
-                  setRefNote('');
+                paid={saved.people}
+                onCamera={() => router.push('/scan')}
+                showRecent
+                autoFocus={typeAgain > 0}
+              />
+              {who && read === 'photo' ? (
+                <Tap
+                  accessibilityRole="button"
+                  accessibilityLabel="Before I filled this in"
+                  onPress={() => {
+                    const past = [...moves, ...(h?.ledger ?? [])].find(r => r.kind === 'transfer' && r.name === who.name);
+                    checkFor.put({
+                      who,
+                      times: saved.people.find(p => p.number === who.number)?.times ?? 0,
+                      usual: past ? { amount: Math.abs(past.amount), reference: past.reference } : undefined,
+                      amount,
+                      read: true,
+                    });
+                    router.push('/checking');
+                  }}
+                  testID="check-photo"
+                >
+                  <Caption tone="accent">{`${whoNote} · before I filled this in`}</Caption>
+                </Tap>
+              ) : null}
+            </View>
+            <View style={[s.sub, s.amount]} testID="send-amount">
+              <AmountPicker
+                value={amount}
+                onChange={v => {
+                  setAmount(v);
+                  setAmountNote('');
                 }}
-                placeholder="Add one"
-                placeholderTextColor={colour.textTertiary}
-                style={s.refInput}
-                returnKeyType="done"
+                max={cap}
+                note={amountLine}
+                warn={over}
+                chips={chips}
+                all="All of it"
               />
             </View>
-            <Caption tone="secondary">{refNote || (who ? `${first} sees it on their statement` : 'They see it on their statement')}</Caption>
-          </View>
-          <View style={[s.sub, s.rows]} testID="send-rows">
-            <Tap accessibilityRole="button" accessibilityLabel="From" onPress={() => setChoosing(true)} style={s.row}>
-              <Body tone="secondary" style={{ flex: 1 }}>
-                From
-              </Body>
-              <Label style={s.value}>{fromDollars ? `Dollars · ${usdFull(dollars)}` : `Everyday · ${naira(balance)}`}</Label>
-              <Icon name="chevron" size={16} colour={colour.textTertiary} />
-            </Tap>
-            <View style={s.row}>
-              <Body tone="secondary" style={{ flex: 1 }}>
-                Arrives
-              </Body>
-              <Label style={s.value}>{arrivesAt(amount, who?.bank)}</Label>
+            <View style={[s.sub, s.ref]} testID="send-ref">
+              <View style={s.refRow}>
+                <Body tone="secondary">Reference</Body>
+                <TextInput
+                  accessibilityLabel="Reference"
+                  value={reference}
+                  onChangeText={v => {
+                    setReference(v);
+                    setRefNote('');
+                  }}
+                  placeholder="Add one"
+                  placeholderTextColor={colour.textTertiary}
+                  style={s.refInput}
+                  returnKeyType="done"
+                />
+              </View>
+              <Caption tone="secondary">{refNote || (who ? `${first} sees it on their statement` : 'They see it on their statement')}</Caption>
             </View>
-            <View style={s.row}>
-              <Body tone="secondary" style={{ flex: 1 }}>
-                Fee
-              </Body>
-              <Label style={[s.value, { color: fee ? colour.ink : colour.goodText }]}>{beetle ? 'Free · Beetle to Beetle' : feeLabel(fee)}</Label>
+            <View style={[s.sub, s.rows]} testID="send-rows">
+              <Tap accessibilityRole="button" accessibilityLabel="From" onPress={() => setChoosing(true)} style={s.row}>
+                <Body tone="secondary" style={{ flex: 1 }}>
+                  From
+                </Body>
+                <Label style={s.value}>{fromDollars ? `Dollars · ${usdFull(dollars)}` : `Everyday · ${naira(balance)}`}</Label>
+                <Icon name="chevron" size={16} colour={colour.textTertiary} />
+              </Tap>
+              <View style={s.row}>
+                <Body tone="secondary" style={{ flex: 1 }}>
+                  Arrives
+                </Body>
+                <Label style={s.value}>{arrivesAt(amount, who?.bank)}</Label>
+              </View>
+              <View style={s.row}>
+                <Body tone="secondary" style={{ flex: 1 }}>
+                  Fee
+                </Body>
+                <Label style={[s.value, { color: fee ? colour.ink : colour.goodText }]}>{beetle ? 'Free · Beetle to Beetle' : feeLabel(fee)}</Label>
+              </View>
             </View>
           </View>
-        </View>
+        </ReadyGlow>
         <View style={[s.lock, fromDollars ? { alignItems: 'flex-start' } : null]}>
           <Icon name="lock" size={16} colour={colour.textTertiary} />
           <Meta tone="secondary" style={{ flex: 1 }}>

@@ -11,6 +11,7 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { AmountPicker, Body, Caption, Icon, Label, Logo, Meta, PageHead, Picks, Screen, Tap, YouTyped, colour, logoOf, measure, toast, type Rect } from '../../design';
+import { ReadyGlow } from '../../design/ReadyGlow';
 import { DEMO_SAVED, PEOPLE, beneficiariesOf, billPanelFor, discoById, groupMeter, ownLine, type MeterPaid, type Move } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSendGate } from '../settings/sendGate';
@@ -148,57 +149,60 @@ export function PayBill() {
       <Screen head={<PageHead lead title="Pay a bill" sub={`${name}, ${meter && meter.disco !== biller.id ? 'on the meter you picked' : biller.sub}`} />}>
         {said ? <YouTyped said={said} /> : null}
         {/* 12 around the white cards, 8 between them */}
-        <View style={s.card} testID="pay-card">
-          <Tap ref={accountCard} accessibilityRole="button" accessibilityLabel={meter ? `${name}, ${detail}` : name} onPress={openSaved} style={[s.sub, s.account]} testID="pay-account">
-            <View style={s.accountRow}>
-              {logo ? (
-                <View style={{ marginTop: 3 }}>
-                  <Logo name={logo} size={32} radius={10} />
+        {/* the card where the money moves, alight once it is ready to slide (Round 44) */}
+        <ReadyGlow ready={!!amount && !(power && !meter) && !guard && !choosing && !pick} testID="pay-glow">
+          <View style={s.card} testID="pay-card">
+            <Tap ref={accountCard} accessibilityRole="button" accessibilityLabel={meter ? `${name}, ${detail}` : name} onPress={openSaved} style={[s.sub, s.account]} testID="pay-account">
+              <View style={s.accountRow}>
+                {logo ? (
+                  <View style={{ marginTop: 3 }}>
+                    <Logo name={logo} size={32} radius={10} />
+                  </View>
+                ) : (
+                  <View style={{ marginTop: 8 }}>
+                    <Icon name={biller.glyph} size={22} colour={colour.ink} />
+                  </View>
+                )}
+                <View style={{ flex: 1, gap: 4 }}>
+                  <Label>{name}</Label>
+                  <Meta tone="secondary">{detail}</Meta>
                 </View>
-              ) : (
-                <View style={{ marginTop: 8 }}>
-                  <Icon name={biller.glyph} size={22} colour={colour.ink} />
+                <View style={{ marginTop: 11 }}>
+                  <Icon name="chevron" size={16} colour={colour.textTertiary} />
                 </View>
-              )}
-              <View style={{ flex: 1, gap: 4 }}>
-                <Label>{name}</Label>
-                <Meta tone="secondary">{detail}</Meta>
               </View>
-              <View style={{ marginTop: 11 }}>
-                <Icon name="chevron" size={16} colour={colour.textTertiary} />
-              </View>
-            </View>
-            <Caption tone="secondary">{meter || !power ? meterNote : 'Meters you have paid, or a photo of the bill'}</Caption>
-          </Tap>
-          {/* the amount, picked where it is: the ruler stops at what the money it comes from holds; the picks with what each buys are under the card */}
-          <View style={[s.sub, s.amount]} testID="pay-amount">
-            <AmountPicker
-              value={amount}
-              onChange={v => {
-                setAmount(v);
-                setAmountNote('You picked it');
-              }}
-              max={fromDollars ? Math.floor(dollars * rate) : Math.max(0, Math.floor(balance))}
-              note={short ?? amountNote}
-              warn={!!short}
-            />
-          </View>
-          <View style={[s.sub, s.rows]} testID="pay-rows">
-            <Tap accessibilityRole="button" accessibilityLabel="From" onPress={() => setChoosing(true)} style={s.row}>
-              <Body tone="secondary" style={{ flex: 1 }}>
-                From
-              </Body>
-              <Label style={s.value}>{fromDollars ? `Dollars · ${usdFull(dollars)}` : `Everyday · ${groupAccount(account.accountNumber)}`}</Label>
-              <Icon name="chevron" size={16} colour={colour.textTertiary} />
+              <Caption tone="secondary">{meter || !power ? meterNote : 'Meters you have paid, or a photo of the bill'}</Caption>
             </Tap>
-            <View style={s.row}>
-              <Body tone="secondary" style={{ flex: 1 }}>
-                {biller.lands[0]}
-              </Body>
-              <Label style={s.value}>{biller.lands[1]}</Label>
+            {/* the amount, picked where it is: the ruler stops at what the money it comes from holds; the picks with what each buys are under the card */}
+            <View style={[s.sub, s.amount]} testID="pay-amount">
+              <AmountPicker
+                value={amount}
+                onChange={v => {
+                  setAmount(v);
+                  setAmountNote('You picked it');
+                }}
+                max={fromDollars ? Math.floor(dollars * rate) : Math.max(0, Math.floor(balance))}
+                note={short ?? amountNote}
+                warn={!!short}
+              />
+            </View>
+            <View style={[s.sub, s.rows]} testID="pay-rows">
+              <Tap accessibilityRole="button" accessibilityLabel="From" onPress={() => setChoosing(true)} style={s.row}>
+                <Body tone="secondary" style={{ flex: 1 }}>
+                  From
+                </Body>
+                <Label style={s.value}>{fromDollars ? `Dollars · ${usdFull(dollars)}` : `Everyday · ${groupAccount(account.accountNumber)}`}</Label>
+                <Icon name="chevron" size={16} colour={colour.textTertiary} />
+              </Tap>
+              <View style={s.row}>
+                <Body tone="secondary" style={{ flex: 1 }}>
+                  {biller.lands[0]}
+                </Body>
+                <Label style={s.value}>{biller.lands[1]}</Label>
+              </View>
             </View>
           </View>
-        </View>
+        </ReadyGlow>
         <View style={{ marginTop: -4 }} testID="pick-block">
           <Body tone="secondary">Or pick an amount</Body>
           <View style={{ marginTop: 18 }}>

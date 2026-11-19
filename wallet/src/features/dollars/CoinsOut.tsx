@@ -15,6 +15,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AmountPicker, Aside, Caption, Facts, Head, Meta, PageHead, Row, Screen, Segments, Tap, colour, logoOf, toast } from '../../design';
+import { ReadyGlow } from '../../design/ReadyGlow';
 import { TextBox } from '../../design/TextBox';
 import { auth, tagged, type Move } from '../../services';
 import { useApp } from '../onboarding/store';
@@ -206,23 +207,26 @@ export function CoinsOut() {
             </View>
           </>
         )}
-        <View style={s.figure} testID="coin-amount">
-          <View style={s.from}>
-            <Row>From your Dollar account</Row>
-            <Meta tone="secondary">{`${usdFull(dollars)} there`}</Meta>
+        {/* the card where the money moves, alight once it is ready to slide (Round 44) */}
+        <ReadyGlow ready={!!usd && ready && !guard} testID="coin-glow">
+          <View style={s.figure} testID="coin-amount">
+            <View style={s.from}>
+              <Row>From your Dollar account</Row>
+              <Meta tone="secondary">{`${usdFull(dollars)} there`}</Meta>
+            </View>
+            <View style={s.picker}>
+              <AmountPicker
+                unit="dollars"
+                value={usd}
+                onChange={v => setUsd(v)}
+                max={dollars}
+                note={usd ? `They get ${usdFull(arrives)}` : way === 'wallet' ? `At least ${usdFull(LEAST_OUT)}` : 'Any amount'}
+                chips={[20, 100]}
+                all="All of it"
+              />
+            </View>
           </View>
-          <View style={s.picker}>
-            <AmountPicker
-              unit="dollars"
-              value={usd}
-              onChange={v => setUsd(v)}
-              max={dollars}
-              note={usd ? `They get ${usdFull(arrives)}` : way === 'wallet' ? `At least ${usdFull(LEAST_OUT)}` : 'Any amount'}
-              chips={[20, 100]}
-              all="All of it"
-            />
-          </View>
-        </View>
+        </ReadyGlow>
         <View style={{ paddingHorizontal: 16, marginTop: -4 }}>
           <Facts
             inset={10}

@@ -29,6 +29,7 @@ import { spotRef } from './spots';
 import { whenOpening } from '../onboarding/arrival';
 import { GATHER, PULSE, closingGlow, gathered, knocks, lit, uniformsOf } from './glow';
 import { Light } from './Light';
+import { Orb } from '../../design/Orb';
 
 /** The card's height when closed, as the frame draws it, the offers in it (Round 15: the owner's frame, 392). */
 export const CLOSED_H = 392;
@@ -55,6 +56,10 @@ export const FOOT_HAZE = 20 + 48 + CHIPS_GAP + CHIPS_H / 2 + HAZE_FEATHER;
 const FIGURE_LEFT = SIDE;
 /** the drag has to travel this far before the card takes it */
 const SLACK = 10;
+/** a pull that opens the card is taken sooner: under Android's touch slop (8 dp), where a page that can scroll would
+    otherwise take the drag first and the card never moves. That was home on a new account's first launch, when the
+    page is taller than the phone (Round 44) */
+const PULL_SLACK = 6;
 
 /** The light at the card's border, as a drag that opens the card sees it:
     told while a pull is gathering it, and told to swell where the card goes
@@ -92,6 +97,12 @@ export function useCardDrag({
 }): PanGesture {
   const startY = useSharedValue(0);
   const startX = useSharedValue(0);
+  /* the closed height as the drag reads it: a change (the status bar's height settling on a first launch) updates it
+     in place, rather than building the drag again under a finger that is already down (Round 44) */
+  const closed = useSharedValue(closedH);
+  useEffect(() => {
+    closed.value = closedH;
+  }, [closedH, closed]);
   const startOpen = useSharedValue(0);
   /* the pull has gone far enough and the card has gone on by itself: the finger is let go of */
   const fired = useSharedValue(false);
@@ -122,8 +133,8 @@ export function useCardDrag({
           if (startOpen.value < 0.5) {
             /* closed: a pull down from the top of the page opens it */
             if (scrollY && scrollY.value > 2) state.fail();
-            else if (dy > SLACK) state.activate();
-            else if (dy < -SLACK) state.fail();
+            else if (dy > PULL_SLACK) state.activate();
+            else if (dy < -PULL_SLACK) state.fail();
           } else if (gate && !gate.value) state.fail();
           else if (dy < -SLACK) state.activate();
           else if (dy > SLACK) state.fail();
@@ -134,7 +145,7 @@ export function useCardDrag({
         })
         .onUpdate(e => {
           if (fired.value) return;
-          const travel = Math.max(1, openH.value - closedH);
+          const travel = Math.max(1, openH.value - closed.value);
           const p = clamp(startOpen.value + e.translationY / travel, 0, 1);
           open.value = p;
           if (!light || startOpen.value >= 0.5) return;
@@ -176,7 +187,7 @@ export function useCardDrag({
             open.value = withSpring(startOpen.value < 0.5 ? 0 : 1, keys);
           }
         }),
-    [closedH, only], // eslint-disable-line react-hooks/exhaustive-deps
+    [only], // eslint-disable-line react-hooks/exhaustive-deps
   );
 }
 
@@ -471,7 +482,25 @@ export function WalletCard({ open, openH, scrollY, onSettle, whole, kobo, dollar
                   <Label style={{ color: dark.paper }}>New</Label>
                 </Tap>
               </Animated.View>
-            ) : null}
+            ) : (
+              /* Beetle on the card (Round 44, Thinking orbs): a small orb breathing at the header's right while the card
+                 is closed, gone as it opens; a tap opens the chat, as pulling does */
+              <Animated.View style={goingLate} pointerEvents={opened ? 'none' : 'auto'}>
+                <Tap
+                  accessibilityRole="button"
+                  accessibilityLabel="Talk to Beetle"
+                  onPress={() => {
+                    open.value = still ? 1 : withSpring(1, keys);
+                    settle(true);
+                  }}
+                  scale={0.9}
+                  style={s.orb}
+                  testID="card-orb"
+                >
+                  <Orb state="breathing" size={20} theme="dark" label="Beetle" />
+                </Tap>
+              </Animated.View>
+            )}
           </View>
         </View>
       </GestureDetector>
@@ -572,6 +601,8 @@ const s = StyleSheet.create({
   head: { position: 'absolute', top: 0, left: 0, right: 0, paddingHorizontal: SIDE, zIndex: 3, overflow: 'visible' },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: HEADER_H },
   newChat: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 36, paddingHorizontal: 4 },
+  /* the orb's 20 in a 36 a finger can find, its right edge on the card's side margin */
+  orb: { width: 36, height: 36, marginRight: -8, alignItems: 'center', justifyContent: 'center' },
   /* the balance from the frame's 80, then 24 down to the pills and 36 to the offers; it runs to the card's edge, so a pull on the grabber, or under it, is the card's */
   closed: { position: 'absolute', top: BALANCE_TOP, left: 0, right: 0, height: CLOSED_H - BALANCE_TOP, alignItems: 'center', gap: 24, transformOrigin: 'top' },
   offers: { alignSelf: 'stretch', marginTop: 36 - 24 },

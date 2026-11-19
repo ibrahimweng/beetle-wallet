@@ -9,6 +9,7 @@ import { Body, Caption, Icon, Label, Logo, Meta, Pop, Row, Swap, Tap, dark, font
 import type { IconName } from '../../icons';
 import type { Panel, PanelRow } from '../../services';
 import { lineLogo } from '../home/lineLogo';
+import { Orb } from '../../design/Orb';
 
 export function Said({ title, children }: { title?: string; children: ReactNode }) {
   if (title)
@@ -50,14 +51,21 @@ export function Yours({ photo = false, children }: { photo?: boolean; children: 
 }
 
 /* While the answer is on its way and Beetle has not yet said what it is
-   doing: its mark on a disc and the brand's own word for it, the three dots
-   after it taking turns (Round 25, as the brand file draws the chat). */
+   doing: Beetle at it and the brand's own word for it, the three dots after
+   it taking turns (Round 25, as the brand file draws the chat). Since Round
+   44 Beetle at it is a thinking orb on the disc (Libraries.dev), in the place
+   the owner's own animation will take: BeetleAtIt is that one place. */
+export function BeetleAtIt() {
+  return (
+    <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: dark.bubble, alignItems: 'center', justifyContent: 'center' }} testID="beetle-at-it">
+      <Orb state="working" size={20} displaySize={24} theme="dark" label="Beetle is thinking" />
+    </View>
+  );
+}
 export function Thinking() {
   return (
     <View style={{ flexDirection: 'row', gap: 10, paddingVertical: 12, paddingHorizontal: 16, alignItems: 'center' }} accessibilityLabel="Beetling…" testID="beetling">
-      <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: dark.bubble, alignItems: 'center', justifyContent: 'center' }}>
-        <Icon name="mark" size={16} colour={dark.kobo} />
-      </View>
+      <BeetleAtIt />
       <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 3 }}>
         <Meta style={{ color: dark.text }}>Beetling</Meta>
         <View style={{ flexDirection: 'row', gap: 3, paddingBottom: 6 }}>

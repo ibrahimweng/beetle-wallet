@@ -2,7 +2,7 @@
    CanvasKit, what Skia brings for the web, so a shader the phone could not
    compile never ships: at rest it draws nothing; pulled, the card's border
    lights from inside, strongest along the bottom and thinning up the sides,
-   its outer side warm and its inner side cool, and nothing in the middle of
+   in the Border beam's colours riding round it (Round 44), and nothing in the middle of
    the card or outside it (Round 24: no streaks, no light at the foot, no
    ring); the swell brightens it once and is gone. */
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -62,12 +62,21 @@ describe('the shader', () => {
     /* the sides light near the bottom and thin out going up */
     expect(px(2, E - 60)[3]).toBeGreaterThan(px(2, 40)[3] * 4);
   });
-  it('splits the rim softly: warm on its outer side, cool on its inner', () => {
-    const px = draw(uniformsOf({ width: W, edge: E, a: 1, t: -1, g: 0 }));
-    const outer = px(W / 2, E - 1);
-    const inner = px(W / 2, E - 5);
-    expect(outer[0]).toBeGreaterThan(outer[2]);
-    expect(inner[2]).toBeGreaterThan(inner[0]);
+  it("is the beam's colourful light, its colours changing along the edge and riding round it as the card comes down", () => {
+    const hue = ([r, g, b]) => Math.round((Math.atan2(Math.sqrt(3) * (g - b), 2 * r - g - b) * 180) / Math.PI);
+    const near = draw(uniformsOf({ width: W, edge: E, a: 1, t: -1, g: 0 }));
+    /* the bottom of the edge and its side are different colours */
+    const bottom = near(W / 2, E - 3);
+    const side = near(3, E - 70);
+    expect(Math.abs(hue(bottom) - hue(side))).toBeGreaterThan(20);
+    /* the same spot is another colour once the card has come further down */
+    const further = draw(uniformsOf({ width: W, edge: E + 40, a: 1, t: -1, g: 0 }));
+    expect(Math.abs(hue(further(W / 2, E + 37)) - hue(bottom))).toBeGreaterThan(10);
+  });
+  it('breathes in from the edge as the card goes on: its glow reaches further in', () => {
+    const held = draw(uniformsOf({ width: W, edge: E, a: 1, t: -1, g: 0 }));
+    const breath = draw(uniformsOf({ width: W, edge: E, a: 1, t: 0.25, g: 0 }));
+    expect(alphaIn(breath, 0, W, E - 60, E - 30)).toBeGreaterThan(alphaIn(held, 0, W, E - 60, E - 30) * 1.5);
   });
   it('swells once as the card goes on, then is gone', () => {
     const held = draw(uniformsOf({ width: W, edge: E, a: 1, t: -1, g: 0 }));

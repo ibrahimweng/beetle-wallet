@@ -16,6 +16,7 @@ import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AmountPicker, Button, Caption, Chevron, Icon, Label, Meta, PageHead, Row, Screen, Tap, colour, toast } from '../../design';
+import { ReadyGlow } from '../../design/ReadyGlow';
 import type { Move } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -142,86 +143,89 @@ export function Loan() {
             </View>
           </View>
         ) : null}
-        <View style={s.card} testID="loan-card">
-          {/* how much: the first thing, picked where it is */}
-          <View style={s.picker} testID="loan-amount">
-            <AmountPicker
-              value={amount}
-              onChange={setAmount}
-              max={left}
-              note={left >= LOAN.least && amount && amount < LOAN.least ? `The least is ${naira(LOAN.least)}` : limitNote(left, naira)}
-              warn={(!!amount && amount < LOAN.least) || left < LOAN.least}
-              chips={[50_000, 100_000]}
-              all="Your limit"
-            />
-          </View>
-          {/* what it comes to: tight, labels left and figures right, the total the strongest */}
-          <View style={s.sheet} testID="facts">
-            <Tap
-              accessibilityRole="button"
-              accessibilityLabel={`Pay back over ${days} days`}
-              accessibilityState={{ expanded: open === 'days' }}
-              onPress={() => toggle('days')}
-              style={s.line}
-              testID="terms"
-            >
-              <Meta tone="secondary">Pay back over</Meta>
-              <View style={s.pick}>
-                <Label>{`${days} days`}</Label>
-                <Chevron dir={open === 'days' ? 'up' : 'down'} size={14} colour={colour.textSecondary} />
+        {/* the card where the money moves, alight once it is ready to slide (Round 44) */}
+        <ReadyGlow ready={amount >= LOAN.least && setup.done && !guard && paying === null} testID="loan-glow">
+          <View style={s.card} testID="loan-card">
+            {/* how much: the first thing, picked where it is */}
+            <View style={s.picker} testID="loan-amount">
+              <AmountPicker
+                value={amount}
+                onChange={setAmount}
+                max={left}
+                note={left >= LOAN.least && amount && amount < LOAN.least ? `The least is ${naira(LOAN.least)}` : limitNote(left, naira)}
+                warn={(!!amount && amount < LOAN.least) || left < LOAN.least}
+                chips={[50_000, 100_000]}
+                all="Your limit"
+              />
+            </View>
+            {/* what it comes to: tight, labels left and figures right, the total the strongest */}
+            <View style={s.sheet} testID="facts">
+              <Tap
+                accessibilityRole="button"
+                accessibilityLabel={`Pay back over ${days} days`}
+                accessibilityState={{ expanded: open === 'days' }}
+                onPress={() => toggle('days')}
+                style={s.line}
+                testID="terms"
+              >
+                <Meta tone="secondary">Pay back over</Meta>
+                <View style={s.pick}>
+                  <Label>{`${days} days`}</Label>
+                  <Chevron dir={open === 'days' ? 'up' : 'down'} size={14} colour={colour.textSecondary} />
+                </View>
+              </Tap>
+              {open === 'days' ? (
+                <View style={s.choices} testID="term-list">
+                  {TERMS.map(t => (
+                    <Tap
+                      key={t}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${t} days`}
+                      accessibilityState={{ selected: t === days }}
+                      onPress={() => {
+                        setDays(t);
+                        setOpen(null);
+                      }}
+                      style={s.choice}
+                    >
+                      <Label style={{ flex: 1 }}>{`${t} days`}</Label>
+                      <Caption tone="secondary">{`${countWord(t / 30).toLowerCase()} payment${t === 30 ? '' : 's'} of ${eachWords(costOf(amount, t), naira)}`}</Caption>
+                      {t === days ? <Icon name="check" size={14} colour={colour.ink} /> : <View style={{ width: 14 }} />}
+                    </Tap>
+                  ))}
+                </View>
+              ) : null}
+              <View style={s.line}>
+                <Row>You pay back</Row>
+                <Row testID="loan-total">{naira(cost.total)}</Row>
               </View>
-            </Tap>
-            {open === 'days' ? (
-              <View style={s.choices} testID="term-list">
-                {TERMS.map(t => (
-                  <Tap
-                    key={t}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${t} days`}
-                    accessibilityState={{ selected: t === days }}
-                    onPress={() => {
-                      setDays(t);
-                      setOpen(null);
-                    }}
-                    style={s.choice}
-                  >
-                    <Label style={{ flex: 1 }}>{`${t} days`}</Label>
-                    <Caption tone="secondary">{`${countWord(t / 30).toLowerCase()} payment${t === 30 ? '' : 's'} of ${eachWords(costOf(amount, t), naira)}`}</Caption>
-                    {t === days ? <Icon name="check" size={14} colour={colour.ink} /> : <View style={{ width: 14 }} />}
-                  </Tap>
+              <View style={s.line}>
+                <Meta tone="secondary">{payments}</Meta>
+                <Label>{eachWords(cost, naira)}</Label>
+              </View>
+              <View style={s.line}>
+                <Meta tone="secondary">First payment</Meta>
+                <Label>{dayOf(cost.first)}</Label>
+              </View>
+              <View style={s.line}>
+                <Meta tone="secondary">Taken</Meta>
+                <Label>From Everyday, on the day</Label>
+              </View>
+              <View style={s.rule} />
+              <More label="If a payment is missed" open={open === 'missed'} onPress={() => toggle('missed')} testID="loan-missed">
+                {[MISSED.collateral, MISSED.fee, MISSED.collect, MISSED.bureau].map(w => (
+                  <Caption key={w} tone="secondary">{`· ${w}`}</Caption>
                 ))}
-              </View>
-            ) : null}
-            <View style={s.line}>
-              <Row>You pay back</Row>
-              <Row testID="loan-total">{naira(cost.total)}</Row>
+              </More>
+              <More label="The cost, line by line" open={open === 'cost'} onPress={() => toggle('cost')} testID="loan-cost">
+                <Small label="You get today" value={naira(amount)} />
+                <Small label={`Interest, ${Math.round(LOAN.monthly * 100)}% a month`} value={naira(cost.interest)} />
+                <Small label="One off fee" value={naira(cost.fee)} />
+                <Caption tone="tertiary">{COLLECTED}. Paying early costs nothing extra.</Caption>
+              </More>
             </View>
-            <View style={s.line}>
-              <Meta tone="secondary">{payments}</Meta>
-              <Label>{eachWords(cost, naira)}</Label>
-            </View>
-            <View style={s.line}>
-              <Meta tone="secondary">First payment</Meta>
-              <Label>{dayOf(cost.first)}</Label>
-            </View>
-            <View style={s.line}>
-              <Meta tone="secondary">Taken</Meta>
-              <Label>From Everyday, on the day</Label>
-            </View>
-            <View style={s.rule} />
-            <More label="If a payment is missed" open={open === 'missed'} onPress={() => toggle('missed')} testID="loan-missed">
-              {[MISSED.collateral, MISSED.fee, MISSED.collect, MISSED.bureau].map(w => (
-                <Caption key={w} tone="secondary">{`· ${w}`}</Caption>
-              ))}
-            </More>
-            <More label="The cost, line by line" open={open === 'cost'} onPress={() => toggle('cost')} testID="loan-cost">
-              <Small label="You get today" value={naira(amount)} />
-              <Small label={`Interest, ${Math.round(LOAN.monthly * 100)}% a month`} value={naira(cost.interest)} />
-              <Small label="One off fee" value={naira(cost.fee)} />
-              <Caption tone="tertiary">{COLLECTED}. Paying early costs nothing extra.</Caption>
-            </More>
           </View>
-        </View>
+        </ReadyGlow>
         <View style={s.lock} testID="lock-line">
           <View style={{ marginTop: 2 }}>
             <Icon name="lock" size={16} colour={colour.textTertiary} />

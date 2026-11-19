@@ -12,6 +12,7 @@ import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AmountPicker, Body, Caption, Facts, Icon, Meta, PageHead, Row, Screen, Tap, colour, toast, useStill } from '../../design';
+import { ReadyGlow } from '../../design/ReadyGlow';
 import type { Move } from '../../services';
 import { useApp } from '../onboarding/store';
 import { useSessionGuard } from '../onboarding/useGuard';
@@ -140,22 +141,25 @@ export function Convert() {
           </Tap>
         </View>
         {/* the amount, picked where it is: in naira or in dollars, whichever it leaves from, stopping hard at what that holds */}
-        <View style={s.figure} testID="convert-amount">
-          <Meta tone="secondary" style={{ textAlign: 'center', marginBottom: 12 }}>
-            You are converting
-          </Meta>
-          <View style={s.picker}>
-            <AmountPicker
-              unit={toDollars ? 'naira' : 'dollars'}
-              value={amount}
-              onChange={v => setDigits(v ? String(v) : '')}
-              max={toDollars ? Math.max(0, Math.floor(balance)) : dollars}
-              note={`You get about ${gets}`}
-              chips={toDollars ? [50_000, 150_000] : [50, 100]}
-              all="All of it"
-            />
+        {/* the card where the money moves, alight once it is ready to slide (Round 44); it carries the figure's pull up */}
+        <ReadyGlow ready={!!amount && !guard} style={{ marginTop: -4 }} testID="convert-glow">
+          <View style={s.figure} testID="convert-amount">
+            <Meta tone="secondary" style={{ textAlign: 'center', marginBottom: 12 }}>
+              You are converting
+            </Meta>
+            <View style={s.picker}>
+              <AmountPicker
+                unit={toDollars ? 'naira' : 'dollars'}
+                value={amount}
+                onChange={v => setDigits(v ? String(v) : '')}
+                max={toDollars ? Math.max(0, Math.floor(balance)) : dollars}
+                note={`You get about ${gets}`}
+                chips={toDollars ? [50_000, 150_000] : [50, 100]}
+                all="All of it"
+              />
+            </View>
           </View>
-        </View>
+        </ReadyGlow>
         <View style={{ paddingHorizontal: 16, marginTop: -4 }}>
           <Facts
             inset={10}
@@ -199,7 +203,7 @@ const s = StyleSheet.create({
   /* the frame's two places: 62 a row, the words 11 down, the other holding's figure across from them */
   place: { height: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   swap: { position: 'absolute', right: 16, top: 46, width: 36, height: 36, borderRadius: 18, backgroundColor: colour.surface, alignItems: 'center', justifyContent: 'center' },
-  figure: { marginTop: -4, backgroundColor: colour.surface2, borderRadius: 24, paddingTop: 14, paddingHorizontal: 12, paddingBottom: 12 },
+  figure: { backgroundColor: colour.surface2, borderRadius: 24, paddingTop: 14, paddingHorizontal: 12, paddingBottom: 12 },
   /* the picker on its own white inside the grey, as the amounts on the paying pages sit */
   picker: { backgroundColor: colour.surface, borderRadius: 20, paddingTop: 20, paddingBottom: 16 },
   /* no bubble over the lock line: the rate's move this week is said on the rate's own row */

@@ -31,7 +31,9 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   (`font('600')`), never with fontWeight.
 - **The mark** is the ladybird in flight that is also a B, out of the brand
   file's own vector: in ink on the paper, in clay on the dark, cream on the
-  ink for the app's icon. Beetle thinking says **Beetling…** beside it.
+  ink for the app's icon. Beetle thinking says **Beetling…** beside it, a
+  thinking orb turning on its disc (Round 44) in the place the owner's own
+  animation will take.
 - **Light, not paint**: the brand's oil-slick colours are light (the card's
   border as it is pulled), never a flat fill.
 - **The way in is dark** (Round 27, the owner's frame): the opening and
@@ -41,6 +43,10 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   frame's tan `#c9b9a6`. A screen asks for it with `<Scheme value="dark">`
   and the pieces take their colours from it. The app after sign-in stays on
   the white.
+- **A wait on the way in shows an orb beside its words** (Round 44,
+  Thinking orbs from Libraries.dev): while the account is looked for, a
+  code is sent or something is checked, the orb turns beside the line that
+  says so. The words still say what is happening; nothing waits longer.
 - **Two coins**, rendered from the owner's own models: the punch-holed coin
   turns on the way in, all the way round every three seconds with a slow
   ease in and out, the soft blur under it travelling round its rim with it;
@@ -158,12 +164,32 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 - Only home has an ask bar.
 - Money moves by **Slide to send** (or Slide to take, to pay) in the foot,
   never by a plain button on a page.
+- **The card where money is about to move lights up once it is ready**
+  (Round 44, the owner's word: it should say this is not just any action).
+  Every Slide to wraps its card in Border beam's pulse, from Libraries.dev:
+  the colourful light breathes inside the card's edge from the moment the
+  slide can be slid, and lets go while the passcode or another sheet is up.
+  It adds no step and covers nothing a finger needs. No light for somebody
+  who has asked their phone to keep still.
 
 ## Home
 
 - The black card holds the balance, its reading in dollars, **Send and
   Receive as white pills**, **the offers**, and a grabber, with no words
   over or under them (Round 15: the offers moved into the card).
+- **Beetle on the card** (Round 44): a small thinking orb breathes at the
+  right of the card's header while it is closed and is gone as it opens; a
+  tap opens the chat, as pulling it does.
+- **The card takes a pull as soon as it can** (Round 44, after the owner
+  found it hard to grab on a first launch): a pull down from the closed card
+  is the card's after 6 points, under Android's touch slop, where a page
+  that can scroll would otherwise take the drag first; the drag is never
+  rebuilt under a finger when the phone's insets settle, and the app is
+  given the insets from its first frame.
+- **More buds out of the plus like liquid** (Round 44, Gooey from
+  Libraries.dev): each action leaves the black button as a drop of its ink,
+  stretching and letting go, rises, and melts into its glyph as the glyph
+  arrives; closing runs it backwards. At rest nothing new is on the screen.
 - **The offers**, 36 under the pills and 24 in from either side: Beetle's
   own features for this account, most useful first, one at a time with
   small dots inside at the bottom right. Each is a faint wash of its own
@@ -180,11 +206,13 @@ frame disagree, the rule is the newer word; the Figma check's allowances
 - Then the four cards, 24 apart both ways. **Services starts on All
   services**; Bills, Airtime and Data come after a swipe.
 - **Pulling the card lights its border softly** (Round 21 after Apple's
-  NameDrop, made quieter in Round 24, the owner's word): a fine line just
-  inside the edge, warm on its outer side and cool on its inner, softly, a
-  faint glow inward from it, strongest along the bottom curve and thinning
-  up the sides; whole where letting go opens the card. There the card **goes
-  on by itself, finger down or not**, and the border swells once and fades.
+  NameDrop, made quieter in Round 24, the owner's word; in Border beam's
+  colours since Round 44): a fine line just inside the edge in the beam's
+  colourful light, the colours riding round the edge as the card comes
+  down, a faint glow inward from it, strongest along the bottom curve and
+  thinning up the sides; whole where letting go opens the card. There the
+  card **goes on by itself, finger down or not**, and the border breathes
+  once, the beam's pulse, its glow reaching in, and fades.
   No streaks, no light at the foot, no ring. Closing, a quieter glow along
   the border. The phone knocks with it: a tick and two soft knocks as it
   gathers, a firm one at the swell. No light for somebody who has asked
@@ -214,6 +242,12 @@ frame disagree, the rule is the newer word; the Figma check's allowances
   who with the status, the slip with every field and the session id, and
   Done in black with See in Activities plain under it. A line opened on
   Activities keeps its own view, in place.
+- **A payment that has just gone through pulses** (Round 44, the owner's
+  word; it takes the confetti's place): two rings of the beam's colourful
+  light breathe out from the coin's rim, one after the other, and are gone.
+  The coin is never covered and the pulse is not in a shared receipt. A
+  line that did not go, is on its way or came back has no pulse, and nor
+  does a receipt opened again later.
 - **What home's four cards open comes up as a sheet** (Round 14): white,
   edge to edge, round at the top, stopping just under the status bar, home
   stepped back and greyed a little behind it. Nothing is ever read over a

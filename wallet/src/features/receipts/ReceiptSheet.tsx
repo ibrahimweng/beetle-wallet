@@ -25,7 +25,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { BackHandler, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button, Caption, Confetti, Head, Icon, Label, Meta, MoreButton, Receipt, Row, Sheet, Tap, colour, toast, type ReceiptMark } from '../../design';
+import { Button, Caption, Head, Icon, Label, Meta, MoreButton, Receipt, Row, Sheet, Tap, colour, toast, type ReceiptMark } from '../../design';
+import { SuccessPulse } from '../../design/SuccessPulse';
 import { copyText } from '../receive/clipboard';
 import { naira } from '../../lib/format';
 import { openTab } from '../tabs';
@@ -34,6 +35,8 @@ import type { Receipt as ReceiptModel } from './receipts';
 
 /** Where the coin's middle sits under the top of the receipt's column: half its 96. */
 const COIN_MIDDLE = 48;
+/** The coin's rim, where the pulse starts: the logo's disc is 76 of its 96 square. */
+const COIN_RADIUS = 38;
 
 /** A line that has not settled says so on its receipt: its own glyph and colour, as Activities draws its status. */
 const MARKS: Record<string, ReceiptMark> = {
@@ -154,10 +157,11 @@ function Drawn({ receipt, id, onDone, onRecord, share = false, celebrate, testID
           </Tap>
           <Button label="Done" onPress={() => setGoing('done')} style={{ flex: 1 }} />
         </View>
-        {/* the confetti, from behind the coin, over the sheet and past its edge */}
+        {/* the pulse of a payment that went through (Round 44, in the confetti's place): two rings of light out from the
+            coin's rim, over the sheet, once; a line that did not go, is on its way or came back has none */}
         {celebrate && settled && coinAt !== null ? (
           <View pointerEvents="none" style={[s.burst, { top: coinAt }]}>
-            <Confetti play />
+            <SuccessPulse radius={COIN_RADIUS} play testID="receipt-pulse" />
           </View>
         ) : null}
       </Sheet>

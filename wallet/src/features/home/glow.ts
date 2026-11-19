@@ -1,14 +1,17 @@
 /* The light at the card's edge (Round 21, after Apple's NameDrop; made
    quieter in Round 24, the owner's word: the card's own border glowing
-   softly, no streaks and no light at the foot, the aberration kept).
+   softly, no streaks and no light at the foot; in the Border beam's colours
+   since Round 44, the owner's word, with its pulse as the card opens).
 
    Pulled down, the black card's border lights up from inside: a fine line
-   of light just in from its edge, its outer side warm and its inner side
-   cool, softly, with a faint glow inward from it. It is strongest along the
+   of light just in from its edge in the beam's colourful light, the colours
+   riding round the edge as the card comes down, with a faint glow inward
+   from it. It is strongest along the
    rounded bottom, where the finger pulls, and thins out up the sides. It
    grows with the pull and is whole at the point where the card opens; there
-   the card goes on by itself, finger down or not, and the border swells
-   once, softly, then fades as the chat settles. No ring, no flash. Closing,
+   the card goes on by itself, finger down or not, and the border breathes
+   once, the beam's pulse, its glow reaching in, then fades as the chat
+   settles. No ring, no flash. Closing,
    a quieter glow rises along the border and is gone before it shuts.
 
    This is the arithmetic of it, the same on the phone (Skia) and on the web
@@ -77,15 +80,18 @@ float band(float k, float c, float w) {
   float x = (k - c) / w;
   return exp(-x * x);
 }
-/* the rim: a fine line of light just in from the edge, its outer side warm and its inner side cool, softly, and a
-   faint glow inward from it */
-vec3 rim(float d, float e) {
-  float s = 0.6 + 0.6 * e;
-  float c0 = 2.4;
-  vec3 split = vec3(band(d, c0 - s, 1.6), band(d, c0, 1.6), band(d, c0 + s, 1.6));
-  vec3 line = mix(vec3(band(d, c0, 1.9)), split, 0.8);
-  vec3 soft = vec3(exp(-d / 14.0), exp(-d / 16.0), exp(-d / 19.0));
-  return line * 0.62 + soft * 0.2;
+/* the beam's colourful light (Border beam, Libraries.dev; Round 44, the owner's word): round the wheel from pink
+   through orange, green, teal and blue to violet and back, at its brightest in whichever colour it is */
+vec3 beam(float u) {
+  vec3 c = clamp(mix(vec3(0.5), 0.5 + 0.5 * cos(6.28318 * (u + vec3(0.0, 0.33, 0.67))), 1.25), 0.0, 1.0);
+  return c / max(max(c.r, c.g), max(c.b, 0.001));
+}
+/* the rim: a fine line of light just in from the edge in the beam's colour, and a faint glow inward from it, which
+   reaches further while the card breathes as it opens */
+vec3 rim(float d, float e, vec3 col, float breath) {
+  float line = band(d, 2.4, 1.9 + 0.6 * e);
+  float soft = exp(-d / (16.0 + 34.0 * breath));
+  return col * (line * 0.66 + soft * (0.2 + 0.16 * breath));
 }
 vec3 light(vec2 p) {
   float d = inside(p);
@@ -94,14 +100,18 @@ vec3 light(vec2 p) {
   float up = clamp(p.y / max(size.y, 1.0), 0.0, 1.0);
   float along = pow(up * up * (3.0 - 2.0 * up), 1.7);
   float e = a;
+  float breath = 0.0;
   if (t >= 0.0) {
-    /* one soft swell as the card goes on, then gone */
-    float swell = sin(3.14159265 * clamp(t / 0.34, 0.0, 1.0));
-    e = a * (1.0 + 0.55 * swell) * (1.0 - smoothstep(0.14, ${PULSE.toFixed(2)}, t));
+    /* the beam's pulse: one breath in from the edge as the card goes on, then gone */
+    breath = sin(3.14159265 * clamp(t / 0.5, 0.0, 1.0));
+    e = a * (1.0 + 0.6 * breath) * (1.0 - smoothstep(0.2, ${PULSE.toFixed(2)}, t));
   }
   e += g * 0.6;
   if (e < 0.001) return vec3(0.0);
-  return clamp(rim(d, min(e, 1.0)) * e * along, 0.0, 1.0);
+  /* the colours ride round the edge as the card is pulled down, and drift on through the breath */
+  vec2 o = vec2(size.x * 0.5, size.y - size.x * 0.5);
+  float u = atan(p.y - o.y, p.x - o.x) / 6.28318 + size.y / 760.0 + max(t, 0.0) * 0.45;
+  return clamp(rim(d, min(e, 1.0), beam(u), breath) * e * along, 0.0, 1.0);
 }
 `;
 

@@ -19,13 +19,14 @@
    backwards before the screen goes, which is why leaving never feels like
    a cut. */
 import React, { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated, { SharedValue, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming, useDerivedValue } from 'react-native-reanimated';
 import type { useRouter } from 'expo-router';
 import { Head, Icon, Veil, colour } from '../../design';
 import { arrive, bouncy, motion, settle, useStill } from '../../design/motion';
 import type { IconName } from '../../icons';
 import { openTab } from '../tabs/tabs';
+import { GooLayer } from './GooLayer';
 
 export type MoreItem = 'convert' | 'send' | 'receive';
 
@@ -59,6 +60,16 @@ export function More({
   const frozen = useStill();
   /* 1 while the menu is open, 0 while it is folding away */
   const open = useSharedValue(frozen ? 1 : 0);
+  /* how far each action has come up out of the button, nearest first, and how much of it shows once `open` takes over */
+  const arrived = [useSharedValue(frozen ? 1 : 0), useSharedValue(frozen ? 1 : 0), useSharedValue(frozen ? 1 : 0)];
+  const shown0 = useDerivedValue(() => Math.min(arrived[0]!.value, open.value));
+  const shown1 = useDerivedValue(() => Math.min(arrived[1]!.value, open.value));
+  const shown2 = useDerivedValue(() => Math.min(arrived[2]!.value, open.value));
+  /* where the liquid runs (Round 44, see goo): from the button's middle to each glyph's, the actions 68 apart above the
+     foot's 100 and 28 in from the side */
+  const win = useWindowDimensions();
+  const fab = { x: win.width - at.right - 28, y: win.height - at.bottom - 28 };
+  const spots = ITEMS.map((_, i) => ({ x: win.width - ITEM_RIGHT - GLYPH / 2, y: win.height - ITEMS_BOTTOM - ROW / 2 - (ITEMS.length - 1 - i) * (ROW + GAP) }));
   const [leaving, setLeaving] = useState(false);
   const going = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -88,9 +99,11 @@ export function More({
       <Pressable style={StyleSheet.absoluteFill} accessibilityLabel="Close" accessibilityRole="button" onPress={() => leave(onClose)}>
         <Veil tone="light" t={soft} testID="more-veil" />
       </Pressable>
+      {/* the ink the actions bud out of the button as, and melt back into (Round 44); none for somebody keeping still */}
+      {frozen ? null : <GooLayer fab={fab} spots={spots} shown={[shown0, shown1, shown2]} colour={colour.ink} />}
       <View style={s.items} pointerEvents="box-none">
         {ITEMS.map((it, i) => (
-          <Item key={it.id} item={it} open={open} frozen={frozen} step={ITEMS.length - 1 - i} onPress={() => leave(() => onPick(it.id))} />
+          <Item key={it.id} item={it} t={arrived[i]!} open={open} frozen={frozen} step={ITEMS.length - 1 - i} onPress={() => leave(() => onPick(it.id))} />
         ))}
       </View>
       <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={() => leave(onClose)} style={[s.fab, at]} testID="more-close">
@@ -105,8 +118,7 @@ export function More({
 /* One action. It comes up and out from where the button is, overshoots, and
    settles. Going away it does the same in reverse, without the overshoot,
    because leaving should be quicker than arriving. */
-function Item({ item, open, step, frozen, onPress }: { item: (typeof ITEMS)[number]; open: SharedValue<number>; step: number; frozen: boolean; onPress: () => void }) {
-  const t = useSharedValue(frozen ? 1 : 0);
+function Item({ item, t, open, step, frozen, onPress }: { item: (typeof ITEMS)[number]; t: SharedValue<number>; open: SharedValue<number>; step: number; frozen: boolean; onPress: () => void }) {
   useEffect(() => {
     if (!frozen) t.value = withDelay(step * motion.step, withSpring(1, bouncy));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -142,9 +154,16 @@ function Item({ item, open, step, frozen, onPress }: { item: (typeof ITEMS)[numb
   );
 }
 
+/** the actions' column: 28 in from the side, its foot 100 up, rows 52 tall and 16 apart, each glyph 40 at the row's end */
+const ITEM_RIGHT = 28;
+const ITEMS_BOTTOM = 100;
+const ROW = 52;
+const GAP = 16;
+const GLYPH = 40;
+
 const s = StyleSheet.create({
-  items: { position: 'absolute', right: 28, bottom: 100, alignItems: 'flex-end', gap: 16 },
-  item: { flexDirection: 'row', alignItems: 'center', gap: 32, height: 52 },
+  items: { position: 'absolute', right: ITEM_RIGHT, bottom: ITEMS_BOTTOM, alignItems: 'flex-end', gap: GAP },
+  item: { flexDirection: 'row', alignItems: 'center', gap: 32, height: ROW },
   /* exactly where the bar's own plus is (the foot says where), so the one you pressed is the one that closes this */
   fab: { position: 'absolute', width: 56, height: 56, borderRadius: 28, backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' },
 });

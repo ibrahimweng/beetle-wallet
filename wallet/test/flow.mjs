@@ -1699,10 +1699,10 @@ try {
      made from the foot, swiped to, and everything under the deck is that card's; a card can be deleted */
   await see('On this card');
   await see('Premium plan · Yesterday');
-  /* a line opens its receipt; one opened again later is quiet, no confetti */
+  /* a line opens its receipt; one opened again later is quiet, no pulse (Round 44: the pulse took the confetti's place) */
   await page.getByRole('button', { name: /^Netflix, ₦5,200, Yesterday/ }).click();
   await receiptSheet();
-  must((await page.getByTestId('confetti').count()) === 0, 'a receipt opened again later should throw no confetti');
+  must((await page.getByTestId('receipt-pulse').count()) === 0, 'a receipt opened again later should not pulse');
   await tap('Done');
   await see('On this card');
   must((await page.getByText('This card has paid Netflix').count()) === 0, 'what Beetle notices about a card is said on Activities, not on the card');
@@ -1794,6 +1794,8 @@ try {
   await tap('The bar');
   await see('Total balance');
   await button('More').waitFor();
+  /* Round 44: Beetle on the card, a small orb at the header's right while the card is closed */
+  must(await page.getByTestId('card-orb').isVisible(), 'the closed card should show Beetle, its orb, at the header');
   await shot('home-bar', 900);
   await tap('More');
   await button('Convert').waitFor();
@@ -2194,6 +2196,10 @@ try {
   at('/send');
   const slideFill = () => page.getByTestId('slide').evaluate(el => getComputedStyle(el).backgroundColor);
   must((await slideFill()) === 'rgb(241, 240, 237)', `the slide should wait, in the pale tone, for someone and an amount (${await slideFill()})`);
+  must(
+    (await page.evaluate(() => document.querySelector('[data-testid="send-glow"] [data-beetle-beam-on]')?.getAttribute('data-beetle-beam-on'))) === 'false',
+    'the send card should not glow while there is nobody and no amount (Round 44)',
+  );
   await shot('send-empty', 900);
   /* a $tag is a Beetle account, looked up in Beetle's own directory: free, and there at once */
   await page.getByTestId('to-input').fill('$tobi');
@@ -2235,9 +2241,14 @@ try {
   await page.getByLabel('Reference', { exact: true }).fill('Lunch');
   await see('John sees it on their statement');
   must((await slideFill()) === 'rgb(43, 39, 33)', 'the slide should be the ink once there is someone and an amount');
+  /* Round 44: the card where the money moves glows round its edge once it is ready to slide, and lets go for the
+     passcode */
+  const glowOn = () => page.evaluate(() => document.querySelector('[data-testid="send-glow"] [data-beetle-beam-on]')?.getAttribute('data-beetle-beam-on'));
+  must((await glowOn()) === 'true', `the send card should glow once it is ready to slide (${await glowOn()})`);
   await shot('send-filled', 500);
   await slideToSend();
   await see('Enter your passcode');
+  must((await glowOn()) === 'false', 'the send card should let its glow go while the passcode is up');
   /* the passcode says the whole of it while the digits go in, and Cancel is plain under the pad */
   await see('They receive');
   await see('Leaves Everyday');
@@ -2499,8 +2510,9 @@ try {
   /* its receipt comes up as the sheet every payment ends on (Round 19); Done goes back past Convert to Dollars */
   await receiptSheet();
   must(page.url().includes('/receipt/'), 'converting should end on its receipt');
-  /* Round 37: the coin in the middle, a little confetti as it comes up, the money and the reference folded away */
-  must((await page.getByTestId('confetti').count()) === 1, 'a receipt that comes up as the money moves should throw its confetti');
+  /* Round 37: the coin in the middle, the money and the reference folded away; Round 44: the pulse breathes out from the
+     coin as it comes up, in the confetti's place */
+  must((await page.getByTestId('receipt-pulse').count()) === 1, 'a receipt that comes up as the money moves should pulse from its coin');
   must((await page.getByTestId('receipt-copy').count()) === 0, 'the reference should be folded away until asked for');
   await tap('Show details');
   await page.getByTestId('receipt-copy').waitFor();

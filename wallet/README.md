@@ -58,6 +58,21 @@ to it; the month is kept with the account and forgotten on sign out. The sums
 are worked out in code (`src/features/afford/plan.ts`), never by the model, so
 the figures always add up, with a key for the model or without.
 
+Since Round 44 a few moments carry light, used sparingly, from the
+[Libraries.dev](https://libraries.dev) effects (MIT): a payment that has
+just gone through pulses from its coin (two rings of the beam's colourful
+light, where the confetti was; nothing for one that did not go); every
+**Slide to** card glows round its edge once the slide is ready, and lets go
+while the passcode is up; the card's edge takes the beam's colours as it is
+pulled into the chat and breathes once as it opens; More's actions bud out
+of the plus as drops of ink (Gooey); and a thinking orb shows Beetle at it,
+beside the way in's waits, on the card's header, and in the chat's Beetling
+row, where the owner's own animation will go. None of it adds a step, and
+reduced motion turns it off. The card also takes a pull sooner, so a page
+that can scroll no longer wins the drag on a first launch. The phone draws
+them with Skia from the React Native ports in `vendor/` (see its README);
+the web uses the published `border-beam` and `thinking-orbs` packages.
+
 How it looks and moves is set down in [`DESIGN.md`](DESIGN.md): no drop
 shadows, forms that speak under their fields, the amount picker, the bank
 always said, asking before what cannot be undone, and the rest. A screen
